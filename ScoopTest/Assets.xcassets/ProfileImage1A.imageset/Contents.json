@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "CoolGuys1.png",
+      "filename" : "Image1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "CoolGuys2.png",
+      "filename" : "Image2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "CoolGuysSat.png",
+      "filename" : "Image3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

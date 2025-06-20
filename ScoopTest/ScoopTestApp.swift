@@ -9,11 +9,17 @@ import SwiftUI
 
 @main
 struct ScoopTestApp: App {
-  @State private var viewModel = ScoopViewModel()
+    
+@State private var appState = AppState()
+    
   var body: some Scene {
     WindowGroup {
-        SignUpView()
-        .environment(viewModel)
+        ZStack{
+            Color.background.ignoresSafeArea(edges: .all)
+            
+            RootView()
+                .environment(appState)
+        }
     }
   }
 }

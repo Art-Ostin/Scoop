@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "CoolGuys1.png",
+      "filename" : "EventCups.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "CoolGuys2.png",
+      "filename" : "EventCups2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "CoolGuysSat.png",
+      "filename" : "EventCups3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

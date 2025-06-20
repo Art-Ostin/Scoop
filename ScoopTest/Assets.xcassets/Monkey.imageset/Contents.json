@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Monkey1.png",
+      "filename" : "EvilMonkey1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "MonkeyB.png",
+      "filename" : "EvilMonkey2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Monkey3.png",
+      "filename" : "EvilMonkey3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
