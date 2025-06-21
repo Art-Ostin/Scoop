@@ -36,8 +36,8 @@ struct MeetContainer: View {
 #Preview {
     MeetContainer()
         .offWhite()
+        .environment(AppState())
 }
-
 
 extension MeetContainer {
     
@@ -58,22 +58,22 @@ extension MeetContainer {
         let quote = quotes.shared.allQuotes.randomElement() ?? quoteContent(quoteText: "Bug error 132, please report", name: "System")
         return ZStack {
             VStack(spacing: 36) {
-                    Text(quote.quoteText)
-                        .font(.custom("ModernEra-MediumItalic", size: 16))
-                        .kerning(0.5)
-                        .lineSpacing(10)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(3)
-                        .frame(maxWidth: .infinity, alignment: .center)
-
+                Text(quote.quoteText)
+                    .font(.custom("ModernEra-MediumItalic", size: 16))
+                    .kerning(0.5)
+                    .lineSpacing(10)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                
                 Text("- \(quote.name)")
-                        .font(.custom("ModernEra-Bold", size: 14))
-                }
+                    .font(.custom("ModernEra-Bold", size: 14))
             }
-            .frame(height: 130)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 72)
         }
+        .frame(height: 130)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 72)
+    }
     
     private var dailyProfilesSection: some View {
         

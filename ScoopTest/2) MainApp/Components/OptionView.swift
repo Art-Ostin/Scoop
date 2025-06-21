@@ -9,7 +9,6 @@ import SwiftUI
 
 struct OptionView: View {
     
-    
     @Environment(AppState.self) private var appState
     
     @State var options: [String]
@@ -18,59 +17,22 @@ struct OptionView: View {
     
     @State var width:  CGFloat
     
-    @State var height: CGFloat
+    @State var HSpacing: CGFloat = 32
     
-    @State var isFilled: Bool = false
+    @State var VSpacing: CGFloat = 54
     
-    
-    
-    
-    /// If it is filled
-    /// Background Gray If not, a clear background.
-    ///
-    ///
-    /// If it is Filled an overlay of and stroke of gray
-    
-    
+    @State var isFilled: Bool = true
     
     
     var body: some View {
         
         let columns: [GridItem] = {
-            if width < 30 { return options.map { _ in GridItem(.fixed(61), spacing: 10)} }
-            else { return [GridItem(.adaptive(minimum: 148), spacing: 32)]}} ()
-        
+            if width < 100 { return options.map { _ in GridItem(.fixed(61), spacing: HSpacing)} }
+            else { return [GridItem(.adaptive(minimum: 148), spacing: HSpacing)]}} ()
         
         LazyVGrid(columns: columns, alignment: .leading, spacing: 54) {
                 ForEach(options.indices, id: \.self) { index in
-                    Text(options[index])
-                        .frame(width: width, height: height)
-                        .background(selectedIndex == index ? Color.gray : Color.clear)
-                    
-    
-                    
-                        .cornerRadius(20)
-                        .font(.body(16, .bold))
-                        .foregroundStyle(selectedIndex == index ? .white: .black)
-                        .overlay(RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.accentColor, lineWidth: 2))
-                    
-                    
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.1)){
-                                selectedIndex = index
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    appState.nextStep()
-                                }
-                            }
-                        }
-                    
-                        
-                    
-                    
-                    
+                    OptionCell(options: options, selectedIndex: $selectedIndex, width: width, isFilled: isFilled, index: index)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -78,8 +40,46 @@ struct OptionView: View {
     }
 
 #Preview {
-    OptionView(options: ["Hello", "World"], width: 48, height: 30, isFilled: true)
+    OptionView(options: ["Hello", "World", "Hello"], width: 148, isFilled: false)
         .padding(32)
         .environment(AppState())
+}
 
+
+
+
+struct OptionCell: View {
+    
+    @Environment(AppState.self) private var appState
+    
+    @State var options: [String]
+    
+    @Binding var selectedIndex: Int?
+    
+    @State var width:  CGFloat
+    
+    @State var isFilled: Bool
+    
+    @State var index: Int
+    
+    var body: some View {
+        Text(options[index])
+            .frame(width: width, height: 44)
+            .background(selectedIndex == index ? Color.accentColor : (isFilled ? Color.grayBackground : Color.clear))
+            .cornerRadius(20)
+            .font(.body(16, .bold))
+            .foregroundStyle(selectedIndex == index ? .white: .black)
+            .overlay(RoundedRectangle(cornerRadius: 20)
+                .stroke(selectedIndex == index ? Color.accentColor : Color.grayBackground, lineWidth: isFilled ? 0 : 2))
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.2)){
+                    selectedIndex = index
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                            appState.nextStep()
+                    }
+                }
+            }
+    }
 }

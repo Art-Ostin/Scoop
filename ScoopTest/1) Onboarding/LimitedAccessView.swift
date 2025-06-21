@@ -79,7 +79,6 @@ struct createProfilePage: View {
             ActionButton(text: "Create Profile") {
                 appState.stage = .profileSetup(index: 0)
             }
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 32)

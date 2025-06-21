@@ -10,6 +10,8 @@
 		6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 6508A0B92DF209B600312AFD /* SwiftUIFlowLayout */; };
 		65376D7A2E05A7B50058D225 /* ColorMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* ColorMenu.swift */; };
 		65376D882E0615BA0058D225 /* GoingOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D872E0615BA0058D225 /* GoingOutView.swift */; };
+		65376D8A2E0625FD0058D225 /* LookingForView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D892E0625FD0058D225 /* LookingForView.swift */; };
+		65376D8C2E071D530058D225 /* PromptView1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D8B2E071D530058D225 /* PromptView1.swift */; };
 		6561C8AC2E033EAF006A72DF /* OptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6561C8AB2E033EAF006A72DF /* OptionView.swift */; };
 		6561C8B22E035BE2006A72DF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6561C8B12E035BC6006A72DF /* AppState.swift */; };
 		6561C8BA2E0441B0006A72DF /* Countries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6561C8B92E0441B0006A72DF /* Countries.swift */; };
@@ -40,7 +42,7 @@
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
 		659497372E01E7C100880921 /* NextButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497362E01E7C100880921 /* NextButton.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
-		65A8BEF22E02D96B0054BD63 /* InputTextbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEF12E02D96B0054BD63 /* InputTextbox.swift */; };
+		65A8BEF22E02D96B0054BD63 /* InputTextfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEF12E02D96B0054BD63 /* InputTextfield.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
 		65C8D1862E02CD94008B8A74 /* XButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* XButton.swift */; };
 /* End PBXBuildFile section */
@@ -65,6 +67,8 @@
 /* Begin PBXFileReference section */
 		65376D792E05A7AF0058D225 /* ColorMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorMenu.swift; sourceTree = "<group>"; };
 		65376D872E0615BA0058D225 /* GoingOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoingOutView.swift; sourceTree = "<group>"; };
+		65376D892E0625FD0058D225 /* LookingForView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookingForView.swift; sourceTree = "<group>"; };
+		65376D8B2E071D530058D225 /* PromptView1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView1.swift; sourceTree = "<group>"; };
 		6561C8AB2E033EAF006A72DF /* OptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionView.swift; sourceTree = "<group>"; };
 		6561C8B12E035BC6006A72DF /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		6561C8B92E0441B0006A72DF /* Countries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countries.swift; sourceTree = "<group>"; };
@@ -99,7 +103,7 @@
 		659497172E01DD4000880921 /* ScoopTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopTestApp.swift; sourceTree = "<group>"; };
 		659497362E01E7C100880921 /* NextButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButton.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
-		65A8BEF12E02D96B0054BD63 /* InputTextbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTextbox.swift; sourceTree = "<group>"; };
+		65A8BEF12E02D96B0054BD63 /* InputTextfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTextfield.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* XButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -200,7 +204,9 @@
 			children = (
 				6561C8D72E045A44006A72DF /* CreateProfileContainer.swift */,
 				65376D872E0615BA0058D225 /* GoingOutView.swift */,
+				65376D892E0625FD0058D225 /* LookingForView.swift */,
 				6594970F2E01DD4000880921 /* PassionsView.swift */,
+				65376D8B2E071D530058D225 /* PromptView1.swift */,
 			);
 			path = "B) Create Profile";
 			sourceTree = "<group>";
@@ -286,7 +292,7 @@
 			children = (
 				65A8BFA02E02E06D0054BD63 /* SignUpComponents */,
 				65C8D1852E02CD94008B8A74 /* XButton.swift */,
-				65A8BEF12E02D96B0054BD63 /* InputTextbox.swift */,
+				65A8BEF12E02D96B0054BD63 /* InputTextfield.swift */,
 				6561C8AB2E033EAF006A72DF /* OptionView.swift */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
 			);
@@ -463,7 +469,7 @@
 				6594971C2E01DD4000880921 /* TwoDailyProfilesView.swift in Sources */,
 				6561C8AC2E033EAF006A72DF /* OptionView.swift in Sources */,
 				659497372E01E7C100880921 /* NextButton.swift in Sources */,
-				65A8BEF22E02D96B0054BD63 /* InputTextbox.swift in Sources */,
+				65A8BEF22E02D96B0054BD63 /* InputTextfield.swift in Sources */,
 				659497202E01DD4000880921 /* AddEmailView.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				65376D882E0615BA0058D225 /* GoingOutView.swift in Sources */,
@@ -477,8 +483,10 @@
 				6561C8BC2E044208006A72DF /* Quotes.swift in Sources */,
 				656A99332E046BDD0004536B /* OptionsSelectionView.swift in Sources */,
 				659497262E01DD4000880921 /* NationalityView.swift in Sources */,
+				65376D8C2E071D530058D225 /* PromptView1.swift in Sources */,
 				659497272E01DD4000880921 /* OnboardingContainer.swift in Sources */,
 				659497282E01DD4000880921 /* PassionsView.swift in Sources */,
+				65376D8A2E0625FD0058D225 /* LookingForView.swift in Sources */,
 				6594972B2E01DD4000880921 /* SignUpView.swift in Sources */,
 				6561C8D82E045A44006A72DF /* CreateProfileContainer.swift in Sources */,
 				6594972C2E01DD4000880921 /* ScoopTestApp.swift in Sources */,

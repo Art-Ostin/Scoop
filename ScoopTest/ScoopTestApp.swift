@@ -17,8 +17,9 @@ struct ScoopTestApp: App {
         ZStack{
             Color.background.ignoresSafeArea(edges: .all)
             
-            RootView()
+            PassionsView()
                 .environment(appState)
+            
         }
     }
   }

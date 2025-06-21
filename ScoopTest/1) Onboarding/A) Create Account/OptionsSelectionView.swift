@@ -44,13 +44,13 @@ struct OptionsSelectionView: View {
             ZStack {
                 switch screen {
                 case 1:
-                    OptionView(options: sexOptions, width: 148, height: 44)
+                    OptionView(options: sexOptions, width: 148)
                         .padding(.top, 104)
                 case 2:
-                    OptionView(options: genderOptions, width: 148, height: 44)
+                    OptionView(options: genderOptions, width: 148)
                         .padding(.top, 104)
                 case 3:
-                    OptionView(options: year, width: 61, height: 41)
+                    OptionView(options: year, width: 61, HSpacing: 8)
                         .padding(.top, 148)
                 case 4:
                     heightPicker

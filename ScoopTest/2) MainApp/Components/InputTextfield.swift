@@ -14,6 +14,7 @@ struct InputTextfield: View {
         var inputtedText: Binding<String>
         let textSize: CGFloat
         var isFocused: FocusState<Bool>.Binding
+        var alignment: Alignment = .leading
         
         var body: some View {
             
@@ -22,11 +23,13 @@ struct InputTextfield: View {
                     if inputtedText.wrappedValue.isEmpty {
                         Text(placeholder)
                             .font(.body(textSize, .italic))
+                            .padding(.horizontal, alignment == .center ? 22 : 0)
                             .foregroundStyle(.gray)
                             .padding(.leading, 5)
                     }
                     TextField("", text: inputtedText)
                         .font(.body(textSize))
+                        .padding(.horizontal, alignment == .center ? 22 : 0)
                         .focused(isFocused)
                         .textFieldStyle(.plain)
                         .autocapitalization(.none)
@@ -38,7 +41,7 @@ struct InputTextfield: View {
                 Rectangle()
                     .frame(width: 303, height: 1)
                     .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: alignment)
             }
         }
     }
