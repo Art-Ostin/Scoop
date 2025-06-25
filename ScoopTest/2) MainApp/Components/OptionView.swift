@@ -76,7 +76,7 @@ struct OptionCell: View {
                     selectedIndex = index
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
                             appState.nextStep()
                     }
                 }

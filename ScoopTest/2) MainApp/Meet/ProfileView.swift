@@ -7,162 +7,232 @@
 
 import SwiftUI
 
+
 struct ProfileView: View {
     
+    @Binding var state: MeetSections
+    
+    @State private var name: String = "Arthur"
+    @State private var nationality: [String] = ["🇬🇧", "🇸🇪"]
+    
+    @State private var images: [String] = ["Image1", "Image2", "Image3", "Image4", "Image5", "Image6"]
     @State private var selection: Int = 0
     
+    @State private var year = "U3"
+    @State private var height = "193"
+    @State private var passions: [String] = ["Astrophysics", "Cold Water Swimming", "Music Production", "Historical Geology"]
+    @State private var hometown = "London"
+    @State private var lookingFor = "Casual"
+    @State private var Faculty = "Faculty of Arts"
     
-    /// Profile Images
-    @State private var Image1: String = "A"
-    @State private var Image2: String = "A"
-    @State private var Image3: String = "A"
-    @State private var Image4: String = "A"
-    @State private var Image5: String = "A"
-    @State private var Image6: String = "A"
-    
-    @State private var firstName: String = "Arthur"
-    
-    @State private var nationalities: [String] = ["🇬🇧", "🇸🇪"]
+    @State private var PassionImages: [String] = ["graduationcap", "arrow.up.and.down", "magnifyingglass", "graduationcap", "house", "smiley"]
     
     
-    @State var startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.83
-    @State var currentDragOffsetY: CGFloat =  0
+    @State private var topSelection: [String] = []
+    
+    @State private var promptSelection1 = Prompts.instance["three words that"]
+    @State private var promptSelection2 = Prompts.instance["on the date"]
+    
+    @State private var tabViewSelection: Int = 0
+            
+
+    
+    let pageSpacing: CGFloat = -48
+    
+    //Screen Toggles for the Offset
+    @State var startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.78
+    @State var currentDragOffsetY: CGFloat = 0
     @State var endingOffsetY: CGFloat = 0
     
     
+    private var isSheetOpen: Bool {
+      endingOffsetY < 0
+    }
+    
+
     var body: some View {
-        
-        ZStack{
-            Color.green.ignoresSafeArea()
+
+        GeometryReader { geo in
             
-            VStack{
-                heading
-                Image("ProfileImage1A")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 380, height: 380)
-                
-                Spacer()
-                
-            }
+            let topGap = geo.size.height * 0.07
             
-            MySignUpView()
-                .offset(y: startingOffsetY)
-                .offset(y: currentDragOffsetY)
-                .offset(y: endingOffsetY)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            withAnimation(.spring()) {
-                                currentDragOffsetY = value.translation.height
-                            }
+            ZStack {
+                Color.background.edgesIgnoringSafeArea(.all)
+                
+                VStack {
+                    heading
+                        .padding()
+
+                    imageSection
+                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                        .frame(width: geo.size.width, height: 430)
+                    
+                    imageScrollSection
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
+                
+                
+                ProfileDetailsView()
+                    .offset(y: startingOffsetY)
+                    .offset(y: currentDragOffsetY)
+                    .offset(y: endingOffsetY)
+                    .frame(width: geo.size.width)
+                    .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+                    .frame(width: 300)
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            endingOffsetY = (endingOffsetY == 0)
+                                ? (topGap - startingOffsetY)
+                                : 0
                         }
-                        .onEnded { value in
-                            withAnimation(.spring()){
-                                if currentDragOffsetY < -150 {
-                                    endingOffsetY = -startingOffsetY
-                                    currentDragOffsetY = 0
-                                }else if endingOffsetY != 0 && currentDragOffsetY > 150 {
-                                    currentDragOffsetY = 0
-                                    endingOffsetY = 0
-                                } else {
+                    }
+                    .gesture (
+                        DragGesture()
+                            .onChanged { value in
+                                withAnimation(.spring()){
+                                    currentDragOffsetY = value.translation.height
+                                }
+                            }
+                            .onEnded { value in
+                                withAnimation(.spring()) {
+                                    if currentDragOffsetY < -50 {
+                                        endingOffsetY = (endingOffsetY == 0)
+                                          ? (topGap - startingOffsetY)  
+                                          : 0
+                                        
+                                    } else if endingOffsetY != 0 && currentDragOffsetY > 100 {
+                                        endingOffsetY = 0
+                                    }
                                     currentDragOffsetY = 0
                                 }
                             }
-                        }
-                )
-                .ignoresSafeArea(edges: .bottom)
-                .onTapGesture {
-                    withAnimation(.spring()){
-                        endingOffsetY = -startingOffsetY
-                    }
-                }
+                    )
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal)
+        .onAppear {
+            topSelection = [year, height, lookingFor, Faculty, hometown, "Cold water Swimming"]
+        }
     }
 }
 
+
 #Preview {
-    ProfileView()
+    ProfileView(state: .constant(.profile))
+        .environment(AppState())
         .offWhite()
-
 }
-
-
 
 extension ProfileView {
     
     private var heading: some View {
-        HStack{
-            
-            Text(firstName)
-                .font(.custom("ModernEra-Bold", size: 24))
-            ForEach(nationalities, id: \.self) { nationality in
-                Text(nationality)
-                    .font(.custom("ModernEra-Bold", size: 24))
+        HStack {
+            Text(name)
+                .font(.body(24, .bold))
+            ForEach (nationality, id: \.self) {flag in
+                Text(flag)
+                    .font(.body(24))
             }
             Spacer()
-            Button {
-
-            } label: {
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Color.black)
-                    .padding()
+            Image(systemName: "chevron.down")
+                .font(.body(20, .bold))
+                .onTapGesture {
+                    state = .twoDailyProfiles
+                }
+        }
+    }
+    
+    private var imageSection: some View {
+        GeometryReader { geo in
+            
+            if topSelection.count == images.count {
+                TabView(selection: $selection) {
+                    ForEach(images.indices, id: \.self) {index in
+                        VStack{
+                            HStack {
+                                
+                                Image(systemName: PassionImages[index])
+                                
+                                Text(topSelection[index])
+                                    .font(.body(18))
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 16)
+                            .font(.body(18))
+                            Image(images[index])
+                                .frame(height: 380)
+                                .overlay(alignment: .bottomTrailing) {
+                                    InviteButton()
+                                        .padding(24)
+                                }
+                        }
+                        .tag(index)
+                    }
+                }
             }
         }
     }
     
-    private var tabSection: some View {
-
-        TabView (selection: $selection) {
-            
-            Tab("", image: "letterIcon", value: 0) {
-                
-            }
-            
-            Tab("", image: "LogoIcon", value: 1) {
-
-            }
-            
-            Tab("", image: "MessageIcon", value: 2) {
-
-            }
-        }
-        .indexViewStyle(.page(backgroundDisplayMode: .never))
-    }
-}
-
-
-struct MySignUpView: View {
-    var body: some View {
-        VStack(spacing: 20){
-            Image(systemName: "chevron.up")
-                .padding(.top)
-            
-            Text("Sign Up")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            Image(systemName: "flame.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
-            
-            Text("This is a new experiment it is also very interesting to see what people write to fill space")
-                .multilineTextAlignment(.center)
-            
-            Text("Create Account")
+    private var imageScrollSection: some View {
+        ScrollViewReader {proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack (spacing: 48) {
+                    ForEach(images.indices, id: \.self) {index in
+                        ZStack {
+                            Image(images[index])
+                                .resizable()
+                                .scaledToFit( )
+                                .frame(width: 60, height: 60)
+                                .cornerRadius(16)
+                                .shadow(color: selection == index ? Color.black.opacity(0.2) : Color.clear, radius: 4, x: 0, y: 10)
+                            if selection == index {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                                    .frame(width: 60, height: 60)
+                            }
+                            
+                        }
+                        .id(index)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.2)){
+                                selection = index
+                            }
+                        }
+                    }
+                }
                 .padding()
-                .padding(.horizontal)
-                .background(Color.black)
-                .cornerRadius(20)
-                .foregroundStyle(.white)
-            
-            Spacer()
+            }
+            .onChange(of: selection) {oldIndex,newIndex in
+                if oldIndex < 3 && newIndex == 3 {
+                    withAnimation {
+                        proxy.scrollTo(newIndex, anchor: .leading)
+                    }
+                }
+                if oldIndex >= 3 && newIndex == 2 {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo(newIndex, anchor: .trailing)
+                    }
+                }
+            }
         }
-        .background(Color.white)
-        .cornerRadius(30)
+    }
+    
+    private var inviteButton: some View {
+        
+        Button {
+            
+        } label: {
+            Image("LetterIconProfile")
+                .foregroundStyle(.white)
+                .frame(width: 53, height: 53)
+            
+                .background(
+                    Circle()
+                        .fill(Color.accent.opacity(0.95))
+                        .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 5)
+                )
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 16)
     }
 }

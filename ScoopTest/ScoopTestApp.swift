@@ -16,10 +16,9 @@ struct ScoopTestApp: App {
     WindowGroup {
         ZStack{
             Color.background.ignoresSafeArea(edges: .all)
-            
-            PassionsView()
+            SendInviteView(name: "Arthur")
                 .environment(appState)
-            
+                .offWhite()
         }
     }
   }

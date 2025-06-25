@@ -18,6 +18,7 @@ struct CreateProfileContainer: View {
         return 0
     }
     
+    let transition: AnyTransition = .asymmetric(insertion: .move(edge:.trailing), removal: .move(edge: .leading))
     
     
 //    @State private var lookingFor: [String] = ["🌳 Something Serious", "🌀 Undecided", "🍹 Something Casual"]
@@ -31,15 +32,27 @@ struct CreateProfileContainer: View {
                 
             case 0:
                 GoingOutView()
+                    .transition(transition)
                 
             case 1:
                 LookingForView()
-                
+                    .transition(transition)
+
             case 2:
                 PassionsView()
+                    .transition(transition)
                 
             case 3:
                 PromptView1()
+                    .transition(transition)
+                
+            case 4:
+                PromptView2()
+                    .transition(transition)
+                
+            case 5:
+                AddImageView()
+                    .transition(transition)
                 
             default:
                 EmptyView()

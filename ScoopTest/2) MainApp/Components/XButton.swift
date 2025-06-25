@@ -21,7 +21,13 @@ struct XButton: View {
     
     var body: some View {
         Button {
-            appState.stage = .signUp
+            withAnimation(.spring(response: 0, dampingFraction: 0.8, blendDuration: 0)){
+                if isSave {
+                    appState.stage = .limitedAccess
+                } else {
+                    appState.stage = .signUp
+                }
+            }
         }
         label: {
             if isSave {
@@ -29,6 +35,8 @@ struct XButton: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .foregroundStyle(Color.grayText)
                     .font(.body(14))
+                    .padding(.top, 12)
+                    .padding(.trailing, 12)
             } else {
                 HStack {
                     Image(systemName: "xmark")

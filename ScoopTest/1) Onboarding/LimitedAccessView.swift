@@ -18,31 +18,39 @@ struct LimitedAccessView: View {
         
         TabView (selection: $selection) {
     
-            Tab("", image: "letterIcon", value: 0) {
-                createProfilePage(
-                    title: "Meet",
-                    Screenimage: "CoolGuys",
-                    description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting.",
-                    showProfile: false)
-                .toolbarBackground(Color.white, for: .tabBar)
-                .toolbarBackgroundVisibility(.visible, for: .tabBar)
-
-            }
-            Tab("", image: "LogoIcon", value: 1) {
-                createProfilePage(title: "Events", Screenimage: "EventCups", description: "Details for upcoming meet ups appear here", showProfile: false)
-                    .toolbarBackground(Color.white, for: .tabBar)
+            Tab("", image: "LetterIcon", value: 0) {
+                ZStack {
+                    Color.background.ignoresSafeArea()
+                    createProfilePage(
+                        title: "Meet",
+                        Screenimage: "CoolGuys",
+                        description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting.",
+                        showProfile: false)
+                    .toolbarBackground(Color.background, for: .tabBar)
                     .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                }
             }
             
+            
+            Tab("", image: "LogoIcon", value: 1) {
+                ZStack {
+                    Color.background.ignoresSafeArea(edges: .all)
+                    createProfilePage(title: "Events", Screenimage: "EventCups", description: "Details for upcoming meet ups appear here", showProfile: false)
+                        .toolbarBackground(Color.background, for: .tabBar)
+                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                }
+            }
             Tab("", image: "MessageIcon", value: 2) {
-                createProfilePage(title: "Matches", Screenimage: "DancingCats", description: "View your previous matches here", showProfile: true)
-                    .toolbarBackground(Color.white, for: .tabBar)
-                    .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                ZStack {
+                    Color.background.ignoresSafeArea(edges: .all)
+                    createProfilePage(title: "Matches", Screenimage: "DancingCats", description: "View your previous matches here", showProfile: true)
+                        .toolbarBackground(Color.background, for: .tabBar)
+                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                }
             }
         }
     }
 }
-
 
 #Preview {
     LimitedAccessView()
@@ -77,7 +85,9 @@ struct createProfilePage: View {
             descriptionText
             
             ActionButton(text: "Create Profile") {
-                appState.stage = .profileSetup(index: 0)
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0)){
+                    appState.stage = .profileSetup(index: 0)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -109,7 +119,6 @@ extension createProfilePage {
             .multilineTextAlignment(.center)
             
     }
-    
     
     private var profileButton: some View {
         

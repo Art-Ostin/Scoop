@@ -19,8 +19,9 @@ extension Color {
     
     static let grayPlaceholder = Color (red: 0.85, green: 0.85, blue: 0.85)
     
+    static let secondary = Color (red: 0, green: 0.6, blue: 0.52)
+    
 }
-
 
 
 

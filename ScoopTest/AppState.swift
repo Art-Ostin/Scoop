@@ -28,6 +28,7 @@ import SwiftUI
     }
 }
 
+
 struct RootView : View {
     
     @Environment(AppState.self) private var appState
@@ -53,7 +54,7 @@ struct RootView : View {
 }
 
 #Preview {
-    RootView()
+    MeetContainer()
         .environment(AppState())
         .offWhite()
 }

@@ -52,7 +52,6 @@ struct PassionsView: View {
                 .padding(.horizontal, -5)
         }
         .frame(maxHeight: .infinity, alignment: .topLeading)
-        .padding(.horizontal, 32)
         .onChange(of: selectedTabIndex) { oldValue, newValue in
             isFocused = (newValue == 1)
         }
@@ -76,6 +75,7 @@ extension PassionsView {
     
     private var menuScroll: some View {
         VStack (spacing: 17) {
+            
             HStack {
                 Text("Explore")
                     .foregroundStyle( selectedTabIndex == 0 ? .accent : Color(red: 0.3, green: 0.3, blue: 0.3) )
@@ -145,7 +145,7 @@ extension PassionsView {
 
                     ZStack{
                         InputTextfield(placeholder: "Add your Own", inputtedText: $textFieldText, textSize: 20, isFocused: $isFocused, alignment: .center)
-                            .padding(.top, 60)
+                            .padding(.top, 24)
                         
                         ZStack {
                             Circle()
@@ -180,6 +180,7 @@ extension PassionsView {
             
             NextButton(isEnabled: selectedPassions.count > 2, onInvalidTap: {})
                 .padding(.bottom, selectedTabIndex == 0 ? 72 : 16)
+                .padding(.top, selectedTabIndex == 0 ? 0 : 24)
         }
     }
 }
