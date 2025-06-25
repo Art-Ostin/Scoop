@@ -19,6 +19,10 @@ struct SendInviteView: View {
     
     @State var showMessageScreen: Bool = false
     
+    @State var showTimePopup: Bool = false
+    
+    @State var selectedTime: Date? = nil
+        
     
     
     var body: some View {
@@ -33,6 +37,9 @@ struct SendInviteView: View {
                     
                     Divider()
                     
+                    InviteTimeRowView(showTimePopup: $showTimePopup, selectedTime: $selectedTime)
+                    
+                    
                     
                     
                     
@@ -45,6 +52,15 @@ struct SendInviteView: View {
                 SelectTypeView(typeDefaultOption: $typeDefaultOption, showTypePopup: $showTypePopup)
                 
             }
+            
+            if showTimePopup {
+                
+//                SelectTimeView(selectedTime: $selectedTime, showTimePopup: $showTimePopup)
+                
+            }
+            
+            
+            
             
         }
         .sheet(isPresented: $showMessageScreen) {

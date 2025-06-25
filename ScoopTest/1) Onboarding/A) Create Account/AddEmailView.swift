@@ -7,10 +7,15 @@
 
 import SwiftUI
 import Combine
+import FirebaseAuth
+
+
 
 
 
 @Observable class AddEmailViewModel {
+    
+     var email: String = ""
     
 
     func EmailIsAuthorised(email: String) -> Bool {
@@ -20,22 +25,24 @@ import Combine
         let suffix = email[dotRange.upperBound...]
         return suffix.count >= 2
     }
-}
+    
 
+}
 
 struct AddEmailView: View {
     
-    @State private var emailVM = AddEmailViewModel()
-    
-    @State private var email: String = ""
-    
+    @State private var vm = AddEmailViewModel()
+        
     @FocusState private var keyboardFocused: Bool
     
     @State private var isAuthorised: Bool = false
     
     @State private var showAlert: Bool = false
     
+    
     var body: some View {
+        
+
         
         ZStack{
             
@@ -45,8 +52,13 @@ struct AddEmailView: View {
                     .padding(.top, 136)
                 
                 enterEmailSection
+                    .padding(.bottom, 60)   
                 
-                NextButton(isEnabled: emailVM.EmailIsAuthorised(email: email), onInvalidTap: {
+                ActionButton(text: "Send Email") {
+
+                }
+                
+                NextButton(isEnabled: vm.EmailIsAuthorised(email: vm.email), onInvalidTap: {
                     showAlert = true
                 })
                 .padding(.top, 72)
@@ -58,6 +70,7 @@ struct AddEmailView: View {
             keyboardFocused = true
         }
     }
+    
 }
 
 
@@ -74,13 +87,13 @@ extension AddEmailView {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 ZStack{
-                    if email.isEmpty {
-                        TextField("Firstname.lastname", text: $email)
+                    if vm.email.isEmpty {
+                        TextField("Firstname.lastname", text: $vm.email)
                             .font(.body(18, .italic))
                             .kerning(0.5)
                     }
                     
-                    TextField ("", text: $email)
+                    TextField ("", text: $vm.email)
                         .focused($keyboardFocused)
                         .font(.body(20))
                         .textFieldStyle(.plain)

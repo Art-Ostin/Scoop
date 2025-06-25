@@ -49,8 +49,12 @@ extension SignUpView {
         VStack(spacing: 24){
             Text("Scoop")
                 .font(.title())
+                .foregroundStyle(.black)
+
             Text("The McGill Dating App")
                 .font(.body(18, .regular))
+                .foregroundStyle(.black)
+
         }
     }
     

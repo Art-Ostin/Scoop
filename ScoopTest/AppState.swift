@@ -54,7 +54,7 @@ struct RootView : View {
 }
 
 #Preview {
-    MeetContainer()
+    RootView()
         .environment(AppState())
         .offWhite()
 }

@@ -14,7 +14,6 @@ struct SelectTypeView: View {
     @Binding var showTypePopup: Bool
         
     
-    
 
     private let options: [(emoji: String, label: String)] = [
         

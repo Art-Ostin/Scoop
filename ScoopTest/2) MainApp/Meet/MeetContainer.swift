@@ -17,7 +17,7 @@ import SwiftUI
 
 struct MeetContainer: View {
     
-    @State private var state = MeetSections.profile
+    @State private var state = MeetSections.twoDailyProfiles
     
     var body: some View {
         
