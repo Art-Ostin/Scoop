@@ -25,18 +25,20 @@ struct AppContainer: View {
             Tab("", image: "LogoIcon", value: 1) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    createProfilePage(title: "Events", Screenimage: "Monkey", description: "If you match with someone and are meeting up, details will appear here.", showProfile: false)
-                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                        .toolbarBackground(Color.background, for: .tabBar)
+                        EventView()
+                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                            .toolbarBackground(Color.background, for: .tabBar)
                 }
             }
-            
             Tab("", image: "MessageIcon", value: 2) {
                 ZStack {
-                    Color.background.ignoresSafeArea()
-                    createProfilePage(title: "Matches", Screenimage: "DancingCats", description: "You can see all previous meet ups here", showProfile: true)
-                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                        .toolbarBackground(Color.background, for: .tabBar)
+                    NavigationStack{
+                        MatchesView()
+                        Color.background.ignoresSafeArea()
+                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                            .toolbarBackground(Color.background, for: .tabBar)
+
+                    }
                 }
             }
         }

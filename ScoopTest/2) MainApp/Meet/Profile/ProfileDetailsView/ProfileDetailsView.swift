@@ -9,33 +9,19 @@ import SwiftUI
 
 struct ProfileDetailsView: View {
     
-    @Bindable var vm: ProfileViewModel
+    @Binding var vm: ProfileViewModel
             
     
     var body: some View {
+    
             GeometryReader { geo in
+                
+                let topGap = geo.size.height * 0.07
+
                 ZStack {
                     VStack{
-                        topRow
-                            .padding(.top, 8)
-                        
-                        Divider()
-                            .padding(.leading)
-                        
-                        passionsRow(firstRow: true)
-                        
-                        Divider()
-                            .padding(.leading)
-                        
-                        cityAndFaculty
-                        
-                        Divider()
-                            .padding(.leading)
-                        
-                        passionsRow(firstRow: false)
-                        
-                        Divider()
-                            .padding(.leading)
+                    
+                        ProfileDetailsViewInfo(vm: $vm)
                         
                         TabView {
                             PromptResponseView(vm: vm, inviteButton: true)
@@ -47,115 +33,50 @@ struct ProfileDetailsView: View {
                         }
                         .padding(.top)
                         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                        .frame(width: geo.size.width, alignment: .leading)
+                        .frame(width: geo.size.width, alignment: .center)
                         
                     }
-                    .frame(maxWidth: .infinity)
                     .background(Color.background)
                     .cornerRadius(30)
                     .font(.body(17))
                 }
+                .offset(y: vm.startingOffsetY)
+                .offset(y: vm.currentDragOffsetY)
+                .offset(y: vm.endingOffsetY)
+                .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        vm.endingOffsetY = (vm.endingOffsetY == 0)
+                        ? (topGap - vm.startingOffsetY)
+                            : 0
+                    }
+                }
+                .gesture (
+                    DragGesture()
+                        .onChanged { value in
+                            withAnimation(.spring()){
+                                vm.currentDragOffsetY = value.translation.height
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation(.spring()) {
+                                if vm.currentDragOffsetY < -50 {
+                                    vm.endingOffsetY = (vm.endingOffsetY == 0)
+                                    ? (topGap - vm.startingOffsetY)
+                                      : 0
+                                    
+                                } else if vm.endingOffsetY != 0 && vm.currentDragOffsetY > 100 {
+                                    vm.endingOffsetY = 0
+                                }
+                                vm.currentDragOffsetY = 0
+                            }
+                        }
+                )
             }
         }
     }
-
 
 #Preview {
-    ProfileDetailsView(vm: ProfileViewModel())
-}
-
-extension ProfileDetailsView {
-    
-    private var hDivider: some View {
-        Rectangle()
-            .frame(width: 1, height: 20)
-            .foregroundStyle(Color(red: 0.86, green: 0.86, blue: 0.86))
-        
-    }
-    
-    private var cityAndFaculty: some View {
-        HStack {
-            
-            HStack {
-                Image("ScholarStyle")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .padding(.leading)
-                Text(vm.profile.faculty)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, alignment: .top)
-            
-            hDivider
-            
-            HStack {
-                Image("House")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                
-                Text(vm.profile.hometown)
-                    .padding(.top, 2)
-            }
-            .frame(maxWidth: .infinity, alignment: .top)
-            
-        }
-        .frame(maxWidth: .infinity, alignment: .top)
-        .padding(.top)
-        .padding(.bottom)
-    }
-    
-    
-    private var topRow: some View {
-        HStack(spacing: 24){
-            
-            HStack{
-                Image(systemName: "magnifyingglass")
-                Text(vm.profile.lookingFor)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            
-            hDivider
-            HStack {
-                Image(systemName: "graduationcap")
-                Text(vm.profile.year)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            
-            hDivider
-            
-            HStack {
-                Image (systemName: "arrow.up.and.down")
-                Text(vm.profile.height)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            
-        }
-        .padding()
-        
-    }
-    
-    
-    private func passionsRow(firstRow: Bool = true) -> some View {
-        HStack {
-            Image("HappyFace")
-                .resizable()
-                .frame(width: 20, height: 20)
-            Text(firstRow ? firstThreePassions.joined(separator: ", ") : remainingPassions.joined(separator: ", "))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading)
-        .padding(.top)
-        .padding(.bottom)
-    }
-    
-    private var firstThreePassions: [String] {
-        Array(vm.profile.passions.prefix(2))
-    }
-    
-    private var remainingPassions: [String] {
-        Array(vm.profile.passions.dropFirst(2))
-    }
+    ProfileDetailsView(vm: .constant(ProfileViewModel()))
+        .environment(AppState())
 }

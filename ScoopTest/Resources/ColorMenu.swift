@@ -11,7 +11,7 @@ import SwiftUI
 
 extension Color {
     
-    static let background = Color (red: 0.98, green: 0.98, blue: 0.98)
+    static let background = Color (red: 0.97, green: 0.97, blue: 0.98)
     
     static let grayBackground = Color (red: 0.93, green: 0.93, blue: 0.93)
     

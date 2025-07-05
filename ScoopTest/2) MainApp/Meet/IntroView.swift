@@ -15,7 +15,7 @@ struct IntroView: View {
     
     var body: some View {
 
-            VStack (spacing: 168) {
+            VStack (spacing: 156) {
                 title
                 quoteSection
                 ActionButton(text: "2 Daily Profiles", onTap: {state = .twoDailyProfiles})
@@ -24,7 +24,7 @@ struct IntroView: View {
             .frame(maxHeight: .infinity, alignment: .top)
             .overlay(
                 Image("NightImages")
-                    .padding(.bottom, 48),
+                    .padding(.bottom, 84),
                 alignment: .bottom
                 )
     }

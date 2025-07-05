@@ -33,7 +33,7 @@ struct TwoDailyProfilesView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .overlay(
             Image("NightImages")
-                .padding(.bottom, 48),
+                .padding(.bottom, 72),
             alignment: .bottom
             )
     }
@@ -46,6 +46,21 @@ struct TwoDailyProfilesView: View {
 }
 
 extension TwoDailyProfilesView {
+    
+    private var title: some View {
+        HStack{
+            Text("Meet")
+                .font(.title())
+            Spacer()
+            
+            Image(systemName: "magnifyingglass")
+                .resizable()
+                .frame(width: 20, height: 20)
+        }
+        .padding(.top, 48)
+    }
+    
+    
     
     private var heading: some View {
         
@@ -102,18 +117,5 @@ extension TwoDailyProfilesView {
             
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-    }
-    
-    private var title: some View {
-        HStack{
-            Text("Meet")
-                .font(.title())
-            Spacer()
-            
-            Image(systemName: "magnifyingglass")
-                .resizable()
-                .frame(width: 20, height: 20)
-        }
-        .padding(.top, 48)
     }
 }

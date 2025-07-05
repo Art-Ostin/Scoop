@@ -7,9 +7,29 @@
 
 import SwiftUI
 
+
+@Observable class EventDetailSummaryViewModel {
+    
+    func getEventDate (event: Event) -> String {
+        
+        return "\(event.time.formatted(.dateTime.weekday(.wide).hour().minute()))"
+    }
+}
+
+
 struct EventDetailSummaryView: View {
+    @State var vm = EventDetailSummaryViewModel()
+    
+    @State var isSheetView: Bool = false
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        (
+            Text(vm.getEventDate(event: Event.sample) + ", " + Event.sample.type.description.label + ", ") + Text(Event.sample.location)
+                .foregroundStyle(Color.accent)
+                .font(.body(isSheetView ? 18: 24, .bold))
+        )
+        
     }
 }
 

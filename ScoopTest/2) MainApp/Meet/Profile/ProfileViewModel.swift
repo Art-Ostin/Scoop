@@ -6,25 +6,31 @@
 //
 
 import Foundation
+import SwiftUI
 
+struct PromptResponse {
+    let question: String
+    let answer : String
+}
 
 
 @Observable class ProfileViewModel {
+        
+    var profile: Profile = .sampleMatch
     
-    var profile = Profile (
-        name: "Arthur",
-        nationality: ["🇬🇧", "🇸🇪"],
-        images: ["Image1", "Image2", "Image3", "Image4", "Image5", "Image6"],
-        year: "U3",
-        height: "193 cm",
-        passions: ["Astrophysics", "Cold Water Swimming", "Music Production", "Historical Geology"],
-        hometown: "London",
-        lookingFor: "Casual",
-        faculty: "Faculty of Arts"
-    )
+    var profileMatch: Profile = .sampleMatch
+
+    var showInvite: Bool = false
+    var inviteSent: Bool = false
     
+    //Showing Image Scrolling Page
+    var imageSelection: Int = 0
+    let pageSpacing: CGFloat = -48
     
     
-    
-    
+    //Determining the ScrollView
+    var startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.78
+    var currentDragOffsetY: CGFloat = 0
+    var endingOffsetY: CGFloat = 0
+
 }

@@ -4,7 +4,7 @@
 //
 //  Created by Art Ostin on 28/05/2025.
 //
-
+//
 import SwiftUI
 import Firebase
 
@@ -20,10 +20,9 @@ struct ScoopTestApp: App {
   var body: some Scene {
     WindowGroup {
         ZStack{
-//            Color.background.ignoresSafeArea(edges: .all)
-            RootView()
+            Color.background.edgesIgnoringSafeArea(.all)
+            AppContainer()
                 .environment(appState)
-//                .offWhite()
         }
     }
   }

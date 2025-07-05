@@ -16,7 +16,6 @@ import FirebaseAuth
 @Observable class AddEmailViewModel {
     
      var email: String = ""
-    
 
     func EmailIsAuthorised(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {

@@ -17,7 +17,7 @@ struct PromptResponseView: View {
     var body: some View {
             
         VStack {
-            
+
             Text(vm.profile.prompt1.question)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .padding(.bottom, 16)

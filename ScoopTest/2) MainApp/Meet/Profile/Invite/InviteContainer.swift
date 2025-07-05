@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct SendInviteView: View {
     
@@ -25,7 +26,9 @@ struct SendInviteView: View {
     
     @State var selectedTime: Date? = nil
     
+    @State var showMapView: Bool = false
     
+    @State var selectedLocation: MKMapItem?
     
     var body: some View {
         
@@ -44,7 +47,7 @@ struct SendInviteView: View {
                     
                     Divider()
                     
-                    InvitePlaceRowView()
+                    InvitePlaceRowView(showMapView: $showMapView, selectedPlace: $selectedLocation)
                     
                     ActionButton2(text: "Confirm & Send", isValid: true, onTap: {
                         ProfileViewModel.showInvite.toggle()
@@ -68,6 +71,9 @@ struct SendInviteView: View {
         }
         .sheet(isPresented: $showMessageScreen) {
             InviteAddMessageView(typeInputText: $typeInputText, typeDefaultOption: $typeDefaultOption, showTypePopup: $showTypePopup)
+        }
+        .fullScreenCover(isPresented: $showMapView) {
+            MapView(selectedPlace: $selectedLocation)
         }
     }
 }

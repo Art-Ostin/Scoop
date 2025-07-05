@@ -7,52 +7,47 @@
 
 import SwiftUI
 
+
+@Observable class SelectTypeViewModel {
+    
+    
+    
+    
+}
+
+
+
 struct SelectTypeView: View {
     
     @Binding var typeDefaultOption: String
     
     @Binding var showTypePopup: Bool
-        
-    
-
-    private let options: [(emoji: String, label: String)] = [
-        
-        ("🍕", "Grab Food"),
-        ("🍻", "Grab a drink"),
-        ("🎉", "House Party"),
-        ("🎑", "Double Date"),
-        ("🕺🏻", "Same Place"),
-        ("✒️", "Write a message")
-    ]
     
     var body: some View {
         VStack (spacing: 18){
             
-            ForEach(options.indices, id: \.self) { index in
-                row(image: options[index].emoji, text: options[index].label)
+            ForEach(EventType.allCases, id: \.self) {event in
+                let desc = event.description
+                row(image: desc.emoji, text: desc.label)
                     .onTapGesture {
-                        typeDefaultOption.removeAll()
-                        typeDefaultOption.append(options[index].label)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            showTypePopup.toggle()
-                        }
+                        handleTap(event.description.label)
                     }
-                if index < options.count - 1 {
+                if event != EventType.allCases.last {
                     Divider()
                 }
+                }
             }
+            .padding( [.top, .bottom, .leading], 24)
+            .frame(width: 325)
+            .background(Color.background)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
         }
-        .padding( [.top, .bottom, .leading], 24)
-        .frame(width: 325)
-        .background(Color.background)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
     }
-}
 
-//#Preview {
-//    SelectTypeView(selectedTypeOption: $)
-//}
+#Preview {
+    SelectTypeView(typeDefaultOption: .constant("true"), showTypePopup: .constant(false))
+}
 
 extension SelectTypeView {
     
@@ -64,6 +59,13 @@ extension SelectTypeView {
                 .font(.body(18, .medium))
             Spacer()
         }
-        
+    }
+    
+    private func handleTap (_ title: String) {
+        typeDefaultOption.removeAll()
+        typeDefaultOption.append(title)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            showTypePopup.toggle()
+        }
     }
 }
