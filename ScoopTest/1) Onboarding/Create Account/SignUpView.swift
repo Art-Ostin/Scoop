@@ -11,32 +11,30 @@ import SwiftUI
 struct SignUpView: View {
     
     @State var selection: Int = 0
-    
-    @State var showOnboarding: Bool = false
-    @Binding var showSignIn: Bool
+    @State var showCover: Bool = false
+    @Binding var showEmail: Bool
+    @Binding var showLogin: Bool
+
     
     var body: some View {
         ZStack {
-            
+            Color.background.ignoresSafeArea(edges: .all)
             VStack(spacing: 60){
-     
                 titleSection
-                
                 tabViewSection
-                
                 ActionButton(text: "Login / Sign Up", onTap: {
-                    showOnboarding.toggle()
+                    showCover = true
                 })
             }
-            .fullScreenCover(isPresented: $showOnboarding) {
-                OnboardingContainer(showSignIn: $showSignIn)
+            .fullScreenCover(isPresented: $showCover) {
+                EnterEmailView(showLogin: $showLogin, showEmail: $showEmail)
             }
         }
     }
 }
 
 #Preview {
-    SignUpView(showSignIn: .constant(false))
+    SignUpView(showEmail: .constant(true), showLogin: .constant(true))
 }
 
 extension SignUpView {

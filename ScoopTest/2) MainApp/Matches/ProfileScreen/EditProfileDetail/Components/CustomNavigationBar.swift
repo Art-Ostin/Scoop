@@ -7,12 +7,38 @@
 
 import SwiftUI
 
-struct CustomNavigationBar: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct CustomNavigation: ViewModifier {
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    let isOnboarding: Bool
+    let onTap: () -> ()
+    
+    func body(content: Content) -> some View {
+        content
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                if isOnboarding {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                                dismiss()
+                        } label: {
+                            Text("SAVE")
+                                .font(.body(12))
+                                .foregroundStyle(Color.grayText)
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarLeading) {
+                        CustomBackButton()
+                    }
+                }
+            }
     }
 }
 
-#Preview {
-    CustomNavigationBar()
+extension View {
+    func customNavigation(isOnboarding: Bool, onTap: @escaping () -> Void = {}) -> some View {
+        modifier(CustomNavigation(isOnboarding: isOnboarding, onTap: onTap))
+    }
 }

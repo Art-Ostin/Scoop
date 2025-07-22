@@ -78,5 +78,4 @@ struct ProfileDetailsView: View {
 
 #Preview {
     ProfileDetailsView(vm: .constant(ProfileViewModel()))
-        .environment(AppState())
 }

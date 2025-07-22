@@ -9,7 +9,88 @@ import SwiftUI
 
 struct InterestsView: View {
     
+    
+    @State var vm = InterestsOptionsViewModel()
+    
+    
+    var body: some View {
+        
+        let passions = ["Running", "Football", "Cricket", "Golf", "Hockey", "Table Tennis"]
+        
+        let character = ["Creative", "Atheist", "Extroverted", "Active", "Conservative"]
+        
+        
+        let sections = [
+            ("Social", "figure.socialdance", vm.socialPassions),
+            ("Interests", "book", vm.interests),
+            ("Activities", "MyCustomShoe", vm.activities),
+            ("Sports", "tennisball", vm.sportsPassions),
+            ("Music", "MyCustomMic", vm.music1),
+            (nil, nil, vm.music2),
+            (nil, nil, vm.music3)
+        ]
+        
+        let sections2 = [
+            ("Social", "figure.socialdance", vm.socialPassions),
+            ("Interests", "book", vm.interests),
+            ("Activities", "MyCustomShoe", vm.activities),
+            ("Sports", "tennisball", vm.sportsPassions),
+            ("Music", "MyCustomMic", vm.music1),
+            (nil, nil, vm.music2),
+            (nil, nil, vm.music3)
+        ]
+
+            CustomList {
+                
+                NavigationLink {
+                    EditInterests(sections: sections, title: "Interests", isOnboarding: false)
+                } label: {
+                VStack(spacing: 8) {
+                    HStack {
+                        Text("Interests")
+                            .font(.body(12, .bold))
+                            .foregroundStyle(Color.grayText)
+                        
+                        Spacer()
+                        
+                        Image("EditGray")
+                    }
+                    .padding(.horizontal, 8)
+                    InterestsLayout(passions: passions)
+                }
+                .padding(.horizontal)
+            }
+                
+           NavigationLink {
+               EditInterests(sections: sections2, title: "Character", isOnboarding: false)
+                    } label: {
+                        VStack(spacing: 8) {
+                        HStack {
+                            Text("Character")
+                                .font(.body(12, .bold))
+                                .foregroundStyle(Color.grayText)
+                            
+                            Spacer()
+                            
+                            Image("EditGray")
+                        }
+                        .padding(.horizontal, 8)
+                        InterestsLayout(passions: character)
+                    }
+                }
+                    .padding(.horizontal)
+                    .padding(.top, 24)
+            }
+            .padding(.horizontal, 32)
+            .foregroundStyle(Color.black)
+        }
+}
+
+
+struct InterestsLayout: View {
+    
     let passions: [String]
+    
     
     private var rows: [[String]] {
         stride(from: 0, to: passions.count, by: 2).map {
@@ -17,41 +98,40 @@ struct InterestsView: View {
         }
     }
     var body: some View {
-        
-        CustomList(title: "Interests") {
+    
             VStack(spacing: 16) {
-                
-                
-                Image("EditButtonBlack")
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                
-                
-                ForEach(rows.indices, id: \.self) { index in
-                    let row = rows[index]
-                    HStack {
+                    ForEach(rows.indices, id: \.self) { index in
+                        let row = rows[index]
+                        HStack {
+                            
+                            Text(row[safe: 0] ?? "")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Divider()
+                                .frame(height: 20)
+                            
+                            Text(row.count > 1 ? row[1] : "")
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
                         
-                        Text(row[safe: 0] ?? "")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Divider()
-                            .frame(height: 20)
-                        
-                        Text(row.count > 1 ? row[1] : "")
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        if index < rows.count - 1 {
+                            Divider()
+                        }
                     }
-                    
-                    if index < rows.count - 1 {
-                        Divider()
-                    }
-                }
                 
             }
             .padding()
             .font(.body())
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
+
         }
-        .padding(.horizontal, 32)
+        
     }
-}
 
 extension Array {
     subscript(safe index: Int) -> Element? {
@@ -60,5 +140,5 @@ extension Array {
 }
 
 #Preview {
-    InterestsView(passions: ["Running", "Football", "Cricket", "Golf", "Hockey", "Table Tennis"])
+    InterestsLayout(passions: ["Running", "Football", "Cricket", "Golf", "Hockey", "Table Tennis"])
 }

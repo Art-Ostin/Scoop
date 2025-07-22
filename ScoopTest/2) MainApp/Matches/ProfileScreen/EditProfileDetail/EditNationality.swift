@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-@Observable class EditNationality2ViewModel {
+@MainActor
+@Observable class EditNationalityViewModel {
     
     var selectedCountries: [String] = []
     
     let countries = CountryDataServices.shared.allCountries
-    
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     
     func findingFirstCountry(country: [CountryData]) -> Set<String> {
@@ -25,12 +25,40 @@ import SwiftUI
     func isSelected(_ country: String) -> Bool {
         selectedCountries.contains(country)
     }
+    
     let columns2 = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
+    
+    let firestoreManager = EditProfileViewModel.instance
+    
+    private func isSelected(country: CountryData) -> Bool {
+        return firestoreManager.user?.nationality?.contains(country.flag) == true
+    }
+    
+    func addAndRemoveCountry(_ country: String) {
+        let currentlyInFirebase = firestoreManager.user?.nationality?.contains(country) == true
+        if currentlyInFirebase {
+            firestoreManager.removeNationality(nationality: country)
+        } else if selectedCountries.count < 3 {
+            firestoreManager.updateNationality(nationality: country)
+        }
+    }
 }
 
-struct EditNationality2: View {
+struct EditNationality: View {
     
-    @State var vm = EditNationality2ViewModel()
+    var isOnboarding: Bool
+    
+    
+    @State var vm = EditNationalityViewModel()
+    
+    @Binding var screenTracker: OnboardingViewModel
+    
+    
+    init(isOnboarding: Bool = false, screenTracker: Binding<OnboardingViewModel>? = nil) {
+        self.isOnboarding = isOnboarding
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+    }
+    
     
     var body: some View {
         
@@ -41,7 +69,6 @@ struct EditNationality2: View {
             
             SignUpTitle(text: "Nationality",
                         subtitle: "\(vm.selectedCountries.count)/3")
-            
             HStack(spacing: 36) {
                 ForEach(vm.selectedCountries, id: \.self) {country in
                     Text(country)
@@ -53,6 +80,7 @@ struct EditNationality2: View {
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
                                 vm.selectedCountries.removeAll(where: {$0 == country})
+                                vm.firestoreManager.removeNationality(nationality: country)
                             }
                         }
                 }
@@ -80,43 +108,59 @@ struct EditNationality2: View {
                     
                     SoftDivider()
                         .padding(.horizontal)
-                    
-                    ScrollView {
-                        
-                        LazyVGrid(columns: vm.columns, spacing: 48) {
-                            ForEach(CountryDataServices.shared.popularCountries) { country in
-                                flagItem(country: country)
-                                    .padding(.top, 3.5)
-                            }
+
+                    ZStack {
+                        ScrollView {
                             
-                            ForEach(0..<4, id: \.self) {_ in Color.clear
-                                    .frame(height: 0)
-                            }
-                            
-                            ForEach(vm.countries) { country in
-                                if firstLetters.contains(country.name) {
-                                    Text(String(country.name.prefix(1)))
-                                        .font(.body(32))
-                                        .gridCellColumns(4)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                        .id(String(country.name.prefix(1)))
+                            VStack(spacing: 72) {
+                                LazyVGrid(columns: vm.columns, spacing: 48) {
+                                    
+                                    ForEach(CountryDataServices.shared.popularCountries) { country in
+                                        flagItem(country: country)
+                                            .padding(.top, 3.5)
+                                    }
                                 }
-                                flagItem(country: country)
+                                
+                                LazyVGrid(columns: vm.columns, spacing: 48) {
+                                    ForEach(vm.countries) { country in
+                                        if firstLetters.contains(country.name) {
+                                            Text(String(country.name.prefix(1)))
+                                                .font(.body(32))
+                                                .gridCellColumns(4)
+                                                .frame(maxWidth: .infinity, alignment: .center)
+                                                .id(String(country.name.prefix(1)))
+                                            
+                                        }
+                                        flagItem(country: country)
+                                    }
+                                }
                             }
+                        }
+                        if isOnboarding {
+                            NextButton(isEnabled: vm.selectedCountries.count > 0, onTap: {
+                                withAnimation {
+                                    screenTracker.screen += 1
+                                }
+                            })
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding()
+                            .padding(.top, 360)
                             
                         }
                     }
                 }
             }
         }
+        .customNavigation(isOnboarding: isOnboarding)
     }
 }
 
+
 #Preview {
-    EditNationality2()
+    EditNationality(isOnboarding: true)
 }
 
-extension EditNationality2 {
+extension EditNationality {
     
     private var crossButton: some View {
         ZStack{
@@ -165,13 +209,12 @@ extension EditNationality2 {
             withAnimation(.smooth(duration: 0.2)) {
                 if vm.isSelected(country.flag) {
                     vm.selectedCountries.removeAll(where: {$0 == country.flag})
+                    vm.firestoreManager.removeNationality(nationality: country.flag)
                 } else if vm.selectedCountries.count < 3 {
                     vm.selectedCountries.append(country.flag)
+                    vm.firestoreManager.updateNationality(nationality: country.flag)
                 }
             }
         }
     }
 }
-
-
-

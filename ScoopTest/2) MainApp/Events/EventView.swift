@@ -50,7 +50,6 @@ struct EventView: View {
 
 #Preview {
     EventView()
-        .environment(AppState())
 }
 
 

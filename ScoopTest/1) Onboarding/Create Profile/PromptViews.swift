@@ -13,10 +13,8 @@ struct PromptView1: View {
     ]
     
     var body: some View {
-        
         PromptView(prompts: promptOptions1, title: "Prompt 1", promptSelectionTitle: "Prompt (1)")
     }
-    
 }
 
 struct PromptView2: View {
@@ -28,8 +26,7 @@ struct PromptView2: View {
         "My unapologetic pleasures...",
         "Three words that capture who I am..."
     ]
-    
-    
+
     var body: some View {
         
         PromptView(prompts: promptOptions2, title: "Prompt 2", promptSelectionTitle: "Prompt (2)")
@@ -87,12 +84,8 @@ struct PromptView: View {
                     .sheet(isPresented: $showPrompts) {
                         promptSelectionView
                     }
-                    
-                    
                 }
-
                 Divider()
-                
                 TextEditor(text: $promptResponse)
                     .padding(12)
                     .focused($isFocused)

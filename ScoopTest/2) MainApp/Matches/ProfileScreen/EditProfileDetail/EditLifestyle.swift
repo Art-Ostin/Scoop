@@ -7,41 +7,81 @@
 
 import SwiftUI
 
-struct VicesView: View {
+struct EditLifestyle: View {
+    
     @State var isSelectedDrinking: String? = nil
     @State var isSelectedSmoking: String? = nil
     @State var isSelectedMarijuana: String? = nil
     @State var isSelectedDrugs: String? = nil
-
+        
+    let title: String?
+    let firebase = EditProfileViewModel.instance
+    
+    @Binding var screenTracker: OnboardingViewModel
+    var isOnboarding: Bool
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
+        self.isOnboarding = isOnboarding
+        self.title = title
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())}
+    
+        
     var body: some View {
         
-        VStack(spacing: 36) {
+        VStack(spacing: 48) {
             vicesOptions(title: "Drinking", isSelected: $isSelectedDrinking)
             vicesOptions(title: "Smoking", isSelected: $isSelectedSmoking)
             vicesOptions(title: "Marijuana", isSelected: $isSelectedMarijuana)
             vicesOptions(title: "Drugs", isSelected: $isSelectedDrugs)
         }
-        .padding(.horizontal, 32)
-
+        .padding(.horizontal)
+        .customNavigation(isOnboarding: isOnboarding)
+        .onChange(of: isSelectedDrinking) {
+            nextScreen()
+            firebase.updateDrinking(drinking: isSelectedDrinking ?? "")
+        }
+        .onChange(of: isSelectedSmoking) {
+            nextScreen()
+            firebase.updateSmoking(smoking: isSelectedSmoking ?? "" )
+        }
+        .onChange(of: isSelectedMarijuana) {
+            nextScreen()
+            firebase.updateMarijuana(marijuana: isSelectedMarijuana ?? "")
+        }
+        .onChange(of: isSelectedDrugs) {
+            nextScreen()
+            firebase.updateDrugs(drugs: isSelectedDrugs ?? "")
+        }
     }
-    
+
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {
         VStack(alignment: .leading, spacing: 24) {
             Text(title)
                 .font(.title(28))
             HStack {
-                OptionCell2(title: "Yes", width: 75, isSelected: isSelected, onTap: {})
+                OptionPill(title: "Yes", width: 75, isSelected: isSelected, onTap: {})
                 Spacer()
-                OptionCell2(title: "No", width: 75, isSelected: isSelected, onTap: {})
+                OptionPill(title: "No", width: 75, isSelected: isSelected, onTap: {})
                 Spacer()
-                OptionCell2(title: "Occasionally", isSelected: isSelected, onTap: {} )
+                OptionPill(title: "Occasionally", isSelected: isSelected, onTap: {} )
             }
+        }
+    }
+    
+    private func nextScreen() {
+        guard isOnboarding,
+              isSelectedDrinking != nil,
+              isSelectedSmoking != nil,
+              isSelectedMarijuana != nil,
+              isSelectedDrugs != nil else
+        {return }
+        withAnimation {
+            screenTracker.screen += 1
         }
     }
 }
 
 #Preview {
-    VicesView()
+    EditLifestyle()
 }
 
 

@@ -5,14 +5,17 @@
 //  Created by Art Ostin on 20/06/2025.
 //
 
-import SwiftUI
 
+// Default UI for The App
+
+
+import SwiftUI
 
 
 extension Color {
         
-    static let background = Color (red: 0.98, green: 0.98, blue: 0.99)
-    
+    static let background = Color(red: 0.98, green: 0.98, blue: 0.99)
+
     static let grayBackground = Color (red: 0.93, green: 0.93, blue: 0.93)
     
     static let grayText = Color (red: 0.6, green: 0.6, blue: 0.6)
@@ -20,19 +23,9 @@ extension Color {
     static let grayPlaceholder = Color (red: 0.85, green: 0.85, blue: 0.85)
     
     static let secondary = Color (red: 0, green: 0.6, blue: 0.52)
+    
+    static let defualtGreen =  Color (red: 0.16, green: 0.65, blue: 0.27)
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 extension Font {
     

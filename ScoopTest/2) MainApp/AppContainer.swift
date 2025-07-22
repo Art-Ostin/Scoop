@@ -8,11 +8,14 @@
 import SwiftUI
 
 struct AppContainer: View {
+    
     @State var selection: Int = 0
+    @Binding var showLogin: Bool
     
     var body: some View {
         
         TabView (selection: $selection) {
+            
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
                     Color.background.ignoresSafeArea()
@@ -32,13 +35,11 @@ struct AppContainer: View {
             }
             Tab("", image: "MessageIcon", value: 2) {
                 ZStack {
-                    NavigationStack{
-                        MatchesView()
-                        Color.background.ignoresSafeArea()
-                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                            .toolbarBackground(Color.background, for: .tabBar)
-
-                    }
+                    Color.background.ignoresSafeArea()
+                    
+                    MatchesView(showLogin: $showLogin)
+                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                        .toolbarBackground(Color.background, for: .tabBar)
                 }
             }
         }
@@ -48,6 +49,5 @@ struct AppContainer: View {
 }
 
 #Preview {
-    AppContainer()
-        .environment(AppState())
+    AppContainer(showLogin: .constant(false))
 }

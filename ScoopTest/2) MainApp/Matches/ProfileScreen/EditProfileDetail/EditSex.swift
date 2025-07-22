@@ -8,8 +8,41 @@
 import SwiftUI
 
 struct EditSex: View {
+    
+    var isOnboarding: Bool
+    
+    @State private var isSelected: String? = nil
+    
+    let title: String?
+    
+    @Binding var screenTracker: OnboardingViewModel
+        
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
+        self.isOnboarding = isOnboarding
+        self.title = title
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+    }
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        EditOptionLayout(title: title, isSelected: $isSelected) {
+            HStack {
+                OptionPill(title: "Man", counter: $screenTracker.screen, isSelected: $isSelected) {
+                    EditProfileViewModel.instance.updateSex(sex: "Man")
+                }
+                Spacer()
+                OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {
+                    EditProfileViewModel.instance.updateSex(sex: "Women")}
+            }
+            HStack {
+                Spacer()
+                OptionPill(title: "Beyond Binary", counter: $screenTracker.screen, isSelected: $isSelected) {
+                    EditProfileViewModel.instance.updateSex(sex: "Beyond Binary")
+                }
+                Spacer()
+            }
+        }
+        .customNavigation(isOnboarding: isOnboarding)
     }
 }
 

@@ -15,6 +15,7 @@ struct ProfileView: View {
         GeometryReader { geo in
             
             ZStack {
+                
                 Color.background.edgesIgnoringSafeArea(.all)
                 
                 VStack {
@@ -42,8 +43,6 @@ struct ProfileView: View {
 }
 #Preview {
     ProfileView(state: .constant(.profile))
-        .environment(AppState())
-        .offWhite()
 }
 
 extension ProfileView {

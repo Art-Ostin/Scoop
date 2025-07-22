@@ -15,5 +15,4 @@ struct EventContainer: View {
 
 #Preview {
     EventContainer()
-        .environment(AppState())
 }

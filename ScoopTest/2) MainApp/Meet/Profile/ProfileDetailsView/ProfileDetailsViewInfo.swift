@@ -41,7 +41,6 @@ struct ProfileDetailsViewInfo: View {
 
 #Preview {
     ProfileDetailsViewInfo(vm: .constant(ProfileViewModel()))
-        .environment(AppState())
 }
 
 extension ProfileDetailsViewInfo {
@@ -139,4 +138,17 @@ extension ProfileDetailsViewInfo {
             .foregroundStyle(Color(red: 0.86, green: 0.86, blue: 0.86))
         
     }
+}
+
+
+
+struct HDivider: View {
+    
+    var body: some View {
+        
+        Rectangle()
+            .frame(width: 1, height: 20)
+            .foregroundStyle(Color(red: 0.86, green: 0.86, blue: 0.86))
+    }
+    
 }

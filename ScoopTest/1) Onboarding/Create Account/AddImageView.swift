@@ -15,10 +15,11 @@ import PhotosUI
     
     var photoSelections: [PhotosPickerItem?] = Array(repeating: nil, count: 6)
     var selectedImages: [UIImage?] = Array(repeating: nil, count: 6)
-    
+
     func loadImage(at index: Int) {
         
         guard let selection = photoSelections[index] else {return}
+        
         Task {
             if let data = try? await selection.loadTransferable(type: Data.self) {
                 if let uiImage = UIImage(data: data) {
@@ -26,13 +27,13 @@ import PhotosUI
                         selectedImages[index] = uiImage
                     }
                 }
+                try await StorageManager.instance.saveImage(userId: EditProfileViewModel.instance.user?.userId ?? "", data: data)
             }
             await MainActor.run {
                 photoSelections[index] = nil
             }
         }
     }
-
     func photoPickerBinding(at index: Int) -> Binding<PhotosPickerItem?> {
         Binding(
             get: { self.photoSelections[index] },
@@ -49,11 +50,13 @@ import PhotosUI
 struct AddImageView: View {
     
     @State var vm = AddImageViewModel()
-    
+    @Binding var showLogin: Bool
+
     var body: some View {
         
         VStack(spacing: 36) {
             SignUpTitle(text: "Add 6 Photos")
+                .padding(.horizontal, -12)
             
             Text("Ensure you're in all")
                 .font(.body())
@@ -61,17 +64,19 @@ struct AddImageView: View {
             
             imagePickerGrid
             
-            ActionButton(text: "Complete", onTap: {}, isAuthorised: vm.selectedImages.allSatisfy{$0 != nil})
+            ActionButton(isAuthorised: vm.selectedImages.allSatisfy {$0 != nil}, text: "Complete", onTap: {
+                showLogin = false
+            })
+                .padding(24)
         }
+        .customNavigation(isOnboarding: true)
         .padding(.horizontal, 8)
     }
 }
 
 #Preview {
-    AddImageView()
+    AddImageView(showLogin: .constant(true))
 }
-
-
 extension AddImageView {
     
     private var imagePickerGrid: some View {
@@ -89,7 +94,7 @@ extension AddImageView {
                                     vm.loadImage(at: idx)
                                 }
                             ),
-                            matching: .images) {
+                            matching: .images, photoLibrary: .shared()) {
                                 Group {
                                     if let image = vm.selectedImages[idx] {
                                         Image(uiImage: image)
@@ -103,6 +108,9 @@ extension AddImageView {
                                             }
                                     } else {
                                         Image("ImagePlaceholder2")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 110, height: 110)
                                     }
                                 }
                             }

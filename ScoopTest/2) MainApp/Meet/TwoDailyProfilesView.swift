@@ -42,7 +42,6 @@ struct TwoDailyProfilesView: View {
 
 #Preview {
     TwoDailyProfilesView(state: .constant(.twoDailyProfiles))
-        .offWhite()
 }
 
 extension TwoDailyProfilesView {

@@ -8,10 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct PromptResponse {
-    let question: String
-    let answer : String
-}
+
 
 
 @Observable class ProfileViewModel {

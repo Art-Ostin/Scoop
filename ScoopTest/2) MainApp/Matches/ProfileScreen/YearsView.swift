@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct SelectYears: View {
+struct YearsView: View {
     var body: some View {
-        CustomList(title: "Select the years you're open to meeting") {
+        CustomList(title: "Years you're open to meeting") {
             HStack(spacing: 24) {
                 YearCell(title: "U0", onTap: {})
                 YearCell(title: "U1", onTap: {})
@@ -25,5 +25,5 @@ struct SelectYears: View {
 }
 
 #Preview {
-    SelectYears()
+    YearsView()
 }

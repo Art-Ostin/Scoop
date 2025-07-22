@@ -45,5 +45,4 @@ struct CountdownView: View {
 
 #Preview {
     CountdownView()
-        .environment(AppState())
 }

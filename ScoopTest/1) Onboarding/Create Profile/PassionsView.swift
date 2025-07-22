@@ -62,7 +62,6 @@ struct PassionsView: View {
 
 #Preview {
     PassionsView()
-        .environment(AppState())
 }
 
 extension PassionsView {
@@ -97,7 +96,7 @@ extension PassionsView {
             .font(.body(16, .bold))
             
             
-            
+             
             
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
@@ -226,12 +225,18 @@ struct passionOptionSection: View {
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
             
+            
+            
+            
+            
+            
+            
             // The Contents Section
             FlowLayout(mode: .scrollable, items: Array(0..<options.count), itemSpacing: 6) { index in
                 Button {
                     if selectedPassions.contains(options[index]) {
                         selectedPassions.removeAll { $0 == options[index] }
-                    } else if selectedPassions.count < 5 {
+                    } else if selectedPassions.count < 4 {
                         selectedPassions.append(options[index])
                     }
                     

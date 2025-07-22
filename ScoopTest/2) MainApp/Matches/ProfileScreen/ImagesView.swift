@@ -12,7 +12,7 @@ struct EditImageView: View {
     
     @State var vm = AddImageViewModel()
     @State var isOnboarding: Bool = false
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 3)
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 3)
     
     var body: some View {
             
@@ -27,7 +27,7 @@ struct EditImageView: View {
                             }
                     }
                 }
-                .padding()
+                .padding(.horizontal, 10)
                 .onAppear {
                     if !isOnboarding {
                         vm.selectedImages = [
@@ -42,6 +42,7 @@ struct EditImageView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
+            .padding(.horizontal, 32)
     }
 }
 

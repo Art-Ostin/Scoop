@@ -20,71 +20,97 @@ import SwiftUIFlowLayout
     var music3 = ["Indie", "Indie pop", "Indie Rock", "Lo-fi", "Shoegaze", "Dream Pop", "Psychedelic Rock", "Grunge", "Emo", "Post-Rock", "Slowcore", "Folk Music", "Experimental", "Punk"]
 }
 
-
 struct EditInterests: View {
     
     @State var selected: [String] = []
-    @State var vm = InterestsOptionsViewModel()
+    
+    @State private var vm: InterestsOptionsViewModel
+
+    let sections: [(title: String?, image: String?, data: [String])]
+    let title: String
+    var isOnboarding: Bool
+    
+    @Binding var screenTracker: OnboardingViewModel
+    
+    
+    init(
+        sections: [(title: String?, image: String?, data: [String])]? = nil,
+        title: String,
+        isOnboarding: Bool,
+        screenTracker: Binding<OnboardingViewModel>? = nil
+    ) {
+        let model = InterestsOptionsViewModel()
+        self._vm = State(initialValue: model)
+        self._selected = State(initialValue: [])
+        self._screenTracker =  screenTracker ?? .constant(OnboardingViewModel())
+        self.sections = sections ?? [
+          ("Social",    "figure.socialdance", model.socialPassions),
+          ("Interests", "book",               model.interests),
+          ("Activities","MyCustomShoe",       model.activities),
+          ("Sports",    "tennisball",         model.sportsPassions),
+          ("Music",     "MyCustomMic",        model.music1),
+          (nil,         nil,                  model.music2),
+          (nil,         nil,                  model.music3),
+        ]
+        
+        self.title = title
+        self.isOnboarding = isOnboarding
+    }
     
     var body: some View {
         
-        let sections: [(title: String?, image: String?, data: [String])] = [
-            ("Social", "figure.socialdance", vm.socialPassions),
-            ("Interests", "book", vm.interests),
-            ("Activities", "MyCustomShoe", vm.activities),
-            ("Sports", "tennisball", vm.sportsPassions),
-            ("Music", "MyCustomMic", vm.music1),
-            (nil, nil, vm.music2),
-            (nil, nil, vm.music3)
-        ]
-        
-        VStack(spacing: 12) {
-            
-            SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
-            
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(selected, id: \.self) { item in
-                            
-                            optionCell2(text: item, selection: $selected) {text in
-                                selected.removeAll { $0 == text }
+        ZStack {
+            VStack(spacing: 12) {
+                
+                SignUpTitle(text: title, subtitle: "\(selected.count)/10")
+                
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal) {
+                        HStack {
+                            ForEach(selected, id: \.self) { item in
+                                
+                                optionCell2(text: item, selection: $selected) {text in
+                                    selected.removeAll { $0 == text }
+                                }
+                                .id(item)
                             }
-                            .id(item)
+                        }
+                        .frame(height: 40)
+                    }
+                    .onChange(of: selected.count) {
+                        withAnimation {
+                            proxy.scrollTo(selected.last, anchor: .trailing)
                         }
                     }
-                    .frame(height: 40)
                 }
-                .onChange(of: selected.count) {
-                  withAnimation {
-                      proxy.scrollTo(selected.last, anchor: .trailing)
-                  }
-                }
-            }
-
-            ScrollView(.vertical) {
-                
-                LazyVStack(spacing: 0) {
+                .padding(.horizontal)
+                ScrollView(.vertical) {
                     
-                    ForEach(sections.indices, id: \.self) { idx in
-                        let section = sections[idx]
+                    LazyVStack(spacing: 0) {
                         
+                        ForEach(sections.indices, id: \.self) { idx in
+                            let section = sections[idx]
+                            
                             InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected)
+                        }
                     }
                 }
+                .padding(.horizontal)
             }
+            .customNavigation(isOnboarding: isOnboarding)
+            .padding(.top, 12)
             
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 36)
-        .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                CustomBackButton()
+            if isOnboarding {
+                NextButton(isEnabled: selected.count > 4, onTap: {screenTracker.screen += 1})
+                    .padding(.top, 524)
+                    .padding(.horizontal)
             }
         }
     }
 }
+
+
+
 struct InterestSection: View {
     
     @State var options: [String]
@@ -92,12 +118,18 @@ struct InterestSection: View {
     let title: String?
     let image: String?
     
+    let vm = EditProfileViewModel.instance
+    
+    private func interestIsSelected (text: String) -> Bool {
+        vm.user?.interests?.contains(text) == true
+    }
+    
     @Binding var selected: [String]
     
     var body: some View {
         
         VStack(alignment: .leading) {
-                        
+            
             HStack(alignment: .center, spacing: 24) {
                 if let image = image {
                     Image(image)
@@ -112,28 +144,29 @@ struct InterestSection: View {
             }
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
-                        
+            
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 optionCell2(text: input, selection: $selected) { text in
                     selected.contains(text) ? selected.removeAll(where: { $0 == text }) : (selected.count < 10 ? selected.append(text) : nil)
+                    if interestIsSelected(text: text) {
+                        vm.removeInterests(interests: text)
+                    } else {
+                        vm.updateInterests(interests: text)
+                    }
                 }
             }
             .offset(x: -5)
         }
-        .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                CustomBackButton()
-            }
-        }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
-
+        
     }
 }
 
-#Preview {
-    EditInterests()
-}
+//#Preview {
+//    EditInterests()
+//}
+
+
 struct optionCell2: View {
     
     let text: String
@@ -150,12 +183,12 @@ struct optionCell2: View {
             .foregroundStyle(selection.contains(text) ? Color.white : Color.black)
             .background (
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(selection.contains(text) ? .accent : .white)
+                    .fill(selection.contains(text) ? .accent : Color.background)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
                     )
-                )
+            )
             .onTapGesture {
                 onTap(text)
             }

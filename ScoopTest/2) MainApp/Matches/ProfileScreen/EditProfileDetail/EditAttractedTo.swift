@@ -11,16 +11,16 @@ struct EditAttractedTo: View {
         
     @State var isSelected: String? = nil
     
-    @Binding var screenTracker: OnboardingContainerViewModel
+    @Binding var screenTracker: OnboardingViewModel
     
     let title: String?
     
     var isOnboarding: Bool
     
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingContainerViewModel>? = nil) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
         self.isOnboarding = isOnboarding
         self.title = title
-        self._screenTracker = screenTracker ?? .constant(OnboardingContainerViewModel())}
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())}
     
 
     var body: some View {
@@ -38,6 +38,7 @@ struct EditAttractedTo: View {
                 OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "All Genders")}
             }
         }
+        .customNavigation(isOnboarding: isOnboarding)
     }
 }
 

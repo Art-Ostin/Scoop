@@ -16,6 +16,8 @@ struct OptionCell: View {
 
     var onTap: (() -> Void)
     
+    
+    
     var body: some View {
         Text(title)
             .frame(width: width, height: 44)
@@ -24,7 +26,7 @@ struct OptionCell: View {
             .foregroundStyle(isSelected ? Color.white : Color.black)
             .onTapGesture {
                 isSelected = true
-                withAnimation {counter += 1}
+                counter += 1
             }
     }
 }

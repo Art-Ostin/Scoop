@@ -18,7 +18,6 @@ struct ActionButton2: View {
     var isSendInvite: Bool = true
 
     
-    
     var body: some View {
         
         Button {

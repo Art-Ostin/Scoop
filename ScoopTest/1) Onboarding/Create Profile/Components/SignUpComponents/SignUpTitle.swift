@@ -44,6 +44,7 @@ struct SignUpTitle: View {
                 }
             }
         }
+        .padding(.horizontal)
     }
 }
 

@@ -8,23 +8,19 @@
 import SwiftUI
 import Firebase
 
-
 @main
 struct ScoopTestApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    
-@State private var appState = AppState()
-    
+
   var body: some Scene {
-    WindowGroup {
-        ZStack{
-            Color.background.edgesIgnoringSafeArea(.all)
-            AppContainer()
-                .environment(appState)
-        }
-    }
+      WindowGroup {
+          ZStack {
+              Color.background.ignoresSafeArea()
+              RootView()
+          }
+      }
   }
 }
 

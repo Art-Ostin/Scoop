@@ -34,10 +34,8 @@ struct EditMyLifeAs: View {
                 Group {
                     textField(placeholder: "What movies encapsulates 'you'", selectedOption: $selectedMovie)
                         .tag(0)
-                    
                     textField(placeholder: "What song encapsulates 'you' ", selectedOption: $selectedSong)
                         .tag(1)
-                    
                     textField(placeholder: "What book encapsulates 'you' ", selectedOption: $selectedBook)
                         .tag(2)
                 }

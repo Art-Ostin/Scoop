@@ -10,11 +10,16 @@ import SwiftUI
 struct DropDownMenu<Content: View> : View {
     
     let content: () -> Content
-    var width: CGFloat = 325
+    var width: CGFloat
     
-    init(@ViewBuilder content: @escaping () -> Content) {
+    init(
+        width: CGFloat = 325,
+        @ViewBuilder content: @escaping () -> Content
+    ){
+        self.width = width
         self.content = content
     }
+    
     var body: some View {
         
         VStack(spacing: 18) {
@@ -22,9 +27,12 @@ struct DropDownMenu<Content: View> : View {
         }
         .padding( [.top, .bottom, .leading], 24)
         .frame(width: width)
-        .background(Color.background)
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+        )
         .font(.body(18))
     }
 }
@@ -35,12 +43,22 @@ struct customRow : View {
     let text: String
     var body: some View {
         HStack (spacing: 24) {
-            if let image = image {
-               Image(image)
+            if let emoji = image {
+               Text(emoji)
             }
             Text(text)
             Spacer()
         }
     }
 }
+
+struct SoftDivider: View {
+    var body: some View {
+        Rectangle()
+            .frame(height: 1)
+            .frame(maxWidth:.infinity)
+            .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
+    }
+}
+
 

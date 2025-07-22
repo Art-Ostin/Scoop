@@ -7,12 +7,23 @@
 
 import SwiftUI
 
+
 struct LoginContainer: View {
+    
+    @State var showEmail: Bool = true
+    @Binding var showLogin: Bool
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            if showEmail {
+                SignUpView(showEmail: $showEmail, showLogin: $showLogin)
+            } else {
+                LimitedAccessView(showLogin: $showLogin)
+            }
+        }
     }
 }
 
 #Preview {
-    LoginContainer()
+    LoginContainer(showLogin: .constant(true))
 }

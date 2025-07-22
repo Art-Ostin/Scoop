@@ -38,6 +38,4 @@ struct MeetContainer: View {
 
 #Preview {
     MeetContainer()
-        .environment(AppState())
-        .offWhite()
 }

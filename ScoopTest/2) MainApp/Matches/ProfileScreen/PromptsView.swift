@@ -7,55 +7,50 @@
 
 import SwiftUI
 
-struct Prompts: View {
+struct PromptsView: View {
     
     var body: some View {
 
         CustomList(title: "Prompts") {
-            VStack(spacing: 0) {
+            VStack(spacing: 12) {
                 NavigationLink {
-                    EditPromptView()
+                    EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: false)
                 } label: {
                     promptResponse(prompt: "Three qualities I look for in a person", response: "Going to a rave with a group of maters and bringing the girl along and then having euphoria afterwards all the while adding more lines to to this text")
-                        .padding(.top)
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPromptView()
+                    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: false)
                 } label: {
                     promptResponse(prompt: "Dream Date", response: "Going to a rave with a group of maters and bringing the girl along and then having euphoria afterwards all the while adding more lines to to this text")
-                        .padding(.top)
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPromptView()
+                    EditPrompt(promptIndex: 3, prompts: Prompts.instance.prompts3, isOnboarding: false)
                 } label: {
                     promptResponse(prompt: "Dream Date", response: "Going to a rave with a group of maters and bringing the girl along and then having euphoria afterwards all the while adding more lines to to this text")
-                        .padding(.top, 16)
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
-
             }
+            .padding(.vertical, 8)
         }
         .padding(.horizontal, 32)
     }
 }
 
 #Preview {
-    Prompts()
+    PromptsView()
 }
 
-extension Prompts {
+extension PromptsView {
     
     private func promptResponse (prompt: String, response: String) -> some View {
-        
-        ZStack {
-            
+                    
             VStack(alignment: .leading, spacing: 12) {
                 
                 Text(prompt)
@@ -76,11 +71,10 @@ extension Prompts {
             )
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
             .overlay(alignment: .topTrailing, content: {
-                Image("EditButtonBlack")
+                Image("EditGray")
                     .padding()
             })
-            .padding([.bottom, .horizontal])
+            .padding(.horizontal)
             .lineSpacing(8)
-        }
     }
 }

@@ -7,46 +7,66 @@
 
 import SwiftUI
 
+
+
 struct EditPrompt: View {
     
-    @State var selectedText: String = ""
     @FocusState var isFocused: Bool
+    @State var selectedText: String = ""
+    
+    @State var selectedPrompt: String = ""
     
     @State var showDropdownMenu: Bool = false
     
-    @State var prompts: [String] = ["In five years time I hope to be:", "My ideal Saturday Night involves", "My ideal Thursday involves", "My Pleasures", "The dream date", "My biggest F**K up", "Since arriving at McGill I’ve learnt"]
-    @State var selectedPrompt: String = "In five years time I hope to be:"
+    var prompts: [String]
+    var promptIndex: Int
+    
+    @Binding var screenTracker: OnboardingViewModel
+    
+    var isOnboarding: Bool
+    let firebase = EditProfileViewModel.instance
+    
+    init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil) {
+        self.promptIndex = promptIndex
+        self.prompts = prompts
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+        self.isOnboarding = isOnboarding
+    }
     
     var body: some View {
-        
         ZStack {
-            
             VStack(spacing: 12) {
                 selecter
                 textEditor
+                if isOnboarding {
+                    NextButton(isEnabled: selectedText.count > 5, onTap: {
+                        isFocused = false
+                        screenTracker.screen += 1
+                    })
+                        .padding(.horizontal)
+                        .padding(.horizontal)
+                        .padding(.top, 60)
+                }
             }
             if showDropdownMenu {
                 dropdownMenu
-                    .offset(y: -60)
+                    .offset(y: -48)
             }
         }
+        .onChange(of: selectedText) { firebase.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
+        .onChange(of: selectedPrompt) { firebase.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
         .onAppear {
             isFocused = true
-        }
+            selectedPrompt = prompts.randomElement() ?? ""}
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 160)
-        .onTapGesture {
-            if showDropdownMenu {
-                showDropdownMenu = false
-            }
-        }
+        .padding(.top, isOnboarding ? 96 : 120)
+        .customNavigation(isOnboarding: isOnboarding)
     }
 }
 
 #Preview {
-    EditPrompt()
+    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts1, isOnboarding: true)
 }
-
 
 extension EditPrompt {
     
@@ -70,22 +90,21 @@ extension EditPrompt {
         }
     }
     
-    
     private var dropdownMenu: some View {
         DropDownMenu(width: 350) {
-                ForEach(prompts, id: \.self) {prompt in
-                    Group {
-                        Text(prompt)
-                            .font(selectedPrompt == prompt ? .body(17, .bold) : .body(17))
-                            .foregroundStyle(selectedPrompt == prompt ? Color.accent : .black)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .onTapGesture {
-                                selectedPrompt = prompt
-                                showDropdownMenu = false
-                            }
-                        if prompt != prompts.last {SoftDivider()}
-                    }
+            ForEach(prompts, id: \.self) {prompt in
+                Group {
+                    Text(prompt)
+                        .font(selectedPrompt == prompt ? .body(17, .bold) : .body(17))
+                        .foregroundStyle(selectedPrompt == prompt ? Color.accent : .black)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .onTapGesture {
+                            selectedPrompt = prompt
+                            showDropdownMenu = false
+                        }
+                    if prompt != prompts.last {SoftDivider()}
                 }
+            }
         }
     }
     
@@ -96,7 +115,7 @@ extension EditPrompt {
             .scrollContentBackground(.hidden)
             .frame(width: 350, height: 120)
             .lineSpacing(8)
-            .font(.body(17, .bold))
+            .font(.body(17, .medium))
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.grayPlaceholder, lineWidth: 0.5)

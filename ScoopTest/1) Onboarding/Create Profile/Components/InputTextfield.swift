@@ -17,7 +17,6 @@ struct InputTextfield: View {
         var alignment: Alignment = .leading
         
         var body: some View {
-            
             VStack(spacing: 8) {
                 ZStack(alignment: .leading) {
                     if inputtedText.wrappedValue.isEmpty {

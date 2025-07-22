@@ -14,20 +14,19 @@ class StorageManager {
     
     private let storage = Storage.storage().reference()
     
-    func saveImage(data: Data) async throws -> (path: String, name: String) {
-        
+    private var imagesReference: StorageReference {
+        storage.child("images")
+    }
+    
+    private func userReference(userId: String) -> StorageReference {
+        storage.child("users").child(userId)
+    }
+    
+    func saveImage(userId: String, data: Data) async throws {
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
-        
         let path = "\(UUID().uuidString).jpeg"
-        
-        let returnedMetadata = try await storage.child(path).putDataAsync(data, metadata: meta)
-        
-        guard let returnedPath = returnedMetadata.path, let returnedName = returnedMetadata.name else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return (returnedPath, returnedName)
+        _ = try await userReference(userId: userId).child(path).putDataAsync(data, metadata: meta)
     }
 }
 
