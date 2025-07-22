@@ -7,12 +7,17 @@
 
 import SwiftUI
 
+
 struct SignUpView: View {
     
     @State var selection: Int = 0
+    
     @State var showOnboarding: Bool = false
+    @Binding var showSignIn: Bool
     
     var body: some View {
+        ZStack {
+            
             VStack(spacing: 60){
      
                 titleSection
@@ -24,13 +29,14 @@ struct SignUpView: View {
                 })
             }
             .fullScreenCover(isPresented: $showOnboarding) {
-                    EnterEmailView()
+                OnboardingContainer(showSignIn: $showSignIn)
             }
+        }
     }
 }
 
 #Preview {
-    SignUpView()
+    SignUpView(showSignIn: .constant(false))
 }
 
 extension SignUpView {

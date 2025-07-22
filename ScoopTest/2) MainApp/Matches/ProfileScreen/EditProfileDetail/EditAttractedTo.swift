@@ -8,8 +8,36 @@
 import SwiftUI
 
 struct EditAttractedTo: View {
+        
+    @State var isSelected: String? = nil
+    
+    @Binding var screenTracker: OnboardingContainerViewModel
+    
+    let title: String?
+    
+    var isOnboarding: Bool
+    
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingContainerViewModel>? = nil) {
+        self.isOnboarding = isOnboarding
+        self.title = title
+        self._screenTracker = screenTracker ?? .constant(OnboardingContainerViewModel())}
+    
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        EditOptionLayout(title: title, isSelected: $isSelected) {
+            HStack {
+                OptionPill(title: "Men",counter: $screenTracker.screen, isSelected: $isSelected) { EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Men")}
+                Spacer()
+                OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Women")}
+            }
+            
+            HStack {
+                OptionPill(title: "Men & Women", counter: $screenTracker.screen,  isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Men & Women")}
+                Spacer()
+                OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "All Genders")}
+            }
+        }
     }
 }
 

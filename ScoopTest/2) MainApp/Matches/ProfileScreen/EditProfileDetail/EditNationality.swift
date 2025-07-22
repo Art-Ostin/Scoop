@@ -1,325 +1,177 @@
 //
-//  NationalityView.swift
+//  EditNationality2.swift
 //  ScoopTest
 //
-//  Created by Art Ostin on 02/06/2025.
+//  Created by Art Ostin on 17/07/2025.
 //
 
 import SwiftUI
 
-
-@Observable class NationalityViewModel  {
+@Observable class EditNationality2ViewModel {
     
+    var selectedCountries: [String] = []
     
-    var addedCountries: [CountryData] = []
-
-    var conditionMet: Bool     = false
-    var maxCountries: Bool     = false
-    var scrollToIndex: [String] = []
-    var isOnboarding: Bool = false
+    let countries = CountryDataServices.shared.allCountries
     
-    let columns = Array(
-      repeating: GridItem(.flexible(), alignment: .center),
-      count: 4
-    )
-    
-    let allCountries = CountryDataServices.shared.allCountries
-    
-    let countries: [CountryData] = [
-        .init(flag: "🇨🇦", name: "Canada"),
-        .init(flag: "🇺🇸", name: "U.S."),
-        .init(flag: "🇫🇷", name: "France"),
-        .init(flag: "🇨🇳", name: "China"),
-        .init(flag: "🇬🇧", name: "U.K."),
-        .init(flag: "🇮🇳", name: "India"),
-        .init(flag: "🇮🇷", name: "Iran"),
-        .init(flag: "🇲🇽", name: "Mexico")
-      ]
-}
-
-
-struct NationalityView: View {
-    
-    @Binding var screenTracker: OnboardingContainerViewModel
-    
-    @State var vm = NationalityViewModel()
-    
-    var isOnboarding: Bool = false
-    
-    
-    init(screenTracker: Binding<OnboardingContainerViewModel>? = nil) {
-        self._screenTracker = screenTracker ?? .constant(OnboardingContainerViewModel())
-    }
-    
-    
-    
-    
-    var body: some View {
-        
-        ZStack {
-            
-            VStack(alignment: .leading) {
-                SignUpTitle(
-                    text: "Nationality",
-                    count: vm.isOnboarding ? 2 : 0,
-                    subtitle: "\(vm.addedCountries.count)/3"
-                )
-                .padding(.top, isOnboarding ? 24 : 12)
-                
-                selectionFrame
-
-                flagScrollingFrame
-        }
-            if vm.isOnboarding {
-                NextButton(isEnabled: vm.addedCountries.count > 0, onTap: {screenTracker.screen += 1})
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.top, 540)
-            }
-        }
-        .padding(.horizontal, 24)
-    }
-}
-
-#Preview {
-    NationalityView(screenTracker: .constant(OnboardingContainerViewModel()))
-}
-
-extension NationalityView {
-    
-    
-    private var selectionFrame: some View {
-        
-        HStack (spacing: 48) {
-            
-            ForEach(vm.addedCountries, id: \.name) {country in
-                Text(country.flag)
-                    .overlay(alignment: .topTrailing) {
-                        minusCircle
-                    }
-                    .onTapGesture {
-                        if let index = vm.addedCountries.firstIndex(where: { $0.name == country.name }) {
-                            vm.addedCountries.remove(at: index)
-                        }
-                    }
-            }
-            .font(.system(size: 32))
-        }
-        .frame(maxWidth: . infinity, alignment: .leading)
-        .frame(height: 24)
-        .padding(.bottom, 24)
-    }
-    
-    
-    
-    
-    private var flagScrollingFrame: some View {
-        // Compute the first occurrence of each letter
-        let firstLetters = findingFirstCountry(
-            country: vm.allCountries
-                .map {CountryData(flag: $0.flag, name: $0.name) })
-        
-        return ScrollViewReader { proxy in
-            VStack(alignment: .leading, spacing: 0) {
-                // Letter selector buttons
-                VStack(spacing: 43) {
-                    HStack(spacing: 0) {
-                        ForEach(Array("ABCDEFGHIJKLM"), id: \.self) { char in
-                            Button {
-                                withAnimation(.easeInOut) {
-                                    proxy.scrollTo(String(char), anchor: .top)
-                                }
-                            } label: {
-                                Text(String(char))
-                                    .font(.custom("ModernEra-Bold", size: 18))
-                                    .frame(maxWidth: .infinity)
-                                    .multilineTextAlignment(.center)
-                                    .foregroundStyle(.black)
-                            }
-                        }
-                    }
-                    HStack(spacing: 0) {
-                        ForEach(Array("NOPQRSTUVWXYZ"), id: \.self) { char in
-                            Button {
-                                withAnimation(.easeInOut) {
-                                    proxy.scrollTo(String(char), anchor: .top)
-                                }
-                            } label: {
-                                Text(String(char))
-                                    .font(.custom("ModernEra-Bold", size: 18))
-                                    .frame(maxWidth: .infinity)
-                                    .multilineTextAlignment(.center)
-                                    .foregroundStyle(.black)
-                            }
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 36)
-                .padding(.horizontal, -5)
-                
-                Divider()
-                
-                ScrollView {
-                    VStack(spacing: 48) {
-                        // Pre-selected common countries
-                        LazyVGrid(columns: vm.columns, spacing: 36) {
-                            ForEach(vm.countries, id: \.name) { country in
-                                flagItem(
-                                    flag: country.flag,
-                                    name: country.name,
-                                    isSelected: vm.addedCountries.contains { $0.name == country.name },
-                                    canSelect: vm.addedCountries.count < 3 || vm.addedCountries.contains { $0.name == country.name },
-                                    onSelect: { toggleCountry(country) }
-                                )
-                            }
-                        }
-                        
-                        // Full country list with letter headers
-                        LazyVGrid(columns: vm.columns, spacing: 36) {
-                            ForEach(vm.allCountries, id: \.name) { country in
-                                if firstLetters.contains(country.name) {
-                                    Text(String(country.name.prefix(1)))
-                                        .font(.custom("ModernEra-Medium", size: 32))
-                                        .padding(.vertical, 6)
-                                        .id(String(country.name.prefix(1)))
-                                }
-                                flagItem(
-                                    flag: country.flag,
-                                    name: country.name,
-                                    isSelected: vm.addedCountries.contains { $0.name == country.name },
-                                    canSelect: vm.addedCountries.count < 3 || vm.addedCountries.contains { $0.name == country.name },
-                                    onSelect: {toggleCountry(country) }
-                                )
-                            }
-                        }
-                    }
-                    .padding(.bottom, 48)
-                }
-                .frame(maxHeight: .infinity)
-                .padding(.horizontal, -28)
-                .padding(.top, 12)
-            }
-        }
-    }
-    
-    
-    private var minusCircle: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.gray, lineWidth: 1)
-                .background(Circle().fill(Color.white))
-                .frame(width: 16, height: 16)
-            Image(systemName: "xmark")
-                .font(.system(size: 10))
-                .foregroundStyle(.black)
-        }
-        .offset(x: 6, y: 0)
-    }
-    
-    
-    
-    
-    
-    //MARK: Extension of Funcs
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     
     func findingFirstCountry(country: [CountryData]) -> Set<String> {
-        Set( Dictionary(grouping: country, by: {String($0.name.prefix(1))})
-            .compactMapValues { $0.first }
+        Set(Dictionary(grouping: country, by: {String($0.name.prefix(1))})
+            .compactMapValues {$0.first }
             .values
             .map{$0.name}
         )
     }
-    
-    func selectedCountry (country: CountryData) {
-        vm.addedCountries.append(country)
+    func isSelected(_ country: String) -> Bool {
+        selectedCountries.contains(country)
     }
-    
-    func toggleCountry(_ country: CountryData) {
-        if let index = vm.addedCountries.firstIndex(where: { $0.name == country.name }) {
-            vm.addedCountries.remove(at: index)
-        } else if !vm.maxCountries{
-            vm.addedCountries.append(country)
-        }
-        vm.maxCountries = vm.addedCountries.count == 3
-        vm.conditionMet = vm.addedCountries.count > 0
-    }
+    let columns2 = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
 }
 
-
-
-
-struct flagItem: View {
+struct EditNationality2: View {
     
-    let flag: String
-    
-    let name: String
-    
-    let isSelected: Bool
-    
-    let canSelect: Bool
-    
-    let onSelect: () -> Void
+    @State var vm = EditNationality2ViewModel()
     
     var body: some View {
         
-        Button {
-            withAnimation(.easeInOut(duration: 0.01)) {
-                if canSelect {
-                    onSelect()
+        let firstLetters = vm.findingFirstCountry(
+            country: vm.countries
+                .map {CountryData(flag: $0.flag, name: $0.name) })
+        VStack(spacing: 36) {
+            
+            SignUpTitle(text: "Nationality",
+                        subtitle: "\(vm.selectedCountries.count)/3")
+            
+            HStack(spacing: 36) {
+                ForEach(vm.selectedCountries, id: \.self) {country in
+                    Text(country)
+                        .font(.body(32))
+                        .overlay(alignment: .topTrailing) {
+                            crossButton
+                                .offset(x: 6, y: -2)
+                        }
+                        .onTapGesture {
+                            withAnimation(.smooth(duration: 0.2)) {
+                                vm.selectedCountries.removeAll(where: {$0 == country})
+                            }
+                        }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .frame(height: 0)
             
-        } label: {
-            VStack {
-                ZStack(alignment: .topTrailing) {
+            ScrollViewReader { proxy in
+                VStack(spacing: 24) {
+                    LazyVGrid(columns: vm.columns2, spacing: 24) {
+                        ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) {char in
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    proxy.scrollTo(String(char), anchor: .top)
+                                }
+                            } label: {
+                                Text(String(char))
+                                    .font(.body(20, .bold))
+                                    .foregroundStyle(char == "W" || char == "X" ? Color.grayPlaceholder : Color.black)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
                     
-                    flagBox
+                    SoftDivider()
+                        .padding(.horizontal)
                     
-                    addCircle
+                    ScrollView {
+                        
+                        LazyVGrid(columns: vm.columns, spacing: 48) {
+                            ForEach(CountryDataServices.shared.popularCountries) { country in
+                                flagItem(country: country)
+                                    .padding(.top, 3.5)
+                            }
+                            
+                            ForEach(0..<4, id: \.self) {_ in Color.clear
+                                    .frame(height: 0)
+                            }
+                            
+                            ForEach(vm.countries) { country in
+                                if firstLetters.contains(country.name) {
+                                    Text(String(country.name.prefix(1)))
+                                        .font(.body(32))
+                                        .gridCellColumns(4)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                        .id(String(country.name.prefix(1)))
+                                }
+                                flagItem(country: country)
+                            }
+                            
+                        }
+                    }
                 }
-                nameSection
             }
         }
     }
 }
 
-extension flagItem {
+#Preview {
+    EditNationality2()
+}
+
+extension EditNationality2 {
     
-    private var flagBox: some View  {
-        Text(flag)
-            .font(.system(size: 24))
-            .frame(width: 35, height: 45)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? (Color(red: 0.9, green: 0.91, blue: 1)) : Color.white)
-                    .stroke(isSelected ?  (Color(red: 0.9, green: 0.91, blue: 1)) : Color.gray.opacity(0.6), lineWidth: 1)
-                    .frame(width: 35, height: 35)
-                    .shadow(color: isSelected ? .black.opacity(0.15): .clear, radius: 2, x: 0, y: 2)
-            )
-    }
-    
-    private var addCircle: some View {
-        ZStack {
+    private var crossButton: some View {
+        ZStack{
             Circle()
-                .stroke(Color.gray, lineWidth: 1)
+                .stroke(Color.grayPlaceholder, lineWidth: 1)
                 .background(Circle().fill(Color.white))
                 .frame(width: 16, height: 16)
-            
-            Image(systemName: isSelected ? "minus" : "plus")
-                .font(.system(size: 10))
+            Image(systemName: "xmark")
+                .font(.body(8, .bold))
                 .foregroundStyle(.black)
         }
-        .offset(x: 6, y: 0)
     }
     
-    private var nameSection: some View {
-        Text(name)
-            .font(.custom("ModernEra-Medium", size: 10))
-            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-            .offset(y: -2)
-            .lineLimit(3)
-            .frame(width: 75)
-            .multilineTextAlignment(.center)
-            .fixedSize()
+    private func plusButton(_ country: String) -> some View {
+        ZStack{
+            Circle()
+                .stroke(Color.grayPlaceholder, lineWidth: 1)
+                .background(Circle().fill(Color.white))
+                .frame(width: 16, height: 16)
+            Image(systemName: vm.isSelected(country) ? "minus" :"plus")
+                .font(.body(12, .medium))
+                .foregroundStyle(.black)
+        }
+    }
+    
+    private func flagItem(country: CountryData) -> some View {
+        VStack(spacing: 6) {
+            Text(country.flag)
+                .font(.body(24))
+                .padding(6)
+                .background (
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.grayPlaceholder, lineWidth: 1)
+                        .fill(vm.isSelected(country.flag) ? Color.blue : Color.clear)
+                )
+                .overlay( alignment: .topTrailing) {
+                    plusButton(country.flag)
+                        .offset(x: 3, y: -3)
+                }
+            Text(country.name)
+                .font(.body(12, .regular))
+                .multilineTextAlignment(.center)
+        }
+        .offset(y: country.name.count > 15 ? 5 : 0)
+        .onTapGesture {
+            withAnimation(.smooth(duration: 0.2)) {
+                if vm.isSelected(country.flag) {
+                    vm.selectedCountries.removeAll(where: {$0 == country.flag})
+                } else if vm.selectedCountries.count < 3 {
+                    vm.selectedCountries.append(country.flag)
+                }
+            }
+        }
     }
 }
+
+
+

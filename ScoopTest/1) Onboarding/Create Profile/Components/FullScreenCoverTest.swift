@@ -1,18 +1,18 @@
 //
-//  AddImageView2.swift
+//  FullScreenCoverTest.swift
 //  ScoopTest
 //
-//  Created by Art Ostin on 11/07/2025.
+//  Created by Art Ostin on 18/07/2025.
 //
 
 import SwiftUI
 
-struct AddImageView2: View {
+struct FullScreenCoverTest: View {
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 
 #Preview {
-    AddImageView2()
+    FullScreenCoverTest()
 }

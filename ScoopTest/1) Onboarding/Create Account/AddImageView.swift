@@ -11,7 +11,6 @@ import SwiftUI
 import PhotosUI
 
 
-
 @Observable class AddImageViewModel {
     
     var photoSelections: [PhotosPickerItem?] = Array(repeating: nil, count: 6)
@@ -33,7 +32,7 @@ import PhotosUI
             }
         }
     }
-    
+
     func photoPickerBinding(at index: Int) -> Binding<PhotosPickerItem?> {
         Binding(
             get: { self.photoSelections[index] },
