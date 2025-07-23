@@ -5,11 +5,14 @@ import SwiftUI
 struct ProfileView: View {
     
     @State var vm = ProfileViewModel()
-    
     @Binding var state: MeetSections
-    
     @State var isInviting: Bool = false
 
+    
+    
+    
+    
+    
     var body: some View {
 
         GeometryReader { geo in

@@ -21,8 +21,14 @@ struct RootView : View {
             }
         }
         .onAppear {
-            let authUser = try? AuthenticationManager.instance.getAuthenticatedUser()
-            showLogin = authUser == nil
+            Task {
+                if let _ = try? AuthenticationManager.instance.getAuthenticatedUser(){
+                    try? await EditProfileViewModel.instance.loadUser()
+                    showLogin = false
+                } else {
+                    showLogin = true
+                }
+            }
         }
     }
 }

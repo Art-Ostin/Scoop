@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditAttractedTo: View {
         
-    @State var isSelected: String? = nil
+    @State var isSelected: String? = EditProfileViewModel.instance.user?.attractedTo
     
     @Binding var screenTracker: OnboardingViewModel
     
@@ -37,10 +37,6 @@ struct EditAttractedTo: View {
                 Spacer()
                 OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "All Genders")}
             }
-        }
-        .task {
-            try? await EditProfileViewModel.instance.loadUser()
-            isSelected = EditProfileViewModel.instance.user?.attractedTo
         }
         .customNavigation(isOnboarding: isOnboarding)
     }

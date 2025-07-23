@@ -13,7 +13,7 @@ struct EditLookingFor: View {
     
     var isOnboarding: Bool
     
-    @State private var isSelected: String? = nil
+    @State private var isSelected: String? = EditProfileViewModel.instance.user?.lookingFor
     
     let title: String?
     
@@ -37,10 +37,6 @@ struct EditLookingFor: View {
                 OptionPill(title: "Undecided", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateLookingFor(lookingFor: "Undedcided")}
                 Spacer()
             }
-        }
-        .task {
-            try? await EditProfileViewModel.instance.loadUser()
-            isSelected = EditProfileViewModel.instance.user?.lookingFor
         }
         .customNavigation(isOnboarding: isOnboarding)
     }

@@ -11,6 +11,8 @@ struct ProfileImageView: View {
     
     @Binding var vm: ProfileViewModel
     @Binding var isInviting: Bool
+    
+    let images = EditProfileViewModel.instance.user?.imagePathURL
 
     var body: some View {
         GeometryReader { geo in

@@ -11,7 +11,7 @@ struct EditSex: View {
     
     var isOnboarding: Bool
     
-    @State private var isSelected: String? = nil
+    @State private var isSelected: String? = EditProfileViewModel.instance.user?.sex
     
     let title: String?
     
@@ -41,10 +41,6 @@ struct EditSex: View {
                 }
                 Spacer()
             }
-        }
-        .task {
-            try? await EditProfileViewModel.instance.loadUser()
-            isSelected = EditProfileViewModel.instance.user?.sex
         }
         .customNavigation(isOnboarding: isOnboarding)
     }

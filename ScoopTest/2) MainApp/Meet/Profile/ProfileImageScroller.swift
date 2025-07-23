@@ -15,8 +15,10 @@ struct ProfileImageScroller: View {
         ScrollViewReader { proxy in
             ScrollView (.horizontal, showsIndicators: false) {
                 HStack (spacing: 48) {
+                    
                     ForEach(vm.profile.images.indices, id: \.self) {index in
                         ZStack {
+                            
                             Image(vm.profile.images[index])
                                 .resizable()
                                 .scaledToFit( )

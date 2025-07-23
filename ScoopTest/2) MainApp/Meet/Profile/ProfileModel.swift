@@ -8,7 +8,7 @@ import Foundation
 
 struct Profile {
     
-    var name: String
+    var name: String = ""
     var nationality: [String]
     var images: [String]
     var year: String
@@ -19,7 +19,6 @@ struct Profile {
     var faculty: String
     var prompt1: promptResponse
     var prompt2: promptResponse
-    
 }
 
 struct promptResponse {
@@ -29,6 +28,15 @@ struct promptResponse {
 
 
 extension Profile {
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     static let sampleMe = Profile(
       name: "Arthur",
@@ -89,7 +97,6 @@ extension Profile {
         answer: "Orange. Zesty, social, and a little bit tangy."
       )
     )
-    
     
     static let sampleDailyProfile2 = Profile(
       name: "Maya",

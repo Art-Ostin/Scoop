@@ -10,8 +10,7 @@ import SwiftUI
 @MainActor
 @Observable class EditNationalityViewModel {
     
-    var selectedCountries: [String] = []
-    
+    var selectedCountries: [String] = EditProfileViewModel.instance.user?.nationality ?? []
     let countries = CountryDataServices.shared.allCountries
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     
@@ -150,10 +149,6 @@ struct EditNationality: View {
                     }
                 }
             }
-        }
-        .task {
-            try? await EditProfileViewModel.instance.loadUser()
-            vm.selectedCountries = EditProfileViewModel.instance.user?.nationality ?? []
         }
         .customNavigation(isOnboarding: isOnboarding)
     }

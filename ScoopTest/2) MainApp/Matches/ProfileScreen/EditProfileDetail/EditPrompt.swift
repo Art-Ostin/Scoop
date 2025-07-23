@@ -13,17 +13,20 @@ struct EditPrompt: View {
     
     @FocusState var isFocused: Bool
     @State var selectedText: String = ""
-    
     @State var selectedPrompt: String = ""
-    
     @State var showDropdownMenu: Bool = false
     
+    
+    
+    
     var prompts: [String]
+    
     var promptIndex: Int
     
     @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
+    
     let firebase = EditProfileViewModel.instance
     
     init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil) {
@@ -34,6 +37,7 @@ struct EditPrompt: View {
     }
     
     var body: some View {
+                
         ZStack {
             VStack(spacing: 12) {
                 selecter
@@ -55,9 +59,22 @@ struct EditPrompt: View {
         }
         .onChange(of: selectedText) { firebase.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
         .onChange(of: selectedPrompt) { firebase.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
+        
+        
         .onAppear {
             isFocused = true
-            selectedPrompt = prompts.randomElement() ?? ""}
+            if let user = firebase.user {
+                let promptData: PromptResponse?
+                switch promptIndex {
+                case 1: promptData = user.prompt1
+                case 2: promptData = user.prompt2
+                case 3: promptData = user.prompt3
+                default: promptData = nil
+                }
+                selectedPrompt = promptData?.prompt ?? prompts.randomElement() ?? ""
+                selectedText = promptData?.response ?? ""
+            }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.top, isOnboarding ? 96 : 120)
         .customNavigation(isOnboarding: isOnboarding)

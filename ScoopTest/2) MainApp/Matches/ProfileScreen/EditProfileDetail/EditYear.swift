@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditYear: View {
     
-    @State private var isSelected: String? = nil
+    @State private var isSelected: String? = EditProfileViewModel.instance.user?.year
     
     let title: String?
 
@@ -31,10 +31,6 @@ struct EditYear: View {
                     Spacer()
                 }
             }
-        }
-        .task {
-            try? await EditProfileViewModel.instance.loadUser()
-            isSelected = EditProfileViewModel.instance.user?.year
         }
         .customNavigation(isOnboarding: isOnboarding)
     }
