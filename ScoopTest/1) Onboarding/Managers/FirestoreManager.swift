@@ -26,7 +26,7 @@ struct UserProfile: Codable {
     let year: String?
     let height: String?
     let interests: [String]?
-    let faculty: String?
+    let degree: String?
     let hometown: String?
     let name: String?
     let nationality: [String]?
@@ -38,6 +38,14 @@ struct UserProfile: Codable {
     let smoking: String?
     let marijuana: String?
     let drugs: String?
+    let languages: String?
+    let favouriteMovie: String?
+    let favouriteSong: String?
+    let favouriteBook: String?
+    let character: [String]?
+    let imagePath: [String]?
+    let imagePathURL: [String]?
+
     
 
     init(auth: AuthDataResult) {
@@ -49,7 +57,7 @@ struct UserProfile: Codable {
         self.year = nil
         self.height = nil
         self.interests = nil
-        self.faculty = nil
+        self.degree = nil
         self.hometown = nil
         self.name = email.components(separatedBy: ".")[0].capitalized
         self.nationality = nil
@@ -61,6 +69,14 @@ struct UserProfile: Codable {
         self.smoking = nil
         self.marijuana = nil
         self.drugs = nil
+        self.languages = nil
+        self.favouriteMovie = nil
+        self.favouriteSong = nil
+        self.favouriteBook = nil
+        self.character = nil
+        self.imagePath = nil
+        self.imagePathURL = nil
+
     }
       
     enum CodingKeys: String, CodingKey {
@@ -72,7 +88,7 @@ struct UserProfile: Codable {
         case year = "year"
         case height = "height"
         case interests = "interests"
-        case faculty = "faculty"
+        case degree = "degree"
         case hometown = "hometown"
         case name = "name"
         case nationality = "nationality"
@@ -84,6 +100,14 @@ struct UserProfile: Codable {
         case smoking = "smoking"
         case marijuana = "marijuana"
         case drugs = "drugs"
+        case languages = "languages"
+        case favouriteMovie = "favourite_movie"
+        case favouriteSong = "favourite_song"
+        case favouriteBook = "favourite_book"
+        case character = "character"
+        case imagePath = "image_path"
+        case imagePathURL = "image_path_url"
+
     }
     
     init(from decoder: any Decoder) throws {
@@ -96,7 +120,7 @@ struct UserProfile: Codable {
         self.year = try container.decodeIfPresent(String.self, forKey: .year)
         self.height = try container.decodeIfPresent(String.self, forKey: .height)
         self.interests = try container.decodeIfPresent([String].self, forKey: .interests)
-        self.faculty = try container.decodeIfPresent(String.self, forKey: .faculty)
+        self.degree = try container.decodeIfPresent(String.self, forKey: .degree)
         self.hometown = try container.decodeIfPresent(String.self, forKey: .hometown)
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.nationality = try container.decodeIfPresent([String].self, forKey: .nationality)
@@ -108,6 +132,14 @@ struct UserProfile: Codable {
         self.smoking = try container.decodeIfPresent(String.self, forKey: .smoking)
         self.marijuana = try container.decodeIfPresent(String.self, forKey: .marijuana)
         self.drugs = try container.decodeIfPresent(String.self, forKey: .drugs)
+        self.languages = try container.decodeIfPresent(String.self, forKey: .languages)
+        self.favouriteMovie = try container.decodeIfPresent(String.self, forKey: .favouriteMovie)
+        self.favouriteSong = try container.decodeIfPresent(String.self, forKey: .favouriteSong)
+        self.favouriteBook = try container.decodeIfPresent(String.self, forKey: .favouriteBook)
+        self.character = try container.decodeIfPresent([String].self, forKey: .character)
+        self.imagePath = try container.decodeIfPresent([String].self, forKey: .imagePath)
+        self.imagePathURL = try container.decodeIfPresent([String].self, forKey: .imagePathURL)
+
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -120,7 +152,7 @@ struct UserProfile: Codable {
         try container.encodeIfPresent(self.year, forKey: .year)
         try container.encodeIfPresent(self.height, forKey: .height)
         try container.encodeIfPresent(self.interests, forKey: .interests)
-        try container.encodeIfPresent(self.faculty, forKey: .faculty)
+        try container.encodeIfPresent(self.degree, forKey: .degree)
         try container.encodeIfPresent(self.hometown, forKey: .hometown)
         try container.encodeIfPresent(self.name, forKey: .name)
         try container.encodeIfPresent(self.nationality, forKey: .nationality)
@@ -132,6 +164,14 @@ struct UserProfile: Codable {
         try container.encodeIfPresent(self.smoking, forKey: .smoking)
         try container.encodeIfPresent(self.marijuana, forKey: .marijuana)
         try container.encodeIfPresent(self.drugs, forKey: .drugs)
+        try container.encodeIfPresent(self.languages, forKey: .languages)
+        try container.encodeIfPresent(self.favouriteMovie, forKey: .favouriteMovie)
+        try container.encodeIfPresent(self.favouriteSong, forKey: .favouriteSong)
+        try container.encodeIfPresent(self.favouriteBook, forKey: .favouriteBook)
+        try container.encodeIfPresent(self.character, forKey: .character)
+        try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
+        try container.encodeIfPresent(self.imagePathURL, forKey: .imagePathURL)
+
     }
 }
   
@@ -198,10 +238,10 @@ final class ProfileManager {
         try await userDocument(userId: userId).updateData(data)
     }
     
-    func updateFaculty(userId: String, faculty: String) async throws {
+    func updateDegree(userId: String, degree: String) async throws {
         
         let data: [String: Any] = [
-            UserProfile.CodingKeys.faculty.rawValue: faculty
+            UserProfile.CodingKeys.degree.rawValue: degree
         ]
         try await userDocument(userId: userId).updateData(data)
     }
@@ -224,7 +264,7 @@ final class ProfileManager {
     
     func updateNationality(userId: String, nationality: String) async throws {
         let data: [String: Any] = [
-        
+            
             UserProfile.CodingKeys.nationality.rawValue: FieldValue.arrayUnion([nationality])
         ]
         try await userDocument(userId: userId).updateData(data)
@@ -232,7 +272,7 @@ final class ProfileManager {
     
     func removeNationality(userId: String, nationality: String) async throws {
         let data: [String: Any] = [
-        
+            
             UserProfile.CodingKeys.nationality.rawValue: FieldValue.arrayRemove([nationality])
         ]
         try await userDocument(userId: userId).updateData(data)
@@ -251,7 +291,6 @@ final class ProfileManager {
         let key = "prompt\(promptIndex)"
         try await userDocument(userId: userId).updateData([ key: data ])
     }
-    
     
     func updateDrinking(userId: String, drinking: String) async throws {
         let data: [String: Any] = [
@@ -280,4 +319,82 @@ final class ProfileManager {
         ]
         try await userDocument(userId: userId).updateData(data)
     }
+    
+    func updateLanguages(userId: String, languages: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.languages.rawValue : languages
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func updateFavouriteMovie(userId: String, favouriteMovie: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.favouriteMovie.rawValue : favouriteMovie
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func updateFavouriteSong(userId: String, favouriteSong: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.favouriteSong.rawValue : favouriteSong
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func updateFavouriteBook(userId: String, favouriteBook: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.favouriteBook.rawValue : favouriteBook
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func updateCharacter(userId: String, character: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.character.rawValue: FieldValue.arrayUnion([character])
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func removeCharacter(userId: String, character: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.interests.rawValue: FieldValue.arrayRemove([character])
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func updateImagePath(userId: String, path: String, url: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.imagePath.rawValue : FieldValue.arrayUnion([path]),
+            UserProfile.CodingKeys.imagePathURL.rawValue : FieldValue.arrayUnion([url])
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    func removeImagePath(userId: String, path: String, url: String) async throws {
+        let data: [String: Any] = [
+            UserProfile.CodingKeys.imagePath.rawValue : FieldValue.arrayRemove([path]),
+            UserProfile.CodingKeys.imagePathURL.rawValue : FieldValue.arrayRemove([url])
+        ]
+        try await userDocument(userId: userId).updateData(data)
+    }
+    
+    
+    
+    
+    
+    
+//    func updateInterests(userId: String, interest: String) async throws {
+//        let data: [String: Any] = [
+//            UserProfile.CodingKeys.interests.rawValue: FieldValue.arrayUnion([interest])
+//        ]
+//        try await userDocument(userId: userId).updateData(data)
+//    }
+//    
+//    func removeInterests(userId: String, interest: String) async throws {
+//        let data: [String: Any] = [
+//            UserProfile.CodingKeys.interests.rawValue: FieldValue.arrayRemove([interest])
+//        ]
+//        try await userDocument(userId: userId).updateData(data)
+//    }
+    
 }

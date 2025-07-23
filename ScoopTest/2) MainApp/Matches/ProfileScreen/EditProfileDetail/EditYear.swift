@@ -32,6 +32,10 @@ struct EditYear: View {
                 }
             }
         }
+        .task {
+            try? await EditProfileViewModel.instance.loadUser()
+            isSelected = EditProfileViewModel.instance.user?.year
+        }
         .customNavigation(isOnboarding: isOnboarding)
     }
 }

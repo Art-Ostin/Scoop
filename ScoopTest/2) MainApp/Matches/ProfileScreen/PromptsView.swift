@@ -9,6 +9,8 @@ import SwiftUI
 
 struct PromptsView: View {
     
+    let vm = EditProfileViewModel.instance.user
+    
     var body: some View {
 
         CustomList(title: "Prompts") {
@@ -16,7 +18,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: false)
                 } label: {
-                    promptResponse(prompt: "Three qualities I look for in a person", response: "Going to a rave with a group of maters and bringing the girl along and then having euphoria afterwards all the while adding more lines to to this text")
+                    promptResponse(prompt: vm?.prompt1?.prompt ?? "Add Prompt", response: vm?.prompt1?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -24,7 +26,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: false)
                 } label: {
-                    promptResponse(prompt: "Dream Date", response: "Going to a rave with a group of maters and bringing the girl along and then having euphoria afterwards all the while adding more lines to to this text")
+                    promptResponse(prompt: vm?.prompt2?.prompt ?? "Add Prompt", response: vm?.prompt2?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -32,7 +34,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(promptIndex: 3, prompts: Prompts.instance.prompts3, isOnboarding: false)
                 } label: {
-                    promptResponse(prompt: "Dream Date", response: "Going to a rave with a group of maters and bringing the girl along and then having euphoria afterwards all the while adding more lines to to this text")
+                    promptResponse(prompt: vm?.prompt3?.prompt ?? "Add Prompt", response: vm?.prompt3?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -55,11 +57,9 @@ extension PromptsView {
                 
                 Text(prompt)
                     .foregroundStyle(Color.grayText)
-                    .font(.body(15))
-                
-                Text(response)
                     .font(.body(14))
-                
+                Text(response)
+                    .font(.title(response.count < 80 ? 24 : 16 ))
             }
             .font(.body())
             .padding()
@@ -71,7 +71,7 @@ extension PromptsView {
             )
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
             .overlay(alignment: .topTrailing, content: {
-                Image("EditGray")
+                Image(prompt == "Add Prompt" ? "EditButton" : "EditGray")
                     .padding()
             })
             .padding(.horizontal)

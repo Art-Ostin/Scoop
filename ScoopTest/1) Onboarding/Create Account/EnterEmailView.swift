@@ -24,9 +24,7 @@ struct EnterEmailView: View {
         NavigationStack {
             
             VStack(spacing: 72) {
-                
                 SignUpTitle(text: "McGill Email")
-                
                 VStack(spacing: 96){
                     enterEmailSection
                     NextButton(isEnabled: vm.authoriseEmail(email: vm.username), onTap: {showVerification = true})

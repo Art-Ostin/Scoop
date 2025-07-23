@@ -42,6 +42,10 @@ struct EditSex: View {
                 Spacer()
             }
         }
+        .task {
+            try? await EditProfileViewModel.instance.loadUser()
+            isSelected = EditProfileViewModel.instance.user?.sex
+        }
         .customNavigation(isOnboarding: isOnboarding)
     }
 }

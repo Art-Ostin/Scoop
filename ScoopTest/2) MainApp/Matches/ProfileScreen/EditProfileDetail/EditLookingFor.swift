@@ -38,6 +38,10 @@ struct EditLookingFor: View {
                 Spacer()
             }
         }
+        .task {
+            try? await EditProfileViewModel.instance.loadUser()
+            isSelected = EditProfileViewModel.instance.user?.lookingFor
+        }
         .customNavigation(isOnboarding: isOnboarding)
     }
 }

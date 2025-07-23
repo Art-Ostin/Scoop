@@ -57,7 +57,7 @@ struct EditTextFieldLayout: View {
                 
                 .onAppear {
                     if title == "Degree" {
-                        textFieldText = vm.user?.faculty ?? ""
+                        textFieldText = vm.user?.degree ?? ""
                     } else if title == "Hometown" {
                         textFieldText = vm.user?.hometown ?? ""
                     } else if title == "Name" {
@@ -76,7 +76,7 @@ struct EditTextFieldLayout: View {
             }
             .onChange(of: textFieldText) {
                 if title == "Degree" {
-                    vm.updateFaculty(faculty: textFieldText)
+                    vm.updateDegree(degree: textFieldText)
                 } else if title == "Hometown" {
                     vm.updateHometown(hometown: textFieldText)
                 } else if title == "Name" {

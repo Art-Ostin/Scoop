@@ -17,25 +17,29 @@ import PhotosUI
     var imageURLs:[String?] = .init(repeating: nil, count: 6)
     
     init() {
-      Task {
-          if let existingPaths = await EditProfileViewModel.instance.user?.imagePath {
-              let filled = existingPaths + Array(repeating: nil, count: max(0,6-existingPaths.count))
-              await MainActor.run {
-                imagePaths = Array(filled.prefix(6))
-              }
-          }
-          if let existingURLs = await EditProfileViewModel.instance.user?.imagePathURL {
-              let filledU = existingURLs + .init(repeating: nil, count: max(0,6-existingURLs.count))
-              await MainActor.run { imageURLs = Array(filledU.prefix(6)) }
-          }
-      }
+    }
+    
+    
+    @MainActor
+    func seedFromCurrentUser() {
+        guard let paths = EditProfileViewModel.instance.user?.imagePath,
+              let urls  = EditProfileViewModel.instance.user?.imagePathURL
+        else { return }
+        let paddedPaths = (paths + Array(repeating: nil, count: 6)).prefix(6)
+        let paddedURLs  = (urls  + Array(repeating: nil, count: 6)).prefix(6)
+        imagePaths = Array(paddedPaths)
+        imageURLs  = Array(paddedURLs)
+    }
+    
+    func reloadEverything() async {
+      try? await EditProfileViewModel.instance.loadUser()
+      await seedFromCurrentUser()
     }
 
     func loadImage(at index: Int) {
         guard let selection = pickerItems[index] else {return}
 
         Task {
-            
             guard let user = await EditProfileViewModel.instance.user else {return}
             if let oldPath = imagePaths[index],
                 let oldURLs = imageURLs[index]
@@ -61,6 +65,7 @@ import PhotosUI
             let newPath = try await StorageManager.instance.saveImage(userId: user.userId, data: data)
             let newURL = try await StorageManager.instance.getUrlForImage(path: newPath)
             try await ProfileManager.instance.updateImagePath(userId: user.userId, path: newPath, url: newURL.absoluteString)
+            try await EditProfileViewModel.instance.loadUser()
             
             await MainActor.run {
                 imagePaths[index] = newPath
@@ -69,9 +74,7 @@ import PhotosUI
             }
         }
     }
-    
-    
-    
+
 }
 
 /*

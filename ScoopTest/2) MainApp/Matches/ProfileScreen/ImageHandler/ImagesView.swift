@@ -25,6 +25,10 @@ struct ImagesView: View {
             }
             .padding(.horizontal)
         }
+        .task {
+          try? await EditProfileViewModel.instance.loadUser()
+          vm.seedFromCurrentUser()
+        }
         .padding(.horizontal, 32)
     }
 }

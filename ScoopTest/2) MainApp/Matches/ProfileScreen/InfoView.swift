@@ -9,18 +9,73 @@ import SwiftUI
 
 struct InfoView: View {
     
-    @State var coreInfo: [ProfileInfoPreview<AnyView>] = []
-    @State var aboutMe: [ProfileInfoPreview<AnyView>] = []
+    
+    @State var user = EditProfileViewModel.instance
+    
+    let vm = EditProfileViewModel.instance
     
     
-    @State var user = EditProfileViewModel.instance.user
+    //Populate the coreInfo and aboutMe with the UserProfile 
+    private var coreInfo: [ProfileInfoPreview<AnyView>] {
+        guard let u = vm.user else { return [] }
+        
+        let name       = u.name        ?? "–"
+        let sex        = u.sex         ?? "–"
+        let attracted  = u.attractedTo ?? "–"
+        let year       = u.year        ?? "–"
+        let height     = u.height      ?? "–"
+        let nationality = u.nationality ?? []
+        
+        return [
+            .init("Name", [name]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "Name"))},
+            .init("Sex", [sex]) {AnyView(EditSex(title: "Sex"))},
+            .init("Attracted to", [attracted]) {AnyView(EditAttractedTo(title: "Attracted to"))},
+            .init("Year", [year]) {AnyView(EditYear(title: "Year"))},
+            .init("Height", [height]) {AnyView(EditHeight(title: "Height"))},
+            .init("Nationality", nationality) {AnyView(EditNationality(isOnboarding: false))}
+        ]
+    }
     
+    private var aboutMe: [ProfileInfoPreview<AnyView>] {
+        
+        guard let u = vm.user else {return [] }
+             
+        let lookingFor = u.lookingFor ?? "–"
+        let degree = u.degree ?? "-"
+        let hometown = u.hometown ?? "-"
+        
+        let lifestyle = "Drinking:  \(u.drinking?.lowercased() ?? "-"),   "
+                      + "Smoking:  \(u.smoking?.lowercased() ?? "-"),   "
+                      + "Marijuana:  \(u.marijuana?.lowercased() ?? "-"),   "
+                      + "Drugs:  \(u.drugs?.lowercased() ?? "-")"
+        
+        let myLifeAs: [String] = {
+            let choices = [
+                u.favouriteMovie.map { "Movie: \($0)" },
+                u.favouriteSong.map { "Song: \($0)" },
+                u.favouriteBook.map { "Book: \($0)" }
+            ].compactMap { $0 }
+            return choices.isEmpty ? ["Add information"] : choices
+        }()
+        let languages = u.languages  ?? "Add Languages"
+        return [
+            .init("Looking for", [lookingFor]){AnyView( EditLookingFor())},
+            .init("Degree", [degree]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Degree"))},
+            .init("Hometown", [hometown]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Hometown"))},
+            .init("Lifestyle",[lifestyle]) {AnyView(EditLifestyle())},
+            .init("My Life as a", myLifeAs) {AnyView(EditMyLifeAs())},
+            .init ("Languages", [languages]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "I Speak"))}
+        ]
+    }
+
     @FocusState var isFocused: Bool
 
     var body: some View {
         
         let sections: [(title: String, data: [ProfileInfoPreview<AnyView>])] = [
             ("Core", coreInfo), ("About", aboutMe)]
+        
+        
         
         ScrollView {
             ForEach(sections, id: \.title) {section in
@@ -40,30 +95,6 @@ struct InfoView: View {
             }
         }
         .padding(.horizontal, 32)
-        
-        .onAppear {
-            coreInfo = [
-                ProfileInfoPreview("Name", ["Arthur"])
-                {AnyView(EditTextFieldLayout(isOnboarding: false, title: "Name"))},
-                ProfileInfoPreview("Sex", ["Male"]) {AnyView(EditSex(title: "Sex"))},
-                ProfileInfoPreview("Attracted to", ["Women"]) {AnyView(EditAttractedTo(title: "Attracted to"))},
-                ProfileInfoPreview("Year", ["U3"]) {AnyView(EditYear(title: "Year"))},
-                ProfileInfoPreview("Height", ["193cm"]) {AnyView(EditHeight(title: "Height"))},
-                ProfileInfoPreview("Nationality", ["🇬🇧  🇫🇷  🇸🇪"]){AnyView(EditNationality(isOnboarding: false))}
-            ]
-            
-            
-            
-            
-            aboutMe = [
-                ProfileInfoPreview("Looking for", ["Casual"]){AnyView( EditLookingFor())},
-                ProfileInfoPreview("Degree", ["Economics"]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Degree"))},
-                ProfileInfoPreview("Hometown", ["London"]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Hometown"))},
-                ProfileInfoPreview("Lifestyle",["Drinking", "Smoking", "Marajuana", "Drugs"]) {AnyView(EditLifestyle())},
-                ProfileInfoPreview("My Life as", ["Overmono"]) {AnyView(EditMyLifeAs())},
-                ProfileInfoPreview("Languages", ["English, French"]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "I Speak"))}
-            ]
-        }
     }
 }
 

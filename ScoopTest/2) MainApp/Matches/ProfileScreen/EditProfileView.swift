@@ -32,7 +32,7 @@ struct EditProfileView: View {
                         Text("\(String(describing: user.sex))")
                     }
                     
-                    EditImageView()
+                    ImagesView()
                     
                     PromptsView()
                     

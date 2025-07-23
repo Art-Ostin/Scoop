@@ -33,6 +33,10 @@ struct EditHeight: View {
                         }
                 }
             }
+            .task {
+                try? await EditProfileViewModel.instance.loadUser()
+                self.height = EditProfileViewModel.instance.user?.height ?? "5, 8"
+            }
             .customNavigation(isOnboarding: isOnboarding)
             .pickerStyle(.wheel)
         }

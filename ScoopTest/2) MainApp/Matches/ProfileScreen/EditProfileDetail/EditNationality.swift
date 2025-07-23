@@ -151,6 +151,10 @@ struct EditNationality: View {
                 }
             }
         }
+        .task {
+            try? await EditProfileViewModel.instance.loadUser()
+            vm.selectedCountries = EditProfileViewModel.instance.user?.nationality ?? []
+        }
         .customNavigation(isOnboarding: isOnboarding)
     }
 }

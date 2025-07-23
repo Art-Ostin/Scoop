@@ -38,6 +38,10 @@ struct EditAttractedTo: View {
                 OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "All Genders")}
             }
         }
+        .task {
+            try? await EditProfileViewModel.instance.loadUser()
+            isSelected = EditProfileViewModel.instance.user?.attractedTo
+        }
         .customNavigation(isOnboarding: isOnboarding)
     }
 }

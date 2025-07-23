@@ -22,11 +22,10 @@ import PhotosUI
     var degreeTextField: String = "Politics"
     
     private(set) var user: UserProfile? = nil
-    
+        
     
     func loadUser() async throws {
         let AuthUser = try AuthenticationManager.instance.getAuthenticatedUser()
-        
         self.user = try await ProfileManager.instance.getProfile(userId: AuthUser.uid)
     }
     
@@ -79,10 +78,10 @@ import PhotosUI
     }
 
     
-    func updateFaculty(faculty: String) {
+    func updateDegree(degree: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateFaculty(userId: user.userId, faculty: faculty)
+            try? await ProfileManager.instance.updateDegree(userId: user.userId, degree: degree)
             self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
         }
     }
@@ -168,4 +167,55 @@ import PhotosUI
             self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
         }
     }
+    
+    func updateLanguages(languages: String) {
+        guard let user else {return}
+        Task {
+            try? await ProfileManager.instance.updateLanguages(userId: user.userId, languages: languages)
+            self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
+        }
+    }
+    
+    
+    func updateFavouriteMovie(favouriteMovie: String) {
+        guard let user else {return}
+        Task {
+            try? await ProfileManager.instance.updateFavouriteMovie(userId: user.userId, favouriteMovie: favouriteMovie)
+            self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
+        }
+    }
+    
+    func updateFavouriteSong(favouriteSong: String) {
+        guard let user else {return}
+        Task {
+            try? await ProfileManager.instance.updateFavouriteSong(userId: user.userId, favouriteSong: favouriteSong)
+            self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
+        }
+    }
+    
+    func updateFavouriteBook(favouriteBook: String) {
+        guard let user else {return}
+        Task {
+            try? await ProfileManager.instance.updateFavouriteBook(userId: user.userId, favouriteBook: favouriteBook)
+            self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
+        }
+    }
+
+    
+    func updateCharacter(character: String) {
+        guard let user else {return}
+        Task {
+            try? await ProfileManager.instance.updateCharacter(userId: user.userId, character: character)
+            self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
+        }
+    }
+    
+    func removeCharacter(character: String) {
+        guard let user else {return}
+        Task {
+            try? await ProfileManager.instance.removeCharacter(userId: user.userId, character: character)
+            self.user = try? await ProfileManager.instance.getProfile(userId: user.userId)
+        }
+    }
+    
 }

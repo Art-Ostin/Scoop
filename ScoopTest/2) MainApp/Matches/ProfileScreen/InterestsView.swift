@@ -12,13 +12,14 @@ struct InterestsView: View {
     
     @State var vm = InterestsOptionsViewModel()
     
+    let firebase = EditProfileViewModel.instance.user
     
     var body: some View {
         
-        let passions = ["Running", "Football", "Cricket", "Golf", "Hockey", "Table Tennis"]
+        let interests = firebase?.interests ?? []
         
-        let character = ["Creative", "Atheist", "Extroverted", "Active", "Conservative"]
-        
+        let character = firebase?.character ?? [("Add info")]
+                
         
         let sections = [
             ("Social", "figure.socialdance", vm.socialPassions),
@@ -29,7 +30,7 @@ struct InterestsView: View {
             (nil, nil, vm.music2),
             (nil, nil, vm.music3)
         ]
-        
+
         let sections2 = [
             ("Social", "figure.socialdance", vm.socialPassions),
             ("Interests", "book", vm.interests),
@@ -39,7 +40,8 @@ struct InterestsView: View {
             (nil, nil, vm.music2),
             (nil, nil, vm.music3)
         ]
-
+        
+        
             CustomList {
                 
                 NavigationLink {
@@ -56,7 +58,7 @@ struct InterestsView: View {
                         Image("EditGray")
                     }
                     .padding(.horizontal, 8)
-                    InterestsLayout(passions: passions)
+                    InterestsLayout(passions: interests)
                 }
                 .padding(.horizontal)
             }
@@ -72,7 +74,7 @@ struct InterestsView: View {
                             
                             Spacer()
                             
-                            Image("EditGray")
+                            Image(character.count < 1 ? "EditButton" : "EditGray")
                         }
                         .padding(.horizontal, 8)
                         InterestsLayout(passions: character)
@@ -122,12 +124,13 @@ struct InterestsLayout: View {
             }
             .padding()
             .font(.body())
+            .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.white)
                     .shadow(color: Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
             )
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
 
         }
         
@@ -139,6 +142,7 @@ extension Array {
     }
 }
 
-#Preview {
-    InterestsLayout(passions: ["Running", "Football", "Cricket", "Golf", "Hockey", "Table Tennis"])
-}
+
+//#Preview {
+//    InterestsLayout(interests: ["Running", "Football", "Cricket", "Golf", "Hockey", "Table Tennis"])
+//}
