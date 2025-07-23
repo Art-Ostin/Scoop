@@ -7,10 +7,12 @@
 import SwiftUI
 import PhotosUI
 
-@Observable class AddImageViewModel3 {
+@Observable class AddImageViewModel {
     
     var pickerItems: [PhotosPickerItem?] = Array(repeating: nil, count: 6)
     var selectedImages: [UIImage?] = Array(repeating: nil, count: 6)
+    
+    
     
     func loadImage(at index: Int) {
         guard let selection = pickerItems[index] else {return}
@@ -23,22 +25,33 @@ import PhotosUI
             pickerItems[index] = nil
         }
     }
+    
+    
     func saveImage(at index: Int) {
         Task {
             if let data = try? await pickerItems[index]?.loadTransferable(type: Data.self) {
                 guard let userId = await EditProfileViewModel.instance.user?.userId else {return}
                 let path = try await StorageManager.instance.saveImage(userId: userId, data: data)
                 let url = try await StorageManager.instance.getUrlForImage(path: path)
-                try await ProfileManager.instance.updateImagePath(userId: userId, path: url.absoluteString)
+                try await ProfileManager.instance.updateImagePath(userId: userId, path: path, url: url.absoluteString)
             }
+        }
+    }
+    
+    func deleteImage(at index: Int) {
+        Task {
+            guard let user = await EditProfileViewModel.instance.user, let path = user.imagePath
+            else {return}
+            try await StorageManager.instance.deleteImage(path: path[index])
+            try await ProfileManager.instance.updateImagePath(userId: user.userId, path: nil, url: nil )
         }
     }
 }
 
 
-struct AddImageView3: View {
+struct AddImageView: View {
     
-    @State private var vm = AddImageViewModel3()
+    @State private var vm = AddImageViewModel()
     @Binding var showLogin: Bool
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
@@ -88,6 +101,6 @@ struct AddImageView3: View {
 }
 
 #Preview {
-    AddImageView2(showLogin: .constant(true))
+    AddImageView(showLogin: .constant(true))
 }
 
