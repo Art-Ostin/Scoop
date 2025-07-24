@@ -325,12 +325,14 @@
 		653770542E0A1E710058D225 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				653BAFA52E0C64B600C1AB9E /* ProfileModel.swift */,
+				653BAFA72E0C654700C1AB9E /* ProfileViewModel.swift */,
 				659496FF2E01DD4000880921 /* ProfileContainer.swift */,
 				653BAFAA2E0C944600C1AB9E /* ProfileImageView.swift */,
 				653BAFAC2E0C95AE00C1AB9E /* ProfileImageScroller.swift */,
-				653BAFAE2E0C980B00C1AB9E /* ProfileDetailsView */,
-				653BAFA52E0C64B600C1AB9E /* ProfileModel.swift */,
-				653BAFA72E0C654700C1AB9E /* ProfileViewModel.swift */,
+				653770512E0A1E190058D225 /* ProfileDetailsView.swift */,
+				653BAFAF2E0C9B7100C1AB9E /* ProfileDetailsViewInfo.swift */,
+				6537704D2E0A10DC0058D225 /* PromptResponseView.swift */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
 			path = Profile;
@@ -361,16 +363,6 @@
 				653A78C22E15DB810098747F /* MapView */,
 			);
 			path = Invite;
-			sourceTree = "<group>";
-		};
-		653BAFAE2E0C980B00C1AB9E /* ProfileDetailsView */ = {
-			isa = PBXGroup;
-			children = (
-				653770512E0A1E190058D225 /* ProfileDetailsView.swift */,
-				653BAFAF2E0C9B7100C1AB9E /* ProfileDetailsViewInfo.swift */,
-				6537704D2E0A10DC0058D225 /* PromptResponseView.swift */,
-			);
-			path = ProfileDetailsView;
 			sourceTree = "<group>";
 		};
 		654982BD2E2EEF5200CA335F /* Storage */ = {

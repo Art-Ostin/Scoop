@@ -51,7 +51,7 @@ extension Profile {
         
         if let u =  EditProfileViewModel.instance.user {
 
-            return localProfile (
+            return Profile (
                     userId: u.userId,
                     email: u.email,
                     dateCreated: u.dateCreated,
@@ -79,8 +79,8 @@ extension Profile {
                     character: u.character,
                     imagePath: u.imagePath,
                     imagePathURL: u.imagePathURL)
-            
         }
+        
     }
 
 }
