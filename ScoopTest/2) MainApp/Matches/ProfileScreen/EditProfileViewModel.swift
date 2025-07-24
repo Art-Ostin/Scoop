@@ -10,7 +10,7 @@ import FirebaseAuth
 import PhotosUI
 
 
-@MainActor
+
 @Observable class EditProfileViewModel {
     
     static let instance = EditProfileViewModel()
@@ -77,7 +77,6 @@ import PhotosUI
         }
     }
 
-    
     func updateDegree(degree: String) {
         guard let user else {return}
         Task {

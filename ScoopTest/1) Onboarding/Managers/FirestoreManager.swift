@@ -377,24 +377,5 @@ final class ProfileManager {
         ]
         try await userDocument(userId: userId).updateData(data)
     }
-    
-    
-    
-    
-    
-    
-//    func updateInterests(userId: String, interest: String) async throws {
-//        let data: [String: Any] = [
-//            UserProfile.CodingKeys.interests.rawValue: FieldValue.arrayUnion([interest])
-//        ]
-//        try await userDocument(userId: userId).updateData(data)
-//    }
-//    
-//    func removeInterests(userId: String, interest: String) async throws {
-//        let data: [String: Any] = [
-//            UserProfile.CodingKeys.interests.rawValue: FieldValue.arrayRemove([interest])
-//        ]
-//        try await userDocument(userId: userId).updateData(data)
-//    }
-    
+
 }

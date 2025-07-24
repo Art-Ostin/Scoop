@@ -14,8 +14,6 @@ import SwiftUI
         return (event.time.formatted(.dateTime.hour().minute()))
     }
     
-    
-
     func typeTitle (type: EventType) -> String {
         switch type {
         case .grabFood:

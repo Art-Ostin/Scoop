@@ -13,9 +13,6 @@ import SwiftUI
     
     var profile: localProfile?
     
-    var profileMatch: Profile = .sampleDailyProfile1
-    var profileMatch2: Profile = .sampleDailyProfile2
-    
     var showInvite: Bool = false
     var inviteSent: Bool = false
     
@@ -33,7 +30,6 @@ import SwiftUI
         
         Task { @MainActor in
             self.profile = Profile.currentUser
-            
         }
     }
     

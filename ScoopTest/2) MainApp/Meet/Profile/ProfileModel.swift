@@ -7,47 +7,13 @@
 import Foundation
 
 
-struct promptResponse {
-    let question: String
-    let answer: String
-}
 
 
-struct Profile {
-    var userId: String
-    var email: String
-    var dateCreated: Date?
-    var sex: String?
-    var attractedTo: String?
-    var year: String?
-    var height: String?
-    var interests: [String]?
-    var degree: String?
-    var hometown: String?
-    var name: String?
-    var nationality: [String]?
-    var lookingFor: String?
-    var prompt1: PromptResponse?
-    var prompt2: PromptResponse?
-    var prompt3: PromptResponse?
-    var drinking: String?
-    var smoking: String?
-    var marijuana: String?
-    var drugs: String?
-    var languages: String?
-    var favouriteMovie: String?
-    var favouriteSong: String?
-    var favouriteBook: String?
-    var character: [String]?
-    var imagePath: [String]?
-    var imagePathURL: [String]?
-}
 
 
-extension Profile {
-    
-    @MainActor
-    static var currentUser: Profile {
+
+
+    static var currentUser: UserProfile {
         
         if let u =  EditProfileViewModel.instance.user {
 
