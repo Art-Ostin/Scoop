@@ -10,8 +10,7 @@ struct ProfileImageScroller: View {
     
     @Binding var vm: ProfileViewModel
     
-    let imageUrls = EditProfileViewModel.instance.user?.imagePathURL
-    
+    let imageUrls = Profile.currentUser?.imagePathURL ?? []
     
     var body: some View {
         
@@ -20,36 +19,29 @@ struct ProfileImageScroller: View {
                 
                 HStack (spacing: 48) {
                     
-                    if let imageUrls = imageUrls {
+                    
+                    ForEach(imageUrls.indices, id: \.self) {index in
                         
-                        ForEach(imageUrls.indices, id: \.self) {index in
-                            let url = imageUrls[index]
-                            if let url = URL(string: url) {
-                                
-                                
-                                ZStack {
-                                    AsyncImage(url: url) { Image in
-                                        Image.resizable()
-                                            .scaledToFill()
-                                            .frame(width: 60, height: 60)
-                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        
-                                        if vm.imageSelection == index {
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .stroke(Color.accentColor, lineWidth: 1)
-                                                .frame(width: 60, height: 60)
-                                        }
-                                    } placeholder: {
-                                        ProgressView()
+                        let url = imageUrls[index]
+                        if let url = URL(string: url) {
+                            
+                            AsyncImage(url: url) { image in
+                                image.resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 60)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.accentColor, lineWidth: vm.imageSelection == index ? 1 : 0)
                                     }
-                                }
-                                .id(index)
-                                .shadow(color: vm.imageSelection == index ? Color.black.opacity(0.2) : Color.clear, radius: 4, x: 0, y: 10)
-                                .onTapGesture {
-                                    withAnimation(.easeInOut(duration: 0.2)){
-                                        vm.imageSelection = index
-                                    }
-                                }
+                            } placeholder: {
+                                ProgressView()
+                                    .frame(width: 60, height: 60)
+                            }
+                            .id(index)
+                            .shadow(color: vm.imageSelection == index ? Color.black.opacity(0.2) : Color.clear, radius: 4, x: 0, y: 10)
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)){vm.imageSelection = index}
                             }
                         }
                     }
@@ -58,14 +50,10 @@ struct ProfileImageScroller: View {
             }
             .onChange(of: vm.imageSelection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
-                    withAnimation {
-                        proxy.scrollTo(newIndex, anchor: .leading)
-                    }
+                    withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }
                 }
                 if oldIndex >= 3 && newIndex == 2 {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        proxy.scrollTo(newIndex, anchor: .trailing)
-                    }
+                    withAnimation(.easeInOut(duration: 0.3)) { proxy.scrollTo(newIndex, anchor: .trailing)}
                 }
             }
         }
@@ -76,48 +64,3 @@ struct ProfileImageScroller: View {
     ProfileImageScroller(vm: .constant(ProfileViewModel()))
 }
 
-
-//
-//ScrollViewReader { proxy in
-//    ScrollView (.horizontal, showsIndicators: false) {
-//        HStack (spacing: 48) {
-//            
-//            ForEach(vm.profile.images.indices, id: \.self) {index in
-//                
-//                ZStack {
-//                    
-//                    Image(vm.profile.images[index])
-//                        .resizable()
-//                        .scaledToFit( )
-//                        .frame(width: 60, height: 60)
-//                        .cornerRadius(16)
-//                        .shadow(color: vm.imageSelection == index ? Color.black.opacity(0.2) : Color.clear, radius: 4, x: 0, y: 10)
-//                    if vm.imageSelection == index {
-//                        RoundedRectangle(cornerRadius: 16)
-//                            .stroke(Color.accentColor, lineWidth: 1)
-//                            .frame(width: 60, height: 60)
-//                    }
-//                }
-//                .id(index)
-//                .onTapGesture {
-//                    withAnimation(.easeInOut(duration: 0.2)){
-//                        vm.imageSelection = index
-//                    }
-//                }
-//            }
-//        }
-//        .padding()
-//    }
-//    .onChange(of: vm.imageSelection) {oldIndex, newIndex in
-//        if oldIndex < 3 && newIndex == 3 {
-//            withAnimation {
-//                proxy.scrollTo(newIndex, anchor: .leading)
-//            }
-//        }
-//        if oldIndex >= 3 && newIndex == 2 {
-//            withAnimation(.easeInOut(duration: 0.3)) {
-//                proxy.scrollTo(newIndex, anchor: .trailing)
-//            }
-//        }
-//    }
-//}

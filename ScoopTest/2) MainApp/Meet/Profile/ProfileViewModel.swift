@@ -12,11 +12,11 @@ import SwiftUI
 
 
 @Observable class ProfileViewModel {
-        
+    
     var profile: Profile = .sampleMatch
     
     var profileMatch: Profile = .sampleMatch
-
+    
     var showInvite: Bool = false
     var inviteSent: Bool = false
     
@@ -29,5 +29,5 @@ import SwiftUI
     var startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.78
     var currentDragOffsetY: CGFloat = 0
     var endingOffsetY: CGFloat = 0
-
+    
 }

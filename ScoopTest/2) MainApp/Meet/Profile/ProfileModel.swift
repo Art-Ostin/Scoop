@@ -66,7 +66,6 @@ extension Profile {
     static var currentUser: localProfile? {
         
         guard let u =  EditProfileViewModel.instance.user else {return nil}
-
             return localProfile (
                 userId: u.userId,
                 email: u.email,

@@ -7,12 +7,10 @@ struct ProfileView: View {
     @State var vm = ProfileViewModel()
     @Binding var state: MeetSections
     @State var isInviting: Bool = false
+    
+    let name = Profile.currentUser?.name ?? ""
+    let nationality = Profile.currentUser?.nationality ?? []
 
-    
-    
-    
-    
-    
     var body: some View {
 
         GeometryReader { geo in
@@ -52,9 +50,9 @@ extension ProfileView {
     
     private var heading: some View {
         HStack {
-            Text(vm.profile.name)
+            Text(name)
                 .font(.body(24, .bold))
-            ForEach (vm.profile.nationality, id: \.self) {flag in
+            ForEach (nationality, id: \.self) {flag in
                 Text(flag)
                     .font(.body(24))
             }

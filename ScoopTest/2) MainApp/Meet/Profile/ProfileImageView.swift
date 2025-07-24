@@ -12,7 +12,7 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     @Binding var isInviting: Bool
     
-    let stringURLs = EditProfileViewModel.instance.user?.imagePathURL
+    let stringURLs = Profile.currentUser?.imagePathURL
     
     var body: some View {
         GeometryReader { geo in
@@ -21,7 +21,6 @@ struct ProfileImageView: View {
                 if let urlString = stringURLs {
                     
                     let size = geo.size.width - 24
-
                     
                     ForEach (urlString.indices, id: \.self) {index in
                         let url = urlString[index]
