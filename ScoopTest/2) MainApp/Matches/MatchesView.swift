@@ -76,7 +76,7 @@ extension MatchesView {
     private var ProfileButton: some View {
         HStack (spacing: 18) {
             
-            Image(Profile.sampleMe.images[0])
+            Image(Profile.sampleDailyProfile1.images[0])
                 .resizable()
                 .scaledToFit()
                 .frame(width: 30, height: 30)

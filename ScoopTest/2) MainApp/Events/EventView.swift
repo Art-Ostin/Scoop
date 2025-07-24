@@ -12,8 +12,8 @@ import SwiftUI
 
 struct EventView: View {
     
-    let profileImage = Profile.sampleMatch.images[0]
-    let name = "Meeting \(Profile.sampleMatch.name)"
+    let profileImage = Profile.sampleDailyProfile1.images[0]
+    let name = "Meeting \(Profile.sampleDailyProfile1.name)"
     
     @State var showEventDetails: Bool = false
     

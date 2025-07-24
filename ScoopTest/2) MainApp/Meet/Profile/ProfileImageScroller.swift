@@ -10,11 +10,13 @@ struct ProfileImageScroller: View {
     
     @Binding var vm: ProfileViewModel
     
-    let imageUrls = Profile.currentUser?.imagePathURL ?? []
     
     var body: some View {
         
+        let imageUrls = vm.profile?.imagePathURL ?? []
+        
         ScrollViewReader { proxy in
+            
             ScrollView (.horizontal, showsIndicators: false) {
                 
                 HStack (spacing: 48) {

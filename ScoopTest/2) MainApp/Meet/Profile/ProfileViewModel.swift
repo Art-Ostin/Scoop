@@ -9,13 +9,12 @@ import Foundation
 import SwiftUI
 
 
-
-
 @Observable class ProfileViewModel {
     
-    var profile: Profile = .sampleMatch
+    var profile: localProfile?
     
-    var profileMatch: Profile = .sampleMatch
+    var profileMatch: Profile = .sampleDailyProfile1
+    var profileMatch2: Profile = .sampleDailyProfile2
     
     var showInvite: Bool = false
     var inviteSent: Bool = false
@@ -29,5 +28,13 @@ import SwiftUI
     var startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.78
     var currentDragOffsetY: CGFloat = 0
     var endingOffsetY: CGFloat = 0
+    
+    init() {
+        
+        Task { @MainActor in
+            self.profile = Profile.currentUser
+            
+        }
+    }
     
 }

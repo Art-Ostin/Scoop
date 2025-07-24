@@ -12,9 +12,11 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     @Binding var isInviting: Bool
     
-    let stringURLs = Profile.currentUser?.imagePathURL
-    
+
     var body: some View {
+        
+        let stringURLs = vm.profile?.imagePathURL
+        
         GeometryReader { geo in
             TabView(selection: $vm.imageSelection) {
                 
