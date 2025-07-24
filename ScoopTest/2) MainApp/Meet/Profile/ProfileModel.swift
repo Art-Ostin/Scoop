@@ -95,7 +95,6 @@ extension Profile {
                 character: u.character,
                 imagePath: u.imagePath,
                 imagePathURL: u.imagePathURL)
-            
     }
     
     static let sampleMe = Profile(

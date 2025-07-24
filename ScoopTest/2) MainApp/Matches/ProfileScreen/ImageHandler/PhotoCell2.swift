@@ -27,7 +27,7 @@ struct PhotoCell2: View {
                     .scaledToFill()
             } else if let url = urlString, let url = URL(string: url) {
                 AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill().id(urlString)
+                    image.resizable().scaledToFill()
                     
                 } placeholder: {ProgressView()}
                 
