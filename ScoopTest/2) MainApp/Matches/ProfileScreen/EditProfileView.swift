@@ -25,13 +25,6 @@ struct EditProfileView: View {
             ZStack {
                 ScrollView {
                     
-                    if let user = EditProfileViewModel.instance.user {
-                        Text("\(user.email)")
-                        Text("\(String(describing: user.dateCreated))")
-                        Text("\(user.userId)")
-                        Text("\(String(describing: user.sex))")
-                    }
-                    
                     ImagesView()
                     
                     PromptsView()
@@ -50,9 +43,6 @@ struct EditProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { XButton()}
                 ToolbarItem(placement: .topBarTrailing) {Text("Save").font(.body(14, .bold))}
-            }
-            .task {
-                try? await vm.loadUser()
             }
         }
     }
