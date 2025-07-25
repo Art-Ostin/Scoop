@@ -33,15 +33,19 @@ import PhotosUI
     func reloadEverything() async {
       try? await EditProfileViewModel.instance.loadUser()
     seedFromCurrentUser()
+        
     }
+    
 
     func loadImage(at index: Int) {
+        
         guard let selection = pickerItems[index] else {return}
 
         Task {
             guard let user =  EditProfileViewModel.instance.user else {return}
             if let oldPath = imagePaths[index],
                 let oldURLs = imageURLs[index]
+                
                 {
                 try? await StorageManager.instance.deleteImage(path: oldPath)
                 try? await ProfileManager.instance.removeImagePath(userId: user.userId , path: oldPath, url: oldURLs)

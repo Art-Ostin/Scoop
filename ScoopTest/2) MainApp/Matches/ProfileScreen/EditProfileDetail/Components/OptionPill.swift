@@ -47,9 +47,7 @@ struct OptionPill: View {
             .onTapGesture {
                 self.isSelected = title
                 onTap()
-                withAnimation {
-                    counter += 1
-                }
+                withAnimation {counter += 1}
             }
     }
 }
