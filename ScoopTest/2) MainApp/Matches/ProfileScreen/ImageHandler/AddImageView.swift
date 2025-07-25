@@ -8,7 +8,6 @@ import SwiftUI
 import PhotosUI
 
 
-@MainActor
 struct AddImageView: View {
     
     @State private var vm = ImageViewModel()

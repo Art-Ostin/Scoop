@@ -20,7 +20,6 @@ import PhotosUI
         
     }
 
-    @MainActor
     func seedFromCurrentUser() {
         guard let paths = EditProfileViewModel.instance.user?.imagePath,
               let urls  = EditProfileViewModel.instance.user?.imagePathURL
@@ -33,7 +32,7 @@ import PhotosUI
     
     func reloadEverything() async {
       try? await EditProfileViewModel.instance.loadUser()
-      await seedFromCurrentUser()
+    seedFromCurrentUser()
     }
 
     func loadImage(at index: Int) {
@@ -76,43 +75,3 @@ import PhotosUI
     }
 
 }
-
-/*
- func saveImage(at index: Int) {
- Task {
- if let data = try? await pickerItems[index]?.loadTransferable(type: Data.self) {
- guard let userId = await EditProfileViewModel.instance.user?.userId else {return}
- let path = try await StorageManager.instance.saveImage(userId: userId, data: data)
- let url = try await StorageManager.instance.getUrlForImage(path: path)
- try await ProfileManager.instance.updateImagePath(userId: userId, path: path, url: url.absoluteString)
- }
- }
- }
- */
-
-
-/*
- func deleteImage(at index: Int) {
- 
- Task {
- guard
- let user = await EditProfileViewModel.instance.user,
- let paths = user.imagePath,
- let urls = user.imagePathURL,
- index < paths.count,
- index < urls.count
- else {return}
- 
- let oldPath = paths[index]
- let oldURL  = urls[index]
- 
- try? await StorageManager.instance.deleteImage(path: oldPath)
- 
- try? await ProfileManager.instance.removeImagePath(
- userId: user.userId,
- path: oldPath,
- url: oldURL
- )
- }
- }
- */

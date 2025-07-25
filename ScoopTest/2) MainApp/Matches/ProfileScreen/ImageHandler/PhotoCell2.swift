@@ -9,7 +9,6 @@ import SwiftUI
 import PhotosUI
 
 
-@MainActor
 struct PhotoCell2: View {
     
     @Binding var picker: PhotosPickerItem?
@@ -54,7 +53,6 @@ struct PhotoCell2: View {
 struct changeIcon: View {
     
     var body: some View {
-        
         Image("ChangeIcon")
             .padding(12)
             .frame(width: 24, height: 24)

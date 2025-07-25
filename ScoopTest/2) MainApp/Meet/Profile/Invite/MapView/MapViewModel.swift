@@ -10,7 +10,6 @@ import SwiftUI
 import MapKit
 
 
-@MainActor
 @Observable class MapViewModel {
     
     
