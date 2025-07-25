@@ -12,8 +12,10 @@ import SwiftUI
 
 struct EventView: View {
     
-    let profileImage = Profile.sampleDailyProfile1.images[0]
-    let name = "Meeting \(Profile.sampleDailyProfile1.name)"
+    let profileImage = "Image Place Holder"
+
+
+    let name = "Meeting Name Placeholder Here"
     
     @State var showEventDetails: Bool = false
     
@@ -42,7 +44,7 @@ struct EventView: View {
                 .padding(.top, 24)
         }
         .sheet(isPresented: $showEventDetails) {
-            EventDetailsView()
+//            EventDetailsView()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

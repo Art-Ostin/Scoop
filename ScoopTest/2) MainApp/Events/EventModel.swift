@@ -39,8 +39,8 @@ extension EventType {
 
 struct Event {
     
-    var profile: Profile
-    var profile2: Profile
+    var profile: UserProfile
+    var profile2: UserProfile
     var type: EventType
     var time: Date
     var location: String
@@ -49,8 +49,8 @@ struct Event {
 
     extension Event {
       static let sample = Event(
-        profile: .sampleDailyProfile1,
-        profile2: .sampleDailyProfile2,
+        profile: EditProfileViewModel.instance.user!,
+        profile2: EditProfileViewModel.instance.user!,
         type:  .houseParty,
         time:   Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date(),
         location: "Legless Arms",

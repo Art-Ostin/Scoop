@@ -8,8 +8,8 @@ struct ProfileView: View {
     @Binding var state: MeetSections
     @State var isInviting: Bool = false
     
-    let name = Profile.currentUser?.name ?? ""
-    let nationality = Profile.currentUser?.nationality ?? []
+    let name = EditProfileViewModel.instance.user?.name ?? ""
+    let nationality = EditProfileViewModel.instance.user?.nationality ?? []
 
     var body: some View {
 

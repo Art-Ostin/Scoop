@@ -11,8 +11,6 @@ struct ProfileDetailsViewInfo: View {
     
     @Binding var vm: ProfileViewModel
     
-    private var profile: localProfile{vm.profile}
-    
     var body: some View {
         
         
@@ -51,38 +49,34 @@ extension ProfileDetailsViewInfo {
     
     
     private var topRow: some View {
-        
-        
-        if let profile = vm.profile {
-            
-            HStack(spacing: 24){
-                
-                HStack{
-                    Image(systemName: "magnifyingglass")
-                    Text(profile.lookingFor ?? "")
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                
-                hDivider
-                
-                HStack {
-                    Image(systemName: "graduationcap")
-                    Text(profile.year ?? "")
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                
-                hDivider
-                
-                HStack {
-                    Image (systemName: "arrow.up.and.down")
-                    Text(profile.height ?? "")
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                
+                    
+            return HStack(spacing: 24) {
+
+                    
+                    HStack{
+                        Image(systemName: "magnifyingglass")
+                        Text(vm.profile?.lookingFor ?? "")
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    hDivider
+                    
+                    HStack {
+                        Image(systemName: "graduationcap")
+                        Text(vm.profile?.year ?? "")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    hDivider
+                    
+                    HStack {
+                        Image (systemName: "arrow.up.and.down")
+                        Text(vm.profile?.height ?? "")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
             }
-            .padding()
-        }
     }
     
     
@@ -99,28 +93,26 @@ extension ProfileDetailsViewInfo {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading)
             .padding(.top)
-            .padding(.bottom)
+            .padding(.bottom) as! EmptyView
+        } else {
+            EmptyView()
         }
     }
     
     
     private var cityAndFaculty: some View {
         
-        
-        if let degree  = vm.profile?.degree {
+        return HStack {
             HStack {
-                HStack {
-                    Image("ScholarStyle")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .padding(.leading)
-                    Text(degree)
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, alignment: .top)
-        }
-    
+                Image("ScholarStyle")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .padding(.leading)
+                Text(vm.profile?.degree ?? "")
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .top)
             
             hDivider
             
@@ -130,25 +122,26 @@ extension ProfileDetailsViewInfo {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                 
-                Text(vm.profile.hometown)
+                Text(vm.profile?.hometown ?? "Hello World")
                     .padding(.top, 2)
             }
             .frame(maxWidth: .infinity, alignment: .top)
-            
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .padding(.top)
         .padding(.bottom)
     }
     
-    private var hDivider: some View {
-        Rectangle()
-            .frame(width: 1, height: 20)
-            .foregroundStyle(Color(red: 0.86, green: 0.86, blue: 0.86))
-        
-    }
+    
 }
 
+
+private var hDivider: some View {
+    Rectangle()
+        .frame(width: 1, height: 20)
+        .foregroundStyle(Color(red: 0.86, green: 0.86, blue: 0.86))
+    
+}
 
 
 struct HDivider: View {

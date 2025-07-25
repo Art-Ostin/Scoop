@@ -17,7 +17,7 @@ struct PromptResponse: Codable  {
 
 
 struct UserProfile: Codable {
-    
+      
     let userId: String
     let email: String
     let dateCreated: Date?
@@ -46,7 +46,6 @@ struct UserProfile: Codable {
     let imagePath: [String]?
     let imagePathURL: [String]?
 
-    
 
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid
@@ -377,5 +376,4 @@ final class ProfileManager {
         ]
         try await userDocument(userId: userId).updateData(data)
     }
-
 }

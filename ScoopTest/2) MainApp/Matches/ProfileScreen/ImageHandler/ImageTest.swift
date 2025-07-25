@@ -15,7 +15,7 @@ struct ImageTest: View {
         
         ScrollView {
             VStack(spacing: 36) {
-                if let urlStrings = Profile.currentUser?.imagePathURL {
+                if let urlStrings = EditProfileViewModel.instance.user?.imagePathURL {
                     ForEach(urlStrings, id: \.self) { urlString in
                         if let url = URL(string: urlString) {
                             AsyncImage(url: url) { Image in

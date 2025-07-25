@@ -17,9 +17,9 @@ import PhotosUI
     var imageURLs:[String?] = .init(repeating: nil, count: 6)
     
     init() {
+        
     }
-    
-    
+
     @MainActor
     func seedFromCurrentUser() {
         guard let paths = EditProfileViewModel.instance.user?.imagePath,
@@ -40,7 +40,7 @@ import PhotosUI
         guard let selection = pickerItems[index] else {return}
 
         Task {
-            guard let user = await EditProfileViewModel.instance.user else {return}
+            guard let user =  EditProfileViewModel.instance.user else {return}
             if let oldPath = imagePaths[index],
                 let oldURLs = imageURLs[index]
                 {

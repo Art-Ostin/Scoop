@@ -11,7 +11,7 @@ import SwiftUI
 
 @Observable class ProfileViewModel {
     
-    var profile: localProfile?
+    var profile = EditProfileViewModel.instance.user
     
     var showInvite: Bool = false
     var inviteSent: Bool = false
@@ -26,11 +26,5 @@ import SwiftUI
     var currentDragOffsetY: CGFloat = 0
     var endingOffsetY: CGFloat = 0
     
-    init() {
-        
-        Task { @MainActor in
-            self.profile = Profile.currentUser
-        }
-    }
     
 }

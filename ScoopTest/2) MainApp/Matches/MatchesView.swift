@@ -76,12 +76,12 @@ extension MatchesView {
     private var ProfileButton: some View {
         HStack (spacing: 18) {
             
-            Image(Profile.sampleDailyProfile1.images[0])
-                .resizable()
-                .scaledToFit()
-                .frame(width: 30, height: 30)
-                .clipShape(Circle())
-                .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+            Text("Open ProfileView")
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 30, height: 30)
+//                .clipShape(Circle())
+//                .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
             
         }
     }
