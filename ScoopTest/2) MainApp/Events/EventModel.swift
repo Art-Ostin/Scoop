@@ -47,6 +47,7 @@ struct Event {
     var message: String?
 }
 
+
     extension Event {
       static let sample = Event(
         profile: EditProfileViewModel.instance.user!,

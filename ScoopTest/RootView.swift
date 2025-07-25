@@ -19,15 +19,12 @@ struct RootView : View {
                 LoginContainer(showLogin: $showLogin)
                     .transition(.move(edge: .bottom))
             }
-        }
-        .onAppear {
-            Task {
-                if let _ = try? AuthenticationManager.instance.getAuthenticatedUser(){
-                    try? await EditProfileViewModel.instance.loadUser()
-                    showLogin = false
-                } else {
-                    showLogin = true
-                }
+        }.task { @MainActor in
+            if let _ = try? AuthenticationManager.instance.getAuthenticatedUser(){
+                try? await EditProfileViewModel.instance.loadUser()
+                showLogin = false
+            } else {
+                showLogin = true
             }
         }
     }

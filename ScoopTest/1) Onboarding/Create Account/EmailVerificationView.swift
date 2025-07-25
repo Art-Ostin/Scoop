@@ -73,9 +73,8 @@ struct EmailVerificationView: View {
     @Binding var vm: EmailVerificationViewModel
     @Binding var showLogin: Bool
     @Binding var showEmail: Bool
-        
+    
     var body: some View {
-
         ZStack {
             Color.background.ignoresSafeArea()
             VStack(spacing: 24) {
@@ -94,19 +93,16 @@ struct EmailVerificationView: View {
             .padding(.top, 144)
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.horizontal)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    Task {
-                        if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
-                            showLogin = false
-                        }
-                        else {
-                            if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
-                                 showEmail = false 
-                            }
+            .task {
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
+                        showLogin = false
+                    }
+                    else {
+                        if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
+                            showEmail = false
                         }
                     }
-                }
             }
             .customNavigation(isOnboarding: false)
         }

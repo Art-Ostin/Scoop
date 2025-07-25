@@ -17,10 +17,6 @@ import PhotosUI
     
     private init () {}
     
-    var nameTextField: String = "Arthur"
-    var hometownTextField: String = "London"
-    var degreeTextField: String = "Politics"
-    
     private(set) var user: UserProfile? = nil
         
     

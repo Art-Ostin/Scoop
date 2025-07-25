@@ -36,11 +36,14 @@ import MapKit
         }
     }
     
+    
     func searchPlaces() async {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchText
         
         let results = try? await MKLocalSearch(request: request).start()
-        self.results = results?.mapItems ?? []
+        await MainActor.run {
+            self.results = results?.mapItems ?? []
+        }
     }
 }

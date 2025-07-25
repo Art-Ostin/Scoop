@@ -13,6 +13,7 @@ import SwiftUI
     let countries = CountryDataServices.shared.allCountries
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     
+    
     func findingFirstCountry(country: [CountryData]) -> Set<String> {
         Set(Dictionary(grouping: country, by: {String($0.name.prefix(1))})
             .compactMapValues {$0.first }
