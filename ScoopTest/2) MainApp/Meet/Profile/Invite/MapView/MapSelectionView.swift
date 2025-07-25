@@ -90,7 +90,10 @@ extension MapSelectionView {
             vm.lookAroundScene = nil
             Task {
                 let request = MKLookAroundSceneRequest(mapItem: selection)
-                vm.lookAroundScene = try? await request.scene
+                let scene = try? await request.scene
+                await MainActor.run {
+                    vm.lookAroundScene = scene
+                }
             }
         }
     }

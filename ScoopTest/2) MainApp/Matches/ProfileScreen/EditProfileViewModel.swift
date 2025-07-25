@@ -11,6 +11,7 @@ import PhotosUI
 
 
 
+@MainActor
 @Observable class EditProfileViewModel {
     
     static let instance = EditProfileViewModel()
