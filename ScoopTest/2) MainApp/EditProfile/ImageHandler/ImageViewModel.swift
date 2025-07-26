@@ -55,7 +55,6 @@ import PhotosUI
                     selectedImages[index] = nil
                 }
             }
-            
             guard
                 let data = try? await selection.loadTransferable(type: Data.self),
                 let uiImg = UIImage(data: data)
@@ -64,7 +63,6 @@ import PhotosUI
             await MainActor.run {
                 selectedImages[index] = uiImg
             }
-            
             let newPath = try await StorageManager.instance.saveImage(userId: user.userId, data: data)
             let newURL = try await StorageManager.instance.getUrlForImage(path: newPath)
             try await ProfileManager.instance.updateImagePath(userId: user.userId, path: newPath, url: newURL.absoluteString)

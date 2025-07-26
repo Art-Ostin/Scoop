@@ -42,7 +42,7 @@ struct ProfileDetailsViewInfo: View {
 }
 
 #Preview {
-    ProfileDetailsViewInfo(vm: .constant(ProfileViewModel()))
+    ProfileDetailsViewInfo(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)))
 }
 
 extension ProfileDetailsViewInfo {
@@ -55,7 +55,7 @@ extension ProfileDetailsViewInfo {
                     
                     HStack{
                         Image(systemName: "magnifyingglass")
-                        Text(vm.profile?.lookingFor ?? "")
+                        Text(vm.profile.lookingFor ?? "")
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -64,7 +64,7 @@ extension ProfileDetailsViewInfo {
                     
                     HStack {
                         Image(systemName: "graduationcap")
-                        Text(vm.profile?.year ?? "")
+                        Text(vm.profile.year ?? "")
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     
@@ -72,7 +72,7 @@ extension ProfileDetailsViewInfo {
                     
                     HStack {
                         Image (systemName: "arrow.up.and.down")
-                        Text(vm.profile?.height ?? "")
+                        Text(vm.profile.height ?? "")
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     
@@ -83,7 +83,7 @@ extension ProfileDetailsViewInfo {
     private func passionsRow(firstRow: Bool = true) -> some View {
         
         
-        if let interests = vm.profile?.interests {
+        if let interests = vm.profile.interests {
             HStack {
                 Image("HappyFace")
                     .resizable()
@@ -109,7 +109,7 @@ extension ProfileDetailsViewInfo {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                     .padding(.leading)
-                Text(vm.profile?.degree ?? "")
+                Text(vm.profile.degree ?? "")
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -122,7 +122,7 @@ extension ProfileDetailsViewInfo {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                 
-                Text(vm.profile?.hometown ?? "Hello World")
+                Text(vm.profile.hometown ?? "Hello World")
                     .padding(.top, 2)
             }
             .frame(maxWidth: .infinity, alignment: .top)

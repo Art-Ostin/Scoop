@@ -53,4 +53,6 @@ import SwiftUI
     func deleteImage(path: String) async throws {
         try await getPath(path: path).delete()
     }
+    
+    
 }

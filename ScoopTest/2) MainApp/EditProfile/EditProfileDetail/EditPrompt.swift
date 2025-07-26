@@ -16,9 +16,7 @@ struct EditPrompt: View {
     @State var selectedPrompt: String = ""
     @State var showDropdownMenu: Bool = false
     
-    
-    
-    
+        
     var prompts: [String]
     
     var promptIndex: Int

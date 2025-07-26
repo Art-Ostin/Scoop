@@ -30,7 +30,10 @@ struct MeetContainer: View {
             TwoDailyProfilesView(state: $state)
             
         case .profile:
-            ProfileView(state: $state)
+            if let profile = EditProfileViewModel.instance.user {
+                ProfileView(profile: profile, state: $state)
+
+            }
         }
         
     }

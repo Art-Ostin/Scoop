@@ -38,7 +38,6 @@ import SwiftUI
         try await userDocument(userId: userId).updateData(data)
     }
     
-    
     func updateAttractedTo(userId: String, attractedTo: String) async throws {
         let data: [String: Any] = [
             UserProfile.CodingKeys.attractedTo.rawValue: attractedTo
@@ -214,4 +213,3 @@ import SwiftUI
         try await userDocument(userId: userId).updateData(data)
     }
 }
-extension ProfileManager: ObservableObject {}

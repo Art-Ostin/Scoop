@@ -31,5 +31,5 @@ struct InviteButton: View {
 
 
 #Preview {
-    InviteButton(vm: ProfileViewModel())
+    InviteButton(vm: ProfileViewModel(profile: EditProfileViewModel.instance.user!))
 }

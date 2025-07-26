@@ -82,5 +82,5 @@ struct ProfileDetailsView: View {
     }
 
 #Preview {
-    ProfileDetailsView(vm: .constant(ProfileViewModel()))
+    ProfileDetailsView(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)))
 }

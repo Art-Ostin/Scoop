@@ -79,5 +79,5 @@ struct SendInviteView: View {
 }
 
 #Preview {
-    SendInviteView(ProfileViewModel: ProfileViewModel(), name: "Arthur", typeDefaultOption: "")
+    SendInviteView(ProfileViewModel: ProfileViewModel(profile: EditProfileViewModel.instance.user!), name: "Arthur", typeDefaultOption: "")
 }

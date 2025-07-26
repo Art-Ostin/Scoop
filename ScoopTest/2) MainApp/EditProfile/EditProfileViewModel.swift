@@ -10,7 +10,6 @@ import FirebaseAuth
 import PhotosUI
 
 
-
 @Observable class EditProfileViewModel {
     
     static let instance = EditProfileViewModel()
@@ -19,7 +18,6 @@ import PhotosUI
     
     private(set) var user: UserProfile? = nil
         
-    
     func loadUser() async throws {
         let AuthUser = try AuthenticationManager.instance.getAuthenticatedUser()
         let profile = try await ProfileManager.instance.getProfile(userId: AuthUser.uid)
@@ -27,7 +25,6 @@ import PhotosUI
             self.user = profile
         }
     }
-    
     
     func updateSex(sex: String) {
         guard let user else {return}
@@ -273,6 +270,7 @@ import PhotosUI
             }
         }
     }
+    
     
     func removeCharacter(character: String) {
         guard let user else {return}

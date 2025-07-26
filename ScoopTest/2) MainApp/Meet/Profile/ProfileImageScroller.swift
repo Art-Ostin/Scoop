@@ -13,7 +13,7 @@ struct ProfileImageScroller: View {
     
     var body: some View {
         
-        let imageUrls = vm.profile?.imagePathURL ?? []
+        let imageUrls = vm.profile.imagePathURL ?? []
         
         ScrollViewReader { proxy in
             
@@ -63,6 +63,6 @@ struct ProfileImageScroller: View {
 }
 
 #Preview {
-    ProfileImageScroller(vm: .constant(ProfileViewModel()))
+    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)))
 }
 

@@ -17,7 +17,6 @@ enum EventType: CaseIterable {
 }
 
 extension EventType {
-    
     var description: (emoji: String?, label: String) {
         switch self {
         case .grabFood:

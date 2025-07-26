@@ -15,7 +15,7 @@ struct ProfileImageView: View {
 
     var body: some View {
         
-        let stringURLs = vm.profile?.imagePathURL
+        let stringURLs = vm.profile.imagePathURL
         
         GeometryReader { geo in
             TabView(selection: $vm.imageSelection) {
@@ -42,7 +42,7 @@ struct ProfileImageView: View {
 
 
 #Preview {
-    ProfileImageView(vm: .constant(ProfileViewModel()), isInviting: .constant(false))
+    ProfileImageView(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)), isInviting: .constant(false))
 }
 
 struct imageContainer: View {

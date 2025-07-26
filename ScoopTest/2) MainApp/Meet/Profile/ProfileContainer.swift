@@ -2,45 +2,23 @@
 
 import SwiftUI
 
-import Foundation
-import SwiftUI
-
-
-//Have this profile viewModel
-
-@Observable class ProfileViewModel {
-    
-    var profile: UserProfile
-    
-    var showInvite: Bool = false
-    var inviteSent: Bool = false
-    
-    var imageSelection: Int = 0
-    let pageSpacing: CGFloat = -48
-    
-    init(profile: UserProfile) {
-        self.profile = profile
-    }
-}
-
-
-
 struct ProfileView: View {
     
-    
-    @State var vm = ProfileViewModel(profile: EditProfileViewModel.instance.user!)
-    
-        
-    
+    @State private var vm: ProfileViewModel
     @Binding var state: MeetSections
+    
     @State var isInviting: Bool = false
     
-    let name = EditProfileViewModel.instance.user?.name ?? ""
-    let nationality = EditProfileViewModel.instance.user?.nationality ?? []
-
+    
+    init(profile: UserProfile, state: Binding<MeetSections>) {
+        self._vm = State(initialValue: ProfileViewModel(profile: profile))
+        self._state = state
+    }
+    
+    
     var body: some View {
         
-        GeometryReader { geo in
+        GeometryReader { _ in
             
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
@@ -61,32 +39,30 @@ struct ProfileView: View {
                     Rectangle()
                         .fill(.regularMaterial)
                         .ignoresSafeArea(.all)
-                    SendInviteView(ProfileViewModel: vm, name: "Arthur")
+                    SendInviteView(ProfileViewModel: vm, name: vm.profile.name ?? "")
                 }
             }
         }
     }
 }
-#Preview {
-    ProfileView(state: .constant(.profile))
+#Preview{
+    ProfileView(profile: EditProfileViewModel.instance.user!, state: .constant(.profile))
 }
 
 extension ProfileView {
 
     private var heading: some View {
         HStack {
-            Text(name)
+            Text(vm.profile.name ?? "")
                 .font(.body(24, .bold))
-            ForEach (nationality, id: \.self) {flag in
+            ForEach (vm.profile.nationality ?? [], id: \.self) {flag in
                 Text(flag)
                     .font(.body(24))
             }
             Spacer()
             Image(systemName: "chevron.down")
                 .font(.body(20, .bold))
-                .onTapGesture {
-                    state = .twoDailyProfiles
-                }
+                .onTapGesture { state = .twoDailyProfiles }
         }
     }
 }
