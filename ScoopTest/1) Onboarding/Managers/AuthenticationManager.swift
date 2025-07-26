@@ -8,7 +8,6 @@
 import Foundation
 import FirebaseAuth
 import SwiftUI
-import Combine
 
 
 struct AuthenticatedUser {
@@ -24,19 +23,23 @@ struct AuthenticatedUser {
 
 @Observable class AuthenticationManager: AuthenticationManaging {
     
-    static let instance = AuthenticationManager()
+    
+    let profile: ProfileManaging
+    
+    init(profile: ProfileManaging) {
+        self.profile = profile
+    }
     
     func createUser(email: String, password: String ) async throws {
         let authUser = try await Auth.auth().createUser(withEmail: email, password: password)
         
         let profileUser = UserProfile(auth: authUser)
-        try await ProfileManager.instance.createProfile(profile: profileUser)
+        try await profile.createProfile(profile: profileUser)
     }
     
     func signInUser(email: String, password: String ) async throws {
         let authUser = try await Auth.auth().signIn(with: EmailAuthProvider.credential(withEmail: email, password: password))
         
-        let _ = UserProfile(auth: authUser)
     }
     
     func getAuthenticatedUser () throws -> AuthenticatedUser {

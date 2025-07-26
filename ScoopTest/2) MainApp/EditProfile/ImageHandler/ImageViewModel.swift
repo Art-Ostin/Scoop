@@ -16,13 +16,22 @@ import PhotosUI
     var imagePaths:[String?] = .init(repeating: nil, count: 6)
     var imageURLs:[String?] = .init(repeating: nil, count: 6)
     
-    init() {
-        
+    
+    let storageManager: StorageManaging
+    let userStore: CurrentUserStore
+    let profileManager: ProfileManaging
+    
+    
+    init (storageManager: StorageManaging, userStore: CurrentUserStore, profileManager: ProfileManaging) {
+        self.userStore = userStore
+        self.storageManager = storageManager
+        self.profileManager = profileManager
     }
-
+    
+    
     func seedFromCurrentUser() {
-        guard let paths = CurrentUserStore.shared.user?.imagePath,
-              let urls  = CurrentUserStore.shared.user?.imagePathURL
+        guard let paths = userStore.user?.imagePath,
+              let urls  = userStore.user?.imagePathURL
         else { return }
         let paddedPaths = (paths + Array(repeating: nil, count: 6)).prefix(6)
         let paddedURLs  = (urls  + Array(repeating: nil, count: 6)).prefix(6)
@@ -31,24 +40,23 @@ import PhotosUI
     }
     
     func reloadEverything() async {
-      try? await CurrentUserStore.shared.loadUser()
-    seedFromCurrentUser()
+      try? await userStore.loadUser()
+        seedFromCurrentUser()
         
     }
     
-
     func loadImage(at index: Int) {
         
         guard let selection = pickerItems[index] else {return}
 
         Task {
-            guard let user =  CurrentUserStore.shared.user else {return}
+            guard let user =  userStore.user else {return}
             if let oldPath = imagePaths[index],
                 let oldURLs = imageURLs[index]
                 
                 {
-                try? await StorageManager.instance.deleteImage(path: oldPath)
-                try? await ProfileManager.instance.removeImagePath(userId: user.userId , path: oldPath, url: oldURLs)
+                try? await storageManager.deleteImage(path: oldPath)
+                try? await profileManager.removeImagePath(userId: user.userId , path: oldPath, url: oldURLs)
                 
                 await MainActor.run {
                     imagePaths[index]     = nil
@@ -63,10 +71,10 @@ import PhotosUI
             await MainActor.run {
                 selectedImages[index] = uiImg
             }
-            let newPath = try await StorageManager.instance.saveImage(userId: user.userId, data: data)
-            let newURL = try await StorageManager.instance.getUrlForImage(path: newPath)
-            try await ProfileManager.instance.updateImagePath(userId: user.userId, path: newPath, url: newURL.absoluteString)
-            try await CurrentUserStore.shared.loadUser()
+            let newPath = try await storageManager.saveImage(userId: user.userId, data: data)
+            let newURL = try await storageManager.getUrlForImage(path: newPath)
+            try await profileManager.updateImagePath(userId: user.userId, path: newPath, url: newURL.absoluteString)
+            try await userStore.loadUser()
             
             await MainActor.run {
                 imagePaths[index] = newPath

@@ -11,18 +11,21 @@ import PhotosUI
 
 @Observable class EditProfileViewModel {
     
-    static let instance = EditProfileViewModel()
-    
-    private init () {}
+    let userStore: CurrentUserStore
 
-    private let userStore = CurrentUserStore.shared
+    let profileManager: ProfileManaging
+    
+    init (currentUser: CurrentUserStore, profile: ProfileManaging) {
+        self.userStore = currentUser
+        self.profileManager = profile
+    }
 
     var user: UserProfile? { userStore.user }
     
     func updateSex(sex: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateSex(userId: user.userId, sex: sex)
+            try? await profileManager.updateSex(userId: user.userId, sex: sex)
             try? await userStore.loadUser()
         }
     }
@@ -30,7 +33,7 @@ import PhotosUI
     func updateAttractedTo(attractedTo: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateAttractedTo(userId: user.userId, attractedTo: attractedTo)
+            try? await profileManager.updateAttractedTo(userId: user.userId, attractedTo: attractedTo)
             try? await userStore.loadUser()
         }
     }
@@ -38,7 +41,7 @@ import PhotosUI
     func updateYear(year: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateYear(userId: user.userId, year: year)
+            try? await profileManager.updateYear(userId: user.userId, year: year)
             try? await userStore.loadUser()
         }
     }
@@ -46,7 +49,7 @@ import PhotosUI
     func updateHeight(height: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateHeight(userId: user.userId, height: height)
+            try? await profileManager.updateHeight(userId: user.userId, height: height)
             try? await userStore.loadUser()
         }
     }
@@ -54,7 +57,7 @@ import PhotosUI
     func updateInterests(interests: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateInterests(userId: user.userId, interest: interests)
+            try? await profileManager.updateInterests(userId: user.userId, interest: interests)
             try? await userStore.loadUser()
         }
     }
@@ -62,7 +65,7 @@ import PhotosUI
     func removeInterests(interests: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.removeInterests(userId: user.userId, interest: interests)
+            try? await profileManager.removeInterests(userId: user.userId, interest: interests)
             try? await userStore.loadUser()
         }
     }
@@ -70,7 +73,7 @@ import PhotosUI
     func updateDegree(degree: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateDegree(userId: user.userId, degree: degree)
+            try? await profileManager.updateDegree(userId: user.userId, degree: degree)
             try? await userStore.loadUser()
         }
     }
@@ -78,7 +81,7 @@ import PhotosUI
     func updateHometown(hometown: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateHometown(userId: user.userId, hometown: hometown)
+            try? await profileManager.updateHometown(userId: user.userId, hometown: hometown)
             try? await userStore.loadUser()
         }
     }
@@ -86,7 +89,7 @@ import PhotosUI
     func updateName(name: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateName(userId: user.userId, name: name)
+            try? await profileManager.updateName(userId: user.userId, name: name)
             try? await userStore.loadUser()
         }
     }
@@ -94,7 +97,7 @@ import PhotosUI
     func updateNationality(nationality: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateNationality(userId: user.userId, nationality: nationality)
+            try? await profileManager.updateNationality(userId: user.userId, nationality: nationality)
             try? await userStore.loadUser()
         }
     }
@@ -102,7 +105,7 @@ import PhotosUI
     func removeNationality(nationality: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.removeNationality(userId: user.userId, nationality: nationality)
+            try? await profileManager.removeNationality(userId: user.userId, nationality: nationality)
             try? await userStore.loadUser()
         }
     }
@@ -110,7 +113,7 @@ import PhotosUI
     func updateLookingFor(lookingFor: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateLookingFor(userId: user.userId, lookingFor: lookingFor)
+            try? await profileManager.updateLookingFor(userId: user.userId, lookingFor: lookingFor)
             try? await userStore.loadUser()
         }
     }
@@ -119,7 +122,7 @@ import PhotosUI
         guard let user else {return}
         let prompt = PromptResponse(prompt: prompt, response: response )
         Task {
-            try? await ProfileManager.instance.updatePrompt(userId: user.userId, promptIndex: promptIndex, prompt: prompt)
+            try? await profileManager.updatePrompt(userId: user.userId, promptIndex: promptIndex, prompt: prompt)
             try? await userStore.loadUser()
         }
     }
@@ -128,7 +131,7 @@ import PhotosUI
     func updateDrinking(drinking: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateDrinking(userId: user.userId, drinking: drinking)
+            try? await profileManager.updateDrinking(userId: user.userId, drinking: drinking)
             try? await userStore.loadUser()
         }
     }
@@ -136,7 +139,7 @@ import PhotosUI
     func updateSmoking(smoking: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateSmoking(userId: user.userId, smoking: smoking)
+            try? await profileManager.updateSmoking(userId: user.userId, smoking: smoking)
             try? await userStore.loadUser()
         }
     }
@@ -144,7 +147,7 @@ import PhotosUI
     func updateMarijuana(marijuana: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateMarijuana(userId: user.userId, marijuana: marijuana)
+            try? await profileManager.updateMarijuana(userId: user.userId, marijuana: marijuana)
             try? await userStore.loadUser()
         }
     }
@@ -152,7 +155,7 @@ import PhotosUI
     func updateDrugs(drugs: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateDrugs(userId: user.userId, drugs: drugs)
+            try? await profileManager.updateDrugs(userId: user.userId, drugs: drugs)
             try? await userStore.loadUser()
         }
     }
@@ -160,7 +163,7 @@ import PhotosUI
     func updateLanguages(languages: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateLanguages(userId: user.userId, languages: languages)
+            try? await profileManager.updateLanguages(userId: user.userId, languages: languages)
             try? await userStore.loadUser()
         }
     }
@@ -168,7 +171,7 @@ import PhotosUI
     func updateFavouriteMovie(favouriteMovie: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateFavouriteMovie(userId: user.userId, favouriteMovie: favouriteMovie)
+            try? await profileManager.updateFavouriteMovie(userId: user.userId, favouriteMovie: favouriteMovie)
             try? await userStore.loadUser()
         }
     }
@@ -176,7 +179,7 @@ import PhotosUI
     func updateFavouriteSong(favouriteSong: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateFavouriteSong(userId: user.userId, favouriteSong: favouriteSong)
+            try? await profileManager.updateFavouriteSong(userId: user.userId, favouriteSong: favouriteSong)
             try? await userStore.loadUser()
         }
     }
@@ -184,7 +187,7 @@ import PhotosUI
     func updateFavouriteBook(favouriteBook: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateFavouriteBook(userId: user.userId, favouriteBook: favouriteBook)
+            try? await profileManager.updateFavouriteBook(userId: user.userId, favouriteBook: favouriteBook)
             try? await userStore.loadUser()
         }
     }
@@ -193,7 +196,7 @@ import PhotosUI
     func updateCharacter(character: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.updateCharacter(userId: user.userId, character: character)
+            try? await profileManager.updateCharacter(userId: user.userId, character: character)
             try? await userStore.loadUser()
         }
     }
@@ -202,7 +205,7 @@ import PhotosUI
     func removeCharacter(character: String) {
         guard let user else {return}
         Task {
-            try? await ProfileManager.instance.removeCharacter(userId: user.userId, character: character)
+            try? await profileManager.removeCharacter(userId: user.userId, character: character)
             try? await userStore.loadUser()
         }
     }

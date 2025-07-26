@@ -10,6 +10,11 @@ import SwiftUI
 struct OnboardingContainer: View {
         
     @Binding var vm: OnboardingViewModel
+    
+    let profile: ProfileManaging
+    let currentUser: CurrentUserStore
+    
+    
     @Binding var showLogin: Bool
     
     var body: some View {
@@ -17,6 +22,7 @@ struct OnboardingContainer: View {
         NavigationStack {
             
             //Need the ZStack for the transitions
+            
             ZStack {
                 Group {
                     switch vm.screen {
@@ -37,13 +43,11 @@ struct OnboardingContainer: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background)
             .task {
-                try? await CurrentUserStore.shared.loadUser()
+                try? await currentUser.loadUser()
             }
         }
     }
 }
         
         
-#Preview {
-    OnboardingContainer(vm: .constant(OnboardingViewModel()), showLogin: .constant(false))
-}
+

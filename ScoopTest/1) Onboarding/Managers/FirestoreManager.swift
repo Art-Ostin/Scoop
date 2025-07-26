@@ -13,9 +13,8 @@ import SwiftUI
 
 @Observable final class ProfileManager: ProfileManaging {
     
-    static let instance = ProfileManager ()
     
-    private init () {}
+    init() {}
     
     private let userCollection = Firestore.firestore().collection("users")
     

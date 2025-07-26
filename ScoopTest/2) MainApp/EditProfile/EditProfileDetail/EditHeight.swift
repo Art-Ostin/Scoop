@@ -9,7 +9,11 @@ import SwiftUI
 
 struct EditHeight: View {
     
-    @State private var isSelected: String? = CurrentUserStore.shared.user?.height
+
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+
+    @State private var isSelected: String? = nil
+    
     
     let heightOptions = ["4' 5", "4' 6","4' 7","4' 8", "4' 9","4' 10","5' 0","5' 1","5' 2","5' 3", "5' 4", "5' 5", "5' 6", "5' 7", "5' 8", "5' 9", "5' 10", "6' 0", "6' 1", "6' 2", "6' 3", "6' 4", "6' 5", "6' 6", "6' 7", "6' 8", "6' 9", "7' 0"]
     
@@ -29,12 +33,15 @@ struct EditHeight: View {
             Picker("Height", selection: $height) {
                 ForEach(heightOptions, id: \.self) { option in
                     Text(option).font(.body(20))
-                        .onChange(of: height) { EditProfileViewModel.instance.updateHeight(height: height)
+                        .onChange(of: height) {dependencies.editProfileViewModel.updateHeight(height: height)
                         }
                 }
             }
             .customNavigation(isOnboarding: isOnboarding)
             .pickerStyle(.wheel)
+        }
+        .task {
+            isSelected = dependencies.editProfileViewModel.user?.height
         }
     }
 }

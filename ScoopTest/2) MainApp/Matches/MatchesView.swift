@@ -8,16 +8,12 @@
 import SwiftUI
 
 
-@Observable class MatchesViewModel {
-    
-    func signOut() throws {
-        try AuthenticationManager.instance.signOutUser()
-    }
-}
 
 struct MatchesView: View {
     
-    @State var vm = MatchesViewModel()
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+
     
     @Binding var showLogin: Bool
     
@@ -38,10 +34,10 @@ struct MatchesView: View {
                     Text("View your past Meet Ups Here")
                         .font(.body(20))
                     
-                    Text(CurrentUserStore.shared.user?.name ?? "No Name")
+                    Text(dependencies.userStore.user?.name ?? "No Name")
                     
                     ActionButton(text: "Sign Out") {
-                        try? vm.signOut()
+                        try? dependencies.authManager.signOutUser()
                         showLogin = true
                     }
                 }

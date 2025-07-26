@@ -10,13 +10,11 @@ import SwiftUI
 
 struct EditProfileView: View {
     
-
     var body: some View {
         
         NavigationStack {
             
             ZStack {
-                
                 ScrollView {
                     ImagesView()
                     PromptsView()

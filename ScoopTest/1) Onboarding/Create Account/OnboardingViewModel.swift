@@ -11,9 +11,12 @@ import SwiftUI
 
 @Observable class OnboardingViewModel {
     
-    //Logic for User Email & veryifying Email
+    let authManager: AuthenticationManaging
     
-    // Logic for tracking which Screen the User is on
+    init (authManager: AuthenticationManaging) {
+        self.authManager = authManager
+    }
+    
     var screen: Int = 0
     
     let transition: AnyTransition = .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
@@ -23,10 +26,10 @@ import SwiftUI
     
     // Logic to Create & Sign the User in
     func createUser (email: String, password: String) async throws {
-      try await AuthenticationManager.instance.createUser(email: email, password: password)
+      try await authManager.createUser(email: email, password: password)
     }
     func signInUser(email: String, password: String) async throws {
-       try await AuthenticationManager.instance.signInUser(email: email, password: password)
+       try await authManager.signInUser(email: email, password: password)
     }
     
 }

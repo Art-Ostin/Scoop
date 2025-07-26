@@ -10,14 +10,22 @@ import FirebaseAuth
 
 @Observable
 class CurrentUserStore {
-    static let shared = CurrentUserStore()
+    
+    @ObservationIgnored private let auth: AuthenticationManaging
+    @ObservationIgnored private let profileManager: ProfileManaging
+    
+    init(auth: AuthenticationManaging, profile: ProfileManaging) {
+        self.auth = auth
+        self.profileManager = profile
+    }
+    
     private init() {}
     
     private(set) var user: UserProfile? = nil
     
     func loadUser() async throws {
-        let authUser = try AuthenticationManager.instance.getAuthenticatedUser()
-        let profile = try await ProfileManager.instance.getProfile(userId: authUser.uid)
+        let authUser = try auth.getAuthenticatedUser()
+        let profile = try await profileManager.getProfile(userId: authUser.uid)
         await MainActor.run {
             self.user = profile
         }

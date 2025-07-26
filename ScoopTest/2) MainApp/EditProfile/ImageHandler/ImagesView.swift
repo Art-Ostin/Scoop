@@ -8,10 +8,18 @@
 import SwiftUI
 
 struct ImagesView: View {
-    
+
     let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
     
-    @State var vm = ImageViewModel()
+    @State var vm = ImageViewModel(storageManager: <#any StorageManaging#>, userStore: CurrentUserStore, profileManager: <#any ProfileManaging#>)
+    
+    
+    let userStore: CurrentUserStore
+    
+    init(userStore: CurrentUserStore) {
+        self.userStore = userStore
+    }
+    
     
     var body: some View {
        
@@ -26,34 +34,14 @@ struct ImagesView: View {
             .padding(.horizontal)
         }
         .task {
-          try? await CurrentUserStore.shared.loadUser()
+          try? await userStore.loadUser()
           vm.seedFromCurrentUser()
         }
         .padding(.horizontal, 32)
     }
 }
 
-
-#Preview {
-    ImagesView()
-}
-
-/*
- VStack {
-     if let urls = CurrentUserStore.shared.user?.imagePathURL {
-         ForEach(urls, id: \.self) {url in
-             if let url = URL(string: url) {
-                 AsyncImage(url: url) { Image in
-                     Image
-                         .resizable()
-                         .scaledToFill()
-                         .frame(width: 150, height: 150)
-                 } placeholder: {
-                     ProgressView()
-                 }
-             }
-         }
-     }
- }
- */
-
+//
+//#Preview {
+//    ImagesView(userStore: CurrentUserStore())
+//}

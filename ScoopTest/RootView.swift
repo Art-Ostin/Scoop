@@ -10,18 +10,23 @@ struct RootView : View {
     
     @State var showLogin: Bool = false
     
+    @State private var dependencies = AppDependencies()
+    
     var body: some View {
         
         ZStack {
             if !showLogin {
                 AppContainer(showLogin: $showLogin)
+                    .appDependencies(dependencies)
             } else  {
                 LoginContainer(showLogin: $showLogin)
+                    .appDependencies(dependencies)
+
                     .transition(.move(edge: .bottom))
             }
         }.task {
-            if let _ = try? AuthenticationManager.instance.getAuthenticatedUser(){
-                try? await CurrentUserStore.shared.loadUser()
+            if let _ = try? dependencies.authManager.getAuthenticatedUser(){
+                try? await dependencies.userStore.loadUser()
                 showLogin = false
             } else {
                 showLogin = true
