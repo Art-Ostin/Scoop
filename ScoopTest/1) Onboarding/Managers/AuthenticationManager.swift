@@ -36,8 +36,7 @@ struct AuthenticatedUser {
     func signInUser(email: String, password: String ) async throws {
         let authUser = try await Auth.auth().signIn(with: EmailAuthProvider.credential(withEmail: email, password: password))
         
-        let profile = UserProfile(auth: authUser)
-        try await ProfileManager.instance.createProfile(profile: profile)
+        let _ = UserProfile(auth: authUser)
     }
     
     func getAuthenticatedUser () throws -> AuthenticatedUser {

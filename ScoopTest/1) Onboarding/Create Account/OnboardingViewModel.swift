@@ -12,17 +12,6 @@ import SwiftUI
 @Observable class OnboardingViewModel {
     
     //Logic for User Email & veryifying Email
-    func authoriseEmail(email: String) -> Bool {
-        guard email.count > 4, let dotRange = email.range(of: ".") else {
-            return false
-        }
-        let suffix = email[dotRange.upperBound...]
-        return suffix.count >= 2
-    }
-    var username: String = ""
-    var email: String { "\(username)@mail.mcgill.ca" }
-    var password: String = "HelloWorld"
-
     
     // Logic for tracking which Screen the User is on
     var screen: Int = 0

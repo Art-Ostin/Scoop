@@ -74,6 +74,8 @@ struct EmailVerificationView: View {
     @Binding var showLogin: Bool
     @Binding var showEmail: Bool
     
+    
+    
     var body: some View {
         ZStack {
             Color.background.ignoresSafeArea()

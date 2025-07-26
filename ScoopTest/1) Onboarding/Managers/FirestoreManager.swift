@@ -192,7 +192,7 @@ import SwiftUI
     
     func removeCharacter(userId: String, character: String) async throws {
         let data: [String: Any] = [
-            UserProfile.CodingKeys.interests.rawValue: FieldValue.arrayRemove([character])
+            UserProfile.CodingKeys.character.rawValue: FieldValue.arrayRemove([character])
         ]
         try await userDocument(userId: userId).updateData(data)
     }

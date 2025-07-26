@@ -9,9 +9,6 @@ import SwiftUI
 
 struct InfoView: View {
     
-    
-    @State var user = EditProfileViewModel.instance
-    
     let vm = EditProfileViewModel.instance
     
     

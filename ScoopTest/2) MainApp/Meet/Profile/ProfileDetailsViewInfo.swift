@@ -16,14 +16,8 @@ struct ProfileDetailsViewInfo: View {
         
         
         VStack {
-            
             topRow
                 .padding(.top, 8)
-            
-            Divider()
-                .padding(.leading)
-            
-            passionsRow(firstRow: true)
             
             Divider()
                 .padding(.leading)
@@ -33,10 +27,7 @@ struct ProfileDetailsViewInfo: View {
             Divider()
                 .padding(.leading)
             
-            passionsRow(firstRow: false)
-            
-            Divider()
-                .padding(.leading)
+
         }
     }
 }
@@ -79,26 +70,7 @@ extension ProfileDetailsViewInfo {
             }
     }
     
-    
-    private func passionsRow(firstRow: Bool = true) -> some View {
         
-        
-        if let interests = vm.profile.interests {
-            HStack {
-                Image("HappyFace")
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                Text(firstRow ? interests.prefix(2).joined(separator: ", ") : interests.dropFirst(2).joined(separator: ", "))
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading)
-            .padding(.top)
-            .padding(.bottom) as! EmptyView
-        } else {
-            EmptyView()
-        }
-    }
-    
     
     private var cityAndFaculty: some View {
         
@@ -143,7 +115,6 @@ private var hDivider: some View {
     
 }
 
-
 struct HDivider: View {
     
     var body: some View {
@@ -152,5 +123,4 @@ struct HDivider: View {
             .frame(width: 1, height: 20)
             .foregroundStyle(Color(red: 0.86, green: 0.86, blue: 0.86))
     }
-    
 }

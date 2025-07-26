@@ -20,6 +20,7 @@ import FirebaseAuth
         let suffix = email[dotRange.upperBound...]
         return suffix.count >= 2
     }
+    
     var username: String = ""
     var email: String { "\(username)@mail.mcgill.ca" }
     var password: String = "HelloWorld"

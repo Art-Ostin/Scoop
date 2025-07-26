@@ -34,7 +34,9 @@ struct EditAttractedTo: View {
             
             HStack {
                 OptionPill(title: "Men & Women", counter: $screenTracker.screen,  isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Men & Women")}
+                
                 Spacer()
+                
                 OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "All Genders")}
             }
         }

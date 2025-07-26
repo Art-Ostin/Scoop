@@ -15,7 +15,6 @@ struct EditYear: View {
 
     @Binding var screenTracker: OnboardingViewModel
         
-    
     var isOnboarding: Bool
     
     init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
@@ -47,9 +46,6 @@ struct YearCell: View {
     let title: String
     @State var isSelected: Bool = false
     var onTap: (() -> Void)
-    
-    
-    
     
     var body: some View {
         Text(title)
