@@ -5,6 +5,8 @@ import SwiftUI
 struct ProfileView: View {
     
     @State var vm = ProfileViewModel()
+    
+    
     @Binding var state: MeetSections
     @State var isInviting: Bool = false
     
@@ -12,13 +14,11 @@ struct ProfileView: View {
     let nationality = EditProfileViewModel.instance.user?.nationality ?? []
 
     var body: some View {
-
+        
         GeometryReader { geo in
             
             ZStack {
-                
                 Color.background.edgesIgnoringSafeArea(.all)
-                
                 VStack {
                     heading
                         .padding()
@@ -47,7 +47,7 @@ struct ProfileView: View {
 }
 
 extension ProfileView {
-    
+
     private var heading: some View {
         HStack {
             Text(name)

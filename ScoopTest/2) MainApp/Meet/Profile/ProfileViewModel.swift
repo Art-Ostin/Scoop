@@ -14,8 +14,6 @@ import SwiftUI
     
     var profile = EditProfileViewModel.instance.user
 
-
-
     var showInvite: Bool = false
     var inviteSent: Bool = false
     
@@ -25,10 +23,6 @@ import SwiftUI
     
     
     //Determining the ScrollView
-    var startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.78
-    var currentDragOffsetY: CGFloat = 0
-    var endingOffsetY: CGFloat = 0
-    
 }
 
 

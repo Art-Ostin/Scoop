@@ -19,6 +19,7 @@ struct ScoopTestApp: App {
           ZStack {
               Color.background.ignoresSafeArea()
               RootView()
+
           }
       }
   }

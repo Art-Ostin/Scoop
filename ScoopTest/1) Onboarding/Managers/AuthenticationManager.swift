@@ -7,6 +7,8 @@
 
 import Foundation
 import FirebaseAuth
+import SwiftUI
+import Combine
 
 
 struct AuthenticatedUser {
@@ -48,3 +50,4 @@ struct AuthenticatedUser {
     }
     
 }
+

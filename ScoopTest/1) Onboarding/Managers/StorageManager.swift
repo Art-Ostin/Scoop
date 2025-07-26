@@ -8,14 +8,14 @@
 import Foundation
 import FirebaseStorage
 import UIKit
+import SwiftUI
 
 
-class StorageManager: StorageManaging {
+@Observable class StorageManager: StorageManaging {
     
     static let instance = StorageManager()
     
     private let storage = Storage.storage().reference()
-    
     
     private func userReference(userId: String) -> StorageReference {
         storage.child("users").child(userId)

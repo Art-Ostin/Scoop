@@ -13,7 +13,12 @@ struct ProfileDetailsView: View {
             
     
     var body: some View {
-    
+
+        let startingOffsetY: CGFloat = UIScreen.main.bounds.height * 0.78
+        var currentDragOffsetY: CGFloat = 0
+        var endingOffsetY: CGFloat = 0
+        
+
             GeometryReader { geo in
                 
                 let topGap = geo.size.height * 0.07
@@ -40,14 +45,14 @@ struct ProfileDetailsView: View {
                     .cornerRadius(30)
                     .font(.body(17))
                 }
-                .offset(y: vm.startingOffsetY)
-                .offset(y: vm.currentDragOffsetY)
-                .offset(y: vm.endingOffsetY)
+                .offset(y: startingOffsetY)
+                .offset(y: currentDragOffsetY)
+                .offset(y: endingOffsetY)
                 .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
                 .onTapGesture {
                     withAnimation(.spring()) {
-                        vm.endingOffsetY = (vm.endingOffsetY == 0)
-                        ? (topGap - vm.startingOffsetY)
+                        endingOffsetY = (endingOffsetY == 0)
+                        ? (topGap - startingOffsetY)
                             : 0
                     }
                 }
@@ -55,20 +60,20 @@ struct ProfileDetailsView: View {
                     DragGesture()
                         .onChanged { value in
                             withAnimation(.spring()){
-                                vm.currentDragOffsetY = value.translation.height
+                                currentDragOffsetY = value.translation.height
                             }
                         }
                         .onEnded { value in
                             withAnimation(.spring()) {
-                                if vm.currentDragOffsetY < -50 {
-                                    vm.endingOffsetY = (vm.endingOffsetY == 0)
-                                    ? (topGap - vm.startingOffsetY)
+                                if currentDragOffsetY < -50 {
+                                    endingOffsetY = (endingOffsetY == 0)
+                                    ? (topGap - startingOffsetY)
                                       : 0
                                     
-                                } else if vm.endingOffsetY != 0 && vm.currentDragOffsetY > 100 {
-                                    vm.endingOffsetY = 0
+                                } else if endingOffsetY != 0 && currentDragOffsetY > 100 {
+                                    endingOffsetY = 0
                                 }
-                                vm.currentDragOffsetY = 0
+                                currentDragOffsetY = 0
                             }
                         }
                 )
