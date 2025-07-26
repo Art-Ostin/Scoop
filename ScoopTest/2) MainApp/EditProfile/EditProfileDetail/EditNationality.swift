@@ -10,6 +10,8 @@ import SwiftUI
 @Observable class EditNationalityViewModel {
     
     var selectedCountries: [String] = CurrentUserStore.shared.user?.nationality ?? []
+    
+    
     let countries = CountryDataServices.shared.allCountries
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     

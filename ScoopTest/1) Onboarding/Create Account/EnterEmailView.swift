@@ -10,8 +10,11 @@ import SwiftUI
 struct EnterEmailView: View {
     
     @Environment(\.dismiss) private var dismiss
-        
-    @State var vm = EmailVerificationViewModel ()
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+
+    @State var vm: EmailVerificationViewModel
+    
+
     @State var showVerification: Bool = false
     
     @Binding var showLogin: Bool
@@ -46,10 +49,10 @@ struct EnterEmailView: View {
         }
     }
 }
-
-#Preview {
-    EnterEmailView(showLogin: .constant(true), showEmail: .constant(false))
-}
+//
+//#Preview {
+//    EnterEmailView(showLogin: .constant(true), showEmail: .constant(false))
+//}
 
 
 extension EnterEmailView {

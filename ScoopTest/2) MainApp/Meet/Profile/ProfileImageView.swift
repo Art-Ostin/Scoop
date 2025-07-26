@@ -41,9 +41,9 @@ struct ProfileImageView: View {
 }
 
 
-#Preview {
-    ProfileImageView(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)), isInviting: .constant(false))
-}
+//#Preview {
+//    ProfileImageView(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)), isInviting: .constant(false))
+//}
 
 struct imageContainer: View {
     

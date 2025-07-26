@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct LimitedAccessView: View {
+    
+    
+    
     @State private var vm = OnboardingViewModel()
+    
+    
     @State private var showOnboarding = false
     @Binding var showLogin: Bool
     
