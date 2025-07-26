@@ -2,10 +2,35 @@
 
 import SwiftUI
 
+import Foundation
+import SwiftUI
+
+
+//Have this profile viewModel
+
+@Observable class ProfileViewModel {
+    
+    var profile: UserProfile
+    
+    var showInvite: Bool = false
+    var inviteSent: Bool = false
+    
+    var imageSelection: Int = 0
+    let pageSpacing: CGFloat = -48
+    
+    init(profile: UserProfile) {
+        self.profile = profile
+    }
+}
+
+
+
 struct ProfileView: View {
     
-    @State var vm = ProfileViewModel()
     
+    @State var vm = ProfileViewModel(profile: EditProfileViewModel.instance.user!)
+    
+        
     
     @Binding var state: MeetSections
     @State var isInviting: Bool = false

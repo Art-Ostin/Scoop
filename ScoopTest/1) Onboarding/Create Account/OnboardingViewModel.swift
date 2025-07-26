@@ -11,7 +11,6 @@ import SwiftUI
 
 @Observable class OnboardingViewModel {
     
-    
     //Logic for User Email & veryifying Email
     func authoriseEmail(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
