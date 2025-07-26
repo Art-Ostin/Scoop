@@ -20,7 +20,7 @@ struct AuthenticatedUser {
     }
 }
 
-@Observable class AuthenticationManager {
+@Observable class AuthenticationManager: AuthenticationManaging {
     
     static let instance = AuthenticationManager()
     

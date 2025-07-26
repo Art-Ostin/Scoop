@@ -9,10 +9,13 @@ import Foundation
 import SwiftUI
 
 
+//Have this profile viewModel 
 @Observable class ProfileViewModel {
     
     var profile = EditProfileViewModel.instance.user
-    
+
+
+
     var showInvite: Bool = false
     var inviteSent: Bool = false
     
@@ -26,5 +29,21 @@ import SwiftUI
     var currentDragOffsetY: CGFloat = 0
     var endingOffsetY: CGFloat = 0
     
-    
 }
+
+
+/* -- Depedency injection allows me to customise the init. 
+ 
+ This means whenever I call the profileViewModel there is a custom init which I can then pass a value into.
+
+ let profile: UserProfile
+ 
+ init(profile: UserProfile = currentUser) {
+    self.profile = proile
+ }
+ 
+ 
+ 
+ */
+
+

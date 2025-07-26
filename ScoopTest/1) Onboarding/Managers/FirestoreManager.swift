@@ -15,7 +15,6 @@ struct PromptResponse: Codable  {
     let response: String
 }
 
-
 struct UserProfile: Codable {
       
     let userId: String
@@ -173,8 +172,9 @@ struct UserProfile: Codable {
 
     }
 }
-  
-final class ProfileManager {
+
+
+final class ProfileManager: ProfileManaging {
     
     static let instance = ProfileManager ()
     

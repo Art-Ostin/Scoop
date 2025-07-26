@@ -28,6 +28,7 @@ import PhotosUI
         }
     }
     
+    
     func updateSex(sex: String) {
         guard let user else {return}
         Task {
@@ -227,7 +228,6 @@ import PhotosUI
             }
         }
     }
-    
     
     func updateFavouriteMovie(favouriteMovie: String) {
         guard let user else {return}

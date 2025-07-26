@@ -10,7 +10,7 @@ import FirebaseStorage
 import UIKit
 
 
-class StorageManager {
+class StorageManager: StorageManaging {
     
     static let instance = StorageManager()
     
