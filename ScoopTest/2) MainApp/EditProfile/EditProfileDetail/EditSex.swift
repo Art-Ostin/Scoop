@@ -11,7 +11,7 @@ struct EditSex: View {
     
     var isOnboarding: Bool
     
-    @State private var isSelected: String? = EditProfileViewModel.instance.user?.sex
+    @State private var isSelected: String? = CurrentUserStore.shared.user?.sex
     
     let title: String?
     

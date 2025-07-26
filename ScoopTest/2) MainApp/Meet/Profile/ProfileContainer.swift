@@ -46,7 +46,7 @@ struct ProfileView: View {
     }
 }
 #Preview{
-    ProfileView(profile: EditProfileViewModel.instance.user!, state: .constant(.profile))
+    ProfileView(profile: CurrentUserStore.shared.user!, state: .constant(.profile))
 }
 
 extension ProfileView {

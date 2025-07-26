@@ -36,7 +36,7 @@ struct AddImageView: View {
             })
         }
         .task {
-            try? await EditProfileViewModel.instance.loadUser()
+            try? await CurrentUserStore.shared.loadUser()
             vm.seedFromCurrentUser()
         }
     }

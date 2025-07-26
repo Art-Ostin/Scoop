@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditAttractedTo: View {
         
-    @State var isSelected: String? = EditProfileViewModel.instance.user?.attractedTo
+    @State var isSelected: String? = CurrentUserStore.shared.user?.attractedTo
     
     @Binding var screenTracker: OnboardingViewModel
     

@@ -49,8 +49,8 @@ struct Event {
 
     extension Event {
       static let sample = Event(
-        profile: EditProfileViewModel.instance.user!,
-        profile2: EditProfileViewModel.instance.user!,
+        profile: CurrentUserStore.shared.user!,
+        profile2: CurrentUserStore.shared.user!,
         type:  .houseParty,
         time:   Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date(),
         location: "Legless Arms",

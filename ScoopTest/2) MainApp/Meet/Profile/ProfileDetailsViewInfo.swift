@@ -42,7 +42,7 @@ struct ProfileDetailsViewInfo: View {
 }
 
 #Preview {
-    ProfileDetailsViewInfo(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)))
+    ProfileDetailsViewInfo(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
 }
 
 extension ProfileDetailsViewInfo {

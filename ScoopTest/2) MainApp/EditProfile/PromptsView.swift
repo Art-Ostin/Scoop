@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PromptsView: View {
     
-    let vm = EditProfileViewModel.instance.user
+    let vm = CurrentUserStore.shared.user
     
     var body: some View {
 

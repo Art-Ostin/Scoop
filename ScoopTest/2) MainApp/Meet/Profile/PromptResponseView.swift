@@ -51,7 +51,7 @@ struct PromptResponseView: View {
 struct PromptResponseView_Previews: PreviewProvider {
     static var previews: some View {
         PromptResponseView(
-            vm: ProfileViewModel(profile: EditProfileViewModel.instance.user!),
+            vm: ProfileViewModel(profile: CurrentUserStore.shared.user!),
             inviteButton: false)
         .previewLayout(.sizeThatFits)
     }

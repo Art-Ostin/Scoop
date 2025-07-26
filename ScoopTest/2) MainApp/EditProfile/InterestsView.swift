@@ -12,7 +12,7 @@ struct InterestsView: View {
     
     @State var vm = InterestsOptionsViewModel()
     
-    let firebase = EditProfileViewModel.instance.user
+    let firebase = CurrentUserStore.shared.user
     
     var body: some View {
         

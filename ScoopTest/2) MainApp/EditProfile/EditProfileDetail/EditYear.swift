@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditYear: View {
     
-    @State private var isSelected: String? = EditProfileViewModel.instance.user?.year
+    @State private var isSelected: String? = CurrentUserStore.shared.user?.year
     
     let title: String?
 

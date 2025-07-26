@@ -21,10 +21,10 @@ struct RootView : View {
             }
         }.task {
             if let _ = try? AuthenticationManager.instance.getAuthenticatedUser(){
-                try? await EditProfileViewModel.instance.loadUser()
+                try? await CurrentUserStore.shared.loadUser()
                 showLogin = false
             } else {
-            showLogin = true
+                showLogin = true
             }
         }
     }

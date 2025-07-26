@@ -42,7 +42,7 @@ struct ProfileImageView: View {
 
 
 #Preview {
-    ProfileImageView(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)), isInviting: .constant(false))
+    ProfileImageView(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)), isInviting: .constant(false))
 }
 
 struct imageContainer: View {
@@ -87,7 +87,7 @@ struct imageContainer: View {
 //    @Binding var vm: ProfileViewModel
 //    @Binding var isInviting: Bool
 //    
-//    let images = EditProfileViewModel.instance.user?.imagePathURL
+//    let images = CurrentUserStore.shared.user?.imagePathURL
 //
 //    var body: some View {
 //        GeometryReader { geo in

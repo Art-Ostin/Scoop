@@ -9,10 +9,10 @@ import SwiftUI
 
 struct EditLifestyle: View {
     
-    @State var isSelectedDrinking: String? = EditProfileViewModel.instance.user?.drinking
-    @State var isSelectedSmoking: String? = EditProfileViewModel.instance.user?.smoking
-    @State var isSelectedMarijuana: String? = EditProfileViewModel.instance.user?.marijuana
-    @State var isSelectedDrugs: String? = EditProfileViewModel.instance.user?.drugs
+    @State var isSelectedDrinking: String? = CurrentUserStore.shared.user?.drinking
+    @State var isSelectedSmoking: String? = CurrentUserStore.shared.user?.smoking
+    @State var isSelectedMarijuana: String? = CurrentUserStore.shared.user?.marijuana
+    @State var isSelectedDrugs: String? = CurrentUserStore.shared.user?.drugs
         
     let title: String?
     let firebase = EditProfileViewModel.instance

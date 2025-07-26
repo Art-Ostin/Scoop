@@ -13,7 +13,7 @@ struct EditLookingFor: View {
     
     var isOnboarding: Bool
     
-    @State private var isSelected: String? = EditProfileViewModel.instance.user?.lookingFor
+    @State private var isSelected: String? = CurrentUserStore.shared.user?.lookingFor
     
     let title: String?
     

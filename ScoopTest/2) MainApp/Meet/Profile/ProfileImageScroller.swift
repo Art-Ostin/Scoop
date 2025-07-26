@@ -63,6 +63,6 @@ struct ProfileImageScroller: View {
 }
 
 #Preview {
-    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: EditProfileViewModel.instance.user!)))
+    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
 }
 
