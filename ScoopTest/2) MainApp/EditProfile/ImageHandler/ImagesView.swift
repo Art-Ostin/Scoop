@@ -26,7 +26,7 @@ struct ImagesView: View {
             .padding(.horizontal)
         }
         .task {
-          try? await EditProfileViewModel.instance.loadUser()
+          try? await CurrentUserStore.shared.loadUser()
           vm.seedFromCurrentUser()
         }
         .padding(.horizontal, 32)
@@ -40,7 +40,7 @@ struct ImagesView: View {
 
 /*
  VStack {
-     if let urls = EditProfileViewModel.instance.user?.imagePathURL {
+     if let urls = CurrentUserStore.shared.user?.imagePathURL {
          ForEach(urls, id: \.self) {url in
              if let url = URL(string: url) {
                  AsyncImage(url: url) { Image in

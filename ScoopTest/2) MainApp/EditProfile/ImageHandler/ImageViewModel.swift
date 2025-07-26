@@ -21,8 +21,8 @@ import PhotosUI
     }
 
     func seedFromCurrentUser() {
-        guard let paths = EditProfileViewModel.instance.user?.imagePath,
-              let urls  = EditProfileViewModel.instance.user?.imagePathURL
+        guard let paths = CurrentUserStore.shared.user?.imagePath,
+              let urls  = CurrentUserStore.shared.user?.imagePathURL
         else { return }
         let paddedPaths = (paths + Array(repeating: nil, count: 6)).prefix(6)
         let paddedURLs  = (urls  + Array(repeating: nil, count: 6)).prefix(6)
@@ -31,7 +31,7 @@ import PhotosUI
     }
     
     func reloadEverything() async {
-      try? await EditProfileViewModel.instance.loadUser()
+      try? await CurrentUserStore.shared.loadUser()
     seedFromCurrentUser()
         
     }
@@ -42,7 +42,7 @@ import PhotosUI
         guard let selection = pickerItems[index] else {return}
 
         Task {
-            guard let user =  EditProfileViewModel.instance.user else {return}
+            guard let user =  CurrentUserStore.shared.user else {return}
             if let oldPath = imagePaths[index],
                 let oldURLs = imageURLs[index]
                 
@@ -66,7 +66,7 @@ import PhotosUI
             let newPath = try await StorageManager.instance.saveImage(userId: user.userId, data: data)
             let newURL = try await StorageManager.instance.getUrlForImage(path: newPath)
             try await ProfileManager.instance.updateImagePath(userId: user.userId, path: newPath, url: newURL.absoluteString)
-            try await EditProfileViewModel.instance.loadUser()
+            try await CurrentUserStore.shared.loadUser()
             
             await MainActor.run {
                 imagePaths[index] = newPath

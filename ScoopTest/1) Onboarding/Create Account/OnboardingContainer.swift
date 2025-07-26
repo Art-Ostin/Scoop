@@ -37,7 +37,7 @@ struct OnboardingContainer: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background)
             .task {
-                try? await EditProfileViewModel.instance.loadUser()
+                try? await CurrentUserStore.shared.loadUser()
             }
         }
     }

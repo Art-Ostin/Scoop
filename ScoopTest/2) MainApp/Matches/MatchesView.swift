@@ -38,7 +38,7 @@ struct MatchesView: View {
                     Text("View your past Meet Ups Here")
                         .font(.body(20))
                     
-                    Text(EditProfileViewModel.instance.user?.name ?? "No Name")
+                    Text(CurrentUserStore.shared.user?.name ?? "No Name")
                     
                     ActionButton(text: "Sign Out") {
                         try? vm.signOut()

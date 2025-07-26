@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditHeight: View {
     
-    @State private var isSelected: String? = EditProfileViewModel.instance.user?.height
+    @State private var isSelected: String? = CurrentUserStore.shared.user?.height
     
     let heightOptions = ["4' 5", "4' 6","4' 7","4' 8", "4' 9","4' 10","5' 0","5' 1","5' 2","5' 3", "5' 4", "5' 5", "5' 6", "5' 7", "5' 8", "5' 9", "5' 10", "6' 0", "6' 1", "6' 2", "6' 3", "6' 4", "6' 5", "6' 6", "6' 7", "6' 8", "6' 9", "7' 0"]
     
