@@ -41,7 +41,7 @@ struct EditHeight: View {
             .pickerStyle(.wheel)
         }
         .task {
-            isSelected = dependencies.editProfileViewModel.user?.height
+            isSelected = dependencies.userStore.user?.height
         }
     }
 }

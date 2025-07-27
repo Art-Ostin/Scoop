@@ -13,8 +13,7 @@ import SwiftUI
 struct EventView: View {
     
     let profileImage = "Image Place Holder"
-
-
+    
     let name = "Meeting Name Placeholder Here"
     
     @State var showEventDetails: Bool = false

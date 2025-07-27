@@ -17,7 +17,7 @@ struct LoginContainer: View {
     var body: some View {
         ZStack {
             if showEmail {
-                SignUpView(showEmail: $showEmail, showLogin: $showLogin)
+                SignUpView(dependencies: dependencies, showEmail: $showEmail, showLogin: $showLogin)
             } else {
                 LimitedAccessView(showLogin: $showLogin, auth: dependencies.authManager)
             }

@@ -11,7 +11,11 @@ struct EditTextFieldLayout: View {
     
     var title: String
     
-    var vm = EditProfileViewModel.instance
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    var vm: EditProfileViewModel {dependencies.editProfileViewModel}
+    
+    var user: CurrentUserStore {dependencies.userStore}
     
     @State var textFieldText: String = ""
     
@@ -31,8 +35,11 @@ struct EditTextFieldLayout: View {
     }
     
     var body: some View {
+        
+        
         ZStack(alignment: .topLeading) {
             
+            let user = self.user.user
             
             VStack(alignment: .leading, spacing: isOnboarding ? 72 : 108) {
                 SignUpTitle(text: title)
@@ -57,11 +64,11 @@ struct EditTextFieldLayout: View {
                 
                 .onAppear {
                     if title == "Degree" {
-                        textFieldText = vm.user?.degree ?? ""
+                        textFieldText = user?.degree ?? ""
                     } else if title == "Hometown" {
-                        textFieldText = vm.user?.hometown ?? ""
+                        textFieldText = user?.hometown ?? ""
                     } else if title == "Name" {
-                        textFieldText = vm.user?.name ?? ""
+                        textFieldText = user?.name ?? ""
                     }
                     isFocused = true
                 }

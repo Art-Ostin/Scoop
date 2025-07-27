@@ -25,7 +25,9 @@ struct EditPrompt: View {
     
     var isOnboarding: Bool
     
-    let firebase = EditProfileViewModel.instance
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    private var vm: EditProfileViewModel { dependencies.editProfileViewModel }
+    
     
     init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil) {
         self.promptIndex = promptIndex
@@ -55,13 +57,13 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: selectedText) { firebase.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
-        .onChange(of: selectedPrompt) { firebase.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
+        .onChange(of: selectedText) { vm.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
+        .onChange(of: selectedPrompt) { vm.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
         
         
         .onAppear {
             isFocused = true
-            if let user = firebase.user {
+            if let user = dependencies.userStore.user {
                 let promptData: PromptResponse?
                 switch promptIndex {
                 case 1: promptData = user.prompt1

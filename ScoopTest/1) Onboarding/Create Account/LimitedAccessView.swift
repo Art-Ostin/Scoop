@@ -6,6 +6,10 @@ struct LimitedAccessView: View {
     
     @State private var vm: OnboardingViewModel
     
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    
     @State private var showOnboarding = false
     @Binding var showLogin: Bool
     
@@ -48,13 +52,13 @@ struct LimitedAccessView: View {
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(vm: $vm, showLogin: $showLogin)
+            OnboardingContainer(vm: $vm, profile: dependencies.profileManager, currentUser: dependencies.userStore, showLogin: $showLogin)
         }
     }
 }
 
 #Preview {
-    LimitedAccessView(showLogin: .constant(true))
+    LimitedAccessView(showLogin: .constant(true), auth: AuthenticationManager(profile: ProfileManager()))
 }
 
 

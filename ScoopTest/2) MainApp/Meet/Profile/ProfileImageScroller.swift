@@ -62,7 +62,7 @@ struct ProfileImageScroller: View {
     }
 }
 
-#Preview {
-    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
-}
-
+//#Preview {
+//    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
+//}
+//

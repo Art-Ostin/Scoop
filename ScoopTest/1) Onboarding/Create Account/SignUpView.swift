@@ -10,15 +10,19 @@ import SwiftUI
 
 struct SignUpView: View {
     
-    
-    
-    
+    private var vm: EmailVerificationViewModel
     
     @State var selection: Int = 0
     @State var showCover: Bool = false
     @Binding var showEmail: Bool
     @Binding var showLogin: Bool
-
+    
+    init(dependencies: AppDependencies, showEmail: Binding<Bool>, showLogin: Binding<Bool>) {
+        self.vm = EmailVerificationViewModel(authManager: dependencies.authManager)
+        self._showEmail = showEmail
+        self._showLogin = showLogin
+    }
+    
     
     var body: some View {
         ZStack {
@@ -31,15 +35,15 @@ struct SignUpView: View {
                 })
             }
             .fullScreenCover(isPresented: $showCover) {
-                EnterEmailView(vm: <#EmailVerificationViewModel#>, showLogin: $showLogin, showEmail: $showEmail)
+                EnterEmailView(vm: vm, showLogin: $showLogin, showEmail: $showEmail)
             }
         }
     }
 }
 
-#Preview {
-    SignUpView(showEmail: .constant(true), showLogin: .constant(true))
-}
+//#Preview {
+//    SignUpView(showEmail: .constant(true), showLogin: .constant(true))
+//}
 
 extension SignUpView {
     

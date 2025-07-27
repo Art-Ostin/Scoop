@@ -111,6 +111,6 @@ struct EmailVerificationView: View {
     }
 }
 
-#Preview {
-    EmailVerificationView(vm: .constant(EmailVerificationViewModel()), showLogin: .constant(true), showEmail: .constant(true))
-}
+//#Preview {
+//    EmailVerificationView(vm: .constant(EmailVerificationViewModel()), showLogin: .constant(true), showEmail: .constant(true))
+//}

@@ -79,7 +79,8 @@ import PhotosUI
     }
     
     func updateHometown(hometown: String) {
-v        Task {
+        guard let user = currentUser.user else {return}
+       Task {
             try? await profileManager.updateHometown(userId: user.userId, hometown: hometown)
             try? await currentUser.loadUser()
         }

@@ -9,14 +9,13 @@ import SwiftUI
 
 @Observable class EditNationalityViewModel {
     
-    var selectedCountries: [String] = CurrentUserStore.shared.user?.nationality ?? []
-    let firestoreManager = EditProfileViewModel.instance
+    
+    
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
     var vm: EditProfileViewModel {dependencies.editProfileViewModel}
     
-    
+    var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     
@@ -36,15 +35,17 @@ import SwiftUI
     
     
     private func isSelected(country: CountryData) -> Bool {
-        return firestoreManager.user?.nationality?.contains(country.flag) == true
+        let user = dependencies.userStore.user
+        return user?.nationality?.contains(country.flag) == true
     }
     
     func addAndRemoveCountry(_ country: String) {
-        let currentlyInFirebase = firestoreManager.user?.nationality?.contains(country) == true
+        let user = dependencies.userStore.user
+        let currentlyInFirebase = user?.nationality?.contains(country) == true
         if currentlyInFirebase {
-            firestoreManager.removeNationality(nationality: country)
+            vm.removeNationality(nationality: country)
         } else if selectedCountries.count < 3 {
-            firestoreManager.updateNationality(nationality: country)
+            vm.updateNationality(nationality: country)
         }
     }
 }
@@ -86,7 +87,7 @@ struct EditNationality: View {
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
                                 vm.selectedCountries.removeAll(where: {$0 == country})
-                                vm.firestoreManager.removeNationality(nationality: country)
+                                vm.vm.removeNationality(nationality: country)
                             }
                         }
                 }
@@ -215,10 +216,10 @@ extension EditNationality {
             withAnimation(.smooth(duration: 0.2)) {
                 if vm.isSelected(country.flag) {
                     vm.selectedCountries.removeAll(where: {$0 == country.flag})
-                    vm.firestoreManager.removeNationality(nationality: country.flag)
+                    vm.vm.removeNationality(nationality: country.flag)
                 } else if vm.selectedCountries.count < 3 {
                     vm.selectedCountries.append(country.flag)
-                    vm.firestoreManager.updateNationality(nationality: country.flag)
+                    vm.vm.updateNationality(nationality: country.flag)
                 }
             }
         }

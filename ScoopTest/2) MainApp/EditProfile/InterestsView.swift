@@ -12,13 +12,16 @@ struct InterestsView: View {
     
     @State var vm = InterestsOptionsViewModel()
     
-    let firebase = CurrentUserStore.shared.user
-    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+
+
     var body: some View {
         
-        let interests = firebase?.interests ?? []
+        let user = dependencies.userStore.user
         
-        let character = firebase?.character ?? [("Add info")]
+        let interests = user?.interests ?? []
+        
+        let character = user?.character ?? [("Add info")]
                 
         
         let sections = [

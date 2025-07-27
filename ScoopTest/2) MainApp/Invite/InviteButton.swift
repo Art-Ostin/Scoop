@@ -30,6 +30,6 @@ struct InviteButton: View {
 }
 
 
-#Preview {
-    InviteButton(vm: ProfileViewModel(profile: CurrentUserStore.shared.user!))
-}
+//#Preview {
+//    InviteButton(vm: ProfileViewModel(profile: CurrentUserStore.shared.user!))
+//}

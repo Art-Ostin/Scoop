@@ -9,13 +9,15 @@ import SwiftUI
 
 struct ImageTest: View {
     
-    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     var body: some View {
         
+        let user = dependencies.userStore.user
+        
         ScrollView {
             VStack(spacing: 36) {
-                if let urlStrings = CurrentUserStore.shared.user?.imagePathURL {
+                if let urlStrings = user?.imagePathURL {
                     ForEach(urlStrings, id: \.self) { urlString in
                         if let url = URL(string: urlString) {
                             AsyncImage(url: url) { Image in

@@ -19,6 +19,7 @@ import FirebaseAuth
         self.authManager = authManager
     }
     
+    
     func authoriseEmail(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
             return false

@@ -81,6 +81,6 @@ struct ProfileDetailsView: View {
         }
     }
 
-#Preview {
-    ProfileDetailsView(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
-}
+//#Preview {
+//    ProfileDetailsView(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
+//}

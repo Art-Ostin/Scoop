@@ -45,9 +45,9 @@ struct ProfileView: View {
         }
     }
 }
-#Preview{
-    ProfileView(profile: CurrentUserStore.shared.user!, state: .constant(.profile))
-}
+//#Preview{
+//    ProfileView(profile: CurrentUserStore.shared.user!, state: .constant(.profile))
+//}
 
 extension ProfileView {
 

@@ -78,6 +78,6 @@ struct SendInviteView: View {
     }
 }
 
-#Preview {
-    SendInviteView(ProfileViewModel: ProfileViewModel(profile: CurrentUserStore.shared.user!), name: "Arthur", typeDefaultOption: "")
-}
+//#Preview {
+//    SendInviteView(ProfileViewModel: ProfileViewModel(profile: CurrentUserStore.shared.user!), name: "Arthur", typeDefaultOption: "")
+//}
