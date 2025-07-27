@@ -93,7 +93,7 @@ struct EditInterests: View {
                         ForEach(sections.indices, id: \.self) { idx in
                             let section = sections[idx]
                             
-                            InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected)
+                            InterestSection(options: section.data, title: section.title, image: section.image, user: dependencies.userStore, selected: $selected)
                         }
                     }
                 }
@@ -120,15 +120,18 @@ struct InterestSection: View {
     let title: String?
     let image: String?
     
-    let vm = EditProfileViewModel.instance
+    let dependencies: AppDependencies
+    
     
     private func interestIsSelected (text: String) -> Bool {
-        vm.user?.interests?.contains(text) == true
+        dependencies.userStore.user?.interests?.contains(text) == true
     }
     
     @Binding var selected: [String]
     
     var body: some View {
+        
+        let manager = dependencies.profileManager
         
         VStack(alignment: .leading) {
             
@@ -151,6 +154,10 @@ struct InterestSection: View {
                 optionCell2(text: input, selection: $selected) { text in
                     selected.contains(text) ? selected.removeAll(where: { $0 == text }) : (selected.count < 10 ? selected.append(text) : nil)
                     if interestIsSelected(text: text) {
+                        Task {
+                            try await manager.update(userId: dependencies.userStore.user?, values: [UserProfile.CodingKeys : Any])
+                        }
+                        
                         vm.removeInterests(interests: text)
                     } else {
                         vm.updateInterests(interests: text)

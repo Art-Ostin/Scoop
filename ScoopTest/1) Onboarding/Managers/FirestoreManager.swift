@@ -31,13 +31,12 @@ import SwiftUI
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
     
+    
     func update(userId: String, values: [UserProfile.CodingKeys: Any]) async throws {
             var data: [String: Any] = [:]
             for (key, value) in values { data[key.rawValue] = value }
             try await userDocument(userId: userId).updateData(data)
         }
-    
-    
     
     
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws {

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import PhotosUI
+import FirebaseFirestore
 
 @Observable class ImageViewModel {
     
@@ -45,25 +46,21 @@ import PhotosUI
         
     }
     
-    func loadImage(at index: Int, dependencies: AppDependencies) {
-        
-        let manager = dependencies.profileManager
-        
+    func loadImage(at index: Int) {
         
         guard let selection = pickerItems[index] else {return}
 
         Task {
             guard let user =  userStore.user else {return}
-            if let oldPath = imagePaths[index],
-                let oldURLs = imageURLs[index]
-                
-                {
+            if let oldPath = imagePaths[index], let oldURL = imageURLs[index] {
                 try? await storageManager.deleteImage(path: oldPath)
-                
-                try? await manager.removeImagePath(userId: user.userId , path: oldPath, url: oldURLs)
-                
+                try? await profileManager.update(userId: user.userId, values: [
+                    .imagePath: FieldValue.arrayRemove([oldPath]),
+                    .imagePathURL: FieldValue.arrayRemove([oldURL])
+                ])
                 await MainActor.run {
-                    imagePaths[index]     = nil
+                    imagePaths[index] = nil
+                    imageURLs[index] = nil
                     selectedImages[index] = nil
                 }
             }
@@ -77,7 +74,12 @@ import PhotosUI
             }
             let newPath = try await storageManager.saveImage(userId: user.userId, data: data)
             let newURL = try await storageManager.getUrlForImage(path: newPath)
-            try await profileManager.updateImagePath(userId: user.userId, path: newPath, url: newURL.absoluteString)
+            
+            try await profileManager.update(userId: user.userId, values: [
+                .imagePath: FieldValue.arrayUnion([newPath]),
+                .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
+            ])
+            
             try await userStore.loadUser()
             
             await MainActor.run {
