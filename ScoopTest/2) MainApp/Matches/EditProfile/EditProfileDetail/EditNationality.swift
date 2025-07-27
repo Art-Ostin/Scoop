@@ -10,10 +10,7 @@ import SwiftUI
 @Observable class EditNationalityViewModel {
     
     
-    
-    
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-    var vm: EditProfileViewModel {dependencies.editProfileViewModel}
+    let dependencies: AppDependencies
     
     var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
@@ -40,13 +37,23 @@ import SwiftUI
     }
     
     func addAndRemoveCountry(_ country: String) {
-        let user = dependencies.userStore.user
-        let currentlyInFirebase = user?.nationality?.contains(country) == true
-        if currentlyInFirebase {
-            vm.removeNationality(nationality: country)
-        } else if selectedCountries.count < 3 {
-            vm.updateNationality(nationality: country)
-        }
+        guard let user = dependencies.userStore.user else { return }
+        let currentlyInFirebase = user.nationality?.contains(country) == true
+        Task {
+            if currentlyInFirebase {
+                try? await dependencies.profileManager.update(
+                    userId: user.userId,
+                    values: [.nationality: FieldValue.arrayRemove([country])]
+                )
+                selectedCountries.removeAll(where: { $0 == country })
+            } else if selectedCountries.count < 3 {
+                try? await dependencies.profileManager.update(
+                    userId: user.userId,
+                    values: [.nationality: FieldValue.arrayUnion([country])]
+                )
+                selectedCountries.append(country)
+            }
+            try? await dependencies.userStore.loadUser()
     }
 }
 

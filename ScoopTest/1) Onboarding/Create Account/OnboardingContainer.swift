@@ -29,7 +29,6 @@ struct OnboardingContainer: View {
             //Need the ZStack for the transitions
             
             ZStack {
-                Group {
                     switch vm.screen {
                     case 0...4: OptionsSelectionView(vm: $vm)
                     case 5: EditLifestyle(isOnboarding: true, screenTracker: $vm)
@@ -41,7 +40,6 @@ struct OnboardingContainer: View {
                     case 11: EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: true, screenTracker: $vm)
                     case 12: AddImageView(dependencies: dependencies)
                     default: EmptyView()
-                    }
                 }
                 .transition(vm.transition)
             }

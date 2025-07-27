@@ -16,7 +16,6 @@ struct EditProfileView: View {
         self._vm = State(initialValue: EditProfileViewModel(user: user, profile: ProfileManaging, storageManager: StorageManaging, userHandler: userHandler))
     }
     
-        
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
@@ -27,7 +26,7 @@ struct EditProfileView: View {
                 ScrollView {
                     ImagesView(dependencies: dependencies)
                     PromptsView()
-                    InfoView()
+                    InfoView(vm: $vm)
                     InterestsView()
                     YearsView()
                 }

@@ -13,7 +13,7 @@ struct EditTextFieldLayout: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    var vm: EditProfileViewModel {dependencies.editProfileViewModel}
+    @Binding var vm: EditProfileViewModel
     
     var user: CurrentUserStore {dependencies.userStore}
     
@@ -27,11 +27,13 @@ struct EditTextFieldLayout: View {
     
     init(isOnboarding: Bool,
          title: String,
-         screenTracker: Binding<OnboardingViewModel>? = nil
+         screenTracker: Binding<OnboardingViewModel>? = nil,
+         vm: Binding<EditProfileViewModel>
     ) {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+        self._vm = vm
     }
     
     var body: some View {
@@ -39,7 +41,8 @@ struct EditTextFieldLayout: View {
         
         ZStack(alignment: .topLeading) {
             
-            let user = self.user.user
+            let user = vm.user
+            let manager = dependencies.profileManager
             
             VStack(alignment: .leading, spacing: isOnboarding ? 72 : 108) {
                 SignUpTitle(text: title)
@@ -64,11 +67,11 @@ struct EditTextFieldLayout: View {
                 
                 .onAppear {
                     if title == "Degree" {
-                        textFieldText = user?.degree ?? ""
+                        textFieldText = user.degree ?? ""
                     } else if title == "Hometown" {
-                        textFieldText = user?.hometown ?? ""
+                        textFieldText = user.hometown ?? ""
                     } else if title == "Name" {
-                        textFieldText = user?.name ?? ""
+                        textFieldText = user.name ?? ""
                     }
                     isFocused = true
                 }
@@ -83,11 +86,11 @@ struct EditTextFieldLayout: View {
             }
             .onChange(of: textFieldText) {
                 if title == "Degree" {
-                    vm.updateDegree(degree: textFieldText)
+                    Task{ try await manager.update(userId: user.userId, values: [.degree: textFieldText])}
                 } else if title == "Hometown" {
-                    vm.updateHometown(hometown: textFieldText)
+                    Task{ try await manager.update(userId: user.userId, values: [.hometown: textFieldText])}
                 } else if title == "Name" {
-                    vm.updateName(name: textFieldText)
+                    Task{ try await manager.update(userId: user.userId, values: [.name: textFieldText])}
                 }
             }
         }

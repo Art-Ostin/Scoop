@@ -10,36 +10,41 @@ import SwiftUI
 struct EditAttractedTo: View {
         
     @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    @Binding var vm: EditProfileViewModel
+    
+    
+    
     @State var isSelected: String?
     
-    private var vm: EditProfileViewModel { dependencies.editProfileViewModel}
     @Binding var screenTracker: OnboardingViewModel
     
     let title: String?
     
     var isOnboarding: Bool
     
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
         self.isOnboarding = isOnboarding
         self.title = title
-        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())}
-    
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+        self._vm = vm
+    }
 
     var body: some View {
         
+        let manager = dependencies.profileManager
+        let userId = vm.user.userId
+
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
-                OptionPill(title: "Men",counter: $screenTracker.screen, isSelected: $isSelected) { vm.updateAttractedTo(attractedTo: "Men")}
+                OptionPill(title: "Men",counter: $screenTracker.screen, isSelected: $isSelected) { Task {try await manager.update(userId: userId, values: [.attractedTo : "Men"])}}
                 Spacer()
-                OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateAttractedTo(attractedTo: "Women")}
+                OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) { Task{try await manager.update(userId: userId, values: [.attractedTo : "Women"])}}
             }
-            
             HStack {
-                OptionPill(title: "Men & Women", counter: $screenTracker.screen,  isSelected: $isSelected) {vm.updateAttractedTo(attractedTo: "Men & Women")}
-                
+                OptionPill(title: "Men & Women", counter: $screenTracker.screen,  isSelected: $isSelected) { Task{try await manager.update(userId: userId, values: [.attractedTo : "Men & Women"])}}
                 Spacer()
-                
-                OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateAttractedTo(attractedTo: "All Genders")}
+                OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) { Task{try await manager.update(userId: userId, values: [.attractedTo : "All Genders"])}}
             }
         }
         .customNavigation(isOnboarding: isOnboarding)
@@ -47,6 +52,6 @@ struct EditAttractedTo: View {
     }
 }
 
-#Preview {
-    EditAttractedTo()
-}
+//#Preview {
+//    EditAttractedTo()
+//}

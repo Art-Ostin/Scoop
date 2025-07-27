@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct EditLookingFor: View {
-        
+    
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    var vm: EditProfileViewModel { dependencies.editProfileViewModel }
+    @Binding var vm: EditProfileViewModel
+    
+    
     @State var isSelected: String?
     
     
@@ -19,35 +21,43 @@ struct EditLookingFor: View {
     let title: String?
     
     @Binding var screenTracker: OnboardingViewModel
-        
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
+    
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+        self._vm = vm
     }
     
     var body: some View {
+        
+        let manager = dependencies.profileManager
+        let userId = vm.user.userId
+        
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
-                OptionPill(title: "Short-term", counter: $screenTracker.screen, isSelected: $isSelected) { vm.updateLookingFor(lookingFor: "Short-term")}
+                OptionPill(title: "Short-term", counter: $screenTracker.screen, isSelected: $isSelected) { Task { try await manager.update(userId: userId , values: [.lookingFor : "Short-term"])}
+                }
                 Spacer()
-                OptionPill(title: "Long-term", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateLookingFor(lookingFor: "Long-term") }
+                OptionPill(title: "Long-term", counter: $screenTracker.screen, isSelected: $isSelected)  { Task { try await manager.update(userId: userId , values: [.lookingFor : "Long-term"])}
+                }
+                HStack {
+                    Spacer()
+                    OptionPill(title: "Undecided", counter: $screenTracker.screen, isSelected: $isSelected) { Task { try await manager.update(userId: userId , values: [.lookingFor : "Undecided"])}
+                    }
+                    Spacer()
+                }
             }
-            HStack {
-                Spacer()
-                OptionPill(title: "Undecided", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateLookingFor(lookingFor: "Undedcided")}
-                Spacer()
-            }
+            .customNavigation(isOnboarding: isOnboarding)
+            .onAppear {isSelected = dependencies.userStore.user?.lookingFor }
         }
-        .customNavigation(isOnboarding: isOnboarding)
-        .onAppear {isSelected = dependencies.userStore.user?.lookingFor }
     }
 }
 
-#Preview {
-    EditLookingFor(title: "Looking For")
-}
-
+//#Preview {
+//    EditLookingFor(title: "Looking For")
+//}
+//
 
 
 

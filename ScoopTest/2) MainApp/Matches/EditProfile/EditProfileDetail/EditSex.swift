@@ -10,50 +10,52 @@ import SwiftUI
 struct EditSex: View {
     
     var isOnboarding: Bool
-        
+    
     @State private var isSelected: String?
     
-    
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    private var vm: EditProfileViewModel { dependencies.editProfileViewModel}
+    
+    @Binding var vm: EditProfileViewModel
     
     let title: String?
     
     @Binding var screenTracker: OnboardingViewModel
-        
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
+    
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+        self._vm = vm
     }
     
     var body: some View {
-        let user = dependencies.userStore.user
+        
+        let manager = dependencies.profileManager
+        let userId = vm.user.userId
+
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
                 OptionPill(title: "Man", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    try dependencies.profileManager.updateSex(userId: vm.user.userId, sex: "Man")
+                    Task{try? await manager.update(userId: userId, values: [.sex: "Man"])}
                 }
-                
-                
                 
                 Spacer()
                 OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    try dependencies.profileManager.updateSex(userId: vm.user.userId, sex: "Women")
+                    Task{try? await manager.update(userId: userId, values: [.sex: "Women"])}
                 }
-            HStack {
-                Spacer()
-                OptionPill(title: "Beyond Binary", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    try dependencies.profileManager.updateSex(userId: vm.user.userId, sex: "BeyondBinary")
+                HStack {
+                    Spacer()
+                    OptionPill(title: "Beyond Binary", counter: $screenTracker.screen, isSelected: $isSelected) {
+                        Task{try? await manager.update(userId: userId, values: [.sex: "Women"])}
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
+            .customNavigation(isOnboarding: isOnboarding)
         }
-        .customNavigation(isOnboarding: isOnboarding)
     }
 }
-
-#Preview {
-    EditSex()
-}
+//#Preview {
+//    EditSex(vm: .constant(EditProfileViewModel()))
+//}

@@ -96,3 +96,10 @@ struct EditLifestyle: View {
 
 
 
+//let user = dependencies.userStore.user
+//let currentlyInFirebase = user?.nationality?.contains(country) == true
+//if currentlyInFirebase {
+//    vm.removeNationality(nationality: country)
+//} else if selectedCountries.count < 3 {
+//    vm.updateNationality(nationality: country)
+//}
