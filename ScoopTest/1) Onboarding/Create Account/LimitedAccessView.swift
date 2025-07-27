@@ -52,7 +52,7 @@ struct LimitedAccessView: View {
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(vm: $vm, profile: dependencies.profileManager, currentUser: dependencies.userStore, showLogin: $showLogin)
+            OnboardingContainer(vm: $vm, showLogin: $showLogin)
         }
     }
 }

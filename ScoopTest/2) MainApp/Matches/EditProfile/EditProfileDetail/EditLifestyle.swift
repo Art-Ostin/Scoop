@@ -11,23 +11,23 @@ struct EditLifestyle: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     
     @State var isSelectedDrinking: String?
     @State var isSelectedSmoking: String?
     @State var isSelectedMarijuana: String?
     @State var isSelectedDrugs: String?
-        
+    
     let title: String?
     
     @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, /*vm: Binding<EditProfileViewModel>)*/ {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-        self._vm = vm
+//        self._vm = vm
     }
     
         
@@ -53,19 +53,19 @@ struct EditLifestyle: View {
         }
         .onChange(of: isSelectedDrinking) {
             nextScreen()
-            Task{ try await manager.update(userId: user.userId, values: [.drinking : isSelectedDrinking ?? ""])}
+            Task{ try await manager.update(values: [.drinking : isSelectedDrinking ?? ""])}
         }
         .onChange(of: isSelectedSmoking) {
             nextScreen()
-            Task{ try await manager.update(userId: user.userId, values: [.smoking : isSelectedSmoking ?? ""])}
+            Task{ try await manager.update(values: [.smoking : isSelectedSmoking ?? ""])}
         }
         .onChange(of: isSelectedMarijuana) {
             nextScreen()
-            Task{try await manager.update(userId: user.userId, values: [.marijuana : isSelectedMarijuana ?? ""])}
+            Task{try await manager.update(values: [.marijuana : isSelectedMarijuana ?? ""])}
         }
         .onChange(of: isSelectedDrugs) {
             nextScreen()
-            Task{try await manager.update(userId: user.userId, values: [.drugs : isSelectedDrugs ?? ""])}
+            Task{try await manager.update(values: [.drugs : isSelectedDrugs ?? ""])}
         }
     }
 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftUIFlowLayout
+import FirebaseFirestore
 
 
 @Observable class InterestsOptionsViewModel {
@@ -44,7 +45,7 @@ struct EditInterests: View {
         let model = InterestsOptionsViewModel()
         self._vm = State(initialValue: model)
         self._selected = State(initialValue: [])
-        self._screenTracker =  screenTracker ?? .constant(OnboardingViewModel(authManager: dependencies.authManager))
+        self._screenTracker =  screenTracker ?? .constant(OnboardingViewModel())
         self.sections = sections ?? [
           ("Social",    "figure.socialdance", model.socialPassions),
           ("Interests", "book",               model.interests),
@@ -93,7 +94,7 @@ struct EditInterests: View {
                         ForEach(sections.indices, id: \.self) { idx in
                             let section = sections[idx]
                             
-                            InterestSection(options: section.data, title: section.title, image: section.image, user: dependencies.userStore, selected: $selected)
+                            InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected)
                         }
                     }
                 }
@@ -120,8 +121,9 @@ struct InterestSection: View {
     let title: String?
     let image: String?
     
-    let dependencies: AppDependencies
     
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+
     
     private func interestIsSelected (text: String) -> Bool {
         dependencies.userStore.user?.interests?.contains(text) == true
@@ -130,8 +132,6 @@ struct InterestSection: View {
     @Binding var selected: [String]
     
     var body: some View {
-        
-        let manager = dependencies.profileManager
         
         VStack(alignment: .leading) {
             
@@ -152,15 +152,17 @@ struct InterestSection: View {
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 optionCell2(text: input, selection: $selected) { text in
-                    selected.contains(text) ? selected.removeAll(where: { $0 == text }) : (selected.count < 10 ? selected.append(text) : nil)
-                    if interestIsSelected(text: text) {
-                        Task {
-                            try await manager.update(userId: dependencies.userStore.user?, values: [UserProfile.CodingKeys : Any])
+                    selected.contains(text)
+                        ? selected.removeAll(where: { $0 == text })
+                        : (selected.count < 10 ? selected.append(text) : nil)
+
+                    Task {
+                        guard let user = dependencies.userStore.user else { return }
+                        if interestIsSelected(text: text) {
+                            try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayRemove([text])])
+                        } else {
+                            try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayRemove([text])])
                         }
-                        
-                        vm.removeInterests(interests: text)
-                    } else {
-                        vm.updateInterests(interests: text)
                     }
                 }
             }

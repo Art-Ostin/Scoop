@@ -29,6 +29,9 @@ final class AppDependencies {
         self.profileManager = profile
         self.storageManager = storage
         self.userStore = CurrentUserStore(auth: auth, profile: profile)
+        if let manager = profile as? ProfileManager {
+            manager.userStore = self.userStore
+        }
     }
 
 }

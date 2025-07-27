@@ -11,7 +11,7 @@ struct EditHeight: View {
     
 
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     @State private var isSelected: String? = nil
     
     
@@ -23,21 +23,20 @@ struct EditHeight: View {
     
     var isOnboarding: Bool
     
-    init(isOnboarding: Bool = false, title: String? = nil, vm: Binding<EditProfileViewModel>) {
+    init(isOnboarding: Bool = false, title: String? = nil, /*vm: Binding<EditProfileViewModel>*/) {
         self.isOnboarding = isOnboarding
         self.title = title
-        self._vm = vm
+//        self._vm = vm
     }
     var body: some View {
         
-        let userId = vm.user.userId
         let manager = dependencies.profileManager
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             Picker("Height", selection: $height) {
                 ForEach(heightOptions, id: \.self) { option in
                     Text(option).font(.body(20))
-                        .onChange(of: height) {Task{try await manager.update(userId: userId, values: [.height : height])}}
+                        .onChange(of: height) {Task{try await manager.update(values: [.height : height])}}
                 }
             }
             .customNavigation(isOnboarding: isOnboarding)

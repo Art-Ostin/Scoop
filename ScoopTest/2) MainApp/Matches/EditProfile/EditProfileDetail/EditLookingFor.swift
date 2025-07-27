@@ -11,7 +11,7 @@ struct EditLookingFor: View {
     
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     
     
     @State var isSelected: String?
@@ -22,11 +22,11 @@ struct EditLookingFor: View {
     
     @Binding var screenTracker: OnboardingViewModel
     
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil,/* vm: Binding<EditProfileViewModel>*/) {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-        self._vm = vm
+//        self._vm = vm
     }
     
     var body: some View {
@@ -36,14 +36,14 @@ struct EditLookingFor: View {
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
-                OptionPill(title: "Short-term", counter: $screenTracker.screen, isSelected: $isSelected) { Task { try await manager.update(userId: userId , values: [.lookingFor : "Short-term"])}
+                OptionPill(title: "Short-term", counter: $screenTracker.screen, isSelected: $isSelected) { Task { try await manager.update(values: [.lookingFor : "Short-term"])}
                 }
                 Spacer()
-                OptionPill(title: "Long-term", counter: $screenTracker.screen, isSelected: $isSelected)  { Task { try await manager.update(userId: userId , values: [.lookingFor : "Long-term"])}
+                OptionPill(title: "Long-term", counter: $screenTracker.screen, isSelected: $isSelected)  { Task { try await manager.update(values: [.lookingFor : "Long-term"])}
                 }
                 HStack {
                     Spacer()
-                    OptionPill(title: "Undecided", counter: $screenTracker.screen, isSelected: $isSelected) { Task { try await manager.update(userId: userId , values: [.lookingFor : "Undecided"])}
+                    OptionPill(title: "Undecided", counter: $screenTracker.screen, isSelected: $isSelected) { Task { try await manager.update(values: [.lookingFor : "Undecided"])}
                     }
                     Spacer()
                 }
@@ -53,11 +53,6 @@ struct EditLookingFor: View {
         }
     }
 }
-
-//#Preview {
-//    EditLookingFor(title: "Looking For")
-//}
-//
 
 
 

@@ -24,19 +24,19 @@ struct EditPrompt: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
 
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     
-    init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
+    init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil, /*vm: Binding<EditProfileViewModel>*/) {
         self.promptIndex = promptIndex
         self.prompts = prompts
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
         self.isOnboarding = isOnboarding
-        self._vm = vm
+//        self._vm = vm
     }
     
     var body: some View {
         
-        let userId = vm.user.userId
+//        let userId = vm.user.userId
         let manager = dependencies.profileManager
         
         ZStack {

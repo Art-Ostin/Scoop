@@ -22,8 +22,11 @@ protocol AuthenticationManaging {
 protocol ProfileManaging {
     func createProfile(profile: UserProfile) async throws
     func getProfile(userId: String) async throws -> UserProfile
+    func getProfile() async throws -> UserProfile
     func update(userId: String, values: [UserProfile.CodingKeys: Any]) async throws
+    func update(values: [UserProfile.CodingKeys: Any]) async throws
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws
+    func updatePrompt(promptIndex: Int, prompt: PromptResponse) async throws
 }
 
 

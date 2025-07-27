@@ -14,21 +14,19 @@ struct OnboardingContainer: View {
     
     @Binding var vm: OnboardingViewModel
     
-    let profile: ProfileManaging
-    let currentUser: CurrentUserStore
     
     
     @Binding var showLogin: Bool
     
     var body: some View {
         
-        let user = currentUser.user
         
         NavigationStack {
             
             //Need the ZStack for the transitions
-            
+
             ZStack {
+                Group {
                     switch vm.screen {
                     case 0...4: OptionsSelectionView(vm: $vm)
                     case 5: EditLifestyle(isOnboarding: true, screenTracker: $vm)
@@ -41,12 +39,15 @@ struct OnboardingContainer: View {
                     case 12: AddImageView(dependencies: dependencies)
                     default: EmptyView()
                 }
+
+                }
                 .transition(vm.transition)
+
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background)
             .task {
-                try? await currentUser.loadUser()
+                try? await dependencies.userStore.loadUser()
             }
         }
     }

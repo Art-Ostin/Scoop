@@ -12,7 +12,7 @@ struct EditYear: View {
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     @State var isSelected: String?
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     
     let title: String?
 
@@ -20,22 +20,21 @@ struct EditYear: View {
         
     var isOnboarding: Bool
     
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil,/* vm: Binding<EditProfileViewModel>*/) {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-        self._vm = vm
+//        self._vm = vm
     }
     
     var body: some View {
 
         let manager = dependencies.profileManager
-        let userId = vm.user.userId
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack{
                 ForEach(0..<5) { i in
-                    OptionPill(title: "U\(i)", counter: $screenTracker.screen,  width: 61, isSelected: $isSelected) { Task { try await manager.update(userId: userId, values: [.year:"U\(i)"])}
+                    OptionPill(title: "U\(i)", counter: $screenTracker.screen,  width: 61, isSelected: $isSelected) { Task { try await manager.update(values: [.year:"U\(i)"])}
                     }
                     Spacer()
                 }

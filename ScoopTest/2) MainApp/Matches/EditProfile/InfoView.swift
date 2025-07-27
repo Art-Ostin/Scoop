@@ -12,7 +12,7 @@ struct InfoView: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     
     //Populate the coreInfo and aboutMe with the UserProfile 
     private var coreInfo: [ProfileInfoPreview<AnyView>] {
@@ -28,11 +28,11 @@ struct InfoView: View {
         let nationality = u.nationality ?? []
         
         return [
-            .init("Name", [name]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "Name", vm: $vm))},
-            .init("Sex", [sex]) {AnyView(EditSex(title: "Sex", vm: $vm))},
-            .init("Attracted to", [attracted]) {AnyView(EditAttractedTo(title: "Attracted to", vm: $vm))},
-            .init("Year", [year]) {AnyView(EditYear(title: "Year", vm: $vm))},
-            .init("Height", [height]) {AnyView(EditHeight(title: "Height", vm: $vm))},
+            .init("Name", [name]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "Name"))},
+            .init("Sex", [sex]) {AnyView(EditSex(title: "Sex"))},
+            .init("Attracted to", [attracted]) {AnyView(EditAttractedTo(title: "Attracted to"))},
+            .init("Year", [year]) {AnyView(EditYear(title: "Year"))},
+            .init("Height", [height]) {AnyView(EditHeight(title: "Height"))},
             .init("Nationality", nationality) {AnyView(EditNationality(isOnboarding: false))}
         ]
     }
@@ -60,12 +60,12 @@ struct InfoView: View {
         }()
         let languages = u.languages  ?? "Add Languages"
         return [
-            .init("Looking for", [lookingFor]){AnyView( EditLookingFor(vm: $vm))},
-            .init("Degree", [degree]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Degree", vm: $vm))},
-            .init("Hometown", [hometown]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Hometown", vm: $vm))},
-            .init("Lifestyle",[lifestyle]) {AnyView(EditLifestyle(vm: $vm))},
+            .init("Looking for", [lookingFor]){AnyView( EditLookingFor())},
+            .init("Degree", [degree]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Degree"))},
+            .init("Hometown", [hometown]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Hometown"))},
+            .init("Lifestyle",[lifestyle]) {AnyView(EditLifestyle())},
             .init("My Life as a", myLifeAs) {AnyView(EditMyLifeAs())},
-            .init ("Languages", [languages]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "I Speak", vm: $vm))}
+            .init ("Languages", [languages]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "I Speak"))}
         ]
     }
 

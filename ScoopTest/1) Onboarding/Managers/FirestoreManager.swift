@@ -14,8 +14,12 @@ import SwiftUI
 @Observable final class ProfileManager: ProfileManaging {
     
     
-    init() {}
-    
+    var userStore: CurrentUserStore?
+
+       init(userStore: CurrentUserStore? = nil) {
+           self.userStore = userStore
+       }
+        
     private let userCollection = Firestore.firestore().collection("users")
     
     
@@ -31,6 +35,10 @@ import SwiftUI
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
     
+    func getProfile() async throws -> UserProfile {
+        guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
+        return try await getProfile(userId: id)
+    }
     
     func update(userId: String, values: [UserProfile.CodingKeys: Any]) async throws {
             var data: [String: Any] = [:]
@@ -38,7 +46,11 @@ import SwiftUI
             try await userDocument(userId: userId).updateData(data)
         }
     
-    
+    func update(values: [UserProfile.CodingKeys: Any]) async throws {
+        guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
+        try await update(userId: id, values: values)
+    }
+        
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws {
         let key: UserProfile.CodingKeys
         switch promptIndex {
@@ -49,5 +61,10 @@ import SwiftUI
         }
         let data = try Firestore.Encoder().encode(prompt)
         try await update(userId: userId, values: [key: data])
+    }
+    
+    func updatePrompt(promptIndex: Int, prompt: PromptResponse) async throws {
+        guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
+        try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
 }

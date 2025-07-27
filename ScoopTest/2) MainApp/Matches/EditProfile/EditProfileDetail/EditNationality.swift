@@ -37,13 +37,11 @@ import FirebaseFirestore
         Task {
             if currentlyInFirebase {
                 try? await dependencies.profileManager.update(
-                    userId: user.userId,
                     values: [.nationality: FieldValue.arrayRemove([country])]
                 )
                 selectedCountries.removeAll(where: { $0 == country })
             } else if selectedCountries.count < 3 {
                 try? await dependencies.profileManager.update(
-                    userId: user.userId,
                     values: [.nationality: FieldValue.arrayUnion([country])]
                 )
                 selectedCountries.append(country)

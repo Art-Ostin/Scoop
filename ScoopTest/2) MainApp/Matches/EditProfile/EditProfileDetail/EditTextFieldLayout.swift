@@ -21,14 +21,14 @@ struct EditTextFieldLayout: View {
     
     @FocusState private var isFocused: Bool
 
-    @Binding var screenTracker: OnboardingViewModel
+//    @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
     
     init(isOnboarding: Bool,
          title: String,
          screenTracker: Binding<OnboardingViewModel>? = nil,
-         vm: Binding<EditProfileViewModel>
+//         vm: Binding<EditProfileViewModel>
     ) {
         self.isOnboarding = isOnboarding
         self.title = title
@@ -41,7 +41,6 @@ struct EditTextFieldLayout: View {
         
         ZStack(alignment: .topLeading) {
             
-            let user = vm.user
             let manager = dependencies.profileManager
             
             VStack(alignment: .leading, spacing: isOnboarding ? 72 : 108) {
@@ -67,11 +66,11 @@ struct EditTextFieldLayout: View {
                 
                 .onAppear {
                     if title == "Degree" {
-                        textFieldText = user.degree ?? ""
+                        textFieldText = dependencies.userStore.user?.degree ?? ""
                     } else if title == "Hometown" {
-                        textFieldText = user.hometown ?? ""
+                        textFieldText = dependencies.userStore.user?.hometown ?? ""
                     } else if title == "Name" {
-                        textFieldText = user.name ?? ""
+                        textFieldText = dependencies.userStore.user?.name ?? ""
                     }
                     isFocused = true
                 }
@@ -86,11 +85,11 @@ struct EditTextFieldLayout: View {
             }
             .onChange(of: textFieldText) {
                 if title == "Degree" {
-                    Task{ try await manager.update(userId: user.userId, values: [.degree: textFieldText])}
+                    Task{ try await manager.update(values: [.degree: textFieldText])}
                 } else if title == "Hometown" {
-                    Task{ try await manager.update(userId: user.userId, values: [.hometown: textFieldText])}
+                    Task{ try await manager.update(values: [.hometown: textFieldText])}
                 } else if title == "Name" {
-                    Task{ try await manager.update(userId: user.userId, values: [.name: textFieldText])}
+                    Task{ try await manager.update(values: [.name: textFieldText])}
                 }
             }
         }
