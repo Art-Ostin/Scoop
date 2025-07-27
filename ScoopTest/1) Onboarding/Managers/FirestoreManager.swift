@@ -18,6 +18,7 @@ import SwiftUI
     
     private let userCollection = Firestore.firestore().collection("users")
     
+    
     private func userDocument(userId: String) -> DocumentReference {
         userCollection.document(userId)
     }
@@ -30,17 +31,18 @@ import SwiftUI
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
     
-    func updateSex(userId: String, sex: String) async throws {
-        let data: [String: Any] = [
-            UserProfile.CodingKeys.sex.rawValue: sex
-        ]
-        try await userDocument(userId: userId).updateData(data)
+    func updateSex(userId: String, sex: String) {
+        Task {
+            let data: [String: Any] = [ UserProfile.CodingKeys.sex.rawValue: sex]
+            try? await userDocument(userId: userId).updateData(data)
+        }
     }
+
+    
+    
     
     func updateAttractedTo(userId: String, attractedTo: String) async throws {
-        let data: [String: Any] = [
-            UserProfile.CodingKeys.attractedTo.rawValue: attractedTo
-        ]
+        let data: [String: Any] = [UserProfile.CodingKeys.attractedTo.rawValue: attractedTo]
         try await userDocument(userId: userId).updateData(data)
     }
     

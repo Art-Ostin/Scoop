@@ -12,12 +12,11 @@ struct EditProfileView: View {
     
     @State var vm: EditProfileViewModel
     
-    init(user: UserProfile, profile: ProfileManager, storageManager: StorageManager, userHandler: CurrentUserStore) {
-        self._vm = State(initialValue: EditProfileViewModel(user: user, profile: profile, storageManager: storageManager, userHandler: userHandler))
+    init(user: UserProfile, profile: ProfileManaging, storageManager: StorageManaging, userHandler: CurrentUserStore) {
+        self._vm = State(initialValue: EditProfileViewModel(user: user, profile: ProfileManaging, storageManager: StorageManaging, userHandler: userHandler))
     }
     
-    
-    
+        
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     

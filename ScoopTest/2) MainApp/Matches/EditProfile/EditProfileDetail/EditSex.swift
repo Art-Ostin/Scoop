@@ -12,6 +12,8 @@ struct EditSex: View {
     var isOnboarding: Bool
         
     @State private var isSelected: String?
+    
+    
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     private var vm: EditProfileViewModel { dependencies.editProfileViewModel}
     
@@ -31,16 +33,19 @@ struct EditSex: View {
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
                 OptionPill(title: "Man", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    vm.updateSex(sex: "Man")
+                    try dependencies.profileManager.updateSex(userId: vm.user.userId, sex: "Man")
                 }
+                
+                
+                
                 Spacer()
                 OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    vm.updateSex(sex: "Women")}
-            }
+                    try dependencies.profileManager.updateSex(userId: vm.user.userId, sex: "Women")
+                }
             HStack {
                 Spacer()
                 OptionPill(title: "Beyond Binary", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    vm.updateSex(sex: "Beyond Binary")
+                    try dependencies.profileManager.updateSex(userId: vm.user.userId, sex: "BeyondBinary")
                 }
                 Spacer()
             }

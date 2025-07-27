@@ -11,12 +11,12 @@ import PhotosUI
 
 @Observable class EditProfileViewModel {
     
-    let profileManager: ProfileManager
-    let storageManager: StorageManager
+    let profileManager: ProfileManaging
+    let storageManager: StorageManaging
     let userHandler: CurrentUserStore
     let user: UserProfile
     
-    init (user: UserProfile, profile: ProfileManager, storageManager: StorageManager, userHandler: CurrentUserStore) {
+    init (user: UserProfile, profile: ProfileManaging, storageManager: StorageManaging, userHandler: CurrentUserStore) {
         self.user = user
         self.profileManager = profile
         self.storageManager = storageManager
@@ -38,6 +38,7 @@ import PhotosUI
             try? await userHandler.loadUser()
         }
     }
+    
     
     func updateYear(year: String) {
         Task {

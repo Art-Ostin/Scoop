@@ -11,12 +11,12 @@ import SwiftUI
 
 @Observable
 final class AppDependencies {
+    
     let authManager: AuthenticationManaging
     let profileManager: ProfileManaging
     let storageManager: StorageManaging
     let userStore: CurrentUserStore
-    let editProfileViewModel: EditProfileViewModel
-
+    
     init(
         authManager: AuthenticationManaging? = nil,
         profileManager: ProfileManaging? = nil,
@@ -29,7 +29,13 @@ final class AppDependencies {
         self.profileManager = profile
         self.storageManager = storage
         self.userStore = CurrentUserStore(auth: auth, profile: profile)
-        self.editProfileViewModel = EditProfileViewModel(currentUser: userStore, profile: profile, storageManager: storage)
+    }
+    
+    var editProfileViewModel: EditProfileViewModel {
+        guard let user = userStore.user else {
+            fatalError("User not loaded")
+        }
+        return EditProfileViewModel(user: user, profile: profileManager, storageManager: storageManager, userHandler: userStore)
     }
 }
 
