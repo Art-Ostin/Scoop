@@ -14,11 +14,13 @@ struct AddImageView: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    init(dependencies: AppDependencies) {
+    @Binding var showLogin: Bool
+    
+    init(dependencies: AppDependencies, showLogin: Binding<Bool>) {
         self._vm = State(initialValue: ImageViewModel(storageManager: dependencies.storageManager, userStore: dependencies.userStore, profileManager: dependencies.profileManager))
+        self._showLogin = showLogin
     }
 
-    @Binding var showLogin: Bool
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     
     var body: some View {

@@ -21,7 +21,7 @@ struct EditSex: View {
     
     @Binding var screenTracker: OnboardingViewModel
     
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil/*, vm: Binding<EditProfileViewModel>*/) {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())

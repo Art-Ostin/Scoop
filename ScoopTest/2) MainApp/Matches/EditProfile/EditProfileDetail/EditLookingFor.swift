@@ -32,7 +32,7 @@ struct EditLookingFor: View {
     var body: some View {
         
         let manager = dependencies.profileManager
-        let userId = vm.user.userId
+//        let userId = vm.user.userId
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {

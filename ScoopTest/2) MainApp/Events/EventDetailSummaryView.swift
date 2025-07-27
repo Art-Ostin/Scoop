@@ -23,13 +23,11 @@ struct EventDetailSummaryView: View {
     @State var isSheetView: Bool = false
     
     var body: some View {
-        
-        (
-            Text(vm.getEventDate(event: Event.sample) + ", " + Event.sample.type.description.label + ", ") + Text(Event.sample.location)
-                .foregroundStyle(Color.accent)
-                .font(.body(isSheetView ? 18: 24, .bold))
-        )
-        
+//        (
+//            Text(vm.getEventDate(event: Event.sample) + ", " + Event.sample.type.description.label + ", ") + Text(Event.sample.location)
+//                .foregroundStyle(Color.accent)
+//                .font(.body(isSheetView ? 18: 24, .bold))
+//        )
     }
 }
 

@@ -13,15 +13,14 @@ struct EditTextFieldLayout: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    @Binding var vm: EditProfileViewModel
+//    @Binding var vm: EditProfileViewModel
     
-    var user: CurrentUserStore {dependencies.userStore}
     
     @State var textFieldText: String = ""
     
     @FocusState private var isFocused: Bool
 
-//    @Binding var screenTracker: OnboardingViewModel
+    @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
     
@@ -33,7 +32,7 @@ struct EditTextFieldLayout: View {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-        self._vm = vm
+//        self._vm = vm
     }
     
     var body: some View {

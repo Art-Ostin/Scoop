@@ -28,10 +28,9 @@ struct AppContainer: View {
             Tab("", image: "LogoIcon", value: 1) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    ImageTest()
-//                        EventView()
-//                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
-//                            .toolbarBackground(Color.background, for: .tabBar)
+                        EventView()
+                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                            .toolbarBackground(Color.background, for: .tabBar)
                 }
             }
             Tab("", image: "MessageIcon", value: 2) {

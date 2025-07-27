@@ -27,7 +27,7 @@ struct EditProfileView: View {
                 ScrollView {
                     ImagesView(dependencies: dependencies)
                     PromptsView(vm: $vm)
-                    InfoView(vm: $vm)
+                    InfoView()
                     InterestsView()
                     YearsView()
                 }

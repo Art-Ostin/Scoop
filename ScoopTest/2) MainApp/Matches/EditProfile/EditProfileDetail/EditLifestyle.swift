@@ -23,7 +23,7 @@ struct EditLifestyle: View {
     @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, /*vm: Binding<EditProfileViewModel>)*/ {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil /*vm: Binding<EditProfileViewModel>)*/ ){
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
@@ -33,7 +33,7 @@ struct EditLifestyle: View {
         
     var body: some View {
         
-        let user = vm.user
+//        let user = vm.user
         let manager = dependencies.profileManager
         
         
