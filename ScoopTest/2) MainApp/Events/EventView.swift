@@ -12,6 +12,8 @@ import SwiftUI
 
 struct EventView: View {
     
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
     let profileImage = "Image Place Holder"
     
     let name = "Meeting Name Placeholder Here"
@@ -19,7 +21,6 @@ struct EventView: View {
     @State var showEventDetails: Bool = false
     
     var body: some View {
-        
         
         ZStack {
             VStack(spacing: 48) {
@@ -29,7 +30,7 @@ struct EventView: View {
                 
                 imageView
                 
-                CountdownView()
+                CountdownView(vm: dependencies)
                 
                 EventDetailSummaryView()
                     .font(.body(24, .bold))

@@ -48,10 +48,10 @@ struct Event {
 
 
 extension Event {
-    static func sample(user: UserProfile, user2: UserProfile) -> Event {
+    static func sample(dependencies: AppDependencies) -> Event {
         Event(
-            profile: user,
-            profile2: user2,
+            profile: dependencies.userStore.user!,
+            profile2: dependencies.userStore.user!,
             type:  .houseParty,
             time:   Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date(),
             location: "Legless Arms",

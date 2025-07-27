@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
-import Combine
 
 struct CountdownView: View {
     
-    @State var vm = CountdownViewModel()
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    
+    @State var vm = CountdownViewModel(dependencies: dependencies)
+    
     
     var body: some View {
         
@@ -46,3 +49,12 @@ struct CountdownView: View {
 #Preview {
     CountdownView()
 }
+
+
+
+
+//
+//init(vm: CountdownViewModel) {
+//        self._vm = State(initialValue: CountdownViewModel(dependencies: dependencies))
+//    }
+//
