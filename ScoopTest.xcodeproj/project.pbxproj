@@ -436,6 +436,7 @@
 			children = (
 				6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */,
 				653A78582E1340BA0098747F /* MatchesView.swift */,
+				6522EF242E1EE61A004531F9 /* EditProfile */,
 			);
 			path = Matches;
 			sourceTree = "<group>";
@@ -535,7 +536,6 @@
 				659496FE2E01DD4000880921 /* AppContainer.swift */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 				6561C8D12E044638006A72DF /* Meet */,
-				6522EF242E1EE61A004531F9 /* EditProfile */,
 				6561C8D22E04464C006A72DF /* Events */,
 				6561C8D32E04465A006A72DF /* Matches */,
 				659109282E19B0810065696F /* Models */,

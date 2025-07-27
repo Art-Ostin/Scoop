@@ -17,6 +17,7 @@ import SwiftUI
 
 struct MeetContainer: View {
     
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
     @State private var state = MeetSections.intro
     
     var body: some View {
@@ -30,7 +31,7 @@ struct MeetContainer: View {
             TwoDailyProfilesView(state: $state)
             
         case .profile:
-            if let profile = CurrentUserStore.shared.user {
+            if let profile = dependencies.userStore.user {
                 ProfileView(profile: profile, state: $state)
             }
         }

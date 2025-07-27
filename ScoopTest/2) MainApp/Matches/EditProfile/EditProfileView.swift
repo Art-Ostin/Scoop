@@ -10,6 +10,12 @@ import SwiftUI
 
 struct EditProfileView: View {
     
+    @State var vm: EditProfileViewModel
+    
+    init(dependencies: AppDependencies) {
+        self._vm = State(initialValue: EditProfileViewModel(currentUser: dependencies.userStore, profile: dependencies.profileManager, storageManager: dependencies.storageManager))
+    }
+    
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     var body: some View {
@@ -35,7 +41,7 @@ struct EditProfileView: View {
     }
 }
 
-#Preview {
-    EditProfileView()
-}
+//#Preview {
+//    EditProfileView()
+//}
 

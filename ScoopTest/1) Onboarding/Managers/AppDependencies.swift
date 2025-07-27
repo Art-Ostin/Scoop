@@ -29,7 +29,7 @@ final class AppDependencies {
         self.profileManager = profile
         self.storageManager = storage
         self.userStore = CurrentUserStore(auth: auth, profile: profile)
-        self.editProfileViewModel = EditProfileViewModel(currentUser: userStore, profile: profile)
+        self.editProfileViewModel = EditProfileViewModel(currentUser: userStore, profile: profile, storageManager: storage)
     }
 }
 

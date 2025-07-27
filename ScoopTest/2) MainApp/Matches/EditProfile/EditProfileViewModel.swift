@@ -13,14 +13,16 @@ import PhotosUI
     
     let currentUser: CurrentUserStore
     let profileManager: ProfileManaging
+    let storageManager: StorageManaging
     
-    init (currentUser: CurrentUserStore, profile: ProfileManaging) {
+    var user: UserProfile? {currentUser.user ?? nil}
+    
+    init (currentUser: CurrentUserStore, profile: ProfileManaging, storageManager: StorageManaging) {
         self.currentUser = currentUser
         self.profileManager = profile
+        self.storageManager = storageManager
     }
-    
-    
-    
+
     
     func updateSex(sex: String) {
         guard let user = currentUser.user else {return}
