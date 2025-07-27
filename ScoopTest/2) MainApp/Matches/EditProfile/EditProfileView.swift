@@ -12,16 +12,18 @@ struct EditProfileView: View {
     
     @State var vm: EditProfileViewModel
     
-    init(dependencies: AppDependencies) {
-        self._vm = State(initialValue: EditProfileViewModel(currentUser: dependencies.userStore, profile: dependencies.profileManager, storageManager: dependencies.storageManager))
+    init(user: UserProfile, profile: ProfileManager, storageManager: StorageManager, userHandler: CurrentUserStore) {
+        self._vm = State(initialValue: EditProfileViewModel(user: user, profile: profile, storageManager: storageManager, userHandler: userHandler))
     }
+    
+    
+    
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     var body: some View {
         
         NavigationStack {
-            
             ZStack {
                 ScrollView {
                     ImagesView(dependencies: dependencies)

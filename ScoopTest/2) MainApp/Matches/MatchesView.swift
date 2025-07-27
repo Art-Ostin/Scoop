@@ -57,7 +57,12 @@ struct MatchesView: View {
 //                }
             }
             .fullScreenCover(isPresented: $showProfileView, content: {
-                EditProfileView(dependencies: dependencies)
+                if let user = dependencies.userStore.user {
+                    
+                    EditProfileView(user: user, profile: dependencies.profileManager, storageManager: dependencies.storageManager, userHandler: dependencies.userStore)
+                    
+                    
+                }
             })
         }
     }
