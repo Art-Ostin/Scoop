@@ -10,8 +10,10 @@ import SwiftUI
 struct EditSex: View {
     
     var isOnboarding: Bool
-    
-    @State private var isSelected: String? = CurrentUserStore.shared.user?.sex
+        
+    @State private var isSelected: String?
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    private var vm: EditProfileViewModel { dependencies.editProfileViewModel}
     
     let title: String?
     
@@ -24,20 +26,21 @@ struct EditSex: View {
     }
     
     var body: some View {
+        let user = dependencies.userStore.user
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
                 OptionPill(title: "Man", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    EditProfileViewModel.instance.updateSex(sex: "Man")
+                    vm.updateSex(sex: "Man")
                 }
                 Spacer()
                 OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    EditProfileViewModel.instance.updateSex(sex: "Women")}
+                    vm.updateSex(sex: "Women")}
             }
             HStack {
                 Spacer()
                 OptionPill(title: "Beyond Binary", counter: $screenTracker.screen, isSelected: $isSelected) {
-                    EditProfileViewModel.instance.updateSex(sex: "Beyond Binary")
+                    vm.updateSex(sex: "Beyond Binary")
                 }
                 Spacer()
             }

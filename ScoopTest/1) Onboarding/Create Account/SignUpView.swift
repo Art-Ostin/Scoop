@@ -10,6 +10,10 @@ import SwiftUI
 
 struct SignUpView: View {
     
+    
+    
+    
+    
     @State var selection: Int = 0
     @State var showCover: Bool = false
     @Binding var showEmail: Bool
@@ -27,7 +31,7 @@ struct SignUpView: View {
                 })
             }
             .fullScreenCover(isPresented: $showCover) {
-                EnterEmailView(showLogin: $showLogin, showEmail: $showEmail)
+                EnterEmailView(vm: <#EmailVerificationViewModel#>, showLogin: $showLogin, showEmail: $showEmail)
             }
         }
     }

@@ -9,12 +9,15 @@ import SwiftUI
 
 struct InfoView: View {
     
-    let vm = EditProfileViewModel.instance
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     
     //Populate the coreInfo and aboutMe with the UserProfile 
     private var coreInfo: [ProfileInfoPreview<AnyView>] {
-        guard let u = vm.user else { return [] }
+        
+
+        guard let u = dependencies.userStore.user else { return [] }
         
         let name       = u.name        ?? "–"
         let sex        = u.sex         ?? "–"
@@ -35,8 +38,8 @@ struct InfoView: View {
     
     private var aboutMe: [ProfileInfoPreview<AnyView>] {
         
-        guard let u = vm.user else {return [] }
-             
+        guard let u = dependencies.userStore.user else { return [] }
+
         let lookingFor = u.lookingFor ?? "–"
         let degree = u.degree ?? "-"
         let hometown = u.hometown ?? "-"

@@ -32,7 +32,6 @@ struct MeetContainer: View {
         case .profile:
             if let profile = CurrentUserStore.shared.user {
                 ProfileView(profile: profile, state: $state)
-
             }
         }
         

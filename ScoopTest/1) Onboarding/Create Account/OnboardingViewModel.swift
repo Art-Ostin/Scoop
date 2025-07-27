@@ -17,6 +17,12 @@ import SwiftUI
         self.authManager = authManager
     }
     
+    convenience init() {
+        let profile = ProfileManager()
+        let manager = AuthenticationManager(profile: profile)
+        self.init(authManager: manager)
+    }
+    
     var screen: Int = 0
     
     let transition: AnyTransition = .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))

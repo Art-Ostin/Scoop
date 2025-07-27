@@ -9,8 +9,10 @@ import SwiftUI
 
 struct EditAttractedTo: View {
         
-    @State var isSelected: String? = CurrentUserStore.shared.user?.attractedTo
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    @State var isSelected: String?
     
+    private var vm: EditProfileViewModel { dependencies.editProfileViewModel}
     @Binding var screenTracker: OnboardingViewModel
     
     let title: String?
@@ -27,20 +29,21 @@ struct EditAttractedTo: View {
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack {
-                OptionPill(title: "Men",counter: $screenTracker.screen, isSelected: $isSelected) { EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Men")}
+                OptionPill(title: "Men",counter: $screenTracker.screen, isSelected: $isSelected) { vm.updateAttractedTo(attractedTo: "Men")}
                 Spacer()
-                OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Women")}
+                OptionPill(title: "Women", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateAttractedTo(attractedTo: "Women")}
             }
             
             HStack {
-                OptionPill(title: "Men & Women", counter: $screenTracker.screen,  isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "Men & Women")}
+                OptionPill(title: "Men & Women", counter: $screenTracker.screen,  isSelected: $isSelected) {vm.updateAttractedTo(attractedTo: "Men & Women")}
                 
                 Spacer()
                 
-                OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {EditProfileViewModel.instance.updateAttractedTo(attractedTo: "All Genders")}
+                OptionPill(title: "All Genders", counter: $screenTracker.screen, isSelected: $isSelected) {vm.updateAttractedTo(attractedTo: "All Genders")}
             }
         }
         .customNavigation(isOnboarding: isOnboarding)
+        .onAppear {isSelected = dependencies.userStore.user?.attractedTo }
     }
 }
 

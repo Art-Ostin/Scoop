@@ -9,15 +9,19 @@ import SwiftUI
 
 struct EditLifestyle: View {
     
-    @State var isSelectedDrinking: String? = CurrentUserStore.shared.user?.drinking
-    @State var isSelectedSmoking: String? = CurrentUserStore.shared.user?.smoking
-    @State var isSelectedMarijuana: String? = CurrentUserStore.shared.user?.marijuana
-    @State var isSelectedDrugs: String? = CurrentUserStore.shared.user?.drugs
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    private var vm: EditProfileViewModel {dependencies.editProfileViewModel}
+        
+    @State var isSelectedDrinking: String?
+    @State var isSelectedSmoking: String?
+    @State var isSelectedMarijuana: String?
+    @State var isSelectedDrugs: String?
         
     let title: String?
-    let firebase = EditProfileViewModel.instance
     
     @Binding var screenTracker: OnboardingViewModel
+    
     var isOnboarding: Bool
     init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
         self.isOnboarding = isOnboarding
@@ -35,21 +39,27 @@ struct EditLifestyle: View {
         }
         .padding(.horizontal)
         .customNavigation(isOnboarding: isOnboarding)
+        .onAppear {
+            let user = dependencies.userStore.user
+            isSelectedDrinking = user?.drinking
+            isSelectedSmoking = user?.smoking
+            isSelectedMarijuana = user?.marijuana
+        }
         .onChange(of: isSelectedDrinking) {
             nextScreen()
-            firebase.updateDrinking(drinking: isSelectedDrinking ?? "")
+            vm.updateDrinking(drinking: isSelectedDrinking ?? "")
         }
         .onChange(of: isSelectedSmoking) {
             nextScreen()
-            firebase.updateSmoking(smoking: isSelectedSmoking ?? "" )
+            vm.updateSmoking(smoking: isSelectedSmoking ?? "" )
         }
         .onChange(of: isSelectedMarijuana) {
             nextScreen()
-            firebase.updateMarijuana(marijuana: isSelectedMarijuana ?? "")
+            vm.updateMarijuana(marijuana: isSelectedMarijuana ?? "")
         }
         .onChange(of: isSelectedDrugs) {
             nextScreen()
-            firebase.updateDrugs(drugs: isSelectedDrugs ?? "")
+            vm.updateDrugs(drugs: isSelectedDrugs ?? "")
         }
     }
 

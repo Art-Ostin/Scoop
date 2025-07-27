@@ -22,7 +22,6 @@ struct ImagesView: View {
         _vm = State(initialValue: ImageViewModel(storageManager: dependencies.storageManager, userStore: dependencies.userStore, profileManager: dependencies.profileManager))
     }
     
-    
     var body: some View {
        
         CustomList {

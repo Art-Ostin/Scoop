@@ -10,7 +10,14 @@ import PhotosUI
 
 struct AddImageView: View {
     
-    @State private var vm = ImageViewModel()
+    @State private var vm: ImageViewModel
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    init(dependencies: AppDependencies) {
+        self._vm = State(initialValue: ImageViewModel(storageManager: dependencies.storageManager, userStore: dependencies.userStore, profileManager: dependencies.profileManager))
+    }
+
     @Binding var showLogin: Bool
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     
@@ -36,20 +43,12 @@ struct AddImageView: View {
             })
         }
         .task {
-            try? await CurrentUserStore.shared.loadUser()
+            try? await dependencies.userStore.loadUser()
             vm.seedFromCurrentUser()
         }
     }
 }
 
-#Preview {
-    AddImageView(showLogin: .constant(true))
-}
-
-//PhotoCell2(picker: $vm.pickerItems[idx], urlString: vm.imageURLs[idx]) {
-//    vm.loadImage(at: idx)
-//}
-
-//PhotoCell(picker: $vm.pickerItems[idx], image: vm.selectedImages[idx]) {
-//    vm.loadImage(at: idx)
+//#Preview {
+//    AddImageView(showLogin: .constant(true))
 //}

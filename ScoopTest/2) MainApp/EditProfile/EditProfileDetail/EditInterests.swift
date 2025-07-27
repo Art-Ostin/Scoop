@@ -22,6 +22,9 @@ import SwiftUIFlowLayout
 
 struct EditInterests: View {
     
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
     @State var selected: [String] = []
     
     @State private var vm: InterestsOptionsViewModel
@@ -32,7 +35,6 @@ struct EditInterests: View {
     
     @Binding var screenTracker: OnboardingViewModel
     
-    
     init(
         sections: [(title: String?, image: String?, data: [String])]? = nil,
         title: String,
@@ -42,7 +44,7 @@ struct EditInterests: View {
         let model = InterestsOptionsViewModel()
         self._vm = State(initialValue: model)
         self._selected = State(initialValue: [])
-        self._screenTracker =  screenTracker ?? .constant(OnboardingViewModel())
+        self._screenTracker =  screenTracker ?? .constant(OnboardingViewModel(authManager: dependencies.authManager))
         self.sections = sections ?? [
           ("Social",    "figure.socialdance", model.socialPassions),
           ("Interests", "book",               model.interests),

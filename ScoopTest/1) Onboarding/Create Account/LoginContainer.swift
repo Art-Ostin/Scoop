@@ -12,13 +12,14 @@ struct LoginContainer: View {
     
     @State var showEmail: Bool = true
     @Binding var showLogin: Bool
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     var body: some View {
         ZStack {
             if showEmail {
                 SignUpView(showEmail: $showEmail, showLogin: $showLogin)
             } else {
-                LimitedAccessView(showLogin: $showLogin)
+                LimitedAccessView(showLogin: $showLogin, auth: dependencies.authManager)
             }
         }
     }

@@ -10,14 +10,7 @@ import SwiftUI
 
 struct EditProfileView: View {
     
-    
-    @State var vm: EditProfileViewModel
-    
-    
-    init(profile: UserProfile) {
-        self._vm = State(initialValue: EditProfileViewModel(currentUser: <#T##CurrentUserStore#>, profile: <#T##any ProfileManaging#>))
-    }
-
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     var body: some View {
         

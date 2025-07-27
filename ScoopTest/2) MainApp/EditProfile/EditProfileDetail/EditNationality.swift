@@ -10,6 +10,11 @@ import SwiftUI
 @Observable class EditNationalityViewModel {
     
     var selectedCountries: [String] = CurrentUserStore.shared.user?.nationality ?? []
+    let firestoreManager = EditProfileViewModel.instance
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+    var vm: EditProfileViewModel {dependencies.editProfileViewModel}
     
     
     let countries = CountryDataServices.shared.allCountries
@@ -29,7 +34,6 @@ import SwiftUI
     
     let columns2 = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
     
-    let firestoreManager = EditProfileViewModel.instance
     
     private func isSelected(country: CountryData) -> Bool {
         return firestoreManager.user?.nationality?.contains(country.flag) == true

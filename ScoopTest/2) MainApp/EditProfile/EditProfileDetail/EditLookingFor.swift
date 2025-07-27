@@ -9,12 +9,13 @@ import SwiftUI
 
 struct EditLookingFor: View {
         
-    let vm = EditProfileViewModel.instance
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    var vm: EditProfileViewModel { dependencies.editProfileViewModel }
+    @State var isSelected: String?
+    
     
     var isOnboarding: Bool
-    
-    @State private var isSelected: String? = CurrentUserStore.shared.user?.lookingFor
-    
     let title: String?
     
     @Binding var screenTracker: OnboardingViewModel
@@ -39,6 +40,7 @@ struct EditLookingFor: View {
             }
         }
         .customNavigation(isOnboarding: isOnboarding)
+        .onAppear {isSelected = dependencies.userStore.user?.lookingFor }
     }
 }
 

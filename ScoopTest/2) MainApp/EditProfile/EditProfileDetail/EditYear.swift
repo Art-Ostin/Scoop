@@ -9,7 +9,11 @@ import SwiftUI
 
 struct EditYear: View {
     
-    @State private var isSelected: String? = CurrentUserStore.shared.user?.year
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    private var vm: EditProfileViewModel {dependencies.editProfileViewModel}
+    
+    @State var isSelected: String?
+    
     
     let title: String?
 
@@ -26,12 +30,13 @@ struct EditYear: View {
         EditOptionLayout(title: title, isSelected: $isSelected) {
             HStack{
                 ForEach(0..<5) { i in
-                    OptionPill(title: "U\(i)", counter: $screenTracker.screen,  width: 61, isSelected: $isSelected) {EditProfileViewModel.instance.updateYear(year: "U\(i)")}
+                    OptionPill(title: "U\(i)", counter: $screenTracker.screen,  width: 61, isSelected: $isSelected) {vm.updateYear(year: "U\(i)")}
                     Spacer()
                 }
             }
         }
         .customNavigation(isOnboarding: isOnboarding)
+        .onAppear { isSelected = dependencies.userStore.user?.year}
     }
 }
 

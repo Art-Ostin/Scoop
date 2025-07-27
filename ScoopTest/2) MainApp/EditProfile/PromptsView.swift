@@ -13,7 +13,7 @@ struct PromptsView: View {
     
     var body: some View {
         
-        let currentUser = dependencies.userStore.user?
+        let currentUser = dependencies.userStore.user
         
 
         CustomList(title: "Prompts") {
@@ -37,7 +37,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(promptIndex: 3, prompts: Prompts.instance.prompts3, isOnboarding: false)
                 } label: {
-                    promptResponse(prompt: vm?.prompt3?.prompt ?? "Add Prompt", response: vm?.prompt3?.response ?? "")
+                    promptResponse(prompt:currentUser?.prompt3?.prompt ?? "Add Prompt", response: currentUser?.prompt3?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)

@@ -4,12 +4,15 @@ struct LimitedAccessView: View {
     
     
     
-    @State private var vm = OnboardingViewModel()
-    
+    @State private var vm: OnboardingViewModel
     
     @State private var showOnboarding = false
     @Binding var showLogin: Bool
     
+    init(showLogin: Binding<Bool>, auth: AuthenticationManaging) {
+        self._showLogin = showLogin
+        self._vm = State(initialValue: OnboardingViewModel(authManager: auth))
+    }
     
     var body: some View {
         
