@@ -36,7 +36,7 @@ struct OnboardingContainer: View {
                     case 9: EditTextFieldLayout(isOnboarding: true, title: "Hometown", screenTracker: $vm)
                     case 10: EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: true, screenTracker: $vm)
                     case 11: EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: true, screenTracker: $vm)
-                    case 12: AddImageView(dependencies: dependencies)
+                    case 12: AddImageView(dependencies: dependencies, showLogin: $showLogin)
                     default: EmptyView()
                 }
 

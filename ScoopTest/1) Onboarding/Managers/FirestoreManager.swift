@@ -46,6 +46,10 @@ import SwiftUI
             try await userDocument(userId: userId).updateData(data)
         }
     
+    
+    
+    
+    
     func update(values: [UserProfile.CodingKeys: Any]) async throws {
         guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
         try await update(userId: id, values: values)

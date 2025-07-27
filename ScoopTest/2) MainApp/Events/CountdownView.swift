@@ -12,7 +12,13 @@ struct CountdownView: View {
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     
-    @State var vm = CountdownViewModel(dependencies: dependencies)
+    @State var vm: CountdownViewModel
+    
+    init(dependencies: AppDependencies) {
+        _vm = State(initialValue: CountdownViewModel(dependencies: dependencies))
+    }
+    
+    
     
     
     var body: some View {
@@ -46,9 +52,9 @@ struct CountdownView: View {
     
 }
 
-#Preview {
-    CountdownView()
-}
+//#Preview {
+//    CountdownView()
+//}
 
 
 

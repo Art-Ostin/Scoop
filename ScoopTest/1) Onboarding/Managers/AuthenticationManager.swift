@@ -38,7 +38,7 @@ struct AuthenticatedUser {
     }
     
     func signInUser(email: String, password: String ) async throws {
-        let authUser = try await Auth.auth().signIn(with: EmailAuthProvider.credential(withEmail: email, password: password))
+        let _ = try await Auth.auth().signIn(with: EmailAuthProvider.credential(withEmail: email, password: password))
     }
     
     func getAuthenticatedUser () throws -> AuthenticatedUser {

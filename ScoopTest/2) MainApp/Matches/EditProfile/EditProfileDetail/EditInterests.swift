@@ -157,7 +157,6 @@ struct InterestSection: View {
                         : (selected.count < 10 ? selected.append(text) : nil)
 
                     Task {
-                        guard let user = dependencies.userStore.user else { return }
                         if interestIsSelected(text: text) {
                             try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayRemove([text])])
                         } else {

@@ -37,7 +37,6 @@ struct EditPrompt: View {
     var body: some View {
         
 //        let userId = vm.user.userId
-        let manager = dependencies.profileManager
         
         ZStack {
             VStack(spacing: 12) {
