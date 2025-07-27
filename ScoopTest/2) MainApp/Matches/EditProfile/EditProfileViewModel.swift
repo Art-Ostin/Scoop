@@ -11,16 +11,10 @@ import PhotosUI
 
 @Observable class EditProfileViewModel {
     
-    let profileManager: ProfileManaging
-    let storageManager: StorageManaging
-    let userHandler: CurrentUserStore
     let user: UserProfile
     
-    init (user: UserProfile, profile: ProfileManaging, storageManager: StorageManaging, userHandler: CurrentUserStore) {
+    init (user: UserProfile) {
         self.user = user
-        self.profileManager = profile
-        self.storageManager = storageManager
-        self.userHandler = userHandler
     }
     
     

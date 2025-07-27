@@ -17,26 +17,28 @@ struct EditPrompt: View {
     @State var showDropdownMenu: Bool = false
     
     var prompts: [String]
-    
     var promptIndex: Int
-    
     @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    private var vm: EditProfileViewModel { dependencies.editProfileViewModel }
+
+    @Binding var vm: EditProfileViewModel
     
-    
-    init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil) {
+    init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
         self.promptIndex = promptIndex
         self.prompts = prompts
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
         self.isOnboarding = isOnboarding
+        self._vm = vm
     }
     
     var body: some View {
-                
+        
+        let userId = vm.user.userId
+        let manager = dependencies.profileManager
+        
         ZStack {
             VStack(spacing: 12) {
                 selecter
@@ -56,9 +58,9 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: selectedText) { vm.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
-        .onChange(of: selectedPrompt) { vm.updatePrompt(prompt: selectedPrompt, promptIndex: promptIndex, response: selectedText)}
-        
+        .onChange(of: selectedText) { updatePrompt() }
+        .onChange(of: selectedPrompt) { updatePrompt() }
+            
         
         .onAppear {
             isFocused = true
@@ -80,9 +82,9 @@ struct EditPrompt: View {
     }
 }
 
-#Preview {
-    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts1, isOnboarding: true)
-}
+//#Preview {
+//    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts1, isOnboarding: true)
+//}
 
 extension EditPrompt {
     
@@ -137,5 +139,18 @@ extension EditPrompt {
                     .stroke(Color.grayPlaceholder, lineWidth: 0.5)
             )
             .focused($isFocused)
+    }
+    
+    private func updatePrompt() {
+        guard let user = dependencies.userStore.user else { return }
+        let prompt = PromptResponse(prompt: selectedPrompt, response: selectedText)
+        Task {
+            try? await dependencies.profileManager.updatePrompt(
+                userId: user.userId,
+                promptIndex: promptIndex,
+                prompt: prompt
+            )
+            try? await dependencies.userStore.loadUser()
+        }
     }
 }

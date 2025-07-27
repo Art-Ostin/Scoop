@@ -6,11 +6,11 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+
 
 @Observable class EditNationalityViewModel {
-    
-    
-    let dependencies: AppDependencies
+
     
     var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
@@ -30,13 +30,8 @@ import SwiftUI
     
     let columns2 = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
     
-    
-    private func isSelected(country: CountryData) -> Bool {
-        let user = dependencies.userStore.user
-        return user?.nationality?.contains(country.flag) == true
-    }
-    
-    func addAndRemoveCountry(_ country: String) {
+        
+    func addAndRemoveCountry(_ country: String, dependencies: AppDependencies) {
         guard let user = dependencies.userStore.user else { return }
         let currentlyInFirebase = user.nationality?.contains(country) == true
         Task {
@@ -54,6 +49,7 @@ import SwiftUI
                 selectedCountries.append(country)
             }
             try? await dependencies.userStore.loadUser()
+        }
     }
 }
 
@@ -66,6 +62,8 @@ struct EditNationality: View {
     @State var vm = EditNationalityViewModel()
     
     @Binding var screenTracker: OnboardingViewModel
+    
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
     
     
     init(isOnboarding: Bool = false, screenTracker: Binding<OnboardingViewModel>? = nil) {
@@ -94,7 +92,7 @@ struct EditNationality: View {
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
                                 vm.selectedCountries.removeAll(where: {$0 == country})
-                                vm.vm.removeNationality(nationality: country)
+                                vm.addAndRemoveCountry(country, dependencies: dependencies)
                             }
                         }
                 }
@@ -221,13 +219,7 @@ extension EditNationality {
         .offset(y: country.name.count > 15 ? 5 : 0)
         .onTapGesture {
             withAnimation(.smooth(duration: 0.2)) {
-                if vm.isSelected(country.flag) {
-                    vm.selectedCountries.removeAll(where: {$0 == country.flag})
-                    vm.vm.removeNationality(nationality: country.flag)
-                } else if vm.selectedCountries.count < 3 {
-                    vm.selectedCountries.append(country.flag)
-                    vm.vm.updateNationality(nationality: country.flag)
-                }
+                vm.addAndRemoveCountry(country.flag, dependencies: dependencies)
             }
         }
     }

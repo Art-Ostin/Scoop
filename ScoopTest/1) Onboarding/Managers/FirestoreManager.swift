@@ -37,6 +37,9 @@ import SwiftUI
             try await userDocument(userId: userId).updateData(data)
         }
     
+    
+    
+    
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws {
         let key: UserProfile.CodingKeys
         switch promptIndex {

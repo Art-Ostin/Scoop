@@ -45,7 +45,10 @@ import PhotosUI
         
     }
     
-    func loadImage(at index: Int) {
+    func loadImage(at index: Int, dependencies: AppDependencies) {
+        
+        let manager = dependencies.profileManager
+        
         
         guard let selection = pickerItems[index] else {return}
 
@@ -56,7 +59,8 @@ import PhotosUI
                 
                 {
                 try? await storageManager.deleteImage(path: oldPath)
-                try? await profileManager.removeImagePath(userId: user.userId , path: oldPath, url: oldURLs)
+                
+                try? await manager.removeImagePath(userId: user.userId , path: oldPath, url: oldURLs)
                 
                 await MainActor.run {
                     imagePaths[index]     = nil

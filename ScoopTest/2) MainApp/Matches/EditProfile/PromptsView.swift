@@ -11,6 +11,8 @@ struct PromptsView: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
+    @Binding var vm: EditProfileViewModel
+    
     var body: some View {
         
         let currentUser = dependencies.userStore.user
@@ -19,7 +21,7 @@ struct PromptsView: View {
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {
-                    EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: false)
+                    EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: false, vm: $vm)
                 } label: {
                     promptResponse(prompt: currentUser?.prompt1?.prompt ?? "Add Prompt", response: currentUser?.prompt1?.response ?? "")
                         .foregroundStyle(.black)
@@ -27,7 +29,7 @@ struct PromptsView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: false)
+                    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: false, vm: $vm)
                 } label: {
                     promptResponse(prompt: currentUser?.prompt2?.prompt ?? "Add Prompt", response: currentUser?.prompt2?.response ?? "")
                         .foregroundStyle(.black)
@@ -35,7 +37,7 @@ struct PromptsView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(promptIndex: 3, prompts: Prompts.instance.prompts3, isOnboarding: false)
+                    EditPrompt(promptIndex: 3, prompts: Prompts.instance.prompts3, isOnboarding: false, vm: $vm)
                 } label: {
                     promptResponse(prompt:currentUser?.prompt3?.prompt ?? "Add Prompt", response: currentUser?.prompt3?.response ?? "")
                         .foregroundStyle(.black)
@@ -48,9 +50,9 @@ struct PromptsView: View {
     }
 }
 
-#Preview {
-    PromptsView()
-}
+//#Preview {
+//    PromptsView()
+//}
 
 extension PromptsView {
     

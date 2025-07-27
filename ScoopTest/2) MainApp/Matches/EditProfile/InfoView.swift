@@ -63,7 +63,7 @@ struct InfoView: View {
             .init("Looking for", [lookingFor]){AnyView( EditLookingFor(vm: $vm))},
             .init("Degree", [degree]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Degree", vm: $vm))},
             .init("Hometown", [hometown]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Hometown", vm: $vm))},
-            .init("Lifestyle",[lifestyle]) {AnyView(EditLifestyle())},
+            .init("Lifestyle",[lifestyle]) {AnyView(EditLifestyle(vm: $vm))},
             .init("My Life as a", myLifeAs) {AnyView(EditMyLifeAs())},
             .init ("Languages", [languages]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "I Speak", vm: $vm))}
         ]

@@ -14,7 +14,6 @@ struct EditYear: View {
     @State var isSelected: String?
     @Binding var vm: EditProfileViewModel
     
-    
     let title: String?
 
     @Binding var screenTracker: OnboardingViewModel

@@ -11,8 +11,8 @@ struct EditLifestyle: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    private var vm: EditProfileViewModel {dependencies.editProfileViewModel}
-        
+    @Binding var vm: EditProfileViewModel
+    
     @State var isSelectedDrinking: String?
     @State var isSelectedSmoking: String?
     @State var isSelectedMarijuana: String?
@@ -23,13 +23,19 @@ struct EditLifestyle: View {
     @Binding var screenTracker: OnboardingViewModel
     
     var isOnboarding: Bool
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil) {
+    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil, vm: Binding<EditProfileViewModel>) {
         self.isOnboarding = isOnboarding
         self.title = title
-        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())}
+        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
+        self._vm = vm
+    }
     
         
     var body: some View {
+        
+        let user = vm.user
+        let manager = dependencies.profileManager
+        
         
         VStack(spacing: 48) {
             vicesOptions(title: "Drinking", isSelected: $isSelectedDrinking)
@@ -47,19 +53,19 @@ struct EditLifestyle: View {
         }
         .onChange(of: isSelectedDrinking) {
             nextScreen()
-            vm.updateDrinking(drinking: isSelectedDrinking ?? "")
+            Task{ try await manager.update(userId: user.userId, values: [.drinking : isSelectedDrinking ?? ""])}
         }
         .onChange(of: isSelectedSmoking) {
             nextScreen()
-            vm.updateSmoking(smoking: isSelectedSmoking ?? "" )
+            Task{ try await manager.update(userId: user.userId, values: [.smoking : isSelectedSmoking ?? ""])}
         }
         .onChange(of: isSelectedMarijuana) {
             nextScreen()
-            vm.updateMarijuana(marijuana: isSelectedMarijuana ?? "")
+            Task{try await manager.update(userId: user.userId, values: [.marijuana : isSelectedMarijuana ?? ""])}
         }
         .onChange(of: isSelectedDrugs) {
             nextScreen()
-            vm.updateDrugs(drugs: isSelectedDrugs ?? "")
+            Task{try await manager.update(userId: user.userId, values: [.drugs : isSelectedDrugs ?? ""])}
         }
     }
 
@@ -90,9 +96,9 @@ struct EditLifestyle: View {
     }
 }
 
-#Preview {
-    EditLifestyle()
-}
+//#Preview {
+//    EditLifestyle()
+//}
 
 
 

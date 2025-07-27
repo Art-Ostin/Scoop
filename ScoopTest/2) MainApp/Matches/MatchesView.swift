@@ -42,23 +42,23 @@ struct MatchesView: View {
                     }
                 }
                 .navigationTitle("Matches")
-//                .toolbar {
-//                    ToolbarItem(placement: .topBarLeading) {
-//                        HStack(spacing: 32) {
-//                            Image("GearIcon")
-//                        }
-//                    }
-//                    ToolbarItem(placement: .topBarTrailing) {
-//                        ProfileButton
-//                            .onTapGesture {
-//                                showProfileView = true
-//                            }
-//                    }
-//                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        HStack(spacing: 32) {
+                            Image("GearIcon")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ProfileButton
+                            .onTapGesture {
+                                showProfileView = true
+                            }
+                    }
+                }
             }
             .fullScreenCover(isPresented: $showProfileView, content: {
-                if let userId = dependencies.userStore.user?.userId {
-                    EditProfileView(userId: userId)
+                if let user = dependencies.userStore.user {
+                    EditProfileView(user: user)
                 }
             })
         }

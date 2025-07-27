@@ -30,13 +30,7 @@ final class AppDependencies {
         self.storageManager = storage
         self.userStore = CurrentUserStore(auth: auth, profile: profile)
     }
-    
-    var editProfileViewModel: EditProfileViewModel {
-        guard let user = userStore.user else {
-            fatalError("User not loaded")
-        }
-        return EditProfileViewModel(user: user, profile: profileManager, storageManager: storageManager, userHandler: userStore)
-    }
+
 }
 
 private struct AppDependenciesKey: EnvironmentKey {

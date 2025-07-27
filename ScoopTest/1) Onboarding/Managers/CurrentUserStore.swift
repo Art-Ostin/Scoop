@@ -19,6 +19,7 @@ class CurrentUserStore {
         self.profileManager = profile
     }
     
+    
     private init() {}
     
     private(set) var user: UserProfile? = nil
