@@ -37,6 +37,7 @@ struct CustomNavigation: ViewModifier {
     }
 }
 
+
 extension View {
     func customNavigation(isOnboarding: Bool, onTap: @escaping () -> Void = {}) -> some View {
         modifier(CustomNavigation(isOnboarding: isOnboarding, onTap: onTap))

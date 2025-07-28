@@ -17,9 +17,10 @@ struct FlowModeKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    
     var flowMode: FlowMode {
         get { self[FlowModeKey.self]}
         set { self[FlowModeKey.self] = newValue }
     }
 }
+
+

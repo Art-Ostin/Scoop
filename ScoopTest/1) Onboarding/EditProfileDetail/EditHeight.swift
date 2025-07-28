@@ -39,7 +39,7 @@ struct EditHeight: View {
                         .onChange(of: height) {Task{try await manager.update(values: [.height : height])}}
                 }
             }
-            .customNavigation(isOnboarding: isOnboarding)
+            .flowNavigation()
             .pickerStyle(.wheel)
         }
         .task {

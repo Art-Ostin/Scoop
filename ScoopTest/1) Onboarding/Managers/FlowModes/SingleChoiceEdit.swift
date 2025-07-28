@@ -18,14 +18,17 @@ struct OptionEditView: View  {
     
     let field: OptionField
     @State private var selection: String? = nil
-    @Environment(\.appDependencies) private var deps
+    @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
 
     var body: some View {
-        
         let grid = [GridItem(.flexible()), GridItem(.flexible())]
         
         VStack {
+            
+            Text(field.title)
+                .font(.title(32))
+            
             LazyVGrid(columns: grid, spacing: 24) {
                 ForEach(field.options, id: \.self) { option in
                     OptionPill(title: option, isSelected: $selection) {
@@ -34,7 +37,8 @@ struct OptionEditView: View  {
                 }
             }
         }
-        .task {selection == deps.userStore.user?[keyPath: field.keyPath] }
+        .flowNavigation()
+        .task {selection = dep.userStore.user?[keyPath: field.keyPath] }
     }
     
     private func select(_ value: String) {
