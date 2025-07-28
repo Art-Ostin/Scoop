@@ -22,7 +22,7 @@ import FirebaseFirestore
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
     }
-    
+
     var groupedCountries: [(letter: String, countries: [CountryData])] {
         let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
         let sortedKeys = groups.keys.sorted()
@@ -30,27 +30,21 @@ import FirebaseFirestore
             (key, groups[key]!.sorted { $0.name < $1.name })
         }
     }
-    
     func isSelected(_ country: String) -> Bool {
         selectedCountries.contains(country)
     }
     
     func toggleCountry(_ country: String, dep: AppDependencies) {
-        guard let user = dep.userStore.user else { return }
-        let isSelected = user.nationality?.contains(country) == true
-        Task {
-            if isSelected {
-                try? await dep.profileManager.update(
-                    values: [.nationality: FieldValue.arrayRemove([country])]
-                )
-                selectedCountries.removeAll(where: { $0 == country })
-            } else if selectedCountries.count < 3 {
-                try? await dep.profileManager.update(
-                    values: [.nationality: FieldValue.arrayUnion([country])]
-                )
-                selectedCountries.append(country)
+        if selectedCountries.contains(country) {
+            selectedCountries.removeAll(where: {$0 == country})
+            Task {
+               try? await dep.profileManager.update(values: [.nationality: FieldValue.arrayRemove([country])])
             }
-            try? await dep.userStore.loadUser()
+        } else {
+            selectedCountries.append(country)
+            Task {
+               try? await dep.profileManager.update(values: [.nationality: FieldValue.arrayUnion([country])])
+            }
         }
     }
 }
@@ -109,10 +103,7 @@ extension EditNationality {
                             .offset(x: 6, y: -2)
                     }
                     .onTapGesture {
-                        withAnimation(.smooth(duration: 0.2)) {
-                            vm.selectedCountries.removeAll(where: {$0 == country})
-                            vm.toggleCountry(country, dep: dep)
-                        }
+                        withAnimation(.smooth(duration: 0.2)) {vm.toggleCountry(country, dep: dep) }
                     }
             }
         }
@@ -120,6 +111,7 @@ extension EditNationality {
         .padding(.horizontal)
         .frame(height: 0)
     }
+    
     private func alphabet(proxy: ScrollViewProxy) -> some View {
         LazyVGrid(columns: vm.alphabetColumns, spacing: 24) {
             ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
@@ -140,7 +132,7 @@ extension EditNationality {
     private var nationalitiesView: some View {
         
         ScrollView {
-            VStack(spacing: 36) {
+            VStack(spacing: 48) {
                 
                 LazyVGrid(columns: vm.columns, spacing: 36) {
                     
@@ -157,7 +149,8 @@ extension EditNationality {
                             .padding(.horizontal)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id(group.letter)
-
+                            .offset(x: 16)
+                        
                         LazyVGrid(columns: vm.columns, spacing: 36) {
                             ForEach(group.countries) { country in
                                 flagItem(country: country)
@@ -179,11 +172,6 @@ extension EditNationality {
             .padding(.top, 360)
         }
     }
-}
-
-
-//Functions
-extension EditNationality {
     
     private func flagItem(country: CountryData) -> some View {
         VStack(spacing: 6) {
@@ -222,40 +210,3 @@ extension EditNationality {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//private var crossButton: some View {
-//    ZStack{
-//        Circle()
-//            .stroke(Color.grayPlaceholder, lineWidth: 1)
-//            .background(Circle().fill(Color.white))
-//            .frame(width: 16, height: 16)
-//        Image(systemName: "xmark")
-//            .font(.body(8, .bold))
-//            .foregroundStyle(.black)
-//    }
-//}
-//
-//private func plusButton(_ country: String) -> some View {
-//    ZStack{
-//        Circle()
-//            .stroke(Color.grayPlaceholder, lineWidth: 1)
-//            .background(Circle().fill(Color.white))
-//            .frame(width: 16, height: 16)
-//        Image(systemName: vm.isSelected(country) ? "minus" :"plus")
-//            .font(.body(12, .medium))
-//            .foregroundStyle(.black)
-//    }
-//}

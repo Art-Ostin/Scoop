@@ -10,83 +10,38 @@ import SwiftUIFlowLayout
 import FirebaseFirestore
 
 
-@Observable class InterestsOptionsViewModel {
-    
-    var socialPassions: [String] = [ "Bars", "Raves", "Clubbing", "Movie Nights", "House Party", "Darties", "Dinner Parties", "Road Trips", "Concerts", "Wine n Dine", "Pub", "Game Nights", "Brunch", "Festival", "Karoke"]
-    var interests: [String] = [ "Reading", "Poetry","Cold Swimming", "Sport","Writing", "Photography", "Museums", "Psychology", "Anime", "Nature", "Fashion", "Astronomy", "Movies", "Entrepreneurship", "Philosophy", "Formula 1", "Volunteering", "Politics", "Art", "Podcasts", "Food", "Music"]
-    var activities = ["Camping", "Hiking", "Backpacking", "Beach", "Road Trips", "Thrifting", "Cooking", "Chess", "Board Games", "Table Tennis", "Socialising", "Gaming", "Acting", "Drawing", "Painting", "Djing", "Meditation", "Partying"]
-    var sportsPassions = ["Badminton", "Rugby", "Baseball", "Soccer", "Basketball", "Tennis", "Football", "Handball", "Lacrosse", "Volleyball", "Softball", "Boxing", "Athletics", "Cycling", "Running", "Rowing", "Gym/Fitness", "Martial Arts", "Skateboarding", "Ice Hockey", "Pilates", "Yoga", "Kayaking", "Roller Skating", "Climbing", "Ultimate Frisbee", "Ice Skating", "Snowboarding", "Darts", "Golf", "Mountain Biking", "Bouldering", "Quidditch", "Surfing", "Skiing", "Sailing", "Spikeball", "Shooting", "Squash", "Fencing"]
-    var music1 = ["Pop", "Rock", "Hip-Hop", "Grime", "R & B", "Country", "Reggae", "Soul", "Jazz", "Funk", "Blues", "Acoustic", "Folk", "Latin Pop", "Disco", "K-Pop", "Afrobeat", "Metal", "Classical", "Chill", "Retro Bangers"]
-    var music2 = ["EDM", "House", "Techno", "Trance", "D & B", "Dance", "Dubstep", "Electronica", "Ambient", "Tech House", "Melodic Techno", "Psytrance", "Big Room", "Acid", "Garage", "Afro tech", "Tropical House", "Jungle", "Liquid"]
-    var music3 = ["Indie", "Indie pop", "Indie Rock", "Lo-fi", "Shoegaze", "Dream Pop", "Psychedelic Rock", "Grunge", "Emo", "Post-Rock", "Slowcore", "Folk Music", "Experimental", "Punk"]
-}
-
 struct EditInterests: View {
     
-    
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
+    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.flowMode) private var mode
+
     @State var selected: [String] = []
     
-    @State private var vm: InterestsOptionsViewModel
 
-    let sections: [(title: String?, image: String?, data: [String])]
-    let title: String
-    var isOnboarding: Bool
-    
-    @Binding var screenTracker: OnboardingViewModel
-    
-    init(
-        sections: [(title: String?, image: String?, data: [String])]? = nil,
-        title: String,
-        isOnboarding: Bool,
-        screenTracker: Binding<OnboardingViewModel>? = nil
-    ) {
-        let model = InterestsOptionsViewModel()
-        self._vm = State(initialValue: model)
-        self._selected = State(initialValue: [])
-        self._screenTracker =  screenTracker ?? .constant(OnboardingViewModel())
-        self.sections = sections ?? [
-          ("Social",    "figure.socialdance", model.socialPassions),
-          ("Interests", "book",               model.interests),
-          ("Activities","MyCustomShoe",       model.activities),
-          ("Sports",    "tennisball",         model.sportsPassions),
-          ("Music",     "MyCustomMic",        model.music1),
-          (nil,         nil,                  model.music2),
-          (nil,         nil,                  model.music3),
-        ]
-        
-        self.title = title
-        self.isOnboarding = isOnboarding
-    }
     
     var body: some View {
+        
+        var sections: [(title: String?, image: String?, data: [String])] {
+            
+            let interests = Interests.instance
+            
+            ("Social",    "figure.socialdance", interests.social)
+            ("Interests", "book",               interests.passions)
+            ("Activities","MyCustomShoe",       interests.passions)
+            ("Sports",    "tennisball",         interests.sports)
+            ("Music",     "MyCustomMic",        interests.music1)
+            (nil,         nil,                  interests.music2)
+            (nil,         nil,                  interests.music3)
+            
+        }
         
         ZStack {
             VStack(spacing: 12) {
                 
-                SignUpTitle(text: title, subtitle: "\(selected.count)/10")
+                SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
                 
-                ScrollViewReader { proxy in
-                    ScrollView(.horizontal) {
-                        HStack {
-                            ForEach(selected, id: \.self) { item in
-                                
-                                optionCell2(text: item, selection: $selected) {text in
-                                    selected.removeAll { $0 == text }
-                                }
-                                .id(item)
-                            }
-                        }
-                        .frame(height: 40)
-                    }
-                    .onChange(of: selected.count) {
-                        withAnimation {
-                            proxy.scrollTo(selected.last, anchor: .trailing)
-                        }
-                    }
-                }
-                .padding(.horizontal)
+                selectedInterestsView
+                
                 ScrollView(.vertical) {
                     
                     LazyVStack(spacing: 0) {
@@ -100,17 +55,38 @@ struct EditInterests: View {
                 }
                 .padding(.horizontal)
             }
-            .customNavigation(isOnboarding: isOnboarding)
             .padding(.top, 12)
-            
-            if isOnboarding {
-                NextButton(isEnabled: selected.count > 4, onTap: {screenTracker.screen += 1})
-                    .padding(.top, 524)
-                    .padding(.horizontal)
-            }
         }
     }
 }
+
+extension EditInterests {
+    
+    private var selectedInterestsView: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack {
+                    ForEach(selected, id: \.self) { item in
+                        optionCell2(text: item, selection: $selected) {text in
+                            selected.removeAll { $0 == text }
+                        }
+                        .id(item)
+                    }
+                }
+                .frame(height: 40)
+            }
+            .onChange(of: selected.count) {
+                withAnimation {
+                    proxy.scrollTo(selected.last, anchor: .trailing)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+
+
 
 
 
@@ -120,7 +96,6 @@ struct InterestSection: View {
     
     let title: String?
     let image: String?
-    
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
 
@@ -172,9 +147,13 @@ struct InterestSection: View {
     }
 }
 
-//#Preview {
-//    EditInterests()
-//}
+#Preview {
+    EditInterests()
+}
+
+
+
+
 
 
 struct optionCell2: View {

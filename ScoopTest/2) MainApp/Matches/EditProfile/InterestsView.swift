@@ -14,7 +14,6 @@ struct InterestsView: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
 
-
     var body: some View {
         
         let user = dependencies.userStore.user

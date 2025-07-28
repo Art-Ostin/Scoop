@@ -93,7 +93,7 @@
 		6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */; };
 		659109242E19AEC00065696F /* NextButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109232E19AEC00065696F /* NextButton.swift */; };
 		6591092C2E19B0810065696F /* Countries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109252E19B0810065696F /* Countries.swift */; };
-		6591092D2E19B0810065696F /* PromptOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109262E19B0810065696F /* PromptOptions.swift */; };
+		6591092D2E19B0810065696F /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109262E19B0810065696F /* Prompts.swift */; };
 		6591092E2E19B0810065696F /* Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109272E19B0810065696F /* Quotes.swift */; };
 		659109332E19C87B0065696F /* EmailVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109322E19C87B0065696F /* EmailVerificationView.swift */; };
 		6593365C2E193CEA00150AAC /* MapSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6593365B2E193CEA00150AAC /* MapSelectionView.swift */; };
@@ -114,6 +114,7 @@
 		65E3E9D52E2849F2006EDCFA /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3E9D42E2849EE006EDCFA /* EditProfileViewModel.swift */; };
 		65E820992E37C2720098CC36 /* NewOnboardingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820982E37C2720098CC36 /* NewOnboardingContainer.swift */; };
 		65E8209B2E37CCCE0098CC36 /* EditNationality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8209A2E37CCCE0098CC36 /* EditNationality.swift */; };
+		65E820A12E37F3460098CC36 /* Interests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820A02E37F3460098CC36 /* Interests.swift */; };
 		65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF22E229E19006CF3CD /* PromptsView.swift */; };
 		65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF42E229E5F006CF3CD /* CustomList.swift */; };
 		65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */; };
@@ -223,7 +224,7 @@
 		657838432DE773CE00770B49 /* ScoopTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		659109232E19AEC00065696F /* NextButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButton.swift; sourceTree = "<group>"; };
 		659109252E19B0810065696F /* Countries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countries.swift; sourceTree = "<group>"; };
-		659109262E19B0810065696F /* PromptOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptOptions.swift; sourceTree = "<group>"; };
+		659109262E19B0810065696F /* Prompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompts.swift; sourceTree = "<group>"; };
 		659109272E19B0810065696F /* Quotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quotes.swift; sourceTree = "<group>"; };
 		659109322E19C87B0065696F /* EmailVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailVerificationView.swift; sourceTree = "<group>"; };
 		6593365B2E193CEA00150AAC /* MapSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionView.swift; sourceTree = "<group>"; };
@@ -245,6 +246,7 @@
 		65E3E9D42E2849EE006EDCFA /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		65E820982E37C2720098CC36 /* NewOnboardingContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnboardingContainer.swift; sourceTree = "<group>"; };
 		65E8209A2E37CCCE0098CC36 /* EditNationality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNationality.swift; sourceTree = "<group>"; };
+		65E820A02E37F3460098CC36 /* Interests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interests.swift; sourceTree = "<group>"; };
 		65FEDAF22E229E19006CF3CD /* PromptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptsView.swift; sourceTree = "<group>"; };
 		65FEDAF42E229E5F006CF3CD /* CustomList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
 		65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButtonView.swift; sourceTree = "<group>"; };
@@ -533,8 +535,9 @@
 			isa = PBXGroup;
 			children = (
 				659109252E19B0810065696F /* Countries.swift */,
-				659109262E19B0810065696F /* PromptOptions.swift */,
+				659109262E19B0810065696F /* Prompts.swift */,
 				659109272E19B0810065696F /* Quotes.swift */,
+				65E820A02E37F3460098CC36 /* Interests.swift */,
 				654982BE2E2FA52400CA335F /* Storage */,
 			);
 			path = Models;
@@ -781,6 +784,7 @@
 				659497192E01DD4000880921 /* MeetContainer.swift in Sources */,
 				653BAFC42E0D9D3400C1AB9E /* CountdownViewModel.swift in Sources */,
 				6594971A2E01DD4000880921 /* AppContainer.swift in Sources */,
+				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
 				65FEDBA72E2307B7006CF3CD /* YearsView.swift in Sources */,
 				6509DDC32E36F6EE0042917B /* SingleChoiceEdit.swift in Sources */,
 				65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */,
@@ -800,7 +804,7 @@
 				653770522E0A1E190058D225 /* ProfileDetailsView.swift in Sources */,
 				6591092C2E19B0810065696F /* Countries.swift in Sources */,
 				6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */,
-				6591092D2E19B0810065696F /* PromptOptions.swift in Sources */,
+				6591092D2E19B0810065696F /* Prompts.swift in Sources */,
 				656126592E2310C000088B6D /* EditSex.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */,
 				6591092E2E19B0810065696F /* Quotes.swift in Sources */,

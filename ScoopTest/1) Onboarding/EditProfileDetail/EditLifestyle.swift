@@ -57,7 +57,6 @@ struct EditLifestyle: View {
             try? await dep.profileManager.update(values: [key: value ?? ""])
         }
     }
-
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {
         VStack(alignment: .leading, spacing: 24) {
             Text(title)
