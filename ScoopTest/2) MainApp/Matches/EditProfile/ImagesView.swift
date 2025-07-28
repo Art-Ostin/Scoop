@@ -9,17 +9,16 @@ import SwiftUI
 
 struct ImagesView: View {
 
+    @State private var vm: ImageViewModel
         
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
-    
-    @State private var vm: ImageViewModel
-    
+
     private let userStore: CurrentUserStore
     
     
     init(dependencies: AppDependencies) {
         self.userStore = dependencies.userStore
-        _vm = State(initialValue: ImageViewModel(storageManager: dependencies.storageManager, userStore: dependencies.userStore, profileManager: dependencies.profileManager))
+        _vm = State(initialValue: ImageViewModel(dep: dependencies))
     }
     
     var body: some View {

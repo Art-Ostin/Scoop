@@ -16,14 +16,12 @@ struct AddImageView: View {
     @Binding var showLogin: Bool
     
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
-        self._vm = State(initialValue: ImageViewModel(storageManager: dep.storageManager, userStore: dep.userStore, profileManager: dep.profileManager))
+        self._vm = State(initialValue: ImageViewModel(dep: dep))
         self._showLogin = showLogin
     }
 
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
-    
     var body: some View {
-
         VStack(spacing: 36) {
             SignUpTitle(text: "Add 6 Photos")
                 .padding(.horizontal, -10)

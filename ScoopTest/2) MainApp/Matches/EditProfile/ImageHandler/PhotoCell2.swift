@@ -27,7 +27,6 @@ struct PhotoCell2: View {
             } else if let url = urlString, let url = URL(string: url) {
                 AsyncImage(url: url) { image in
                     image.resizable().scaledToFill()
-
                 } placeholder: {ProgressView()}
                 
             } else {
@@ -51,7 +50,6 @@ struct PhotoCell2: View {
 
 
 struct changeIcon: View {
-    
     var body: some View {
         Image("ChangeIcon")
             .padding(12)

@@ -10,9 +10,7 @@ import SwiftUI
 struct PromptsView: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
-    @Binding var vm: EditProfileViewModel
-    
+        
     var body: some View {
         
         let currentUser = dependencies.userStore.user

@@ -10,15 +10,7 @@ import SwiftUI
 
 struct EditProfileView: View {
     
-    @State var vm: EditProfileViewModel
-    
-    init(user: UserProfile) {
-        self._vm = State(initialValue:  EditProfileViewModel(user: user))
-    }
-    
-    
-    
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    @Environment(\.appDependencies) private var dependencies
     
     var body: some View {
         
@@ -26,9 +18,9 @@ struct EditProfileView: View {
             ZStack {
                 ScrollView {
                     ImagesView(dependencies: dependencies)
-                    PromptsView(vm: $vm)
+                    PromptsView()
                     InfoView()
-//                    InterestsView()
+                    InterestsView(user: dependencies.userStore)
                     YearsView()
                 }
                 ViewProfileButton()
@@ -42,7 +34,7 @@ struct EditProfileView: View {
     }
 }
 
-//#Preview {
-//    EditProfileView()
-//}
+#Preview {
+    EditProfileView()
+}
 

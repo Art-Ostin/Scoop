@@ -25,7 +25,6 @@ struct MatchesView: View {
         NavigationStack {
             
             ZStack {
-                
                 Color.background.edgesIgnoringSafeArea(.all)
 
                 VStack(spacing: 32) {

@@ -16,23 +16,16 @@ import FirebaseFirestore
     var selectedImages: [UIImage?] = Array(repeating: nil, count: 6)
     var imagePaths:[String?] = .init(repeating: nil, count: 6)
     var imageURLs:[String?] = .init(repeating: nil, count: 6)
+    var dep: AppDependencies
     
-    
-    let storageManager: StorageManaging
-    let userStore: CurrentUserStore
-    let profileManager: ProfileManaging
-    
-    
-    init (storageManager: StorageManaging, userStore: CurrentUserStore, profileManager: ProfileManaging) {
-        self.userStore = userStore
-        self.storageManager = storageManager
-        self.profileManager = profileManager
+    init (dep: AppDependencies) {
+        self.dep = dep
     }
     
     
     func seedFromCurrentUser() {
-        guard let paths = userStore.user?.imagePath,
-              let urls  = userStore.user?.imagePathURL
+        guard let paths = dep.userStore.user?.imagePath,
+              let urls  = dep.userStore.user?.imagePathURL
         else { return }
         let paddedPaths = (paths + Array(repeating: nil, count: 6)).prefix(6)
         let paddedURLs  = (urls  + Array(repeating: nil, count: 6)).prefix(6)
@@ -41,20 +34,18 @@ import FirebaseFirestore
     }
     
     func reloadEverything() async {
-      try? await userStore.loadUser()
+        try? await dep.userStore.loadUser()
         seedFromCurrentUser()
-        
     }
-    
     func loadImage(at index: Int) {
         
         guard let selection = pickerItems[index] else {return}
 
         Task {
-            guard let user =  userStore.user else {return}
+            guard let user =  dep.userStore.user else {return}
             if let oldPath = imagePaths[index], let oldURL = imageURLs[index] {
-                try? await storageManager.deleteImage(path: oldPath)
-                try? await profileManager.update(userId: user.userId, values: [
+                try? await dep.storageManager.deleteImage(path: oldPath)
+                try? await dep.profileManager.update(userId: user.userId, values: [
                     .imagePath: FieldValue.arrayRemove([oldPath]),
                     .imagePathURL: FieldValue.arrayRemove([oldURL])
                 ])
@@ -72,15 +63,16 @@ import FirebaseFirestore
             await MainActor.run {
                 selectedImages[index] = uiImg
             }
-            let newPath = try await storageManager.saveImage(userId: user.userId, data: data)
-            let newURL = try await storageManager.getUrlForImage(path: newPath)
             
-            try await profileManager.update(userId: user.userId, values: [
+            let newPath = try await dep.storageManager.saveImage(userId: user.userId, data: data)
+            let newURL = try await dep.storageManager.getUrlForImage(path: newPath)
+            
+            try await dep.profileManager.update(userId: user.userId, values: [
                 .imagePath: FieldValue.arrayUnion([newPath]),
                 .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
             ])
             
-            try await userStore.loadUser()
+            try await dep.userStore.loadUser()
             
             await MainActor.run {
                 imagePaths[index] = newPath
