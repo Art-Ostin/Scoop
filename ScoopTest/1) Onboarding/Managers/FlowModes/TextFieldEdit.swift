@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TextFieldField {
     let title: String
-    let keyPath: KeyPath<UserProfile, String>
+    let keyPath: KeyPath<UserProfile, String?>
     let update: (String) async -> Void
 }
 
@@ -18,7 +18,7 @@ struct TextFieldEdit: View {
     let field: TextFieldField
     @State private var text: String = ""
     @Environment(\.appDependencies) private var dep
-    @Environment(\.flowMode) private var flow
+    @Environment(\.flowMode) private var mode
     @FocusState var focused: Bool
     
     var body: some View {
@@ -39,17 +39,25 @@ struct TextFieldEdit: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 1)
                     .foregroundStyle (Color.grayPlaceholder)
+                
+                if case .onboarding(_, let advance) = mode {
+                    NextButton(isEnabled: text.count > 0) {
+                        Task { await field.update(text)}
+                        advance()
+                    }
+                }
+                
             }
         }
         .task {
-           text = dep.userStore.user? [keyPath: field.keyPath] ?? ""
+            text = dep.userStore.user?[keyPath: field.keyPath] ?? ""
             focused = true
         }
-        .onChange(of: text) {
-//           text = dep.userStore.user?[keyPath: field.keyPath]
-        }        
+        .onChange(of: text) {newValue, _ in
+            guard case .profile = mode else { return }
+            Task { await field.update(newValue) }
+        }
         .flowNavigation()
-
     }
 }
 
