@@ -25,15 +25,12 @@ struct NewOnboardingContainer: View {
             ZStack {
                 Group {
                     switch current {
-                    case 0: OptionEditView(field: sexField)
-                    case 1: OptionEditView(field: attractedField)
-                    case 2: OptionEditView(field: lookingField)
-                    case 3: OptionEditView(field: yearField)
-                        
-                        
-                        
-                    case 4: TextFieldEdit(field: hometownField)
-                    case 5: TextFieldEdit(field: degreeField)
+                    case 0: OptionEditView(field: ProfileFields.editSex(dep: dep))
+                    case 1: OptionEditView(field: ProfileFields.editAttractedTo(dep: dep))
+                    case 2: OptionEditView(field: ProfileFields.editYear(dep: dep))
+                    case 3: OptionEditView(field: ProfileFields.editYear(dep: dep))
+                    case 4: TextFieldEdit(field: ProfileFields.editHometown(dep: dep))
+                    case 5: TextFieldEdit(field: ProfileFields.editDegree(dep: dep))
                     default: EmptyView()
                     }
                 }

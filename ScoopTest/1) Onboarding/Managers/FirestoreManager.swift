@@ -47,14 +47,12 @@ import SwiftUI
         }
     
     
-    
-    
-    
     func update(values: [UserProfile.CodingKeys: Any]) async throws {
         guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
         try await update(userId: id, values: values)
     }
-        
+    
+    
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws {
         let key: UserProfile.CodingKeys
         switch promptIndex {
