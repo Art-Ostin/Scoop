@@ -9,41 +9,41 @@ import SwiftUI
 
 struct EditHeight: View {
     
-
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-//    @Binding var vm: EditProfileViewModel
-    @State private var isSelected: String? = nil
+    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.flowMode) private var mode
     
-    
-    let heightOptions = ["4' 5", "4' 6","4' 7","4' 8", "4' 9","4' 10","5' 0","5' 1","5' 2","5' 3", "5' 4", "5' 5", "5' 6", "5' 7", "5' 8", "5' 9", "5' 10", "6' 0", "6' 1", "6' 2", "6' 3", "6' 4", "6' 5", "6' 6", "6' 7", "6' 8", "6' 9", "7' 0"]
+    let heightOptions = (53...84).map { inches in
+        "\(inches / 12)' \(inches % 12)"
+    }
     
     @State var height = "5' 8"
     
-    let title: String?
     
-    var isOnboarding: Bool
-    
-    init(isOnboarding: Bool = false, title: String? = nil, /*vm: Binding<EditProfileViewModel>*/) {
-        self.isOnboarding = isOnboarding
-        self.title = title
-//        self._vm = vm
-    }
     var body: some View {
         
         let manager = dependencies.profileManager
-        
-        EditOptionLayout(title: title, isSelected: $isSelected) {
-            Picker("Height", selection: $height) {
-                ForEach(heightOptions, id: \.self) { option in
-                    Text(option).font(.body(20))
-                        .onChange(of: height) {Task{try await manager.update(values: [.height : height])}}
+        VStack {
+            SignUpTitle(text: "Height")
+            ZStack {
+                Picker("Height", selection: $height) {
+                    ForEach(heightOptions, id: \.self) { option in
+                        Text(option).font(.body(20))
+                            .onChange(of: height) {Task{try await manager.update(values: [.height : height])}}
+                    }
+                }
+                .pickerStyle(.wheel)
+                
+                if case .onboarding(_, let advance) = mode {
+                    NextButton(isEnabled: true) {
+                        Task { try? await manager.update(values: [.height : height]) }
+                        advance()
+                    }
                 }
             }
             .flowNavigation()
-            .pickerStyle(.wheel)
-        }
-        .task {
-            isSelected = dependencies.userStore.user?.height
+            .task {
+                height = dependencies.userStore.user?.height ?? "5' 8"
+            }
         }
     }
 }

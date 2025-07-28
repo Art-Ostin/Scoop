@@ -25,7 +25,6 @@ struct EditLifestyle: View {
             ("Marijuana", $marijuana, .marijuana),
             ("Drugs", $drugs, .drugs)
         ]
-        let manager = dep.profileManager
         
         VStack(spacing: 48) {
             ForEach(Array(fields.enumerated()), id: \.offset) { _, field in

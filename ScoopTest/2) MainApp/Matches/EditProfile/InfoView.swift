@@ -32,7 +32,7 @@ struct InfoView: View {
             .init("Sex", [sex]) {AnyView(EditSex(title: "Sex"))},
             .init("Attracted to", [attracted]) {AnyView(EditAttractedTo(title: "Attracted to"))},
             .init("Year", [year]) {AnyView(EditYear(title: "Year"))},
-            .init("Height", [height]) {AnyView(EditHeight(title: "Height"))},
+            .init("Height", [height]) {AnyView(EditHeight())},
             .init("Nationality", nationality) {AnyView(EditNationality())}
         ]
     }

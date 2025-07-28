@@ -11,17 +11,24 @@ import FirebaseFirestore
 
 
 @Observable class EditNationalityViewModel {
-
+    
     var selectedCountries: [String] = []
     
     let countries = CountryDataServices.shared.allCountries
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
-
     
-    var firstLetters: Set<String> {
-        let initialsArray = countries.map { String($0.name.prefix(1))}
-        return Set(initialsArray)
+    
+    var availableLetters: Set<String> {
+        Set(countries.map { String($0.name.prefix(1)) })
+    }
+    
+    var groupedCountries: [(letter: String, countries: [CountryData])] {
+        let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
+        let sortedKeys = groups.keys.sorted()
+        return sortedKeys.map { key in
+            (key, groups[key]!.sorted { $0.name < $1.name })
+        }
     }
     
     func isSelected(_ country: String) -> Bool {
@@ -50,7 +57,7 @@ import FirebaseFirestore
 
 
 struct EditNationality: View {
-        
+    
     @State var vm = EditNationalityViewModel()
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
@@ -71,7 +78,7 @@ struct EditNationality: View {
                     alphabet(proxy: proxy)
                     
                     SoftDivider() .padding(.horizontal)
-
+                    
                     ZStack {
                         nationalitiesView
                         
@@ -83,6 +90,7 @@ struct EditNationality: View {
         .flowNavigation()
     }
 }
+
 
 #Preview {
     EditNationality()
@@ -112,11 +120,9 @@ extension EditNationality {
         .padding(.horizontal)
         .frame(height: 0)
     }
-    
-    
     private func alphabet(proxy: ScrollViewProxy) -> some View {
         LazyVGrid(columns: vm.alphabetColumns, spacing: 24) {
-            ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) {char in
+            ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                 Button {
                     withAnimation(.easeInOut) {
                         proxy.scrollTo(String(char), anchor: .top)
@@ -124,17 +130,19 @@ extension EditNationality {
                 } label: {
                     Text(String(char))
                         .font(.body(20, .bold))
-                        .foregroundStyle(char == "W" || char == "X" ? Color.grayPlaceholder : Color.black)
+                        .foregroundStyle(vm.availableLetters.contains(String(char)) ? Color.black : Color.grayPlaceholder)
                 }
             }
         }
         .padding(.horizontal)
     }
-
+    
     private var nationalitiesView: some View {
+        
         ScrollView {
-            VStack(spacing: 72) {
-                LazyVGrid(columns: vm.columns, spacing: 48) {
+            VStack(spacing: 36) {
+                
+                LazyVGrid(columns: vm.columns, spacing: 36) {
                     
                     ForEach(CountryDataServices.shared.popularCountries) { country in
                         flagItem(country: country)
@@ -142,17 +150,19 @@ extension EditNationality {
                     }
                 }
                 
-                LazyVGrid(columns: vm.columns, spacing: 48) {
-                    ForEach(vm.countries) { country in
-                        if vm.firstLetters.contains(country.name) {
-                            Text(String(country.name.prefix(1)))
-                                .font(.body(32))
-                                .gridCellColumns(4)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .id(String(country.name.prefix(1)))
-                            
+                ForEach(vm.groupedCountries, id: \.letter) { group in
+                    VStack(spacing: 24) {
+                        Text(group.letter)
+                            .font(.body(32))
+                            .padding(.horizontal)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id(group.letter)
+
+                        LazyVGrid(columns: vm.columns, spacing: 36) {
+                            ForEach(group.countries) { country in
+                                flagItem(country: country)
+                            }
                         }
-                        flagItem(country: country)
                     }
                 }
             }
@@ -198,7 +208,7 @@ extension EditNationality {
             withAnimation(.smooth(duration: 0.2)) { vm.toggleCountry(country.flag, dep: dep)}
         }
     }
-
+    
     private func circleIcon (_ image: String, _ fontSize: CGFloat = 8) -> some View {
         ZStack {
             Circle()

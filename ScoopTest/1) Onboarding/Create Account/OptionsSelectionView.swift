@@ -36,7 +36,7 @@ struct OptionsSelectionView: View {
                     case 1: EditAttractedTo(isOnboarding: true, screenTracker: $vm)
                     case 2: EditLookingFor(isOnboarding: true, screenTracker: $vm)
                     case 3: EditYear(isOnboarding: true, screenTracker: $vm)
-                    case 4: EditHeight(isOnboarding: true)
+                    case 4: EditHeight()
                     default: EmptyView()
                     }
                 }
