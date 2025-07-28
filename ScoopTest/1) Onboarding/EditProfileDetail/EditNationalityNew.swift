@@ -10,12 +10,11 @@ import SwiftUI
 import FirebaseFirestore
 
 
-@Observable class EditNationalityNewViewModel {
+@Observable class EditNationalityViewModel {
 
     var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
-    
     
     func findingFirstCountry(country: [CountryData]) -> Set<String> {
         Set(Dictionary(grouping: country, by: {String($0.name.prefix(1))})
@@ -51,7 +50,7 @@ import FirebaseFirestore
 }
 
 
-struct EditNationalityNew: View {
+struct EditNationality: View {
         
     
     @State var vm = EditNationalityNewViewModel()
@@ -153,7 +152,7 @@ struct EditNationalityNew: View {
 }
 
 #Preview {
-    EditNationalityNew()
+    EditNationality()
 }
 
 extension EditNationalityNew {
@@ -203,7 +202,7 @@ extension EditNationalityNew {
         .offset(y: country.name.count > 15 ? 5 : 0)
         .onTapGesture {
             withAnimation(.smooth(duration: 0.2)) {
-                vm.addAndRemoveCountry(country.flag, dep: dep)
+                vm.addAndRemoveCountry(country.flag, dependencies: dep)
             }
         }
     }

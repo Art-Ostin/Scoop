@@ -9,33 +9,18 @@ import SwiftUI
 
 struct EditLifestyle: View {
     
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    @Environment(\.appDependencies) private var dep
+    @Environment(\.flowMode) private var mode
     
-//    @Binding var vm: EditProfileViewModel
     
     @State var isSelectedDrinking: String?
     @State var isSelectedSmoking: String?
     @State var isSelectedMarijuana: String?
     @State var isSelectedDrugs: String?
     
-    let title: String?
-    
-    @Binding var screenTracker: OnboardingViewModel
-    
-    var isOnboarding: Bool
-    init(isOnboarding: Bool = false, title: String? = nil, screenTracker: Binding<OnboardingViewModel>? = nil /*vm: Binding<EditProfileViewModel>)*/ ){
-        self.isOnboarding = isOnboarding
-        self.title = title
-        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-//        self._vm = vm
-    }
-    
-        
     var body: some View {
         
-//        let user = vm.user
-        let manager = dependencies.profileManager
-        
+        let manager = dep.profileManager
         
         VStack(spacing: 48) {
             vicesOptions(title: "Drinking", isSelected: $isSelectedDrinking)
@@ -44,9 +29,10 @@ struct EditLifestyle: View {
             vicesOptions(title: "Drugs", isSelected: $isSelectedDrugs)
         }
         .padding(.horizontal)
-        .customNavigation(isOnboarding: isOnboarding)
+        .flowNavigation()
+        
         .onAppear {
-            let user = dependencies.userStore.user
+            let user = dep.userStore.user
             isSelectedDrinking = user?.drinking
             isSelectedSmoking = user?.smoking
             isSelectedMarijuana = user?.marijuana
@@ -83,8 +69,9 @@ struct EditLifestyle: View {
         }
     }
     
+    
+    
     private func nextScreen() {
-        guard isOnboarding,
               isSelectedDrinking != nil,
               isSelectedSmoking != nil,
               isSelectedMarijuana != nil,
