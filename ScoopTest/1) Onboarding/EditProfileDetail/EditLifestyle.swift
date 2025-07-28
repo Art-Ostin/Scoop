@@ -12,12 +12,13 @@ struct EditLifestyle: View {
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
 
-    @State private var drinking: String?
+    @State var drinking: String?
     @State var smoking: String?
     @State var marijuana: String?
     @State var drugs: String?
     
     var body: some View {
+        
         
         let fields: [(String, Binding<String?>, UserProfile.CodingKeys)] = [
             ("Drinking", $drinking, .drinking),
@@ -30,26 +31,30 @@ struct EditLifestyle: View {
             ForEach(Array(fields.enumerated()), id: \.offset) { _, field in
                 vicesOptions(title: field.0, isSelected: field.1)
             }
+        }
+        .flowNavigation()
+        .padding(.horizontal)
+        .task {
+            guard let u = dep.userStore.user else {return}
+            drinking = u.drinking
+            smoking = u.smoking
+            marijuana = u.marijuana
+            drugs = u.drugs
             
-            if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: fields.allSatisfy { $0.1.wrappedValue != nil }) {
+            if [ u.drinking,
+                 u.smoking,
+                 u.marijuana,
+                 u.drugs ].allSatisfy({ $0 == nil }) {
+                if case .onboarding(_, let advance) = mode {
                     advance()
                 }
             }
-        }
-        .padding(.horizontal)
-        .flowNavigation()
-        .task {
-            let user = dep.userStore.user
-            drinking = user?.drinking
-            smoking = user?.smoking
-            marijuana = user?.marijuana
-            drugs = user?.drugs
         }
         .onChange(of: drinking) { update(key: .drinking, drinking)}
         .onChange(of: smoking) { update(key: .smoking, smoking)}
         .onChange(of: marijuana) { update(key: .marijuana, marijuana)}
         .onChange(of: drugs) { update(key: .drugs, drugs)}
+        
     }
     
     private func update(key: UserProfile.CodingKeys, _ value: String?) {

@@ -28,7 +28,7 @@ struct EditProfileView: View {
                     ImagesView(dependencies: dependencies)
                     PromptsView(vm: $vm)
                     InfoView()
-                    InterestsView()
+//                    InterestsView()
                     YearsView()
                 }
                 ViewProfileButton()

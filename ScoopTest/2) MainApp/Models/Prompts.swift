@@ -13,7 +13,6 @@ class Prompts {
     
     static let instance = Prompts()
     
-    
     let prompts1: [String] = [
         "My favourite bathroom on campus",
         "In five years time I hope to be",

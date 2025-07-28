@@ -9,15 +9,10 @@ import SwiftUI
 
 struct NewOnboardingContainer: View {
     
-    
-    @State var vm = OnboardingViewModel()
-    
-    
+    @Binding var showLogin: Bool
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
-    
     @State var current: Int = 0
-    
     
     var body: some View {
         
@@ -29,22 +24,41 @@ struct NewOnboardingContainer: View {
                     case 1: OptionEditView(field: ProfileFields.editAttractedTo(dep: dep))
                     case 2: OptionEditView(field: ProfileFields.editLookingFor(dep: dep))
                     case 3: OptionEditView(field: ProfileFields.editYear(dep: dep))
-                    case 4: TextFieldEdit(field: ProfileFields.editHometown(dep: dep))
-                    case 5: TextFieldEdit(field: ProfileFields.editDegree(dep: dep))
+                    case 4: EditHeight()
+                    case 5: EditLifestyle()
+                    case 6: EditInterests()
+                    case 7: EditNationality()
+                    case 8: TextFieldEdit(field: ProfileFields.editHometown(dep: dep))
+                    case 9: TextFieldEdit(field: ProfileFields.editDegree(dep: dep))
+                    case 10: EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 1)
+                    case 11: EditPrompt(prompts: Prompts.instance.prompts2, promptIndex: 2)
+                    case 12: AddImageView(dep: dep, showLogin: $showLogin)
                     default: EmptyView()
                     }
                 }
                 .environment(\.flowMode, .onboarding(step: current) {
                     withAnimation { current += 1 }
                 })
-                .transition(vm.transition)
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             }
+            
+//            switch vm.screen {
+//            case 0...4: OptionsSelectionView(vm: $vm)
+//            case 5: EditLifestyle()
+//            case 6: EditInterests()
+//            case 7: EditNationality()
+//            case 8: EditTextFieldLayout(isOnboarding: true, title: "Degree", screenTracker: $vm)
+//            case 9: EditTextFieldLayout(isOnboarding: true, title: "Hometown", screenTracker: $vm)
+//            case 10: EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 1)
+//            case 11: EditPrompt(prompts: Prompts.instance.prompts2, promptIndex: 2)
+//            case 12: AddImageView(dependencies: dependencies, showLogin: $showLogin)
+//            default: EmptyView()
         }
     }
 }
 
 #Preview {
-    NewOnboardingContainer()
+    NewOnboardingContainer(showLogin: .constant(true))
 }
 
 extension NewOnboardingContainer {

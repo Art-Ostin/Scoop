@@ -21,7 +21,7 @@ struct PromptsView: View {
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {
-                    EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: false)
+                    EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 1)
                 } label: {
                     promptResponse(prompt: currentUser?.prompt1?.prompt ?? "Add Prompt", response: currentUser?.prompt1?.response ?? "")
                         .foregroundStyle(.black)
@@ -29,7 +29,7 @@ struct PromptsView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts2, isOnboarding: false)
+                    EditPrompt(prompts: Prompts.instance.prompts2, promptIndex: 2)
                 } label: {
                     promptResponse(prompt: currentUser?.prompt2?.prompt ?? "Add Prompt", response: currentUser?.prompt2?.response ?? "")
                         .foregroundStyle(.black)
@@ -37,7 +37,7 @@ struct PromptsView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(promptIndex: 3, prompts: Prompts.instance.prompts3, isOnboarding: false)
+                    EditPrompt(prompts: Prompts.instance.prompts3, promptIndex: 3)
                 } label: {
                     promptResponse(prompt:currentUser?.prompt3?.prompt ?? "Add Prompt", response: currentUser?.prompt3?.response ?? "")
                         .foregroundStyle(.black)

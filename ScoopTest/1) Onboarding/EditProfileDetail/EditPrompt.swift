@@ -8,8 +8,10 @@
 import SwiftUI
 
 
-
 struct EditPrompt: View {
+    
+    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.flowMode) private var mode
     
     @FocusState var isFocused: Bool
     @State var selectedText: String = ""
@@ -18,39 +20,14 @@ struct EditPrompt: View {
     
     var prompts: [String]
     var promptIndex: Int
-    @Binding var screenTracker: OnboardingViewModel
-    
-    var isOnboarding: Bool
-    
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
 
-//    @Binding var vm: EditProfileViewModel
-    
-    init(promptIndex: Int, prompts: [String],isOnboarding: Bool, screenTracker: Binding<OnboardingViewModel>? = nil, /*vm: Binding<EditProfileViewModel>*/) {
-        self.promptIndex = promptIndex
-        self.prompts = prompts
-        self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-        self.isOnboarding = isOnboarding
-//        self._vm = vm
-    }
-    
     var body: some View {
-        
-//        let userId = vm.user.userId
-        
+                
         ZStack {
             VStack(spacing: 12) {
                 selecter
                 textEditor
-                if isOnboarding {
-                    NextButton(isEnabled: selectedText.count > 5, onTap: {
-                        isFocused = false
-                        screenTracker.screen += 1
-                    })
-                        .padding(.horizontal)
-                        .padding(.horizontal)
-                        .padding(.top, 60)
-                }
+                if case .onboarding(_, let advance) = mode { NextButton(isEnabled: true) { advance() }}
             }
             if showDropdownMenu {
                 dropdownMenu
@@ -60,7 +37,6 @@ struct EditPrompt: View {
         .onChange(of: selectedText) { updatePrompt() }
         .onChange(of: selectedPrompt) { updatePrompt() }
             
-        
         .onAppear {
             isFocused = true
             if let user = dependencies.userStore.user {
@@ -76,18 +52,17 @@ struct EditPrompt: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, isOnboarding ? 96 : 120)
-        .customNavigation(isOnboarding: isOnboarding)
+        .flowNavigation()
+                
     }
 }
 
-//#Preview {
-//    EditPrompt(promptIndex: 2, prompts: Prompts.instance.prompts1, isOnboarding: true)
-//}
+#Preview {
+    EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 2)
+}
 
 extension EditPrompt {
-    
-    
+
     private var selecter: some View {
         
         HStack {
@@ -139,8 +114,9 @@ extension EditPrompt {
             )
             .focused($isFocused)
     }
-    
+
     private func updatePrompt() {
+        
         guard let user = dependencies.userStore.user else { return }
         let prompt = PromptResponse(prompt: selectedPrompt, response: selectedText)
         Task {

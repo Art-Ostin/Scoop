@@ -17,33 +17,29 @@ struct EditInterests: View {
 
     @State var selected: [String] = []
     
+    
+    var sections: [(title: String?, image: String?, data: [String])] {
+        let i = Interests.instance
+        return [
+        ("Social","figure.socialdance",i.social),
+        ("Interests", "book",i.passions),
+        ("Activities","MyCustomShoe",i.passions),
+        ("Sports","tennisball",i.sports),
+        ("Music","MyCustomMic",i.music1),
+        (nil,nil,i.music2),
+        (nil,nil,i.music3)
+        ]
+    }
 
     
     var body: some View {
-        
-        var sections: [(title: String?, image: String?, data: [String])] {
-            
-            let interests = Interests.instance
-            
-            ("Social",    "figure.socialdance", interests.social)
-            ("Interests", "book",               interests.passions)
-            ("Activities","MyCustomShoe",       interests.passions)
-            ("Sports",    "tennisball",         interests.sports)
-            ("Music",     "MyCustomMic",        interests.music1)
-            (nil,         nil,                  interests.music2)
-            (nil,         nil,                  interests.music3)
-            
-        }
-        
         ZStack {
             VStack(spacing: 12) {
                 
                 SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
-                
                 selectedInterestsView
                 
                 ScrollView(.vertical) {
-                    
                     LazyVStack(spacing: 0) {
                         
                         ForEach(sections.indices, id: \.self) { idx in
@@ -56,7 +52,12 @@ struct EditInterests: View {
                 .padding(.horizontal)
             }
             .padding(.top, 12)
+            
+            if case .onboarding(_, let advance) = mode {
+                NextButton(isEnabled: selected.count > 3) {advance()}
+            }
         }
+        .flowNavigation()
     }
 }
 
@@ -85,11 +86,6 @@ extension EditInterests {
     }
 }
 
-
-
-
-
-
 struct InterestSection: View {
     
     @State var options: [String]
@@ -103,7 +99,8 @@ struct InterestSection: View {
     private func interestIsSelected (text: String) -> Bool {
         dependencies.userStore.user?.interests?.contains(text) == true
     }
-    
+
+
     @Binding var selected: [String]
     
     var body: some View {
@@ -135,7 +132,7 @@ struct InterestSection: View {
                         if interestIsSelected(text: text) {
                             try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayRemove([text])])
                         } else {
-                            try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayRemove([text])])
+                            try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayUnion([text])])
                         }
                     }
                 }
@@ -150,11 +147,6 @@ struct InterestSection: View {
 #Preview {
     EditInterests()
 }
-
-
-
-
-
 
 struct optionCell2: View {
     

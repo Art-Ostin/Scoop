@@ -12,12 +12,11 @@ struct AddImageView: View {
     
     @State private var vm: ImageViewModel
     
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
+    @Environment(\.appDependencies) private var dependencies
     @Binding var showLogin: Bool
     
-    init(dependencies: AppDependencies, showLogin: Binding<Bool>) {
-        self._vm = State(initialValue: ImageViewModel(storageManager: dependencies.storageManager, userStore: dependencies.userStore, profileManager: dependencies.profileManager))
+    init(dep: AppDependencies, showLogin: Binding<Bool>) {
+        self._vm = State(initialValue: ImageViewModel(storageManager: dep.storageManager, userStore: dep.userStore, profileManager: dep.profileManager))
         self._showLogin = showLogin
     }
 
