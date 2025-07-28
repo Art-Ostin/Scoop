@@ -27,7 +27,7 @@ struct NewOnboardingContainer: View {
                     switch current {
                     case 0: OptionEditView(field: ProfileFields.editSex(dep: dep))
                     case 1: OptionEditView(field: ProfileFields.editAttractedTo(dep: dep))
-                    case 2: OptionEditView(field: ProfileFields.editYear(dep: dep))
+                    case 2: OptionEditView(field: ProfileFields.editLookingFor(dep: dep))
                     case 3: OptionEditView(field: ProfileFields.editYear(dep: dep))
                     case 4: TextFieldEdit(field: ProfileFields.editHometown(dep: dep))
                     case 5: TextFieldEdit(field: ProfileFields.editDegree(dep: dep))

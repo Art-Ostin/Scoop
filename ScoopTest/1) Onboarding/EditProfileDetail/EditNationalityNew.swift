@@ -30,22 +30,22 @@ import FirebaseFirestore
     
     let columns2 = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
         
-    func addAndRemoveCountry(_ country: String, dependencies: AppDependencies) {
-        guard let user = dependencies.userStore.user else { return }
+    func addAndRemoveCountry(_ country: String, dep: AppDependencies) {
+        guard let user = dep.userStore.user else { return }
         let isSelected = user.nationality?.contains(country) == true
         Task {
             if isSelected {
-                try? await dependencies.profileManager.update(
+                try? await dep.profileManager.update(
                     values: [.nationality: FieldValue.arrayRemove([country])]
                 )
                 selectedCountries.removeAll(where: { $0 == country })
             } else if selectedCountries.count < 3 {
-                try? await dependencies.profileManager.update(
+                try? await dep.profileManager.update(
                     values: [.nationality: FieldValue.arrayUnion([country])]
                 )
                 selectedCountries.append(country)
             }
-            try? await dependencies.userStore.loadUser()
+            try? await dep.userStore.loadUser()
         }
     }
 }
@@ -55,8 +55,8 @@ struct EditNationalityNew: View {
         
     
     @State var vm = EditNationalityNewViewModel()
-        
-    @Environment(\.appDependencies) private var dep: AppDependencies
+    @Environment(\.appDependencies) private var dep
+    @Environment(\.flowMode) private var mode
     
     
     
@@ -80,7 +80,7 @@ struct EditNationalityNew: View {
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
                                 vm.selectedCountries.removeAll(where: {$0 == country})
-                                vm.addAndRemoveCountry(country, dependencies: dependencies)
+                                vm.addAndRemoveCountry(country, dep: dep)
                             }
                         }
                 }
@@ -136,28 +136,24 @@ struct EditNationalityNew: View {
                                 }
                             }
                         }
-                        if isOnboarding {
-                            NextButton(isEnabled: vm.selectedCountries.count > 0, onTap: {
-                                withAnimation {
-                                    screenTracker.screen += 1
-                                }
-                            })
+                        if case .onboarding(_, let advance) {
+                            NextButton(isEnabled: vm.selectedCountries.count > 0) {
+                                withAnimation { advance()}
+                            }
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding()
                             .padding(.top, 360)
-                            
                         }
                     }
                 }
             }
         }
-        .customNavigation(isOnboarding: isOnboarding)
+        .flowNavigation()
     }
 }
 
-
 #Preview {
-    EditNationalityNew(isOnboarding: true)
+    EditNationalityNew()
 }
 
 extension EditNationalityNew {
@@ -207,7 +203,7 @@ extension EditNationalityNew {
         .offset(y: country.name.count > 15 ? 5 : 0)
         .onTapGesture {
             withAnimation(.smooth(duration: 0.2)) {
-                vm.addAndRemoveCountry(country.flag, dependencies: dependencies)
+                vm.addAndRemoveCountry(country.flag, dep: dep)
             }
         }
     }

@@ -9,13 +9,16 @@ import SwiftUI
 
 struct InfoView: View {
     
-    @Environment(\.appDependencies) private var dep: AppDependencies
     
-    //Populate the coreInfo and aboutMe with the UserProfile
+    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
+//    @Binding var vm: EditProfileViewModel
+    
+    //Populate the coreInfo and aboutMe with the UserProfile 
     private var coreInfo: [ProfileInfoPreview<AnyView>] {
         
 
-        guard let u = dep.userStore.user else { return [] }
+        guard let u = dependencies.userStore.user else { return [] }
         
         let name       = u.name        ?? "–"
         let sex        = u.sex         ?? "–"
@@ -23,13 +26,12 @@ struct InfoView: View {
         let year       = u.year        ?? "–"
         let height     = u.height      ?? "–"
         let nationality = u.nationality ?? []
-                          
-                          
+        
         return [
             .init("Name", [name]) {AnyView(EditTextFieldLayout(isOnboarding: false, title: "Name"))},
-            .init("Sex", [sex]) {AnyView(OptionEditView(field: ProfileFields.editSex(dep: dep)))},
-            .init("Attracted to", [attracted]) {AnyView(OptionEditView(field: ProfileFields.editAttractedTo(dep: dep)))},
-            .init("Year", [year]) {AnyView(OptionEditView(field: ProfileFields.editYear(dep: dep)))},
+            .init("Sex", [sex]) {AnyView(EditSex(title: "Sex"))},
+            .init("Attracted to", [attracted]) {AnyView(EditAttractedTo(title: "Attracted to"))},
+            .init("Year", [year]) {AnyView(EditYear(title: "Year"))},
             .init("Height", [height]) {AnyView(EditHeight(title: "Height"))},
             .init("Nationality", nationality) {AnyView(EditNationality(isOnboarding: false))}
         ]
@@ -37,8 +39,7 @@ struct InfoView: View {
     
     private var aboutMe: [ProfileInfoPreview<AnyView>] {
         
-        
-        guard let u = dep.userStore.user else { return [] }
+        guard let u = dependencies.userStore.user else { return [] }
 
         let lookingFor = u.lookingFor ?? "–"
         let degree = u.degree ?? "-"
@@ -60,7 +61,7 @@ struct InfoView: View {
         let languages = u.languages  ?? "Add Languages"
         return [
             .init("Looking for", [lookingFor]){AnyView( EditLookingFor())},
-            .init("Degree", [degree]){AnyView(TextFieldEdit(field: ProfileFields.editDegree(dep: dep))},
+            .init("Degree", [degree]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Degree"))},
             .init("Hometown", [hometown]){AnyView(EditTextFieldLayout(isOnboarding: false, title: "Hometown"))},
             .init("Lifestyle",[lifestyle]) {AnyView(EditLifestyle())},
             .init("My Life as a", myLifeAs) {AnyView(EditMyLifeAs())},

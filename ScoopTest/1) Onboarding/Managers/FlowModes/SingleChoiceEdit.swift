@@ -112,4 +112,17 @@ struct ProfileFields {
           }
       }
     
+    
+    static func editName(dep: AppDependencies) -> TextFieldField {
+        TextFieldField(title: "Name", keyPath: \.name) { text in
+            try? await dep.profileManager.update(values: [.name: text])
+        }
+    }
+
+    static func editLanguages(dep: AppDependencies) -> TextFieldField {
+        TextFieldField(title: "I Speak", keyPath: \.languages) { text in
+            try? await dep.profileManager.update(values: [.languages: text])
+        }
+    }
+    
 }
