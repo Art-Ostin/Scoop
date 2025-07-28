@@ -24,7 +24,7 @@ struct TextFieldEdit: View {
     var body: some View {
         
         VStack {
-            
+
             SignUpTitle(text: field.title)
             
             VStack {
@@ -46,18 +46,17 @@ struct TextFieldEdit: View {
                         advance()
                     }
                 }
-                
             }
         }
         .task {
             text = dep.userStore.user?[keyPath: field.keyPath] ?? ""
             focused = true
         }
+        .flowNavigation()
         .onChange(of: text) {newValue, _ in
             guard case .profile = mode else { return }
             Task { await field.update(newValue) }
         }
-        .flowNavigation()
     }
 }
 
