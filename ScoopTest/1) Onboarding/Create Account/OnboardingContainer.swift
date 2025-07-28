@@ -29,9 +29,9 @@ struct OnboardingContainer: View {
                 Group {
                     switch vm.screen {
                     case 0...4: OptionsSelectionView(vm: $vm)
-                    case 5: EditLifestyle(isOnboarding: true, screenTracker: $vm)
+                    case 5: EditLifestyle()
                     case 6: EditInterests(title: "Interests", isOnboarding: true, screenTracker: $vm)
-                    case 7: EditNationality(isOnboarding: true, screenTracker: $vm)
+                    case 7: EditNationality()
                     case 8: EditTextFieldLayout(isOnboarding: true, title: "Degree", screenTracker: $vm)
                     case 9: EditTextFieldLayout(isOnboarding: true, title: "Hometown", screenTracker: $vm)
                     case 10: EditPrompt(promptIndex: 1, prompts: Prompts.instance.prompts1, isOnboarding: true, screenTracker: $vm)
@@ -39,7 +39,6 @@ struct OnboardingContainer: View {
                     case 12: AddImageView(dependencies: dependencies, showLogin: $showLogin)
                     default: EmptyView()
                 }
-
                 }
                 .transition(vm.transition)
 

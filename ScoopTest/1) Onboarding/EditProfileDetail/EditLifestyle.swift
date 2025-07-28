@@ -11,47 +11,51 @@ struct EditLifestyle: View {
     
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
-    
-    
-    @State var isSelectedDrinking: String?
-    @State var isSelectedSmoking: String?
-    @State var isSelectedMarijuana: String?
-    @State var isSelectedDrugs: String?
+
+    @State private var drinking: String?
+    @State var smoking: String?
+    @State var marijuana: String?
+    @State var drugs: String?
     
     var body: some View {
         
+        let fields: [(String, Binding<String?>, UserProfile.CodingKeys)] = [
+            ("Drinking", $drinking, .drinking),
+            ("Smoking", $smoking, .smoking),
+            ("Marijuana", $marijuana, .marijuana),
+            ("Drugs", $drugs, .drugs)
+        ]
         let manager = dep.profileManager
         
         VStack(spacing: 48) {
-            vicesOptions(title: "Drinking", isSelected: $isSelectedDrinking)
-            vicesOptions(title: "Smoking", isSelected: $isSelectedSmoking)
-            vicesOptions(title: "Marijuana", isSelected: $isSelectedMarijuana)
-            vicesOptions(title: "Drugs", isSelected: $isSelectedDrugs)
+            ForEach(Array(fields.enumerated()), id: \.offset) { _, field in
+                vicesOptions(title: field.0, isSelected: field.1)
+            }
+            
+            if case .onboarding(_, let advance) = mode {
+                NextButton(isEnabled: fields.allSatisfy { $0.1.wrappedValue != nil }) {
+                    advance()
+                }
+            }
         }
         .padding(.horizontal)
         .flowNavigation()
-        
-        .onAppear {
+        .task {
             let user = dep.userStore.user
-            isSelectedDrinking = user?.drinking
-            isSelectedSmoking = user?.smoking
-            isSelectedMarijuana = user?.marijuana
+            drinking = user?.drinking
+            smoking = user?.smoking
+            marijuana = user?.marijuana
+            drugs = user?.drugs
         }
-        .onChange(of: isSelectedDrinking) {
-            nextScreen()
-            Task{ try await manager.update(values: [.drinking : isSelectedDrinking ?? ""])}
-        }
-        .onChange(of: isSelectedSmoking) {
-            nextScreen()
-            Task{ try await manager.update(values: [.smoking : isSelectedSmoking ?? ""])}
-        }
-        .onChange(of: isSelectedMarijuana) {
-            nextScreen()
-            Task{try await manager.update(values: [.marijuana : isSelectedMarijuana ?? ""])}
-        }
-        .onChange(of: isSelectedDrugs) {
-            nextScreen()
-            Task{try await manager.update(values: [.drugs : isSelectedDrugs ?? ""])}
+        .onChange(of: drinking) { update(key: .drinking, drinking)}
+        .onChange(of: smoking) { update(key: .smoking, smoking)}
+        .onChange(of: marijuana) { update(key: .marijuana, marijuana)}
+        .onChange(of: drugs) { update(key: .drugs, drugs)}
+    }
+    
+    private func update(key: UserProfile.CodingKeys, _ value: String?) {
+        Task {
+            try? await dep.profileManager.update(values: [key: value ?? ""])
         }
     }
 
@@ -64,35 +68,12 @@ struct EditLifestyle: View {
                 Spacer()
                 OptionPill(title: "No", width: 75, isSelected: isSelected, onTap: {})
                 Spacer()
-                OptionPill(title: "Occasionally", isSelected: isSelected, onTap: {} )
+                OptionPill(title: "Occasionally", isSelected: isSelected, onTap: {})
             }
-        }
-    }
-    
-    
-    
-    private func nextScreen() {
-              isSelectedDrinking != nil,
-              isSelectedSmoking != nil,
-              isSelectedMarijuana != nil,
-              isSelectedDrugs != nil else
-        {return }
-        withAnimation {
-            screenTracker.screen += 1
         }
     }
 }
 
-//#Preview {
-//    EditLifestyle()
-//}
-
-
-
-//let user = dependencies.userStore.user
-//let currentlyInFirebase = user?.nationality?.contains(country) == true
-//if currentlyInFirebase {
-//    vm.removeNationality(nationality: country)
-//} else if selectedCountries.count < 3 {
-//    vm.updateNationality(nationality: country)
-//}
+#Preview {
+    EditLifestyle()
+}
