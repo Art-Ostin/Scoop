@@ -32,7 +32,6 @@ struct OptionPill: View {
         self.width = width
         self._isSelected = isSelected
         self.onTap = onTap
-        
     }
 
     var body: some View {

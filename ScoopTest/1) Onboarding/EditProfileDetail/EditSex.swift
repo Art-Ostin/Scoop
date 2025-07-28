@@ -10,13 +10,8 @@ import SwiftUI
 struct EditSex: View {
     
     var isOnboarding: Bool
-    
     @State private var isSelected: String?
-    
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
-//    @Binding var vm: EditProfileViewModel
-    
     let title: String?
     
     @Binding var screenTracker: OnboardingViewModel
@@ -25,13 +20,12 @@ struct EditSex: View {
         self.isOnboarding = isOnboarding
         self.title = title
         self._screenTracker = screenTracker ?? .constant(OnboardingViewModel())
-//        self._vm = vm
     }
+    
     
     var body: some View {
         
         let manager = dependencies.profileManager
-//        let userId = vm.user.userId
 
         
         EditOptionLayout(title: title, isSelected: $isSelected) {
