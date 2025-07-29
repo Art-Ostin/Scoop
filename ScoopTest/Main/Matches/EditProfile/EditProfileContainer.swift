@@ -10,24 +10,24 @@ import SwiftUI
 struct EditProfileContainer: View {
     
     @Environment(\.appDependencies) var dep
-    
     @State var isView: Bool = true
     
     
     var body: some View {
         
         if let user = dep.userStore.user {
-            ZStack(alignment: .bottom) {
+            
+            Group {
                 if isView {
-                    EditProfileView(dep: dep)
-                } else {
                     ProfileView(profile: user)
+                } else {
+                    EditProfileView(dep: dep)
                 }
-                
+            }
+            .overlay(alignment: .bottom) {
                 EditProfileButton(isView: $isView)
                     .padding(.bottom)
             }
-            
         }
     }
 }
