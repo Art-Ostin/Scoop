@@ -1,4 +1,32 @@
+
+
+
+
+
+
+
+import Foundation
+
+@Observable class ProfileViewModel {
+    
+    var p: UserProfile
+
+    var showInvite: Bool = false
+    var inviteSent: Bool = false
+    
+    var imageSelection: Int = 0
+    let pageSpacing: CGFloat = -48
+    
+    init(profile: UserProfile) {
+        self.p = profile
+    }
+    
+}
+
+
+
 import SwiftUI
+
 
 struct ProfileView: View {
     
@@ -31,22 +59,12 @@ struct ProfileView: View {
                                 ProfileImageScroller(vm: $vm)
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
-                            
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    
                     if vm.showInvite {
                         Rectangle().fill(.regularMaterial) .ignoresSafeArea(.all)
                         SendInviteView(ProfileViewModel: vm, name: vm.p.name ?? "")
-                    }
-                    
-                    if isUser {
-                        NavigationLink {
-                            EditProfileView()
-                        } label: {
-                            EditProfileButton()
-                        }
                     }
                 }
             }

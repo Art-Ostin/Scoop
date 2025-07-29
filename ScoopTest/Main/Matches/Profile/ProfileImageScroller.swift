@@ -16,17 +16,12 @@ struct ProfileImageScroller: View {
         let imageUrls = vm.p.imagePathURL ?? []
         
         ScrollViewReader { proxy in
-            
             ScrollView (.horizontal, showsIndicators: false) {
-                
                 HStack (spacing: 48) {
-                    
-                    
                     ForEach(imageUrls.indices, id: \.self) {index in
                         
                         let url = imageUrls[index]
                         if let url = URL(string: url) {
-                            
                             AsyncImage(url: url) { image in
                                 image.resizable()
                                     .scaledToFill()

@@ -10,11 +10,9 @@ import SwiftUI
 struct PromptResponseView: View {
     
     @Bindable var vm: ProfileViewModel
-    
     var prompt: PromptResponse
     
     var body: some View {
-        
         VStack {
             
             Text(vm.p.prompt1?.prompt ?? "")

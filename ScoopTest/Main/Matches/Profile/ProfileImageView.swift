@@ -12,7 +12,6 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     @Binding var isInviting: Bool
     
-
     var body: some View {
         
         let stringURLs = vm.p.imagePathURL
@@ -21,10 +20,8 @@ struct ProfileImageView: View {
             TabView(selection: $vm.imageSelection) {
                 
                 if let urlString = stringURLs {
-                    
                     let size = geo.size.width - 24
-                    
-                    ForEach (urlString.indices, id: \.self) {index in
+                        ForEach (urlString.indices, id: \.self) {index in
                         let url = urlString[index]
                         if let url = URL(string: url) {
                             imageContainer(url: url, size: size, vm: $vm)
@@ -40,13 +37,8 @@ struct ProfileImageView: View {
     }
 }
 
-
-//#Preview {
-//    ProfileImageView(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)), isInviting: .constant(false))
-//}
-
 struct imageContainer: View {
-    
+
     let url: URL
     let size: CGFloat
     @Binding var vm: ProfileViewModel
@@ -73,41 +65,3 @@ struct imageContainer: View {
     }
     
 }
-
-
-
-
-
-
-//import SwiftUI
-//
-//struct ProfileImageView: View {
-//    
-//    @Binding var vm: ProfileViewModel
-//    @Binding var isInviting: Bool
-//    
-//    let images = CurrentUserStore.shared.user?.imagePathURL
-//
-//    var body: some View {
-//        GeometryReader { geo in
-//            TabView(selection: $vm.imageSelection) {
-//                ForEach(vm.profile.images.indices, id: \.self) {index in
-//                    Image(vm.profile.images[index])
-//                        .frame(height: 380)
-//                        .overlay(alignment: .bottomTrailing) {
-//                            InviteButton(vm: vm)
-//                                .padding(24)
-//                        }
-//                        .tag(index)
-//                }
-//            }
-//            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-//            .frame(width: geo.size.width, height: 430)
-//        }
-//        
-//    }
-//}
-//
-//#Preview {
-//    ProfileImageView(vm: .constant(ProfileViewModel()), isInviting: .constant(false))
-//}

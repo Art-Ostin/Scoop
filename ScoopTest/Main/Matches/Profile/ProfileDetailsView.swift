@@ -13,7 +13,8 @@ struct ProfileDetailsView: View {
     
     var body: some View {
         
-        List {
+        VStack(alignment: .leading, spacing: 36) {
+            
             Text(vm.p.nationality?.joined(separator: "") ?? "")
             
             Text (vm.p.hometown ?? "")
@@ -38,13 +39,13 @@ struct ProfileDetailsView: View {
             
             Text(vm.p.drugs ?? "")
             
-            Text(vm.p.favouriteBook ?? "")
+            if let book = vm.p.favouriteBook { Text(book) }
             
-            Text(vm.p.favouriteMovie ?? "")
+            if let movie = vm.p.favouriteMovie { Text(movie) }
             
-            Text(vm.p.favouriteSong ?? "")
+            if let song = vm.p.favouriteSong { Text(song) }
             
-            Text (vm.p.languages ?? "")
+            if let languages = vm.p.languages { Text(languages)}
             
             if let prompt1 = vm.p.prompt1 {
                 PromptResponseView(vm: vm, prompt: prompt1)
@@ -58,6 +59,11 @@ struct ProfileDetailsView: View {
                 PromptResponseView(vm: vm, prompt: prompt3)
             }
         }
+        .font(.body(17))
+        .padding()
+        .background(Color.white)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
     }
 }
 

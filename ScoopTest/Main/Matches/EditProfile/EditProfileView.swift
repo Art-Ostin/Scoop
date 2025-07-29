@@ -10,17 +10,21 @@ import SwiftUI
 
 struct EditProfileView: View {
     
-    @Environment(\.appDependencies) private var dependencies
+    var dep: AppDependencies
+    
+    init(dep: AppDependencies) {
+        self.dep = dep
+    }
     
     var body: some View {
         
         NavigationStack {
             ZStack {
                 ScrollView {
-                    ImagesView(dependencies: dependencies)
+                    ImagesView(dependencies: dep)
                     PromptsView()
                     InfoView()
-                    InterestsView(user: dependencies.userStore)
+                    InterestsView(user: dep.userStore)
                     YearsView()
                 }
             }
@@ -29,14 +33,16 @@ struct EditProfileView: View {
             .navigationBarBackButtonHidden()
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)}
-                ToolbarItem(placement: .topBarLeading) { NavButton(.back)}
+                ToolbarItem(placement: .topBarLeading) { NavButton(.down)}
+            }
+            .task {
+               try? await dep.userStore.loadUser()
             }
         }
     }
 }
 
-#Preview {
-    EditProfileView()
-}
-
+//#Preview {
+//    EditProfileView()
+//}
+//

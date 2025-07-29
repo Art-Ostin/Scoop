@@ -8,20 +8,39 @@
 import SwiftUI
 
 struct EditProfileButton: View {
+    
+    @Binding var isView: Bool
+    
     var body: some View {
-        HStack {
-            Image("Image1")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 25, height: 25)
-                .clipShape(Circle())
-            
-            HStack {
+        Group {
+            if isView {
+                Image("Image1")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 25, height: 25)
+                    .clipShape(Circle())
                 
-                Text("Edit")
-                    .font(.body(14, .bold))
-                
-                NavButton(.right, 14)
+                HStack {
+                    
+                    Text("Edit")
+                        .font(.body(14, .bold))
+                    
+                    NavButton(.right, 14, disabled: true)
+                }
+            } else {
+                HStack {
+                    HStack {
+                        NavButton(.back, 14, disabled: true)
+
+                        Text("View" )
+                            .font(.body(14, .bold))
+                    }
+                    Image("Image1")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                        .clipShape(Circle())
+                }
             }
         }
         .padding(.horizontal)
@@ -35,11 +54,9 @@ struct EditProfileButton: View {
                         .stroke(Color.accentColor, lineWidth: 1)
                 )
         )
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        .offset(y: 12)
     }
 }
 
-#Preview {
-    EditProfileButton()
-}
+//#Preview {
+//    EditProfileButton(mode: .constant(EditUserView()))
+//}
