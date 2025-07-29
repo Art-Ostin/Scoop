@@ -37,6 +37,7 @@ struct MatchesView: View {
                     
                     ActionButton(text: "Sign Out") {
                         try? dependencies.authManager.signOutUser()
+                        dependencies.userStore.clearUser()
                         showLogin = true
                     }
                 }
@@ -56,7 +57,9 @@ struct MatchesView: View {
                 }
             }
             .fullScreenCover(isPresented: $showProfileView, content: {
-                    EditProfileView()
+                if let user = dependencies.userStore.user {
+                    ProfileView(profile: user)
+                }
             })
         }
     }

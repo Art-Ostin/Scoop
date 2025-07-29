@@ -18,7 +18,8 @@ import SwiftUI
 struct MeetContainer: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-    @State private var state = MeetSections.intro
+    
+    @State private var state: MeetSections? = MeetSections.intro
     
     var body: some View {
         
@@ -34,8 +35,8 @@ struct MeetContainer: View {
             if let profile = dependencies.userStore.user {
                 ProfileView(profile: profile, state: $state)
             }
+        default: EmptyView()
         }
-        
     }
 }
 

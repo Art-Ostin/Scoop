@@ -15,7 +15,7 @@ struct ProfileImageView: View {
 
     var body: some View {
         
-        let stringURLs = vm.profile.imagePathURL
+        let stringURLs = vm.p.imagePathURL
         
         GeometryReader { geo in
             TabView(selection: $vm.imageSelection) {

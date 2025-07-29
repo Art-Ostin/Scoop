@@ -18,12 +18,12 @@ struct PromptResponseView: View {
             
         VStack {
 
-            Text(vm.profile.prompt1?.prompt ?? "Hello World")
+            Text(vm.p.prompt1?.prompt ?? "Hello World")
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .padding(.bottom, 16)
                 .font(.body(14, .italic))
             
-            Text(vm.profile.prompt1?.response ?? "Hello World")
+            Text(vm.p.prompt1?.response ?? "Hello World")
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .font(.title(24))
                 .lineSpacing(12)

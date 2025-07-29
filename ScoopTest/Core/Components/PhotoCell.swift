@@ -26,7 +26,13 @@ struct PhotoCell2: View {
                     .scaledToFill()
             } else if let url = urlString, let url = URL(string: url) {
                 AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .overlay(alignment: .topTrailing) {
+                            ChangeIcon()
+                                .padding()
+                        }
                 } placeholder: {ProgressView()}
                 
             } else {
@@ -47,7 +53,7 @@ struct PhotoCell2: View {
     PhotoCell2(picker: .constant(PhotosPickerItem(itemIdentifier: "Yes")), urlString: "Helo World", action: {})
 }
 
-struct changeIcon: View {
+struct ChangeIcon: View {
     var body: some View {
         Image("ChangeIcon")
             .padding(12)

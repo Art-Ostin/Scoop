@@ -9,7 +9,7 @@ import Foundation
 
 @Observable class ProfileViewModel {
     
-    var profile: UserProfile
+    var p: UserProfile
     
     var showInvite: Bool = false
     var inviteSent: Bool = false
@@ -18,6 +18,6 @@ import Foundation
     let pageSpacing: CGFloat = -48
     
     init(profile: UserProfile) {
-        self.profile = profile
+        self.p = profile
     }
 }

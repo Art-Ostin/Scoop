@@ -9,7 +9,7 @@ import SwiftUI
 
 struct IntroView: View {
     
-    @Binding var state: MeetSections
+    @Binding var state: MeetSections?
     
     let quote = quotes.shared.allQuotes.randomElement()!
     

@@ -15,6 +15,7 @@ import FirebaseAuth
     var totalDuration: Int {2 + countdownDuration}
     var timeRemaining = 0
     let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+
     
     func resendEmail() -> some View {
         
@@ -69,6 +70,7 @@ import FirebaseAuth
 
 struct EmailVerificationView: View {
     
+    @Environment(\.appDependencies) private var dependencies
     @State var UILogic = EmailVerificationUILogic()
     @Binding var vm: EmailVerificationViewModel
     @Binding var showLogin: Bool
@@ -98,10 +100,12 @@ struct EmailVerificationView: View {
             .task {
                 try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
                 if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
+                    try? await dependencies.userStore.loadUser()
                         showLogin = false
                     }
                     else {
                         if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
+                            try? await dependencies.userStore.loadUser()
                             showEmail = false
                         }
                     }
@@ -113,3 +117,4 @@ struct EmailVerificationView: View {
 //#Preview {
 //    EmailVerificationView(vm: .constant(EmailVerificationViewModel()), showLogin: .constant(true), showEmail: .constant(true))
 //}
+

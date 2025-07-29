@@ -46,7 +46,7 @@ extension ProfileDetailsViewInfo {
                     
                     HStack{
                         Image(systemName: "magnifyingglass")
-                        Text(vm.profile.lookingFor ?? "")
+                        Text(vm.p.lookingFor ?? "")
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -55,7 +55,7 @@ extension ProfileDetailsViewInfo {
                     
                     HStack {
                         Image(systemName: "graduationcap")
-                        Text(vm.profile.year ?? "")
+                        Text(vm.p.year ?? "")
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     
@@ -63,7 +63,7 @@ extension ProfileDetailsViewInfo {
                     
                     HStack {
                         Image (systemName: "arrow.up.and.down")
-                        Text(vm.profile.height ?? "")
+                        Text(vm.p.height ?? "")
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     
@@ -81,7 +81,7 @@ extension ProfileDetailsViewInfo {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                     .padding(.leading)
-                Text(vm.profile.degree ?? "")
+                Text(vm.p.degree ?? "")
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -94,7 +94,7 @@ extension ProfileDetailsViewInfo {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                 
-                Text(vm.profile.hometown ?? "Hello World")
+                Text(vm.p.hometown ?? "Hello World")
                     .padding(.top, 2)
             }
             .frame(maxWidth: .infinity, alignment: .top)

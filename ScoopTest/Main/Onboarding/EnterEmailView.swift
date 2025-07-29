@@ -37,9 +37,8 @@ struct EnterEmailView: View {
                 }
                 .padding(.horizontal)
             }
-            .task {
-                await Task.yield()
-                isFocused = true
+            .onAppear {
+                DispatchQueue.main.async {isFocused = true}
             }
             .frame(maxHeight: .infinity, alignment:.top)
             .padding(.top, 96)

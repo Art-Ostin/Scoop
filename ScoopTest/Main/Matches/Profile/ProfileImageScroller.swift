@@ -13,7 +13,7 @@ struct ProfileImageScroller: View {
     
     var body: some View {
         
-        let imageUrls = vm.profile.imagePathURL ?? []
+        let imageUrls = vm.p.imagePathURL ?? []
         
         ScrollViewReader { proxy in
             
