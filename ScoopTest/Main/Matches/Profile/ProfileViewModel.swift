@@ -10,7 +10,7 @@ import Foundation
 @Observable class ProfileViewModel {
     
     var p: UserProfile
-    
+
     var showInvite: Bool = false
     var inviteSent: Bool = false
     

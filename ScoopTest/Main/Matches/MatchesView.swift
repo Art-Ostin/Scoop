@@ -74,7 +74,7 @@ extension MatchesView {
     private var profileButton: some View {
         Group {
             if
-                let raw = dependencies.userStore.user?.imagePath?.first,
+                let raw = dependencies.userStore.user?.imagePath?[0],
                 let url = URL(string: raw)
             {
                 AsyncImage(url: url) { image in
