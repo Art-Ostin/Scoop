@@ -10,17 +10,20 @@ import SwiftUI
 struct EnterEmailView: View {
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-
+    @Environment(\.appDependencies) private var dependencies
+    
+    @State var showVerification: Bool = false
     @State var vm: EmailVerificationViewModel
     
-
-    @State var showVerification: Bool = false
-    
+    @FocusState private var isFocused: Bool
     @Binding var showLogin: Bool
     @Binding var showEmail: Bool
     
-    @FocusState private var isFocused: Bool
+    init(dep: AppDependencies, showLogin: Binding<Bool>, showEmail: Binding<Bool>) {
+        self._vm = State(initialValue: EmailVerificationViewModel(authManager: dep.authManager))
+        self._showLogin = showLogin
+        self._showEmail = showEmail
+    }
     
     var body: some View {
         
@@ -45,13 +48,12 @@ struct EnterEmailView: View {
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {EmailVerificationView(vm: $vm, showLogin: $showLogin, showEmail: $showEmail)})
             .navigationBarBackButtonHidden(true)
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { XButton()} }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)} }
         }
     }
 }
-//
 //#Preview {
-//    EnterEmailView(showLogin: .constant(true), showEmail: .constant(false))
+//    EnterEmailView(dep: AppDependencies, showLogin: .constant(true), showEmail: .constant(false))
 //}
 
 

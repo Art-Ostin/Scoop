@@ -15,7 +15,7 @@ struct PopupTemplate<Content: View>: View {
     
     
     var body: some View {
-        
+
         VStack (spacing: 32) {
             
             HStack{
@@ -29,7 +29,6 @@ struct PopupTemplate<Content: View>: View {
                     .font(.title(24))
             }
             content()
-            
         }
         .frame(alignment: .top)
         .padding(.top, 24)

@@ -28,7 +28,7 @@ struct EditProfileView: View {
             .navigationTitle("Profile")
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { XButton()}
+                ToolbarItem(placement: .topBarLeading) { NavButton(.cross)}
             }
         }
     }

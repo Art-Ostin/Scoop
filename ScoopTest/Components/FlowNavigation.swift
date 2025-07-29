@@ -42,7 +42,7 @@ struct FlowNavigation: ViewModifier {
                     }
                 case .profile:
                     ToolbarItem(placement: .topBarLeading) {
-                        CustomBackButton()
+                        NavButton()
                     }
                 }
             }

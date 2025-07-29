@@ -18,6 +18,7 @@ struct ActionButton: View {
         self.isValid = isValid
         self.text = text
         self.onTap = onTap
+        self.cornerRadius = cornerRadius
     }
     
     var body: some View {

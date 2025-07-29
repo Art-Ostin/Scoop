@@ -41,7 +41,7 @@ struct LimitedAccessView: View {
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            NewOnboardingContainer(showLogin: $showLogin, current: $current)
+            OnboardingContainer(showLogin: $showLogin, current: $current)
         }
     }
 }

@@ -43,10 +43,10 @@ struct SendInviteView: View {
                     
                     InvitePlaceRowView(showMapView: $showMapView, selectedPlace: $selectedLocation)
                     
-                    ActionButton(text: "Confirm & Send", onTap: {
+                    ActionButton(isValid: true, text: "Confirm & Send", onTap: {
                         ProfileViewModel.showInvite.toggle()
                         ProfileViewModel.inviteSent = true
-                    }, isValid: true)
+                    })
                     
                 }
             }

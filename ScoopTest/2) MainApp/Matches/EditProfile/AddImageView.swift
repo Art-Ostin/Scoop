@@ -37,7 +37,7 @@ struct AddImageView: View {
                     }
                 }
             }
-            ActionButton(isAuthorised: vm.selectedImages.allSatisfy {$0 != nil}, text: "Complete", onTap: {
+            ActionButton(isValid: vm.selectedImages.allSatisfy {$0 != nil}, text: "Complete", onTap: {
                 showLogin = false
             })
         }

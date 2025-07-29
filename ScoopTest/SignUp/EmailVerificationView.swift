@@ -106,7 +106,6 @@ struct EmailVerificationView: View {
                         }
                     }
             }
-            .customNavigation(isOnboarding: false)
         }
     }
 }

@@ -13,8 +13,7 @@ struct OnboardingContainer: View {
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
     @Binding var current: Int
-    
-    
+
     var body: some View {
         
         NavigationStack {

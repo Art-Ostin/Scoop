@@ -47,8 +47,6 @@ struct PhotoCell2: View {
     PhotoCell2(picker: .constant(PhotosPickerItem(itemIdentifier: "Yes")), urlString: "Helo World", action: {})
 }
 
-
-
 struct changeIcon: View {
     var body: some View {
         Image("ChangeIcon")

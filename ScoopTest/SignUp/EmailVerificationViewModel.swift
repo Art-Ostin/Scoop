@@ -13,12 +13,12 @@ import FirebaseAuth
 
 @Observable class EmailVerificationViewModel {
     
+    
     private let authManager: AuthenticationManaging
     
     init (authManager: AuthenticationManaging) {
         self.authManager = authManager
     }
-    
     
     func authoriseEmail(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
