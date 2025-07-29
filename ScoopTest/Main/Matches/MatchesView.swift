@@ -49,7 +49,7 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        ProfileButton
+                        profileButton
                             .onTapGesture {
                                 showProfileView = true
                             }
@@ -71,16 +71,25 @@ struct MatchesView: View {
 
 extension MatchesView {
     
-    private var ProfileButton: some View {
-        HStack (spacing: 18) {
-            
-            Text("Open ProfileView")
-//                .resizable()
-//                .scaledToFit()
-//                .frame(width: 30, height: 30)
-//                .clipShape(Circle())
-//                .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-            
+    private var profileButton: some View {
+        Group {
+            if
+                let raw = dependencies.userStore.user?.imagePath?.first,
+                let url = URL(string: raw)
+            {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                } placeholder: {
+                    ProgressView()
+                }
+            } else {
+                Text("Profile")
+            }
         }
     }
 }

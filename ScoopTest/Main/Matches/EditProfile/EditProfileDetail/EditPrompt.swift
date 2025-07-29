@@ -27,7 +27,9 @@ struct EditPrompt: View {
             VStack(spacing: 12) {
                 selecter
                 textEditor
-                if case .onboarding(_, let advance) = mode { NextButton(isEnabled: selectedText.count > 3) { advance() }}
+                if case .onboarding(_, let advance) = mode { NextButton(isEnabled: selectedText.count > 3) {
+                    isFocused = false
+                    advance() }}
             }
             if showDropdownMenu {
                 dropdownMenu

@@ -23,7 +23,7 @@ struct EditProfileView: View {
                     InterestsView(user: dependencies.userStore)
                     YearsView()
                 }
-                ViewProfileButton()
+                EditProfileView()
             }
             .navigationTitle("Profile")
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))

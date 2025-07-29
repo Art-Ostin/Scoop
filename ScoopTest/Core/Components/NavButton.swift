@@ -11,19 +11,22 @@ struct NavButton: View {
     
     
     @Environment(\.dismiss) private var dismiss
-    enum ViewType { case cross, back, down}
-    
+    enum ViewType { case cross, back, down, right}
     let type: ViewType
-
+    let size: CGFloat
+    
+    
     private var imageName: String {
         switch type {
         case .cross: return "xmark"
         case .back:  return "chevron.left"
         case .down:  return "chevron.down"
+        case .right: return  "chevron.right"
         }
     }
-    init(_ type: ViewType = .back) {
+    init(_ type: ViewType = .back, _ size: CGFloat = 17) {
         self.type = type
+        self.size = size
     }
     
     var body: some View {
@@ -32,7 +35,7 @@ struct NavButton: View {
         } label: {
             Image(systemName: imageName)
                 .foregroundStyle(.black)
-                .font(.body(17, .bold))
+                .font(.body(size, .bold))
         }
     }
 }

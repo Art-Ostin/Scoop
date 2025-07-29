@@ -5,13 +5,13 @@ struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ProfileViewModel
     @Binding var state: MeetSections?
-    
     @State var isInviting: Bool = false
     
-    init(profile: UserProfile, state: Binding<MeetSections?>) {
+    init(profile: UserProfile, state: Binding<MeetSections?> = .constant(nil)) {
         self._vm = State(initialValue: ProfileViewModel(profile: profile))
         self._state = state
     }
+    var isUser: Bool { if state == nil { return true } else { return false } }
     
     var body: some View {
         
@@ -38,6 +38,9 @@ struct ProfileView: View {
                         .fill(.regularMaterial)
                         .ignoresSafeArea(.all)
                     SendInviteView(ProfileViewModel: vm, name: vm.p.name ?? "")
+                }
+                if isUser {
+                    EditProfileButton()
                 }
             }
         }

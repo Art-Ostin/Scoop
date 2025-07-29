@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ViewProfileButton: View {
+struct EditProfileButton: View {
     var body: some View {
         HStack {
             Image("Image1")
@@ -16,8 +16,13 @@ struct ViewProfileButton: View {
                 .frame(width: 25, height: 25)
                 .clipShape(Circle())
             
-            Text("View Profile")
-                .font(.body(14, .bold))
+            HStack {
+                
+                Text("Edit")
+                    .font(.body(14, .bold))
+                
+                NavButton(.right, 14)
+            }
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
@@ -36,5 +41,5 @@ struct ViewProfileButton: View {
 }
 
 #Preview {
-    ViewProfileButton()
+    EditProfileButton()
 }
