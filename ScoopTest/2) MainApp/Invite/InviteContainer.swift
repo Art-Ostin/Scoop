@@ -15,20 +15,14 @@ struct SendInviteView: View {
     let name: String
 
     @State var showTypePopup: Bool = false
-    
     @State var typeInputText: String = ""
-    
     @State var typeDefaultOption: String = ""
-    
     @State var showMessageScreen: Bool = false
-    
     @State var showTimePopup: Bool = false
-    
     @State var selectedTime: Date? = nil
-    
     @State var showMapView: Bool = false
-    
     @State var selectedLocation: MKMapItem?
+    
     
     var body: some View {
         
@@ -49,10 +43,10 @@ struct SendInviteView: View {
                     
                     InvitePlaceRowView(showMapView: $showMapView, selectedPlace: $selectedLocation)
                     
-                    ActionButton2(text: "Confirm & Send", isValid: true, onTap: {
+                    ActionButton(text: "Confirm & Send", onTap: {
                         ProfileViewModel.showInvite.toggle()
                         ProfileViewModel.inviteSent = true
-                    })
+                    }, isValid: true)
                     
                 }
             }

@@ -10,9 +10,7 @@ import SwiftUI
 struct ImagesView: View {
 
     @State private var vm: ImageViewModel
-        
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
-
     private let userStore: CurrentUserStore
     
     
@@ -22,7 +20,6 @@ struct ImagesView: View {
     }
     
     var body: some View {
-       
         CustomList {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(0..<6) {idx in

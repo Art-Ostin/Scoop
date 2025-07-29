@@ -10,19 +10,19 @@ import SwiftUI
 struct ActionButton: View {
     
     var text: String
+    var isValid: Bool
     var onTap: () -> Void
-    var isAuthorised: Bool
+    var cornerRadius: CGFloat
     
-    init(isAuthorised: Bool = true, text: String, onTap: @escaping () -> Void) {
-        self.isAuthorised = isAuthorised
+    init(isValid: Bool = true, text: String, onTap: @escaping () -> Void, cornerRadius: CGFloat = 24) {
+        self.isValid = isValid
         self.text = text
         self.onTap = onTap
     }
     
     var body: some View {
-        
         Button {
-            if isAuthorised {
+            if isValid {
                 onTap()
             }
         } label: {
@@ -30,10 +30,10 @@ struct ActionButton: View {
                 .font(.body(18, .bold))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .background(isAuthorised ? Color.accent : Color.grayBackground)
+                .background(isValid ? Color.accent : Color.grayBackground)
                 .foregroundStyle(.white)
-                .cornerRadius(24)
-                .shadow(color: isAuthorised ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 2)
+                .cornerRadius(cornerRadius)
+                .shadow(color: isValid ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 2)
         }
     }
 }

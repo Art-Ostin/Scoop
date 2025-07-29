@@ -41,9 +41,9 @@ struct SignUpView: View {
     }
 }
 
-//#Preview {
-//    SignUpView(showEmail: .constant(true), showLogin: .constant(true))
-//}
+#Preview {
+    SignUpView(showEmail: .constant(true), showLogin: .constant(true))
+}
 
 extension SignUpView {
     

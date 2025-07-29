@@ -22,7 +22,6 @@ import FirebaseFirestore
         self.dep = dep
     }
     
-    
     func seedFromCurrentUser() {
         guard let paths = dep.userStore.user?.imagePath,
               let urls  = dep.userStore.user?.imagePathURL

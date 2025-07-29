@@ -27,3 +27,22 @@ struct YearsView: View {
 #Preview {
     YearsView()
 }
+
+struct YearCell: View {
+
+    let title: String
+    @State var isSelected: Bool = false
+    var onTap: (() -> Void)
+
+    var body: some View {
+        Text(title)
+            .frame(width: 50, height: 44)
+            .font(.body(16, .bold))
+            .overlay ( RoundedRectangle(cornerRadius: 20).stroke(isSelected ? Color.black : Color.grayBackground, lineWidth: 1))
+            .foregroundStyle(isSelected ? Color.accent : Color.grayText
+            )            .onTapGesture {
+
+                isSelected.toggle()
+            }
+    }
+}

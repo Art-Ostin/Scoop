@@ -10,12 +10,9 @@ import SwiftUI
 struct PopupTemplate<Content: View>: View {
     
     var profileImage: String
-    
     var title: String
-    
     @ViewBuilder let content: () -> Content
     
-        
     
     var body: some View {
         
@@ -30,9 +27,7 @@ struct PopupTemplate<Content: View>: View {
                 
                 Text(title)
                     .font(.title(24))
-                
             }
-            
             content()
             
         }

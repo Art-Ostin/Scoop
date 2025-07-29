@@ -13,8 +13,6 @@ struct SignUpTitle: View {
     var count: Int = 0
     var subtitle: String = ""
     
-    
-    
     var body: some View {
         
         HStack(alignment: .bottom, spacing: 12) {

@@ -9,9 +9,8 @@ import SwiftUI
 
 struct XButton: View {
     
-    
     @Environment(\.dismiss) private var dismiss
-
+    
     var body: some View {
 
         Button {

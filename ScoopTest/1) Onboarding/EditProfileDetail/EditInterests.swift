@@ -34,6 +34,7 @@ struct EditInterests: View {
     
     var body: some View {
         ZStack {
+            Color.background.ignoresSafeArea()
             VStack(spacing: 12) {
                 
                 SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
@@ -52,12 +53,16 @@ struct EditInterests: View {
                 .padding(.horizontal)
             }
             .padding(.top, 12)
-            
             if case .onboarding(_, let advance) = mode {
                 NextButton(isEnabled: selected.count > 3) {advance()}
             }
         }
         .flowNavigation()
+        .task {
+            selected = dependencies.userStore.user?.interests
+            ?? dependencies.userStore.user?.character
+            ?? []
+        }
     }
 }
 

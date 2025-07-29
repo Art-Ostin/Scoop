@@ -19,7 +19,7 @@ struct LoginContainer: View {
             if showEmail {
                 SignUpView(dependencies: dependencies, showEmail: $showEmail, showLogin: $showLogin)
             } else {
-                LimitedAccessView(showLogin: $showLogin, auth: dependencies.authManager)
+                LimitedAccessView(showLogin: $showLogin)
             }
         }
     }

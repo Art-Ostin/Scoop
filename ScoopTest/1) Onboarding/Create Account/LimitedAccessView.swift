@@ -3,23 +3,12 @@ import SwiftUI
 struct LimitedAccessView: View {
     
     
-    
-    @State private var vm: OnboardingViewModel
-    
-    
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
-    
-    @State private var showOnboarding = false
+    @Environment(\.appDependencies) private var dependencies
     @Binding var showLogin: Bool
-    
-    init(showLogin: Binding<Bool>, auth: AuthenticationManaging) {
-        self._showLogin = showLogin
-        self._vm = State(initialValue: OnboardingViewModel(authManager: auth))
-    }
+    @State var showOnboarding = false
+    @State var current: Int = 0
     
     var body: some View {
-        
         
         ZStack {
             TabView {
@@ -48,18 +37,17 @@ struct LimitedAccessView: View {
                     }
                 }
             }
-            ActionButton(text: (vm.screen == 0) ? "Create Profile" : "Complete \(vm.screen)/10", onTap: {showOnboarding = true})
+            ActionButton(text: (current == 0) ? "Create Profile" : "Complete \(current)/10", onTap: {showOnboarding = true})
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            NewOnboardingContainer(showLogin: $showLogin)
-//            OnboardingContainer(vm: $vm, showLogin: $showLogin)
+            NewOnboardingContainer(showLogin: $showLogin, current: $current)
         }
     }
 }
 
 #Preview {
-    LimitedAccessView(showLogin: .constant(true), auth: AuthenticationManager(profile: ProfileManager()))
+    LimitedAccessView(showLogin: .constant(true))
 }
 
 
@@ -98,20 +86,3 @@ struct LimitedAccessPage: View {
         .padding(.top, 72)
     }
 }
-
-
-//    .safeAreaInset(edge: .bottom) {
-//        ActionButton(
-//            text: vm.screen == 0
-//                ? "Create Profile"
-//                : "Complete Profile \(vm.screen)/10"
-//        ) {
-//            showOnboarding = true
-//        }
-//        .padding(.horizontal)
-//        .padding(.top, 8)
-//        .background(Color.background)
-//
-//    .fullScreenCover(isPresented: $showOnboarding) {
-//        OnboardingContainer(vm: $vm, showLogin: $showLogin)
-//    }

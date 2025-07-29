@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-struct NewOnboardingContainer: View {
+struct OnboardingContainer: View {
     
     @Binding var showLogin: Bool
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
-    @State var current: Int = 0
+    @Binding var current: Int
+    
     
     var body: some View {
         
@@ -41,27 +42,15 @@ struct NewOnboardingContainer: View {
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             }
-            
-//            switch vm.screen {
-//            case 0...4: OptionsSelectionView(vm: $vm)
-//            case 5: EditLifestyle()
-//            case 6: EditInterests()
-//            case 7: EditNationality()
-//            case 8: EditTextFieldLayout(isOnboarding: true, title: "Degree", screenTracker: $vm)
-//            case 9: EditTextFieldLayout(isOnboarding: true, title: "Hometown", screenTracker: $vm)
-//            case 10: EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 1)
-//            case 11: EditPrompt(prompts: Prompts.instance.prompts2, promptIndex: 2)
-//            case 12: AddImageView(dependencies: dependencies, showLogin: $showLogin)
-//            default: EmptyView()
         }
     }
 }
 
 #Preview {
-    NewOnboardingContainer(showLogin: .constant(true))
+    OnboardingContainer(showLogin: .constant(true), current: .constant(4))
 }
 
-extension NewOnboardingContainer {
+extension OnboardingContainer {
     
     private var sexField: OptionField {
         OptionField(

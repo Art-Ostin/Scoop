@@ -7,6 +7,22 @@
 
 import SwiftUI
 
+//File Creates an environment to track for the "Edit Screens" if i am on onboarding or in the app.
+enum FlowMode {
+    case onboarding(step: Int, advance: () -> Void)
+    case profile
+}
+
+struct FlowModeKey: EnvironmentKey {
+    static var defaultValue: FlowMode = .profile
+}
+
+extension EnvironmentValues {
+    var flowMode: FlowMode {
+        get { self[FlowModeKey.self]}
+        set { self[FlowModeKey.self] = newValue }
+    }
+}
 
 struct FlowNavigation: ViewModifier {
     

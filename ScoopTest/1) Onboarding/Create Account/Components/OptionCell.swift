@@ -15,9 +15,7 @@ struct OptionCell: View {
     @State var isSelected: Bool = false
 
     var onTap: (() -> Void)
-    
-    
-    
+        
     var body: some View {
         Text(title)
             .frame(width: width, height: 44)

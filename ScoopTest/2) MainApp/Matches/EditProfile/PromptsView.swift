@@ -9,13 +9,12 @@ import SwiftUI
 
 struct PromptsView: View {
     
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    @Environment(\.appDependencies) private var dependencies
         
     var body: some View {
         
         let currentUser = dependencies.userStore.user
         
-
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {

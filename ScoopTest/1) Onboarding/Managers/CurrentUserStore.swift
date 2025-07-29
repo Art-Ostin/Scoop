@@ -19,7 +19,6 @@ class CurrentUserStore {
         self.profileManager = profile
     }
     
-    
     private(set) var user: UserProfile? = nil
     
     func loadUser() async throws {
