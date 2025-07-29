@@ -9,13 +9,8 @@ import SwiftUI
 
 struct TwoDailyProfilesView: View {
     
-    
-    
     @State private var selection: Int = 0
-    
     @Binding var state: MeetSections
-    
-    
     @State private var name1 = "Adam"
     @State private var name2 = "John"
     @State private var Image1 = "ProfileMockA"

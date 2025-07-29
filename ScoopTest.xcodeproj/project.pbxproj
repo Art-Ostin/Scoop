@@ -291,10 +291,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		65058E872E1C2935009AD7FD /* Managers */ = {
+		65058E872E1C2935009AD7FD /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				654C00922E3549EA00FFD504 /* UserModel.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
 				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				654982BF2E2FA54100CA335F /* StorageManager.swift */,
@@ -302,7 +301,7 @@
 				654C009A2E35689000FFD504 /* CurrentUserStore.swift */,
 				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 			);
-			path = Managers;
+			path = Services;
 			sourceTree = "<group>";
 		};
 		65058E8C2E1C4080009AD7FD /* Frameworks */ = {
@@ -370,13 +369,6 @@
 			path = Invite;
 			sourceTree = "<group>";
 		};
-		654982BD2E2EEF5200CA335F /* Storage */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Storage;
-			sourceTree = "<group>";
-		};
 		654982BE2E2FA52400CA335F /* Storage */ = {
 			isa = PBXGroup;
 			children = (
@@ -431,6 +423,7 @@
 				653770332E0862800058D225 /* IntroView.swift */,
 				659497002E01DD4000880921 /* TwoDailyProfilesView.swift */,
 				653770542E0A1E710058D225 /* Profile */,
+				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
 			path = Meet;
 			sourceTree = "<group>";
@@ -438,7 +431,6 @@
 		6561C8D22E04464C006A72DF /* Events */ = {
 			isa = PBXGroup;
 			children = (
-				653BAFB52E0D6BA900C1AB9E /* EventModel.swift */,
 				653BAFC12E0D96B700C1AB9E /* EventView.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
 				653A78522E130A990098747F /* EventDetailSummaryView.swift */,
@@ -458,7 +450,7 @@
 			path = Matches;
 			sourceTree = "<group>";
 		};
-		6561C8D52E04587D006A72DF /* SignUp */ = {
+		6561C8D52E04587D006A72DF /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
 				654982B12E2D748B00CA335F /* LoginContainer.swift */,
@@ -469,7 +461,7 @@
 				659497092E01DD4000880921 /* LimitedAccessView.swift */,
 				65E820982E37C2720098CC36 /* OnboardingContainer.swift */,
 			);
-			path = SignUp;
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		6577D7C92E201A2600FFCF82 /* EditProfileDetail */ = {
@@ -506,7 +498,6 @@
 		657838232DE773CC00770B49 = {
 			isa = PBXGroup;
 			children = (
-				654982BD2E2EEF5200CA335F /* Storage */,
 				659497182E01DD4000880921 /* ScoopTest */,
 				6578383C2DE773CE00770B49 /* ScoopTestTests */,
 				657838462DE773CE00770B49 /* ScoopTestUITests */,
@@ -525,55 +516,64 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		659109282E19B0810065696F /* Models */ = {
+		659497012E01DD4000880921 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				659109252E19B0810065696F /* Countries.swift */,
-				659109262E19B0810065696F /* Prompts.swift */,
-				659109272E19B0810065696F /* Quotes.swift */,
-				65E820A02E37F3460098CC36 /* Interests.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		659496FC2E01DD4000880921 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				65376D792E05A7AF0058D225 /* DefaultParameters.swift */,
-				654982BE2E2FA52400CA335F /* Storage */,
-				6561C8C62E0444EC006A72DF /* Fonts */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		659497012E01DD4000880921 /* 2) MainApp */ = {
-			isa = PBXGroup;
-			children = (
-				659496FE2E01DD4000880921 /* AppContainer.swift */,
-				653BAFA92E0C664F00C1AB9E /* Invite */,
 				6561C8D12E044638006A72DF /* Meet */,
 				6561C8D22E04464C006A72DF /* Events */,
 				6561C8D32E04465A006A72DF /* Matches */,
-				659109282E19B0810065696F /* Models */,
+				6561C8D52E04587D006A72DF /* Onboarding */,
 			);
-			path = "2) MainApp";
+			path = Main;
 			sourceTree = "<group>";
 		};
 		659497182E01DD4000880921 /* ScoopTest */ = {
 			isa = PBXGroup;
 			children = (
-				653BAF862E0B846600C1AB9E /* GoogleService-Info.plist */,
 				659497172E01DD4000880921 /* ScoopTestApp.swift */,
 				6561C8B12E035BC6006A72DF /* RootView.swift */,
-				65058E872E1C2935009AD7FD /* Managers */,
-				6577D7D42E203EF300FFCF82 /* Components */,
-				6561C8D52E04587D006A72DF /* SignUp */,
-				659497012E01DD4000880921 /* 2) MainApp */,
-				659496FC2E01DD4000880921 /* Resources */,
-				659497152E01DD4000880921 /* Assets.xcassets */,
-				659497162E01DD4000880921 /* Info.plist */,
+				659496FE2E01DD4000880921 /* AppContainer.swift */,
+				65E820B02E3901080098CC36 /* Core */,
+				659497012E01DD4000880921 /* Main */,
+				654982BE2E2FA52400CA335F /* Storage */,
 			);
 			path = ScoopTest;
+			sourceTree = "<group>";
+		};
+		65E820B02E3901080098CC36 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				65E820B12E39014E0098CC36 /* Models */,
+				65058E872E1C2935009AD7FD /* Services */,
+				6577D7D42E203EF300FFCF82 /* Components */,
+				65E820B72E390F200098CC36 /* Resources */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		65E820B12E39014E0098CC36 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				654C00922E3549EA00FFD504 /* UserModel.swift */,
+				653BAFB52E0D6BA900C1AB9E /* EventModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		65E820B72E390F200098CC36 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				653BAF862E0B846600C1AB9E /* GoogleService-Info.plist */,
+				659497162E01DD4000880921 /* Info.plist */,
+				659497152E01DD4000880921 /* Assets.xcassets */,
+				6561C8C62E0444EC006A72DF /* Fonts */,
+				65376D792E05A7AF0058D225 /* DefaultParameters.swift */,
+				659109252E19B0810065696F /* Countries.swift */,
+				659109262E19B0810065696F /* Prompts.swift */,
+				659109272E19B0810065696F /* Quotes.swift */,
+				65E820A02E37F3460098CC36 /* Interests.swift */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

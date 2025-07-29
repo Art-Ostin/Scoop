@@ -37,7 +37,7 @@ extension EventType {
 
 
 struct Event {
-    
+
     var profile: UserProfile
     var profile2: UserProfile
     var type: EventType

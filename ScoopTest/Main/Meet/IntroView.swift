@@ -30,7 +30,6 @@ struct IntroView: View {
     }
 }
 
-
 #Preview {
     IntroView(state: .constant(.intro))
 }

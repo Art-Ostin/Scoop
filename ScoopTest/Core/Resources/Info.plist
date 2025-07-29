@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>ModernEra-Bold.ttf</string>
+		<string>ModernEra-Medium.ttf</string>
+		<string>ModernEra-MediumItalic.ttf</string>
+		<string>ModernEra-Regular.ttf</string>
+		<string>NewYorkLarge-Bold.otf</string>
+		<string>NewYorkMedium-Medium.otf</string>
+		<string>NewYorkMedium-Semibold.otf</string>
+		<string>SFCompactRounded-Semibold.otf</string>
+		<string>SFCompactRounded-Regular.otf</string>
+	</array>
+</dict>
+</plist>
