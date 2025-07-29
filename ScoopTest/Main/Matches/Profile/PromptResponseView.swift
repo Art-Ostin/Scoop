@@ -17,7 +17,7 @@ struct PromptResponseView: View {
     var body: some View {
             
         VStack {
-
+            
             Text(vm.p.prompt1?.prompt ?? "Hello World")
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .padding(.bottom, 16)
@@ -46,13 +46,3 @@ struct PromptResponseView: View {
         .padding(.horizontal, 24)
     }
 }
-
-
-//struct PromptResponseView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PromptResponseView(
-//            vm: ProfileViewModel(profile: CurrentUserStore.shared.user!),
-//            inviteButton: false)
-//        .previewLayout(.sizeThatFits)
-//    }
-//}

@@ -49,7 +49,8 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        profileButton
+                        Text("View Profile")
+//                        profileButton
                             .onTapGesture {
                                 showProfileView = true
                             }

@@ -19,6 +19,7 @@ struct ProfileView: View {
         GeometryReader { _ in
             
             NavigationStack {
+                
                 ZStack {
                     Color.background.edgesIgnoringSafeArea(.all)
                     
@@ -35,12 +36,11 @@ struct ProfileView: View {
                     
                     ProfileDetailsView(vm: $vm)
                     
-                    if vm.showInvite {
-                        Rectangle()
-                            .fill(.regularMaterial)
-                            .ignoresSafeArea(.all)
+                    if vm.showInvite && !isUser {
+                        Rectangle().fill(.regularMaterial).ignoresSafeArea(.all)
                         SendInviteView(ProfileViewModel: vm, name: vm.p.name ?? "")
                     }
+                    
                     if isUser {
                         NavigationLink {
                             EditProfileView()

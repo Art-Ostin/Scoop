@@ -23,12 +23,14 @@ struct EditProfileView: View {
                     InterestsView(user: dependencies.userStore)
                     YearsView()
                 }
-                EditProfileView()
             }
             .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden()
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { NavButton(.cross)}
+                ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)}
+                ToolbarItem(placement: .topBarLeading) { NavButton(.back)}
             }
         }
     }

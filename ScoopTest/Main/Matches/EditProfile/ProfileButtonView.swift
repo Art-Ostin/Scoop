@@ -32,7 +32,7 @@ struct EditProfileButton: View {
                 .shadow(color: .black.opacity(0.1), radius: 10, y: 10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.grayBackground, lineWidth: 1)
+                        .stroke(Color.accentColor, lineWidth: 1)
                 )
         )
         .frame(maxHeight: .infinity, alignment: .bottom)
