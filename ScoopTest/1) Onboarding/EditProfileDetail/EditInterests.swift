@@ -99,8 +99,6 @@ struct InterestSection: View {
     private func interestIsSelected (text: String) -> Bool {
         dependencies.userStore.user?.interests?.contains(text) == true
     }
-
-
     @Binding var selected: [String]
     
     var body: some View {

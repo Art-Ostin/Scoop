@@ -36,15 +36,21 @@ struct InterestsHolder<Content: View, Destination: View>: View {
                     .padding(.horizontal, 8)
                     content
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.background.ignoresSafeArea())
             }
+            .padding()
         }
+        .padding(.horizontal, 32)
     }
 }
 
 
 struct InterestsLayout: View {
     
-    let passions: [String]
+    @Environment(\.appDependencies) private var dep
+    
+    var passions: [String]
     
     
     private var rows: [[String]] {
@@ -68,12 +74,10 @@ struct InterestsLayout: View {
                     Text(row.count > 1 ? row[1] : "")
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                
                 if index < rows.count - 1 {
                     Divider()
                 }
             }
-            
         }
         .padding()
         .font(.body())

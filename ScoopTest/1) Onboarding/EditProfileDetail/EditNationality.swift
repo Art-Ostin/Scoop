@@ -40,7 +40,7 @@ import FirebaseFirestore
             Task {
                try? await dep.profileManager.update(values: [.nationality: FieldValue.arrayRemove([country])])
             }
-        } else {
+        } else if selectedCountries.count < 3 {
             selectedCountries.append(country)
             Task {
                try? await dep.profileManager.update(values: [.nationality: FieldValue.arrayUnion([country])])
@@ -61,6 +61,7 @@ struct EditNationality: View {
         VStack(spacing: 36) {
             
             SignUpTitle(text: "Nationality", subtitle: "\(vm.selectedCountries.count)/3")
+                .padding(.top, 12)
             
             
             selectedCountries
@@ -80,6 +81,9 @@ struct EditNationality: View {
                     }
                 }
             }
+        }
+        .task {
+            vm.selectedCountries = dep.userStore.user?.nationality ?? []
         }
         .flowNavigation()
     }
