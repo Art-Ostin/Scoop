@@ -11,19 +11,18 @@ struct PromptResponseView: View {
     
     @Bindable var vm: ProfileViewModel
     
-    @State var inviteButton: Bool
-    
+    var prompt: PromptResponse
     
     var body: some View {
-            
+        
         VStack {
             
-            Text(vm.p.prompt1?.prompt ?? "Hello World")
+            Text(vm.p.prompt1?.prompt ?? "")
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .padding(.bottom, 16)
                 .font(.body(14, .italic))
             
-            Text(vm.p.prompt1?.response ?? "Hello World")
+            Text(vm.p.prompt1?.response ?? "")
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .font(.title(24))
                 .lineSpacing(12)
@@ -37,12 +36,13 @@ struct PromptResponseView: View {
                 .stroke(Color(red: 0.78, green: 0.78, blue: 0.78), lineWidth: 1)
             
         )
-        .overlay(
-            InviteButton(vm: vm)
-                .padding(.horizontal, 12)
-                .offset(y: 24),
-            alignment: .bottomTrailing
-        )
+        .overlay(alignment: .bottomTrailing) {
+            if vm.showInvite {
+                InviteButton(vm: vm)
+                    .padding(.horizontal, 12)
+                    .offset(y: 24)
+            }
+        }
         .padding(.horizontal, 24)
     }
 }

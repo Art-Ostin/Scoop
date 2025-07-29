@@ -7,62 +7,57 @@
 
 import SwiftUI
 
-struct profileDetailsView: View {
+struct ProfileDetailsView: View {
     
     @Binding var vm: ProfileViewModel
     
     var body: some View {
-
         
-        ScrollView {
+        List {
+            Text(vm.p.nationality?.joined(separator: "") ?? "")
             
-            VStack {
-                
-                Text(vm.p.nationality)
-                
-                Text (vm.p.hometown)
-                
-                Text(vm.p.lookingFor)
-                
-                Text(vm.p.year)
-                
-                Text(vm.p.degree)
-                
-                Text(vm.p.degree)
-                
-                Text(vm.p.height)
-                
-                Text(vm.p.interests)
-                
-                Text(vm.p.attractedTo)
-                
-                Text(vm.p.drinking)
-                
-                Text(vm.p.marijuana)
-                
-                Text(vm.p.smoking)
-                
-                Text(vm.p.drugs)
-                
-                Text(vm.p.favouriteBook)
-                
-                Text(vm.p.favouriteMovie)
-                
-                Text(vm.p.favouriteSong)
-                
-                Text (vm.p.languages)
+            Text (vm.p.hometown ?? "")
+            
+            Text(vm.p.lookingFor ?? "")
+            
+            Text(vm.p.year ?? "")
+            
+            Text(vm.p.degree ?? "")
+            
+            Text(vm.p.height ?? "")
+            
+            Text(vm.p.interests?.joined(separator: ", ") ?? "")
+            
+            Text(vm.p.attractedTo ?? "")
+            
+            Text(vm.p.drinking ?? "")
+            
+            Text(vm.p.marijuana ?? "")
+            
+            Text(vm.p.smoking ?? "")
+            
+            Text(vm.p.drugs ?? "")
+            
+            Text(vm.p.favouriteBook ?? "")
+            
+            Text(vm.p.favouriteMovie ?? "")
+            
+            Text(vm.p.favouriteSong ?? "")
+            
+            Text (vm.p.languages ?? "")
+            
+            if let prompt1 = vm.p.prompt1 {
+                PromptResponseView(vm: vm, prompt: prompt1)
             }
             
+            if let prompt2 = vm.p.prompt2 {
+                PromptResponseView(vm: vm, prompt: prompt2)
+            }
             
-            
-            
-            
-            
+            if let prompt3 = vm.p.prompt3 {
+                PromptResponseView(vm: vm, prompt: prompt3)
+            }
         }
-        
-        
-        
-        
     }
 }
 

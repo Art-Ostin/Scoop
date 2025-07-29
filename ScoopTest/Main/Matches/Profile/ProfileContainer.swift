@@ -15,29 +15,29 @@ struct ProfileView: View {
     
     var body: some View {
         
-        
         GeometryReader { _ in
-            
             NavigationStack {
-                
                 ZStack {
                     Color.background.edgesIgnoringSafeArea(.all)
-                    
-                    VStack {
-                        heading
-                            .padding()
-                        
-                        ProfileImageView(vm: $vm, isInviting: $isInviting)
-                            .frame(height: 420)
-                        
-                        ProfileImageScroller(vm: $vm)
+                    ScrollView {
+                        VStack {
+                            VStack {
+                                heading
+                                    .padding()
+                                
+                                ProfileImageView(vm: $vm, isInviting: $isInviting)
+                                    .frame(height: 420)
+                                
+                                ProfileImageScroller(vm: $vm)
+                            }
+                            .frame(maxHeight: .infinity, alignment: .top)
+                            
+                            ProfileDetailsView(vm: $vm)
+                        }
                     }
-                    .frame(maxHeight: .infinity, alignment: .top)
                     
-                    ProfileDetailsView(vm: $vm)
-                    
-                    if vm.showInvite && !isUser {
-                        Rectangle().fill(.regularMaterial).ignoresSafeArea(.all)
+                    if vm.showInvite {
+                        Rectangle().fill(.regularMaterial) .ignoresSafeArea(.all)
                         SendInviteView(ProfileViewModel: vm, name: vm.p.name ?? "")
                     }
                     
@@ -77,4 +77,3 @@ extension ProfileView {
         }
     }
 }
-

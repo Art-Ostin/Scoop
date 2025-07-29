@@ -49,7 +49,6 @@ struct imageContainer: View {
     
     let url: URL
     let size: CGFloat
-
     @Binding var vm: ProfileViewModel
     
     var body: some View {
