@@ -12,6 +12,7 @@ struct EditProfileButton: View {
     @Binding var isView: Bool
     
     var body: some View {
+        
         Group {
             if isView {
                 Image("Image1")

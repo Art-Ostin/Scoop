@@ -27,6 +27,7 @@ struct EditProfileContainer: View {
                 EditProfileButton(isView: $isView)
                     .padding(.bottom)
             }
+            
         }
     }
 }

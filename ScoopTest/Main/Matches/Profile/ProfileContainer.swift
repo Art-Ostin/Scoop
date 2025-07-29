@@ -39,7 +39,6 @@ struct ProfileView: View {
         self._vm = State(initialValue: ProfileViewModel(profile: profile))
         self._state = state
     }
-    var isUser: Bool { if state == nil { return true } else { return false } }
     
     var body: some View {
         
