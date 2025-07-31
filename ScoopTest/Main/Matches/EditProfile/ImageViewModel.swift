@@ -26,8 +26,12 @@ import FirebaseFirestore
         guard let paths = dep.userStore.user?.imagePath,
               let urls  = dep.userStore.user?.imagePathURL
         else { return }
+        let converted = urls.map { urlString in
+            if urlString.contains("_1350x1350") { return urlString }
+            return urlString.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+        }
         let paddedPaths = (paths + Array(repeating: nil, count: 6)).prefix(6)
-        let paddedURLs  = (urls  + Array(repeating: nil, count: 6)).prefix(6)
+        let paddedURLs  = (converted  + Array(repeating: nil, count: 6)).prefix(6)
         imagePaths = Array(paddedPaths)
         imageURLs  = Array(paddedURLs)
     }
@@ -64,8 +68,8 @@ import FirebaseFirestore
                 selectedImages[index] = uiImg
             }
             let newPath = try await dep.storageManager.saveImage(userId: user.userId, data: data)
-            let newURL = try await dep.storageManager.getUrlForImage(path: newPath)
-            
+            let newURL = try await dep.storageManager.getResizedUrlForImage(path: newPath)
+
             try await dep.profileManager.update(userId: user.userId, values: [
                 .imagePath: FieldValue.arrayUnion([newPath]),
                 .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
