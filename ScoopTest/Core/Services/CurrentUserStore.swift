@@ -20,8 +20,6 @@ class CurrentUserStore {
         self.profileManager = profile
         self.imageCache = imageCache
     }
-    
-
     private(set) var user: UserProfile? = nil
     
     func loadUser() async throws {
@@ -30,7 +28,10 @@ class CurrentUserStore {
         await MainActor.run {
             self.user = profile
         }
-        let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
+        let resized = profile.imagePathURL?.map {
+            $0.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+        } ?? []
+        let urls = resized.compactMap { URL(string: $0) }
         Task { await imageCache.prefetch(urls: urls) }
     }
     func clearUser() {

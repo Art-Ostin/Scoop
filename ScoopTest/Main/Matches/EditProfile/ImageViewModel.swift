@@ -26,8 +26,11 @@ import FirebaseFirestore
         guard let paths = dep.userStore.user?.imagePath,
               let urls  = dep.userStore.user?.imagePathURL
         else { return }
+        let resizedURLs = urls.map { urlString in
+            urlString.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+        }
         let paddedPaths = (paths + Array(repeating: nil, count: 6)).prefix(6)
-        let paddedURLs  = (urls  + Array(repeating: nil, count: 6)).prefix(6)
+        let paddedURLs  = (resizedURLs  + Array(repeating: nil, count: 6)).prefix(6)
         imagePaths = Array(paddedPaths)
         imageURLs  = Array(paddedURLs)
     }

@@ -52,7 +52,6 @@ import SwiftUI
         try await update(userId: id, values: values)
     }
     
-    
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws {
         let key: UserProfile.CodingKeys
         switch promptIndex {
@@ -68,5 +67,14 @@ import SwiftUI
     func updatePrompt(promptIndex: Int, prompt: PromptResponse) async throws {
         guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
+    }
+    
+    
+    func getRandomProfile() async throws -> UserProfile? {
+        let snapshot = try await userCollection.getDocuments()
+        let profiles = try snapshot.documents.compactMap { document -> UserProfile? in
+            try document.data(as: UserProfile.self)
+        }
+        return profiles.randomElement()
     }
 }

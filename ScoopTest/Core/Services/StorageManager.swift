@@ -18,6 +18,12 @@ import SwiftUI
     
     private let storage = Storage.storage().reference()
     
+    private let resizedSuffix = "_1350x1350"
+    
+    private func resizedPath(for path: String) -> String {
+        path.replacingOccurrences(of: ".jpeg", with: "\(resizedSuffix).jpeg")
+    }
+    
     private func userReference(userId: String) -> StorageReference {
         storage.child("users").child(userId)
     }
@@ -27,7 +33,8 @@ import SwiftUI
     }
     
     func getUrlForImage(path: String) async throws -> URL {
-        try await  getPath(path: path).downloadURL()
+        let path = resizedPath(for: path)
+        return try await getPath(path: path).downloadURL()
     }
     
     func saveImage(userId: String, data: Data) async throws -> String {
@@ -40,7 +47,8 @@ import SwiftUI
     }
     
     func getData(userId: String, path: String) async throws -> Data  {
-        try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
+        let path = resizedPath(for: path)
+        return try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
     }
     
     func getImage(userId: String, path: String) async throws -> UIImage {

@@ -8,8 +8,31 @@
 import SwiftUI
 
 struct MeetTest: View {
+    
+    @Environment(\.appDependencies) private var dependencies
+    
+    
+    @State var showProfile: Bool = false
+    
+    @State var randomProfile: UserProfile?
+    
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        VStack {
+            Button("Show Profile") {
+                showProfile = true
+            }
+        }
+        .task {
+            randomProfile = try? await dependencies.profileManager.getRandomProfile()
+        }
+        
+        .fullScreenCover(isPresented: $showProfile) {
+            if let randomProfile = randomProfile {
+                ProfileView(profile: randomProfile)
+            }
+        }
     }
 }
 
