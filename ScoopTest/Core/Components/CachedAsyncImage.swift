@@ -15,7 +15,6 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
 
     @State private var uiImage: UIImage?
     
-    
     var body: some View {
         Group {
             if let uiImage = uiImage {

@@ -31,7 +31,7 @@ import SwiftUI
     }
     
     func saveImage(userId: String, data: Data) async throws -> String {
-        let filename = "\(UUID().uuidString)_1350x1350.jpeg"
+        let filename = "\(UUID().uuidString).jpeg"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         let result = try await userReference(userId: userId).child(filename).putDataAsync(data, metadata: meta)
@@ -46,7 +46,7 @@ import SwiftUI
     func getImage(userId: String, path: String) async throws -> UIImage {
         let data = try await getData(userId: userId, path: path)
         guard let image = UIImage(data: data) else {
-            throw URLError(.badServerResponse )
+            throw URLError(.badServerResponse)
         }
         return image
     }
