@@ -38,3 +38,9 @@ protocol StorageManaging {
     func getImage(userId: String, path: String) async throws -> UIImage
     func deleteImage(path: String) async throws
 }
+
+protocol ImageCaching {
+    func cachedImage(for url: URL) -> UIImage?
+    func fetchImage(for url: URL) async throws -> UIImage
+    func prefetch(urls: [URL]) async
+}

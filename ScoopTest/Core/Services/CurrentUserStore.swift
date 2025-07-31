@@ -13,12 +13,15 @@ class CurrentUserStore {
     
     @ObservationIgnored private let auth: AuthenticationManaging
     @ObservationIgnored private let profileManager: ProfileManaging
+    @ObservationIgnored private let imageCache: ImageCaching
     
-    init(auth: AuthenticationManaging, profile: ProfileManaging) {
+    init(auth: AuthenticationManaging, profile: ProfileManaging, imageCache: ImageCaching) {
         self.auth = auth
         self.profileManager = profile
+        self.imageCache = imageCache
     }
     
+
     private(set) var user: UserProfile? = nil
     
     func loadUser() async throws {
@@ -27,6 +30,8 @@ class CurrentUserStore {
         await MainActor.run {
             self.user = profile
         }
+        let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
+        Task { await imageCache.prefetch(urls: urls) }
     }
     func clearUser() {
         user = nil

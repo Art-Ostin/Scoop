@@ -57,6 +57,8 @@
 		654C00932E3549EA00FFD504 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C00922E3549EA00FFD504 /* UserModel.swift */; };
 		654C009B2E35689000FFD504 /* CurrentUserStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009A2E35689000FFD504 /* CurrentUserStore.swift */; };
 		654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009D2E35835900FFD504 /* AppDependencies.swift */; };
+		655F51FD2E3B7CEF00E67534 /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655F51FC2E3B7CE700E67534 /* CacheManager.swift */; };
+		655F52012E3BA12E00E67534 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */; };
 		656126652E23212C00088B6D /* EditInterests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656126642E23212C00088B6D /* EditInterests.swift */; };
 		6561C8B22E035BE2006A72DF /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6561C8B12E035BC6006A72DF /* RootView.swift */; };
 		6561C8C82E0444EC006A72DF /* ModernEra-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8BF2E0444EC006A72DF /* ModernEra-Bold.ttf */; };
@@ -167,6 +169,8 @@
 		654C00922E3549EA00FFD504 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		654C009A2E35689000FFD504 /* CurrentUserStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUserStore.swift; sourceTree = "<group>"; };
 		654C009D2E35835900FFD504 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		655F51FC2E3B7CE700E67534 /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
+		655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		656126642E23212C00088B6D /* EditInterests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditInterests.swift; sourceTree = "<group>"; };
 		6561C8B12E035BC6006A72DF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		6561C8BF2E0444EC006A72DF /* ModernEra-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ModernEra-Bold.ttf"; sourceTree = "<group>"; };
@@ -264,12 +268,13 @@
 		65058E872E1C2935009AD7FD /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
 				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				654982BF2E2FA54100CA335F /* StorageManager.swift */,
 				65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */,
+				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
 				654C009A2E35689000FFD504 /* CurrentUserStore.swift */,
-				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -430,6 +435,7 @@
 				6537705C2E0AC2B70058D225 /* PopupTemplate.swift */,
 				6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */,
 				654982DD2E315B1B00CA335F /* PhotoCell.swift */,
+				655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -728,6 +734,7 @@
 				653A78592E1340BA0098747F /* MatchesView.swift in Sources */,
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
 				65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */,
+				655F52012E3BA12E00E67534 /* CachedAsyncImage.swift in Sources */,
 				6593365C2E193CEA00150AAC /* MapSelectionView.swift in Sources */,
 				653A78C42E15DBD80098747F /* MapView.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
@@ -752,6 +759,7 @@
 				6522EF272E1EFDE6004531F9 /* EditProfileView.swift in Sources */,
 				653A78CA2E15EB490098747F /* MapSearchView.swift in Sources */,
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
+				655F51FD2E3B7CEF00E67534 /* CacheManager.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */,
 				652FC9732E1AD73A0034A387 /* AuthenticationManager.swift in Sources */,
 				6594972C2E01DD4000880921 /* ScoopTestApp.swift in Sources */,

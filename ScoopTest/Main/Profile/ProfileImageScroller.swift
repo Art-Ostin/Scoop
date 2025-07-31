@@ -22,7 +22,7 @@ struct ProfileImageScroller: View {
                         
                         let url = imageUrls[index]
                         if let url = URL(string: url) {
-                            AsyncImage(url: url) { image in
+                            CachedAsyncImage(url: url) { image in
                                 image.resizable()
                                     .scaledToFill()
                                     .frame(width: 60, height: 60)

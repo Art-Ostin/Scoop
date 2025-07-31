@@ -12,6 +12,8 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     @Binding var isInviting: Bool
     
+    let cache = NSCache<NSURL, UIImage>()
+    
     var body: some View {
         
         let stringURLs = vm.p.imagePathURL
@@ -45,7 +47,7 @@ struct imageContainer: View {
     
     var body: some View {
         
-        AsyncImage(url: url) { Image in
+        CachedAsyncImage(url: url) { Image in
             Image.resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)

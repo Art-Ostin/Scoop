@@ -15,25 +15,28 @@ final class AppDependencies {
     let authManager: AuthenticationManaging
     let profileManager: ProfileManaging
     let storageManager: StorageManaging
+    let imageCache: ImageCaching
     let userStore: CurrentUserStore
     
     init(
         authManager: AuthenticationManaging? = nil,
         profileManager: ProfileManaging? = nil,
-        storageManager: StorageManaging? = nil
+        storageManager: StorageManaging? = nil,
+        imageCache: ImageCaching? = nil
     ) {
         let profile = profileManager ?? ProfileManager()
         let auth = authManager ?? AuthenticationManager(profile: profile)
         let storage = storageManager ?? StorageManager()
+        let cache = imageCache ?? ImageCache()
         self.authManager = auth
         self.profileManager = profile
+        self.imageCache = cache
         self.storageManager = storage
-        self.userStore = CurrentUserStore(auth: auth, profile: profile)
+        self.userStore = CurrentUserStore(auth: auth, profile: profile, imageCache: cache)
         if let manager = profile as? ProfileManager {
             manager.userStore = self.userStore
         }
     }
-
 }
 
 private struct AppDependenciesKey: EnvironmentKey {
