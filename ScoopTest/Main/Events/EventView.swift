@@ -14,9 +14,9 @@ struct EventView: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-    let profileImage = "Image Place Holder"
+    let profileImage = "ImagePlaceolder"
     
-    let name = "Meeting Name Placeholder Here"
+    let name = "MeetingNamePlaceholderHere"
     
     @State var showEventDetails: Bool = false
     
@@ -79,7 +79,7 @@ extension EventView {
     
     private var imageView: some View {
         
-        Image(profileImage)
+        Image("CoolGuys")
             .resizable()
             .scaledToFit()
             .clipShape(Circle())

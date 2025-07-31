@@ -20,7 +20,6 @@ struct ProfileImageView: View {
         
         GeometryReader { geo in
             TabView(selection: $vm.imageSelection) {
-                
                 if let urlString = stringURLs {
                     let size = geo.size.width - 24
                         ForEach (urlString.indices, id: \.self) {index in
@@ -34,7 +33,6 @@ struct ProfileImageView: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(width: geo.size.width, height: 430)
-            
         }
     }
 }

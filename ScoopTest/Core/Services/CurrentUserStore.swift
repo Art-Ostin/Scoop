@@ -28,13 +28,10 @@ class CurrentUserStore {
         await MainActor.run {
             self.user = profile
         }
-        let converted = profile.imagePathURL?.map { url in
-            if url.contains("_1350x1350") { return url }
-            return url.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
-        } ?? []
-        let urls = converted.compactMap { URL(string: $0 as! String) }
+        let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
         Task { await imageCache.prefetch(urls: urls) }
     }
+    
     func clearUser() {
         user = nil
     }

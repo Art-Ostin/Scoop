@@ -14,22 +14,22 @@ struct MeetTest: View {
     
     @State var showProfile: Bool = false
     
-    @State var randomProfile: UserProfile?
+    @State var randomProfile: [UserProfile?] = [nil]
     
     
     var body: some View {
         
         VStack {
-            Button("Show Profile") {
-                showProfile = true
-            }
+
+                Button("showProfile") {
+                    showProfile.toggle()
+                }
         }
         .task {
-            randomProfile = try? await dependencies.profileManager.getRandomProfile()
+            randomProfile = try! await dependencies.profileManager.getRandomProfile()
         }
-        
         .fullScreenCover(isPresented: $showProfile) {
-            if let randomProfile = randomProfile {
+            if let randomProfile = randomProfile[0] {
                 ProfileView(profile: randomProfile)
             }
         }

@@ -37,7 +37,6 @@ struct MatchesView: View {
                     
                     ActionButton(text: "Sign Out") {
                         try? dependencies.authManager.signOutUser()
-                        dependencies.userStore.clearUser()
                         showLogin = true
                     }
                 }

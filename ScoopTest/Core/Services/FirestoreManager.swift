@@ -13,7 +13,6 @@ import SwiftUI
 
 @Observable final class ProfileManager: ProfileManaging {
     
-    
     var userStore: CurrentUserStore?
 
        init(userStore: CurrentUserStore? = nil) {
@@ -70,11 +69,10 @@ import SwiftUI
     }
     
     
-    func getRandomProfile() async throws -> UserProfile? {
+    func getRandomProfile() async throws -> [UserProfile?] {
         let snapshot = try await userCollection.getDocuments()
-        let profiles = try snapshot.documents.compactMap { document -> UserProfile? in
-            try document.data(as: UserProfile.self)
+        let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)
         }
-        return profiles.randomElement()
+        return [(profiles.randomElement()),(profiles.randomElement())]
     }
 }
