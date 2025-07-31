@@ -58,9 +58,7 @@ struct MatchesView: View {
                 }
             }
             .fullScreenCover(isPresented: $showProfileView, content: {
-                if let user = dependencies.userStore.user {
-                    ProfileView(profile: user)
-                }
+                    EditProfileContainer()
             })
         }
     }

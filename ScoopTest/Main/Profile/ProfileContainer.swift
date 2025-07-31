@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 import Foundation
 
 @Observable class ProfileViewModel {
@@ -22,8 +16,6 @@ import Foundation
     }
     
 }
-
-
 
 import SwiftUI
 

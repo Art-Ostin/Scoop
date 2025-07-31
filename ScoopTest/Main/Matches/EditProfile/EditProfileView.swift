@@ -28,12 +28,12 @@ struct EditProfileView: View {
                     YearsView()
                 }
             }
-            .navigationTitle("Profile")
+            .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden()
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { NavButton(.down)}
+                ToolbarItem(placement: .topBarTrailing) { NavButton(.down)}
             }
             .task {
                try? await dep.userStore.loadUser()

@@ -14,33 +14,33 @@ struct EditProfileButton: View {
     var body: some View {
         
         Group {
+            
             if isView {
-                Image("Image1")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 25, height: 25)
-                    .clipShape(Circle())
-                
                 HStack {
                     
-                    Text("Edit")
-                        .font(.body(14, .bold))
-                    
-                    NavButton(.right, 14, disabled: true)
+                    HStack {
+                        
+                        Text("Edit")
+                            .font(.body(14, .bold))
+                        
+                        Image(systemName: "chevron.right")
+                    }
                 }
             } else {
                 HStack {
                     HStack {
-                        NavButton(.back, 14, disabled: true)
+                        
+                        Image(systemName: "chevron.left")
 
                         Text("View" )
                             .font(.body(14, .bold))
+                        
+                        Image("Image1")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
+                            .clipShape(Circle())
                     }
-                    Image("Image1")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 25, height: 25)
-                        .clipShape(Circle())
                 }
             }
         }

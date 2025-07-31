@@ -14,14 +14,18 @@ struct AppContainer: View {
     
     var body: some View {
         
+        
+        
+        
         TabView (selection: $selection) {
             
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    MeetContainer()
-                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                        .toolbarBackground(Color.background, for: .tabBar)
+                    MeetTest()                    
+//                    MeetContainer()
+//                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+//                        .toolbarBackground(Color.background, for: .tabBar)
                 }
             }
             

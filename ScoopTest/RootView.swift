@@ -21,7 +21,6 @@ struct RootView : View {
             } else  {
                 LoginContainer(showLogin: $showLogin)
                     .appDependencies(dependencies)
-
                     .transition(.move(edge: .bottom))
             }
         }.task {
