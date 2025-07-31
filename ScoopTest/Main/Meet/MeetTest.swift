@@ -14,37 +14,37 @@ struct MeetTest: View {
     
     @State var showProfile: Bool = false
     @State var showProfile2: Bool = false
-
     
-    @State var randomProfile: [UserProfile] = []
+    
+    @State var randomProfiles: [UserProfile] = []
+    
+    @State var selectedProfile: UserProfile? = nil
+    
     
     
     var body: some View {
         
         VStack {
             Button("showProfile") {
-                showProfile.toggle()
+                if randomProfiles.count > 0 {
+                    selectedProfile = randomProfiles[0]
+                }
             }
             
-            Button("showProfile") {
-                showProfile2.toggle()
+
+            Button("showProfile2") {
+                if randomProfiles.count > 0 {
+                    selectedProfile = randomProfiles[1]
+                }
             }
-            
-            
         }
         .task {
-            do {
-                randomProfile = try await dependencies.profileManager.getRandomProfile()
-            } catch {
-                print("failed to load:", error)
-            }
+                randomProfiles = try! await dependencies.profileManager.getRandomProfile()
         }
-        .fullScreenCover(isPresented: $showProfile) {
-            ProfileView(profile: randomProfile[0])
+        .fullScreenCover(item: $selectedProfile) { profile in
+            ProfileView(profile: profile)
         }
-        .fullScreenCover(isPresented: $showProfile2) {
-            ProfileView(profile: randomProfile[1])
-        }
+        
     }
 }
 

@@ -170,3 +170,7 @@ struct UserProfile: Codable {
         try container.encodeIfPresent(self.imagePathURL, forKey: .imagePathURL)
     }
 }
+
+extension UserProfile: Identifiable {
+    var id: String { userId }
+}

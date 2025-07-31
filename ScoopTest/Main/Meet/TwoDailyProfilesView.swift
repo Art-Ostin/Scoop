@@ -11,6 +11,13 @@ struct TwoDailyProfilesView: View {
     
     @State private var selection: Int = 0
     @Binding var state: MeetSections?
+    
+    
+    @State var UserProfiles: [UserProfile] = []
+    
+    @State var selectedUser: UserProfile? = nil
+    
+
     @State private var name1 = "Adam"
     @State private var name2 = "John"
     @State private var Image1 = "ProfileMockA"
