@@ -22,10 +22,10 @@ struct AppContainer: View {
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    MeetTest()                    
-//                    MeetContainer()
-//                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
-//                        .toolbarBackground(Color.background, for: .tabBar)
+//                    MeetTest()                    
+                    MeetContainer()
+                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                        .toolbarBackground(Color.background, for: .tabBar)
                 }
             }
             

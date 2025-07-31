@@ -13,11 +13,9 @@ struct TwoDailyProfilesView: View {
     @Binding var state: MeetSections?
     
     
-    @State var UserProfiles: [UserProfile] = []
-    
-    @State var selectedUser: UserProfile? = nil
-    
-
+    let profile1: UserProfile
+    let profile2: UserProfile
+        
     @State private var name1 = "Adam"
     @State private var name2 = "John"
     @State private var Image1 = "ProfileMockA"
@@ -43,9 +41,9 @@ struct TwoDailyProfilesView: View {
 }
 
 
-#Preview {
-    TwoDailyProfilesView(state: .constant(.twoDailyProfiles))
-}
+//#Preview {
+//    TwoDailyProfilesView(state: .constant(.twoDailyProfiles))
+//}
 
 extension TwoDailyProfilesView {
     
@@ -70,13 +68,13 @@ extension TwoDailyProfilesView {
             
             // The Two Names
             HStack{
-                Text(name1)
+                Text(profile1.name ?? "")
                     .font(.title(16, selection == 0 ? .bold : .medium))
                     .foregroundStyle(selection == 0 ? Color.accent : Color.black)
                 
                 Spacer()
                 
-                Text(name2)
+                Text(profile2.name ?? "")
                     .font(.title(16, selection == 1 ? .bold : .medium))
                     .foregroundStyle(selection == 1 ? Color.accent : Color.black)
             }

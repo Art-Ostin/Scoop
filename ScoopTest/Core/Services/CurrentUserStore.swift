@@ -32,6 +32,13 @@ class CurrentUserStore {
         Task { await imageCache.prefetch(urls: urls) }
     }
     
+    func loadProfile(user: UserProfile) async throws {
+        
+        
+    }
+    
+    
+    
     func clearUser() {
         user = nil
     }
