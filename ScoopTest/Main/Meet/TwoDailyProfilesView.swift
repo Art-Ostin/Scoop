@@ -31,6 +31,7 @@ struct TwoDailyProfilesView: View {
             heading
             twoDailyProfiles
         }
+        
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
         .overlay(

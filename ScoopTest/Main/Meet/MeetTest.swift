@@ -10,18 +10,11 @@ import SwiftUI
 struct MeetTest: View {
     
     @Environment(\.appDependencies) private var dependencies
-    
-    
-    @State var showProfile: Bool = false
-    @State var showProfile2: Bool = false
-    
-    
+
     @State var randomProfiles: [UserProfile] = []
     
     @State var selectedProfile: UserProfile? = nil
-    
-    
-    
+        
     var body: some View {
         
         VStack {
@@ -30,6 +23,11 @@ struct MeetTest: View {
                     selectedProfile = randomProfiles[0]
                 }
             }
+            
+            if !randomProfiles.isEmpty {
+                Text(randomProfiles[0].name ?? "")
+            }
+            
             
 
             Button("showProfile2") {
