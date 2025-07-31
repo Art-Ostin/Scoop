@@ -35,7 +35,6 @@ extension EventType {
     }
 }
 
-
 struct Event {
 
     var profile: UserProfile

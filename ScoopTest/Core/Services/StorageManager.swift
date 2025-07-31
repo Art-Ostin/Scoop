@@ -18,12 +18,6 @@ import SwiftUI
     
     private let storage = Storage.storage().reference()
     
-    private let resizedSuffix = "_1350x1350"
-    
-    private func resizedPath(for path: String) -> String {
-        path.replacingOccurrences(of: ".jpeg", with: "\(resizedSuffix).jpeg")
-    }
-    
     private func userReference(userId: String) -> StorageReference {
         storage.child("users").child(userId)
     }
@@ -33,12 +27,11 @@ import SwiftUI
     }
     
     func getUrlForImage(path: String) async throws -> URL {
-        let path = resizedPath(for: path)
-        return try await getPath(path: path).downloadURL()
+        try await getPath(path: path).downloadURL()
     }
     
     func saveImage(userId: String, data: Data) async throws -> String {
-        let filename = "\(UUID().uuidString).jpeg"
+        let filename = "\(UUID().uuidString)_1350x1350.jpeg"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         let result = try await userReference(userId: userId).child(filename).putDataAsync(data, metadata: meta)
@@ -47,8 +40,7 @@ import SwiftUI
     }
     
     func getData(userId: String, path: String) async throws -> Data  {
-        let path = resizedPath(for: path)
-        return try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
+        try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
     }
     
     func getImage(userId: String, path: String) async throws -> UIImage {
@@ -62,6 +54,5 @@ import SwiftUI
     func deleteImage(path: String) async throws {
         try await getPath(path: path).delete()
     }
-    
     
 }
