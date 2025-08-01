@@ -20,7 +20,6 @@ import Foundation
     
     var profile1: UserProfile?
     var profile2: UserProfile?
-
     
     let dateKey = "dailyProfilesDate"
     let profileKey = "dailyProfiles"
@@ -37,15 +36,38 @@ import Foundation
             self.state = .intro
         }
     }
-
+    
+    
+    var timeRemaining: String = "Hello World"
+    
+    
     var state: MeetSections?
+    
+    
+    
+    func updateTime() {
+        let futureDate: Date = defaults.object(forKey: "dailyProfilesDate") as? Date ?? Date()
+        
+        let remaining = Calendar.current.dateComponents([.hour, .minute, .second], from: futureDate)
+        
+        
+        let hour = remaining.hour ?? 0
+        let minute = remaining.minute ?? 0
+        let second = remaining.second ?? 0
+        
+        timeRemaining = String(format: "%02d:%02d:%02d", hour, minute, second)
+    }
+    
+    
     
     func updateState(_ state:MeetSections) {
         switch state {
         case .twoDailyProfiles:
             defaults.set(true, forKey: showProfilesKey)
+            self.state = .twoDailyProfiles
         case .intro:
             defaults.set(false, forKey: showProfilesKey)
+            self.state = .intro
         default: break
         }
     }

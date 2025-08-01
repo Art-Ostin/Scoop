@@ -72,7 +72,7 @@ import SwiftUI
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()
         let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)
-        }
+    }
         
         
         

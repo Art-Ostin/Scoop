@@ -14,10 +14,15 @@ struct DailyProfiles: View {
     private var selectionBinding: Binding<Int> {
         Binding(get: { vm?.selection ?? 0 }, set: { vm?.selection = $0 })
     }
+    let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+    
     
     var body: some View {
         
         VStack(spacing: 36) {
+            
+            Text(vm?.timeRemaining ?? "")
+            
             MeetTitle()
             heading
             TabView(selection: selectionBinding) {
@@ -26,6 +31,9 @@ struct DailyProfiles: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
+        .onReceive(timer, perform: { _ in
+            vm?.updateTime()
+        })
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
         .overlay(

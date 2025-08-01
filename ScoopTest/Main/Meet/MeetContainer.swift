@@ -17,9 +17,7 @@ enum MeetSections {
 import SwiftUI
 
 struct MeetContainer: View {
-    
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-    
+        
     @State var vm: MeetUpViewModel?
     
     init(dep: AppDependencies) {
