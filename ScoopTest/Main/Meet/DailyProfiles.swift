@@ -13,7 +13,6 @@ import Foundation
     let profileManager: ProfileManaging
     let defaults: UserDefaults
     
-    var profiles: [UserProfile] = []
     
     var profile1: UserProfile?
     var profile2: UserProfile?    

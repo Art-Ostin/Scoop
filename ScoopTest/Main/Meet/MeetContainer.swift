@@ -12,17 +12,14 @@ struct MeetContainer: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
     
-
+    @State var vm: DailyProfilesStore
+    
+    init(dep: AppDependencies) {
+        self._vm = State(initialValue: DailyProfilesStore(userStore: dep.userStore, profileManager: dep.profileManager))
+    }
+    
     @State private var state: MeetSections? = MeetSections.intro
     
-    
-    @State var randomProfiles: [UserProfile] = []
-    
-    @State private var profile1: UserProfile?
-    @State private var profile2: UserProfile?
-    
-    
-        
     var body: some View {
         
         ZStack {
@@ -34,7 +31,7 @@ struct MeetContainer: View {
                 
             case .twoDailyProfiles:
                 
-                if let profile1, let profile2 {
+                if let profile1 = vm.profile1, let profile2 = vm.profile2 {
                     TwoDailyProfilesView(state: $state, profile1: profile1, profile2: profile2)
                 }
             case .profile:
@@ -46,13 +43,10 @@ struct MeetContainer: View {
 
         }.task {
             await dependencies.dailyProfiles.load()
-            let profiles = dependencies.dailyProfiles.profiles
-            profile1 = profiles[safe: 0]
-            profile2 = profiles[safe: 1]
         }
     }
 }
 
 #Preview {
-    MeetContainer()
+    MeetContainer(dep: AppDependencies())
 }

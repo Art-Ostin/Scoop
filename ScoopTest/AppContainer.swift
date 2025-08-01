@@ -9,21 +9,20 @@ import SwiftUI
 
 struct AppContainer: View {
     
+    @Environment(\.appDependencies) private var dependencies
+    
     @State var selection: Int = 0
     @Binding var showLogin: Bool
     
     var body: some View {
         
-        
-        
-        
+                
         TabView (selection: $selection) {
             
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-//                    MeetTest()                    
-                    MeetContainer()
+                    MeetContainer(dep: dependencies)
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
