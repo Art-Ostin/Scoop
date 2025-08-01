@@ -8,22 +8,28 @@
 import SwiftUI
 
 struct TwoDailyProfilesView: View {
-    
-    @State private var selection = 0
-    @Binding var vm: MeetUpViewModel
+        
+    @Binding var vm: MeetUpViewModel?
     
 
     var body: some View {
         
         VStack(spacing: 36) {
+            
             title
             heading
-            TabView(selection: $selection) {
-                profileImageTab(url: firstImageURL(for: vm.profile1))
+            TabView(selection: $vm.selection) {
+                profileImageTab(url: firstImageURL(for: vm?.profile1))
                     .tag(0)
+                    .onTapGesture {
+                        vm?.state = .profile1
+                    }
                 
-                profileImageTab(url: firstImageURL(for: vm.profile2))
+                profileImageTab(url: firstImageURL(for: vm?.profile2))
                     .tag(1)
+                    .onTapGesture {
+                        vm?.state = .profile2
+                    }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
@@ -57,31 +63,30 @@ extension TwoDailyProfilesView {
         VStack (spacing: 6){
             
             HStack{
-                Text(vm.profile1?.name ?? "")
-                    .font(.title(16, selection == 0 ? .bold : .medium))
-                    .foregroundStyle(selection == 0 ? Color.accent : Color.black)
+                Text(vm?.profile1?.name ?? "")
+                    .font(.title(16, vm?.selection == 0 ? .bold : .medium))
+                    .foregroundStyle(vm?.selection == 0 ? Color.accent : Color.black)
                 
                 Spacer()
                 
-                Text(vm.profile2?.name ?? "")
-                    .font(.title(16, selection == 1 ? .bold : .medium))
-                    .foregroundStyle(selection == 1 ? Color.accent : Color.black)
+                Text(vm?.profile2?.name ?? "")
+                    .font(.title(16, vm?.selection == 1 ? .bold : .medium))
+                    .foregroundStyle(vm?.selection == 1 ? Color.accent : Color.black)
             }
             .padding(.horizontal, 2)
             HStack {
-                if selection == 1 {
+                if vm?.selection == 1 {
                     Spacer()
                 }
                 Rectangle()
-                    .frame(width: selection == 0 ? 53 : 43, height: 1.6)
+                    .frame(width: vm?.selection == 0 ? 53 : 43, height: 1.6)
                     .foregroundStyle(Color.accentColor)
-                if selection == 0 {
+                if vm?.selection == 0 {
                     Spacer()
                 }
             }
         }
     }
-    
     
     @ViewBuilder private func profileImageTab(url: URL?) -> some View {
         if let url = url {

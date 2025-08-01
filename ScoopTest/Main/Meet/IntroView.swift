@@ -9,7 +9,7 @@ import SwiftUI
 
 struct IntroView: View {
     
-    @Binding var vm: MeetUpViewModel
+    @Binding var vm: MeetUpViewModel?
     
     let quote = quotes.shared.allQuotes.randomElement()!
     
@@ -18,7 +18,7 @@ struct IntroView: View {
         VStack (spacing: 156) {
                 title
                 quoteSection
-                ActionButton(text: "2 Daily Profiles", onTap: {vm.state = .twoDailyProfiles})
+                ActionButton(text: "2 Daily Profiles", onTap: {vm?.state = .twoDailyProfiles})
             }
             .padding(.horizontal, 32)
             .frame(maxHeight: .infinity, alignment: .top)

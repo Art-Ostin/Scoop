@@ -366,6 +366,7 @@
 				659496FD2E01DD4000880921 /* MeetContainer.swift */,
 				653770332E0862800058D225 /* IntroView.swift */,
 				659497002E01DD4000880921 /* TwoDailyProfilesView.swift */,
+				653770542E0A1E710058D225 /* Profile */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
 			path = Meet;
@@ -464,7 +465,6 @@
 		659497012E01DD4000880921 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				653770542E0A1E710058D225 /* Profile */,
 				6561C8D12E044638006A72DF /* Meet */,
 				6561C8D22E04464C006A72DF /* Events */,
 				6561C8D32E04465A006A72DF /* Matches */,
