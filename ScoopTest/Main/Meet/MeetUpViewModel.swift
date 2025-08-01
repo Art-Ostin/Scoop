@@ -13,7 +13,6 @@ import Foundation
     //Functionality of which Profile to Display
     var selection: Int = 0
     
-    
     let userStore: CurrentUserStore
     let profileManager: ProfileManaging
     let defaults: UserDefaults
@@ -21,7 +20,6 @@ import Foundation
     
     var profile1: UserProfile?
     var profile2: UserProfile?
-    var profiles: [UserProfile] { [profile1, profile2].compactMap { $0 } }
 
     
     let dateKey = "dailyProfilesDate"
@@ -33,13 +31,24 @@ import Foundation
         self.userStore = userStore
         self.profileManager = profileManager
         self.defaults = defaults
+        if defaults.bool(forKey: "showDailyProfiles") {
+            self.state = .twoDailyProfiles
+        } else {
+            self.state = .intro
+        }
     }
+
+    var state: MeetSections?
     
-    func updateState(_ state: MeetSections) {
-        
+    func updateState(_ state:MeetSections) {
+        switch state {
+        case .twoDailyProfiles:
+            defaults.set(true, forKey: showProfilesKey)
+        case .intro:
+            defaults.set(false, forKey: showProfilesKey)
+        default: break
+        }
     }
-    
-    var state: MeetSections? = MeetSections.intro
     
     //Functionality to load the TwoDailyProfiles
     func load () async {
@@ -49,6 +58,7 @@ import Foundation
            let stored = try? JSONDecoder().decode([UserProfile].self, from: data) {
             await assignProfiles(stored)
         } else {
+            self.state = .twoDailyProfiles
             await refresh()
         }
     }
@@ -61,6 +71,8 @@ import Foundation
                 defaults.set(data, forKey: profileKey)
                 defaults.set(Date(), forKey: dateKey)
             }
+            defaults.set(false, forKey: showProfilesKey)
+            await MainActor.run { self.state = .intro }
         } catch {
             print("Error")
         }

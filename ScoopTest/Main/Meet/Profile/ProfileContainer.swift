@@ -79,7 +79,7 @@ extension ProfileView {
                 .font(.body(20, .bold))
                 .onTapGesture {
                     if vm2?.state != nil {
-                        vm2?.state = .twoDailyProfiles
+                        vm2?.updateState(.twoDailyProfiles)
                     } else {
                         dismiss()
                     }
