@@ -14,19 +14,34 @@ enum MeetSections {
     case profile
 }
 
-
-@Observable class MeetViewModel {
-    
-    var mode: MeetSections = .intro
-    
-    let p1: UserProfile
-    let p2: UserProfile
-    
-    init(p1: UserProfile, p2: UserProfile) {
-        self.p1 = p1
-        self.p2 = p2
-    }
-    
-    func theHello() { print("Hello World")}
-    
-}
+//
+//@Observable class MeetContainerViewModel {
+//    
+//    
+//    var meetSection: MeetSections = .intro
+//    
+//    let dailyProfiles: DailyProfilesStore
+//    let userStore: CurrentUserStore
+//    
+//    
+//    var profiles: [ProfileViewModel] = []
+//    
+//    var profile1: UserProfile?
+//    var profile2: UserProfile?
+//    
+//    
+//    init(profileManager: ProfileManaging, userStore: CurrentUserStore) {
+//        self.dailyProfiles = profileManager
+//        self.userStore = userStore
+//    }
+//    
+//    func loadProfiles() async {
+//        profiles = dailyProfiles.load
+//        
+//        
+//    }
+//    
+//    
+//    
+//    
+//}

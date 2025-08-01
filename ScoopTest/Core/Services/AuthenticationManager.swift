@@ -30,8 +30,14 @@ struct AuthenticatedUser {
         self.profile = profile
     }
     
+    //MOTHER FUNCTION 1  (Change the wording so its specific to the authenticated user) --
     func createUser(email: String, password: String ) async throws {
+        
+        //Need logic from will here to actually verify the user -- before create user function is called.
+        
+        //This is calling the function that creates the authenticated User.
         let authUser = try await Auth.auth().createUser(withEmail: email, password: password)
+        
         
         let profileUser = UserProfile(auth: authUser)
         try await profile.createProfile(profile: profileUser)

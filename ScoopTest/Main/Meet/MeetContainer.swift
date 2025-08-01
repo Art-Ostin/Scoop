@@ -22,7 +22,6 @@ struct MeetContainer: View {
     @State private var profile2: UserProfile?
     
     
-    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
         
     var body: some View {
         
@@ -44,23 +43,12 @@ struct MeetContainer: View {
                 }
             default: EmptyView()
             }
-        }
-        .onReceive(timer) {_ in
-                Task {
-                    do {
-                        randomProfiles = try await dependencies.profileManager.getRandomProfile()
-                        profile1 = randomProfiles[safe: 0]
-                        profile2 = randomProfiles[safe: 1]
-                        if let profile1 = profile1 {
-                            try? await dependencies.userStore.loadProfile(profile1)
-                        }
-                        if let profile2 = profile2 {
-                            try? await dependencies.userStore.loadProfile(profile2)
-                        }
-                    } catch {
-                        print("Error Loading")
-                    }
-                }
+
+        }.task {
+            await dependencies.dailyProfiles.load()
+            let profiles = dependencies.dailyProfiles.profiles
+            profile1 = profiles[safe: 0]
+            profile2 = profiles[safe: 1]
         }
     }
 }
