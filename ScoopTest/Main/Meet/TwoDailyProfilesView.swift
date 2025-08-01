@@ -11,14 +11,16 @@ struct TwoDailyProfilesView: View {
         
     @Binding var vm: MeetUpViewModel?
     
-
+    private var selectionBinding: Binding<Int> {
+        Binding(get: { vm?.selection ?? 0 }, set: { vm?.selection = $0 })
+    }
+    
     var body: some View {
         
         VStack(spacing: 36) {
-            
             title
             heading
-            TabView(selection: $vm.selection) {
+            TabView(selection: selectionBinding) {
                 profileImageTab(url: firstImageURL(for: vm?.profile1))
                     .tag(0)
                     .onTapGesture {
