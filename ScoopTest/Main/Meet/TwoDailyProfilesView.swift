@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TwoDailyProfilesView: View {
     
-    @State private var selection: Int = 0
+    @State private var selection = 0
     @Binding var state: MeetSections?
     
     let profile1: UserProfile
@@ -20,13 +20,11 @@ struct TwoDailyProfilesView: View {
         VStack(spacing: 36) {
             title
             heading
-            TabView {
-                Group { profileImageTab(url: profile1.imagePathURL?.first.flatMap(URL.init(string:)))}.tag(0)
-                Group { profileImageTab(url: profile2.imagePathURL?.first.flatMap(URL.init(string:)))}.tag(1)
+            TabView(selection: $selection) {
+                profileImageTab(url: firstImageURL(for: profile1)).tag(0)
+                profileImageTab(url: firstImageURL(for: profile2)).tag(1)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-
-            
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
@@ -37,11 +35,6 @@ struct TwoDailyProfilesView: View {
             )
     }
 }
-
-
-//#Preview {
-//    TwoDailyProfilesView(state: .constant(.twoDailyProfiles))
-//}
 
 extension TwoDailyProfilesView {
     
@@ -57,7 +50,7 @@ extension TwoDailyProfilesView {
         }
         .padding(.top, 48)
     }
-        
+    
     private var heading: some View {
         
         VStack (spacing: 6){
@@ -107,49 +100,8 @@ extension TwoDailyProfilesView {
             }
         }
     }
-
     
-//    
-//    @ViewBuilder private var twoDailyProfiles: some View {
-//        
-//        TabView(selection: $selection) {
-//            Group {
-//                if let url1 = profile1.imagePathURL?.first.flatMap(URL.init(string:)) {
-//                    CachedAsyncImage(url: url1) { Image in
-//                        Image
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: 320, height: 422)
-//                            .clipped()
-//                            .clipShape(RoundedRectangle(cornerRadius: 10))
-//                            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-//                    } placeholder: {
-//                        ProgressView()
-//                    }
-//                }
-//            }
-//            .tag(0)
-//            
-//            Group {
-//                if let url2 = profile2.imagePathURL?.first.flatMap(URL.init(string:)) {
-//                    CachedAsyncImage(url: url2) { Image in
-//                        Image
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: 320, height: 422)
-//                            .clipped()
-//                            .clipShape(RoundedRectangle(cornerRadius: 10))
-//                            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-//
-//                    } placeholder: {
-//                        ProgressView()
-//                    }
-//                }
-//            }
-//            .tag (1)
-//        }
-//        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-//    }
+    private func firstImageURL(for profile: UserProfile) -> URL? {
+        profile.imagePathURL?.first.flatMap(URL.init(string:))
+    }
 }
-
-
