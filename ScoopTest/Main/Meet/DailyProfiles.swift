@@ -14,6 +14,7 @@ struct DailyProfiles: View {
     private var selectionBinding: Binding<Int> {
         Binding(get: { vm?.selection ?? 0 }, set: { vm?.selection = $0 })
     }
+    
     let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     
     
@@ -75,7 +76,6 @@ extension DailyProfiles {
             }
         }
     }
-    
     
     @ViewBuilder private func profileTab(for profile: UserProfile?, tag: Int) -> some View {
         if let url = firstImageURL(for: profile) {

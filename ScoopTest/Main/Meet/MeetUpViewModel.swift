@@ -48,9 +48,7 @@ import Foundation
     func updateTime() {
         let futureDate: Date = defaults.object(forKey: "dailyProfilesDate") as? Date ?? Date()
         
-        let remaining = Calendar.current.dateComponents([.hour, .minute, .second], from: futureDate)
-        
-        
+        let remaining = Calendar.current.dateComponents([.hour, .minute, .second], from: Date(), to: futureDate)
         let hour = remaining.hour ?? 0
         let minute = remaining.minute ?? 0
         let second = remaining.second ?? 0

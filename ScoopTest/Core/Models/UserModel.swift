@@ -136,8 +136,8 @@ struct UserProfile: Codable {
         self.character = try container.decodeIfPresent([String].self, forKey: .character)
         self.imagePath = try container.decodeIfPresent([String].self, forKey: .imagePath)
         self.imagePathURL = try container.decodeIfPresent([String].self, forKey: .imagePathURL)
-
     }
+    
     
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
