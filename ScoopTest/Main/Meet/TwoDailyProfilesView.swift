@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TwoDailyProfilesView: View {
+struct DailyProfiles: View {
         
     @Binding var vm: MeetUpViewModel?
     
@@ -18,20 +18,11 @@ struct TwoDailyProfilesView: View {
     var body: some View {
         
         VStack(spacing: 36) {
-            title
+            MeetTitle()
             heading
             TabView(selection: selectionBinding) {
-                profileImageTab(url: firstImageURL(for: vm?.profile1))
-                    .tag(0)
-                    .onTapGesture {
-                        vm?.state = .profile1
-                    }
-                
-                profileImageTab(url: firstImageURL(for: vm?.profile2))
-                    .tag(1)
-                    .onTapGesture {
-                        vm?.state = .profile2
-                    }
+                profileTab(for: vm?.profile1, tag: 0)
+                profileTab(for: vm?.profile2, tag: 1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
@@ -45,20 +36,7 @@ struct TwoDailyProfilesView: View {
     }
 }
 
-extension TwoDailyProfilesView {
-    
-    private var title: some View {
-        HStack{
-            Text("Meet")
-                .font(.title())
-            Spacer()
-            
-            Image(systemName: "magnifyingglass")
-                .resizable()
-                .frame(width: 20, height: 20)
-        }
-        .padding(.top, 48)
-    }
+extension DailyProfiles {
     
     private var heading: some View {
         
@@ -90,23 +68,51 @@ extension TwoDailyProfilesView {
         }
     }
     
-    @ViewBuilder private func profileImageTab(url: URL?) -> some View {
-        if let url = url {
-            CachedAsyncImage(url: url) { Image in
-                Image
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 320, height: 422)
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-            } placeholder: {
-                ProgressView()
-            }
+    
+    @ViewBuilder private func profileTab(for profile: UserProfile?, tag: Int) -> some View {
+        if let url = firstImageURL(for: profile) {
+            profileImage(url: url)
+                .tag(tag)
+                .onTapGesture {
+                    if tag == 0 {
+                        if let profile = self.vm?.profile1 { self.vm?.state = .profile(profile) }
+                    }
+                    if tag == 1 {
+                        if let profile = self.vm?.profile2 { self.vm?.state = .profile(profile) }
+                    }
+                }
+        }
+    }
+    
+    private func profileImage(url: URL) -> some View {
+        CachedAsyncImage(url: url) { image in
+            image
+                .resizable()
+                .scaledToFill()
+                .frame(width: 320, height: 422)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+        } placeholder: {
+            ProgressView()
         }
     }
     
     private func firstImageURL(for profile: UserProfile?) -> URL? {
         profile?.imagePathURL?.first.flatMap(URL.init(string:))
+    }
+}
+
+struct MeetTitle: View {
+    var body: some View {
+        HStack {
+            Text("Meet")
+                .font(.title())
+            Spacer()
+            Image(systemName: "magnifyingglass")
+                .resizable()
+                .frame(width: 20, height: 20)
+        }
+        .padding(.top, 48)
     }
 }

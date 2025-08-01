@@ -16,7 +16,7 @@ struct IntroView: View {
     var body: some View {
 
         VStack (spacing: 156) {
-                title
+                MeetTitle()
                 quoteSection
                 ActionButton(text: "2 Daily Profiles", onTap: {vm?.state = .twoDailyProfiles})
             }
@@ -26,28 +26,12 @@ struct IntroView: View {
                 Image("NightImages")
                     .padding(.bottom, 84),
                 alignment: .bottom
-                )
+            )
     }
 }
 
-//#Preview {
-//    IntroView(state: .constant(.intro))
-//}
 
 extension IntroView {
-    
-    private var title: some View {
-        HStack{
-            Text("Meet")
-                .font(.title())
-            Spacer()
-            
-            Image(systemName: "magnifyingglass")
-                .resizable()
-                .frame(width: 20, height: 20)
-        }
-        .padding(.top, 48)
-    }
     
     private var quoteSection: some View {
         VStack(spacing: 36) {
