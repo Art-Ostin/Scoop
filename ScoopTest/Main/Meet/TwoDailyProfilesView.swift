@@ -10,21 +10,19 @@ import SwiftUI
 struct TwoDailyProfilesView: View {
     
     @State private var selection = 0
-    @Binding var state: MeetSections?
+    @Binding var vm: MeetUpViewModel
     
-    let profile1: UserProfile
-    let profile2: UserProfile
-    
+
     var body: some View {
         
         VStack(spacing: 36) {
             title
             heading
             TabView(selection: $selection) {
-                profileImageTab(url: firstImageURL(for: profile1))
+                profileImageTab(url: firstImageURL(for: vm.profile1))
                     .tag(0)
                 
-                profileImageTab(url: firstImageURL(for: profile2))
+                profileImageTab(url: firstImageURL(for: vm.profile2))
                     .tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -59,13 +57,13 @@ extension TwoDailyProfilesView {
         VStack (spacing: 6){
             
             HStack{
-                Text(profile1.name ?? "")
+                Text(vm.profile1?.name ?? "")
                     .font(.title(16, selection == 0 ? .bold : .medium))
                     .foregroundStyle(selection == 0 ? Color.accent : Color.black)
                 
                 Spacer()
                 
-                Text(profile2.name ?? "")
+                Text(vm.profile2?.name ?? "")
                     .font(.title(16, selection == 1 ? .bold : .medium))
                     .foregroundStyle(selection == 1 ? Color.accent : Color.black)
             }
@@ -101,7 +99,7 @@ extension TwoDailyProfilesView {
         }
     }
     
-    private func firstImageURL(for profile: UserProfile) -> URL? {
-        profile.imagePathURL?.first.flatMap(URL.init(string:))
+    private func firstImageURL(for profile: UserProfile?) -> URL? {
+        profile?.imagePathURL?.first.flatMap(URL.init(string:))
     }
 }

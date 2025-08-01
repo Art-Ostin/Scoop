@@ -9,16 +9,16 @@ import SwiftUI
 
 struct IntroView: View {
     
-    @Binding var state: MeetSections?
+    @Binding var vm: MeetUpViewModel
     
     let quote = quotes.shared.allQuotes.randomElement()!
     
     var body: some View {
 
-            VStack (spacing: 156) {
+        VStack (spacing: 156) {
                 title
                 quoteSection
-                ActionButton(text: "2 Daily Profiles", onTap: {state = .twoDailyProfiles})
+                ActionButton(text: "2 Daily Profiles", onTap: {vm.state = .twoDailyProfiles})
             }
             .padding(.horizontal, 32)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -30,9 +30,9 @@ struct IntroView: View {
     }
 }
 
-#Preview {
-    IntroView(state: .constant(.intro))
-}
+//#Preview {
+//    IntroView(state: .constant(.intro))
+//}
 
 extension IntroView {
     

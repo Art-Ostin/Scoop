@@ -7,7 +7,7 @@
 
 import Foundation
 
-@Observable class DailyProfilesStore {
+@Observable class MeetUpViewModel {
 
     let userStore: CurrentUserStore
     let profileManager: ProfileManaging
@@ -25,6 +25,18 @@ import Foundation
         self.profileManager = profileManager
         self.defaults = defaults
     }
+
+    var state: MeetSections? = MeetSections.intro
+
+    
+    
+    
+    
+    
+    
+    
+    
+    //Functionality to load the TwoDailyProfiles
     
     func load () async {
         if let data = defaults.data(forKey: profileKey),
