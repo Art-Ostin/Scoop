@@ -40,7 +40,6 @@ struct MeetContainer: View {
                 if let profile1, let profile2 {
                     TwoDailyProfilesView(state: $state, profile1: profile1, profile2: profile2)
                 }
-                
             case .profile:
                 if let profile = dependencies.userStore.user {
                     ProfileView(profile: profile, state: $state)
@@ -53,6 +52,12 @@ struct MeetContainer: View {
                 randomProfiles = try await dependencies.profileManager.getRandomProfile()
                 profile1 = randomProfiles[safe: 0]
                 profile2 = randomProfiles[safe: 1]
+                if let profile1 = profile1 {
+                    try? await dependencies.userStore.loadProfile(profile1)
+                }
+                if let profile2 = profile2 {
+                    try? await dependencies.userStore.loadProfile(profile2)
+                }
             } catch {
                 print("Error Loading")
             }

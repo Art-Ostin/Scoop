@@ -12,24 +12,22 @@ struct TwoDailyProfilesView: View {
     @State private var selection: Int = 0
     @Binding var state: MeetSections?
     
-    
     let profile1: UserProfile
     let profile2: UserProfile
-        
-    @State private var name1 = "Adam"
-    @State private var name2 = "John"
-    @State private var Image1 = "ProfileMockA"
-    @State private var Image2 = "ProfileMockB"
-    
     
     var body: some View {
         
         VStack(spacing: 36) {
             title
             heading
-            twoDailyProfiles
+            TabView {
+                Group { profileImageTab(url: profile1.imagePathURL?.first.flatMap(URL.init(string:)))}.tag(0)
+                Group { profileImageTab(url: profile2.imagePathURL?.first.flatMap(URL.init(string:)))}.tag(1)
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+
+            
         }
-        
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
         .overlay(
@@ -59,9 +57,7 @@ extension TwoDailyProfilesView {
         }
         .padding(.top, 48)
     }
-    
-    
-    
+        
     private var heading: some View {
         
         VStack (spacing: 6){
@@ -96,26 +92,64 @@ extension TwoDailyProfilesView {
     }
     
     
-    private var twoDailyProfiles: some View {
-        
-        TabView(selection: $selection) {
-                Image(Image1)
-                    .ignoresSafeArea(.all)
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .tag (0)
-                    .onTapGesture {
-                        state = .profile
-                    }
-
-                Image(Image2)
-                    .ignoresSafeArea(.all)
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .tag (1)
-                    .onTapGesture {
-                        state = .profile
-                    }
-            
+    @ViewBuilder private func profileImageTab(url: URL?) -> some View {
+        if let url = url {
+            CachedAsyncImage(url: url) { Image in
+                Image
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 320, height: 422)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+            } placeholder: {
+                ProgressView()
+            }
         }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
+
+    
+//    
+//    @ViewBuilder private var twoDailyProfiles: some View {
+//        
+//        TabView(selection: $selection) {
+//            Group {
+//                if let url1 = profile1.imagePathURL?.first.flatMap(URL.init(string:)) {
+//                    CachedAsyncImage(url: url1) { Image in
+//                        Image
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 320, height: 422)
+//                            .clipped()
+//                            .clipShape(RoundedRectangle(cornerRadius: 10))
+//                            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+//                    } placeholder: {
+//                        ProgressView()
+//                    }
+//                }
+//            }
+//            .tag(0)
+//            
+//            Group {
+//                if let url2 = profile2.imagePathURL?.first.flatMap(URL.init(string:)) {
+//                    CachedAsyncImage(url: url2) { Image in
+//                        Image
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 320, height: 422)
+//                            .clipped()
+//                            .clipShape(RoundedRectangle(cornerRadius: 10))
+//                            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+//
+//                    } placeholder: {
+//                        ProgressView()
+//                    }
+//                }
+//            }
+//            .tag (1)
+//        }
+//        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+//    }
 }
+
+

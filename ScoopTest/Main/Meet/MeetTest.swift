@@ -29,10 +29,7 @@ struct MeetTest: View {
                 }
                 
                 Text(profile1.name ?? "")
-                
             }
-                
-                
             Button("showProfile2") {
                 if randomProfiles.count > 0 {
                     selectedProfile = randomProfiles[1]

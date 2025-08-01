@@ -32,9 +32,9 @@ class CurrentUserStore {
         Task { await imageCache.prefetch(urls: urls) }
     }
     
-    func loadProfile(user: UserProfile) async throws {
-        
-        
+    func loadProfile(_ localProfile: UserProfile) async throws {
+        let urls = localProfile.imagePathURL?.compactMap { URL(string: $0) } ?? []
+        Task { await imageCache.prefetch(urls: urls) }
     }
     
     
