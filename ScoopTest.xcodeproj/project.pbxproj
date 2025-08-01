@@ -92,7 +92,6 @@
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
-		65BFE7A22E3CD58400B31A58 /* MeetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7A12E3CD58400B31A58 /* MeetViewModel.swift */; };
 		65BFE7B32E3CEE8E00B31A58 /* DailyProfiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7B22E3CEE8E00B31A58 /* DailyProfiles.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
 		65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820982E37C2720098CC36 /* OnboardingContainer.swift */; };
@@ -209,7 +208,6 @@
 		659497172E01DD4000880921 /* ScoopTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopTestApp.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
-		65BFE7A12E3CD58400B31A58 /* MeetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetViewModel.swift; sourceTree = "<group>"; };
 		65BFE7B22E3CEE8E00B31A58 /* DailyProfiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProfiles.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
 		65E820982E37C2720098CC36 /* OnboardingContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainer.swift; sourceTree = "<group>"; };
@@ -365,7 +363,6 @@
 			isa = PBXGroup;
 			children = (
 				65BFE7B22E3CEE8E00B31A58 /* DailyProfiles.swift */,
-				65BFE7A12E3CD58400B31A58 /* MeetViewModel.swift */,
 				659496FD2E01DD4000880921 /* MeetContainer.swift */,
 				653770332E0862800058D225 /* IntroView.swift */,
 				659497002E01DD4000880921 /* TwoDailyProfilesView.swift */,
@@ -742,7 +739,6 @@
 				653A78C42E15DBD80098747F /* MapView.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
 				654982B22E2D748B00CA335F /* LoginContainer.swift in Sources */,
-				65BFE7A22E3CD58400B31A58 /* MeetViewModel.swift in Sources */,
 				654C009B2E35689000FFD504 /* CurrentUserStore.swift in Sources */,
 				653BAFAD2E0C95AE00C1AB9E /* ProfileImageScroller.swift in Sources */,
 				653770342E0862800058D225 /* IntroView.swift in Sources */,

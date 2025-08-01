@@ -6,6 +6,14 @@
 //
 
 
+
+enum MeetSections {
+    case intro
+    case twoDailyProfiles
+    case profile
+}
+
+
 import SwiftUI
 
 struct MeetContainer: View {
@@ -30,7 +38,6 @@ struct MeetContainer: View {
                 IntroView(state: $state)
                 
             case .twoDailyProfiles:
-                
                 if let profile1 = vm.profile1, let profile2 = vm.profile2 {
                     TwoDailyProfilesView(state: $state, profile1: profile1, profile2: profile2)
                 }
@@ -42,7 +49,7 @@ struct MeetContainer: View {
             }
 
         }.task {
-            await dependencies.dailyProfiles.load()
+            await vm.load()
         }
     }
 }
@@ -50,3 +57,38 @@ struct MeetContainer: View {
 #Preview {
     MeetContainer(dep: AppDependencies())
 }
+
+
+
+//
+//@Observable class MeetContainerViewModel {
+//
+//
+//    var meetSection: MeetSections = .intro
+//
+//    let dailyProfiles: DailyProfilesStore
+//    let userStore: CurrentUserStore
+//
+//
+//    var profiles: [ProfileViewModel] = []
+//
+//    var profile1: UserProfile?
+//    var profile2: UserProfile?
+//
+//
+//    init(profileManager: ProfileManaging, userStore: CurrentUserStore) {
+//        self.dailyProfiles = profileManager
+//        self.userStore = userStore
+//    }
+//
+//    func loadProfiles() async {
+//        profiles = dailyProfiles.load
+//
+//
+//    }
+//
+//
+//
+//
+//}
+

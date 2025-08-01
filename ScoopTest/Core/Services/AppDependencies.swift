@@ -17,7 +17,6 @@ final class AppDependencies {
     let storageManager: StorageManaging
     let imageCache: ImageCaching
     let userStore: CurrentUserStore
-    let dailyProfiles: DailyProfilesStore
 
     
     init(
@@ -35,7 +34,6 @@ final class AppDependencies {
         self.imageCache = cache
         self.storageManager = storage
         self.userStore = CurrentUserStore(auth: auth, profile: profile, imageCache: cache)
-        self.dailyProfiles = DailyProfilesStore(userStore: self.userStore, profileManager: profile)
         if let manager = profile as? ProfileManager {
             manager.userStore = self.userStore
         }
