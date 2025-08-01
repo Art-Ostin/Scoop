@@ -21,8 +21,11 @@ struct TwoDailyProfilesView: View {
             title
             heading
             TabView(selection: $selection) {
-                profileImageTab(url: firstImageURL(for: profile1)).tag(0)
-                profileImageTab(url: firstImageURL(for: profile2)).tag(1)
+                profileImageTab(url: firstImageURL(for: profile1))
+                    .tag(0)
+                
+                profileImageTab(url: firstImageURL(for: profile2))
+                    .tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
@@ -55,7 +58,6 @@ extension TwoDailyProfilesView {
         
         VStack (spacing: 6){
             
-            // The Two Names
             HStack{
                 Text(profile1.name ?? "")
                     .font(.title(16, selection == 0 ? .bold : .medium))
@@ -68,8 +70,6 @@ extension TwoDailyProfilesView {
                     .foregroundStyle(selection == 1 ? Color.accent : Color.black)
             }
             .padding(.horizontal, 2)
-            
-            // The Underline Section
             HStack {
                 if selection == 1 {
                     Spacer()

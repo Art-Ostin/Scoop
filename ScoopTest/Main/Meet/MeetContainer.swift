@@ -6,25 +6,20 @@
 //
 
 
-enum MeetSections {
-    case intro
-    case twoDailyProfiles
-    case profile
-}
-
-
 import SwiftUI
 
 struct MeetContainer: View {
     
     @Environment(\.appDependencies) private var dependencies: AppDependencies
+    
 
     @State private var state: MeetSections? = MeetSections.intro
     
     @State var randomProfiles: [UserProfile] = []
     @State private var profile1: UserProfile?
     @State private var profile2: UserProfile?
-
+    
+    
     
     var body: some View {
         
