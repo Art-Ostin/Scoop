@@ -36,7 +36,7 @@ class CurrentUserStore {
         let urls = localProfile.imagePathURL?.compactMap { URL(string: $0) } ?? []
         Task { await imageCache.prefetch(urls: urls) }
     }
-    
+     
     
     
     func clearUser() {

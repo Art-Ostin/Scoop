@@ -74,6 +74,5 @@ import SwiftUI
         let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)
         }
         return Array(profiles.shuffled().prefix(2))
-        
 }
 }
