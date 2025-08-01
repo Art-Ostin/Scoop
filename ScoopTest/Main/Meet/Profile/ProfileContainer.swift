@@ -32,7 +32,6 @@ struct ProfileView: View {
         self._vm2 = vm2
     }
     
-    
     var body: some View {
         
         GeometryReader { _ in
@@ -79,7 +78,7 @@ extension ProfileView {
                 .font(.body(20, .bold))
                 .onTapGesture {
                     if vm2?.state != nil {
-                        vm2?.updateState(.twoDailyProfiles)
+                        vm2?.state = .twoDailyProfiles
                     } else {
                         dismiss()
                     }

@@ -18,7 +18,10 @@ struct IntroView: View {
         VStack (spacing: 156) {
                 MeetTitle()
                 quoteSection
-                ActionButton(text: "2 Daily Profiles", onTap: {vm?.updateState(.twoDailyProfiles)})
+            ActionButton(text: "2 Daily Profiles", onTap: {
+                vm?.updateState(.twoDailyProfiles)
+                vm?.state = .twoDailyProfiles
+            })
             }
             .padding(.horizontal, 32)
             .frame(maxHeight: .infinity, alignment: .top)
