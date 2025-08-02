@@ -57,7 +57,7 @@ struct ProfileView: View {
                     }
                     if vm.showInvite {
                         Rectangle()
-                            .fill(.regularMaterial)
+                            .fill(.thinMaterial)
                             .ignoresSafeArea()
                             .contentShape(Rectangle())
                             .onTapGesture {

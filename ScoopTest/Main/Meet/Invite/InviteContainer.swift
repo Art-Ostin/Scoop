@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 
+
 struct SendInviteView: View {
     
     @Bindable var ProfileViewModel: ProfileViewModel
@@ -51,10 +52,13 @@ struct SendInviteView: View {
             
             if showTypePopup {
                 SelectTypeView(typeDefaultOption: $typeDefaultOption, showTypePopup: $showTypePopup)
+                    .offset(y: 36)
             }
             
             if showTimePopup {
                 SelectTimeView(selectedTime: $selectedTime, showTimePopup: $showTimePopup)
+                    .offset(y: 156)
+                    .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
             }
         }
         .sheet(isPresented: $showMessageScreen) {

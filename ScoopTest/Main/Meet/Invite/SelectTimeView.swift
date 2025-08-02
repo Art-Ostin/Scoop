@@ -49,21 +49,12 @@ struct SelectTimeView: View {
             .onChange(of: hour) {updateSelectedTime() }
             .onChange(of: minute) {updateSelectedTime() }
             .onAppear { syncFromSelectedTime() }
-            
-            
-            Image(systemName: "checkmark")
-                .font(.body(.bold))
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .foregroundStyle(.accent)
-                .offset(y: -24)
-                .onTapGesture {
-                    showTimePopup.toggle()
-                }
+            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
             
         }
         .padding([.leading, .trailing], 32)
         .padding(.top, 24)
-        .frame(width: 335)
+        .frame(width: 325)
         .background(Color.background)
         .cornerRadius(30)
         .overlay (
@@ -171,3 +162,13 @@ struct InviteTimeSelector: View {
 #Preview {
     InviteTimeSelector(selectedTime: .constant(Date()))
 }
+
+
+//Image(systemName: "checkmark")
+//    .font(.body(.bold))
+//    .frame(maxWidth: .infinity, alignment: .trailing)
+//    .foregroundStyle(.accent)
+//    .offset(y: -24)
+//    .onTapGesture {
+//        showTimePopup.toggle()
+//    }

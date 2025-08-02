@@ -18,7 +18,6 @@ struct InviteTypeRowView: View {
     @Binding var showMessageScreen: Bool
 
     
-    
     var body: some View {
         
         let showTitle: Bool = typeInputText.isEmpty && typeDefaultOption.isEmpty
@@ -60,9 +59,7 @@ struct InviteTypeRowView: View {
             
             Image(showTitle ? "InviteType" : "EditButton")
                 .onTapGesture {
-                    withAnimation(.spring()){
                         showTypePopup.toggle()
-                    }
                 }
         }
     }

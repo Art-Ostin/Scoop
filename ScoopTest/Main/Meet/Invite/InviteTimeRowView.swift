@@ -34,10 +34,12 @@ struct InviteTimeRowView: View {
             Text(selectedTime == nil ? "Time" : formattedTime)
                 .font(font)
             Spacer()
-            Image("InviteTime")
-                .onTapGesture {
-                    showTimePopup.toggle()
-                }
+            if showTimePopup {Image(systemName: "chevron.down").font(.body(16, .bold))} else {
+                Image("InviteTime")
+                    .onTapGesture {
+                        showTimePopup.toggle()
+                    }
+            }
         }
     }
 }
