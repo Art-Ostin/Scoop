@@ -21,7 +21,6 @@ struct InviteTimeRowView: View {
             guard let date = selectedTime else {return "Time"}
             let formatter = DateFormatter()
             formatter.dateFormat = "E, MMM d – h:mm a"
-            
             return formatter.string(from: date)
         }()
         

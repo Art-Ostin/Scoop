@@ -27,6 +27,9 @@ struct SelectTimeView: View {
             DatePicker("Select a Time", selection: Binding(get: {selectedTime ?? Date()}, set: {selectedTime = $0}), displayedComponents: .hourAndMinute)
                 .datePickerStyle(WheelDatePickerStyle())
                 .foregroundStyle(.black)
+                .onAppear { UIDatePicker.appearance().minuteInterval = 15}
+            
+            
             
             Image(systemName: "checkmark")
                 .font(.body(.bold))
