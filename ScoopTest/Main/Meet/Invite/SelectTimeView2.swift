@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SelectTimeView2: View {
     
+    @Binding var vm: SendInviteViewModel
+    
     @State private var hour: Int = Calendar.current.component(.hour, from: Date())
     @State private var minute: Int = 0
     
@@ -19,11 +21,6 @@ struct SelectTimeView2: View {
 
     }
 }
-
-#Preview {
-    SelectTimeView2()
-}
-
 
 extension SelectTimeView2 {
     

@@ -62,7 +62,7 @@ struct SendInviteView: View {
                     .offset(y: 36)
             }
             if vm.showTimePopup {
-                SelectTimeView(vm: $vm)
+                SelectTimeView2(vm: $vm)
                     .offset(y: 156)
                     .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
             }
