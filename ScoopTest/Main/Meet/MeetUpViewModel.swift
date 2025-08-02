@@ -71,7 +71,6 @@ import Foundation
             await assignProfiles(fetched)
             if let data = try? JSONEncoder().encode(fetched) {
                 defaults.set(data, forKey: profileKey)
-                defaults.set(Date(), forKey: dateKey)
             }
             defaults.set(false, forKey: showProfilesKey)
             await MainActor.run { self.state = .intro }

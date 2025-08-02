@@ -45,7 +45,6 @@ struct DailyProfiles: View {
                 }
             }
         }
-        
         .overlay(
             Image("NightImages")
                 .padding(.bottom, 72),

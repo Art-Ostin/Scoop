@@ -19,6 +19,7 @@ struct IntroView: View {
                 MeetTitle()
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
+                UserDefaults.standard.set(Date(), forKey: "dailyProfilesDate")
                 vm?.updateState(.twoDailyProfiles)
                 vm?.state = .twoDailyProfiles
             })
