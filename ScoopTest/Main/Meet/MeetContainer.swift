@@ -18,7 +18,7 @@ import SwiftUI
 
 struct MeetContainer: View {
         
-    @State var vm: MeetUpViewModel?
+    @State var vm: MeetUpViewModel
     
     init(dep: AppDependencies) {
         self._vm = State(initialValue: MeetUpViewModel(userStore: dep.userStore, profileManager: dep.profileManager))
@@ -27,7 +27,7 @@ struct MeetContainer: View {
     var body: some View {
         
         ZStack {
-            switch vm?.state {
+            switch vm.state {
             case .intro:
                 IntroView(vm: $vm)
                 
@@ -39,7 +39,7 @@ struct MeetContainer: View {
             default: EmptyView()
             }
         }.task {
-            await vm?.load()
+            await vm.load()
         }
     }
 }

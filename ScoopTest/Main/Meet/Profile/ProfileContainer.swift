@@ -24,12 +24,13 @@ struct ProfileView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ProfileViewModel
-    @Binding var vm2: MeetUpViewModel?
+    
+    var vm2: Binding<MeetUpViewModel>?
     @State var isInviting: Bool = false
     
-    init(profile: UserProfile, vm2: Binding<MeetUpViewModel?> = .constant(nil)) {
+    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil) {
         self._vm = State(initialValue: ProfileViewModel(profile: profile))
-        self._vm2 = vm2
+        self.vm2 = vm2
     }
     
     
@@ -78,8 +79,8 @@ extension ProfileView {
             Image(systemName: "chevron.down")
                 .font(.body(20, .bold))
                 .onTapGesture {
-                    if vm2?.state != nil {
-                        vm2?.state = .twoDailyProfiles
+                    if let vm2 {
+                        vm2.wrappedValue.state = .twoDailyProfiles
                     } else {
                         dismiss()
                     }

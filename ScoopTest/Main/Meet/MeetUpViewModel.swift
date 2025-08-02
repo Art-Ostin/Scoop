@@ -47,10 +47,8 @@ import Foundation
                 await assignProfiles(stored)
                 await MainActor.run { self.state = .twoDailyProfiles }
             } else {
-                await refresh()
+                await MainActor.run { self.state = .intro }
             }
-        } else {
-            await MainActor.run { self.state = .intro }
         }
     }
     

@@ -9,11 +9,8 @@ import SwiftUI
 
 struct DailyProfiles: View {
         
-    @Binding var vm: MeetUpViewModel?
+    @Binding var vm: MeetUpViewModel
     
-    private var selectionBinding: Binding<Int> {
-        Binding(get: { vm?.selection ?? 0 }, set: { vm?.selection = $0 })
-    }
     
     @State var countdownVM = CountdownViewModel(dateKey: "dailyProfilesDate")
     
@@ -22,12 +19,11 @@ struct DailyProfiles: View {
         VStack(spacing: 36) {
             
             Text("\(countdownVM.hourRemaining):\(countdownVM.minuteRemaining):\(countdownVM.secondRemaining)")
-            
             MeetTitle()
             heading
-            TabView(selection: selectionBinding) {
-                profileTab(for: vm?.profile1, tag: 0)
-                profileTab(for: vm?.profile2, tag: 1)
+            TabView(selection: $vm.selection) {
+                profileTab(for: vm.profile1, tag: 0)
+                profileTab(for: vm.profile2, tag: 1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
@@ -35,10 +31,7 @@ struct DailyProfiles: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .onChange(of: countdownVM.secondRemaining) {
             if countdownVM.timeUp {
-                Task {
-                    await vm?.refresh()
-                    await MainActor.run { countdownVM.updateTimeRemaining() }
-                }
+                Task { vm.state = .intro }
             }
         }
         .overlay(
@@ -56,25 +49,25 @@ extension DailyProfiles {
         VStack (spacing: 6){
             
             HStack{
-                Text(vm?.profile1?.name ?? "")
-                    .font(.title(16, vm?.selection == 0 ? .bold : .medium))
-                    .foregroundStyle(vm?.selection == 0 ? Color.accent : Color.black)
+                Text(vm.profile1?.name ?? "")
+                    .font(.title(16, vm.selection == 0 ? .bold : .medium))
+                    .foregroundStyle(vm.selection == 0 ? Color.accent : Color.black)
                 
                 Spacer()
                 
-                Text(vm?.profile2?.name ?? "")
-                    .font(.title(16, vm?.selection == 1 ? .bold : .medium))
-                    .foregroundStyle(vm?.selection == 1 ? Color.accent : Color.black)
+                Text(vm.profile2?.name ?? "")
+                    .font(.title(16, vm.selection == 1 ? .bold : .medium))
+                    .foregroundStyle(vm.selection == 1 ? Color.accent : Color.black)
             }
             .padding(.horizontal, 2)
             HStack {
-                if vm?.selection == 1 {
+                if vm.selection == 1 {
                     Spacer()
                 }
                 Rectangle()
-                    .frame(width: vm?.selection == 0 ? 53 : 43, height: 1.6)
+                    .frame(width: vm.selection == 0 ? 53 : 43, height: 1.6)
                     .foregroundStyle(Color.accentColor)
-                if vm?.selection == 0 {
+                if vm.selection == 0 {
                     Spacer()
                 }
             }
@@ -85,7 +78,7 @@ extension DailyProfiles {
         if let profile, let url = firstImageURL(for: profile) {
             profileImage(url: url)
                 .tag(tag)
-                .onTapGesture { self.vm?.state = .profile(profile) }
+                .onTapGesture { self.vm.state = .profile(profile) }
         }
     }
     
