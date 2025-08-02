@@ -14,10 +14,18 @@ struct SelectTimeView2: View {
     @State private var hour: Int = Calendar.current.component(.hour, from: Date())
     @State private var minute: Int = 0
     
+    @State private var selectedDay: Int? = nil
+    
     var body: some View {
-
-
-
+        
+        DropDownMenu {
+            
+            
+            
+            SoftDivider()
+            
+            timePicker
+        }
 
     }
 }
@@ -25,6 +33,45 @@ struct SelectTimeView2: View {
 extension SelectTimeView2 {
     
     
+    
+    private var nextWeek: some View {
+        
+        
+        let nextSevenDays: [Date] = {
+            let calendar = Calendar.current
+            let today = Date()
+            return (0..<7).compactMap { offset in
+                calendar.date(byAdding: .day, value: offset, to: today)
+            }
+        }()
+        
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
+            ForEach(0..<7) { idx in
+                
+                let day = nextSevenDays[idx]
+                let today = Calendar.current.isDateInToday(day)
+                
+                
+                VStack(spacing: 24) {
+                    Text(day, format: .dateTime.weekday(.narrow))
+                        .font(.body(12, .bold))
+                    
+                    Text(day, format: .dateTime.day())
+                        .font(.body(18))
+                        .foregroundStyle(today && selectedDay != idx ? .blue : .black)
+                        .background (
+                            Circle()
+                                .fill(selectedDay == idx ? Color.accentColor.opacity(0.2) : .clear)
+                                .frame(width: 40, height: 50)
+                        )
+                        .onTapGesture {
+                            selectedDay = idx
+                            
+                        }
+                }
+            }
+        }
+    }
     
     private var timePicker: some View {
         HStack {
@@ -48,6 +95,16 @@ extension SelectTimeView2 {
     }
     
     private func updateTime() {
-        
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: vm.event.time ?? Date())
+        components.hour = hour
+        components.minute = minute
+        vm.event.time = Calendar.current.date(from: components)
     }
 }
+
+
+    
+    
+    
+    
+
