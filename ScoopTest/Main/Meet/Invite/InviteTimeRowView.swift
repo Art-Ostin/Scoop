@@ -9,9 +9,7 @@ import SwiftUI
 
 struct InviteTimeRowView: View {
     
-    
     @Binding var showTimePopup: Bool
-    
     @Binding var selectedTime: Date?
 
     
@@ -31,7 +29,7 @@ struct InviteTimeRowView: View {
                 return .body(18)
             }
         }
-        
+
         HStack {
             Text(selectedTime == nil ? "Time" : formattedTime)
                 .font(font)
@@ -40,10 +38,7 @@ struct InviteTimeRowView: View {
                 .onTapGesture {
                     showTimePopup.toggle()
                 }
-                
         }
-        
-        
     }
 }
 

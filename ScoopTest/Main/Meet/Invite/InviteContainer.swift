@@ -36,7 +36,6 @@ struct SendInviteView: View {
                     Divider()
                     
                     InviteTimeRowView(showTimePopup: $showTimePopup, selectedTime: $selectedTime)
-
                     
                     Divider()
                     
