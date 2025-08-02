@@ -11,7 +11,7 @@ import Foundation
 
     
     //Functionality of which Profile to Display
-    var selection: Int = 0
+    @ObservationIgnored var selection: Int = 0
     
     let userStore: CurrentUserStore
     let profileManager: ProfileManaging

@@ -19,7 +19,6 @@ struct IntroView: View {
                 MeetTitle()
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
-                vm.state = .twoDailyProfiles
                 Task { await vm.refresh() }
             })
             }
@@ -27,7 +26,8 @@ struct IntroView: View {
             .frame(maxHeight: .infinity, alignment: .top)
             .overlay(
                 Image("NightImages")
-                    .padding(.bottom, 84),
+                    .padding(.bottom, 84)
+                    .allowsHitTesting(false),
                 alignment: .bottom
             )
     }

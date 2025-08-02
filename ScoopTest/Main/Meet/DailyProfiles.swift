@@ -80,23 +80,19 @@ extension DailyProfiles {
     
     @ViewBuilder private func profileTab(for profile: UserProfile?, tag: Int) -> some View {
         if let profile, let url = firstImageURL(for: profile) {
-            profileImage(url: url)
-                .tag(tag)
-                .onTapGesture { self.vm.state = .profile(profile) }
-        }
-    }
-    
-    private func profileImage(url: URL) -> some View {
-        CachedAsyncImage(url: url) { image in
-            image
-                .resizable()
-                .scaledToFill()
-                .frame(width: 320, height: 422)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-        } placeholder: {
-            ProgressView()
+            CachedAsyncImage(url: url) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 320, height: 422)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+            } placeholder: {
+                ProgressView()
+            }
+            .tag(tag)
+            .onTapGesture { self.vm.state = .profile(profile) }
         }
     }
     
