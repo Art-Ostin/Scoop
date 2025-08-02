@@ -64,6 +64,7 @@ import Foundation
             defaults.set(Date(), forKey: dateKey)
             defaults.set(true, forKey: showProfilesKey)
             await MainActor.run {
+                self.state = .twoDailyProfiles
                 self.selection = 0
             }
         } catch {

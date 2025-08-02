@@ -32,8 +32,11 @@ struct DailyProfiles: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .onChange(of: countdownVM.secondRemaining) {
             if countdownVM.timeUp {
-                Task { vm.state = .intro }
+                 vm.state = .intro
             }
+        }
+        .onAppear {
+            if countdownVM.timeUp { vm.state = .intro }
         }
         .overlay(
             Image("NightImages")
