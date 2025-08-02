@@ -10,13 +10,12 @@ import SwiftUI
 
 struct SelectTimeView: View {
     
-    @Binding var selectedTime: Date?
-    
-    @Binding var showTimePopup: Bool
+    @Binding var vm: SendInviteViewModel
     
     @State private var hour: Int = Calendar.current.component(.hour, from: Date())
     @State private var minute: Int = 0
     private let minuteOptions = [0, 15, 30, 45]
+    
     
     
     var body: some View {
@@ -26,6 +25,7 @@ struct SelectTimeView: View {
             InviteTimeSelector(selectedTime: $selectedTime)
             
             Divider()
+            
             
             HStack {
                 Picker("Hour", selection: $hour) {
@@ -70,6 +70,9 @@ struct SelectTimeView: View {
         minute = minuteOptions.sorted(by: { abs($0 - currentMinute) < abs($1 - currentMinute) }).first ?? 0
         updateSelectedTime()
     }
+    
+    
+    
 
     private func updateSelectedTime() {
         var comps = Calendar.current.dateComponents([.year, .month, .day], from: selectedTime ?? Date())
@@ -80,11 +83,6 @@ struct SelectTimeView: View {
 }
 
 
-#Preview {
-    SelectTimeView(
-       selectedTime: .constant(Date()), showTimePopup: .constant(false))
-    .padding()
-}
 
 struct TimeSelect: View {
     
@@ -162,6 +160,10 @@ struct InviteTimeSelector: View {
 #Preview {
     InviteTimeSelector(selectedTime: .constant(Date()))
 }
+
+
+
+
 
 
 //Image(systemName: "checkmark")

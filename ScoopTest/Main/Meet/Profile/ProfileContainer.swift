@@ -22,6 +22,7 @@ import SwiftUI
 
 struct ProfileView: View {
     
+    @Environment(\.appDependencies) private var dep
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ProfileViewModel
     
@@ -56,6 +57,11 @@ struct ProfileView: View {
                         }
                     }
                     if vm.showInvite {
+                        
+                        if let profile2 = 
+                        
+                        
+                        
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
@@ -63,7 +69,9 @@ struct ProfileView: View {
                             .onTapGesture {
                                 vm.showInvite = false
                             }
-                        SendInviteView(ProfileViewModel: vm, name: vm.p.name ?? "")
+                        if let user = dep.userStore.user {
+                            SendInviteView(ProfileViewModel: vm, profile1: user, profile2: vm.p)
+                        }
                     }
                 }
             }

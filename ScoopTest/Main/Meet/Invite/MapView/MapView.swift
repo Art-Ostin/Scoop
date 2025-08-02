@@ -14,7 +14,8 @@ struct MapView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    @Binding var selectedPlace: MKMapItem?
+    @Binding var vm2: SendInviteViewModel
+    
     
     var body: some View {
         

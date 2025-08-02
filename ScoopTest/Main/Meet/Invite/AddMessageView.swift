@@ -9,11 +9,8 @@ import SwiftUI
 
 struct InviteAddMessageView: View {
     
-    @Binding var typeInputText: String
+    @Binding var vm: SendInviteViewModel
     
-    @Binding var typeDefaultOption: String
-    
-    @Binding var showTypePopup: Bool
     
     @FocusState var isFocused: Bool
     
@@ -27,6 +24,7 @@ struct InviteAddMessageView: View {
                     .font(.title(24))
                 
                 ZStack () {
+                    
                     if typeInputText.isEmpty {
                         
 
