@@ -15,15 +15,13 @@ struct DailyProfiles: View {
         Binding(get: { vm?.selection ?? 0 }, set: { vm?.selection = $0 })
     }
     
-    let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     
     var body: some View {
         
         VStack(spacing: 36) {
-            
-            Text(vm?.timeRemaining ?? "")
-            
+            Text(vm?.timeRemaining ?? Date().description)
             MeetTitle()
             heading
             TabView(selection: selectionBinding) {
