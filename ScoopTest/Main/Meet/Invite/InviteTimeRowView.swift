@@ -18,7 +18,6 @@ struct InviteTimeRowView: View {
     var body: some View {
         
         let formattedTime: String = {
-            
             guard let date = selectedTime else {return "Time"}
             let formatter = DateFormatter()
             formatter.dateFormat = "E, MMM d – h:mm a"

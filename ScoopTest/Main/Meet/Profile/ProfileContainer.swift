@@ -56,7 +56,13 @@ struct ProfileView: View {
                         }
                     }
                     if vm.showInvite {
-                        Rectangle().fill(.regularMaterial) .ignoresSafeArea(.all)
+                        Rectangle()
+                            .fill(.regularMaterial)
+                            .ignoresSafeArea()
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                vm.showInvite = false
+                            }
                         SendInviteView(ProfileViewModel: vm, name: vm.p.name ?? "")
                     }
                 }

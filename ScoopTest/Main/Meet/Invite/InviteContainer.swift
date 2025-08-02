@@ -33,7 +33,6 @@ struct SendInviteView: View {
                                         
                     InviteTypeRowView(typeDefaultOption: typeDefaultOption, typeInputText: $typeInputText, showTypePopup: $showTypePopup, showMessageScreen: $showMessageScreen)
                     
-                    
                     Divider()
                     
                     InviteTimeRowView(showTimePopup: $showTimePopup, selectedTime: $selectedTime)
