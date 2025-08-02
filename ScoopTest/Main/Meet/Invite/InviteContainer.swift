@@ -37,7 +37,7 @@ struct SendInviteView: View {
                     Divider()
                     
                     InviteTimeRowView(showTimePopup: $showTimePopup, selectedTime: $selectedTime)
-                    
+
                     
                     Divider()
                     
@@ -52,16 +52,12 @@ struct SendInviteView: View {
             }
             
             if showTypePopup {
-                
                 SelectTypeView(typeDefaultOption: $typeDefaultOption, showTypePopup: $showTypePopup)
             }
             
             if showTimePopup {
-                
                 SelectTimeView(selectedTime: $selectedTime, showTimePopup: $showTimePopup)
-                
             }
-            
         }
         .sheet(isPresented: $showMessageScreen) {
             InviteAddMessageView(typeInputText: $typeInputText, typeDefaultOption: $typeDefaultOption, showTypePopup: $showTypePopup)

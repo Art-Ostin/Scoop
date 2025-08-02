@@ -40,7 +40,7 @@ import Foundation
         if defaults.bool(forKey: showProfilesKey) {
             if let data = defaults.data(forKey: profileKey),
                let lastDate = defaults.object(forKey: dateKey) as? Date,
-               Date().timeIntervalSince(lastDate) < 20,
+               Date().timeIntervalSince(lastDate) < 300,
                let stored = try? JSONDecoder().decode([UserProfile].self, from: data) {
                 await assignProfiles(stored)
                 await MainActor.run {
