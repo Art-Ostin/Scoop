@@ -9,7 +9,9 @@ import Foundation
 import Combine
 
 @Observable
-class DailyProfileCountdownViewModel {
+
+
+class CountdownViewModel {
     
     
     var defaults: UserDefaults
@@ -21,6 +23,7 @@ class DailyProfileCountdownViewModel {
         updateTime()
         updateTimeRemaining()
     }
+    
     var hourRemaining: String = ""
     var minuteRemaining: String = ""
     var secondRemaining: String = ""

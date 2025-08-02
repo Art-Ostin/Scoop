@@ -15,13 +15,13 @@ struct DailyProfiles: View {
         Binding(get: { vm?.selection ?? 0 }, set: { vm?.selection = $0 })
     }
     
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
+    @State var countdownVM = CountdownViewModel(dateKey: "dailyProfilesDate")
     
     var body: some View {
         
         VStack(spacing: 36) {
-            Text(vm?.timeRemaining ?? Date().description)
+            Text("\(countdownVM.hourRemaining):\(countdownVM.minuteRemaining):\(countdownVM.secondRemaining)")
+            
             MeetTitle()
             heading
             TabView(selection: selectionBinding) {
@@ -30,9 +30,6 @@ struct DailyProfiles: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .onReceive(timer, perform: { _ in
-            vm?.updateTime()
-        })
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
         .overlay(

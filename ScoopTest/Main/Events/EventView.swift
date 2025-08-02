@@ -30,7 +30,7 @@ struct EventView: View {
                 
                 imageView
                 
-                CountdownView(dependencies: dependencies)
+//                CountdownView(dependencies: dependencies)
                 
                 EventDetailSummaryView()
                     .font(.body(24, .bold))
