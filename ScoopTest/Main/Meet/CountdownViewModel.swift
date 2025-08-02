@@ -44,7 +44,7 @@ class CountdownViewModel {
     
     func updateTimeRemaining() {
         let startTime = defaults.object(forKey: dateKey) as? Date ?? Date()
-        let targetTime = Calendar.current.date(byAdding: .minute, value: 1, to: startTime) ?? Date()
+        let targetTime = Calendar.current.date(byAdding: .second, value: 20, to: startTime) ?? Date()
         let timeRemaining = Calendar.current.dateComponents([.hour, .minute, .second], from: Date(), to: targetTime)
         
         let hour = max(0, timeRemaining.hour ?? 0)

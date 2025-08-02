@@ -17,7 +17,6 @@ import Foundation
     let profileManager: ProfileManaging
     let defaults: UserDefaults
     
-    
     var profile1: UserProfile?
     var profile2: UserProfile?
     
@@ -36,16 +35,19 @@ import Foundation
     var state: MeetSections?
     
     
-    
     //Functionality to load the TwoDailyProfiles
     func load () async {
         if defaults.bool(forKey: showProfilesKey) {
             if let data = defaults.data(forKey: profileKey),
                let lastDate = defaults.object(forKey: dateKey) as? Date,
-               Date().timeIntervalSince(lastDate) < 60,
+               Date().timeIntervalSince(lastDate) < 20,
                let stored = try? JSONDecoder().decode([UserProfile].self, from: data) {
                 await assignProfiles(stored)
-                await MainActor.run { self.state = .twoDailyProfiles }
+                await MainActor.run {
+                    self.selection = 0
+                    self.state = .twoDailyProfiles
+                    
+                }
             } else {
                 await MainActor.run { self.state = .intro }
             }
@@ -61,7 +63,9 @@ import Foundation
             }
             defaults.set(Date(), forKey: dateKey)
             defaults.set(true, forKey: showProfilesKey)
-            await MainActor.run { self.state = .twoDailyProfiles }
+            await MainActor.run {
+                self.selection = 0
+            }
         } catch {
             print("Error")
         }

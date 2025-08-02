@@ -19,6 +19,7 @@ struct IntroView: View {
                 MeetTitle()
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
+                vm.state = .twoDailyProfiles
                 Task { await vm.refresh() }
             })
             }

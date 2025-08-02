@@ -14,6 +14,7 @@ struct DailyProfiles: View {
     
     @State var countdownVM = CountdownViewModel(dateKey: "dailyProfilesDate")
     
+    
     var body: some View {
         
         VStack(spacing: 36) {
