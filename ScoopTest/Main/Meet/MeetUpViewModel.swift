@@ -56,7 +56,7 @@ import Foundation
     func load () async {
         if let data = defaults.data(forKey: profileKey),
            let lastDate = defaults.object(forKey: dateKey) as? Date,
-           Date().timeIntervalSince(lastDate) < 120,
+           Date().timeIntervalSince(lastDate) < 60,
            let stored = try? JSONDecoder().decode([UserProfile].self, from: data) {
             await assignProfiles(stored)
         } else {

@@ -33,6 +33,12 @@ struct DailyProfiles: View {
         }
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
+        .task {
+            if countdownVM.hourRemaining == "00" && countdownVM.minuteRemaining == "00" && countdownVM.secondRemaining == "00" {
+                await vm?.load()
+            }
+        }
+        
         .overlay(
             Image("NightImages")
                 .padding(.bottom, 72),
