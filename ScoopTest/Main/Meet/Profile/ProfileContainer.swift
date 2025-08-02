@@ -32,6 +32,7 @@ struct ProfileView: View {
         self._vm2 = vm2
     }
     
+    
     var body: some View {
         
         GeometryReader { _ in

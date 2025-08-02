@@ -30,38 +30,27 @@ import Foundation
         self.userStore = userStore
         self.profileManager = profileManager
         self.defaults = defaults
-        if defaults.bool(forKey: "showDailyProfiles") {
-            self.state = .twoDailyProfiles
-        } else {
-            self.state = .intro
-        }
+        self.state = defaults.bool(forKey: showProfilesKey) ? .twoDailyProfiles : .intro
     }
     
     var state: MeetSections?
     
     
-    func updateState(_ state:MeetSections) {
-        switch state {
-        case .twoDailyProfiles:
-            defaults.set(true, forKey: showProfilesKey)
-            self.state = .twoDailyProfiles
-        case .intro:
-            defaults.set(false, forKey: showProfilesKey)
-            self.state = .intro
-        default: break
-        }
-    }
     
     //Functionality to load the TwoDailyProfiles
     func load () async {
-        if let data = defaults.data(forKey: profileKey),
-           let lastDate = defaults.object(forKey: dateKey) as? Date,
-           Date().timeIntervalSince(lastDate) < 60,
-           let stored = try? JSONDecoder().decode([UserProfile].self, from: data) {
-            await assignProfiles(stored)
+        if defaults.bool(forKey: showProfilesKey) {
+            if let data = defaults.data(forKey: profileKey),
+               let lastDate = defaults.object(forKey: dateKey) as? Date,
+               Date().timeIntervalSince(lastDate) < 60,
+               let stored = try? JSONDecoder().decode([UserProfile].self, from: data) {
+                await assignProfiles(stored)
+                await MainActor.run { self.state = .twoDailyProfiles }
+            } else {
+                await refresh()
+            }
         } else {
-            self.state = .twoDailyProfiles
-            await refresh()
+            await MainActor.run { self.state = .intro }
         }
     }
     
@@ -72,8 +61,9 @@ import Foundation
             if let data = try? JSONEncoder().encode(fetched) {
                 defaults.set(data, forKey: profileKey)
             }
-            defaults.set(false, forKey: showProfilesKey)
-            await MainActor.run { self.state = .intro }
+            defaults.set(Date(), forKey: dateKey)
+            defaults.set(true, forKey: showProfilesKey)
+            await MainActor.run { self.state = .twoDailyProfiles }
         } catch {
             print("Error")
         }

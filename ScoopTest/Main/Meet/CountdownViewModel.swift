@@ -20,18 +20,29 @@ class CountdownViewModel {
     init(defaults: UserDefaults = .standard, dateKey: String) {
         self.defaults = defaults
         self.dateKey = dateKey
-        updateTime()
+        starTimer()
         updateTimeRemaining()
     }
     
-    var hourRemaining: String = ""
-    var minuteRemaining: String = ""
-    var secondRemaining: String = ""
+    var hourRemaining = ""
+    var minuteRemaining = ""
+    var secondRemaining = ""
     
-    var anyCancellable = Set<AnyCancellable>()
+    var timeUp: Bool {
+        if hourRemaining == "00" && minuteRemaining == "00" && secondRemaining == "00" { return true }
+        return false
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    private func starTimer() {
+        Timer
+            .publish(every: 1.0, on: .main, in: .common).autoconnect()
+            .sink { [weak self] _ in self?.updateTimeRemaining()}
+            .store(in: &cancellables)
+    }
     
     func updateTimeRemaining() {
-        
         let startTime = defaults.object(forKey: dateKey) as? Date ?? Date()
         let targetTime = Calendar.current.date(byAdding: .minute, value: 1, to: startTime) ?? Date()
         let timeRemaining = Calendar.current.dateComponents([.hour, .minute, .second], from: Date(), to: targetTime)
@@ -42,14 +53,5 @@ class CountdownViewModel {
         hourRemaining = String(format: "%02d", hour)
         minuteRemaining = String(format: "%02d", minute)
         secondRemaining = String(format: "%02d", second)
-    }
-    
-    func updateTime() {
-        Timer
-            .publish(every: 1.0, on: .main, in: .common).autoconnect()
-            .sink { [weak self] _ in
-                self?.updateTimeRemaining()
-            }
-            .store(in: &anyCancellable)
     }
 }

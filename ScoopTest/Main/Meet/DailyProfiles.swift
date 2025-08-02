@@ -34,14 +34,10 @@ struct DailyProfiles: View {
         .padding(.horizontal, 32)
         .frame(maxHeight: .infinity, alignment: .top)
         .onChange(of: countdownVM.secondRemaining) {
-            if countdownVM.hourRemaining == "00" &&
-                countdownVM.minuteRemaining == "00" &&
-                countdownVM.secondRemaining == "00" {
+            if countdownVM.timeUp {
                 Task {
                     await vm?.refresh()
-                    await MainActor.run {
-                        countdownVM.updateTimeRemaining()
-                    }
+                    await MainActor.run { countdownVM.updateTimeRemaining() }
                 }
             }
         }
@@ -86,17 +82,10 @@ extension DailyProfiles {
     }
     
     @ViewBuilder private func profileTab(for profile: UserProfile?, tag: Int) -> some View {
-        if let url = firstImageURL(for: profile) {
+        if let profile, let url = firstImageURL(for: profile) {
             profileImage(url: url)
                 .tag(tag)
-                .onTapGesture {
-                    if tag == 0 {
-                        if let profile = self.vm?.profile1 { self.vm?.state = .profile(profile) }
-                    }
-                    if tag == 1 {
-                        if let profile = self.vm?.profile2 { self.vm?.state = .profile(profile) }
-                    }
-                }
+                .onTapGesture { self.vm?.state = .profile(profile) }
         }
     }
     

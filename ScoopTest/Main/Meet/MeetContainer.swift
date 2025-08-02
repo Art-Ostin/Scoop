@@ -27,7 +27,6 @@ struct MeetContainer: View {
     var body: some View {
         
         ZStack {
-            
             switch vm?.state {
             case .intro:
                 IntroView(vm: $vm)
