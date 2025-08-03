@@ -4,8 +4,43 @@
 //
 //  Created by Art Ostin on 28/05/2025.
 //
-
+import Foundation
 import SwiftUI
+
+@MainActor
+func triggerRawTestOtp() async throws -> String {
+    // adjust to whatever project/function URL is correct
+    guard let url = URL(string: "https://us-central1-scoop-31b4b.cloudfunctions.net/rawTestGenerateOtp") else {
+        throw URLError(.badURL)
+    }
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.httpBody = "{}".data(using: .utf8) // empty JSON body
+
+    let (data, response) = try await URLSession.shared.data(for: request)
+    guard let http = response as? HTTPURLResponse else {
+        throw URLError(.badServerResponse)
+    }
+
+    let bodyText = String(data: data, encoding: .utf8) ?? "<no body>"
+    guard (200...299).contains(http.statusCode) else {
+        throw NSError(domain: "OTP", code: http.statusCode, userInfo: [
+            NSLocalizedDescriptionKey: "Server error \(http.statusCode): \(bodyText)"
+        ])
+    }
+    guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+        throw NSError(domain: "OTP", code: 0, userInfo: [
+            NSLocalizedDescriptionKey: "Malformed JSON: \(bodyText)"
+        ])
+    }
+    if let code = json["code"] as? String {
+        return code
+    }
+    return "sent"
+}
+
+
 
 struct EnterEmailView: View {
     
@@ -33,7 +68,20 @@ struct EnterEmailView: View {
                 SignUpTitle(text: "McGill Email")
                 VStack(spacing: 96){
                     enterEmailSection
-                    NextButton(isEnabled: vm.authoriseEmail(email: vm.username), onTap: {showVerification = true})
+                    NextButton(isEnabled: vm.authoriseEmail(email: vm.username), onTap: {
+                        Task {
+                            do {
+                                let otp = try await triggerRawTestOtp()
+                                print("OTP (dev):", otp)
+                                // optional: update UI state on main actor
+                                showVerification = true
+                            } catch {
+                                print("Failed to trigger rawTestGenerateOtp:", error)
+                                // surface error to user if needed
+                            }
+                        }
+                    })
+
                 }
                 .padding(.horizontal)
             }
