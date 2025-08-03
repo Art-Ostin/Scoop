@@ -54,7 +54,7 @@ struct SendInviteView: View {
             
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
-                    .offset(y: 72)
+                    .offset(y: 96)
             }
             
             if vm.showTimePopup {

@@ -8,23 +8,59 @@
  
  import SwiftUI
 
- struct InviteAddMessageView: View {
-     
-     @Binding var vm: SendInviteViewModel
-     
-     
-     @FocusState var isFocused: Bool
-     
-     var body: some View {
+struct InviteAddMessageView: View {
+    
+    @Binding var vm: SendInviteViewModel
+    
+    
+    @FocusState var isFocused: Bool
+    
+    var body: some View {
+        
+        
+        VStack(alignment: .leading, spacing: 48) {
+            
+            VStack(spacing: 12) {
+                HStack() {
+                    Text(vm.event.type?.description.label ?? "")
+                        .font(.body(16, .bold))
+                    Image(systemName: "chevron.down")
+                        .font(.body(14, .bold))
+                        .foregroundStyle(.accent)
+                } .onTapGesture {vm.showTypePopup.toggle()}
+                    .popover(isPresented: $vm.showTypePopup, arrowEdge: .top) {
+                        SelectTypeView(vm: $vm)
+                            .frame(maxWidth: 250) // adjust as needed
+                    }
+            }
+            
+            TextEditor(text: Binding(
+                get: { vm.event.message ?? ""},
+                set: { vm.event.message = $0}
+            ))
+            .background(Color.clear)
+            .font(.body(18))
+            .focused($isFocused)
+        }
+        
+        
+        
+         
+         
+         
+         
+         
+         
+         
+         
+         
          
          ZStack {
              
              VStack(alignment: .leading, spacing: 48) {
                  
-                 Text("Add a Message")
-                     .font(.title(24))
                  
-                 ZStack () {
+                 ZStack {
                      
                      if vm.event.message == nil {
                          Text("Write a message here to give some info about the meet-up")
@@ -36,12 +72,6 @@
                              .offset(y: 10)
                      }
                      
-                     TextEditor(text: $vm.event.message)
-                         .scrollContentBackground(.hidden)
-                         .background(Color.clear)
-                         .font(.body(18))
-                         .focused($isFocused)
-                     
                  }
                  .padding()
                  .frame(height: 145, alignment: .top)
@@ -51,36 +81,24 @@
                          .stroke(Color.gray, lineWidth: 1)
                  )
                  
+                
                  
-//                 HStack() {
-//                     Text(typeDefaultOption)
-//                         .font(.body(16, .bold))
-//                     Image(systemName: "chevron.down")
-//                         .font(.body(14, .bold))
-//                         .foregroundStyle(.accent)
-//                 }
-//                 .frame(maxWidth: .infinity, alignment: .trailing)
-//                 .onTapGesture {
-//                     showTypePopup.toggle()
-//                 }
-//                 
-//                 
-//             }
-//             .frame(maxWidth: .infinity, alignment: .leading)
-//             .padding()
-//             
-//             if showTypePopup {
-//                 SelectTypeView(typeDefaultOption: $typeDefaultOption, showTypePopup: $showTypePopup)
-//
-//             }
-//         }
-//         .onAppear {
-//             isFocused = true
-//         }
+                 
+             }
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .padding()
+             
+             if vm.showTypePopup {
+                 SelectTypeView(vm: $vm)
+             }
+         }
+         .onAppear {
+             isFocused = true
+         }
      }
  }
 
- #Preview {
-     InviteAddMessageView(typeInputText: .constant(""), typeDefaultOption: .constant("Grab food"), showTypePopup: .constant(false))
- }
+// #Preview {
+//     InviteAddMessageView(typeInputText: .constant(""), typeDefaultOption: .constant("Grab food"), showTypePopup: .constant(false))
+// }
 

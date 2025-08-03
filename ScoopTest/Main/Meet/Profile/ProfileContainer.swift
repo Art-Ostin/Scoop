@@ -68,6 +68,7 @@ struct ProfileView: View {
                     }
                 }
             }
+            .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
         }
     }
 }
