@@ -75,6 +75,7 @@ struct EmailVerificationView: View {
     @Binding var vm: EmailVerificationViewModel
     @Binding var showLogin: Bool
     @Binding var showEmail: Bool
+    @FocusState var focused: Bool
     
     
     
@@ -82,6 +83,7 @@ struct EmailVerificationView: View {
         ZStack {
             Color.background.ignoresSafeArea()
             VStack(spacing: 24) {
+                
                 SignUpTitle(text: "Check your email")
                 HStack(spacing: 48) {
                     Text(verbatim: vm.email)
@@ -92,7 +94,8 @@ struct EmailVerificationView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 200)
                 .padding(.horizontal)
-                UILogic.loadingAnimation()
+                
+                
             }
             .padding(.top, 144)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -118,3 +121,11 @@ struct EmailVerificationView: View {
 //    EmailVerificationView(vm: .constant(EmailVerificationViewModel()), showLogin: .constant(true), showEmail: .constant(true))
 //}
 
+
+extension EmailVerificationView {
+    
+    
+    
+    
+    
+}

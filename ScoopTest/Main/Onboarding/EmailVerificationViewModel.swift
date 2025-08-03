@@ -10,9 +10,7 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 
-
 @Observable class EmailVerificationViewModel {
-    
     
     private let authManager: AuthenticationManaging
     
