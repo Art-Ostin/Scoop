@@ -77,6 +77,8 @@ struct EmailVerificationView: View {
     @Binding var showEmail: Bool
     @FocusState var focused: Bool
     
+    @State var code = ""
+    
     
     
     var body: some View {
@@ -84,24 +86,26 @@ struct EmailVerificationView: View {
             Color.background.ignoresSafeArea()
             VStack(spacing: 24) {
                 
-                SignUpTitle(text: "Check your email")
+                SignUpTitle(text: "Check Your email")
                 HStack(spacing: 48) {
-                    Text(verbatim: vm.email)
+                    Text("\(vm.email)")
                         .foregroundStyle(Color.grayText)
+                    
                     UILogic.resendEmail()
                 }
                 .font(.body())
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 200)
+                .padding(.bottom, 72)
                 .padding(.horizontal)
                 
-                
+                EnterOTP(code: $code)
             }
-            .padding(.top, 144)
+            .padding(.top, 48)
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.horizontal)
+            .flowNavigation()
             .task {
-                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: 10 * 1_000_000_000)
                 if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
                     try? await dependencies.userStore.loadUser()
                         showLogin = false

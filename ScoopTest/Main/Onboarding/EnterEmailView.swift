@@ -94,7 +94,7 @@ extension EnterEmailView {
                     .frame(width: 140, height: 1)
                     .foregroundStyle(Color.grayPlaceholder)
             }
-            Text("We'll send a confirmation link")
+            Text("We'll send a confirmation code")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
