@@ -37,11 +37,10 @@ extension EventType {
     }
 }
 
-struct Event: Identifiable {
+struct Event: Codable, Identifiable {
     let id: String = UUID().uuidString
     var profile: UserProfile
     var profile2: UserProfile
-    var type: EventType?
     var time: Date?
     var location: MKMapItem?
     var message: String?

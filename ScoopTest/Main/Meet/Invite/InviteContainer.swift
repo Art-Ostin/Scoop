@@ -34,6 +34,7 @@ struct SendInviteView: View {
                     ActionButton(isValid: InviteIsValid, text: "Confirm & Send", onTap: {
                         profileVM.showInvite.toggle()
                         profileVM.inviteSent = true
+                        vm.manager.createEvent(event: vm.event)
                     })
                 }
             }
@@ -81,7 +82,6 @@ extension SendInviteView {
                         .onTapGesture {
                             vm.showTypePopup = false
                             vm.showMessageScreen.toggle()
-                            vm.manager.createEvent(event: vm.event)
                         }
                 }
             } else {
