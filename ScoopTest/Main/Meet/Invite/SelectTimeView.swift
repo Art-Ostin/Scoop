@@ -11,8 +11,8 @@ struct SelectTimeView: View {
     
     @Binding var vm: SendInviteViewModel
     
-    @State private var hour: Int = Calendar.current.component(.hour, from: Date())
-    @State private var minute: Int = 0
+    @State private var hour: Int = 22
+    @State private var minute: Int = 30
     
     @State private var selectedDay: Int? = nil
     
@@ -92,6 +92,7 @@ extension SelectTimeView {
         .labelsHidden()
         .onChange(of: hour) {updateTime()}
         .onChange(of: minute) {updateTime()}
+        .onAppear {updateTime()}
     }
     
     private func updateTime() {

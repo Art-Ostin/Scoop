@@ -60,8 +60,8 @@ struct InviteAddMessageView: View {
                     .padding(.top, 12)
             }
         }
-        .task {
-            await MainActor.run {isFocused = true}
+        .onAppear {
+            isFocused = true
         }
     }
 }

@@ -7,19 +7,7 @@
 import SwiftUI
 import MapKit
 
-@Observable final class SendInviteViewModel {
-    
-    var event: Event
-    
-    init(profile1: UserProfile, profile2: UserProfile) {
-        self.event = Event(profile: profile1, profile2: profile2)
-    }
-    
-    var showTypePopup: Bool = false
-    var showMessageScreen: Bool = false
-    var showTimePopup: Bool = false
-    var showMapView: Bool = false
-}
+
 
 struct SendInviteView: View {
     
@@ -80,7 +68,7 @@ extension SendInviteView {
             
             if let type = event.type?.description.label, let message = event.message {
                 (
-                    Text((type == "Write A Message") ? "" : type)
+                    Text((event.type == .writeAMessage) ? "" : "\(type): ")
                         .font(.body(16, .bold))
                     + Text(" " + message)
                         .font(.body(12, .italic))
@@ -91,7 +79,9 @@ extension SendInviteView {
                     Text(type).font(.body(18))
                     Text("Add a Message").foregroundStyle(.accent).font(.body(14))
                         .onTapGesture {
+                            vm.showTypePopup = false
                             vm.showMessageScreen.toggle()
+                            vm.manager.createEvent(event: vm.event)
                         }
                 }
             } else {

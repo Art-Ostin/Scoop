@@ -16,15 +16,30 @@ struct SelectTypeView: View {
 
         DropDownMenu {
             ForEach(EventType.allCases, id: \.self) {event in
-                if event == .writeAMessage && (vm.event.message == nil) { customRow(image: "✒️", text: "Edit Message") .foregroundStyle(Color.accent)}
-                else {
-                    customRow(image: event.description.emoji, text: event.description.label)
+                if event == .writeAMessage && vm.event.message != nil { customRow(image: "✒️", text: "Edit Message")
+                        .foregroundStyle(Color.accent)
                         .onTapGesture {
+                            if event == .writeAMessage {
+                                vm.showMessageScreen = true
+                            }
                             vm.event.type = event
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 vm.showTypePopup.toggle()
                             }
                         }
+                }
+                else {
+                    customRow(image: event.description.emoji, text: event.description.label)
+                        .onTapGesture {
+                            if event == .writeAMessage {
+                                vm.showMessageScreen = true
+                            }
+                            vm.event.type = event
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                vm.showTypePopup.toggle()
+                            }
+                        }
+                     
                     if event != EventType.allCases.last {
                         SoftDivider()
                     }
