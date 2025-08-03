@@ -80,7 +80,6 @@ struct EmailVerificationView: View {
     @State var code = ""
     
     
-    
     var body: some View {
         ZStack {
             Color.background.ignoresSafeArea()
@@ -104,32 +103,40 @@ struct EmailVerificationView: View {
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.horizontal)
             .flowNavigation()
-            .task {
-                try? await Task.sleep(nanoseconds: 10 * 1_000_000_000)
-                if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
-                    try? await dependencies.userStore.loadUser()
-                        showLogin = false
-                    }
-                    else {
-                        if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
-                            try? await dependencies.userStore.loadUser()
-                            showEmail = false
+            .onChange(of: code) {
+                
+                Task {
+                    guard ((try? await AuthenticateEmail()) != nil) else { return }
+                    
+                    if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
+                        try? await dependencies.userStore.loadUser()
+                            showLogin = false
                         }
-                    }
+                        else {
+                            if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
+                                try? await dependencies.userStore.loadUser()
+                                showEmail = false
+                            }
+                        }
+                }
             }
+        }
+    }
+    
+    private func AuthenticateEmail() async throws -> Bool {
+        
+        // All Authentication Goes here. The code the user types in is the variable "code". Thus, make this function return true, if the "code" the user types in is equivalent to the code set to the user's email (else return false). (Currently, the function just returns true if the user types in 6 digits).
+        
+        if code.count == 6 {
+            return true
+        } else {
+            return false
         }
     }
 }
 
+
+
 //#Preview {
 //    EmailVerificationView(vm: .constant(EmailVerificationViewModel()), showLogin: .constant(true), showEmail: .constant(true))
 //}
-
-
-extension EmailVerificationView {
-    
-    
-    
-    
-    
-}

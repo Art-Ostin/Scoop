@@ -45,7 +45,6 @@ import SwiftUI
             try await userDocument(userId: userId).updateData(data)
         }
     
-    
     func update(values: [UserProfile.CodingKeys: Any]) async throws {
         guard let id = userStore?.user?.userId else { throw URLError(.userAuthenticationRequired) }
         try await update(userId: id, values: values)
@@ -73,9 +72,6 @@ import SwiftUI
         let snapshot = try await userCollection.getDocuments()
         let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)
     }
-        
-        
-        
         return Array(profiles.shuffled().prefix(2))
 }
 }
