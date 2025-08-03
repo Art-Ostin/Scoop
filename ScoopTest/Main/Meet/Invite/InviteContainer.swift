@@ -38,7 +38,7 @@ struct SendInviteView: View {
         
         ZStack {
             
-            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.event.profile2.name ?? "")" ) {
+            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.event.profile2.name ?? "")") {
                 VStack(spacing: 30) {
                     InviteTypeRow
                     Divider()
@@ -63,7 +63,7 @@ struct SendInviteView: View {
             }
         }
         .sheet(isPresented: $vm.showMessageScreen) {
-            //            InviteAddMessageView(vm: $vm)
+                        InviteAddMessageView(vm: $vm)
         }
         .fullScreenCover(isPresented: $vm.showMapView) {
             //            MapView(vm2: $vm)
@@ -156,6 +156,6 @@ extension SendInviteView {
         if let urlString = vm.event.profile2.imagePathURL?[0],
            let url = URL(string: urlString) {
             return CirclePhoto(url: url)
-        }
+        } else {return nil}
     }
 }
