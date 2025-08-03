@@ -57,11 +57,6 @@ struct ProfileView: View {
                         }
                     }
                     if vm.showInvite {
-                        
-                        if let profile2 = 
-                        
-                        
-                        
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
@@ -70,7 +65,7 @@ struct ProfileView: View {
                                 vm.showInvite = false
                             }
                         if let user = dep.userStore.user {
-                            SendInviteView(ProfileViewModel: vm, profile1: user, profile2: vm.p)
+                            SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
                         }
                     }
                 }

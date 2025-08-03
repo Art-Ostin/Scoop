@@ -32,11 +32,11 @@ struct EventView: View {
                 
 //                CountdownView(dependencies: dependencies)
                 
-                EventDetailSummaryView()
-                    .font(.body(24, .bold))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .lineSpacing(12)
+//                EventDetailSummaryView()
+//                    .font(.body(24, .bold))
+//                    .multilineTextAlignment(.center)
+//                    .padding(.horizontal, 24)
+//                    .lineSpacing(12)
             }
             detailsButton
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)

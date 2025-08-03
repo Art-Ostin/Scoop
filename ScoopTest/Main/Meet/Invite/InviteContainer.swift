@@ -27,6 +27,8 @@ struct SendInviteView: View {
     
     
     @Binding var profileVM: ProfileViewModel
+    
+    
     @State var vm: SendInviteViewModel
     
     
@@ -62,16 +64,16 @@ struct SendInviteView: View {
                     .offset(y: 36)
             }
             if vm.showTimePopup {
-                SelectTimeView2(vm: $vm)
-                    .offset(y: 156)
+                SelectTimeView(vm: $vm)
+                    .offset(y: 164)
                     .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
             }
         }
         .sheet(isPresented: $vm.showMessageScreen) {
-            InviteAddMessageView(vm: $vm)
+//            InviteAddMessageView(vm: $vm)
         }
         .fullScreenCover(isPresented: $vm.showMapView) {
-            MapView(vm2: $vm)
+//            MapView(vm2: $vm)
         }
     }
 }
@@ -83,7 +85,7 @@ extension SendInviteView {
         let event = vm.event
         
         return HStack {
-            if let message = event.message {
+            if let _ = event.message {
                 Text(event.message ?? "").font(.body(14))
             } else if let type = event.type {
                 VStack(alignment: .leading, spacing: 6) {

@@ -24,7 +24,6 @@
 		653770602E0AC2B70058D225 /* InviteContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537705D2E0AC2B70058D225 /* InviteContainer.swift */; };
 		653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653770612E0ACA600058D225 /* SelectTypeView.swift */; };
 		6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537706D2E0B08DE0058D225 /* AddMessageView.swift */; };
-		653770702E0B276C0058D225 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537706F2E0B276C0058D225 /* SelectTimeView.swift */; };
 		653A78532E130A990098747F /* EventDetailSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78522E130A990098747F /* EventDetailSummaryView.swift */; };
 		653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78542E131FDF0098747F /* EventDetailsView.swift */; };
 		653A78592E1340BA0098747F /* MatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78582E1340BA0098747F /* MatchesView.swift */; };
@@ -89,7 +88,7 @@
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
 		65BFE7B32E3CEE8E00B31A58 /* MeetUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel.swift */; };
 		65BFE7BD2E3D6FE900B31A58 /* CountdownViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7BC2E3D6FE900B31A58 /* CountdownViewModel.swift */; };
-		65BFE7D12E3EA9B200B31A58 /* SelectTimeView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView2.swift */; };
+		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
 		65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820982E37C2720098CC36 /* OnboardingContainer.swift */; };
 		65E8209B2E37CCCE0098CC36 /* EditNationality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8209A2E37CCCE0098CC36 /* EditNationality.swift */; };
@@ -136,7 +135,6 @@
 		6537705D2E0AC2B70058D225 /* InviteContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContainer.swift; sourceTree = "<group>"; };
 		653770612E0ACA600058D225 /* SelectTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTypeView.swift; sourceTree = "<group>"; };
 		6537706D2E0B08DE0058D225 /* AddMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMessageView.swift; sourceTree = "<group>"; };
-		6537706F2E0B276C0058D225 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		653A78522E130A990098747F /* EventDetailSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailSummaryView.swift; sourceTree = "<group>"; };
 		653A78542E131FDF0098747F /* EventDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsView.swift; sourceTree = "<group>"; };
 		653A78582E1340BA0098747F /* MatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesView.swift; sourceTree = "<group>"; };
@@ -202,7 +200,7 @@
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetUpViewModel.swift; sourceTree = "<group>"; };
 		65BFE7BC2E3D6FE900B31A58 /* CountdownViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownViewModel.swift; sourceTree = "<group>"; };
-		65BFE7D02E3EA9B200B31A58 /* SelectTimeView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView2.swift; sourceTree = "<group>"; };
+		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
 		65E820982E37C2720098CC36 /* OnboardingContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainer.swift; sourceTree = "<group>"; };
 		65E8209A2E37CCCE0098CC36 /* EditNationality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNationality.swift; sourceTree = "<group>"; };
@@ -326,8 +324,7 @@
 			children = (
 				6537705D2E0AC2B70058D225 /* InviteContainer.swift */,
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
-				6537706F2E0B276C0058D225 /* SelectTimeView.swift */,
-				65BFE7D02E3EA9B200B31A58 /* SelectTimeView2.swift */,
+				65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
 				6537704F2E0A15270058D225 /* InviteButton.swift */,
 				653A78C22E15DB810098747F /* MapView */,
@@ -697,14 +694,13 @@
 				6591092C2E19B0810065696F /* Countries.swift in Sources */,
 				6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */,
 				6591092D2E19B0810065696F /* Prompts.swift in Sources */,
-				65BFE7D12E3EA9B200B31A58 /* SelectTimeView2.swift in Sources */,
+				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */,
 				6591092E2E19B0810065696F /* Quotes.swift in Sources */,
 				65BFE7BD2E3D6FE900B31A58 /* CountdownViewModel.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				65E8209B2E37CCCE0098CC36 /* EditNationality.swift in Sources */,
 				6549837D2E35429400CA335F /* ManagersProtocol.swift in Sources */,
-				653770702E0B276C0058D225 /* SelectTimeView.swift in Sources */,
 				659497222E01DD4000880921 /* LimitedAccessView.swift in Sources */,
 				653BAFAB2E0C944600C1AB9E /* ProfileImageView.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageManager.swift in Sources */,
