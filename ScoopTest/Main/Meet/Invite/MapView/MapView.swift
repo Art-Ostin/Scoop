@@ -5,17 +5,15 @@
 //  Created by Art Ostin on 02/07/2025.
 //
 
-/*
  import SwiftUI
  import MapKit
 
  struct MapView: View {
      
      @State var vm = MapViewModel()
-     
      @Environment(\.dismiss) var dismiss
-     
      @Binding var vm2: SendInviteViewModel
+     @State var selectedPlace: MKMapItem?
      
      
      var body: some View {
@@ -53,7 +51,7 @@
                  vm.showDetails = newValue != nil
              }
              .sheet(isPresented: $vm.showDetails, content: {
-                 MapSelectionView(vm: $vm, selectedPlace: $selectedPlace, onCloseMap: {
+                 MapSelectionView(vm: $vm, selectedPlace: $selectedPlace, vm2: $vm2, onCloseMap: {
                      dismiss()
                  })
                      .presentationDetents([.height(340)])
@@ -66,10 +64,6 @@
      }
  }
 
- #Preview {
-     MapView( selectedPlace: .constant(nil))
- }
-
-
- 
- */
+// #Preview {
+//     MapView( selectedPlace: .constant(nil))
+// }

@@ -26,7 +26,7 @@ import MapKit
     
     var showDetails: Bool = false
     
-    var lookAroundScene: MKLookAroundScene? 
+    var lookAroundScene: MKLookAroundScene?
     
     var mapSelection: MKMapItem? {
         didSet {

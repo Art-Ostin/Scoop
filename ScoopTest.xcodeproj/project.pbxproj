@@ -316,9 +316,9 @@
 			isa = PBXGroup;
 			children = (
 				653A78C52E15DC130098747F /* MapViewModel.swift */,
-				653A78C32E15DBD80098747F /* MapView.swift */,
 				6593365B2E193CEA00150AAC /* MapSelectionView.swift */,
 				653A78C92E15EB490098747F /* MapSearchView.swift */,
+				653A78C32E15DBD80098747F /* MapView.swift */,
 			);
 			path = MapView;
 			sourceTree = "<group>";

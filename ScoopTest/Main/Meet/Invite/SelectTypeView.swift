@@ -16,15 +16,18 @@ struct SelectTypeView: View {
 
         DropDownMenu {
             ForEach(EventType.allCases, id: \.self) {event in
-                customRow(image: event.description.emoji, text: event.description.label)
-                    .onTapGesture {
-                        vm.event.type = event
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            vm.showTypePopup.toggle()
+                if event == .writeAMessage && (vm.event.message == nil) { customRow(image: "✒️", text: "Edit Message") .foregroundStyle(Color.accent)}
+                else {
+                    customRow(image: event.description.emoji, text: event.description.label)
+                        .onTapGesture {
+                            vm.event.type = event
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                vm.showTypePopup.toggle()
+                            }
                         }
+                    if event != EventType.allCases.last {
+                        SoftDivider()
                     }
-                if event != EventType.allCases.last {
-                    SoftDivider()
                 }
             }
         }

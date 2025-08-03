@@ -76,6 +76,7 @@ struct MapSearchView: View {
                 }
             }
         }
+        .onAppear { isFocused = true}
     }
 }
 

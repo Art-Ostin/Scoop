@@ -12,8 +12,7 @@ struct InviteAddMessageView: View {
     
     @Binding var vm: SendInviteViewModel
     
-    @Binding var isFocused: FocusState<Bool>
-    
+    @FocusState var isFocused: Bool
     var body: some View {
         
         
@@ -38,15 +37,17 @@ struct InviteAddMessageView: View {
                 if (vm.event.message ?? "").isEmpty {
                     Text("Write a message here to give some info about the meet-up")
                         .foregroundStyle(Color.grayPlaceholder)
-                        .offset(x: 10, y: -22)
+                        .offset(x: 9, y: -19)
                         .allowsHitTesting(false)
+                        .font(.body(.regular))
+                        .lineSpacing(8)
                 }
             }
             .padding()
             .background(Color.clear)
             .font(.body(18))
             .focused($isFocused)
-            .lineSpacing(CGFloat(2.5))
+            .lineSpacing(CGFloat(3))
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
@@ -58,6 +59,9 @@ struct InviteAddMessageView: View {
                 SelectTypeView(vm: $vm)
                     .padding(.top, 12)
             }
+        }
+        .task {
+            await MainActor.run {isFocused = true}
         }
     }
 }

@@ -4,9 +4,6 @@
 //
 //  Created by Art Ostin on 24/06/2025.
 
-
-
-
 import SwiftUI
 import MapKit
 
@@ -39,7 +36,6 @@ struct SendInviteView: View {
     var body: some View {
         
         ZStack {
-            
             PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.event.profile2.name ?? "")") {
                 VStack(spacing: 30) {
                     InviteTypeRow
@@ -53,29 +49,22 @@ struct SendInviteView: View {
                     })
                 }
             }
-            
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
                     .offset(y: 96)
             }
-            
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
                     .offset(y: 164)
             }
         }
         .sheet(isPresented: $vm.showMessageScreen) {
-            InviteAddMessageView(vm: $vm, isFocused: $isFocused)
+            InviteAddMessageView(vm: $vm)
         }
         .fullScreenCover(isPresented: $vm.showMapView) {
-            //            MapView(vm2: $vm)
+            MapView(vm2: $vm)
         }
     }
-    
-    
-    
-    
-    
     private var InviteIsValid: Bool {
         return (vm.event.type != nil || vm.event.message != nil) && vm.event.time != nil && vm.event.location != nil
     }
@@ -88,19 +77,27 @@ extension SendInviteView {
         let event = vm.event
         
         return HStack {
-            if let _ = event.message {
-                Text(event.message ?? "").font(.body(14))
-            } else if let type = event.type {
+            
+            if let type = event.type?.description.label, let message = event.message {
+                (
+                    Text((type == "Write A Message") ? "" : type)
+                        .font(.body(16, .bold))
+                    + Text(" " + message)
+                        .font(.body(12, .italic))
+                        .foregroundStyle(Color.grayText)
+                )
+            } else if let type = event.type?.description.label {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(type.description.label).font(.body(18))
+                    Text(type).font(.body(18))
                     Text("Add a Message").foregroundStyle(.accent).font(.body(14))
                         .onTapGesture {
-                            isFocused = true
-                            vm.showMessageScreen.toggle()}
+                            vm.showMessageScreen.toggle()
+                        }
                 }
             } else {
                 Text("Type").font(.body(20, .bold))
             }
+            
             
             Spacer()
             
@@ -155,7 +152,6 @@ extension SendInviteView {
                 .onTapGesture { vm.showMapView.toggle() }
         }
     }
-    
     private var InviteImage: CirclePhoto? {
         if let urlString = vm.event.profile2.imagePathURL?[0],
            let url = URL(string: urlString) {

@@ -12,8 +12,8 @@ import MapKit
 struct MapSelectionView: View {
     
     @Binding var vm: MapViewModel
-    
     @Binding var selectedPlace: MKMapItem?
+    @Binding var vm2: SendInviteViewModel
     
     let onCloseMap: () -> Void
     
@@ -53,6 +53,7 @@ struct MapSelectionView: View {
             
             Button {
                 selectedPlace = vm.mapSelection
+                vm2.event.location = vm.mapSelection
                 onCloseMap()
             } label: {
                 Text("Add Location")
@@ -63,10 +64,6 @@ struct MapSelectionView: View {
                     )
                     .foregroundStyle(.white)
             }
-            
-            
-            
-            
         }
         .onAppear {
             fetchLookAround()
@@ -76,10 +73,6 @@ struct MapSelectionView: View {
         }
         .padding()
     }
-}
-
-#Preview {
-    MapSelectionView(vm: .constant(.init()), selectedPlace: .constant(nil), onCloseMap: {})
 }
 
 extension MapSelectionView {
