@@ -19,7 +19,6 @@ import MapKit
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false
     var showMapView: Bool = false
-    
 }
 
 
@@ -61,7 +60,7 @@ struct SendInviteView: View {
             }
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
-                    .offset(y: 36)
+                    .offset(y: 60)
             }
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
