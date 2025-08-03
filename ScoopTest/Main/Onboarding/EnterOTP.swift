@@ -18,12 +18,13 @@ struct EnterOTP: View {
         ZStack {
             HStack(spacing: 36) {
                 ForEach(0..<6, id: \.self) { index in
-                    VStack(spacing: 8) {
+                    ZStack {
                         Text(digit(at: index))
                             .font(.title)
                         Rectangle()
                             .frame(width: 24, height: 2)
                             .foregroundStyle(Color.grayPlaceholder)
+                            .offset(y: 24)
                     }
                 }
             }
