@@ -5,11 +5,13 @@
 //  Created by Art Ostin on 24/06/2025.
 
 
+
+
 import SwiftUI
 import MapKit
 
 @Observable final class SendInviteViewModel {
-
+    
     var event: Event
     
     init(profile1: UserProfile, profile2: UserProfile) {
@@ -22,7 +24,6 @@ import MapKit
     var showMapView: Bool = false
 }
 
-
 struct SendInviteView: View {
     
     @Binding var profileVM: ProfileViewModel
@@ -32,12 +33,12 @@ struct SendInviteView: View {
         self._vm = State(initialValue: SendInviteViewModel(profile1: profile1, profile2: profile2))
         self._profileVM = profileVM
     }
-
+    
     var body: some View {
         
         ZStack {
             
-            PopupTemplate(profileImage: "Image1", title: "Meet Arthur") {
+            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.event.profile2.name ?? "")" ) {
                 VStack(spacing: 30) {
                     InviteTypeRow
                     Divider()
@@ -50,6 +51,7 @@ struct SendInviteView: View {
                     })
                 }
             }
+            
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
                     .offset(y: 72)
@@ -61,10 +63,10 @@ struct SendInviteView: View {
             }
         }
         .sheet(isPresented: $vm.showMessageScreen) {
-//            InviteAddMessageView(vm: $vm)
+            //            InviteAddMessageView(vm: $vm)
         }
         .fullScreenCover(isPresented: $vm.showMapView) {
-//            MapView(vm2: $vm)
+            //            MapView(vm2: $vm)
         }
     }
     
@@ -75,21 +77,6 @@ struct SendInviteView: View {
     private var InviteIsValid: Bool {
         return (vm.event.type != nil || vm.event.message != nil) && vm.event.time != nil && vm.event.location != nil
     }
-    
-    
-    
-    
-    
-    struct Event {
-        var profile: UserProfile
-        var profile2: UserProfile
-        var type: EventType?
-        var time: Date?
-        var location: MKMapItem?
-        var message: String?
-    }
-    
-    
 }
 
 extension SendInviteView {
@@ -141,7 +128,7 @@ extension SendInviteView {
             } else {
                 Image(time == nil ? "InviteTime" : "EditButton")
                     .onTapGesture {vm.showTimePopup.toggle() }
-                }
+            }
         }
     }
     
@@ -164,21 +151,11 @@ extension SendInviteView {
                 .onTapGesture { vm.showMapView.toggle() }
         }
     }
-//    struct Event {
-//        var profile: UserProfile
-//        var profile2: UserProfile
-//        var type: EventType?
-//        var time: Date?
-//        var location: MKMapItem?
-//        var message: String?
-//    }
-//    
-//    private func isValidInvite() -> Bool {
-//        guard
-//            vm.event.type.description || (vm.event.message != nil)
-//        
-//
-//            !vm.event.message.isEmpty else { return false }
-//        return true
-//    }
+    
+    private var InviteImage: CirclePhoto? {
+        if let urlString = vm.event.profile2.imagePathURL?[0],
+           let url = URL(string: urlString) {
+            return CirclePhoto(url: url)
+        }
+    }
 }

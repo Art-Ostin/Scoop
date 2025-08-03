@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PopupTemplate<Content: View>: View {
     
-    var profileImage: String
+    var profileImage: CirclePhoto
     var title: String
     @ViewBuilder let content: () -> Content
     
@@ -19,11 +19,7 @@ struct PopupTemplate<Content: View>: View {
         VStack (spacing: 32) {
             
             HStack{
-                Image(profileImage)
-                    .resizable()
-                    .scaledToFit( )
-                    .clipShape(Circle())
-                    .frame(width: 30, height: 30)
+                profileImage
                 
                 Text(title)
                     .font(.title(24))
@@ -42,13 +38,5 @@ struct PopupTemplate<Content: View>: View {
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
     )
-    }
-}
-
-#Preview(traits: .sizeThatFitsLayout) {
-    PopupTemplate(profileImage: "Image1", title: "Meet Arthur") {
-        VStack{
-            Text("Hello World")
-        }
     }
 }

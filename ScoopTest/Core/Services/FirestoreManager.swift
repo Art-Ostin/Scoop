@@ -15,13 +15,12 @@ import SwiftUI
     
     var userStore: CurrentUserStore?
 
-       init(userStore: CurrentUserStore? = nil) {
-           self.userStore = userStore
-       }
-        
+    init(userStore: CurrentUserStore? = nil) {
+        self.userStore = userStore
+    }
+    
     private let userCollection = Firestore.firestore().collection("users")
-    
-    
+
     private func userDocument(userId: String) -> DocumentReference {
         userCollection.document(userId)
     }

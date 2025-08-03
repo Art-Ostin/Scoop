@@ -23,7 +23,6 @@ struct MatchesView: View {
     var body: some View {
         
         NavigationStack {
-            
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
 
@@ -48,11 +47,11 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        Text("View Profile")
-//                        profileButton
-                            .onTapGesture {
-                                showProfileView = true
-                            }
+                        if let raw = dependencies.userStore.user?.imagePathURL?[0],
+                            let url = URL(string: raw)
+                        {
+                            CirclePhoto(url: url).onTapGesture {showProfileView = true }
+                        }
                     }
                 }
             }
@@ -65,29 +64,4 @@ struct MatchesView: View {
 
 #Preview {
     MatchesView(showLogin: .constant(false))
-}
-
-extension MatchesView {
-    
-    private var profileButton: some View {
-        Group {
-            if
-                let raw = dependencies.userStore.user?.imagePath?[0],
-                let url = URL(string: raw)
-            {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-                } placeholder: {
-                    ProgressView()
-                }
-            } else {
-                Text("Profile")
-            }
-        }
-    }
 }
