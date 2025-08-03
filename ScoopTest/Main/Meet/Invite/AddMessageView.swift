@@ -12,7 +12,7 @@ struct InviteAddMessageView: View {
     
     @Binding var vm: SendInviteViewModel
     
-    @FocusState var isFocused: Bool
+    @Binding var isFocused: FocusState<Bool>
     
     var body: some View {
         
@@ -26,7 +26,7 @@ struct InviteAddMessageView: View {
                     .font(.body(24, .medium))
                     .foregroundStyle(.accent)
             }
-            .onTapGesture { withAnimation { vm.showTypePopup.toggle() } }
+            .onTapGesture {  vm.showTypePopup.toggle() }
             
             
             ZStack {
@@ -38,7 +38,7 @@ struct InviteAddMessageView: View {
                 if (vm.event.message ?? "").isEmpty {
                     Text("Write a message here to give some info about the meet-up")
                         .foregroundStyle(Color.grayPlaceholder)
-                        .padding(.leading, 20)
+                        .offset(x: 10, y: -22)
                         .allowsHitTesting(false)
                 }
             }
@@ -46,6 +46,7 @@ struct InviteAddMessageView: View {
             .background(Color.clear)
             .font(.body(18))
             .focused($isFocused)
+            .lineSpacing(CGFloat(2.5))
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
@@ -58,6 +59,5 @@ struct InviteAddMessageView: View {
                     .padding(.top, 12)
             }
         }
-        .task { await MainActor.run { isFocused = true}}
     }
 }

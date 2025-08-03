@@ -65,7 +65,7 @@ struct SendInviteView: View {
             }
         }
         .sheet(isPresented: $vm.showMessageScreen) {
-                        InviteAddMessageView(vm: $vm)
+            InviteAddMessageView(vm: $vm, isFocused: $isFocused)
         }
         .fullScreenCover(isPresented: $vm.showMapView) {
             //            MapView(vm2: $vm)
@@ -94,7 +94,9 @@ extension SendInviteView {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(type.description.label).font(.body(18))
                     Text("Add a Message").foregroundStyle(.accent).font(.body(14))
-                        .onTapGesture { vm.showMessageScreen.toggle()}
+                        .onTapGesture {
+                            isFocused = true
+                            vm.showMessageScreen.toggle()}
                 }
             } else {
                 Text("Type").font(.body(20, .bold))
