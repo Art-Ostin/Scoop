@@ -27,17 +27,12 @@ struct SelectTimeView: View {
             timePicker
         }
         .onAppear { syncWithEvent() }
-        .overlay {
-            
-        }
-
     }
 }
 
 extension SelectTimeView {
     
     private var dayPicker: some View {
-        
         
         let nextSevenDays: [Date] = {
             let calendar = Calendar.current

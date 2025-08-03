@@ -15,6 +15,7 @@ import MapKit
     init(profile1: UserProfile, profile2: UserProfile) {
         self.event = Event(profile: profile1, profile2: profile2)
     }
+    
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false
@@ -24,35 +25,26 @@ import MapKit
 
 struct SendInviteView: View {
     
-    
     @Binding var profileVM: ProfileViewModel
-    
-    
     @State var vm: SendInviteViewModel
-    
-    
     
     init(profile1: UserProfile, profile2: UserProfile, profileVM: Binding<ProfileViewModel>) {
         self._vm = State(initialValue: SendInviteViewModel(profile1: profile1, profile2: profile2))
         self._profileVM = profileVM
     }
-        
+
     var body: some View {
         
         ZStack {
             
             PopupTemplate(profileImage: "Image1", title: "Meet Arthur") {
-                
                 VStack(spacing: 30) {
-                    
                     InviteTypeRow
-                    
                     Divider()
                     InviteTimeRow
                     Divider()
                     InvitePlaceRow
-                    
-                    ActionButton(isValid: true, text: "Confirm & Send", onTap: {
+                    ActionButton(isValid: InviteIsValid, text: "Confirm & Send", onTap: {
                         profileVM.showInvite.toggle()
                         profileVM.inviteSent = true
                     })
@@ -60,8 +52,9 @@ struct SendInviteView: View {
             }
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
-                    .offset(y: 60)
+                    .offset(y: 72)
             }
+            
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
                     .offset(y: 164)
@@ -74,6 +67,29 @@ struct SendInviteView: View {
 //            MapView(vm2: $vm)
         }
     }
+    
+    
+    
+    
+    
+    private var InviteIsValid: Bool {
+        return (vm.event.type != nil || vm.event.message != nil) && vm.event.time != nil && vm.event.location != nil
+    }
+    
+    
+    
+    
+    
+    struct Event {
+        var profile: UserProfile
+        var profile2: UserProfile
+        var type: EventType?
+        var time: Date?
+        var location: MKMapItem?
+        var message: String?
+    }
+    
+    
 }
 
 extension SendInviteView {
@@ -148,7 +164,6 @@ extension SendInviteView {
                 .onTapGesture { vm.showMapView.toggle() }
         }
     }
-    
 //    struct Event {
 //        var profile: UserProfile
 //        var profile2: UserProfile

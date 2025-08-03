@@ -56,7 +56,7 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if vm.showInvite {
+                    if vm.showInvite, let user = dep.userStore.user {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
@@ -64,9 +64,7 @@ struct ProfileView: View {
                             .onTapGesture {
                                 vm.showInvite = false
                             }
-                        if let user = dep.userStore.user {
-                            SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
-                        }
+                        SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
                     }
                 }
             }
