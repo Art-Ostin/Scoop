@@ -91,7 +91,6 @@
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
 		65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */; };
-		65BFE7D92E3FDF4F00B31A58 /* TextEditorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D82E3FDF4F00B31A58 /* TextEditorTest.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
 		65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820982E37C2720098CC36 /* OnboardingContainer.swift */; };
 		65E8209B2E37CCCE0098CC36 /* EditNationality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8209A2E37CCCE0098CC36 /* EditNationality.swift */; };
@@ -206,7 +205,6 @@
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
 		65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePhoto.swift; sourceTree = "<group>"; };
-		65BFE7D82E3FDF4F00B31A58 /* TextEditorTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorTest.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
 		65E820982E37C2720098CC36 /* OnboardingContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainer.swift; sourceTree = "<group>"; };
 		65E8209A2E37CCCE0098CC36 /* EditNationality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNationality.swift; sourceTree = "<group>"; };
@@ -332,8 +330,6 @@
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 				65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
-				6537704F2E0A15270058D225 /* InviteButton.swift */,
-				65BFE7D82E3FDF4F00B31A58 /* TextEditorTest.swift */,
 				653A78C22E15DB810098747F /* MapView */,
 			);
 			path = Invite;
@@ -433,6 +429,7 @@
 				6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */,
 				654982DD2E315B1B00CA335F /* PhotoCell.swift */,
 				65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */,
+				6537704F2E0A15270058D225 /* InviteButton.swift */,
 				655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */,
 			);
 			path = Components;
@@ -722,7 +719,6 @@
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */,
 				6537705F2E0AC2B70058D225 /* PopupTemplate.swift in Sources */,
-				65BFE7D92E3FDF4F00B31A58 /* TextEditorTest.swift in Sources */,
 				653770602E0AC2B70058D225 /* InviteContainer.swift in Sources */,
 				65E820A52E382C7F0098CC36 /* InterestsView.swift in Sources */,
 				6509DDC92E37A87B0042917B /* FlowNavigation.swift in Sources */,

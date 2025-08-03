@@ -18,87 +18,36 @@ struct InviteAddMessageView: View {
     var body: some View {
         
         
-        VStack(alignment: .leading, spacing: 48) {
+        VStack(alignment: .leading, spacing: 60) {
             
-            VStack(spacing: 12) {
-                HStack() {
-                    Text(vm.event.type?.description.label ?? "")
-                        .font(.body(16, .bold))
-                    Image(systemName: "chevron.down")
-                        .font(.body(14, .bold))
-                        .foregroundStyle(.accent)
-                } .onTapGesture {vm.showTypePopup.toggle()}
-                
-                if vm.showTypePopup {
-                    SelectTypeView(vm: $vm)
-                }
+            HStack() {
+                Text(vm.event.type?.description.label ?? "")
+                    .font(.body(24, .medium))
+                Image(systemName: "chevron.down")
+                    .font(.body(24, .medium))
+                    .foregroundStyle(.accent)
             }
+            .onTapGesture { withAnimation { vm.showTypePopup.toggle() } }
             
-            TextEditor(text: Binding(
+            TextEditor("Write a message here to give some info about the meet-up", text: Binding(
                 get: { vm.event.message ?? ""},
                 set: { vm.event.message = $0}
             ))
+            .padding()
             .background(Color.clear)
             .font(.body(18))
             .focused($isFocused)
+            .frame(maxWidth: .infinity)
+            .frame(height: 150)
+            .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
         }
-        
-        
-        
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         ZStack {
-             
-             VStack(alignment: .leading, spacing: 48) {
-                 
-                 
-                 ZStack {
-                     
-                     if vm.event.message == nil {
-                         Text("Write a message here to give some info about the meet-up")
-                             .foregroundStyle(Color(red: 0.73, green: 0.73, blue: 0.73))
-                             .font(.body(18))
-                             .lineSpacing(6)
-                             .frame(maxHeight: .infinity, alignment: .top)
-                             .offset(x: 5)
-                             .offset(y: 10)
-                     }
-                     
-                 }
-                 .padding()
-                 .frame(height: 145, alignment: .top)
-                 .frame(maxWidth: .infinity, alignment: .topLeading)
-                 .overlay (
-                     RoundedRectangle(cornerRadius: 18)
-                         .stroke(Color.gray, lineWidth: 1)
-                 )
-                 
-                
-                 
-                 
-             }
-             .frame(maxWidth: .infinity, alignment: .leading)
-             .padding()
-             
-             if vm.showTypePopup {
-                 SelectTypeView(vm: $vm)
-             }
-         }
-         .onAppear {
-             isFocused = true
-         }
-     }
- }
-
-// #Preview {
-//     InviteAddMessageView(typeInputText: .constant(""), typeDefaultOption: .constant("Grab food"), showTypePopup: .constant(false))
-// }
-
+        .padding(.top, 60)
+        .padding(.horizontal, 32)
+        .overlay(alignment: .topLeading) {
+            if vm.showTypePopup {
+                SelectTypeView(vm: $vm)
+                    .padding(.top, 12)
+            }
+        }
+    }
+}
