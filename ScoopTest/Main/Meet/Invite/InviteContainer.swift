@@ -29,6 +29,8 @@ struct SendInviteView: View {
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     
+    @FocusState var isFocused: Bool
+    
     init(profile1: UserProfile, profile2: UserProfile, profileVM: Binding<ProfileViewModel>) {
         self._vm = State(initialValue: SendInviteViewModel(profile1: profile1, profile2: profile2))
         self._profileVM = profileVM
