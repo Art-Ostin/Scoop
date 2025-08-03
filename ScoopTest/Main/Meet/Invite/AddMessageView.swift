@@ -28,10 +28,10 @@ struct InviteAddMessageView: View {
                         .font(.body(14, .bold))
                         .foregroundStyle(.accent)
                 } .onTapGesture {vm.showTypePopup.toggle()}
-                    .popover(isPresented: $vm.showTypePopup, arrowEdge: .top) {
-                        SelectTypeView(vm: $vm)
-                            .frame(maxWidth: 250) // adjust as needed
-                    }
+                
+                if vm.showTypePopup {
+                    SelectTypeView(vm: $vm)
+                }
             }
             
             TextEditor(text: Binding(
