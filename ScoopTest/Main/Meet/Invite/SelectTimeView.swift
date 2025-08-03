@@ -26,6 +26,10 @@ struct SelectTimeView: View {
             
             timePicker
         }
+        .onAppear { syncWithEvent() }
+        .overlay {
+            
+        }
 
     }
 }
@@ -100,6 +104,21 @@ extension SelectTimeView {
         components.hour = hour
         components.minute = minute
         vm.event.time = Calendar.current.date(from: components)
+    }
+    
+    private func syncWithEvent() {
+        guard let date = vm.event.time else { return }
+
+        let calendar = Calendar.current
+        hour = calendar.component(.hour, from: date)
+        minute = calendar.component(.minute, from: date)
+
+        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfEvent = calendar.startOfDay(for: date)
+        if let days = calendar.dateComponents([.day], from: startOfToday, to: startOfEvent).day,
+           (0..<7).contains(days) {
+            selectedDay = days
+        }
     }
 }
 

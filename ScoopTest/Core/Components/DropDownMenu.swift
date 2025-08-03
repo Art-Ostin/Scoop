@@ -25,7 +25,7 @@ struct DropDownMenu<Content: View> : View {
         VStack(spacing: 18) {
             content()
         }
-        .padding( [.top, .bottom, .leading], 24)
+        .padding(24)
         .frame(width: width)
         .cornerRadius(12)
         .background(

@@ -66,7 +66,6 @@ struct SendInviteView: View {
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
                     .offset(y: 164)
-                    .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
             }
         }
         .sheet(isPresented: $vm.showMessageScreen) {
@@ -121,8 +120,13 @@ extension SendInviteView {
             
             Spacer()
             
-            Image(time == nil ? "InviteTime" : "EditButton")
-                .onTapGesture {vm.showTimePopup.toggle()}
+            if vm.showTimePopup {
+                Image(systemName: "chevron.down")
+                    .onTapGesture {vm.showTimePopup.toggle() }
+            } else {
+                Image(time == nil ? "InviteTime" : "EditButton")
+                    .onTapGesture {vm.showTimePopup.toggle() }
+                }
         }
     }
     
