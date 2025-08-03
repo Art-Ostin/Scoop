@@ -148,4 +148,22 @@ extension SendInviteView {
                 .onTapGesture { vm.showMapView.toggle() }
         }
     }
+    
+//    struct Event {
+//        var profile: UserProfile
+//        var profile2: UserProfile
+//        var type: EventType?
+//        var time: Date?
+//        var location: MKMapItem?
+//        var message: String?
+//    }
+//    
+//    private func isValidInvite() -> Bool {
+//        guard
+//            vm.event.type.description || (vm.event.message != nil)
+//        
+//
+//            !vm.event.message.isEmpty else { return false }
+//        return true
+//    }
 }

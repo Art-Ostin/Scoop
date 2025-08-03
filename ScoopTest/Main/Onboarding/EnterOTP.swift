@@ -7,18 +7,41 @@
 
 import SwiftUI
 
+
 struct EnterOTP: View {
     
-    let columns = Array(repeating: GridItem(.flexible(), alignment: .center), count: 6)
+    @State private var code = ""
+    @FocusState private var isFocused: Bool
     
     
     var body: some View {
-        
-        
-        
-        
-        
-        
+        ZStack {
+            HStack(spacing: 36) {
+                ForEach(0..<6, id: \.self) { index in
+                    VStack(spacing: 8) {
+                        Text(digit(at: index))
+                            .font(.title)
+                        Rectangle()
+                            .frame(width: 24, height: 2)
+                            .foregroundStyle(Color.grayPlaceholder)
+                    }
+                }
+            }
+            
+            TextField("", text: $code)
+                .keyboardType(.numberPad)
+                .textContentType(.oneTimeCode)
+                .focused($isFocused)
+                .frame(width: 0, height: 0)
+                .opacity(0)
+        }
+        .onAppear { DispatchQueue.main.async { isFocused = true } }
+    }
+    
+    private func digit(at index: Int) -> String {
+        guard index < code.count else { return "" }
+        let start = code.index(code.startIndex, offsetBy: index)
+        return String(code[start])
     }
 }
 
