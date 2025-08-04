@@ -11,6 +11,8 @@ import MapKit
 
 struct SendInviteView: View {
     
+    @Environment(\.appDependencies) private var dep
+    
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     
@@ -35,8 +37,7 @@ struct SendInviteView: View {
                         profileVM.showInvite.toggle()
                         profileVM.inviteSent = true
                         Task {
-                            try? await  vm.manager.createEvent(event: vm.event)
-
+                            try? await  dep.eventManager.createEvent(event: vm.event)
                         }
                     })
                 }

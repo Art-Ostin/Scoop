@@ -8,9 +8,7 @@
 import Foundation
 
 @Observable final class SendInviteViewModel {
-    
-    var manager = EventManager()
-    
+        
     var event: Event
     
     let profile2: UserProfile?
