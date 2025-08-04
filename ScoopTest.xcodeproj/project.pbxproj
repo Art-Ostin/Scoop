@@ -268,9 +268,9 @@
 		65058E872E1C2935009AD7FD /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
-				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				654982BF2E2FA54100CA335F /* StorageManager.swift */,
 				65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,

@@ -8,10 +8,12 @@ import Foundation
 import MapKit
 
 
-struct Event: Codable, Identifiable {
-    var id: UUID = UUID()
+
+struct Event: Identifiable {
+    var id = UUID()
     var profile: UserProfile
     var profile2: UserProfile
+    var type: EventType?
     var time: Date?
     var location: MKMapItem?
     var message: String?
@@ -33,7 +35,12 @@ struct Event: Codable, Identifiable {
 
 
 
-enum EventType: CaseIterable {
+
+
+
+
+
+enum EventType: CaseIterable, Codable {
     case grabFood
     case grabADrink
     case houseParty
@@ -61,3 +68,4 @@ extension EventType {
         }
     }
 }
+
