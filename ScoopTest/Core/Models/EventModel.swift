@@ -15,7 +15,7 @@ struct Event: Identifiable, Codable {
     var profile2: UserProfile
     var type: EventType?
     var time: Date?
-    var location: MKMapItem?
+    var location: EventLocation?
     var message: String?
 }
 

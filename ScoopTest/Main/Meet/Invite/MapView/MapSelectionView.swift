@@ -74,6 +74,10 @@ struct MapSelectionView: View {
         .padding()
     }
 }
+//
+//#Preview {
+//    MapSelectionView(vm: .constant(.init()), selectedPlace: .constant(nil), onCloseMap: {})
+//}
 
 extension MapSelectionView {
     
