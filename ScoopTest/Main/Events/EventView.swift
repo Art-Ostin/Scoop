@@ -16,7 +16,6 @@ struct EventView: View {
     
     let profileImage = "ImagePlaceolder"
     
-    let name = "MeetingNamePlaceholderHere"
     
     @State var showEventDetails: Bool = false
     
@@ -38,6 +37,9 @@ struct EventView: View {
 //                    .padding(.horizontal, 24)
 //                    .lineSpacing(12)
             }
+            
+            
+            
             detailsButton
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .padding(.horizontal, 24)

@@ -27,7 +27,6 @@ struct EventTestScreen: View {
                 }
                 
                 Button("Show PopUp") {
-                    
                     PopUpView(profile: getProfile())
                 }
             }
@@ -44,7 +43,7 @@ struct EventTestScreen: View {
     private func getProfile(event: Event) async throws -> UserProfile {
         
         let userId = event.profile1_id
-        let profile = try? await dependencies.profileManager.getProfile(userId: userId ?? "")
+        return try await dependencies.profileManager.getProfile(userId: userId ?? "")
     }
 }
 
