@@ -20,27 +20,19 @@ struct EventView: View {
             
             TabView {
                 ForEach(Array(events.enumerated()), id: \.offset) {idx, event in
-                    
-                    
+
                     VStack {
-                        
-                        
-                        
                         Text(event.event.type ?? "")
-                        
                         Text(event.user.name ?? "")
                         
                     }.tag(idx)
-
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
                 .indexViewStyle(.page(backgroundDisplayMode: .always))
-                
+                .task {
+                    try? await loadEvents()
+                }
             }
-            
-        }.task {
-            events = []
-            try? await loadEvents()
         }
     }
 }
