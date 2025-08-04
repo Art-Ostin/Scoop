@@ -54,7 +54,6 @@ struct EventView: View {
     EventView()
 }
 
-
 extension EventView {
     
     private var detailsButton: some View {

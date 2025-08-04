@@ -66,10 +66,6 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
-    
-    
-    
-    
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()
         let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)

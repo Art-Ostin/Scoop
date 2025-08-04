@@ -11,7 +11,13 @@ import FirebaseFirestore
 
 
 class EventManager {
-
+    
+    @ObservationIgnored private let user: CurrentUserStore
+    
+    init (user: CurrentUserStore) {
+        self.user = user
+    }
+    
     private let eventCollection = Firestore.firestore().collection("events")
     
     private func eventDocument(id: String) -> DocumentReference {
@@ -38,5 +44,20 @@ class EventManager {
             "accepted": updateTo
         ]
         try await eventDocument(id: eventId).updateData(data)
+    }
+    
+    
+    func getUserEvents ()  async throws  -> [Event] {
+        guard let currentUser = user.user else {return []}
+        let userId = currentUser.userId
+        
+        
+        let snapshot = try await eventCollection.getDocuments()
+
+        let events = snapshot.documents.compactMap { try? $0.data(as: Event.self) }
+        
+        
+        return []
+        
     }
 }
