@@ -25,8 +25,11 @@ struct ProfileImageView: View {
                         ForEach (urlString.indices, id: \.self) {index in
                         let url = urlString[index]
                         if let url = URL(string: url) {
-                            imageContainer(url: url, size: size, vm: $vm)
-                                .tag(index)
+                            imageContainer(url: url, size: size) {
+                                if vm.showInvite {
+                                    InviteButton(vm: vm)
+                                }
+                            }.tag(index)
                         }
                     }
                 }
@@ -37,52 +40,66 @@ struct ProfileImageView: View {
     }
 }
 
-struct imageContainer<Content:ViewModifier>: View {
+struct imageContainer<Overlay: View>: View {
     
     let url: URL
     let size: CGFloat
-    @ViewBuilder let modifier: () -> Content
+    let shadow: CGFloat
+    @ViewBuilder var overlay: () -> Overlay
+    
+    init(url: URL, size: CGFloat, shadow: CGFloat = 5, @ViewBuilder overlay: @escaping () -> Overlay = {EmptyView()}) {
+        self.url = url
+        self.size = size
+        self.shadow = shadow
+        self.overlay = overlay
+    }
     
     var body: some View {
-
+        
         CachedAsyncImage(url: url) { image in
             image
                 .resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)
-                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal, 12)
+                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: shadow)
+                .overlay(alignment: .bottomTrailing) {
+                    overlay()
+                        .padding(24)
+                }
         } placeholder: {
             ProgressView()
         }
-        modifier
     }
 }
-
-
-struct imageContainer2: View {
-
-    let url: URL
-    let size: CGFloat
-    @Binding var vm: ProfileViewModel
-    
-    var body: some View {
-        
-        CachedAsyncImage(url: url) { Image in
-            Image.resizable()
-                .scaledToFill()
-                .frame(width: size, height: size)
-                .clipped()
-
-        } placeholder: {
-            ProgressView()
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .padding(.horizontal, 12)
-        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-        .overlay(alignment: .bottomTrailing) {
-            InviteButton(vm: vm)
-                .padding(24)
-        }
-        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-    }
-}
+//
+//
+//struct imageContainer2: View {
+//
+//    let url: URL
+//    let size: CGFloat
+//    @Binding var vm: ProfileViewModel
+//
+//    var body: some View {
+//
+//        CachedAsyncImage(url: url) { Image in
+//            Image.resizable()
+//                .scaledToFill()
+//                .frame(width: size, height: size)
+//                .clipped()
+//
+//
+//
+//                .clipShape(RoundedRectangle(cornerRadius: 10))
+//                .padding(.horizontal, 12)
+//                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+//                .overlay(alignment: .bottomTrailing) {
+//                    InviteButton(vm: vm)
+//                        .padding(24)
+//                }
+//        } placeholder: {
+//            ProgressView()
+//        }
+//    }
+//}

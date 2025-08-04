@@ -9,25 +9,27 @@ import SwiftUI
 
 struct PopUpView: View {
     
-    var invitee: UserProfile?
+    var profile: UserProfile
     
     
     var body: some View {
 
         VStack(spacing: 23) {
             
+            if let string = profile.imagePathURL?.first, let url = URL(string: string)  {
+                imageContainer(url: url, size: 140, shadow: 0)
+            }
             
-            imageContainer(url: <#T##URL#>, size: <#T##CGFloat#>, vm: $invitee)
+            Text("\(String(describing: profile.name))'s down to meet")
             
             
+                        
         }
         .padding([.bottom, .horizontal], 32)
         .padding(.top, 24)
-
-
     }
 }
 
-#Preview {
-    PopUpView()
-}
+//#Preview {
+//    PopUpView()
+//}
