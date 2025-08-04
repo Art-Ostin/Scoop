@@ -13,9 +13,11 @@ import FirebaseFirestore
 class EventManager {
     
     @ObservationIgnored private let user: CurrentUserStore
+    @ObservationIgnored private let profile: ProfileManaging
     
-    init (user: CurrentUserStore) {
+    init (user: CurrentUserStore, profile: ProfileManaging) {
         self.user = user
+        self.profile = profile
     }
     
     private let eventCollection = Firestore.firestore().collection("events")
@@ -55,14 +57,22 @@ class EventManager {
             .filter { $0.profile1_id == userId || $0.profile2_id == userId}
     }
     
-    func getUserCurrentEvents () async throws -> [Event] {
+    func getCurrentEvents () async throws -> [Event] {
         
         let events = try await getUserEvents()
         let now = Date()
-        
         let currentEvents = events.filter {$0.time ?? Date() > now}
-        let currentAcceptedEvents = currentEvents.filter {$0.status == .accepted ?? false}
-        
+        let userCurrentEvents = currentEvents.filter {$0.status == .accepted}
+        return userCurrentEvents
     }
     
+    func getEventMatch(event: Event) async throws -> UserProfile {
+
+        let userIds: [String] = [event.profile1_id, event.profile2_id].compactMap {$0}
+        let currentUserId = user.user?.userId ?? ""
+        guard let matchId = userIds.first(where: { $0 != currentUserId }) else {
+            throw URLError(.badURL)
+        }
+        return try await profile.getProfile(userId: matchId)
+    }
 }

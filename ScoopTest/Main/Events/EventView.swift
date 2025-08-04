@@ -13,13 +13,29 @@ struct EventView: View {
     
     @State var events: [Event] = []
 
+    @State var userProfiles: [UserProfile] = []
     
     var body: some View {
         
         VStack {
             
+            //Paste the Event  with its details, with the corresponding Event Match Profile photo
             
-        }.
+        }
+        .task {
+            do {
+                self.events = try await dependencies.eventManager.getUserEvents()
+                
+                
+            } catch {
+            }
+            
+            ForEach(events) { event in
+                dependencies.eventManager.getEventMatch(event: event)
+            }
+        }
+        
+        
     }
 }
 
