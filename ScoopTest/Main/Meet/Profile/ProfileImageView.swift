@@ -37,7 +37,29 @@ struct ProfileImageView: View {
     }
 }
 
-struct imageContainer: View {
+struct imageContainer<Content:ViewModifier>: View {
+    
+    let url: URL
+    let size: CGFloat
+    @ViewBuilder let modifier: () -> Content
+    
+    var body: some View {
+
+        CachedAsyncImage(url: url) { image in
+            image
+                .resizable()
+                .scaledToFill()
+                .frame(width: size, height: size)
+                .clipped()
+        } placeholder: {
+            ProgressView()
+        }
+        modifier
+    }
+}
+
+
+struct imageContainer2: View {
 
     let url: URL
     let size: CGFloat
