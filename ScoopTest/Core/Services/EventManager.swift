@@ -60,7 +60,8 @@ class EventManager {
         let events = try await getUserEvents()
         let now = Date()
         
-        let currentEvents = events.time filter { $0 >= now }
+        let currentEvents = events.filter {$0.time ?? Date() > now}
+        let currentAcceptedEvents = currentEvents.filter {$0.status == .accepted ?? false}
         
     }
     
