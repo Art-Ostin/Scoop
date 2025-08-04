@@ -5,7 +5,8 @@
 //  Created by Art Ostin on 04/08/2025.
 //
 
-import Foundation
+//Created since MKMAPITEM does not conform to codable, thus have to create and extract a custom Location Model which does conform to codable, and thus can be used in the data
+
 import MapKit
 
 struct EventLocation: Codable {
@@ -28,9 +29,4 @@ struct EventLocation: Codable {
         item.name = name
         return item
     }
-}
-
-struct ProfileID: Codable {
-    var email: String?
-    var id: String?
 }

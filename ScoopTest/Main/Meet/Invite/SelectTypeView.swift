@@ -22,7 +22,7 @@ struct SelectTypeView: View {
                             if event == .writeAMessage {
                                 vm.showMessageScreen = true
                             }
-                            vm.event.type = event.descriptiption.label
+                            vm.event.type = event.description.label
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 vm.showTypePopup.toggle()
                             }
@@ -34,7 +34,7 @@ struct SelectTypeView: View {
                             if event == .writeAMessage {
                                 vm.showMessageScreen = true
                             }
-                            vm.event.type = event
+                            vm.event.type = event.description.label
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 vm.showTypePopup.toggle()
                             }
