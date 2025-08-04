@@ -11,29 +11,33 @@ struct EventView: View {
     
     @Environment(\.appDependencies) private var dependencies
     
-    @State var events: [Event] = []
-
-    @State var userProfiles: [UserProfile] = []
+    @State var events: [(event: Event, user: UserProfile)] = []
+    
     
     var body: some View {
         
         VStack {
             
-            //Paste the Event  with its details, with the corresponding Event Match Profile photo
-            
-        }
-        .task {
-            do {
-                self.events = try await dependencies.eventManager.getUserEvents()
+            TabView {
+                ForEach(Array(events.enumerated()), id: \.element.event.id) {idx, event in
+
+                    VStack {
+                        Text(event.event.type ?? "")
+
+
+                    }.tag(idx)
+
                 
-                
-            } catch {
+                    
+                }
             }
             
-            ForEach(events) { event in
-                dependencies.eventManager.getEventMatch(event: event)
-            }
+        }.task {
+            await loadEvents()
         }
+    }
+    
+    private func loadEvents() async {
         
         
     }
