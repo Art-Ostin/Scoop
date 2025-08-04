@@ -56,7 +56,7 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if vm.showInvite && (vm.inviteSent == false), let user = dep.userStore.user {
+                    if vm.showInvite && (vm.inviteSent == false), let user = dep.userStore.user?.userId {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()

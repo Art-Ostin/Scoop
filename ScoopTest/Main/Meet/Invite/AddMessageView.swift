@@ -19,7 +19,7 @@ struct InviteAddMessageView: View {
         VStack(alignment: .leading, spacing: 72) {
             
             HStack() {
-                Text(vm.event.type?.description.label ?? "")
+                Text(vm.event.type ?? "")
                     .font(.body(24, .medium))
                 Image(systemName: "chevron.down")
                     .font(.body(24, .medium))

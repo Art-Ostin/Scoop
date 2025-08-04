@@ -66,6 +66,9 @@ struct ProfileDetailsView: View {
         .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
     }
 }
+
+
+
 ///vm.pREVIOUS vm.pERSONAL DETAILS VIEW. USE IF NEEDED.
 /*
  struct vm.profileDetailsView: View {

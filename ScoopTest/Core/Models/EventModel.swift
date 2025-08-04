@@ -11,31 +11,14 @@ import MapKit
 
 struct Event: Identifiable, Codable {
     var id = UUID().uuidString
-    var profile: UserProfile
-    var profile2: UserProfile
-    var type: EventType?
+    var profile1_id: String?
+    var profile2_id: String?
+    var type: String?
+    var message: String?
     var time: Date?
     var location: EventLocation?
-    var message: String?
+    var accepted: Bool?
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 enum EventType: CaseIterable, Codable {
     case grabFood

@@ -16,15 +16,15 @@ struct SendInviteView: View {
     
     @FocusState var isFocused: Bool
     
-    init(profile1: UserProfile, profile2: UserProfile, profileVM: Binding<ProfileViewModel>) {
+    init(profile1: String, profile2: UserProfile, profileVM: Binding<ProfileViewModel>) {
         self._vm = State(initialValue: SendInviteViewModel(profile1: profile1, profile2: profile2))
         self._profileVM = profileVM
     }
     
     var body: some View {
-        
+                
         ZStack {
-            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.event.profile2.name ?? "")") {
+            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.profile2?.name ?? "")") {
                 VStack(spacing: 30) {
                     InviteTypeRow
                     Divider()
@@ -70,15 +70,15 @@ extension SendInviteView {
         
         return HStack {
             
-            if let type = event.type?.description.label, let message = event.message {
+            if let type = event.type, let message = event.message {
                 (
-                    Text((event.type == .writeAMessage) ? "" : "\(type): ")
+                    Text((event.type == "Write a message") ? "" : "\(type): ")
                         .font(.body(16, .bold))
                     + Text(" " + message)
                         .font(.body(12, .italic))
                         .foregroundStyle(Color.grayText)
                 )
-            } else if let type = event.type?.description.label {
+            } else if let type = event.type {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(type).font(.body(18))
                     Text("Add a Message").foregroundStyle(.accent).font(.body(14))
@@ -90,7 +90,6 @@ extension SendInviteView {
             } else {
                 Text("Type").font(.body(20, .bold))
             }
-            
             
             Spacer()
             
@@ -146,7 +145,7 @@ extension SendInviteView {
         }
     }
     private var InviteImage: CirclePhoto? {
-        if let urlString = vm.event.profile2.imagePathURL?[0],
+        if let urlString = vm.profile2?.imagePathURL?[0],
            let url = URL(string: urlString) {
             return CirclePhoto(url: url)
         } else {return nil}
