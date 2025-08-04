@@ -19,19 +19,18 @@ struct EventView: View {
         VStack {
             
             TabView {
-                ForEach(Array(events.enumerated()), id: \.offset) {idx, event in
-
+                ForEach(events, id: \.event.id) {event in
+                    
                     VStack {
                         Text(event.event.type ?? "")
                         Text(event.user.name ?? "")
-                        
-                    }.tag(idx)
+                    }.tag(event.event.id)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .automatic))
-                .indexViewStyle(.page(backgroundDisplayMode: .always))
-                .task {
-                    try? await loadEvents()
-                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .task {
+                await loadEvents()
             }
         }
     }
@@ -45,15 +44,16 @@ struct EventView: View {
 extension EventView {
     
     
-    private func loadEvents() async throws {
-        let userEvents = try await dep.eventManager.getUserEvents()
-        for event in userEvents {
-            let match = try await dep.eventManager.getEventMatch(event: event)
-            events.append((event: event, user: match))
+    private func loadEvents() async {
+        do {
+            let userEvents = try await dep.eventManager.getUserEvents()
+            for event in userEvents {
+                let match = try await dep.eventManager.getEventMatch(event: event)
+                events.append((event: event, user: match))
+            }
+        } catch {
+            print("Failed to load events: \(error)")
         }
     }
-    
-    
-    
     
 }
