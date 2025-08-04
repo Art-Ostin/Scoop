@@ -35,7 +35,7 @@ struct PromptResponseView: View {
             
         )
         .overlay(alignment: .bottomTrailing) {
-            if vm.showInvite {
+            if vm.invitePopup {
                 InviteButton(vm: vm)
                     .padding(.horizontal, 12)
                     .offset(y: 24)

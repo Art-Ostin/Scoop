@@ -18,7 +18,6 @@ final class AppDependencies {
     let imageCache: ImageCaching
     let userStore: CurrentUserStore
     let eventManager: EventManager
-
     
     init(
         authManager: AuthenticationManaging? = nil,
@@ -33,7 +32,7 @@ final class AppDependencies {
         let storage = storageManager ?? StorageManager()
         let cache = imageCache ?? ImageCache()
         let userStore = userStore ?? CurrentUserStore(auth: auth, profile: profile, imageCache: cache)
-        let eventManager = eventManager ?? EventManager(user: userStore)
+        let eventManager = eventManager ?? EventManager(user: userStore, profile: profile)
 
         self.authManager = auth
         self.profileManager = profile

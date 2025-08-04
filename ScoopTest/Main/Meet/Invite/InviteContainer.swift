@@ -34,8 +34,8 @@ struct SendInviteView: View {
                     Divider()
                     InvitePlaceRow
                     ActionButton(isValid: InviteIsValid, text: "Confirm & Send", onTap: {
-                        profileVM.showInvite.toggle()
-                        profileVM.inviteSent = true
+                        profileVM.invitePopup.toggle()
+                        profileVM.showInviteButton = false
                         vm.event.status = .pending
                         vm.event.date_created = Date()
                         Task {

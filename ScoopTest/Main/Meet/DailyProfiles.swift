@@ -38,11 +38,6 @@ struct DailyProfiles: View {
         .onAppear {
             if countdownVM.timeUp { vm.state = .intro }
         }
-        .overlay(
-            Image("NightImages")
-                .padding(.bottom, 72),
-            alignment: .bottom
-            )
     }
 }
 

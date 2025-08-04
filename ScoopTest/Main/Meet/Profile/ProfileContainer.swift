@@ -5,20 +5,19 @@ import Foundation
     
     var p: UserProfile
 
-    var showInvite: Bool = false
-    var inviteSent: Bool = false
+    var invitePopup: Bool = false
+    var showInviteButton: Bool
     
     var imageSelection: Int = 0
     let pageSpacing: CGFloat = -48
     
-    init(profile: UserProfile) {
+    init(profile: UserProfile, showInviteButton: Bool) {
         self.p = profile
+        self.showInviteButton = showInviteButton
     }
-    
 }
 
 import SwiftUI
-
 
 struct ProfileView: View {
     
@@ -27,11 +26,13 @@ struct ProfileView: View {
     @State private var vm: ProfileViewModel
     
     var vm2: Binding<MeetUpViewModel>?
-    @State var isInviting: Bool = false
     
-    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile))
+    var showInviteButton: Bool
+    
+    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil, showInviteButton: Bool = true) {
+        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton))
         self.vm2 = vm2
+        self.showInviteButton = showInviteButton
     }
     
     
@@ -47,7 +48,7 @@ struct ProfileView: View {
                                 heading
                                     .padding()
                                 
-                                ProfileImageView(vm: $vm, isInviting: $isInviting)
+                                ProfileImageView(vm: $vm)
                                     .frame(height: 420)
                                 
                                 ProfileImageScroller(vm: $vm)
@@ -56,19 +57,19 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if vm.showInvite && (vm.inviteSent == false), let user = dep.userStore.user?.userId {
+                    if vm.invitePopup  && (vm.showInviteButton == true), let user = dep.userStore.user?.userId {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                vm.showInvite = false
+                                vm.invitePopup = false
                             }
                         SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
                     }
                 }
             }
-            .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
+            .toolbar(vm.invitePopup ? .hidden : .visible, for: .tabBar)
         }
     }
 }

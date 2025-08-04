@@ -10,7 +10,6 @@ import SwiftUI
 struct ProfileImageView: View {
     
     @Binding var vm: ProfileViewModel
-    @Binding var isInviting: Bool
     
     let cache = NSCache<NSURL, UIImage>()
     
@@ -26,7 +25,7 @@ struct ProfileImageView: View {
                         let url = urlString[index]
                         if let url = URL(string: url) {
                             imageContainer(url: url, size: size) {
-                                if vm.showInvite {
+                                if vm.showInviteButton {
                                     InviteButton(vm: vm)
                                 }
                             }.tag(index)

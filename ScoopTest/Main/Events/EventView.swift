@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EventView: View {
     
-    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.appDependencies) private var dep
     
     @State var events: [(event: Event, user: UserProfile)] = []
     
@@ -21,28 +21,46 @@ struct EventView: View {
             TabView {
                 ForEach(Array(events.enumerated()), id: \.element.event.id) {idx, event in
 
+                    
+                    
+                    
+                    
                     VStack {
                         Text(event.event.type ?? "")
-
-
+                        
+                        Text(event.user.name ?? "")
+                        
+                        
                     }.tag(idx)
 
-                
-                    
                 }
+                .tabViewStyle(.page(indexDisplayMode: .automatic))
+                .indexViewStyle(.page(backgroundDisplayMode: .always))
+                
+                
             }
             
         }.task {
-            await loadEvents()
+            try? await loadEvents()
         }
-    }
-    
-    private func loadEvents() async {
-        
-        
     }
 }
 
 #Preview {
     EventView()
+}
+
+
+extension EventView {
+    
+    
+    private func loadEvents() async throws {
+        let userEvents = try await dep.eventManager.getUserEvents()
+        for event in userEvents {
+            let match = try await dep.eventManager.getEventMatch(event: event)
+            events.append((event: event, user: match))
+        }
+    }
+    
+    
 }

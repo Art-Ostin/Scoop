@@ -14,7 +14,7 @@ struct InviteButton: View {
     
     var body: some View {
         Button {
-            vm.showInvite.toggle()
+            vm.invitePopup.toggle()
         } label: {
             Image("LetterIconProfile")
                 .foregroundStyle(.white)
