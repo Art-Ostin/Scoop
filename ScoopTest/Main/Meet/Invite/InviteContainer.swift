@@ -132,7 +132,7 @@ extension SendInviteView {
                 VStack(alignment: .leading) {
                     Text(location.name ?? "")
                         .font(.body(18, .bold))
-                    Text(location.placemark.title ?? "")
+                    Text(location.address ?? "")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 }

@@ -22,7 +22,7 @@ struct MapSelectionView: View {
         VStack {
             HStack {
                 VStack{
-                    Text(vm.mapSelection?.placemark.name ?? "")
+                    Text(vm.mapSelection?.name ?? "")
                         .font(.title2)
                         .fontWeight(.bold)
                     Text(vm.mapSelection?.placemark.title ?? "")
@@ -53,7 +53,9 @@ struct MapSelectionView: View {
             
             Button {
                 selectedPlace = vm.mapSelection
-                vm2.event.location = vm.mapSelection
+                if let item = vm.mapSelection {
+                    vm2.event.location = EventLocation(mapItem: item)
+                }
                 onCloseMap()
             } label: {
                 Text("Add Location")
