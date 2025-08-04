@@ -28,7 +28,6 @@ struct MapSelectionView: View {
                     Text(vm.mapSelection?.placemark.title ?? "")
                         .font(.footnote)
                         .foregroundStyle(.gray)
-                    
                 }
                 Spacer()
                 

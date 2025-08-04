@@ -23,6 +23,7 @@ struct Event: Identifiable, Codable {
     var profile2_id: String?
     var type: String?
     var message: String?
+    var date_created: Date?
     var time: Date?
     var location: EventLocation?
     var status: Status?

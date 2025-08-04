@@ -19,7 +19,7 @@ struct EventTestScreen: View {
             ForEach(events) { event in
                 Text(event.type ?? "")
                 
-                if event.status = .pending {
+                if event.status == .pending {
                     Text("Pending")
                 }
             }
