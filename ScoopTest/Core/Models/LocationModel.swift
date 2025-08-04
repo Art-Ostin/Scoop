@@ -22,11 +22,15 @@ struct EventLocation: Codable {
     }
     
     var mapItem: MKMapItem {
-        let coordinate = CLLocationCoordinate2D(latitude: latitude,
-                                                longitude: longitude)
+        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let placemark = MKPlacemark(coordinate: coordinate)
         let item = MKMapItem(placemark: placemark)
         item.name = name
         return item
     }
+}
+
+struct ProfileID: Codable {
+    var email: String?
+    var id: String?
 }

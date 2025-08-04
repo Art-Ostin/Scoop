@@ -16,7 +16,7 @@ import Foundation
     var event: Event
     
     init(profile1: UserProfile, profile2: UserProfile) {
-        self.event = Event(from: <#any Decoder#>, profile: profile1, profile2: profile2)
+        self.event = Event(profile: profile1, profile2: profile2)
     }
     
     var showTypePopup: Bool = false
