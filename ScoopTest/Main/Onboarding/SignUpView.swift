@@ -60,6 +60,7 @@ extension SignUpView {
                 .frame(width: 250, height: 250)
                 .tag(0)
             
+            
             VStack(spacing: 20) {
                 Text("Two Profiles a day")
                 Text("Best way to guage if you'll hit it of is to meet, so no texting")

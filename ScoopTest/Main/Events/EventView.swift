@@ -20,6 +20,8 @@ struct EventView: View {
             
             TabView {
                 ForEach(Array(events.enumerated()), id: \.offset) {idx, event in
+                    
+                    
                     VStack {
                         
                         
@@ -37,6 +39,7 @@ struct EventView: View {
             }
             
         }.task {
+            events = []
             try? await loadEvents()
         }
     }
