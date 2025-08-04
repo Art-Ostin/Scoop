@@ -9,7 +9,7 @@ import MapKit
 
 
 
-struct Event: Identifiable {
+struct Event: Identifiable, Codable {
     var id = UUID()
     var profile: UserProfile
     var profile2: UserProfile

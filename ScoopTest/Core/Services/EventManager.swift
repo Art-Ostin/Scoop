@@ -31,13 +31,14 @@ class EventManager {
         if let type = event.type {
             data["Type"] = type
         }
+        
         if let time = event.time {
             data["Date"] = time
         }
         if let location = event.location {
             data["Place"] = location
         }
-        eventDocument(id: event.id).setData(data)
+        try await eventDocument(id: event.id.uuidString).setData(data)
     }
     
 }
