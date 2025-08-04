@@ -8,6 +8,14 @@ import Foundation
 import MapKit
 
 
+enum Status: Codable{
+    case pending
+    case accepted
+    case declined
+    case cancelled
+}
+
+
 
 struct Event: Identifiable, Codable {
     var id = UUID().uuidString
@@ -17,7 +25,7 @@ struct Event: Identifiable, Codable {
     var message: String?
     var time: Date?
     var location: EventLocation?
-    var accepted: Bool?
+    var status: Status?
 }
 
 enum EventType: CaseIterable, Codable {

@@ -36,6 +36,7 @@ struct SendInviteView: View {
                     ActionButton(isValid: InviteIsValid, text: "Confirm & Send", onTap: {
                         profileVM.showInvite.toggle()
                         profileVM.inviteSent = true
+                        vm.event.status = .pending
                         Task {
                             try? await  dep.eventManager.createEvent(event: vm.event)
                         }

@@ -11,13 +11,17 @@ struct EventTestScreen: View {
     
     @Environment(\.appDependencies) private var dependencies
     
-    var events: [Event] = []
+    @State var events: [Event] = []
     
     var body: some View {
         
         VStack {
             ForEach(events) { event in
                 Text(event.type ?? "")
+                
+                if event.status = .pending {
+                    Text("Pending")
+                }
             }
         }
         .task {
