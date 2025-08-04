@@ -54,4 +54,14 @@ class EventManager {
         return events
             .filter { $0.profile1_id == userId || $0.profile2_id == userId}
     }
+    
+    func getUserCurrentEvents () async throws -> [Event] {
+        
+        let events = try await getUserEvents()
+        let now = Date()
+        
+        let currentEvents = events.time filter { $0 >= now }
+        
+    }
+    
 }
