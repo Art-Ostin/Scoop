@@ -49,12 +49,8 @@ class EventManager {
     func getUserEvents ()  async throws  -> [Event] {
         guard let currentUser = user.user else {return []}
         let userId = currentUser.userId
-        
-        
         let snapshot = try await eventCollection.getDocuments()
-        
         let events = snapshot.documents.compactMap { try? $0.data(as: Event.self) }
-        
         return events
             .filter { $0.profile1_id == userId || $0.profile2_id == userId}
     }

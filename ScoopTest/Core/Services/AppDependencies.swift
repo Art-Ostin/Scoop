@@ -24,18 +24,22 @@ final class AppDependencies {
         authManager: AuthenticationManaging? = nil,
         profileManager: ProfileManaging? = nil,
         storageManager: StorageManaging? = nil,
-        imageCache: ImageCaching? = nil
+        imageCache: ImageCaching? = nil,
+        eventManager: EventManager? = nil
     ) {
         let profile = profileManager ?? ProfileManager()
         let auth = authManager ?? AuthenticationManager(profile: profile)
         let storage = storageManager ?? StorageManager()
         let cache = imageCache ?? ImageCache()
-        let event = eventManager ?? EventManager(user: userStore)
+        let eventManager = eventManager ?? EventManager(user: userStore)
+
         self.authManager = auth
         self.profileManager = profile
         self.imageCache = cache
         self.storageManager = storage
         self.userStore = CurrentUserStore(auth: auth, profile: profile, imageCache: cache)
+        self.eventManager = eventManager
+
         if let manager = profile as? ProfileManager {
             manager.userStore = self.userStore
         }
