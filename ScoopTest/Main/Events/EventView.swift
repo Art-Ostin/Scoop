@@ -19,24 +19,20 @@ struct EventView: View {
         VStack {
             
             TabView {
-                ForEach(Array(events.enumerated()), id: \.element.event.id) {idx, event in
-
-                    
-                    
-                    
-                    
+                ForEach(Array(events.enumerated()), id: \.offset) {idx, event in
                     VStack {
+                        
+                        
+                        
                         Text(event.event.type ?? "")
                         
                         Text(event.user.name ?? "")
-                        
                         
                     }.tag(idx)
 
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
                 .indexViewStyle(.page(backgroundDisplayMode: .always))
-                
                 
             }
             
@@ -61,6 +57,8 @@ extension EventView {
             events.append((event: event, user: match))
         }
     }
+    
+    
     
     
 }
