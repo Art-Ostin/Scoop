@@ -13,14 +13,22 @@ struct EventTestScreen: View {
     
     @State var events: [Event] = []
     
+    @State var showInfo: Bool = false
+    
     var body: some View {
         
         VStack {
+            
             ForEach(events) { event in
                 Text(event.type ?? "")
                 
                 if event.status == .pending {
                     Text("Pending")
+                }
+                
+                Button("Show PopUp") {
+                    
+                    PopUpView(profile: getProfile())
                 }
             }
         }
@@ -31,6 +39,12 @@ struct EventTestScreen: View {
                 print("Error getting events")
             }
         }
+    }
+    
+    private func getProfile(event: Event) async throws -> UserProfile {
+        
+        let userId = event.profile1_id
+        let profile = try? await dependencies.profileManager.getProfile(userId: userId ?? "")
     }
 }
 
