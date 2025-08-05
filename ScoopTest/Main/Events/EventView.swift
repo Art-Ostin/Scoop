@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 
 struct EventView: View {
@@ -65,13 +64,17 @@ struct EventView: View {
             .task {
                 loadEvents()
             }
-            .onChange(of: selection) { newIndex in
+            .onChange(of: selection) { _ , newIndex in
                 let pair = events[newIndex ?? 0]
                 currentEvent = pair.event
                 currentUser  = pair.user
             }
             .sheet(isPresented: $showEventDetails) {
-                EventDetailsView(event: currentEvent, user: currentUser)
+                if let event = currentEvent, let user = currentUser {
+                    EventDetailsView(event: event, user: user)
+                } else {
+                    Text("No event selected")
+                }
             }
         }
     }
