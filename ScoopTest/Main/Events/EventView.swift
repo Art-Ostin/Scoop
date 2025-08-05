@@ -26,8 +26,8 @@ struct EventView: View {
                     .padding(.top, 72)
                     .padding(.horizontal, 32)
                 
-                
-                
+                Image(systemName: "info.circle.fill")
+                    .frame(width: 20, height: 20)
             }
             
             TabView {

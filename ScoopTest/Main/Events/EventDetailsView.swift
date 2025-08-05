@@ -49,6 +49,8 @@ import SwiftUI
             return "CoolGuys"
         } else if type == "writeAMessage" {
             return "CoolGuys"
+        } else {
+            return ""
         }
     }
     
@@ -66,6 +68,8 @@ import SwiftUI
             return "Head to" + event.location?.name ?? "the venue" + "with your mates & meet them & their friends there. Can text 1 hour before"
         } else if type == "writeAMessage" {
             return "Just Head to" + event.location?.name ?? "the venue" + "and meet" + user.name ?? "them" + "there for" + getTime(date: event.date)
+        } else {
+            return ""
         }
     }
     
