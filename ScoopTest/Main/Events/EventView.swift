@@ -32,6 +32,9 @@ struct EventView: View {
                 
                 Image(systemName: "info.circle")
                     .frame(width: 20, height: 20)
+                    .onTapGesture {
+                        showEventDetails.toggle()
+                    }
             }
             
             TabView {
@@ -51,7 +54,6 @@ struct EventView: View {
                         }
                         Text(getDate(date: event.event.time))
                             .font(.body(24, .bold))
-                    
                     }.tag(event.event.id)
                         .frame(maxHeight: .infinity)
                 }
