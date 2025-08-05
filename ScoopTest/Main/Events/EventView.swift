@@ -12,6 +12,7 @@ struct EventView: View {
     @Environment(\.appDependencies) private var dep
     @State var events: [(event: Event, user: UserProfile)] = []
     
+
     
     
     var body: some View {
@@ -20,12 +21,20 @@ struct EventView: View {
             TabView {
                 ForEach(events, id: \.event.id) {event in
                     VStack {
+                        
+                        
                         if let urlString = event.user.imagePathURL?.first,
                            let url = URL(string: urlString) {
                             imageContainer(url: url, size: 140, shadow: 0)
                         }
-                        Text(event.event.type ?? "")
-                        Text(event.user.name ?? "")
+                        
+                        if let date = event.event.time {
+                            let datePart = date.formatted(.dateTime.day(.ordinal).month(.abbreviated))
+                            let rest    = date.formatted(.dateTime.weekday(.wide)
+                                                         .hour(.twoDigits(amPM: .omitted))
+                                                         .minute(.twoDigits))
+                            Text("\(datePart), \(rest)")
+                        }
                     }.tag(event.event.id)
                 }
             }
