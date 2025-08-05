@@ -18,7 +18,7 @@ struct ScoopTestApp: App {
       WindowGroup {
           ZStack {
               Color.background.ignoresSafeArea()
-              ClockTest()
+              RootView()
           }
       }
   }

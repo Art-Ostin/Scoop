@@ -12,8 +12,10 @@ import Foundation
 
 @Observable class EventViewModel {
     
-    
     var showEvent: Bool = false
     
-
+    
+    
+    
+    
 }
