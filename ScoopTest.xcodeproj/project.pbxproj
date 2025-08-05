@@ -24,7 +24,6 @@
 		653770602E0AC2B70058D225 /* InviteContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537705D2E0AC2B70058D225 /* InviteContainer.swift */; };
 		653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653770612E0ACA600058D225 /* SelectTypeView.swift */; };
 		6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537706D2E0B08DE0058D225 /* AddMessageView.swift */; };
-		653A78532E130A990098747F /* EventDetailSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78522E130A990098747F /* EventDetailSummaryView.swift */; };
 		653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78542E131FDF0098747F /* EventDetailsView.swift */; };
 		653A78592E1340BA0098747F /* MatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78582E1340BA0098747F /* MatchesView.swift */; };
 		653A78C42E15DBD80098747F /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78C32E15DBD80098747F /* MapView.swift */; };
@@ -150,7 +149,6 @@
 		6537705D2E0AC2B70058D225 /* InviteContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContainer.swift; sourceTree = "<group>"; };
 		653770612E0ACA600058D225 /* SelectTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTypeView.swift; sourceTree = "<group>"; };
 		6537706D2E0B08DE0058D225 /* AddMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMessageView.swift; sourceTree = "<group>"; };
-		653A78522E130A990098747F /* EventDetailSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailSummaryView.swift; sourceTree = "<group>"; };
 		653A78542E131FDF0098747F /* EventDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsView.swift; sourceTree = "<group>"; };
 		653A78582E1340BA0098747F /* MatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesView.swift; sourceTree = "<group>"; };
 		653A78C32E15DBD80098747F /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -404,7 +402,6 @@
 				65FAF98F2E418A1D0015E231 /* ClockView.swift */,
 				65FAF9852E413B100015E231 /* EventPlaceholder.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
-				653A78522E130A990098747F /* EventDetailSummaryView.swift */,
 				65FAF9792E40F9F00015E231 /* EventTestScreen.swift */,
 				65FAF9932E4261E30015E231 /* DateFormatterTest.swift */,
 				65FAF98D2E4165F40015E231 /* TabViewTest.swift */,
@@ -723,7 +720,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				653A78532E130A990098747F /* EventDetailSummaryView.swift in Sources */,
 				65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */,
 				659109332E19C87B0065696F /* EmailVerificationView.swift in Sources */,
 				65FAF9842E413A940015E231 /* EventViewModel.swift in Sources */,

@@ -19,7 +19,6 @@ import SwiftUI
     }
     
     func typeTitle(type: String) -> String {
-        
         if type == "grabFood" {
             return "meal With"
         } else if type == "grabADrink" {
@@ -32,9 +31,10 @@ import SwiftUI
             return "Event with"
         } else if type == "writeAMessage" {
             return "Meeting"
+        } else {
+            return ""
         }
     }
-
     
     func typeImage (type: String) -> String {
         if type == "grabFood" {
@@ -54,21 +54,28 @@ import SwiftUI
         }
     }
     
-    
     func typeDescription (type: String) -> String {
-        if type == "grabFood" {
-            return "Go to" + event.location?.name ?? "the place" + "for " + getTime(date: event.date) + "and meet" + user.name ?? "them" + "there. Can text 1 hour before."
-        } else if type == "grabADrink" {
-            return "Go to the bar for" + getTime(date: event.date) + "and meet there. Can text 1 hour before"
-        } else if type == "houseParty" {
-            return "EventCups"
-        } else if type == "doubleDate" {
-            return "Bring a friend and head to" + event.location?.name ?? "the place" + "for" +  getTime(date: event.date) + ". You can text 30 mins before."
-        } else if type == "samePlace" {
-            return "Head to" + event.location?.name ?? "the venue" + "with your mates & meet them & their friends there. Can text 1 hour before"
-        } else if type == "writeAMessage" {
-            return "Just Head to" + event.location?.name ?? "the venue" + "and meet" + user.name ?? "them" + "there for" + getTime(date: event.date)
-        } else {
+        switch type {
+        case "grabFood":
+            let location = event.location?.name ?? "the place"
+            let name = user.name ?? "them"
+            return "Go to \(location) for \(getTime(date: event.time)) and meet \(name) there. Can text 1 hour before."
+        case "grabADrink":
+            let name = user.name ?? "them"
+            return "Go to the bar for \(getTime(date: event.time)) and meet \(name) there. Can text 1 hour before"
+        case "houseParty":
+            return "Head to the house party and meet there. You can text 1 hour before"
+        case "doubleDate":
+            let location = event.location?.name ?? "the place"
+            return "Bring a friend and head to \(location) for \(getTime(date: event.time)). You can text 30 mins before."
+        case "samePlace":
+            let location = event.location?.name ?? "the venue"
+            return "Head to \(location) with your mates & meet them & their friends there. Can text 1 hour before"
+        case "writeAMessage":
+            let location = event.location?.name ?? "the venue"
+            let name = user.name ?? "them"
+            return "Just head to \(location) and meet \(name) there for \(getTime(date: event.time))"
+        default:
             return ""
         }
     }
@@ -77,8 +84,11 @@ import SwiftUI
     private func getTime(date: Date?) -> String {
         guard let date = date else {return ""}
         
-        let format = date.formatted(.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        return format
+        return date.formatted(
+          .dateTime
+            .hour(.twoDigits(amPM: .omitted))
+            .minute(.twoDigits)
+        )
     }
 }
 
@@ -86,25 +96,20 @@ struct EventDetailsView: View {
     
     @State var vm: EventDetailsViewModel
     
-    
-    init(user: UserProfile, event: Event) {
-        self._vm = EventDetailsViewModel(event: event , user: user)
+    init(event: Event, user: UserProfile) {
+        _vm = State(initialValue: (EventDetailsViewModel(event: event, user: user)))
     }
-    
+        
     var body: some View {
         
         VStack(spacing: 72) {
             
             VStack(alignment: .leading, spacing: 32) {
-                Text((vm.event.type? ?? "") + " " + Event.sample.profile2.name)
+                Text((vm.event.type ?? "") + " " + (vm.user.name ?? ""))
                     .font(.body(24, .bold))
-                
-                EventDetailSummaryView(isSheetView: true)
-                    .font(.body(18, .regular))
-                    .lineSpacing(8)
             }
             
-            Image(vm.typeImage(type: Event.sample.type))
+            Image(vm.typeImage(type: vm.event.type ?? ""))
                 .resizable()
                 .scaledToFit()
                 .frame(height: 240)
@@ -115,8 +120,7 @@ struct EventDetailsView: View {
                     .font(.body(20, .bold))
                 
                 VStack(alignment: .leading, spacing: 24) {
-                    Text(vm.typeDescription(type: Event.sample.type))
-                    
+                    Text(vm.typeDescription(type: vm.event.type ?? ""))
                     (
                         Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’ll be blocked. ")
                         +
@@ -133,9 +137,9 @@ struct EventDetailsView: View {
     }
 }
 
-#Preview {
-    EventDetailsView()
-}
+//#Preview {
+//    EventDetailsView()
+//}
 
 
 /*

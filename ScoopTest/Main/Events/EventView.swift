@@ -15,8 +15,8 @@ struct EventView: View {
     @State var events: [(event: Event, user: UserProfile)] = []
     
     
-    
-    
+    @State var showEventDetails: Bool = false
+
     var body: some View {
         
         VStack {
@@ -26,7 +26,11 @@ struct EventView: View {
                     .padding(.top, 72)
                     .padding(.horizontal, 32)
                 
-                Image(systemName: "info.circle.fill")
+                
+                
+                
+                
+                Image(systemName: "info.circle")
                     .frame(width: 20, height: 20)
             }
             
@@ -56,6 +60,9 @@ struct EventView: View {
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .task {
                 loadEvents()
+            }
+            .sheet(isPresented: $showEventDetails) {
+                EventDetailsView(event: event, user: user)
             }
         }
     }
