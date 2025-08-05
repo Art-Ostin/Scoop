@@ -9,9 +9,6 @@ import SwiftUI
 
 struct EventPlaceholder: View {
     
-    @Binding var vm: EventViewModel
-    
-    
     var body: some View {
         
             VStack (spacing: 72) {

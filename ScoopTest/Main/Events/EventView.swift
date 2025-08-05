@@ -13,7 +13,7 @@ struct EventView: View {
     @Binding var vm: EventViewModel
     
     @State var showEventDetails: Bool = false
-    @State var selection: Int? = nil
+    @State var selection: String?
     @State var showProfile: Bool = false
     
     var body: some View {
@@ -34,8 +34,7 @@ struct EventView: View {
             
             TabView(selection: $selection) {
                 
-                ForEach(vm.events.indices, id: \.self) {index in
-                    let event = vm.events[index]
+                ForEach(vm.events) {event in
                     
                     VStack(spacing: 36) {
                         
@@ -45,29 +44,27 @@ struct EventView: View {
                         
                         if let urlString = event.user.imagePathURL?[0], let url = URL(string: urlString) {
                             imageContainer(url: url, size: 140, shadow: 0)
-                                .onTapGesture {
-                                    showProfile.toggle()
-                                }
+                                .onTapGesture { showProfile.toggle() }
+                            
                         }
                         if let date = event.event.time {
-                            CountdownTimer(meetUpTime: date)
+                            ClockView(meetUpTime: date)
                         }
                         Text(vm.formatDate(date: event.event.time))
                             .font(.body(24, .bold))
-                    }.tag(index)
+                    }.tag(event.id)
                     .frame(maxHeight: .infinity)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .task {
-                vm.loadEvents()
-            }
-            .onChange(of: selection) { _ , newIndex in
-                let pair = vm.events[newIndex ?? 0]
+            .onAppear { selection = vm.currentEvent?.id }
+            .onChange(of: selection) { _, newId in
+                guard let id = newId, let pair = vm.events.first(where: { $0.id == id }) else { return }
                 vm.currentEvent = pair.event
                 vm.currentUser  = pair.user
             }
+            
             .fullScreenCover(isPresented: $showProfile, content: {
                 if let newUser = vm.currentUser {
                     ProfileView(profile: newUser)

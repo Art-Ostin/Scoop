@@ -8,22 +8,19 @@
 import SwiftUI
 import Combine
 
-struct CountdownTimer: View {
+struct ClockView: View {
     
     let meetUpTime: Date
     
-    @State private var hourRemaining = "00"
-    @State private var minuteRemaining = "00"
-    @State private var secondRemaining = "00"
-    
+    @State private var timeRemaining = DateComponents()
     private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     
     var body: some View {
         
         HStack(spacing: 32) {
-            clockSection(time: hourRemaining, sign: "hr")
-            clockSection(time: minuteRemaining, sign: "m")
-            clockSection(time: secondRemaining, sign: "s")
+            clockSection(time: timeRemaining.hour ?? 0, sign: "hr")
+            clockSection(time: timeRemaining.minute ?? 0, sign: "m")
+            clockSection(time: timeRemaining.second ?? 0, sign: "s")
         }
         .foregroundStyle(.white)
         .frame(width: 253, height: 52)
@@ -34,9 +31,9 @@ struct CountdownTimer: View {
         .onAppear { updateTimeRemaining() }
     }
     
-    private func clockSection(time: String, sign: String) -> some View {
+    private func clockSection(time: Int, sign: String) -> some View {
         HStack(spacing: 5) {
-            Text(time)
+            Text(String(format: "%02d", max(0, time)))
                 .font(.custom("SFCompactRounded-Semibold", size: 28))
             Text(sign)
                 .font(.custom("SFCompactRounded-Regular", size: 14))
@@ -45,18 +42,10 @@ struct CountdownTimer: View {
     }
     
     private func updateTimeRemaining() {
-        let timeRemaining = Calendar.current.dateComponents([
+        timeRemaining = Calendar.current.dateComponents([
             .hour,
             .minute,
             .second
         ], from: Date(), to: meetUpTime)
-
-        let hour = max(0, timeRemaining.hour ?? 0)
-        let minute = max(0, timeRemaining.minute ?? 0)
-        let second = max(0, timeRemaining.second ?? 0)
-
-        hourRemaining = String(format: "%02d", hour)
-        minuteRemaining = String(format: "%02d", minute)
-        secondRemaining = String(format: "%02d", second)
     }
 }

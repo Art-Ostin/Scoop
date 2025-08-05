@@ -8,103 +8,112 @@
 import SwiftUI
 
 
+enum EventDisplay: String {
+    
+    case grabFood = "Grab Food"
+    case grabDrink = "Grab a Drink"
+    case houseParty = "House Party"
+    case doubleDate = "Double Date"
+    case samePlace = "Same Place"
+    case writeMessage = "Write a Message"
+    
+    var title: String {
+        switch self {
+        case .grabFood: return "meal With"
+        case .grabDrink: return "Drink With"
+        case .houseParty: return "House Party With"
+        case .doubleDate: return "Double Date with"
+        case .samePlace: return "Event with"
+        case .writeMessage: return "Meeting"
+        }
+    }
+    
+    var image: String {
+        switch self {
+        case .grabFood: return "DancingCats"
+        case .grabDrink: return "CoolGuys"
+        case .houseParty: return "EventCups"
+        case .doubleDate: return "DancingCats"
+        case .samePlace: return "CoolGuys"
+        case .writeMessage: return "CoolGuys"
+        }
+    }
+    
+    func description(event: Event, user: UserProfile) -> String {
+        switch self {
+        case .grabFood:
+            let location = event.location?.name ?? "the place"
+            let name = user.name ?? "them"
+            return "Go to \(location) for \(EventDetailsViewModel.formatTime(date: event.time)) and meet \(name) there. Can text 1 hour before."
+            
+        case .grabDrink:
+            let name = user.name ?? "them"
+            return "Go to the bar for \(EventDetailsViewModel.formatTime(date: event.time)) and meet \(name) there. Can text 1 hour before"
+        case .houseParty:
+            return "Head to the house party and meet there. You can text 1 hour before"
+        case .doubleDate:
+            let location = event.location?.name ?? "the place"
+            return "Bring a friend and head to \(location) for \(EventDetailsViewModel.formatTime(date: event.time)). You can text 30 mins before."
+        case .samePlace:
+            let location = event.location?.name ?? "the venue"
+            return "Head to \(location) with your mates & meet them & their friends there. Can text 1 hour before"
+        case .writeMessage:
+            let location = event.location?.name ?? "the venue"
+            let name = user.name ?? "them"
+            return "Just head to \(location) and meet \(name) there for \(EventDetailsViewModel.formatTime(date: event.time))"
+        }
+    }
+}
+
+
 @Observable class EventDetailsViewModel {
     
     let event: Event
     let user: UserProfile
+    
+    private var eventType: EventDisplay? {
+        EventDisplay(rawValue: event.type ?? "")
+    }
     
     init (event: Event, user: UserProfile) {
         self.event = event
         self.user = user
     }
     
-    func typeTitle(type: String) -> String {
-        if type == "Grab Food" {
-            return "meal With"
-        } else if type == "Grab a Drink" {
-            return "Drink With"
-        } else if type == "House Party" {
-            return "House Party With"
-        } else if type == "Double Date" {
-            return "Double Date with"
-        } else if type == "Same Place" {
-            return "Event with"
-        } else if type == "Write a Message" {
-            return "Meeting"
-        } else {
-            return ""
-        }
+    func typeTitle() -> String { eventType?.title ?? "" }
+    
+    func typeImage() -> String { eventType?.image ?? "" }
+    
+    func typeDescription() -> String {
+        guard let eventType = eventType else { return "" }
+        return eventType.description(event: event, user: user)
     }
     
-    func typeImage (type: String) -> String {
-        if type == "Grab Food" {
-            return "DancingCats"
-        } else if type == "Grab a Drink" {
-            return "CoolGuys"
-        } else if type == "House Party" {
-            return "EventCups"
-        } else if type == "Double Date" {
-            return "DancingCats"
-        } else if type == "Same Place" {
-            return "CoolGuys"
-        } else if type == "Write a Message" {
-            return "CoolGuys"
-        } else {
-            return ""
-        }
-    }
-    
-    func typeDescription (type: String) -> String {
-        switch type {
-        case "Grab Food":
-            let location = event.location?.name ?? "the place"
-            let name = user.name ?? "them"
-            return "Go to \(location) for \(getTime(date: event.time)) and meet \(name) there. Can text 1 hour before."
-        case "Grab a Drink":
-            let name = user.name ?? "them"
-            return "Go to the bar for \(getTime(date: event.time)) and meet \(name) there. Can text 1 hour before"
-        case "House Party":
-            return "Head to the house party and meet there. You can text 1 hour before"
-        case "Double Date":
-            let location = event.location?.name ?? "the place"
-            return "Bring a friend and head to \(location) for \(getTime(date: event.time)). You can text 30 mins before."
-        case "Same Place":
-            let location = event.location?.name ?? "the venue"
-            return "Head to \(location) with your mates & meet them & their friends there. Can text 1 hour before"
-        case "Write a Message":
-            let location = event.location?.name ?? "the venue"
-            let name = user.name ?? "them"
-            return "Just head to \(location) and meet \(name) there for \(getTime(date: event.time))"
-        default:
-            return ""
-        }
-    }
-    
-    private func getTime(date: Date?) -> String {
-        guard let date = date else {return ""}
-        
+    static func formatTime(date: Date?) -> String {
+        guard let date = date else { return "" }
         return date.formatted(
-          .dateTime
-            .hour(.twoDigits(amPM: .omitted))
-            .minute(.twoDigits)
-        )
-    }
-    
-    func getEvenTime(date: Date?) -> String {
-        guard let date = date else {return ""}
-        
-        let dayTime = date.formatted(
             .dateTime
-                .weekday(.wide)
                 .hour(.twoDigits(amPM: .omitted))
                 .minute(.twoDigits)
         )
-        let dayAndMonth = date.formatted(
-            .dateTime
-                .day(.defaultDigits)
-                .month(.wide)
-        )
-        return "\(dayAndMonth), \(dayTime)"
+        
+        func eventTimeString(date: Date?) -> String {
+            guard let date = date else { return "" }
+            
+            let dayTime = date.formatted(
+                .dateTime
+                    .weekday(.wide)
+                    .hour(.twoDigits(amPM: .omitted))
+                    .minute(.twoDigits)
+            )
+            let dayAndMonth = date.formatted(
+                .dateTime
+                    .day(.defaultDigits)
+                    .month(.wide)
+            )
+            return "\(dayAndMonth), \(dayTime)"
+        }
+        
     }
 }
 
@@ -120,12 +129,12 @@ struct EventDetailsView: View {
         
         VStack(spacing: 72) {
             
-            let time = Text(vm.getEvenTime(date: vm.event.time))
+            let time = Text(vm.eventTimeString(date: vm.event.time))
             let location = Text(vm.event.location?.name ?? "").foregroundStyle(.accent).font(.body(20, .bold))
             
             
             VStack(alignment: .leading, spacing: 16) {
-                Text((vm.typeTitle(type: vm.event.type ?? "")) + " " + (vm.user.name ?? ""))
+                Text((vm.typeTitle()) + " " + (vm.user.name ?? ""))
                     .font(.body(24, .bold))
                 
                 
@@ -137,11 +146,10 @@ struct EventDetailsView: View {
                 
             }
             
-            Image(vm.typeImage(type: vm.event.type ?? "No Image"))
+            Image(vm.typeImage())
                 .resizable()
                 .scaledToFit()
                 .frame(height: 240)
-            
             
             VStack (alignment: .leading, spacing: 24) {
                 
@@ -149,7 +157,7 @@ struct EventDetailsView: View {
                     .font(.body(20, .bold))
                 
                 VStack(alignment: .leading, spacing: 24) {
-                    Text(vm.typeDescription(type: vm.event.type ?? "No Description"))
+                    Text(vm.typeDescription())
                     Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’ll be blocked. ")
                     Text ("Can’t make it?")
                         .foregroundStyle(Color.accent)

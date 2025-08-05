@@ -21,16 +21,13 @@ struct EventContainer: View {
         
         ZStack {
             
-            if vm.showEvent {
+            if vm.hasEvents {
                 EventView(vm: $vm)
             } else {
-                EventPlaceholder(vm: $vm)
+                EventPlaceholder()
             }
         }
-        .task {
-            let events = (try? await vm.dependencies.eventManager.getCurrentEvents()) ?? []
-            vm.showEvent = !events.isEmpty
-        }
+        .task { await vm.loadEvents() }
     }
 }
 

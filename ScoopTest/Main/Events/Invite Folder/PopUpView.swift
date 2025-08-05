@@ -11,6 +11,7 @@ struct PopUpView: View {
     
     var profile: UserProfile
     
+    @State var showProfile: UserProfile? = nil
     
     var body: some View {
         
@@ -25,6 +26,10 @@ struct PopUpView: View {
             
             Text("You have 24 hours to respond")
                 .font(.body(16, .bold))
+            
+            ActionButton(text: "View Invite") {
+                showProfile = profile
+            }
         }
         .padding([.bottom, .horizontal], 32)
         .padding(.top, 24)
@@ -40,5 +45,5 @@ struct PopUpView: View {
 
 
 //#Preview {
-//    PopUpView()
+//    PopUpView(profile: <#UserProfile#>)
 //}
