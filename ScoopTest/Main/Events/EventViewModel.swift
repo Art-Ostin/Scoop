@@ -35,6 +35,7 @@ struct EventMatch: Identifiable {
     var currentUser: UserProfile?
     
     
+    @MainActor
     func loadEvents() async {
         Task {
             do {

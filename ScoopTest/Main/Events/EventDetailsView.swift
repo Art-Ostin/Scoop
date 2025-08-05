@@ -96,6 +96,7 @@ enum EventDisplay: String {
                 .hour(.twoDigits(amPM: .omitted))
                 .minute(.twoDigits)
         )
+    }
         
         func eventTimeString(date: Date?) -> String {
             guard let date = date else { return "" }
@@ -114,7 +115,6 @@ enum EventDisplay: String {
             return "\(dayAndMonth), \(dayTime)"
         }
         
-    }
 }
 
 struct EventDetailsView: View {
@@ -137,13 +137,11 @@ struct EventDetailsView: View {
                 Text((vm.typeTitle()) + " " + (vm.user.name ?? ""))
                     .font(.body(24, .bold))
                 
-                
                 Text("\(time) at \(location)")
                     .font(.body(20, .regular))
                     .padding(.horizontal, 32)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
-                
             }
             
             Image(vm.typeImage())

@@ -20,7 +20,6 @@ struct EventContainer: View {
     var body: some View {
         
         ZStack {
-            
             if vm.hasEvents {
                 EventView(vm: $vm)
             } else {

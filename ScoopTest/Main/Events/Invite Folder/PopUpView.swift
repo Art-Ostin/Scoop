@@ -45,5 +45,5 @@ struct PopUpView: View {
 
 
 //#Preview {
-//    PopUpView(profile: <#UserProfile#>)
+//    PopUpView(profile: )
 //}
