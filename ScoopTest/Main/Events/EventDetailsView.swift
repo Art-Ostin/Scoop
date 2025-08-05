@@ -19,17 +19,17 @@ import SwiftUI
     }
     
     func typeTitle(type: String) -> String {
-        if type == "grabFood" {
+        if type == "Grab Food" {
             return "meal With"
-        } else if type == "grabADrink" {
+        } else if type == "Grab a Drink" {
             return "Drink With"
-        } else if type == "houseParty" {
+        } else if type == "House Party" {
             return "House Party With"
-        } else if type == "doubleDate" {
+        } else if type == "Double Date" {
             return "Double Date with"
-        } else if type == "samePlace" {
+        } else if type == "Same Place" {
             return "Event with"
-        } else if type == "writeAMessage" {
+        } else if type == "Write a Message" {
             return "Meeting"
         } else {
             return ""
@@ -37,17 +37,17 @@ import SwiftUI
     }
     
     func typeImage (type: String) -> String {
-        if type == "grabFood" {
+        if type == "Grab Food" {
             return "DancingCats"
-        } else if type == "grabADrink" {
+        } else if type == "Grab a Drink" {
             return "CoolGuys"
-        } else if type == "houseParty" {
+        } else if type == "House Party" {
             return "EventCups"
-        } else if type == "doubleDate" {
+        } else if type == "Double Date" {
             return "DancingCats"
-        } else if type == "samePlace" {
+        } else if type == "Same Place" {
             return "CoolGuys"
-        } else if type == "writeAMessage" {
+        } else if type == "Write a Message" {
             return "CoolGuys"
         } else {
             return ""
@@ -56,22 +56,22 @@ import SwiftUI
     
     func typeDescription (type: String) -> String {
         switch type {
-        case "grabFood":
+        case "Grab Food":
             let location = event.location?.name ?? "the place"
             let name = user.name ?? "them"
             return "Go to \(location) for \(getTime(date: event.time)) and meet \(name) there. Can text 1 hour before."
-        case "grabADrink":
+        case "Grab a Drink":
             let name = user.name ?? "them"
             return "Go to the bar for \(getTime(date: event.time)) and meet \(name) there. Can text 1 hour before"
-        case "houseParty":
+        case "House Party":
             return "Head to the house party and meet there. You can text 1 hour before"
-        case "doubleDate":
+        case "Double Date":
             let location = event.location?.name ?? "the place"
             return "Bring a friend and head to \(location) for \(getTime(date: event.time)). You can text 30 mins before."
-        case "samePlace":
+        case "Same Place":
             let location = event.location?.name ?? "the venue"
             return "Head to \(location) with your mates & meet them & their friends there. Can text 1 hour before"
-        case "writeAMessage":
+        case "Write a Message":
             let location = event.location?.name ?? "the venue"
             let name = user.name ?? "them"
             return "Just head to \(location) and meet \(name) there for \(getTime(date: event.time))"
@@ -79,7 +79,6 @@ import SwiftUI
             return ""
         }
     }
-    
     
     private func getTime(date: Date?) -> String {
         guard let date = date else {return ""}
@@ -89,6 +88,18 @@ import SwiftUI
             .hour(.twoDigits(amPM: .omitted))
             .minute(.twoDigits)
         )
+    }
+    
+    func getEvenTime(date: Date?) -> String {
+        guard let date = date else {return ""}
+        
+        let style = Date.FormatStyle()
+            .weekday(.wide)
+            .hour(.twoDigits(amPM: .omitted))
+            .minute(.twoDigits)
+            .day(.ordinalOfDayInMonth)
+            .month(.wide)
+        return date.formatted(style)
     }
 }
 
@@ -103,16 +114,23 @@ struct EventDetailsView: View {
     var body: some View {
         
         VStack(spacing: 72) {
-            
+                        
             VStack(alignment: .leading, spacing: 32) {
-                Text((vm.event.type ?? "") + " " + (vm.user.name ?? ""))
+                Text((vm.typeTitle(type: vm.event.type ?? "")) + " " + (vm.user.name ?? ""))
                     .font(.body(24, .bold))
+                
+                (
+                
+                Text(vm.getEvenTime(date: vm.event.time))
+                
+                )
             }
             
             Image(vm.typeImage(type: vm.event.type ?? "No Image"))
                 .resizable()
                 .scaledToFit()
                 .frame(height: 240)
+            
             
             VStack (alignment: .leading, spacing: 24) {
                 
