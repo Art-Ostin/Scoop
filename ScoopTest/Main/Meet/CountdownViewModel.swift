@@ -16,7 +16,6 @@ class CountdownViewModel {
     var defaults: UserDefaults
     var dateKey: String
     
-    
     init(defaults: UserDefaults = .standard, dateKey: String) {
         self.defaults = defaults
         self.dateKey = dateKey

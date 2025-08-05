@@ -12,7 +12,7 @@ struct EventView: View {
     @Environment(\.appDependencies) private var dep
     @State var events: [(event: Event, user: UserProfile)] = []
     
-    @State var 
+    
     
     var body: some View {
         
@@ -20,9 +20,9 @@ struct EventView: View {
             TabView {
                 ForEach(events, id: \.event.id) {event in
                     VStack {
-                        
-                            if let url = getImage(event: event.event) {
-                                imageContainer(url: url, size: 140, cornerRadius: 10)
+                        if let urlString = event.user.imagePathURL?.first,
+                           let url = URL(string: urlString) {
+                            imageContainer(url: url, size: 140, shadow: 0)
                         }
                         Text(event.event.type ?? "")
                         Text(event.user.name ?? "")
@@ -32,8 +32,7 @@ struct EventView: View {
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .task {
-                await loadEvents()
-                
+                loadEvents()
             }
         }
     }
@@ -54,22 +53,6 @@ extension EventView {
             } catch {
                 print("Failed to load events: \(error)")
             }
-        }
-    }
-    
-    private func getImage(event: Event) async -> URL? {
-        do {
-            let profile = try await dep.eventManager.getEventMatch(event: event)
-            guard
-                let urlString = profile.imagePathURL?.first,
-                let url = URL(string: urlString)
-            else {
-                return nil
-            }
-            return url
-        } catch {
-            print("failed to get image:", error)
-            return nil
         }
     }
 }

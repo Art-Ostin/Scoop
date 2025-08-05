@@ -15,7 +15,5 @@ import Foundation
     
     var showEvent: Bool = false
     
-    
-    
-    
+
 }
