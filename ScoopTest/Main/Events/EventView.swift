@@ -15,8 +15,8 @@ struct EventView: View {
     
     @State var events: [(event: Event, user: UserProfile)] = []
     
-    var currentEvent: Event? = nil
-    var currentUser: UserProfile?
+    @State var currentEvent: Event?
+    @State var currentUser: UserProfile?
     
     @State var showEventDetails: Bool = false
     
@@ -71,7 +71,7 @@ struct EventView: View {
                 currentUser  = pair.user
             }
             .sheet(isPresented: $showEventDetails) {
-                EventDetailsView(event: event, user: user)
+                EventDetailsView(event: currentEvent, user: currentUser)
             }
         }
     }
