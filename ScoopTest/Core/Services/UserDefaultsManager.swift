@@ -15,12 +15,15 @@ final class UserDefaultsManager {
     private let defaults: UserDefaults
     
     private enum Keys {
-        
+        case dailyProfileTimer
     }
     
     init(defaults: UserDefaults) {
         self.defaults = defaults
     }
+    
+    
+    
     
     
 }

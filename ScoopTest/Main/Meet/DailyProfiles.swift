@@ -18,7 +18,11 @@ struct DailyProfiles: View {
     var body: some View {
         
         VStack(spacing: 36) {
-                    
+            
+            
+            
+            
+            
             
             Text("\(countdownVM.hourRemaining):\(countdownVM.minuteRemaining):\(countdownVM.secondRemaining)")
             MeetTitle()

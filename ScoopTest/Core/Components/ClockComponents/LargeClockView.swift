@@ -12,11 +12,11 @@ struct LargeClockView: View {
     let targetTime: Date
     
     var body: some View {
-        CountdownTimer(targetTime: targetTime) { timeremaining in
+        CountdownTimer(targetTime: targetTime) { timeRemaining in
             HStack(spacing: 32) {
-                clockSection(time: timeremaining.hour ?? 0, sign: "hr")
-                clockSection(time: timeremaining.hour ?? 0, sign: "m")
-                clockSection(time: timeremaining.hour ?? 0, sign: "s")
+                clockSection(time: timeRemaining.hour ?? 0, sign: "hr")
+                clockSection(time: timeRemaining.minute ?? 0, sign: "m")
+                clockSection(time: timeRemaining.second ?? 0, sign: "s")
             }
         }
         .foregroundStyle(.white)

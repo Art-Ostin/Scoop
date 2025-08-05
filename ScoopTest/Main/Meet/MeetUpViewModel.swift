@@ -47,7 +47,6 @@ import Foundation
                 await MainActor.run {
                     self.selection = 0
                     self.state = .twoDailyProfiles
-                    
                 }
             } else {
                 await MainActor.run { self.state = .intro }

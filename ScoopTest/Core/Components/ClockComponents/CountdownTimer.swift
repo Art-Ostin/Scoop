@@ -14,6 +14,7 @@ struct CountdownTimer<Content: View>: View {
     private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     
     let targetTime: Date
+    
     let content: (DateComponents) -> Content
     
     init (targetTime: Date, @ViewBuilder content: @escaping (DateComponents) -> Content) {
