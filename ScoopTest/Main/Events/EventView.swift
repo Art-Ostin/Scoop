@@ -21,8 +21,6 @@ struct EventView: View {
             TabView {
                 ForEach(events, id: \.event.id) {event in
                     VStack {
-                        
-                        
                         if let urlString = event.user.imagePathURL?.first,
                            let url = URL(string: urlString) {
                             imageContainer(url: url, size: 140, shadow: 0)
@@ -30,11 +28,16 @@ struct EventView: View {
                         
                         if let date = event.event.time {
                             let datePart = date.formatted(.dateTime.day(.ordinal).month(.abbreviated))
-                            let rest    = date.formatted(.dateTime.weekday(.wide)
-                                                         .hour(.twoDigits(amPM: .omitted))
-                                                         .minute(.twoDigits))
+                            let rest = date.formatted(
+                                .dateTime
+                                    .weekday(.wide)
+                                    .hour(.twoDigits(amPM: .omitted))
+                                    .minute(.twoDigits)
+                            )
                             Text("\(datePart), \(rest)")
+                                .font(.body(24, .bold))
                         }
+ 
                     }.tag(event.event.id)
                 }
             }

@@ -54,6 +54,7 @@ import Foundation
         }
     }
     
+    
     func refresh() async {
         do {
             let fetched = try await profileManager.getRandomProfile()

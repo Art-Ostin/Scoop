@@ -22,5 +22,4 @@ import Foundation
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false
     var showMapView: Bool = false
-    
 }
