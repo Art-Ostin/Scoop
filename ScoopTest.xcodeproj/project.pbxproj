@@ -108,8 +108,9 @@
 		65FAF98A2E414D1B0015E231 /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9892E414D1B0015E231 /* EventView.swift */; };
 		65FAF98C2E41658D0015E231 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */; };
 		65FAF98E2E4165F40015E231 /* TabViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98D2E4165F40015E231 /* TabViewTest.swift */; };
-		65FAF9902E418A1D0015E231 /* ClockTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* ClockTest.swift */; };
+		65FAF9902E418A1D0015E231 /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* ClockView.swift */; };
 		65FAF9922E4251280015E231 /* CountdownToDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9912E4251280015E231 /* CountdownToDate.swift */; };
+		65FAF9942E4261E30015E231 /* DateFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9932E4261E30015E231 /* DateFormatterTest.swift */; };
 		65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF22E229E19006CF3CD /* PromptsView.swift */; };
 		65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF42E229E5F006CF3CD /* CustomList.swift */; };
 		65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */; };
@@ -234,8 +235,9 @@
 		65FAF9892E414D1B0015E231 /* EventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
 		65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
 		65FAF98D2E4165F40015E231 /* TabViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewTest.swift; sourceTree = "<group>"; };
-		65FAF98F2E418A1D0015E231 /* ClockTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockTest.swift; sourceTree = "<group>"; };
+		65FAF98F2E418A1D0015E231 /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
 		65FAF9912E4251280015E231 /* CountdownToDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownToDate.swift; sourceTree = "<group>"; };
+		65FAF9932E4261E30015E231 /* DateFormatterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterTest.swift; sourceTree = "<group>"; };
 		65FEDAF22E229E19006CF3CD /* PromptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptsView.swift; sourceTree = "<group>"; };
 		65FEDAF42E229E5F006CF3CD /* CustomList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
 		65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButtonView.swift; sourceTree = "<group>"; };
@@ -399,11 +401,12 @@
 				65FAF9912E4251280015E231 /* CountdownToDate.swift */,
 				65FAF9872E4140740015E231 /* EventContainer.swift */,
 				65FAF9892E414D1B0015E231 /* EventView.swift */,
-				65FAF98F2E418A1D0015E231 /* ClockTest.swift */,
+				65FAF98F2E418A1D0015E231 /* ClockView.swift */,
 				65FAF9852E413B100015E231 /* EventPlaceholder.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
 				653A78522E130A990098747F /* EventDetailSummaryView.swift */,
 				65FAF9792E40F9F00015E231 /* EventTestScreen.swift */,
+				65FAF9932E4261E30015E231 /* DateFormatterTest.swift */,
 				65FAF98D2E4165F40015E231 /* TabViewTest.swift */,
 				65FAF97B2E4112780015E231 /* Invite Folder */,
 			);
@@ -728,6 +731,7 @@
 				6594971A2E01DD4000880921 /* AppContainer.swift in Sources */,
 				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
 				65FEDBA72E2307B7006CF3CD /* YearsView.swift in Sources */,
+				65FAF9942E4261E30015E231 /* DateFormatterTest.swift in Sources */,
 				6509DDC32E36F6EE0042917B /* EditSingleChoice.swift in Sources */,
 				65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */,
 				6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */,
@@ -767,7 +771,7 @@
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
-				65FAF9902E418A1D0015E231 /* ClockTest.swift in Sources */,
+				65FAF9902E418A1D0015E231 /* ClockView.swift in Sources */,
 				65BFE7DB2E400D2200B31A58 /* SendInviteViewModel.swift in Sources */,
 				653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */,
 				6537705F2E0AC2B70058D225 /* PopupTemplate.swift in Sources */,

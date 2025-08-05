@@ -20,21 +20,36 @@ struct EventView: View {
     var body: some View {
         
         VStack {
+            
+            HStack {
+                TitleSection()
+                    .padding(.top, 72)
+                    .padding(.horizontal, 32)
+                
+                
+                
+            }
+            
             TabView {
                 ForEach(events, id: \.event.id) {event in
                     VStack(spacing: 36) {
                         
+                        Text(event.user.name ?? "")
+                            .font(.title)
+                            .frame(maxWidth: .infinity)
+                        
                         if let urlString = event.user.imagePathURL?[0], let url = URL(string: urlString) {
                             imageContainer(url: url, size: 140, shadow: 0)
                         }
-                        
-                        countdownTimer(meetUpTime: event.event.time)
-                        
+
+                        if let date = event.event.time {
+                            CountdownTimer(meetUpTime: date)
+                        }
                         Text(getDate(date: event.event.time))
                             .font(.body(24, .bold))
-                        
                     
                     }.tag(event.event.id)
+                        .frame(maxHeight: .infinity)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
