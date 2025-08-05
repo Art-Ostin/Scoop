@@ -7,14 +7,14 @@
 
 import Foundation
 
-@Observable class MeetViewModel {
-    
-    var dependencies: AppDependencies
-    
-    var profiles: [UserProfile] = []
-    
-    
-    
-    
-    
-}
+//@Observable class MeetViewModel {
+//    
+//    var dependencies: AppDependencies
+//    
+//    var profiles: [UserProfile] = []
+//    
+//    
+//    
+//    
+//    
+//}

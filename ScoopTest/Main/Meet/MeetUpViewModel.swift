@@ -9,16 +9,17 @@ import Foundation
 
 @Observable class MeetUpViewModel {
 
-    @ObservationIgnored var selection: Int = 0
     
+    //Functionality of which Profile to Display
+    @ObservationIgnored var selection: Int = 0
     
     let userStore: CurrentUserStore
     let profileManager: ProfileManaging
     let defaults: UserDefaults
     
     
-    let profiles: [UserProfile] = []
-    
+    var profile1: UserProfile?
+    var profile2: UserProfile?
     
     let dateKey = "dailyProfilesDate"
     let profileKey = "dailyProfiles"
@@ -36,9 +37,6 @@ import Foundation
     
     
     //Functionality to load the TwoDailyProfiles
-    
-    
-    
     func load () async {
         if defaults.bool(forKey: showProfilesKey) {
             if let data = defaults.data(forKey: profileKey),
@@ -49,6 +47,7 @@ import Foundation
                 await MainActor.run {
                     self.selection = 0
                     self.state = .twoDailyProfiles
+                    
                 }
             } else {
                 await MainActor.run { self.state = .intro }
@@ -76,6 +75,10 @@ import Foundation
     }
     
     private func assignProfiles(_ profiles: [UserProfile]) async {
+        await MainActor.run {
+            profile1 = profiles[safe: 0]
+            profile2 = profiles[safe: 1]
+        }
         for profile in profiles {
             try? await userStore.loadProfile(profile)
         }

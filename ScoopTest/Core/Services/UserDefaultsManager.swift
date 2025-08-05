@@ -8,3 +8,19 @@
 import Foundation
 
 
+
+final class UserDefaultsManager {
+    
+    
+    private let defaults: UserDefaults
+    
+    private enum Keys {
+        
+    }
+    
+    init(defaults: UserDefaults) {
+        self.defaults = defaults
+    }
+    
+    
+}

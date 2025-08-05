@@ -48,7 +48,7 @@ struct EventView: View {
                             
                         }
                         if let date = event.event.time {
-                            ClockView(meetUpTime: date)
+                            LargeClockView(targetTime: date)
                         }
                         Text(vm.formatDate(date: event.event.time))
                             .font(.body(24, .bold))
