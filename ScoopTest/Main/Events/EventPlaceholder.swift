@@ -9,9 +9,8 @@ import SwiftUI
 
 struct EventPlaceholder: View {
     
-    let title: String = "eeting"
+    @Binding var vm: EventViewModel
     
-    let imageName: String = "CoolGuys"
     
     var body: some View {
         
@@ -19,7 +18,7 @@ struct EventPlaceholder: View {
                 
                 TitleSection()
                 
-                Image(imageName)
+                Image("CoolGuys")
                     .resizable()
                     .frame(width: 280, height: 280)
                 
@@ -33,12 +32,6 @@ struct EventPlaceholder: View {
             .padding(.top, 72)
             .padding(.horizontal, 32)
     }
-}
-
-
-
-#Preview {
-    EventPlaceholder()
 }
 
 struct TitleSection: View {

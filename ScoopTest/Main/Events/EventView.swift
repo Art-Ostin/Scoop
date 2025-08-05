@@ -10,6 +10,12 @@ import SwiftUI
 
 struct EventView: View {
     
+    
+    @Binding var vm: EventViewModel
+    
+    
+    
+    
     @Environment(\.appDependencies) private var dep
     
     @State var events: [(event: Event, user: UserProfile)] = []
@@ -56,7 +62,6 @@ struct EventView: View {
                                     showProfile.toggle()
                                 }
                         }
-                        
                         if let date = event.event.time {
                             CountdownTimer(meetUpTime: date)
                         }
@@ -76,17 +81,17 @@ struct EventView: View {
                 currentEvent = pair.event
                 currentUser  = pair.user
             }
-            
-            
+            .fullScreenCover(isPresented: $showProfile, content: {
+                if let newUser = currentUser {
+                    ProfileView(profile: newUser)
+                }
+            })
             .sheet(isPresented: $showEventDetails) {
                 if let newEvent = currentEvent, let newUser = currentUser {
                     EventDetailsView(event: newEvent, user: newUser)
                 } else {
                     Text("No event selected")
                 }
-            }
-            .fullScreenCover(isPresented: $showProfile) {
-                ProfileView(profile: currentUser)
             }
         }
     }

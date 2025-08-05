@@ -105,6 +105,7 @@
 		65FAF98A2E414D1B0015E231 /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9892E414D1B0015E231 /* EventView.swift */; };
 		65FAF98C2E41658D0015E231 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */; };
 		65FAF9902E418A1D0015E231 /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* ClockView.swift */; };
+		65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9952E42960A0015E231 /* EventViewModel.swift */; };
 		65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF22E229E19006CF3CD /* PromptsView.swift */; };
 		65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF42E229E5F006CF3CD /* CustomList.swift */; };
 		65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */; };
@@ -226,6 +227,7 @@
 		65FAF9892E414D1B0015E231 /* EventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
 		65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
 		65FAF98F2E418A1D0015E231 /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
+		65FAF9952E42960A0015E231 /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
 		65FEDAF22E229E19006CF3CD /* PromptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptsView.swift; sourceTree = "<group>"; };
 		65FEDAF42E229E5F006CF3CD /* CustomList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
 		65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButtonView.swift; sourceTree = "<group>"; };
@@ -385,10 +387,11 @@
 		6561C8D22E04464C006A72DF /* Events */ = {
 			isa = PBXGroup;
 			children = (
+				65FAF9952E42960A0015E231 /* EventViewModel.swift */,
 				65FAF9872E4140740015E231 /* EventContainer.swift */,
 				65FAF9892E414D1B0015E231 /* EventView.swift */,
-				65FAF98F2E418A1D0015E231 /* ClockView.swift */,
 				65FAF9852E413B100015E231 /* EventPlaceholder.swift */,
+				65FAF98F2E418A1D0015E231 /* ClockView.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
 				65FAF97B2E4112780015E231 /* Invite Folder */,
 			);
@@ -502,8 +505,8 @@
 		65E820B02E3901080098CC36 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				65E820B12E39014E0098CC36 /* Models */,
 				65058E872E1C2935009AD7FD /* Services */,
+				65E820B12E39014E0098CC36 /* Models */,
 				6577D7D42E203EF300FFCF82 /* Components */,
 				65E820B72E390F200098CC36 /* Resources */,
 			);
@@ -721,6 +724,7 @@
 				654982D82E3152C000CA335F /* ImagesView.swift in Sources */,
 				6594971C2E01DD4000880921 /* DailyProfiles.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
+				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				659497202E01DD4000880921 /* EnterEmailView.swift in Sources */,
 				653770502E0A15270058D225 /* InviteButton.swift in Sources */,
 				65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */,

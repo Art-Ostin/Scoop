@@ -9,27 +9,31 @@ import SwiftUI
 
 struct EventContainer: View {
     
-    @Environment(\.appDependencies) private var dep
-        
-    @State var showEvent: Bool = false
+    @State var vm: EventViewModel
+    
+    
+    init(dependencies: AppDependencies) {
+        _vm = State(initialValue: EventViewModel(dependencies: dependencies))
+    }
+    
     
     var body: some View {
         
         ZStack {
             
-            if showEvent {
-                EventView()
+            if vm.showEvent {
+                EventView(vm: $vm)
             } else {
-                EventPlaceholder()
+                EventPlaceholder(vm: $vm)
             }
         }
         .task {
-            let events = (try? await dep.eventManager.getCurrentEvents()) ?? []
-            showEvent = !events.isEmpty
+            let events = (try? await vm.dependencies.eventManager.getCurrentEvents()) ?? []
+            vm.showEvent = !events.isEmpty
         }
     }
 }
 
 #Preview {
-    EventContainer()
+    EventContainer(dependencies: AppDependencies())
 }
