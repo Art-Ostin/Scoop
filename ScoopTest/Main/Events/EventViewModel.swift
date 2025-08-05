@@ -19,20 +19,42 @@ import Foundation
         self.dependencies = dependencies
     }
 
-   var events: [(event: Event, user: UserProfile)] = []
-    
+    var events: [(event: Event, user: UserProfile)] = []
     
     var currentEvent: Event?
     var currentUser: UserProfile?
     
-    var showEventDetails: Bool = false
     
-    var selection: Int? = nil
+    func loadEvents() {
+        Task {
+            do {
+                let userEvents = try await dependencies.eventManager.getUserEvents()
+                for event in userEvents {
+                    guard !events.contains(where: { $0.event.id == event.id }) else { continue }
+                    let match = try await dependencies.eventManager.getEventMatch(event: event)
+                    events.append((event: event, user: match))
+                }
+                if currentEvent == nil, let first = events.first {
+                    currentEvent = first.event
+                    currentUser  = first.user
+                }
+            } catch {
+                print("Failed to load events: \(error)")
+            }
+        }
+    }
     
-    var showProfile: Bool = false
-
     
-    
-    
+    func formatDate(date: Date?) -> String {
+        guard let date = date else { return "" }
+        let day = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
+        let time = date.formatted(
+            .dateTime
+                .weekday(.wide)
+                .hour(.twoDigits(amPM: .omitted))
+                .minute(.twoDigits))
+        
+        return "\(day), \(time)"
+    }
     
 }

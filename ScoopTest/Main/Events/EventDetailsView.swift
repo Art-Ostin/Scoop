@@ -167,24 +167,3 @@ struct EventDetailsView: View {
 //#Preview {
 //    EventDetailsView()
 //}
-
-
-/*
- func typeDescription (type: EventType) -> String {
-     switch type {
-         
-     case .grabFood:
-         return "Go to" + Event.sample.location + "for " + getEventTime(event: .sample) + "and meet" + Event.sample.profile2.name + "there. Can text 1 hour before."
-     case .grabADrink:
-         return "Go to the bar for" + getEventTime(event: .sample) + "and meet there. Can text 1 hour before"
-     case .doubleDate:
-         return "Bring a friend and head to" + Event.sample.location + "for" +  getEventTime(event: .sample) + ". You can text 30 mins before."
-     case .houseParty:
-         return "Head to the house party with your friends and meet there. You can text 1 hour before."
-     case .samePlace:
-         return "Head to the venue with your mates & meet them & their friends there. Can text 1 hour before"
-     case .writeAMessage:
-         return "Just Head to" + Event.sample.location + "and meet" + Event.sample.profile2.name + "there for" + getEventTime(event: .sample)
-     }
- }
- */

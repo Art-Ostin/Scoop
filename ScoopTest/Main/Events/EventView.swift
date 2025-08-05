@@ -10,23 +10,10 @@ import SwiftUI
 
 struct EventView: View {
     
-    
     @Binding var vm: EventViewModel
     
-    
-    
-    
-    @Environment(\.appDependencies) private var dep
-    
-    @State var events: [(event: Event, user: UserProfile)] = []
-    
-    @State var currentEvent: Event?
-    @State var currentUser: UserProfile?
-    
     @State var showEventDetails: Bool = false
-    
     @State var selection: Int? = nil
-    
     @State var showProfile: Bool = false
     
     var body: some View {
@@ -47,8 +34,8 @@ struct EventView: View {
             
             TabView(selection: $selection) {
                 
-                ForEach(events.indices, id: \.self) {index in
-                    let event = events[index]
+                ForEach(vm.events.indices, id: \.self) {index in
+                    let event = vm.events[index]
                     
                     VStack(spacing: 36) {
                         
@@ -65,7 +52,7 @@ struct EventView: View {
                         if let date = event.event.time {
                             CountdownTimer(meetUpTime: date)
                         }
-                        Text(getDate(date: event.event.time))
+                        Text(vm.formatDate(date: event.event.time))
                             .font(.body(24, .bold))
                     }.tag(index)
                     .frame(maxHeight: .infinity)
@@ -74,20 +61,20 @@ struct EventView: View {
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .task {
-                loadEvents()
+                vm.loadEvents()
             }
             .onChange(of: selection) { _ , newIndex in
-                let pair = events[newIndex ?? 0]
-                currentEvent = pair.event
-                currentUser  = pair.user
+                let pair = vm.events[newIndex ?? 0]
+                vm.currentEvent = pair.event
+                vm.currentUser  = pair.user
             }
             .fullScreenCover(isPresented: $showProfile, content: {
-                if let newUser = currentUser {
+                if let newUser = vm.currentUser {
                     ProfileView(profile: newUser)
                 }
             })
             .sheet(isPresented: $showEventDetails) {
-                if let newEvent = currentEvent, let newUser = currentUser {
+                if let newEvent = vm.currentEvent, let newUser = vm.currentUser {
                     EventDetailsView(event: newEvent, user: newUser)
                 } else {
                     Text("No event selected")
@@ -97,38 +84,3 @@ struct EventView: View {
     }
 }
 
-extension EventView {
-    
-    
-    private func loadEvents() {
-        Task {
-            do {
-                let userEvents = try await dep.eventManager.getUserEvents()
-                for event in userEvents {
-                    guard !events.contains(where: { $0.event.id == event.id }) else { continue }
-                    let match = try await dep.eventManager.getEventMatch(event: event)
-                    events.append((event: event, user: match))
-                }
-                if currentEvent == nil, let first = events.first {
-                    currentEvent = first.event
-                    currentUser  = first.user
-                    selection = 0
-                }
-            } catch {
-                print("Failed to load events: \(error)")
-            }
-        }
-    }
-    
-    private func getDate(date: Date?) -> String {
-        guard let date = date else { return "" }
-        let day = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
-        let time = date.formatted(
-            .dateTime
-                .weekday(.wide)
-                .hour(.twoDigits(amPM: .omitted))
-                .minute(.twoDigits))
-        
-        return "\(day), \(time)"
-    }
-}
