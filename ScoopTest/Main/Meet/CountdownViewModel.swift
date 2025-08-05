@@ -41,6 +41,8 @@ class CountdownViewModel {
             .store(in: &cancellables)
     }
     
+    
+    
     func updateTimeRemaining() {
         let startTime = defaults.object(forKey: dateKey) as? Date ?? Date()
         let targetTime = Calendar.current.date(byAdding: .minute, value: 5, to: startTime) ?? Date()

@@ -12,9 +12,6 @@ import Foundation
     @ObservationIgnored var selection: Int = 0
     
     
-    
-    
-    
     let userStore: CurrentUserStore
     let profileManager: ProfileManaging
     let defaults: UserDefaults
@@ -39,6 +36,9 @@ import Foundation
     
     
     //Functionality to load the TwoDailyProfiles
+    
+    
+    
     func load () async {
         if defaults.bool(forKey: showProfilesKey) {
             if let data = defaults.data(forKey: profileKey),
@@ -49,7 +49,6 @@ import Foundation
                 await MainActor.run {
                     self.selection = 0
                     self.state = .twoDailyProfiles
-                    
                 }
             } else {
                 await MainActor.run { self.state = .intro }

@@ -17,7 +17,6 @@ struct EventMatch: Identifiable {
 
 
 
-
 @Observable class EventViewModel {
     
     var dependencies: AppDependencies

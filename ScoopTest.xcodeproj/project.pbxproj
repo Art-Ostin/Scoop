@@ -107,6 +107,7 @@
 		65FAF9902E418A1D0015E231 /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* ClockView.swift */; };
 		65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9952E42960A0015E231 /* EventViewModel.swift */; };
 		65FAF9982E42B1C30015E231 /* ProfilePreviewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */; };
+		65FAF99B2E42B5590015E231 /* MeetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF99A2E42B5590015E231 /* MeetViewModel.swift */; };
 		65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF22E229E19006CF3CD /* PromptsView.swift */; };
 		65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF42E229E5F006CF3CD /* CustomList.swift */; };
 		65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */; };
@@ -230,6 +231,7 @@
 		65FAF98F2E418A1D0015E231 /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
 		65FAF9952E42960A0015E231 /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
 		65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePreviewScreen.swift; sourceTree = "<group>"; };
+		65FAF99A2E42B5590015E231 /* MeetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetViewModel.swift; sourceTree = "<group>"; };
 		65FEDAF22E229E19006CF3CD /* PromptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptsView.swift; sourceTree = "<group>"; };
 		65FEDAF42E229E5F006CF3CD /* CustomList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
 		65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButtonView.swift; sourceTree = "<group>"; };
@@ -485,6 +487,7 @@
 		659497012E01DD4000880921 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				65FAF9992E42B54B0015E231 /* Meet2 */,
 				6561C8D12E044638006A72DF /* Meet */,
 				6561C8D22E04464C006A72DF /* Events */,
 				6561C8D32E04465A006A72DF /* Matches */,
@@ -548,6 +551,14 @@
 				65FAF97C2E4112C80015E231 /* PopUpView.swift */,
 			);
 			path = "Invite Folder";
+			sourceTree = "<group>";
+		};
+		65FAF9992E42B54B0015E231 /* Meet2 */ = {
+			isa = PBXGroup;
+			children = (
+				65FAF99A2E42B5590015E231 /* MeetViewModel.swift */,
+			);
+			path = Meet2;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -751,6 +762,7 @@
 				65058E902E1C40AA009AD7FD /* FirestoreManager.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventManager.swift in Sources */,
 				65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */,
+				65FAF99B2E42B5590015E231 /* MeetViewModel.swift in Sources */,
 				654982DE2E315B1B00CA335F /* PhotoCell.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,

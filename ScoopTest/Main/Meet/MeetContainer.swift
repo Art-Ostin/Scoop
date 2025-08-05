@@ -24,6 +24,7 @@ struct MeetContainer: View {
         self._vm = State(initialValue: MeetUpViewModel(userStore: dep.userStore, profileManager: dep.profileManager))
     }
     
+    
     var body: some View {
         
         ZStack {
