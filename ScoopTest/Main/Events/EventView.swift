@@ -20,7 +20,7 @@ struct EventView: View {
     @State var showEventDetails: Bool = false
     
     @State var selection: Int? = nil
-
+    
     var body: some View {
         
         VStack {
@@ -39,9 +39,11 @@ struct EventView: View {
             
             TabView(selection: $selection) {
                 
-                ForEach(events, id: \.event.id) {event in
+                ForEach(events.indices, id: \.self) {index in
+                    let event = events[index]
+                    
                     VStack(spacing: 36) {
-                                                
+                        
                         Text(event.user.name ?? "")
                             .font(.title)
                             .frame(maxWidth: .infinity)
@@ -55,8 +57,8 @@ struct EventView: View {
                         }
                         Text(getDate(date: event.event.time))
                             .font(.body(24, .bold))
-                    }.tag(event.event.id)
-                        .frame(maxHeight: .infinity)
+                    }.tag(index)
+                    .frame(maxHeight: .infinity)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
@@ -69,9 +71,11 @@ struct EventView: View {
                 currentEvent = pair.event
                 currentUser  = pair.user
             }
+            
+            
             .sheet(isPresented: $showEventDetails) {
-                if let event = currentEvent, let user = currentUser {
-                    EventDetailsView(event: event, user: user)
+                if let newEvent = currentEvent, let newUser = currentUser {
+                    EventDetailsView(event: newEvent, user: newUser)
                 } else {
                     Text("No event selected")
                 }
@@ -92,6 +96,11 @@ extension EventView {
                     let match = try await dep.eventManager.getEventMatch(event: event)
                     events.append((event: event, user: match))
                 }
+                if currentEvent == nil, let first = events.first {
+                    currentEvent = first.event
+                    currentUser  = first.user
+                    selection = 0
+                }
             } catch {
                 print("Failed to load events: \(error)")
             }
@@ -106,7 +115,7 @@ extension EventView {
                 .weekday(.wide)
                 .hour(.twoDigits(amPM: .omitted))
                 .minute(.twoDigits))
-
+        
         return "\(day), \(time)"
     }
 }

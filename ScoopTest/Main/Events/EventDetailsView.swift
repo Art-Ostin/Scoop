@@ -109,7 +109,7 @@ struct EventDetailsView: View {
                     .font(.body(24, .bold))
             }
             
-            Image(vm.typeImage(type: vm.event.type ?? ""))
+            Image(vm.typeImage(type: vm.event.type ?? "No Image"))
                 .resizable()
                 .scaledToFit()
                 .frame(height: 240)
@@ -120,13 +120,11 @@ struct EventDetailsView: View {
                     .font(.body(20, .bold))
                 
                 VStack(alignment: .leading, spacing: 24) {
-                    Text(vm.typeDescription(type: vm.event.type ?? ""))
-                    (
-                        Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’ll be blocked. ")
-                        +
-                        Text ("Can’t make it?")
-                            .foregroundStyle(Color.accent)
-                    )
+                    Text(vm.typeDescription(type: vm.event.type ?? "No Description"))
+                    Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’ll be blocked. ")
+                    Text ("Can’t make it?")
+                        .foregroundStyle(Color.accent)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .font(.body(16, .regular))
                 .lineSpacing(4)
