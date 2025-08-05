@@ -12,10 +12,15 @@ import Combine
 struct EventView: View {
     
     @Environment(\.appDependencies) private var dep
+    
     @State var events: [(event: Event, user: UserProfile)] = []
     
+    var currentEvent: Event? = nil
+    var currentUser: UserProfile?
     
     @State var showEventDetails: Bool = false
+    
+    @State var selection: Int? = nil
 
     var body: some View {
         
@@ -26,10 +31,6 @@ struct EventView: View {
                     .padding(.top, 72)
                     .padding(.horizontal, 32)
                 
-                
-                
-                
-                
                 Image(systemName: "info.circle")
                     .frame(width: 20, height: 20)
                     .onTapGesture {
@@ -37,10 +38,11 @@ struct EventView: View {
                     }
             }
             
-            TabView {
+            TabView(selection: $selection) {
+                
                 ForEach(events, id: \.event.id) {event in
                     VStack(spacing: 36) {
-                        
+                                                
                         Text(event.user.name ?? "")
                             .font(.title)
                             .frame(maxWidth: .infinity)
@@ -48,7 +50,7 @@ struct EventView: View {
                         if let urlString = event.user.imagePathURL?[0], let url = URL(string: urlString) {
                             imageContainer(url: url, size: 140, shadow: 0)
                         }
-
+                        
                         if let date = event.event.time {
                             CountdownTimer(meetUpTime: date)
                         }
@@ -62,6 +64,11 @@ struct EventView: View {
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .task {
                 loadEvents()
+            }
+            .onChange(of: selection) { newIndex in
+                let pair = events[newIndex ?? 0]
+                currentEvent = pair.event
+                currentUser  = pair.user
             }
             .sheet(isPresented: $showEventDetails) {
                 EventDetailsView(event: event, user: user)
