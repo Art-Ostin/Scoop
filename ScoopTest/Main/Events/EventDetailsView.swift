@@ -93,13 +93,18 @@ import SwiftUI
     func getEvenTime(date: Date?) -> String {
         guard let date = date else {return ""}
         
-        let style = Date.FormatStyle()
-            .weekday(.wide)
-            .hour(.twoDigits(amPM: .omitted))
-            .minute(.twoDigits)
-            .day(.ordinalOfDayInMonth)
-            .month(.wide)
-        return date.formatted(style)
+        let dayTime = date.formatted(
+            .dateTime
+                .weekday(.wide)
+                .hour(.twoDigits(amPM: .omitted))
+                .minute(.twoDigits)
+        )
+        let dayAndMonth = date.formatted(
+            .dateTime
+                .day(.defaultDigits)
+                .month(.wide)
+        )
+        return "\(dayAndMonth), \(dayTime)"
     }
 }
 
@@ -114,16 +119,22 @@ struct EventDetailsView: View {
     var body: some View {
         
         VStack(spacing: 72) {
-                        
-            VStack(alignment: .leading, spacing: 32) {
+            
+            let time = Text(vm.getEvenTime(date: vm.event.time))
+            let location = Text(vm.event.location?.name ?? "").foregroundStyle(.accent).font(.body(20, .bold))
+            
+            
+            VStack(alignment: .leading, spacing: 16) {
                 Text((vm.typeTitle(type: vm.event.type ?? "")) + " " + (vm.user.name ?? ""))
                     .font(.body(24, .bold))
                 
-                (
                 
-                Text(vm.getEvenTime(date: vm.event.time))
+                Text("\(time) at \(location)")
+                    .font(.body(20, .regular))
+                    .padding(.horizontal, 32)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(8)
                 
-                )
             }
             
             Image(vm.typeImage(type: vm.event.type ?? "No Image"))

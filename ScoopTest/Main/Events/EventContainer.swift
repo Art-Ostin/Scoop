@@ -9,19 +9,29 @@ import SwiftUI
 
 struct EventContainer: View {
     
-    @State var vm = EventViewModel()
+    @Environment(\.appDependencies) private var dep
+        
+    @State var showEvent: Bool = false
     
     var body: some View {
         
         ZStack {
             
-            if vm.showEvent {
-                
+            if showEvent {
+                EventView()
             } else {
                 EventPlaceholder()
             }
         }
-        
+        .task {
+            let events = try? await dep.eventManager.getCurrentEvents()
+            
+            if events != nil {
+                showEvent = true
+            } else {
+                showEvent = false
+            }
+        }
     }
 }
 
