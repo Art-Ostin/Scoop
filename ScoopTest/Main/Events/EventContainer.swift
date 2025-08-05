@@ -24,13 +24,8 @@ struct EventContainer: View {
             }
         }
         .task {
-            let events = try? await dep.eventManager.getCurrentEvents()
-            
-            if events != nil {
-                showEvent = false
-            } else {
-                showEvent = true
-            }
+            let events = (try? await dep.eventManager.getCurrentEvents()) ?? []
+            showEvent = !events.isEmpty
         }
     }
 }

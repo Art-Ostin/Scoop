@@ -21,6 +21,8 @@ struct EventView: View {
     
     @State var selection: Int? = nil
     
+    @State var showProfile: Bool = false
+    
     var body: some View {
         
         VStack {
@@ -50,6 +52,9 @@ struct EventView: View {
                         
                         if let urlString = event.user.imagePathURL?[0], let url = URL(string: urlString) {
                             imageContainer(url: url, size: 140, shadow: 0)
+                                .onTapGesture {
+                                    showProfile.toggle()
+                                }
                         }
                         
                         if let date = event.event.time {
@@ -79,6 +84,9 @@ struct EventView: View {
                 } else {
                     Text("No event selected")
                 }
+            }
+            .fullScreenCover(isPresented: $showProfile) {
+                ProfileView(profile: currentUser)
             }
         }
     }

@@ -23,6 +23,7 @@ struct ProfileView: View {
     
     @Environment(\.appDependencies) private var dep
     @Environment(\.dismiss) private var dismiss
+    
     @State private var vm: ProfileViewModel
     
     var vm2: Binding<MeetUpViewModel>?
