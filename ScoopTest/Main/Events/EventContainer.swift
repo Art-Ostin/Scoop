@@ -27,9 +27,9 @@ struct EventContainer: View {
             let events = try? await dep.eventManager.getCurrentEvents()
             
             if events != nil {
-                showEvent = true
-            } else {
                 showEvent = false
+            } else {
+                showEvent = true
             }
         }
     }
