@@ -67,7 +67,6 @@ class EventManager {
     }
     
     func getEventMatch(event: Event) async throws -> UserProfile {
-
         let userIds: [String] = [event.profile1_id, event.profile2_id].compactMap {$0}
         let currentUserId = user.user?.userId ?? ""
         guard let matchId = userIds.first(where: { $0 != currentUserId }) else {
