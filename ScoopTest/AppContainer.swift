@@ -37,9 +37,9 @@ struct AppContainer: View {
                 }
             }
             Tab("", image: "MessageIcon", value: 2) {
+                
                 ZStack {
                     Color.background.ignoresSafeArea()
-                    
                     MatchesView(showLogin: $showLogin)
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)

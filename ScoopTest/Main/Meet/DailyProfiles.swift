@@ -20,10 +20,6 @@ struct DailyProfiles: View {
         VStack(spacing: 36) {
             
             
-            
-            
-            
-            
             Text("\(countdownVM.hourRemaining):\(countdownVM.minuteRemaining):\(countdownVM.secondRemaining)")
             MeetTitle()
             heading
