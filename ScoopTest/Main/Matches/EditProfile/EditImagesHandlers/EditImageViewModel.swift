@@ -12,7 +12,6 @@ import FirebaseFirestore
 
 struct ImageSlot {
     var pickerItem: PhotosPickerItem?
-    var image: UIImage?
     var path: String?
     var url: String?
 }
@@ -47,7 +46,6 @@ struct ImageSlot {
                 ]
                 )
             }
-
             guard
                 let selection = slots[index].pickerItem,
                 let data = try? await selection.loadTransferable(type: Data.self),
@@ -60,7 +58,6 @@ struct ImageSlot {
                     .imagePath: FieldValue.arrayUnion([newPath]),
                     .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
                 ])
-                await MainActor.run {slots[index].image = image}
             } catch {
                 print(error)
             }

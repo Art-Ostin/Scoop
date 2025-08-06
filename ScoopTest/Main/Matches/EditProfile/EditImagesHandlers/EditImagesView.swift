@@ -23,7 +23,7 @@ struct ImagesView: View {
         CustomList {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(0..<6) {idx in
-                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, urlString: vm.slots[idx].url, image: vm.slots[idx].image) {
+                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, urlString: vm.slots[idx].url) {
                         vm.changeImage(at: idx)
                     }
                 }
