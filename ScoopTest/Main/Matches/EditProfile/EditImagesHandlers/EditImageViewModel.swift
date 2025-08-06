@@ -47,8 +47,7 @@ struct ImageSlot {
                 ]
                 )
             }
-            await MainActor.run {slots[index].image = nil}
-            
+
             guard
                 let selection = slots[index].pickerItem,
                 let data = try? await selection.loadTransferable(type: Data.self),

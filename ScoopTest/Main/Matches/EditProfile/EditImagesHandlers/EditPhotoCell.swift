@@ -19,32 +19,21 @@ struct EditPhotoCell: View {
     var body: some View {
         
         PhotosPicker(selection: $picker, matching: .images) {
-            
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            } else if let url = urlString, let url = URL(string: url) {
-                CachedAsyncImage(url: url) { image in
+            if let url = URL(string: urlString ?? "") {
+                CachedAsyncImage(url: url) {image in
                     image
                         .resizable()
                         .scaledToFill()
                 }
-                
             } else {
                 Image("ImagePlaceholder2")
                     .resizable()
                     .scaledToFill()
             }
         }
-        .id(urlString)
         .frame(width: 110, height: 110)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: urlString != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
         .onChange(of: picker) { action() }
     }
-}
-
-#Preview {
-    EditPhotoCell(picker: .constant(PhotosPickerItem(itemIdentifier: "Yes")), urlString: "Helo World", action: {})
 }
