@@ -12,7 +12,7 @@ import UIKit
 
 @Observable class ImageCache: ImageCaching {
     
-    private let cache = NSCache<NSURL, UIImage>()
+    private let cache = NSCache<NSURL, UIImage> ()
     
     func cachedImage(for url: URL) -> UIImage? {
         cache.object(forKey: url as NSURL)
@@ -27,7 +27,8 @@ import UIKit
         cache.setObject(img, forKey: url as NSURL)
         return img
     }
-
+    
+    
     func prefetch(urls: [URL]) async {
         await withTaskGroup(of: Void.self) { group in
             for url in urls {

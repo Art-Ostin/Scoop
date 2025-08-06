@@ -58,5 +58,7 @@ final class UserDefaultsManager {
             }
             return results
         }
+        
+        //I also want to save the images of the TwoDailyProfiles to the Cache. 
     }
 }
