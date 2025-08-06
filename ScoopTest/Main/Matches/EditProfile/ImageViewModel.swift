@@ -57,6 +57,9 @@ import FirebaseFirestore
                     selectedImages[index] = nil
                 }
             }
+            
+            
+            
             guard
                 let data = try? await selection.loadTransferable(type: Data.self),
                 let uiImg = UIImage(data: data)
@@ -85,7 +88,5 @@ import FirebaseFirestore
             }
         }
     }
-    
-    
     
 }

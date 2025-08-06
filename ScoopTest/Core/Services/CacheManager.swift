@@ -12,29 +12,19 @@ import UIKit
 
 @Observable class ImageCache: ImageCaching {
     
-    private let cache = NSCache<NSURL, UIImage> ()
+    private let cache = NSCache<NSURL, UIImage>
     
-    
-    var imageCache: NSCache<NSString, UIImage> {
-        let cache =  NSCache<NSString, UIImage>()
+    init() {
+        cache = NSCache<NSURL, UIImage>()
         cache.countLimit = 100
         cache.totalCostLimit = 1024 * 1024 * 100
-        return cache
-    }
-    
-    func addProfileImagesToCache(profile: UserProfile) {
-        
-        
-        
-        
-        imageCache.setObject(image, forKey: "profile1")
     }
     
     
-    
-    
-    
-    
+    func addProfileImagesToCache(profile: UserProfile) async {
+        let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
+        await prefetch(urls: urls)
+    }
     
     
     func cachedImage(for url: URL) -> UIImage? {
