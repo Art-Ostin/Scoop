@@ -26,6 +26,7 @@ struct ImageSlot {
         self.dep = dep
     }
     
+    @MainActor
     func seedFromCurrentUser() {
         guard let user = dep.userStore.user else { return }
         let paths = user.imagePath ?? []
