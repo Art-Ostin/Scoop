@@ -14,7 +14,6 @@ struct EditPhotoCell: View {
     let url: URL?
     let action: () -> Void
     
-    
     var body: some View {
         
         PhotosPicker(selection: $picker, matching: .images) {
@@ -35,7 +34,7 @@ struct EditPhotoCell: View {
         .frame(width: 110, height: 110)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: url != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
-        .onChange(of: picker) {_, newValue in 
+        .onChange(of: picker) {_, newValue in
             guard newValue != nil else { return }
             action()
         }

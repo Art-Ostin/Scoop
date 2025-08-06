@@ -38,12 +38,14 @@ struct ImageSlot {
         let urls = user.imagePathURL?.compactMap { URL(string: $0) } ?? []
         for i in slots.indices {
             slots[i].path =  i < paths.count ? paths[i] : nil
-            slots[i].url = i < paths.count ? urls[i] : nil
+            slots[i].url = i < urls.count ? urls[i] : nil
         }
     }
     
     func changeImage(at index: Int) {
         Task {
+            await MainActor.run { slots[index].url = nil}
+            
             if let oldPath = slots[index].path, let oldURL = slots[index].url {
                 try await storageManager.deleteImage(path: oldPath)
                 try await profileManager.update(values: [
@@ -52,6 +54,7 @@ struct ImageSlot {
                 ]
                 )
             }
+            
             guard
                 let selection = slots[index].pickerItem,
                 let data = try? await selection.loadTransferable(type: Data.self) else {return}
@@ -68,6 +71,7 @@ struct ImageSlot {
                     slots[index].url = newURL
                     slots[index].pickerItem = nil
                 }
+                
             } catch {
                 print(error)
             }
