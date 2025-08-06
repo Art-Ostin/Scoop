@@ -10,13 +10,12 @@ import SwiftUI
 struct ImagesView: View {
 
     @State private var vm: EditImageViewModel
+    
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
-    private let userStore: CurrentUserStore
     
     
-    init(dependencies: AppDependencies) {
-        self.userStore = dependencies.userStore
-        _vm = State(initialValue: EditImageViewModel(dep: dependencies))
+    init(dep: AppDependencies) {
+        _vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userStore))
     }
     
     var body: some View {
@@ -31,14 +30,8 @@ struct ImagesView: View {
             .padding(.horizontal)
         }
         .task {
-          try? await userStore.loadUser()
-          vm.assignSlots()
+            vm.assignSlots()
         }
         .padding(.horizontal, 32)
     }
 }
-
-//
-//#Preview {
-//    ImagesView(userStore: CurrentUserStore())
-//}

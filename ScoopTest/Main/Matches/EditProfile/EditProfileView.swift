@@ -21,7 +21,7 @@ struct EditProfileView: View {
         NavigationStack {
             ZStack {
                 ScrollView {
-                    ImagesView(dependencies: dep)
+                    ImagesView(dep: dep)
                     PromptsView()
                     InfoView()
                     InterestsView(user: dep.userStore)

@@ -19,16 +19,21 @@ struct ImageSlot {
 
 @Observable class EditImageViewModel {
     
-    var dep: AppDependencies
+    var profileManager: ProfileManaging
+    var storageManager: StorageManaging
+    var user: CurrentUserStore
+    
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     
-    init (dep: AppDependencies) {
-        self.dep = dep
+    init (profileManager: ProfileManaging, storageManager: StorageManaging, user: CurrentUserStore) {
+        self.profileManager = profileManager
+        self.storageManager = storageManager
+        self.user = user
     }
     
     @MainActor
     func assignSlots() {
-        guard let user = dep.userStore.user else { return }
+        guard let user = user.user else { return }
         let paths = user.imagePath ?? []
         let urls = user.imagePathURL?.compactMap { URL(string: $0) } ?? []
         for i in slots.indices {
@@ -40,22 +45,22 @@ struct ImageSlot {
     func changeImage(at index: Int) {
         Task {
             if let oldPath = slots[index].path, let oldURL = slots[index].url {
-                try await dep.storageManager.deleteImage(path: oldPath)
-                try await dep.profileManager.update(values: [
+                try await storageManager.deleteImage(path: oldPath)
+                try await profileManager.update(values: [
                     .imagePath: FieldValue.arrayRemove([oldPath]),
                     .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])
                 ]
                 )
             }
-            
+
             guard
                 let selection = slots[index].pickerItem,
                 let data = try? await selection.loadTransferable(type: Data.self) else {return}
                     
             do {
-                let newPath = try await dep.storageManager.saveImage(data: data)
-                let newURL = try await dep.storageManager.getImageURL(path: newPath)
-                try await dep.profileManager.update(values: [
+                let newPath = try await storageManager.saveImage(data: data)
+                let newURL = try await storageManager.getImageURL(path: newPath)
+                try await profileManager.update(values: [
                     .imagePath: FieldValue.arrayUnion([newPath]),
                     .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
                 ])

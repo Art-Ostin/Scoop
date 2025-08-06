@@ -12,11 +12,11 @@ struct AddImageView: View {
     
     @State private var vm: EditImageViewModel
     
-    @Environment(\.appDependencies) private var dependencies
     @Binding var showLogin: Bool
+
     
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
-        self._vm = State(initialValue: EditImageViewModel(dep: dep))
+        self._vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userStore))
         self._showLogin = showLogin
     }
 
@@ -42,7 +42,6 @@ struct AddImageView: View {
             })
         }
         .task {
-            try? await dependencies.userStore.loadUser()
             vm.assignSlots()
         }
     }
