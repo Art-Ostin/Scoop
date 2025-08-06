@@ -11,8 +11,6 @@ struct ProfileImageView: View {
     
     @Binding var vm: ProfileViewModel
     
-    let cache = NSCache<NSURL, UIImage>()
-    
     var body: some View {
         
         let stringURLs = vm.p.imagePathURL

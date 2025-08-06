@@ -14,6 +14,29 @@ import UIKit
     
     private let cache = NSCache<NSURL, UIImage> ()
     
+    
+    var imageCache: NSCache<NSString, UIImage> {
+        let cache =  NSCache<NSString, UIImage>()
+        cache.countLimit = 100
+        cache.totalCostLimit = 1024 * 1024 * 100
+        return cache
+    }
+    
+    func addProfileImagesToCache(profile: UserProfile) {
+        
+        
+        
+        
+        imageCache.setObject(image, forKey: "profile1")
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     func cachedImage(for url: URL) -> UIImage? {
         cache.object(forKey: url as NSURL)
     }

@@ -36,8 +36,11 @@ import FirebaseFirestore
         try? await dep.userStore.loadUser()
         seedFromCurrentUser()
     }
+    
+    
+    
     func loadImage(at index: Int) {
-        
+
         guard let selection = pickerItems[index] else {return}
 
         Task {
@@ -65,6 +68,9 @@ import FirebaseFirestore
             let newPath = try await dep.storageManager.saveImage(userId: user.userId, data: data)
             let newURL = try await dep.storageManager.getUrlForImage(path: newPath)
             
+            
+            
+            
             try await dep.profileManager.update(userId: user.userId, values: [
                 .imagePath: FieldValue.arrayUnion([newPath]),
                 .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
@@ -79,5 +85,7 @@ import FirebaseFirestore
             }
         }
     }
-
+    
+    
+    
 }
