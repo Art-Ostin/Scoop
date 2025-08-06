@@ -39,9 +39,5 @@ struct EditPhotoCell: View {
             guard newValue != nil else { return }
             action()
         }
-        
-        
-        
-        .onChange(of: picker) {action()}
     }
 }

@@ -52,7 +52,6 @@ struct ImageSlot {
                 ]
                 )
             }
-
             guard
                 let selection = slots[index].pickerItem,
                 let data = try? await selection.loadTransferable(type: Data.self) else {return}
