@@ -65,8 +65,6 @@ struct imageContainer<Overlay: View>: View {
                     overlay()
                         .padding(24)
                 }
-        } placeholder: {
-            ProgressView()
         }
     }
 }

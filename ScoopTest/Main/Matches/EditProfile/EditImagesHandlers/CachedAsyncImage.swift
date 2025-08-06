@@ -7,20 +7,20 @@
 
 import SwiftUI
 
-struct CachedAsyncImage<Content: View, Placeholder: View>: View {
+struct CachedAsyncImage<Content: View>: View {
     @Environment(\.appDependencies) private var dependencies
     let url: URL
     @ViewBuilder let content: (Image) -> Content
-    @ViewBuilder let placeholder: () -> Placeholder
 
     @State private var uiImage: UIImage?
     
     var body: some View {
+        
         Group {
-            if let uiImage = uiImage {
+            if let uiImage {
                 content(Image(uiImage: uiImage))
             } else {
-                placeholder()
+                ProgressView()
                     .task{ await load() }
             }
         }
@@ -29,6 +29,9 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
         uiImage = try? await dependencies.imageCache.fetchImage(for: url)
     }
 }
+
+
+
 
 
 //#Preview {

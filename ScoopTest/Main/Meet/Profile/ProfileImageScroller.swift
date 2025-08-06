@@ -31,9 +31,6 @@ struct ProfileImageScroller: View {
                                         RoundedRectangle(cornerRadius: 16)
                                             .stroke(Color.accentColor, lineWidth: vm.imageSelection == index ? 1 : 0)
                                     }
-                            } placeholder: {
-                                ProgressView()
-                                    .frame(width: 60, height: 60)
                             }
                             .id(index)
                             .shadow(color: vm.imageSelection == index ? Color.black.opacity(0.2) : Color.clear, radius: 4, x: 0, y: 10)

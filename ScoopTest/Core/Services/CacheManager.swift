@@ -21,7 +21,6 @@ import UIKit
         
     }
     
-    
     func addProfileImagesToCache(profile: UserProfile) async {
         let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
         await prefetch(urls: urls)

@@ -20,7 +20,7 @@ struct EditPhotoCell: View {
         
         PhotosPicker(selection: $picker, matching: .images) {
             
-            if let image = self.image {
+            if let image {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
@@ -29,11 +29,7 @@ struct EditPhotoCell: View {
                     image
                         .resizable()
                         .scaledToFill()
-                        .overlay(alignment: .topTrailing) {
-                            ChangeIcon()
-                                .padding()
-                        }
-                } placeholder: {ProgressView()}
+                }
                 
             } else {
                 Image("ImagePlaceholder2")
@@ -52,18 +48,3 @@ struct EditPhotoCell: View {
 #Preview {
     EditPhotoCell(picker: .constant(PhotosPickerItem(itemIdentifier: "Yes")), urlString: "Helo World", action: {})
 }
-
-
-struct ChangeIcon: View {
-    var body: some View {
-        Image("ChangeIcon")
-            .padding(12)
-            .frame(width: 24, height: 24)
-            .background (
-                Circle()
-                    .fill(Color.white)
-            )
-            .padding(6)
-    }
-}
-

@@ -4,6 +4,12 @@
 //
 //  Created by Art Ostin on 23/07/2025.
 
+
+import Foundation
+import SwiftUI
+import PhotosUI
+import FirebaseFirestore
+
 struct ImageSlot {
     var pickerItem: PhotosPickerItem?
     var image: UIImage?
@@ -11,11 +17,6 @@ struct ImageSlot {
     var url: String?
 }
 
-
-import Foundation
-import SwiftUI
-import PhotosUI
-import FirebaseFirestore
 
 @Observable class EditImageViewModel {
     
@@ -38,28 +39,21 @@ import FirebaseFirestore
     
     func changeImage(at index: Int) {
         Task {
-            if slots[index].image != nil {
-                await deleteImage(index)
+            if let oldPath = slots[index].path, let oldURL = slots[index].url {
+                try await dep.storageManager.deleteImage(path: oldPath)
+                try await dep.profileManager.update(values: [
+                    .imagePath: FieldValue.arrayRemove([oldPath]),
+                    .imagePathURL: FieldValue.arrayRemove([oldURL])
+                ]
+                )
             }
-            await loadAndSaveNewImage(index)
-        }
-    }
-    
-    private func deleteImage(_ index: Int) async {
-        if let oldPath = slots[index].path, let oldURL = slots[index].url {
-            try? await dep.storageManager.deleteImage(path: oldPath)
-            try? await dep.profileManager.update(values: [
-                .imagePath: FieldValue.arrayRemove([oldPath]),
-                .imagePathURL: FieldValue.arrayRemove([oldURL])
-            ])
-        }
-    }
-    
-    private func loadAndSaveNewImage(_ index: Int) async {
-        if
-            let selection = slots[index].pickerItem,
-            let data = try? await selection.loadTransferable(type: Data.self),
-            let image = UIImage(data: data) {
+            await MainActor.run {slots[index].image = nil}
+            
+            guard
+                let selection = slots[index].pickerItem,
+                let data = try? await selection.loadTransferable(type: Data.self),
+                let image = UIImage(data: data) else {return}
+            
             do {
                 let newPath = try await dep.storageManager.saveImage(data: data)
                 let newURL = try await dep.storageManager.getImageURL(path: newPath)
