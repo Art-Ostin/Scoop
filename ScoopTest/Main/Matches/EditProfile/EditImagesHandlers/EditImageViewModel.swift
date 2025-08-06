@@ -43,7 +43,7 @@ struct ImageSlot {
     }
     
     func changeImage(at index: Int) async throws {
-        
+                
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             async let delete: () = storageManager.deleteImage(path: oldPath)
             async let remove: () = profileManager.update(values: [
@@ -57,6 +57,7 @@ struct ImageSlot {
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self) else {return}
         
+        
         let newPath = try await storageManager.saveImage(data: data)
         let newURL = try await storageManager.getImageURL(path: newPath)
         
@@ -65,7 +66,7 @@ struct ImageSlot {
             .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
         ])
 
-        await MainActor.run {slots[index].url = newURL}
+        await MainActor.run { slots[index].path = newPath; slots[index].url = newURL; slots[index].pickerItem = nil}
         
         try await updateProfile
     }
