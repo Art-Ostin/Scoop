@@ -33,7 +33,7 @@ struct AddImagesView: View {
             LazyVGrid(columns: columns, spacing: 36) {
                 ForEach(0..<6) {idx in
                     EditPhotoCell(picker: $vm.slots[idx].pickerItem, urlString: vm.slots[idx].url, image: vm.slots[idx].image) {
-                        vm.loadImage(at: idx)
+                        vm.changeImage(at: idx)
                     }
                 }
             }
@@ -47,7 +47,3 @@ struct AddImagesView: View {
         }
     }
 }
-
-//#Preview {
-//    AddImageView(showLogin: .constant(true))
-//}

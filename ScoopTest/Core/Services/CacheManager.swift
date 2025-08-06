@@ -10,9 +10,9 @@ import UIKit
 
 
 
-@Observable class ImageCache: ImageCaching {
+@Observable class CacheManager: ImageCaching {
     
-    private let cache = NSCache<URL, UIImage>
+    private let cache = NSCache<NSURL, UIImage>
     
     init() {
         cache = NSCache<NSURL, UIImage>()

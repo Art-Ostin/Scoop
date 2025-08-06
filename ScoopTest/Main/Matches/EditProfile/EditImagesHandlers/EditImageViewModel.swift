@@ -36,11 +36,6 @@ import FirebaseFirestore
         }
     }
     
-    func reloadEverything() async {
-        try? await dep.userStore.loadUser()
-        seedFromCurrentUser()
-    }
-    
     func changeImage(at index: Int) {
         
         guard let selection = slots[index].pickerItem, let user = dep.userStore.user else { return }
@@ -80,3 +75,11 @@ import FirebaseFirestore
         }
     }
 }
+
+
+
+
+//func reloadEverything() async {
+//    try? await dep.userStore.loadUser()
+//    seedFromCurrentUser()
+//}

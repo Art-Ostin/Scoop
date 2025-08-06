@@ -28,8 +28,3 @@ struct InviteButton: View {
         }
     }
 }
-
-
-//#Preview {
-//    InviteButton(vm: ProfileViewModel(profile: CurrentUserStore.shared.user!))
-//}
