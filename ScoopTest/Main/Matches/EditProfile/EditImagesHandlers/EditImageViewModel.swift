@@ -27,13 +27,13 @@ struct ImageSlot {
     }
     
     @MainActor
-    func seedFromCurrentUser() {
+    func assingImages() {
         guard let user = dep.userStore.user else { return }
         let paths = user.imagePath ?? []
         let urls = user.imagePathURL?.compactMap { URL(string: $0) } ?? []
         for i in slots.indices {
-            slots[i].path = i < paths.count ? paths[i] : nil
-            slots[i].url = i < urls.count ? urls[i] : nil
+            slots[i].path =  i < paths.count ? paths[i] : nil
+            slots[i].url = i < paths.count ? urls[i] : nil
         }
     }
     

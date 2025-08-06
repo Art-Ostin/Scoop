@@ -32,7 +32,7 @@ struct ImagesView: View {
         }
         .task {
           try? await userStore.loadUser()
-          vm.seedFromCurrentUser()
+          vm.assingImages()
         }
         .padding(.horizontal, 32)
     }

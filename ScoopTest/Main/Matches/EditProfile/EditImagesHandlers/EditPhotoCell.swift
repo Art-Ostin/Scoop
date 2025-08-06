@@ -14,6 +14,7 @@ struct EditPhotoCell: View {
     let url: URL?
     let action: () -> Void
     
+    
     var body: some View {
         
         PhotosPicker(selection: $picker, matching: .images) {
