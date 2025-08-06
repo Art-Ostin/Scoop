@@ -41,29 +41,22 @@ final class UserDefaultsManager {
         return date
     }
     
-    
     func saveTwoDailyProfiles(_ profiles: [UserProfile]) {
         let ids = profiles.map { $0.userId }
         defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
     }
     
-    
-    func retrieveTwoDailyProfiles() async -> [UserProfile] {
+    func retrieveTwoDailyProfiles() async throws -> [UserProfile] {
         let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
-        
-        var profiles: [UserProfile] = []
-        
-        do {
+        return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
             for id in ids {
-                profiles.append(try await firestoreManager.getProfile(userId: id))
+                group.addTask { try await self.firestoreManager.getProfile(userId: id) }
             }
-        } catch {
-            
+            var results: [UserProfile] = []
+            for try await profile in group {
+                results.append(profile)
+            }
+            return results
         }
-        
-        return profiles
     }
-    
-    
-    
 }
