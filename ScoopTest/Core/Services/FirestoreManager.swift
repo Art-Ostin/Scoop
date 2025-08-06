@@ -11,7 +11,7 @@ import FirebaseAuth
 import SwiftUI
 
 
-@Observable final class ProfileManager: ProfileManaging {
+@Observable final class FirestoreManager: ProfileManaging {
     
     var userStore: CurrentUserStore?
 
