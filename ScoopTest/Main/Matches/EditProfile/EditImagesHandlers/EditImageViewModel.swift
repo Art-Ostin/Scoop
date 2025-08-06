@@ -13,7 +13,7 @@ import FirebaseFirestore
 struct ImageSlot {
     var pickerItem: PhotosPickerItem?
     var path: String?
-    var url: String?
+    var url: URL?
 }
 
 
@@ -29,7 +29,7 @@ struct ImageSlot {
     func seedFromCurrentUser() {
         guard let user = dep.userStore.user else { return }
         let paths = user.imagePath ?? []
-        let urls = user.imagePathURL ?? []
+        let urls = user.imagePathURL?.compactMap { URL(string: $0) } ?? []
         for i in slots.indices {
             slots[i].path = i < paths.count ? paths[i] : nil
             slots[i].url = i < urls.count ? urls[i] : nil
@@ -42,22 +42,27 @@ struct ImageSlot {
                 try await dep.storageManager.deleteImage(path: oldPath)
                 try await dep.profileManager.update(values: [
                     .imagePath: FieldValue.arrayRemove([oldPath]),
-                    .imagePathURL: FieldValue.arrayRemove([oldURL])
+                    .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])
                 ]
                 )
             }
+            
             guard
                 let selection = slots[index].pickerItem,
-                let data = try? await selection.loadTransferable(type: Data.self),
-                let image = UIImage(data: data) else {return}
-            
+                let data = try? await selection.loadTransferable(type: Data.self) else {return}
+                    
             do {
                 let newPath = try await dep.storageManager.saveImage(data: data)
                 let newURL = try await dep.storageManager.getImageURL(path: newPath)
                 try await dep.profileManager.update(values: [
                     .imagePath: FieldValue.arrayUnion([newPath]),
-                    .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
+                    .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
                 ])
+                await MainActor.run {
+                    slots[index].path = newPath
+                    slots[index].url = newURL
+                    slots[index].pickerItem = nil
+                }
             } catch {
                 print(error)
             }

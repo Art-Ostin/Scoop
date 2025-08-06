@@ -32,12 +32,12 @@ struct AddImageView: View {
 
             LazyVGrid(columns: columns, spacing: 36) {
                 ForEach(0..<6) {idx in
-                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, urlString: vm.slots[idx].url, image: vm.slots[idx].image) {
+                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, url: vm.slots[idx].url) {
                         vm.changeImage(at: idx)
                     }
                 }
             }
-            ActionButton(isValid: vm.slots.allSatisfy {$0.image != nil}, text: "Complete", onTap: {
+            ActionButton(isValid: vm.slots.allSatisfy {$0.url != nil}, text: "Complete", onTap: {
                 showLogin = false
             })
         }
