@@ -9,21 +9,21 @@ import SwiftUI
 
 struct ImagesView: View {
 
-    @State private var vm: ImageViewModel
+    @State private var vm: EditImageViewModel
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
     private let userStore: CurrentUserStore
     
     
     init(dependencies: AppDependencies) {
         self.userStore = dependencies.userStore
-        _vm = State(initialValue: ImageViewModel(dep: dependencies))
+        _vm = State(initialValue: EditImageViewModel(dep: dependencies))
     }
     
     var body: some View {
         CustomList {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(0..<6) {idx in
-                    PhotoCell2(picker: $vm.pickerItems[idx], urlString: vm.imageURLs[idx], image: vm.selectedImages[idx]) {
+                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, urlString: vm.slots[idx].url, image: vm.slots[idx].image) {
                         vm.loadImage(at: idx)
                     }
                 }

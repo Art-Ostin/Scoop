@@ -8,15 +8,15 @@ import SwiftUI
 import PhotosUI
 
 
-struct AddImageView: View {
+struct AddImagesView: View {
     
-    @State private var vm: ImageViewModel
+    @State private var vm: EditImageViewModel
     
     @Environment(\.appDependencies) private var dependencies
     @Binding var showLogin: Bool
     
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
-        self._vm = State(initialValue: ImageViewModel(dep: dep))
+        self._vm = State(initialValue: EditImageViewModel(dep: dep))
         self._showLogin = showLogin
     }
 
@@ -32,12 +32,12 @@ struct AddImageView: View {
 
             LazyVGrid(columns: columns, spacing: 36) {
                 ForEach(0..<6) {idx in
-                    PhotoCell2(picker: $vm.pickerItems[idx], urlString: vm.imageURLs[idx], image: vm.selectedImages[idx]) {
+                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, urlString: vm.slots[idx].url, image: vm.slots[idx].image) {
                         vm.loadImage(at: idx)
                     }
                 }
             }
-            ActionButton(isValid: vm.selectedImages.allSatisfy {$0 != nil}, text: "Complete", onTap: {
+            ActionButton(isValid: vm.slots.allSatisfy {$0 != nil}, text: "Complete", onTap: {
                 showLogin = false
             })
         }

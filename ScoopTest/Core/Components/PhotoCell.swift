@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 
-struct PhotoCell2: View {
+struct EditPhotoCell: View {
     
     @Binding var picker: PhotosPickerItem?
     let urlString: String?
@@ -50,7 +50,7 @@ struct PhotoCell2: View {
 }
 
 #Preview {
-    PhotoCell2(picker: .constant(PhotosPickerItem(itemIdentifier: "Yes")), urlString: "Helo World", action: {})
+    EditPhotoCell(picker: .constant(PhotosPickerItem(itemIdentifier: "Yes")), urlString: "Helo World", action: {})
 }
 
 struct ChangeIcon: View {

@@ -14,6 +14,7 @@ import SwiftUI
 @Observable class StorageManager: StorageManaging {
     
     
+    
     init() {}
     
     private let storage = Storage.storage().reference()

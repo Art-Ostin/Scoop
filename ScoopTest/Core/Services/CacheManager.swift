@@ -12,7 +12,7 @@ import UIKit
 
 @Observable class ImageCache: ImageCaching {
     
-    private let cache = NSCache<NSURL, UIImage>
+    private let cache = NSCache<URL, UIImage>
     
     init() {
         cache = NSCache<NSURL, UIImage>()

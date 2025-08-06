@@ -1,0 +1,82 @@
+//
+//  ImageViewModel.swift
+//  ScoopTest
+//
+//  Created by Art Ostin on 23/07/2025.
+//
+
+import Foundation
+import SwiftUI
+import PhotosUI
+import FirebaseFirestore
+
+@Observable class EditImageViewModel {
+    
+    struct ImageSlot {
+        var pickerItem: PhotosPickerItem?
+        var image: UIImage?
+        var path: String?
+        var url: String?
+    }
+    
+    var dep: AppDependencies
+    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
+    
+    init (dep: AppDependencies) {
+        self.dep = dep
+    }
+    
+    func seedFromCurrentUser() {
+        guard let user = dep.userStore.user else { return }
+        let paths = user.imagePath ?? []
+        let urls = user.imagePathURL ?? []
+        for i in slots.indices {
+            slots[i].path = i < paths.count ? paths[i] : nil
+            slots[i].url = i < urls.count ? urls[i] : nil
+        }
+    }
+    
+    func reloadEverything() async {
+        try? await dep.userStore.loadUser()
+        seedFromCurrentUser()
+    }
+    
+    func changeImage(at index: Int) {
+        
+        guard let selection = slots[index].pickerItem, let user = dep.userStore.user else { return }
+        
+        Task {
+            // Delete old image if it is present
+            if let oldPath = slots[index].path, let oldURL = slots[index].url {
+                try? await dep.storageManager.deleteImage(path: oldPath)
+                try? await dep.profileManager.update(userId: user.userId, values: [
+                    .imagePath: FieldValue.arrayRemove([oldPath]),
+                    .imagePathURL: FieldValue.arrayRemove([oldURL])
+                ])
+                await MainActor.run {
+                    slots[index].path = nil
+                    slots[index].url = nil
+                    slots[index].image = nil
+                }
+            }
+            
+            // Load new Images
+            guard let data = try? await selection.loadTransferable(type: Data.self), let uiImg = UIImage(data: data) else {return}
+            await MainActor.run {slots[index].image = uiImg}
+            
+            let newPath = try await dep.storageManager.saveImage(userId: user.userId, data: data)
+            let newURL = try await dep.storageManager.getUrlForImage(path: newPath)
+            try await dep.profileManager.update(values: [
+                .imagePath: FieldValue.arrayUnion([newPath]),
+                .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
+            ])
+            
+            try await dep.userStore.loadUser()
+            await MainActor.run {
+                slots[index].path = newPath
+                slots[index].url = newURL.absoluteString
+                slots[index].pickerItem = nil
+            }
+        }
+    }
+}
