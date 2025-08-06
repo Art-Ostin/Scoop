@@ -32,7 +32,7 @@ struct ImagesView: View {
         }
         .task {
           try? await userStore.loadUser()
-          vm.assingImages()
+          vm.assignSlots()
         }
         .padding(.horizontal, 32)
     }

@@ -43,7 +43,7 @@ struct AddImageView: View {
         }
         .task {
             try? await dependencies.userStore.loadUser()
-            vm.assingImages()
+            vm.assignSlots()
         }
     }
 }

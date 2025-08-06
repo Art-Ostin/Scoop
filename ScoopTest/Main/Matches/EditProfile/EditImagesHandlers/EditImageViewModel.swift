@@ -27,7 +27,7 @@ struct ImageSlot {
     }
     
     @MainActor
-    func assingImages() {
+    func assignSlots() {
         guard let user = dep.userStore.user else { return }
         let paths = user.imagePath ?? []
         let urls = user.imagePathURL?.compactMap { URL(string: $0) } ?? []
