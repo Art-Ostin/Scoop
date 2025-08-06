@@ -3,8 +3,6 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 23/07/2025.
-//
-
 
 struct ImageSlot {
     var pickerItem: PhotosPickerItem?
@@ -40,7 +38,9 @@ import FirebaseFirestore
     
     func changeImage(at index: Int) {
         Task {
-            await deleteImage(index)
+            if slots[index].image != nil {
+                await deleteImage(index)
+            }
             await loadAndSaveNewImage(index)
         }
     }
@@ -67,48 +67,10 @@ import FirebaseFirestore
                     .imagePath: FieldValue.arrayUnion([newPath]),
                     .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
                 ])
+                await MainActor.run {slots[index].image = image}
             } catch {
                 print(error)
             }
         }
     }
 }
-
-/*
- func changeImage(at index: Int) {
-     
-     guard let selection = slots[index].pickerItem  else { return }
-     
-     Task {
-         // Delete old image if it is present
-         if let oldPath = slots[index].path, let oldURL = slots[index].url {
-             
-             
-             await MainActor.run {
-                 slots[index].path = nil
-                 slots[index].url = nil
-                 slots[index].image = nil
-             }
-         }
-         
-         // Load new Images
-         guard let data = try? await selection.loadTransferable(type: Data.self), let uiImg = UIImage(data: data) else {return}
-         await MainActor.run {slots[index].image = uiImg}
-         
-         let newPath = try await dep.storageManager.saveImage(data: data)
-         let newURL = try await dep.storageManager.getImageURL(path: newPath)
-         try await dep.profileManager.update(values: [
-             .imagePath: FieldValue.arrayUnion([newPath]),
-             .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString]),
-         ])
-         
-         try await dep.userStore.loadUser()
-         await MainActor.run {
-             slots[index].path = newPath
-             slots[index].url = newURL.absoluteString
-             slots[index].pickerItem = nil
-         }
-     }
- }
- 
- */
