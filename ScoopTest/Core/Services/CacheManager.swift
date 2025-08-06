@@ -12,12 +12,13 @@ import UIKit
 
 @Observable class CacheManager: ImageCaching {
     
-    private let cache = NSCache<NSURL, UIImage>
-    
+    private let cache: NSCache<NSURL, UIImage>
+
     init() {
         cache = NSCache<NSURL, UIImage>()
         cache.countLimit = 100
         cache.totalCostLimit = 1024 * 1024 * 100
+        
     }
     
     
@@ -26,10 +27,10 @@ import UIKit
         await prefetch(urls: urls)
     }
     
-    
     func cachedImage(for url: URL) -> UIImage? {
         cache.object(forKey: url as NSURL)
     }
+    
     
     func fetchImage(for url: URL) async throws -> UIImage {
         if let cachedImage = cachedImage(for: url) {

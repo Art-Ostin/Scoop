@@ -29,10 +29,11 @@ final class AppDependencies {
     ) {
         let profile = profileManager ?? FirestoreManager()
         let auth = authManager ?? AuthenticationManager(profile: profile)
-        let storage = storageManager ?? StorageManager()
-        let cache = imageCache ?? ImageCache()
+        let cache = imageCache ?? CacheManager()
         let userStore = userStore ?? CurrentUserStore(auth: auth, profile: profile, imageCache: cache)
         let eventManager = eventManager ?? EventManager(user: userStore, profile: profile)
+        let storage = storageManager ?? StorageManager(user: userStore)
+
 
         self.authManager = auth
         self.profileManager = profile

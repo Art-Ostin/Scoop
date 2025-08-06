@@ -32,11 +32,10 @@ protocol ProfileManaging {
 
 
 protocol StorageManaging {
-    func getPath(path: String) -> StorageReference
-    func getUrlForImage(path: String) async throws -> URL
-    func saveImage(userId: String, data: Data) async throws -> String
-    func getData(userId: String, path: String) async throws -> Data
-    func getImage(userId: String, path: String) async throws -> UIImage
+    func getImagePath(path: String) -> StorageReference
+    func getImageURL(path: String) async throws -> URL
+    func saveImage(data: Data) async throws -> String
+    func getImage(path: String) async throws -> UIImage
     func deleteImage(path: String) async throws
 }
 

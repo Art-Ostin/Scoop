@@ -38,7 +38,6 @@ struct AuthenticatedUser {
         //This is calling the function that creates the authenticated User.
         let authUser = try await Auth.auth().createUser(withEmail: email, password: password)
         
-        
         let profileUser = UserProfile(auth: authUser)
         try await profile.createProfile(profile: profileUser)
     }

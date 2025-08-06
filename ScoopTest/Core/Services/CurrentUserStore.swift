@@ -20,6 +20,10 @@ class CurrentUserStore {
         self.profileManager = profile
         self.imageCache = imageCache
     }
+    
+    
+    
+    
     private(set) var user: UserProfile? = nil
     
     func loadUser() async throws {

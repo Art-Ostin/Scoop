@@ -10,51 +10,53 @@ import FirebaseStorage
 import UIKit
 import SwiftUI
 
-
 @Observable class StorageManager: StorageManaging {
     
     
+    @ObservationIgnored private var userManager: CurrentUserStore
     
-    init() {}
+    init(user: CurrentUserStore) {
+        self.userManager = user
+    }
     
     private let storage = Storage.storage().reference()
     
-    private func userReference(userId: String) -> StorageReference {
-        storage.child("users").child(userId)
-    }
-    
-    func getPath(path: String) -> StorageReference {
+    func getImagePath(path: String) -> StorageReference {
         Storage.storage().reference(withPath: path)
     }
     
-    func getUrlForImage(path: String) async throws -> URL {
-        try await  getPath(path: path).downloadURL()
+    func getImageURL(path: String) async throws -> URL {
+        try await  getImagePath(path: path).downloadURL()
     }
     
-    func saveImage(userId: String, data: Data) async throws -> String {
+    func saveImage(data: Data) async throws -> String {
+        guard let userId = userManager.user?.userId else  {return "Unverified User" }
         let filename = "\(UUID().uuidString).jpeg"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
-        let result = try await userReference(userId: userId).child(filename).putDataAsync(data, metadata: meta)
-        guard let path = result.path else { throw URLError(.badServerResponse)}
-        return path
+        let result = try await storage.child("users").child(userId).child(filename).putDataAsync(data, metadata: meta)
+        if let path = result.path { return path } else {return ""}
     }
     
-    func getData(userId: String, path: String) async throws -> Data  {
-        try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
-    }
-    
-    func getImage(userId: String, path: String) async throws -> UIImage {
-        let data = try await getData(userId: userId, path: path)
-        guard let image = UIImage(data: data) else {
-            throw URLError(.badServerResponse )
-        }
-        return image
+    func getImage(path: String) async throws -> UIImage {
+        let imageData = try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
+        if let image = UIImage(data: imageData) {return image} else {return UIImage()}
     }
     
     func deleteImage(path: String) async throws {
-        try await getPath(path: path).delete()
+        try await getImagePath(path: path).delete()
     }
-    
-    
 }
+/*
+ func getData(userId: String, path: String) async throws -> Data  {
+     try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
+ }
+
+ func getImage(userId: String, path: String) async throws -> UIImage {
+     let data = try await getData(userId: userId, path: path)
+     guard let image = UIImage(data: data) else {
+         throw URLError(.badServerResponse )
+     }
+     return image
+ }
+ */

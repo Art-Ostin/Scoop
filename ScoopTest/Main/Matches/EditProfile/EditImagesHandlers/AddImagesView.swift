@@ -8,7 +8,7 @@ import SwiftUI
 import PhotosUI
 
 
-struct AddImagesView: View {
+struct AddImageView: View {
     
     @State private var vm: EditImageViewModel
     
@@ -37,7 +37,7 @@ struct AddImagesView: View {
                     }
                 }
             }
-            ActionButton(isValid: vm.slots.allSatisfy {$0 != nil}, text: "Complete", onTap: {
+            ActionButton(isValid: vm.slots.allSatisfy {$0.image != nil}, text: "Complete", onTap: {
                 showLogin = false
             })
         }
