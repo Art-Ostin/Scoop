@@ -12,7 +12,7 @@ struct EditPhotoCell: View {
     
     @Binding var picker: PhotosPickerItem?
     let url: URL?
-    let action: () -> Void
+    let action: () async throws -> Void
     
     var body: some View {
         
@@ -36,7 +36,7 @@ struct EditPhotoCell: View {
         .shadow(color: url != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
         .onChange(of: picker) {_, newValue in
             guard newValue != nil else { return }
-            action()
+            Task { try? await action() }
         }
     }
 }

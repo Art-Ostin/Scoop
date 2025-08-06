@@ -42,39 +42,72 @@ struct ImageSlot {
         }
     }
     
-    func changeImage(at index: Int) {
-        Task {
-            await MainActor.run { slots[index].url = nil}
-            
-            if let oldPath = slots[index].path, let oldURL = slots[index].url {
-                try await storageManager.deleteImage(path: oldPath)
-                try await profileManager.update(values: [
-                    .imagePath: FieldValue.arrayRemove([oldPath]),
-                    .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])
-                ]
-                )
-            }
-            
-            guard
-                let selection = slots[index].pickerItem,
-                let data = try? await selection.loadTransferable(type: Data.self) else {return}
-                    
-            do {
-                let newPath = try await storageManager.saveImage(data: data)
-                let newURL = try await storageManager.getImageURL(path: newPath)
-                try await profileManager.update(values: [
-                    .imagePath: FieldValue.arrayUnion([newPath]),
-                    .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
-                ])
-                await MainActor.run {
-                    slots[index].path = newPath
-                    slots[index].url = newURL
-                    slots[index].pickerItem = nil
-                }
-                
-            } catch {
-                print(error)
-            }
+    func changeImage(at index: Int) async throws {
+        
+        if let oldPath = slots[index].path, let oldURL = slots[index].url {
+            async let delete: () = storageManager.deleteImage(path: oldPath)
+            async let remove: () = profileManager.update(values: [
+                .imagePath: FieldValue.arrayRemove([oldPath]),
+                .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])
+            ]
+            )
+            _ = try await (delete, remove)
         }
+        guard
+            let selection = slots[index].pickerItem,
+            let data = try? await selection.loadTransferable(type: Data.self) else {return}
+        
+        let newPath = try await storageManager.saveImage(data: data)
+        let newURL = try await storageManager.getImageURL(path: newPath)
+        
+        async let updateProfile: () = profileManager.update(values: [
+            .imagePath: FieldValue.arrayUnion([newPath]),
+            .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
+        ])
+
+        await MainActor.run {slots[index].url = newURL}
+        
+        try await updateProfile
     }
 }
+
+
+
+/*
+ func changeImage(at index: Int) {
+     Task {
+         await MainActor.run { slots[index].url = nil}
+         
+         if let oldPath = slots[index].path, let oldURL = slots[index].url {
+             try await storageManager.deleteImage(path: oldPath)
+             try await profileManager.update(values: [
+                 .imagePath: FieldValue.arrayRemove([oldPath]),
+                 .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])
+             ]
+             )
+         }
+         
+         guard
+             let selection = slots[index].pickerItem,
+             let data = try? await selection.loadTransferable(type: Data.self) else {return}
+                 
+         do {
+             let newPath = try await storageManager.saveImage(data: data)
+             let newURL = try await storageManager.getImageURL(path: newPath)
+             try await profileManager.update(values: [
+                 .imagePath: FieldValue.arrayUnion([newPath]),
+                 .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
+             ])
+             await MainActor.run {
+                 slots[index].path = newPath
+                 slots[index].url = newURL
+                 slots[index].pickerItem = nil
+             }
+             
+         } catch {
+             print(error)
+         }
+     }
+ }
+
+ */
