@@ -24,7 +24,7 @@ import SwiftUI
     func getImagePath(path: String) -> StorageReference {
         Storage.storage().reference(withPath: path)
     }
-    
+
     func getImageURL(path: String) async throws -> URL {
         try await  getImagePath(path: path).downloadURL()
     }
@@ -35,8 +35,8 @@ import SwiftUI
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         let result = try await storage.child("users").child(userId).child(filename).putDataAsync(data, metadata: meta)
-        if let path = result.path { return path } else {return ""}
-    }
+        return result.path ?? ""
+        }
     
     func getImage(path: String) async throws -> UIImage {
         let imageData = try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
@@ -47,16 +47,3 @@ import SwiftUI
         try await getImagePath(path: path).delete()
     }
 }
-/*
- func getData(userId: String, path: String) async throws -> Data  {
-     try await storage.child(path).data(maxSize: 3 * 1024 * 1024)
- }
-
- func getImage(userId: String, path: String) async throws -> UIImage {
-     let data = try await getData(userId: userId, path: path)
-     guard let image = UIImage(data: data) else {
-         throw URLError(.badServerResponse )
-     }
-     return image
- }
- */
