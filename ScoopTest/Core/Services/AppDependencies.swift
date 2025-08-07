@@ -16,7 +16,7 @@ final class AppDependencies {
     let profileManager: ProfileManaging
     let storageManager: StorageManaging
     let imageCache: ImageCaching
-    let userStore: CurrentUserStore
+    let userStore: UserManager
     let eventManager: EventManager
     
     init(
@@ -25,12 +25,12 @@ final class AppDependencies {
         storageManager: StorageManaging? = nil,
         imageCache: ImageCaching? = nil,
         eventManager: EventManager? = nil,
-        userStore: CurrentUserStore? = nil
+        userStore: UserManager? = nil
     ) {
         let profile = profileManager ?? FirestoreManager()
         let auth = authManager ?? AuthenticationManager(profile: profile)
         let cache = imageCache ?? CacheManager()
-        let userStore = userStore ?? CurrentUserStore(auth: auth, profile: profile, imageCache: cache)
+        let userStore = userStore ?? UserManager(auth: auth, profile: profile, cacheManager: cache)
         let eventManager = eventManager ?? EventManager(user: userStore, profile: profile)
         let storage = storageManager ?? StorageManager(user: userStore)
 

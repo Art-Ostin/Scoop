@@ -13,9 +13,9 @@ import SwiftUI
 
 @Observable final class FirestoreManager: ProfileManaging {
     
-    var userStore: CurrentUserStore?
+    var userStore: UserManager?
 
-    init(userStore: CurrentUserStore? = nil) {
+    init(userStore: UserManager? = nil) {
         self.userStore = userStore
     }
     

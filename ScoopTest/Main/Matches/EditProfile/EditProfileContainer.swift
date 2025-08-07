@@ -18,7 +18,7 @@ struct EditProfileContainer: View {
             
             Group {
                 if isView {
-                    ProfileView(profile: user, showInviteButton: false)
+                    ProfileView(profile: user, showInviteButton: false, dep: dep)
                         .transition(.move(edge: .leading))
                 } else {
                     EditProfileView(dep: dep)

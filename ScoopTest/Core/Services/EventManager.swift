@@ -12,10 +12,10 @@ import FirebaseFirestore
 @Observable
 class EventManager {
     
-    @ObservationIgnored private let user: CurrentUserStore
+    @ObservationIgnored private let user: UserManager
     @ObservationIgnored private let profile: ProfileManaging
     
-    init (user: CurrentUserStore, profile: ProfileManaging) {
+    init (user: UserManager, profile: ProfileManaging) {
         self.user = user
         self.profile = profile
     }

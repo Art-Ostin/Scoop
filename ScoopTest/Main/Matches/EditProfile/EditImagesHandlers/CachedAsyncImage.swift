@@ -31,6 +31,6 @@ struct CachedAsyncImage<Content: View>: View {
         }
     }
     private func load() async {
-        uiImage = try? await dependencies.imageCache.fetchImage(for: url)
+//        uiImage = try? await dependencies.imageCache.fetchImage(for: url)
     }
 }

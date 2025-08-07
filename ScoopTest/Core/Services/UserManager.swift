@@ -9,23 +9,19 @@ import Foundation
 import FirebaseAuth
 
 @Observable
-class CurrentUserStore {
+class UserManager {
     
     @ObservationIgnored private let auth: AuthenticationManaging
     @ObservationIgnored private let profileManager: ProfileManaging
-    @ObservationIgnored private let imageCache: ImageCaching
+    @ObservationIgnored private let cacheManager: ImageCaching
     
-    init(auth: AuthenticationManaging, profile: ProfileManaging, imageCache: ImageCaching) {
+    init(auth: AuthenticationManaging, profile: ProfileManaging, cacheManager: ImageCaching) {
         self.auth = auth
         self.profileManager = profile
-        self.imageCache = imageCache
+        self.cacheManager = cacheManager
     }
     
-    
-    
-    
     private(set) var user: UserProfile? = nil
-    
     
     func loadUser() async throws {
         let authUser = try auth.getAuthenticatedUser()
@@ -33,18 +29,18 @@ class CurrentUserStore {
         await MainActor.run {
             self.user = profile
         }
-        let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
-        Task { try? await imageCache.prefetch(urls: urls) }
+        Task { await cacheManager.fetchProfileImages(profiles: [profile])}
     }
-    
-    func loadProfile(_ localProfile: UserProfile) async throws {
-        let urls = localProfile.imagePathURL?.compactMap { URL(string: $0) } ?? []
-        Task { try? await imageCache.prefetch(urls: urls) }
-    }
-    
-    
     
     func clearUser() {
         user = nil
     }
 }
+
+
+
+
+
+//func loadProfile(_ localProfile: UserProfile) async throws {
+//    
+//}

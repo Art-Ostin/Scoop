@@ -4,16 +4,19 @@ import Foundation
 @Observable class ProfileViewModel {
     
     var p: UserProfile
-
+    
+    let dep: AppDependencies
+    
     var invitePopup: Bool = false
     var showInviteButton: Bool
     
     var imageSelection: Int = 0
     let pageSpacing: CGFloat = -48
     
-    init(profile: UserProfile, showInviteButton: Bool) {
+    init(profile: UserProfile, showInviteButton: Bool, dep: AppDependencies) {
         self.p = profile
         self.showInviteButton = showInviteButton
+        self.dep = dep
     }
 }
 
@@ -30,8 +33,8 @@ struct ProfileView: View {
     
     var showInviteButton: Bool
     
-    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil, showInviteButton: Bool = true) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton))
+    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil, showInviteButton: Bool = true, dep: AppDependencies) {
+        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton, dep: dep))
         self.vm2 = vm2
         self.showInviteButton = showInviteButton
     }

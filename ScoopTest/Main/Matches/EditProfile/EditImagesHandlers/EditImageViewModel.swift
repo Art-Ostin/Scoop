@@ -21,11 +21,11 @@ struct ImageSlot: Equatable {
     
     var profileManager: ProfileManaging
     var storageManager: StorageManaging
-    var user: CurrentUserStore
+    var user: UserManager
     
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     
-    init (profileManager: ProfileManaging, storageManager: StorageManaging, user: CurrentUserStore) {
+    init (profileManager: ProfileManaging, storageManager: StorageManaging, user: UserManager) {
         self.profileManager = profileManager
         self.storageManager = storageManager
         self.user = user

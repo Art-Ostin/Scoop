@@ -43,8 +43,8 @@ import SwiftUI
     }
     
     
-    //Uses TaskGroup to fetch all the images quickly and saves them to
-    func fetchProfileImages(profiles: [UserProfile]) async -> [UIImage] {
+    //Function saves images to the Cache
+    func loadProfile(_ profiles: [UserProfile]) async -> [UIImage] {
         
         let urls = profiles.flatMap { profile in
             profile.imagePathURL?.compactMap { URL(string: $0) } ?? []

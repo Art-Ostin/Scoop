@@ -12,10 +12,10 @@ import SwiftUI
 
 @Observable class StorageManager: StorageManaging {
     
-    @ObservationIgnored private let userManager: CurrentUserStore
+    @ObservationIgnored private let userManager: UserManager
     private let storage = Storage.storage().reference()
 
-    init(user: CurrentUserStore) {
+    init(user: UserManager) {
         self.userManager = user
     }
     

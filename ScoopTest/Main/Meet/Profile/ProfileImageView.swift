@@ -12,40 +12,39 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     
     var body: some View {
-        
-        let stringURLs = vm.p.imagePathURL
+
+        let images =  vm.dep.imageCache.fetchProfileImages(profiles: [vm.p])
         
         GeometryReader { geo in
             TabView(selection: $vm.imageSelection) {
-                if let urlString = stringURLs {
-                    let size = geo.size.width - 24
-                        ForEach (urlString.indices, id: \.self) {index in
-                        let url = urlString[index]
-                        if let url = URL(string: url) {
-                            imageContainer(url: url, size: size) {
-                                if vm.showInviteButton {
-                                    InviteButton(vm: vm)
-                                }
-                            }.tag(index)
+                
+                ForEach(images.indices, id: \.self) {index in
+                    
+                    let image = images[index]
+                    let size = geo.size.width - 16
+                    
+                    imageContainer(uiImage: image, size: size) {
+                        if vm.showInviteButton {
+                            InviteButton(vm: vm)
                         }
                     }
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .frame(width: geo.size.width, height: 430)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(width: geo.size.width, height: 430)
         }
     }
 }
 
 struct imageContainer<Overlay: View>: View {
     
-    let url: URL
+    let image: UIImage
     let size: CGFloat
     let shadow: CGFloat
     @ViewBuilder var overlay: () -> Overlay
     
-    init(url: URL, size: CGFloat, shadow: CGFloat = 5, @ViewBuilder overlay: @escaping () -> Overlay = {EmptyView()}) {
-        self.url = url
+    init(image: UIImage, size: CGFloat, shadow: CGFloat = 5, @ViewBuilder overlay: @escaping () -> Overlay = {EmptyView()}) {
+        self.image = image
         self.size = size
         self.shadow = shadow
         self.overlay = overlay
@@ -53,19 +52,16 @@ struct imageContainer<Overlay: View>: View {
     
     var body: some View {
         
-        CachedAsyncImage(url: url) { image in
-            image
-                .resizable()
-                .scaledToFill()
-                .frame(width: size, height: size)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .padding(.horizontal, 12)
-                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: shadow)
-                .overlay(alignment: .bottomTrailing) {
-                    overlay()
-                        .padding(24)
-                }
-        }
+        Image(uiImage: image)
+            .resizable()
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding(.horizontal, 12)
+            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: shadow)
+            .overlay(alignment: .bottomTrailing) {
+                overlay()
+                    .padding(24)
+            }
     }
 }
-
