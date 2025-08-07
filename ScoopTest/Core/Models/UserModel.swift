@@ -73,7 +73,6 @@ struct UserProfile: Codable {
         self.character = nil
         self.imagePath = nil
         self.imagePathURL = nil
-
     }
       
     enum CodingKeys: String, CodingKey {

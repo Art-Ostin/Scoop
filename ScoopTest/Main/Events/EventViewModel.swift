@@ -24,7 +24,6 @@ struct EventMatch: Identifiable {
     init(dependencies: AppDependencies) {
         self.dependencies = dependencies
     }
-
     
     var events: [EventMatch] = []
     

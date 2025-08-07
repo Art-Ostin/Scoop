@@ -16,6 +16,7 @@ enum Status: Codable{
 }
 
 
+
 struct Event: Identifiable, Codable {
     var id = UUID().uuidString
     var profile1_id: String?
