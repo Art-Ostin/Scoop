@@ -33,20 +33,13 @@ struct EventView: View {
             }
             
             TabView(selection: $selection) {
-                
+
                 ForEach(vm.events) {event in
-                    
                     VStack(spacing: 36) {
-                        
                         Text(event.user.name ?? "")
                             .font(.title)
                             .frame(maxWidth: .infinity)
                         
-                        if let urlString = event.user.imagePathURL?[0], let url = URL(string: urlString) {
-                            imageContainer(url: url, size: 140, shadow: 0)
-                                .onTapGesture { showProfile.toggle() }
-                            
-                        }
                         if let date = event.event.time {
                             LargeClockView(targetTime: date)
                         }
@@ -64,7 +57,6 @@ struct EventView: View {
                 vm.currentEvent = pair.event
                 vm.currentUser  = pair.user
             }
-            
             .fullScreenCover(isPresented: $showProfile, content: {
                 if let newUser = vm.currentUser {
                     ProfileView(profile: newUser)
@@ -80,4 +72,3 @@ struct EventView: View {
         }
     }
 }
-
