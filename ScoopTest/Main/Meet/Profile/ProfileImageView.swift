@@ -16,12 +16,14 @@ struct ProfileImageView: View {
         let images =  vm.dep.imageCache.fetchProfileImages(profiles: [vm.p])
         
         GeometryReader { geo in
+            
+            let size = geo.size.width - 16
+            
             TabView(selection: $vm.imageSelection) {
                 
                 ForEach(images.indices, id: \.self) {index in
                     
                     let image = images[index]
-                    let size = geo.size.width - 16
                     
                     imageContainer(uiImage: image, size: size) {
                         if vm.showInviteButton {
@@ -29,9 +31,9 @@ struct ProfileImageView: View {
                         }
                     }
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .frame(width: geo.size.width, height: 430)
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .frame(width: geo.size.width, height: size + 16)
         }
     }
 }
