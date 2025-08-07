@@ -21,7 +21,10 @@ struct CachedAsyncImage<Content: View>: View {
                 content(Image(uiImage: uiImage))
             } else {
                 ProgressView()
-                    .task{ await load() }
+                    .task{
+                        await load()
+                    }
+                
             }
         }
     }

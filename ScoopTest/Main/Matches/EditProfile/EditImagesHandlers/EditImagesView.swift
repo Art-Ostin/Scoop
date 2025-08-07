@@ -33,7 +33,13 @@ struct ImagesView: View {
             try? await vm.user.loadUser()
             vm.assignSlots()
         }
-        
+        .onChange(of: vm.slots.map(\.url)) {
+            Task {
+                try? await vm.user.loadUser()
+                vm.assignSlots()
+            }
+            print("Slots assigned")
+        }
         .padding(.horizontal, 32)
     }
 }

@@ -24,7 +24,7 @@ import SwiftUI
     }
     
     func getImageURL(path: String) async throws -> URL {
-        print("getImageURL Called ")        
+        print("getImageURL Called")
         let url = try await imagePath(path).downloadURL()
         return updateImagePath(url: url)
     }
@@ -37,7 +37,6 @@ import SwiftUI
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
-        
         print("save Image Performed")
         return path
         }

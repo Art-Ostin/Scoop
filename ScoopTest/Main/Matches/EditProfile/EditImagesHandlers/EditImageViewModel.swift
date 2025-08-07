@@ -10,7 +10,7 @@ import SwiftUI
 import PhotosUI
 import FirebaseFirestore
 
-struct ImageSlot {
+struct ImageSlot: Equatable {
     var pickerItem: PhotosPickerItem?
     var path: String?
     var url: URL?
