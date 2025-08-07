@@ -49,22 +49,17 @@ import SwiftUI
         let urls = profiles.flatMap { profile in
             profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
         }
-        
-        return await withTaskGroup(of: [UIImage].self) { group in
+        var images: [UIImage] = []
+        await withTaskGroup(of: UIImage?.self) { group in
             for url in urls {
                 group.addTask {
-                    let image = try? await self.fetchImage(for: url)
+                    try? await self.fetchImage(for: url)
                 }
             }
-            var images: [UIImage] = []
             for await img in group {
-                images.append(contentsOf: img)
+                if let img { images.append(img) }
             }
         }
         return images
     }
 }
-
-//
-//func addProfileImagesToCache(profiles: [UserProfile]) async
-//func fetchImage(for url: URL) async throws -> UIImage
