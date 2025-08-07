@@ -8,7 +8,7 @@ import Foundation
     let dep: AppDependencies
     
     var images =  Task {
-        await vm.dep.imageCache.fetchProfileImages(profiles: [vm.p])
+        await dep.imageCache.fetchProfileImages(profiles: [p])
     }
     
     
