@@ -76,6 +76,7 @@ struct EmailVerificationView: View {
     @Binding var showLogin: Bool
     @Binding var showEmail: Bool
     @FocusState var focused: Bool
+    @ObservedObject var otpManager: OTPManager
     
     @State var code = ""
     
@@ -98,39 +99,54 @@ struct EmailVerificationView: View {
                 .padding(.horizontal)
                 
                 EnterOTP(code: $code)
+                if let expected = otpManager.otp {
+                  Text("Expected OTP: \(expected)")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+                } else {
+                  Text("No OTP fetched yet")
+                    .font(.caption2)
+                    .foregroundColor(.orange)
+                }
             }
             .padding(.top, 48)
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.horizontal)
             .flowNavigation()
-            .onChange(of: code) {
-                
+            Button("Verify Code") {
                 Task {
-                    guard ((try? await AuthenticateEmail()) != nil) else { return }
-                    
-                    if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
-                        try? await dependencies.userStore.loadUser()
+                    do {
+                        // this will throw if wrong
+                        try await AuthenticateEmail()
+                        
+                        // now your login/createUser flow
+                        if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
+                            try await dependencies.userStore.loadUser()
                             showLogin = false
                         }
-                        else {
-                            if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
-                                try? await dependencies.userStore.loadUser()
-                                showEmail = false
-                            }
+                        else if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
+                            try await dependencies.userStore.loadUser()
+                            showEmail = false
                         }
+                    }
                 }
             }
+            .disabled(code.count != 6) // only enable once 6 digits entered
         }
+        .padding()
     }
+    
     
     private func AuthenticateEmail() async throws -> Bool {
         
         // All Authentication Goes here. The code the user types in is the variable "code". Thus, make this function return true, if the "code" the user types in is equivalent to the code set to the user's email (else return false). (Currently, the function just returns true if the user types in 6 digits).
         
-        if code.count == 6 {
+        
+        if otpManager.verify(input: code) {
+            print("Correct")
             return true
         } else {
-            return false
+            throw NSError(domain: "OTP", code: 0, userInfo: [NSLocalizedDescriptionKey: "Incorrect code"])
         }
     }
 }
