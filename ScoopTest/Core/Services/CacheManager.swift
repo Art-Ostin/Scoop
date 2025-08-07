@@ -13,34 +13,58 @@ import SwiftUI
 
 @Observable class CacheManager: ImageCaching {
     
-    private let cache: NSCache<NSURL, Image>
-
+    
+    private let cache: NSCache<NSURL, UIImage>
+    
     init() {
         cache = NSCache<NSURL, UIImage>()
         cache.countLimit = 100
         cache.totalCostLimit = 1024 * 1024 * 100
     }
     
+    // fetches Image from Cache
+    private func fetchImageFromCache(for url: URL) -> UIImage? {
+        cache.object(forKey: url as NSURL)
+    }
     
-    func addProfileImagesToCache(profile: UserProfile) async {
+    
+    //Checks if image is in Cache, if not converts URL to Image, saves it to the Cache, and returns the image
+    private func fetchImage(for url: URL) async throws -> UIImage {
+        if let image = fetchImageFromCache(for: url) {
+            print("Got image from Cache")
+            return image
+        }
+        let (data, _) = try await URLSession.shared.data(from: url)
+        guard let image = UIImage(data: data) else {
+            throw URLError(.badServerResponse)
+        }
+        cache.setObject(image, forKey: url as NSURL, cost: data.count)
+        return image
+    }
+    
+    
+    //Uses TaskGroup to fetch all the images quickly and saves them to
+    func fetchProfileImages(profiles: [UserProfile]) async -> [UIImage] {
         
-        
-        let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
-        
-        var images: [Image] = []
-        
-        
-        for url in urls {
-            
-            AsyncImage(url: url) { image in
-                cache.setObject(image, forKey: url as NSURL)
-                
-            } placeholder: {
-                
-            }
+        let urls = profiles.flatMap { profile in
+            profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
         }
         
-        
+        return await withTaskGroup(of: [UIImage].self) { group in
+            for url in urls {
+                group.addTask {
+                    let image = try? await self.fetchImage(for: url)
+                }
+            }
+            var images: [UIImage] = []
+            for await img in group {
+                images.append(contentsOf: img)
+            }
+        }
+        return images
     }
-
 }
+
+//
+//func addProfileImagesToCache(profiles: [UserProfile]) async
+//func fetchImage(for url: URL) async throws -> UIImage

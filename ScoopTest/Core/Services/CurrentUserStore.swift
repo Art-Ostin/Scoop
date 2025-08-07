@@ -26,6 +26,7 @@ class CurrentUserStore {
     
     private(set) var user: UserProfile? = nil
     
+    
     func loadUser() async throws {
         let authUser = try auth.getAuthenticatedUser()
         let profile = try await profileManager.getProfile(userId: authUser.uid)
@@ -33,13 +34,15 @@ class CurrentUserStore {
             self.user = profile
         }
         let urls = profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
-        Task { await imageCache.prefetch(urls: urls) }
+        Task { try? await imageCache.prefetch(urls: urls) }
     }
     
     func loadProfile(_ localProfile: UserProfile) async throws {
         let urls = localProfile.imagePathURL?.compactMap { URL(string: $0) } ?? []
-        Task { await imageCache.prefetch(urls: urls) }
+        Task { try? await imageCache.prefetch(urls: urls) }
     }
+    
+    
     
     func clearUser() {
         user = nil
