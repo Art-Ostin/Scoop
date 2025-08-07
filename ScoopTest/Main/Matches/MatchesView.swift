@@ -6,19 +6,17 @@
 //
 
 import SwiftUI
+import Combine
 
 
 
 struct MatchesView: View {
     
-    
     @Environment(\.appDependencies) private var dependencies: AppDependencies
-
     
     @Binding var showLogin: Bool
     
     @State var showProfileView = false
-    
     
     var body: some View {
         
@@ -47,10 +45,10 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        if let raw = dependencies.userStore.user?.imagePathURL?[0],
-                            let url = URL(string: raw)
-                        {
-                            CirclePhoto(url: url).onTapGesture {showProfileView = true }
+                        if let raw = dependencies.userStore.user?.imagePathURL?[0], let url = URL(string: raw) {
+                            CirclePhoto(url: url)
+                                .onTapGesture {showProfileView = true }
+                            Text("Hello")
                         }
                     }
                 }

@@ -61,8 +61,30 @@ struct ImageSlot {
         let newPath = try await storageManager.saveImage(data: data)
         let newURL = try await storageManager.getImageURL(path: newPath)
         
+        
+        
+        let ns = newPath as NSString
+        let base = ns.deletingPathExtension
+        let ext  = ns.pathExtension
+        let resized = "\(base)_1350x1350.\(ext)"
+        
+        print(resized)
+                
+        
+        let originalURL: URL = newURL
+        let directory = originalURL.deletingLastPathComponent()
+        let filename  = originalURL.deletingPathExtension().lastPathComponent
+        let ext2      = originalURL.pathExtension
+        
+        
+        let resizedFilename = "\(filename)_1350x1350.\(ext)"
+        
+        print(resizedFilename)
+        
+        
+                
         async let updateProfile: () = profileManager.update(values: [
-            .imagePath: FieldValue.arrayUnion([newPath]),
+            .imagePath: FieldValue.arrayUnion([resized]),
             .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
         ])
 
