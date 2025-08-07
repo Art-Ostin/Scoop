@@ -35,7 +35,6 @@ protocol StorageManaging {
     func imagePath(_ imageId: String) -> StorageReference
     func getImageURL(path: String) async throws -> URL
     func saveImage(data: Data) async throws -> String
-    func getImage(path: String) async throws -> UIImage
     func deleteImage(path: String) async throws
 }
 

@@ -24,7 +24,11 @@ import SwiftUI
     }
     
     func getImageURL(path: String) async throws -> URL {
-        try await imagePath(path).downloadURL()
+                        
+        let url = try await imagePath(path).downloadURL()
+        
+        return updateImagePath(url: url)
+        
     }
     
     func saveImage(data: Data) async throws -> String {
@@ -37,13 +41,17 @@ import SwiftUI
         return path
         }
     
-    func getImage(path: String) async throws -> UIImage {
-        let imageData = try await imagePath(path).data(maxSize: 3 * 1024 * 1024)
-        if let image = UIImage(data: imageData) {return image} else {return UIImage()}
-    }
-    
     func deleteImage(path: String) async throws {
         try await imagePath(path).delete()
     }
     
+    func updateImagePath(url: URL) -> URL {
+        let urlString = url.absoluteString
+        let newUrlString = urlString.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg", options: [.literal, .backwards])
+
+        if let newURL = URL(string: newUrlString) {
+            return newURL
+        }
+        return url
+    }
 }

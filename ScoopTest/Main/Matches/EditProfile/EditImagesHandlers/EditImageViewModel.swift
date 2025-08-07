@@ -69,17 +69,6 @@ struct ImageSlot {
         let resized = "\(base)_1350x1350.\(ext)"
         
         print(resized)
-                
-        
-        let originalURL: URL = newURL
-        let directory = originalURL.deletingLastPathComponent()
-        let filename  = originalURL.deletingPathExtension().lastPathComponent
-        let ext2      = originalURL.pathExtension
-        
-        
-        let resizedFilename = "\(filename)_1350x1350.\(ext)"
-        
-        print(resizedFilename)
         
         
                 
