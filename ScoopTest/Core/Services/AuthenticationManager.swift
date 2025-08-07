@@ -23,7 +23,6 @@ struct AuthenticatedUser {
 
 @Observable class AuthenticationManager: AuthenticationManaging {
     
-    
     let profile: ProfileManaging
     
     init(profile: ProfileManaging) {
@@ -54,6 +53,5 @@ struct AuthenticatedUser {
     func signOutUser() throws {
         try Auth.auth().signOut()
     }
-    
 }
 

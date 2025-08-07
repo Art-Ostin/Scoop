@@ -19,8 +19,6 @@ struct CirclePhoto: View {
                 .clipShape(Circle())
                 .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
         }
-        
-        
     }
 }
 

@@ -7,19 +7,16 @@
 import SwiftUI
 import PhotosUI
 
-
 struct AddImageView: View {
     
     @State private var vm: EditImageViewModel
     
     @Binding var showLogin: Bool
-
     
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
         self._vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userStore))
         self._showLogin = showLogin
     }
-
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     var body: some View {
         VStack(spacing: 36) {

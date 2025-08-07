@@ -69,17 +69,18 @@ struct EnterEmailView: View {
                 VStack(spacing: 96){
                     enterEmailSection
                     NextButton(isEnabled: vm.authoriseEmail(email: vm.username), onTap: {
-                        Task {
-                            do {
-                                let otp = try await triggerRawTestOtp()
-                                print("OTP (dev):", otp)
-                                // optional: update UI state on main actor
-                                showVerification = true
-                            } catch {
-                                print("Failed to trigger rawTestGenerateOtp:", error)
-                                // surface error to user if needed
-                            }
-                        }
+                        showVerification = true
+//                        Task {
+//                            do {
+//                                let otp = try await triggerRawTestOtp()
+//                                print("OTP (dev):", otp)
+//                                // optional: update UI state on main actor
+//                                showVerification = true
+//                            } catch {
+//                                print("Failed to trigger rawTestGenerateOtp:", error)
+//                                // surface error to user if needed
+//                            }
+//                        }
                     })
 
                 }
