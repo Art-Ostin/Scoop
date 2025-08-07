@@ -101,7 +101,7 @@ extension Array {
 
 
 struct InterestsView: View {
-    let user: CurrentUserStore
+    let user: UserManager
     var body: some View {
         InterestsHolder(title: "Interests") {
             InterestsLayout()

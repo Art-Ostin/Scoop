@@ -6,16 +6,9 @@ import Foundation
     var p: UserProfile
     
     let dep: AppDependencies
-    
-    var images =  Task {
-        await dep.imageCache.fetchProfileImages(profiles: [p])
-    }
-    
-    
     var invitePopup: Bool = false
     var showInviteButton: Bool
     
-    var imageSelection: Int = 0
     let pageSpacing: CGFloat = -48
     
     init(profile: UserProfile, showInviteButton: Bool, dep: AppDependencies) {
@@ -65,7 +58,6 @@ struct ProfileView: View {
                                 ProfileImageView(vm: $vm)
                                     .frame(height: 420)
                                 
-                                ProfileImageScroller(vm: $vm)
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
                             ProfileDetailsView(vm: $vm)

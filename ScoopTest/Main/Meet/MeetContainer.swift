@@ -21,7 +21,7 @@ struct MeetContainer: View {
     @State var vm: MeetUpViewModel
     
     init(dep: AppDependencies) {
-        self._vm = State(initialValue: MeetUpViewModel(userStore: dep.userStore, profileManager: dep.profileManager))
+        self._vm = State(initialValue: MeetUpViewModel(dep: dep))
     }
     
     
@@ -36,7 +36,7 @@ struct MeetContainer: View {
                 DailyProfiles(vm: $vm)
                 
             case .profile(let profile):
-                ProfileView(profile: profile, vm2: $vm)
+                ProfileView(profile: profile, vm2: $vm, dep: vm.dep)
             default: EmptyView()
             }
         }.task {

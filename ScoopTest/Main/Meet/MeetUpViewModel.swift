@@ -9,14 +9,11 @@ import Foundation
 
 @Observable class MeetUpViewModel {
 
-    
     //Functionality of which Profile to Display
     @ObservationIgnored var selection: Int = 0
     
-    let userStore: CurrentUserStore
-    let profileManager: ProfileManaging
+    let dep: AppDependencies
     let defaults: UserDefaults
-    
     
     var profile1: UserProfile?
     var profile2: UserProfile?
@@ -26,9 +23,8 @@ import Foundation
     let showProfilesKey = "showDailyProfiles"
     
     
-    init(userStore: CurrentUserStore, profileManager: ProfileManaging, defaults: UserDefaults = .standard) {
-        self.userStore = userStore
-        self.profileManager = profileManager
+    init(dep: AppDependencies, defaults: UserDefaults = .standard) {
+        self.dep = dep
         self.defaults = defaults
         self.state = defaults.bool(forKey: showProfilesKey) ? .twoDailyProfiles : .intro
     }
@@ -57,7 +53,7 @@ import Foundation
     
     func refresh() async {
         do {
-            let fetched = try await profileManager.getRandomProfile()
+            let fetched = try await dep.profileManager.getRandomProfile()
             await assignProfiles(fetched)
             if let data = try? JSONEncoder().encode(fetched) {
                 defaults.set(data, forKey: profileKey)
@@ -79,7 +75,7 @@ import Foundation
             profile2 = profiles[safe: 1]
         }
         for profile in profiles {
-            try? await userStore.loadProfile(profile)
+//            try? await userStore.loadProfile(profile)
         }
     }
 }

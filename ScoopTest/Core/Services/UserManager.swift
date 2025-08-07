@@ -13,9 +13,9 @@ class UserManager {
     
     @ObservationIgnored private let auth: AuthenticationManaging
     @ObservationIgnored private let profileManager: ProfileManaging
-    @ObservationIgnored private let cacheManager: ImageCaching
+    @ObservationIgnored private let cacheManager: CacheManaging
     
-    init(auth: AuthenticationManaging, profile: ProfileManaging, cacheManager: ImageCaching) {
+    init(auth: AuthenticationManaging, profile: ProfileManaging, cacheManager: CacheManaging) {
         self.auth = auth
         self.profileManager = profile
         self.cacheManager = cacheManager
@@ -29,7 +29,7 @@ class UserManager {
         await MainActor.run {
             self.user = profile
         }
-        Task { await cacheManager.fetchProfileImages(profiles: [profile])}
+        Task { await cacheManager.loadProfile([profile])}
     }
     
     func clearUser() {

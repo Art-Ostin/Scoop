@@ -13,13 +13,15 @@ struct PopUpView: View {
     
     @State var showProfile: UserProfile? = nil
     
+    @State var image: UIImage? = nil
+    
     var body: some View {
         
         VStack(spacing: 23) {
             
-            if let string = profile.imagePathURL?.first, let url = URL(string: string)  {
-                imageContainer(url: url, size: 140, shadow: 0)
-            }
+//            if let string = profile.imagePathURL?.first, let url = URL(string: string)  {
+//                imageContainer(url: url, size: 140, shadow: 0)
+//            }
             
             Text("\(String(describing: profile.name))'s down to meet")
                 .font(.title(24))

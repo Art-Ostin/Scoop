@@ -38,7 +38,6 @@ protocol StorageManaging {
     func deleteImage(path: String) async throws
 }
 
-protocol ImageCaching {
-    func fetchProfileImages(profiles: [UserProfile]) async -> [UIImage]
-    
+protocol CacheManaging {
+    func loadProfile(_ profiles: [UserProfile]) async -> [UIImage]
 }

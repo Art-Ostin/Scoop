@@ -15,7 +15,7 @@ final class AppDependencies {
     let authManager: AuthenticationManaging
     let profileManager: ProfileManaging
     let storageManager: StorageManaging
-    let imageCache: ImageCaching
+    let imageCache: CacheManaging
     let userStore: UserManager
     let eventManager: EventManager
     
@@ -23,7 +23,7 @@ final class AppDependencies {
         authManager: AuthenticationManaging? = nil,
         profileManager: ProfileManaging? = nil,
         storageManager: StorageManaging? = nil,
-        imageCache: ImageCaching? = nil,
+        imageCache: CacheManaging? = nil,
         eventManager: EventManager? = nil,
         userStore: UserManager? = nil
     ) {
