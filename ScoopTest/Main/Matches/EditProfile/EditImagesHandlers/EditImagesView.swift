@@ -33,12 +33,8 @@ struct ImagesView: View {
             try? await vm.user.loadUser()
             vm.assignSlots()
         }
-        .onChange(of: vm.slots.map(\.url)) {
-            Task {
-                try? await vm.user.loadUser()
-                vm.assignSlots()
-            }
-            print("Slots assigned")
+        .onChange(of: vm.user.user?.imagePathURL) {
+            vm.assignSlots() // runs only when the profile data really changes
         }
         .padding(.horizontal, 32)
     }

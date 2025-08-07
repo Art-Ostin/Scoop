@@ -19,12 +19,14 @@ struct CachedAsyncImage<Content: View>: View {
         Group {
             if let uiImage {
                 content(Image(uiImage: uiImage))
+                    .onAppear { print("✅ rendered image from cache or network") }
             } else {
                 ProgressView()
                     .task{
                         await load()
                     }
-                
+                    .onAppear { print("⏳ showing progress, starting load…") }
+
             }
         }
     }
@@ -32,11 +34,3 @@ struct CachedAsyncImage<Content: View>: View {
         uiImage = try? await dependencies.imageCache.fetchImage(for: url)
     }
 }
-
-
-
-
-
-//#Preview {
-//    CachedAsyncImage()
-//}
