@@ -14,10 +14,7 @@ import Foundation
 
 final class UserDefaultsManager {
     
-    
-    
     @ObservationIgnored private let firestoreManager: ProfileManaging
-
     
     private let defaults: UserDefaults
     
@@ -45,6 +42,7 @@ final class UserDefaultsManager {
         let ids = profiles.map { $0.userId }
         defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
     }
+    
     
     func retrieveTwoDailyProfiles() async throws -> [UserProfile] {
         let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []

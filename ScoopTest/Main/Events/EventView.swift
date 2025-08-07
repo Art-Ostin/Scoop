@@ -19,7 +19,6 @@ struct EventView: View {
     var body: some View {
         
         VStack {
-            
             HStack {
                 TitleSection()
                     .padding(.top, 72)
@@ -31,10 +30,8 @@ struct EventView: View {
                         showEventDetails.toggle()
                     }
             }
-            
             TabView(selection: $selection) {
-
-                ForEach(vm.events) {event in
+                ForEach(vm.events, id: \.id) {event in
                     VStack(spacing: 36) {
                         Text(event.user.name ?? "")
                             .font(.title)
@@ -43,9 +40,11 @@ struct EventView: View {
                         if let date = event.event.time {
                             LargeClockView(targetTime: date)
                         }
+                        
                         Text(vm.formatDate(date: event.event.time))
                             .font(.body(24, .bold))
-                    }.tag(event.id)
+                    }
+                    .tag(event.id)
                     .frame(maxHeight: .infinity)
                 }
             }

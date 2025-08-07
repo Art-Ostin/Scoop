@@ -15,8 +15,6 @@ struct EventMatch: Identifiable {
     var id: String { event.id }
 }
 
-
-
 @Observable class EventViewModel {
     
     var dependencies: AppDependencies
@@ -41,7 +39,6 @@ struct EventMatch: Identifiable {
                 let newEvents = try await withThrowingTaskGroup(of: EventMatch.self) { group -> [EventMatch] in
                     for event in userEvents {
                         guard !events.contains(where:{ $0.event.id == event.id}) else { continue }
-                        
                         group.addTask {
                             let match = try await self.dependencies.eventManager.getEventMatch(event: event)
                             return EventMatch(event: event, user: match)
