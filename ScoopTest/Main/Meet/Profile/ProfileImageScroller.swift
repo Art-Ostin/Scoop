@@ -11,13 +11,21 @@ struct ProfileImageScroller: View {
     @Binding var vm: ProfileViewModel
     
     
+    
+    
     var body: some View {
-        
-        let imageUrls = vm.p.imagePathURL ?? []
         
         ScrollViewReader { proxy in
             ScrollView (.horizontal, showsIndicators: false) {
                 HStack (spacing: 48) {
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     ForEach(imageUrls.indices, id: \.self) {index in
                         
                         let url = imageUrls[index]

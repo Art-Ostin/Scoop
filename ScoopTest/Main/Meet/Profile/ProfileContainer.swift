@@ -7,6 +7,11 @@ import Foundation
     
     let dep: AppDependencies
     
+    var images =  Task {
+        await vm.dep.imageCache.fetchProfileImages(profiles: [vm.p])
+    }
+    
+    
     var invitePopup: Bool = false
     var showInviteButton: Bool
     
@@ -19,6 +24,11 @@ import Foundation
         self.dep = dep
     }
 }
+
+
+
+
+
 
 import SwiftUI
 
