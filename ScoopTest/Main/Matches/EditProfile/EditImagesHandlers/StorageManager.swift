@@ -24,25 +24,28 @@ import SwiftUI
     }
     
     func getImageURL(path: String) async throws -> URL {
-                        
+        print("getImageURL Called ")        
         let url = try await imagePath(path).downloadURL()
-        
         return updateImagePath(url: url)
-        
     }
     
     func saveImage(data: Data) async throws -> String {
+        print("Save Image Called")
         guard let userId = userManager.user?.userId else  {return "Unverified User" }
         let filename = "\(UUID().uuidString).jpeg"
         let path = "users/\(userId)/\(filename)"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
+        
+        print("save Image Performed")
         return path
         }
     
     func deleteImage(path: String) async throws {
-        try await imagePath(path).delete()
+        let updatedPath = updateStringPath(path: path)
+        try await imagePath(updatedPath).delete()
+        print("Image Deleted")
     }
     
     func updateImagePath(url: URL) -> URL {
@@ -50,8 +53,13 @@ import SwiftUI
         let newUrlString = urlString.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg", options: [.literal, .backwards])
 
         if let newURL = URL(string: newUrlString) {
+            print(newURL)
             return newURL
         }
         return url
+    }
+    
+    func updateStringPath(path: String) -> String {
+        return path.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg", options: [.literal, .backwards])
     }
 }

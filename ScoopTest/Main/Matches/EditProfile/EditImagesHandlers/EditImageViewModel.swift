@@ -52,6 +52,7 @@ struct ImageSlot {
             ]
             )
             _ = try await (delete, remove)
+            print("deleted Old Path")
         }
         guard
             let selection = slots[index].pickerItem,
@@ -59,27 +60,17 @@ struct ImageSlot {
         
         
         let newPath = try await storageManager.saveImage(data: data)
+        print("New Path Generated")
         let newURL = try await storageManager.getImageURL(path: newPath)
-        
-        
-        
-        let ns = newPath as NSString
-        let base = ns.deletingPathExtension
-        let ext  = ns.pathExtension
-        let resized = "\(base)_1350x1350.\(ext)"
-        
-        print(resized)
-        
-        
-                
+        print("New URL Generated")
+
         async let updateProfile: () = profileManager.update(values: [
-            .imagePath: FieldValue.arrayUnion([resized]),
+            .imagePath: FieldValue.arrayUnion([newPath]),
             .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
         ])
-
-        await MainActor.run { slots[index].path = newPath; slots[index].url = newURL; slots[index].pickerItem = nil}
-        
         try await updateProfile
+        print("profile Updated")
+        await MainActor.run { slots[index].path = newPath; slots[index].url = newURL; slots[index].pickerItem = nil}
     }
 }
 

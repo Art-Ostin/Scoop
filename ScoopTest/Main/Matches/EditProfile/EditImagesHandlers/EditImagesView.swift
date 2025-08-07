@@ -33,6 +33,7 @@ struct ImagesView: View {
             try? await vm.user.loadUser()
             vm.assignSlots()
         }
+        
         .padding(.horizontal, 32)
     }
 }

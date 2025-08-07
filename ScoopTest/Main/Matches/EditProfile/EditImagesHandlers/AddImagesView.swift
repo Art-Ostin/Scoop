@@ -39,6 +39,7 @@ struct AddImageView: View {
             })
         }
         .task {
+            try? await vm.user.loadUser()
             vm.assignSlots()
         }
     }

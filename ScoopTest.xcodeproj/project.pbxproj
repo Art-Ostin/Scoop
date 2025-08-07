@@ -291,7 +291,6 @@
 				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
-				654982BF2E2FA54100CA335F /* StorageManager.swift */,
 				65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
 				654C009A2E35689000FFD504 /* CurrentUserStore.swift */,
@@ -574,6 +573,7 @@
 		65FAF9A12E438C050015E231 /* EditImagesHandlers */ = {
 			isa = PBXGroup;
 			children = (
+				654982BF2E2FA54100CA335F /* StorageManager.swift */,
 				654982D52E31285000CA335F /* EditImageViewModel.swift */,
 				654982D32E3101BE00CA335F /* AddImagesView.swift */,
 				654982D72E3152C000CA335F /* EditImagesView.swift */,
