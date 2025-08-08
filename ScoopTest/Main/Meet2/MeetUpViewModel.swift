@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 @Observable class MeetUpViewModel2 {
     
     var dep: AppDependencies
@@ -17,6 +15,8 @@ import Foundation
     
     init(dep: AppDependencies) {
         self.dep = dep
+        let profiles = loadTwoDailyProfiles()
+        shownDailyProfiles = profiles
     }
     
     func createNextTwoDailyProfiles() async {
@@ -40,5 +40,19 @@ import Foundation
             manager.setTwoDailyProfiles([profile])
             manager.deleteNextTwoDailyProfiles()
         }
+    }
+    
+    func loadTwoDailyProfiles() -> [UserProfile] {
+        let ids = dep.defaultsManager.getTwoDailyProfiles()
+        
+        var profiles: [UserProfile] = []
+        for id in ids {
+            Task {
+                if let profile = try? await dep.profileManager.getProfile(userId: id) {
+                    profiles.append(profile)
+                }
+            }
+        }
+        return profiles
     }
 }

@@ -58,7 +58,6 @@ class EventManager {
     }
     
     func getCurrentEvents () async throws -> [Event] {
-        
         let events = try await getUserEvents()
         let now = Date()
         let currentEvents = events.filter {$0.time ?? Date() > now}

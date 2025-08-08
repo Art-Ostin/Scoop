@@ -16,7 +16,11 @@ struct DailyProfiles2: View {
         let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
         
         VStack(spacing: 36) {
-            Text("Hello World")
+            
+            ForEach(vm.shownDailyProfiles) {profile in
+                Text(profile.name ?? "")
+            }
+
             if let time {
                 SimpleClockView(targetTime: time)
             }
