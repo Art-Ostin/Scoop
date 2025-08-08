@@ -11,14 +11,12 @@ struct DailyProfiles2: View {
     
     @Binding var vm: MeetUpViewModel2
     
-    
     var body: some View {
         
         let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
         
         VStack(spacing: 36) {
             Text("Hello World")
-            
             if let time {
                 SimpleClockView(targetTime: time)
             }

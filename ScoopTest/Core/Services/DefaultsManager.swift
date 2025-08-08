@@ -22,6 +22,7 @@ final class DefaultsManager {
     private enum Keys: String {
         case dailyProfileTimerEnd
         case twoDailyProfiles
+        case nextTwoDailyProfiles
     }
     
     init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
@@ -30,36 +31,43 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
-    func startDailyProfileTimer(duration: TimeInterval = 60) {
+    
+
+    func setDailyProfileTimer(duration: TimeInterval = 60) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
-    
-    
     func getDailyProfileTimerEnd() -> Date? {
         defaults.object(forKey: Keys.dailyProfileTimerEnd.rawValue) as? Date
     }
-    
     func clearDailyProfileTimer() {
         defaults.removeObject(forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
     
-    func saveTwoDailyProfiles(_ profiles: [UserProfile]) {
+    
+    func setNextTwoDailyProfiles(_ ids: [String]) {
+        defaults.set(ids, forKey: Keys.nextTwoDailyProfiles.rawValue)
+    }
+    func getNextTwoDailyProfiles() -> [String] {
+        defaults.stringArray(forKey: Keys.nextTwoDailyProfiles.rawValue) ?? []
+    }
+    func deleteNextTwoDailyProfiles() {
+        defaults.removeObject(forKey: Keys.nextTwoDailyProfiles.rawValue)
+    }
+    
+    
+    func setTwoDailyProfiles(_ profiles: [UserProfile]) {
         let ids = profiles.map { $0.userId }
         defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
-        print("Saved Profiles")
     }
-    
-    func deleteTwoDailyProfiles() {
-        defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
-        print("Removed Profiles")
-    }
-    
     func getTwoDailyProfiles() -> [String] {
         defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
     }
+    func deleteTwoDailyProfiles() {
+        defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
+    }
     
-    func retrieveTwoDailyProfiles() async throws -> [UserProfile] {
+    func loadTwoDailyProfiles() async throws -> [UserProfile] {
         let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
         return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
             for id in ids {
@@ -70,7 +78,7 @@ final class DefaultsManager {
                 results.append(profile)
             }
             Task {
-                await cacheManager.loadProfile(results)
+                await cacheManager.loadProfileImages(results)
             }
             return results
         }

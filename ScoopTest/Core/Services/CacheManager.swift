@@ -42,10 +42,8 @@ import SwiftUI
         return image
     }
     
-    
     //Function saves images to the Cache
-    func loadProfile(_ profiles: [UserProfile]) async -> [UIImage] {
-        
+    func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
         let urls = profiles.flatMap { profile in
             profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
         }

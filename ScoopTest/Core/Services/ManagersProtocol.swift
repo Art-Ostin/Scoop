@@ -39,5 +39,5 @@ protocol StorageManaging {
 }
 
 protocol CacheManaging {
-    func loadProfile(_ profiles: [UserProfile]) async -> [UIImage]
+    func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
 }

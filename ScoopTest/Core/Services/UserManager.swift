@@ -29,7 +29,7 @@ class UserManager {
         await MainActor.run {
             self.user = profile
         }
-        Task { await cacheManager.loadProfile([profile])}
+        Task { await cacheManager.loadProfileImages([profile])}
     }
     func clearUser() {
         user = nil

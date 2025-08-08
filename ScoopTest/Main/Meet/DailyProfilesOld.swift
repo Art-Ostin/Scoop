@@ -77,7 +77,6 @@ extension DailyProfiles {
     
     @ViewBuilder private func profileTab(for profile: UserProfile, tag: Int) -> some View {
         var image: UIImage? = nil
-        
         VStack {
             if let image = image {
                 Image(uiImage: image)
@@ -90,7 +89,7 @@ extension DailyProfiles {
             }
         }
         .task {
-            image = await vm.dep.cacheManager.loadProfile([profile]).first
+            image = await vm.dep.cacheManager.loadProfileImages([profile]).first
         }
         .tag(tag)
         .onTapGesture { self.vm.state = .profile(profile) }

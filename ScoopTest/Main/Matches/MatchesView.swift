@@ -59,7 +59,7 @@ struct MatchesView: View {
         .task {
             let user = dependencies.userManager.user
             if let user {
-                profileImage = await dependencies.cacheManager.loadProfile([user]).first
+                profileImage = await dependencies.cacheManager.loadProfileImages([user]).first
             }
         }
     }

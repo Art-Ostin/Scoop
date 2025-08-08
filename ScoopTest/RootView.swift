@@ -18,7 +18,7 @@ struct RootView : View {
             if !showLogin {
                 AppContainer(showLogin: $showLogin)
                     .appDependencies(dependencies)
-            } else  {
+            } else {
                 LoginContainer(showLogin: $showLogin)
                     .appDependencies(dependencies)
                     .transition(.move(edge: .bottom))
@@ -26,7 +26,7 @@ struct RootView : View {
         }.task {
             if let _ = try? dependencies.authManager.getAuthenticatedUser(){
                 try? await dependencies.userManager.loadUser()
-                _ = try? await dependencies.defaultsManager.retrieveTwoDailyProfiles()
+                 _ = try? await dependencies.defaultsManager.loadTwoDailyProfiles()
                 showLogin = false
             } else {
                 showLogin = true
