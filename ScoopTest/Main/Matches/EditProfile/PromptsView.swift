@@ -13,7 +13,7 @@ struct PromptsView: View {
         
     var body: some View {
         
-        let currentUser = dependencies.userStore.user
+        let currentUser = dependencies.userManager.user
         
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {

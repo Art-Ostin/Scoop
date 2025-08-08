@@ -15,36 +15,41 @@ final class AppDependencies {
     let authManager: AuthenticationManaging
     let profileManager: ProfileManaging
     let storageManager: StorageManaging
-    let imageCache: CacheManaging
-    let userStore: UserManager
+    let cacheManager: CacheManaging
+    let userManager: UserManager
     let eventManager: EventManager
+    let defaultsManager: DefaultsManager
     
     init(
         authManager: AuthenticationManaging? = nil,
         profileManager: ProfileManaging? = nil,
         storageManager: StorageManaging? = nil,
-        imageCache: CacheManaging? = nil,
+        cacheManager: CacheManaging? = nil,
         eventManager: EventManager? = nil,
-        userStore: UserManager? = nil
+        userManager: UserManager? = nil,
+        defaultsManager: DefaultsManager? = nil
+
     ) {
         let profile = profileManager ?? FirestoreManager()
         let auth = authManager ?? AuthenticationManager(profile: profile)
-        let cache = imageCache ?? CacheManager()
-        let userStore = userStore ?? UserManager(auth: auth, profile: profile, cacheManager: cache)
-        let eventManager = eventManager ?? EventManager(user: userStore, profile: profile)
-        let storage = storageManager ?? StorageManager(user: userStore)
+        let cache = cacheManager ?? CacheManager()
+        let userManager = userManager ?? UserManager(auth: auth, profile: profile, cacheManager: cache)
+        let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
+        let storage = storageManager ?? StorageManager(user: userManager)
+        let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, firesoreManager: profile, cacheManager: cache)
 
 
         self.authManager = auth
         self.profileManager = profile
-        self.imageCache = cache
+        self.cacheManager = cache
         self.storageManager = storage
-        self.userStore = userStore
+        self.userManager = userManager
         self.eventManager = eventManager
+        self.defaultsManager = defaultsManager
 
-        if let manager = profile as? FirestoreManager {
-            manager.userStore = self.userStore
-        }
+//        if let manager = profile as? FirestoreManager {
+//            manager.userManager = self.userManager
+//        }
     }
 }
 

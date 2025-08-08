@@ -19,7 +19,7 @@ struct ProfileImageView: View {
             imageScroller
         }
         .task {
-            images = await vm.dep.imageCache.loadProfile([vm.p])
+            images = await vm.dep.cacheManager.loadProfile([vm.p])
         }
     }
 }

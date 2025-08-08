@@ -14,7 +14,7 @@ struct EditProfileContainer: View {
     
     var body: some View {
         
-        if let user = dep.userStore.user {
+        if let user = dep.userManager.user {
             
             Group {
                 if isView {

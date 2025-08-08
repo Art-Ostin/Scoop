@@ -24,7 +24,7 @@ struct EditProfileView: View {
                     ImagesView(dep: dep)
                     PromptsView()
                     InfoView()
-                    InterestsView(user: dep.userStore)
+                    InterestsView(user: dep.userManager)
                     YearsView()
                 }
             }
@@ -36,7 +36,7 @@ struct EditProfileView: View {
                 ToolbarItem(placement: .topBarTrailing) { NavButton(.down)}
             }
             .task {
-               try? await dep.userStore.loadUser()
+               try? await dep.userManager.loadUser()
             }
         }
     }

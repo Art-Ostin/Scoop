@@ -90,7 +90,7 @@ extension DailyProfiles {
             }
         }
         .task {
-            image = await vm.dep.imageCache.loadProfile([profile]).first
+            image = await vm.dep.cacheManager.loadProfile([profile]).first
         }
         .tag(tag)
         .onTapGesture { self.vm.state = .profile(profile) }

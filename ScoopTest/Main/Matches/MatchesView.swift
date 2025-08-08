@@ -32,7 +32,7 @@ struct MatchesView: View {
                     Text("View your past Meet Ups Here")
                         .font(.body(20))
                     
-                    Text(dependencies.userStore.user?.name ?? "No Name")
+                    Text(dependencies.userManager.user?.name ?? "No Name")
                     
                     ActionButton(text: "Sign Out") {
                         try? dependencies.authManager.signOutUser()
@@ -57,9 +57,9 @@ struct MatchesView: View {
             EditProfileContainer()
         })
         .task {
-            let user = dependencies.userStore.user
+            let user = dependencies.userManager.user
             if let user {
-                profileImage = await dependencies.imageCache.loadProfile([user]).first
+                profileImage = await dependencies.cacheManager.loadProfile([user]).first
             }
         }
     }

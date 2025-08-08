@@ -15,7 +15,7 @@ struct ImagesView: View {
     
     
     init(dep: AppDependencies) {
-        _vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userStore))
+        _vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userManager))
     }
     
     var body: some View {

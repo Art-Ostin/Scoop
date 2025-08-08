@@ -41,7 +41,7 @@ struct EditPrompt: View {
             
         .onAppear {
             isFocused = true
-            if let user = dependencies.userStore.user {
+            if let user = dependencies.userManager.user {
                 let promptData: PromptResponse?
                 switch promptIndex {
                 case 1: promptData = user.prompt1
@@ -119,7 +119,7 @@ extension EditPrompt {
 
     private func updatePrompt() {
         
-        guard let user = dependencies.userStore.user else { return }
+        guard let user = dependencies.userManager.user else { return }
         let prompt = PromptResponse(prompt: selectedPrompt, response: selectedText)
         Task {
             try? await dependencies.profileManager.updatePrompt(
@@ -127,7 +127,7 @@ extension EditPrompt {
                 promptIndex: promptIndex,
                 prompt: prompt
             )
-            try? await dependencies.userStore.loadUser()
+            try? await dependencies.userManager.loadUser()
         }
     }
 }

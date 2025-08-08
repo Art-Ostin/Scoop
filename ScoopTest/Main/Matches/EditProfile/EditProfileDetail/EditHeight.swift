@@ -42,7 +42,7 @@ struct EditHeight: View {
             }
             .flowNavigation()
             .task {
-                height = dependencies.userStore.user?.height ?? "5' 8"
+                height = dependencies.userManager.user?.height ?? "5' 8"
             }
         }
     }

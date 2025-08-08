@@ -109,12 +109,12 @@ struct EmailVerificationView: View {
                     guard ((try? await AuthenticateEmail()) != nil) else { return }
                     
                     if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
-                        try? await dependencies.userStore.loadUser()
+                        try? await dependencies.userManager.loadUser()
                             showLogin = false
                         }
                         else {
                             if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
-                                try? await dependencies.userStore.loadUser()
+                                try? await dependencies.userManager.loadUser()
                                 showEmail = false
                             }
                         }

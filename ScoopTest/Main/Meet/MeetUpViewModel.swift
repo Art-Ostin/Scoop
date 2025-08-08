@@ -11,17 +11,17 @@ import Foundation
 
 @Observable class MeetUpViewModel2 {
     
-    var dependencies: AppDependencies
+    var dep: AppDependencies
     
     var shownProfiles: [UserProfile] = []
     
-    init(dependencies: AppDependencies) {
-        self.dependencies = dependencies
+    init(dep: AppDependencies) {
+        self.dep = dep
     }
     
     
-    func fetchTwoDailyProfiles() async {
-        let profiles = try? await dependencies.profileManager.getRandomProfile()
+    func getTwoDailyProfiles() async {
+        let profiles = try? await dep.profileManager.getRandomProfile()
         if let profiles {
             for profile in profiles {
                 guard !shownProfiles.contains(where: { $0.id == profile.id }) else {

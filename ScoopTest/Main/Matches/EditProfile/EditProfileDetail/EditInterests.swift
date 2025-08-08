@@ -59,8 +59,8 @@ struct EditInterests: View {
         }
         .flowNavigation()
         .task {
-            selected = dependencies.userStore.user?.interests
-            ?? dependencies.userStore.user?.character
+            selected = dependencies.userManager.user?.interests
+            ?? dependencies.userManager.user?.character
             ?? []
         }
     }
@@ -102,7 +102,7 @@ struct InterestSection: View {
 
     
     private func interestIsSelected (text: String) -> Bool {
-        dependencies.userStore.user?.interests?.contains(text) == true
+        dependencies.userManager.user?.interests?.contains(text) == true
     }
     @Binding var selected: [String]
     

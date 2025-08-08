@@ -12,7 +12,7 @@ import Foundation
 // Use defaults for (1) Bool -- If they complete onboarding. (2) Date -- Countdown Timer for two Daily profiles (3) Id -- for two dailyProfiles (3) Bool -- If they have sent an invite to either daily profile.
 
 
-final class UserDefaultsManager {
+final class DefaultsManager {
     
     @ObservationIgnored private let firestoreManager: ProfileManaging
     @ObservationIgnored private let cacheManager: CacheManaging
@@ -58,7 +58,6 @@ final class UserDefaultsManager {
             }
             Task {
                 await cacheManager.loadProfile(results)
-                print("Saved daily profiles to Cache")
             }
             return results
         }

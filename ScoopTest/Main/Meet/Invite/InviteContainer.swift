@@ -151,7 +151,7 @@ extension SendInviteView {
         var image: UIImage?
         Task {
             if let profile = vm.profile2 {
-                image = await dep.imageCache.loadProfile([profile]).first
+                image = await dep.cacheManager.loadProfile([profile]).first
             }
         }
         return CirclePhoto(image: image ?? UIImage())

@@ -14,7 +14,7 @@ struct AddImageView: View {
     @Binding var showLogin: Bool
     
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
-        self._vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userStore))
+        self._vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userManager))
         self._showLogin = showLogin
     }
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)

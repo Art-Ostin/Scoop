@@ -83,7 +83,7 @@ struct EditNationality: View {
             }
         }
         .task {
-            vm.selectedCountries = dep.userStore.user?.nationality ?? []
+            vm.selectedCountries = dep.userManager.user?.nationality ?? []
         }
         .flowNavigation()
     }

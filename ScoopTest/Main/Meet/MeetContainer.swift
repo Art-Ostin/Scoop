@@ -39,8 +39,6 @@ struct MeetContainer: View {
                 ProfileView(profile: profile, vm2: $vm, dep: vm.dep)
             default: EmptyView()
             }
-        }.task {
-            await vm.load()
         }
     }
 }

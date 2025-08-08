@@ -42,7 +42,7 @@ struct OptionEditView: View  {
             }
         }
         .flowNavigation()
-        .task {selection = dep.userStore.user?[keyPath: field.keyPath] }
+        .task {selection = dep.userManager.user?[keyPath: field.keyPath] }
     }
     
     private func select(_ value: String) {

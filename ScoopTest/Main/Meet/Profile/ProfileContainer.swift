@@ -63,7 +63,7 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if vm.invitePopup  && (vm.showInviteButton == true), let user = dep.userStore.user?.userId {
+                    if vm.invitePopup  && (vm.showInviteButton == true), let user = dep.userManager.user?.userId {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
