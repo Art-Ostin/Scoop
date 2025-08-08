@@ -42,6 +42,17 @@ final class DefaultsManager {
     func saveTwoDailyProfiles(_ profiles: [UserProfile]) {
         let ids = profiles.map { $0.userId }
         defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
+        print("Saved Profiles")
+    }
+    
+    func deleteTwoDailyProfiles(_ profiles: [UserProfile]) {
+        let ids = profiles.map { $0.userId }
+        defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
+        print("Removed Profiles")
+    }
+    
+    func getTwoDailyProfiles() -> [String] {
+        defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
     }
     
     
@@ -52,7 +63,6 @@ final class DefaultsManager {
                 group.addTask { try await self.firestoreManager.getProfile(userId: id) }
             }
             var results: [UserProfile] = []
-            
             for try await profile in group {
                 results.append(profile)
             }
@@ -63,3 +73,11 @@ final class DefaultsManager {
         }
     }
 }
+
+
+
+
+//func getDailyProfileEndTime() -> Date {
+//    let startTime = getDailyProfileTimer()
+//    return Calendar.current.date(byAdding: .day, value: 1, to: startTime) ?? Date()
+//}

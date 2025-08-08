@@ -106,7 +106,7 @@
 		65FAF9862E413B100015E231 /* EventPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9852E413B100015E231 /* EventPlaceholder.swift */; };
 		65FAF9882E4140740015E231 /* EventContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9872E4140740015E231 /* EventContainer.swift */; };
 		65FAF98A2E414D1B0015E231 /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9892E414D1B0015E231 /* EventView.swift */; };
-		65FAF98C2E41658D0015E231 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */; };
+		65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* DefaultsManager.swift */; };
 		65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */; };
 		65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9952E42960A0015E231 /* EventViewModel.swift */; };
 		65FAF9982E42B1C30015E231 /* ProfilePreviewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */; };
@@ -235,7 +235,7 @@
 		65FAF9852E413B100015E231 /* EventPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPlaceholder.swift; sourceTree = "<group>"; };
 		65FAF9872E4140740015E231 /* EventContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventContainer.swift; sourceTree = "<group>"; };
 		65FAF9892E414D1B0015E231 /* EventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
-		65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
+		65FAF98B2E41658D0015E231 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		65FAF9952E42960A0015E231 /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
 		65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePreviewScreen.swift; sourceTree = "<group>"; };
@@ -294,14 +294,14 @@
 		65058E872E1C2935009AD7FD /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
+				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
 				65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
 				654C009A2E35689000FFD504 /* UserManager.swift */,
 				65BFE7DC2E400D3C00B31A58 /* EventManager.swift */,
-				65FAF98B2E41658D0015E231 /* UserDefaultsManager.swift */,
+				65FAF98B2E41658D0015E231 /* DefaultsManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -827,7 +827,7 @@
 				6577D7E52E20454200FFCF82 /* OptionPill.swift in Sources */,
 				659109242E19AEC00065696F /* NextButton.swift in Sources */,
 				65E820A92E3836CA0098CC36 /* InfoView.swift in Sources */,
-				65FAF98C2E41658D0015E231 /* UserDefaultsManager.swift in Sources */,
+				65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */,
 				65FAF9982E42B1C30015E231 /* ProfilePreviewScreen.swift in Sources */,
