@@ -22,6 +22,8 @@ struct IntroView2: View {
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
                 vm.dep.defaultsManager.setDailyProfileTimer()
+                vm.dep.defaultsManager.setHasProfileUpdated(false)
+                print("updatedStatus to false")
             })
             }
             .padding(.horizontal, 32)

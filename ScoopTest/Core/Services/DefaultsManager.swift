@@ -22,7 +22,7 @@ final class DefaultsManager {
     private enum Keys: String {
         case dailyProfileTimerEnd
         case twoDailyProfiles
-        case nextTwoDailyProfiles
+        case profilesUpdated
     }
     
     init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
@@ -31,9 +31,15 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
+    func setHasProfileUpdated(_ bool: Bool) {
+        defaults.set(bool, forKey: Keys.profilesUpdated.rawValue)
+    }
+    func getHasProfileUpdated() -> Bool {
+        let status = defaults.bool(forKey: Keys.profilesUpdated.rawValue)
+        return status
+    }
     
-
-    func setDailyProfileTimer(duration: TimeInterval = 60) {
+    func setDailyProfileTimer(duration: TimeInterval = 300) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
@@ -45,20 +51,7 @@ final class DefaultsManager {
     func clearDailyProfileTimer() {
         defaults.removeObject(forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
-    
-    
-    
-    func setNextTwoDailyProfiles(_ ids: [String]) {
-        defaults.set(ids, forKey: Keys.nextTwoDailyProfiles.rawValue)
-    }
-    func getNextTwoDailyProfiles() -> [String] {
-        defaults.stringArray(forKey: Keys.nextTwoDailyProfiles.rawValue) ?? []
-    }
-    func deleteNextTwoDailyProfiles() {
-        defaults.removeObject(forKey: Keys.nextTwoDailyProfiles.rawValue)
-    }
-    
-    
+
     func setTwoDailyProfiles(_ profiles: [UserProfile]) {
         let ids = profiles.map { $0.userId }
         defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
@@ -68,6 +61,20 @@ final class DefaultsManager {
     }
     func deleteTwoDailyProfiles() {
         defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
+    }
+    
+    func loadAndCheckProfiles() async throws -> [UserProfile]?  {
+        if getDailyProfileTimerEnd() != nil {
+            return try await loadTwoDailyProfiles()
+        } else if !getHasProfileUpdated() {
+            let profiles = try await firestoreManager.getRandomProfile()
+            setTwoDailyProfiles(profiles)
+            Task { await cacheManager.loadProfileImages(profiles)}
+            setHasProfileUpdated(true)
+            print("Updated Status to true")
+            return profiles
+        }
+        return nil
     }
     
     func loadTwoDailyProfiles() async throws -> [UserProfile] {
