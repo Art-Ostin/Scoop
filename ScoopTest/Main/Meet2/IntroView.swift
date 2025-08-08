@@ -21,9 +21,10 @@ struct IntroView2: View {
         VStack (spacing: 156) {
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
-                showProfiles = false
+                showProfiles = true
                 Task {
                     await vm.createTwoDailyProfiles()
+                    vm.dep.defaultsManager.startDailyProfileTimer()
                 }
             })
             }

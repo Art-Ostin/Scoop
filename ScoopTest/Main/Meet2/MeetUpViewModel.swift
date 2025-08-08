@@ -32,8 +32,22 @@ import Foundation
                 shownProfiles.append(profile)
             }
             dep.defaultsManager.saveTwoDailyProfiles(profiles)
-            dep.defaultsManager.startDailyProfileTimer()
             scheduleStoredDailyTimer()
+        }
+    }
+    
+    func functionCaller() {
+        if let endTime = dep.defaultsManager.getDailyProfileTimerEnd() {
+            let timeRemaining = endTime.timeIntervalSinceNow
+
+            if timeRemaining <= 300 {
+                guard shownProfiles.count < 4 else { return }
+                Task {
+                    await createTwoDailyProfiles()
+                }
+            }
+        } else {
+            Task { await deleteTwoDailyProfiles()}
         }
     }
     
