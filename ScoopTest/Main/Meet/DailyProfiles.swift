@@ -20,8 +20,12 @@ struct DailyProfiles: View {
             MeetTitle()
             heading
             TabView(selection: $vm.selection) {
-                profileTab(for: vm.profile, tag: 0)
-                profileTab(for: vm.profile2, tag: 1)
+                if let profile = vm.profile1 {
+                    profileTab(for: profile, tag: 0)
+                }
+                if let profile2 = vm.profile2 {
+                    profileTab(for: profile2, tag: 1)
+                }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }

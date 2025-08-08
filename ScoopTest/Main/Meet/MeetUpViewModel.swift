@@ -15,15 +15,8 @@ import Foundation
     let dep: AppDependencies
     let defaults: UserDefaults
     
-    
-    
-    
-    
-    
-    
-    
-    var profile1: UserProfile
-    var profile2: UserProfile
+    var profile1: UserProfile?
+    var profile2: UserProfile?
     
     let dateKey = "dailyProfilesDate"
     let profileKey = "dailyProfiles"

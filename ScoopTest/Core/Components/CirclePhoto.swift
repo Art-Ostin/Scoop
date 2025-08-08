@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CirclePhoto: View {
     let image: UIImage
+    
     var body: some View {
         
         Image(uiImage: image)
