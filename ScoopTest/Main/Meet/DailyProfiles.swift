@@ -8,23 +8,19 @@
 import SwiftUI
 
 struct DailyProfiles: View {
-        
+    
     @Binding var vm: MeetUpViewModel
-    
-    
     @State var countdownVM = CountdownViewModel(dateKey: "dailyProfilesDate")
-    
     
     var body: some View {
         
         VStack(spacing: 36) {
             
-            
             Text("\(countdownVM.hourRemaining):\(countdownVM.minuteRemaining):\(countdownVM.secondRemaining)")
             MeetTitle()
             heading
             TabView(selection: $vm.selection) {
-                profileTab(for: vm.profile1, tag: 0)
+                profileTab(for: vm.profile, tag: 0)
                 profileTab(for: vm.profile2, tag: 1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -33,7 +29,7 @@ struct DailyProfiles: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .onChange(of: countdownVM.secondRemaining) {
             if countdownVM.timeUp {
-                 vm.state = .intro
+                vm.state = .intro
             }
         }
         .onAppear {
@@ -75,10 +71,12 @@ extension DailyProfiles {
         }
     }
     
-    @ViewBuilder private func profileTab(for profile: UserProfile?, tag: Int) -> some View {
-        if let profile, let url = firstImageURL(for: profile) {
-            CachedAsyncImage(url: url) { image in
-                image
+    @ViewBuilder private func profileTab(for profile: UserProfile, tag: Int) -> some View {
+        var image: UIImage? = nil
+        
+        VStack {
+            if let image = image {
+                Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 320, height: 422)
@@ -86,15 +84,15 @@ extension DailyProfiles {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
             }
-            .tag(tag)
-            .onTapGesture { self.vm.state = .profile(profile) }
         }
-    }
-    
-    private func firstImageURL(for profile: UserProfile?) -> URL? {
-        profile?.imagePathURL?.first.flatMap(URL.init(string:))
+        .task {
+            image = await vm.dep.imageCache.loadProfile([profile]).first
+        }
+        .tag(tag)
+        .onTapGesture { self.vm.state = .profile(profile) }
     }
 }
+
 
 struct MeetTitle: View {
     var body: some View {
@@ -109,3 +107,11 @@ struct MeetTitle: View {
         .padding(.top, 48)
     }
 }
+
+
+
+
+
+//private func firstImageURL(for profile: UserProfile?) -> URL? {
+//    profile?.imagePathURL?.first.flatMap(URL.init(string:))
+//}

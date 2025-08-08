@@ -30,6 +30,7 @@ struct EventView: View {
                         showEventDetails.toggle()
                     }
             }
+            
             TabView(selection: $selection) {
                 ForEach(vm.events, id: \.id) {event in
                     VStack(spacing: 36) {
@@ -58,7 +59,7 @@ struct EventView: View {
             }
             .fullScreenCover(isPresented: $showProfile, content: {
                 if let newUser = vm.currentUser {
-                    ProfileView(profile: newUser)
+                    ProfileView(profile: newUser, dep: vm.dependencies)
                 }
             })
             .sheet(isPresented: $showEventDetails) {

@@ -10,7 +10,6 @@ import FirebaseFirestore
 import FirebaseAuth
 import SwiftUI
 
-
 @Observable final class FirestoreManager: ProfileManaging {
     
     var userStore: UserManager?

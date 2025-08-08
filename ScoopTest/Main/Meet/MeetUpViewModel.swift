@@ -15,8 +15,15 @@ import Foundation
     let dep: AppDependencies
     let defaults: UserDefaults
     
-    var profile1: UserProfile?
-    var profile2: UserProfile?
+    
+    
+    
+    
+    
+    
+    
+    var profile1: UserProfile
+    var profile2: UserProfile
     
     let dateKey = "dailyProfilesDate"
     let profileKey = "dailyProfiles"
@@ -30,7 +37,6 @@ import Foundation
     }
     
     var state: MeetSections?
-    
     
     //Functionality to load the TwoDailyProfiles
     func load () async {
@@ -71,8 +77,8 @@ import Foundation
     
     private func assignProfiles(_ profiles: [UserProfile]) async {
         await MainActor.run {
-            profile1 = profiles[safe: 0]
-            profile2 = profiles[safe: 1]
+            profile1 = profiles[safe: 0]!
+            profile2 = profiles[safe: 1]!
         }
         for profile in profiles {
 //            try? await userStore.loadProfile(profile)

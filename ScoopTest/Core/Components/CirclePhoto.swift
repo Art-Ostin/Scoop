@@ -8,19 +8,18 @@
 import SwiftUI
 
 struct CirclePhoto: View {
-    
-    let url: URL
-    
+    let image: UIImage
     var body: some View {
-        CachedAsyncImage(url: url) { image in
-            image.resizable()
-                .scaledToFill()
-                .frame(width: 35, height: 35)
-                .clipShape(Circle())
-                .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-        }
+        
+        Image(uiImage: image)
+            .resizable()
+            .scaledToFill()
+            .frame(width: 35, height: 35)
+            .clipShape(Circle())
+            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
 }
+
 
 struct ChangeIcon: View {
     var body: some View {
