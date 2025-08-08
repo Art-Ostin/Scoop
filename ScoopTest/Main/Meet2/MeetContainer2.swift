@@ -12,22 +12,24 @@ struct MeetContainer2: View {
     var dep: AppDependencies
     @State private var vm: MeetUpViewModel2
     
+    @State var showProfiles: Bool
     
     init(dep: AppDependencies) {
         self.dep = dep
         _vm = .init(initialValue: MeetUpViewModel2(dep: dep))
+        self.showProfiles = dep.defaultsManager.getDailyProfileTimerEnd() != nil
     }
     
     var body: some View {
-        
+
         VStack(spacing: 32) {
             Text("Meet")
                 .font(.body(32, .bold))
             ZStack {
-                if (dep.defaultsManager.getDailyProfileTimerEnd() != nil) {
-                    DailyProfiles2()
+                if showProfiles {
+                    DailyProfiles2(vm: $vm)
                 } else {
-                    IntroView2(vm: $vm)
+                    IntroView2(vm: $vm, showProfiles: $showProfiles)
                 }
             }
         }

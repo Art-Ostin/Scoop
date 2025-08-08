@@ -12,6 +12,7 @@ import SwiftUI
 struct IntroView2: View {
     
     @Binding var vm: MeetUpViewModel2
+    @Binding var showProfiles: Bool
     
     let quote = quotes.shared.allQuotes.randomElement()!
     
@@ -20,6 +21,7 @@ struct IntroView2: View {
         VStack (spacing: 156) {
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
+                showProfiles = false
                 Task {
                     await vm.createTwoDailyProfiles()
                 }

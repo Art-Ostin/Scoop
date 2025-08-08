@@ -30,7 +30,7 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
-    func startDailyProfileTimer(duration: TimeInterval = 24 * 60 * 60) {
+    func startDailyProfileTimer(duration: TimeInterval = 60) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
@@ -50,8 +50,7 @@ final class DefaultsManager {
         print("Saved Profiles")
     }
     
-    func deleteTwoDailyProfiles(_ profiles: [UserProfile]) {
-        let ids = profiles.map { $0.userId }
+    func deleteTwoDailyProfiles() {
         defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
         print("Removed Profiles")
     }

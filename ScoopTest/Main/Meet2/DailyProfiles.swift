@@ -8,14 +8,24 @@
 import SwiftUI
 
 struct DailyProfiles2: View {
+    
+    @Binding var vm: MeetUpViewModel2
+    
+    
     var body: some View {
         
-        Text("Hello World")
+        let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
         
-        
+        VStack(spacing: 36) {
+            Text("Hello World")
+            
+            if let time {
+                SimpleClockView(targetTime: time)
+            }
+        }
     }
 }
-
-#Preview {
-    DailyProfiles2()
-}
+//
+//#Preview {
+//    DailyProfiles2()
+//}

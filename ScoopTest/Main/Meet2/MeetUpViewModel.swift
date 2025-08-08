@@ -39,15 +39,8 @@ import Foundation
     
     func deleteTwoDailyProfiles() async {
         let ids = dep.defaultsManager.getTwoDailyProfiles()
-        var profiles: [UserProfile] = []
-        for id in ids {
-            let profile = try? await dep.profileManager.getProfile(userId: id)
-            if let profile {
-                profiles.append(profile)
-            }
-        }
-        dep.defaultsManager.deleteTwoDailyProfiles(profiles)
         shownProfiles.removeAll(where: { ids.contains($0.id) })
+        dep.defaultsManager.deleteTwoDailyProfiles()
     }
     
     private func scheduleStoredDailyTimer() {
@@ -68,7 +61,7 @@ import Foundation
             }
         }
     }
-
+    
     private func timerFired() async {
         dep.defaultsManager.clearDailyProfileTimer()
         await deleteTwoDailyProfiles()
