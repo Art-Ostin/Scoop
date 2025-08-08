@@ -15,6 +15,7 @@ import Foundation
 final class UserDefaultsManager {
     
     @ObservationIgnored private let firestoreManager: ProfileManaging
+    @ObservationIgnored private let cacheManager: CacheManaging
     
     private let defaults: UserDefaults
     
@@ -23,11 +24,11 @@ final class UserDefaultsManager {
         case twoDailyProfiles
     }
     
-    init(defaults: UserDefaults, firesoreManager: ProfileManaging) {
+    init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
         self.defaults = defaults
         self.firestoreManager = firesoreManager
+        self.cacheManager = cacheManager
     }
-    
     
     func startDailyProfileTimer() {
         defaults.set(Date(), forKey: Keys.refreshDailyProfileTimer.rawValue)
@@ -51,12 +52,15 @@ final class UserDefaultsManager {
                 group.addTask { try await self.firestoreManager.getProfile(userId: id) }
             }
             var results: [UserProfile] = []
+            
             for try await profile in group {
                 results.append(profile)
             }
+            Task {
+                await cacheManager.loadProfile(results)
+                print("Saved daily profiles to Cache")
+            }
             return results
         }
-        
-        //I also want to save the images of the TwoDailyProfiles to the Cache. 
     }
 }

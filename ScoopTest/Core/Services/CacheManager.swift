@@ -37,6 +37,7 @@ import SwiftUI
         guard let image = UIImage(data: data) else {
             throw URLError(.badServerResponse)
         }
+        print("added Image to cache")
         cache.setObject(image, forKey: url as NSURL, cost: data.count)
         return image
     }
@@ -44,6 +45,7 @@ import SwiftUI
     
     //Function saves images to the Cache
     func loadProfile(_ profiles: [UserProfile]) async -> [UIImage] {
+        
         
         let urls = profiles.flatMap { profile in
             profile.imagePathURL?.compactMap { URL(string: $0) } ?? []

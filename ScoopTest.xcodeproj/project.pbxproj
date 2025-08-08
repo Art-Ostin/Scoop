@@ -84,7 +84,7 @@
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
-		65BFE7B32E3CEE8E00B31A58 /* MeetUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel.swift */; };
+		65BFE7B32E3CEE8E00B31A58 /* MeetUpViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel2.swift */; };
 		65BFE7BD2E3D6FE900B31A58 /* CountdownViewModelOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7BC2E3D6FE900B31A58 /* CountdownViewModelOld.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
@@ -101,6 +101,7 @@
 		65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */; };
 		65F450BD2E4531A200AE3503 /* ImageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450BC2E4531A200AE3503 /* ImageTest.swift */; };
 		65F450BF2E45567900AE3503 /* ImageContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450BE2E45567900AE3503 /* ImageContainer.swift */; };
+		65F450C72E45815B00AE3503 /* MeetUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450C62E45815B00AE3503 /* MeetUpViewModel.swift */; };
 		65FAF97D2E4112C80015E231 /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF97C2E4112C80015E231 /* PopUpView.swift */; };
 		65FAF9862E413B100015E231 /* EventPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9852E413B100015E231 /* EventPlaceholder.swift */; };
 		65FAF9882E4140740015E231 /* EventContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9872E4140740015E231 /* EventContainer.swift */; };
@@ -212,7 +213,7 @@
 		659497172E01DD4000880921 /* ScoopTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopTestApp.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
-		65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetUpViewModel.swift; sourceTree = "<group>"; };
+		65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetUpViewModel2.swift; sourceTree = "<group>"; };
 		65BFE7BC2E3D6FE900B31A58 /* CountdownViewModelOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownViewModelOld.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -229,6 +230,7 @@
 		65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileContainer.swift; sourceTree = "<group>"; };
 		65F450BC2E4531A200AE3503 /* ImageTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTest.swift; sourceTree = "<group>"; };
 		65F450BE2E45567900AE3503 /* ImageContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContainer.swift; sourceTree = "<group>"; };
+		65F450C62E45815B00AE3503 /* MeetUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetUpViewModel.swift; sourceTree = "<group>"; };
 		65FAF97C2E4112C80015E231 /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
 		65FAF9852E413B100015E231 /* EventPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPlaceholder.swift; sourceTree = "<group>"; };
 		65FAF9872E4140740015E231 /* EventContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventContainer.swift; sourceTree = "<group>"; };
@@ -383,7 +385,8 @@
 			isa = PBXGroup;
 			children = (
 				65BFE7BC2E3D6FE900B31A58 /* CountdownViewModelOld.swift */,
-				65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel.swift */,
+				65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel2.swift */,
+				65F450C62E45815B00AE3503 /* MeetUpViewModel.swift */,
 				659496FD2E01DD4000880921 /* MeetContainer.swift */,
 				65F450BC2E4531A200AE3503 /* ImageTest.swift */,
 				653770332E0862800058D225 /* IntroView.swift */,
@@ -762,7 +765,7 @@
 				6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */,
 				6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */,
 				654982BC2E2E66A500CA335F /* EmailVerificationViewModel.swift in Sources */,
-				65BFE7B32E3CEE8E00B31A58 /* MeetUpViewModel.swift in Sources */,
+				65BFE7B32E3CEE8E00B31A58 /* MeetUpViewModel2.swift in Sources */,
 				6594971B2E01DD4000880921 /* ProfileContainer.swift in Sources */,
 				654982D82E3152C000CA335F /* EditImagesView.swift in Sources */,
 				6594971C2E01DD4000880921 /* DailyProfiles.swift in Sources */,
@@ -842,6 +845,7 @@
 				655F51FD2E3B7CEF00E67534 /* CacheManager.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */,
 				652FC9732E1AD73A0034A387 /* AuthenticationManager.swift in Sources */,
+				65F450C72E45815B00AE3503 /* MeetUpViewModel.swift in Sources */,
 				6594972C2E01DD4000880921 /* ScoopTestApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

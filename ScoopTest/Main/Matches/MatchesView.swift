@@ -18,12 +18,14 @@ struct MatchesView: View {
     
     @State var showProfileView = false
     
+    @State var profileImage: UIImage?
+    
     var body: some View {
         
         NavigationStack {
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
-
+                
                 VStack(spacing: 32) {
                     Image("DancingCats")
                     
@@ -45,17 +47,20 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        if let raw = dependencies.userStore.user?.imagePathURL?[0], let url = URL(string: raw) {
-                            CirclePhoto(url: url)
-                                .onTapGesture {showProfileView = true }
-                            Text("Hello")
-                        }
+                        CirclePhoto(image: profileImage ?? UIImage())
+                            .onTapGesture {showProfileView = true }
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showProfileView, content: {
-                    EditProfileContainer()
-            })
+        }
+        .fullScreenCover(isPresented: $showProfileView, content: {
+            EditProfileContainer()
+        })
+        .task {
+            let user = dependencies.userStore.user
+            if let user {
+                profileImage = await dependencies.imageCache.loadProfile([user]).first
+            }
         }
     }
 }

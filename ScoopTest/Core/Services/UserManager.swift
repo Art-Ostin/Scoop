@@ -31,7 +31,6 @@ class UserManager {
         }
         Task { await cacheManager.loadProfile([profile])}
     }
-    
     func clearUser() {
         user = nil
     }
