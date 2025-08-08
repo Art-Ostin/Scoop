@@ -20,7 +20,7 @@ final class DefaultsManager {
     private let defaults: UserDefaults
     
     private enum Keys: String {
-        case refreshDailyProfileTimer
+        case dailyProfileTimerEnd
         case twoDailyProfiles
     }
     
@@ -30,13 +30,18 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
-    func startDailyProfileTimer() {
-        defaults.set(Date(), forKey: Keys.refreshDailyProfileTimer.rawValue)
+    func startDailyProfileTimer(duration: TimeInterval = 24 * 60 * 60) {
+        let endDate = Date().addingTimeInterval(duration)
+        defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
     
-    func getDailyProfileTimer() -> Date {
-        guard let date = defaults.object(forKey: Keys.refreshDailyProfileTimer.rawValue) as? Date else {return Date()}
-        return date
+    
+    func getDailyProfileTimerEnd() -> Date? {
+        defaults.object(forKey: Keys.dailyProfileTimerEnd.rawValue) as? Date
+    }
+    
+    func clearDailyProfileTimer() {
+        defaults.removeObject(forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
     
     func saveTwoDailyProfiles(_ profiles: [UserProfile]) {
@@ -55,7 +60,6 @@ final class DefaultsManager {
         defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
     }
     
-    
     func retrieveTwoDailyProfiles() async throws -> [UserProfile] {
         let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
         return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
@@ -73,11 +77,3 @@ final class DefaultsManager {
         }
     }
 }
-
-
-
-
-//func getDailyProfileEndTime() -> Date {
-//    let startTime = getDailyProfileTimer()
-//    return Calendar.current.date(byAdding: .day, value: 1, to: startTime) ?? Date()
-//}

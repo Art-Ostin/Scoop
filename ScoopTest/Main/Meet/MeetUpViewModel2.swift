@@ -12,7 +12,6 @@ import Foundation
     //Functionality of which Profile to Display
     @ObservationIgnored var selection: Int = 0
     
-
     let dep: AppDependencies
     let defaults: UserDefaults
     
@@ -69,12 +68,15 @@ import Foundation
         }
     }
     
+    
+    
+    
     private func assignProfiles(_ profiles: [UserProfile]) async {
         await MainActor.run {
             profile1 = profiles[safe: 0]!
             profile2 = profiles[safe: 1]!
         }
-        for profile in profiles {
+        for _ in profiles {
             try? await dep.profileManager.getProfile()
         }
     }

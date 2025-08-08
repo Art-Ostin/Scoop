@@ -15,8 +15,11 @@ import Foundation
     
     var shownProfiles: [UserProfile] = []
     
+    private var profileTimerTask: Task<Void, Never>?
+    
     init(dep: AppDependencies) {
         self.dep = dep
+        scheduleStoredDailyTimer()
     }
     
     func createTwoDailyProfiles() async {
@@ -29,6 +32,8 @@ import Foundation
                 shownProfiles.append(profile)
             }
             dep.defaultsManager.saveTwoDailyProfiles(profiles)
+            dep.defaultsManager.startDailyProfileTimer()
+            scheduleStoredDailyTimer()
         }
     }
     
@@ -45,6 +50,30 @@ import Foundation
         shownProfiles.removeAll(where: { ids.contains($0.id) })
     }
     
+    private func scheduleStoredDailyTimer() {
+        if let endDate = dep.defaultsManager.getDailyProfileTimerEnd() {
+            scheduleDailyTimer(for: endDate)
+        }
+    }
+    
+    private func scheduleDailyTimer(for endDate: Date) {
+        profileTimerTask?.cancel()
+        let interval = endDate.timeIntervalSinceNow
+        if interval <= 0 {
+            Task { await timerFired() }
+        } else {
+            profileTimerTask = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
+                await self?.timerFired()
+            }
+        }
+    }
+
+    private func timerFired() async {
+        dep.defaultsManager.clearDailyProfileTimer()
+        await deleteTwoDailyProfiles()
+        await createTwoDailyProfiles()
+    }
     
     func retrieveTwoDailyProfiles() {
         Task {
