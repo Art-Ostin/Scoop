@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 @Observable class MeetUpViewModel2 {
     
@@ -13,11 +14,32 @@ import Foundation
     
     var shownDailyProfiles: [UserProfile] = []
     
+    @Binding var refreshProfiles: Task<Void, Never>?
+    
     init(dep: AppDependencies) {
         self.dep = dep
-        let profiles = loadTwoDailyProfiles()
-        shownDailyProfiles = profiles
+        Task { await loadTwoDailyProfiles()
+            print("populated two daily Profiles") }
     }
+    
+    func scheduleCreateNextTwoDailyProfiles () {
+        guard let time = dep.defaultsManager.getDailyProfileTimerEnd() else { return }
+        let trigger = time.addingTimeInterval(-180)
+        let delay = trigger.timeIntervalSinceNow
+
+        if delay <= 0 { Task { await createNextTwoDailyProfiles() } }
+        refreshProfiles = Task {
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            if !Task.isCancelled { await createNextTwoDailyProfiles() }
+        }
+    }
+    
+    func scheduleUpdateTwoDailyProfiles () {
+        if dep.defaultsManager.getDailyProfileTimerEnd() != nil { return } else {
+            Task { await updateTwoDailyProfiles() }
+        }
+    }
+    
     
     func createNextTwoDailyProfiles() async {
         let profiles = try? await dep.profileManager.getRandomProfile()
@@ -26,33 +48,42 @@ import Foundation
         if let profiles {
             Task { await dep.cacheManager.loadProfileImages(profiles)}
         }
+        print("Created next Two Daily Profiles")
     }
+    
     
     func updateTwoDailyProfiles() async {
         let manager = dep.defaultsManager
-        manager.deleteTwoDailyProfiles()
-        shownDailyProfiles.removeAll()
-        
-        let ids = manager.getNextTwoDailyProfiles()
-        for id in ids {
-            guard let profile = try? await dep.profileManager.getProfile(userId: id) else {return}
-            shownDailyProfiles.append(profile)
-            manager.setTwoDailyProfiles([profile])
+
+        while true {
+            let ids = manager.getNextTwoDailyProfiles()
+            if ids.isEmpty {
+                await createNextTwoDailyProfiles()
+                continue
+            }
+            var newProfiles: [UserProfile] = []
+            for id in ids {
+                guard let p = try? await dep.profileManager.getProfile(userId: id) else { return }
+                newProfiles.append(p)
+            }
+            shownDailyProfiles = newProfiles
+            manager.setTwoDailyProfiles(newProfiles)
             manager.deleteNextTwoDailyProfiles()
         }
     }
     
-    func loadTwoDailyProfiles() -> [UserProfile] {
+    
+    func loadTwoDailyProfiles() async {
         let ids = dep.defaultsManager.getTwoDailyProfiles()
+        guard !ids.isEmpty else { shownDailyProfiles = []; return }
         
-        var profiles: [UserProfile] = []
-        for id in ids {
-            Task {
-                if let profile = try? await dep.profileManager.getProfile(userId: id) {
-                    profiles.append(profile)
-                }
+        var results: [UserProfile] = []
+        await withTaskGroup(of: UserProfile?.self) { group in
+            for id in ids {
+                group.addTask { try? await self.dep.profileManager.getProfile(userId: id) }
             }
+            for await p in group { if let p { results.append(p) } }
         }
-        return profiles
+        shownDailyProfiles = results
     }
 }

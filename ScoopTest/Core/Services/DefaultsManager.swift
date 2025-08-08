@@ -38,11 +38,14 @@ final class DefaultsManager {
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
     func getDailyProfileTimerEnd() -> Date? {
-        defaults.object(forKey: Keys.dailyProfileTimerEnd.rawValue) as? Date
+        guard let end = defaults.object(forKey: Keys.dailyProfileTimerEnd.rawValue) as? Date else { return nil }
+        if end <= .now { clearDailyProfileTimer(); return nil }
+        return end
     }
     func clearDailyProfileTimer() {
         defaults.removeObject(forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
+    
     
     
     func setNextTwoDailyProfiles(_ ids: [String]) {
