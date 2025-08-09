@@ -39,7 +39,7 @@ struct AddImageView: View {
                     }
                 }
             }
-            ActionButton(isValid: vm.slots.allSatisfy {$0.url != nil}, text: "Complete", onTap: {
+            ActionButton(isValid: true, text: "Complete", onTap: {
                 showLogin = false
             })
         }

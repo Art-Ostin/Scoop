@@ -39,9 +39,7 @@ struct ImageSlot: Equatable {
                 newImages[i] = img
             }
         }
-        
         print("assigned new images ")
-        
         await MainActor.run {
             for i in 0..<6 {
                 slots[i].path = i < paths.count ? paths[i] : nil
@@ -53,9 +51,8 @@ struct ImageSlot: Equatable {
     }
         
     
-    //The King Function
     func changeImage(at index: Int) async throws {
-        if let oldPath = slots[index].path, let oldURL = slots[index].url {
+            if let oldPath = slots[index].path, let oldURL = slots[index].url {
             async let delete: () = dep.storageManager.deleteImage(path: oldPath)
             async let remove: () = dep.profileManager.update(values: [
                 .imagePath: FieldValue.arrayRemove([oldPath]),
@@ -65,6 +62,7 @@ struct ImageSlot: Equatable {
             _ = try await (delete, remove)
             print("deleted Old Path")
         }
+        
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
@@ -93,12 +91,12 @@ struct ImageSlot: Equatable {
                 
         try await updateProfile
         print("profile Updated")
-        
         let _ = try await dep.cacheManager.fetchImage(for: newURL)
+        
         
         await MainActor.run {
             guard images.indices.contains(index) else { return }
-            slots[index].path = newPath
+            slots[index].path = revisedPath
             slots[index].url = newURL
             slots[index].pickerItem = nil
             }

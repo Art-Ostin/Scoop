@@ -44,8 +44,8 @@ import SwiftUI
         }
     
     func deleteImage(path: String) async throws {
-        let updatedPath = updateStringPath(path: path)
-        try await imagePath(updatedPath).delete()
+//        let updatedPath = updateStringPath(path: path)
+        try await imagePath(path).delete()
         print("Image Deleted")
     }
     

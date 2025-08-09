@@ -36,6 +36,7 @@ protocol StorageManaging {
     func getImageURL(path: String) async throws -> URL
     func saveImage(data: Data) async throws -> String
     func deleteImage(path: String) async throws
+    func updateImagePath(url: URL) -> URL
 }
 
 protocol CacheManaging {
