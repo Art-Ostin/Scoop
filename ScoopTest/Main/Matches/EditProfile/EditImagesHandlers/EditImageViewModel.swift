@@ -53,6 +53,7 @@ struct ImageSlot: Equatable {
     func changeImage(at index: Int) async throws {
 
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
+            dep.cacheManager.removeImage(for: oldURL)
             async let delete: () = dep.storageManager.deleteImage(path: oldPath)
             async let remove: () = dep.profileManager.update(values: [
                 .imagePath: FieldValue.arrayRemove([oldPath]),
@@ -78,6 +79,7 @@ struct ImageSlot: Equatable {
         ])
         try await updateProfile
         try? await dep.userManager.loadUser()
+        let _ = try await dep.cacheManager.fetchImage(for: url)
         
         await MainActor.run {
             guard images.indices.contains(index) else { return }

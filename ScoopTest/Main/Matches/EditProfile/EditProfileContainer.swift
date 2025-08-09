@@ -28,11 +28,10 @@ struct EditProfileContainer: View {
                 EditProfileButton(isView: $isView)
                     .padding(.bottom)
                     .onTapGesture {
+                        Task { try await dep.userManager.loadUser() }
                         withAnimation{ isView.toggle()}
                     }
             }
-        } else {
-            Text("No Current User")
         }
     }
 }

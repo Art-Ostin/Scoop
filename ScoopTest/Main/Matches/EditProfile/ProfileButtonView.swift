@@ -19,7 +19,6 @@ struct EditProfileButton: View {
                 HStack {
                     
                     HStack {
-                        
                         Text("Edit")
                             .font(.body(14, .bold))
                         
@@ -34,12 +33,6 @@ struct EditProfileButton: View {
 
                         Text("View" )
                             .font(.body(14, .bold))
-                        
-                        Image("Image1")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
-                            .clipShape(Circle())
                     }
                 }
             }
