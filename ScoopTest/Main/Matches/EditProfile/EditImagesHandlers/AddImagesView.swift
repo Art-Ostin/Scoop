@@ -13,6 +13,10 @@ struct AddImageView: View {
     
     @Binding var showLogin: Bool
     
+    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
+    @State var images: [UIImage] = Array(repeating: placeholder, count: 6)
+
+    
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
         self._vm = State(initialValue: EditImageViewModel(dep: dep))
         self._showLogin = showLogin
@@ -40,7 +44,7 @@ struct AddImageView: View {
             })
         }
         .task {
-            await vm.loadUpImages()
+            await vm.assignSlots()
         }
     }
 }

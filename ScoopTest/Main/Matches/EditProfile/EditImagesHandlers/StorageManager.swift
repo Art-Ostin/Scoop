@@ -38,7 +38,10 @@ import SwiftUI
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
         print("save Image Performed")
-        return path
+        
+        let newPath = updateStringPath(path: path)
+        print(newPath)
+        return updateStringPath(path: path)
         }
     
     func deleteImage(path: String) async throws {

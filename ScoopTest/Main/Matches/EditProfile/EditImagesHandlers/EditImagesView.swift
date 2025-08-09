@@ -27,8 +27,11 @@ struct ImagesView: View {
             .padding(.horizontal)
         }
         .task {
-           await vm.loadUpImages()
+           await vm.assignSlots()
         }
         .padding(.horizontal, 32)
     }
 }
+
+
+
