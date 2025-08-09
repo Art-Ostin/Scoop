@@ -17,7 +17,11 @@ import SwiftUI
     
     init(dep: AppDependencies) {
         self.dep = dep
+        Task { await loadTwoDailyProfiles()
+            print("populated two daily Profiles") }
     }
+    
+    
 
     func updateTwoDailyProfiles() async {
         let manager = dep.defaultsManager
@@ -27,8 +31,9 @@ import SwiftUI
         manager.setTwoDailyProfiles(newProfiles)
     }
     
+    //Gets two Daily Profiles from UserDefaults and saves them to cache upon Launch
     func loadTwoDailyProfiles() async {
-        let manager = dep.defaultsManager        
+        let manager = dep.defaultsManager
         if manager.getDailyProfileTimerEnd() != nil {
             let ids = manager.getTwoDailyProfiles()
             var results: [UserProfile] = []
@@ -39,10 +44,7 @@ import SwiftUI
                 for await p in group { if let p { results.append(p) } }
             }
             shownDailyProfiles = results
-        } else if !manager.getHasProfileUpdated() {
-            await updateTwoDailyProfiles()
-            manager.setHasProfileUpdated(true)
-            print("Updated status to true in ViewModel Screen")
+            print("added two Daily Profiles to cache")
         }
     }
 }

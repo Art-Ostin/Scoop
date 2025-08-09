@@ -21,6 +21,7 @@ struct IntroView2: View {
         VStack (spacing: 156) {
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
+                Task { await vm.updateTwoDailyProfiles() }
                 showProfiles = true
                 vm.dep.defaultsManager.setDailyProfileTimer()
                 vm.dep.defaultsManager.setHasProfileUpdated(false)

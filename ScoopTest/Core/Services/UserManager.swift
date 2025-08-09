@@ -36,11 +36,3 @@ class UserManager {
         user = nil
     }
 }
-
-
-
-
-
-//func loadProfile(_ localProfile: UserProfile) async throws {
-//    
-//}

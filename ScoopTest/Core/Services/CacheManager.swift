@@ -46,7 +46,6 @@ import SwiftUI
         return image
     }
     
-    
     //Function saves images to the Cache
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
         let urls = profiles.flatMap { profile in
@@ -65,4 +64,7 @@ import SwiftUI
         }
         return images
     }
+    
+    
+    
 }

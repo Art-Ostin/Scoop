@@ -39,7 +39,7 @@ final class DefaultsManager {
         return status
     }
     
-    func setDailyProfileTimer(duration: TimeInterval = 20) {
+    func setDailyProfileTimer(duration: TimeInterval = 60) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
@@ -77,6 +77,8 @@ final class DefaultsManager {
         return nil
     }
     
+    
+    // Takes the two Ids and saves to Cache upon Loading
     func loadTwoDailyProfiles() async throws -> [UserProfile] {
         let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
         return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
@@ -90,6 +92,7 @@ final class DefaultsManager {
             Task {
                 await cacheManager.loadProfileImages(results)
             }
+            print("Loaded daily Profiles")
             return results
         }
     }

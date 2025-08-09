@@ -43,6 +43,14 @@ struct LimitedAccessView: View {
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(showLogin: $showLogin, current: $current)
         }
+        .task {
+            do {
+                try await dependencies.userManager.loadUser()
+                print("User Loaded")
+            } catch {
+                print("failed to load user ")
+            }
+        }
     }
 }
 
@@ -73,7 +81,6 @@ struct LimitedAccessPage: View {
                 Image(imageName)
                     .resizable()
                     .frame(width: 240, height: 240)
-                
             }
             
             Text(description)
@@ -84,5 +91,6 @@ struct LimitedAccessPage: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 72)
+        
     }
 }
