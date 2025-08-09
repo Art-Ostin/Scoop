@@ -24,10 +24,11 @@ struct ImageSlot: Equatable {
     
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
-    
-    init(dep: AppDependencies) { self.dep = dep }
-    
 
+    init(dep: AppDependencies) { self.dep = dep }
+
+    
+    
     @MainActor
     func assignSlots() async {
         guard let user = dep.userManager.user else { return }
@@ -101,6 +102,7 @@ struct ImageSlot: Equatable {
             .imagePathURL: FieldValue.arrayUnion([url.absoluteString])
         ])
         try await updateProfile
+        try? await dep.userManager.loadUser()
         print("profile Updated and URLs added")
         
         

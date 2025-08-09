@@ -28,7 +28,6 @@ import SwiftUI
         return updateImagePath(url: url)
     }
     
-    
     //Do Not Update Path Here as I need it for the DownloadURL and breaks if I update path before downloadURL
     func saveImage(data: Data) async throws -> String {
         print("Save Image Called")
