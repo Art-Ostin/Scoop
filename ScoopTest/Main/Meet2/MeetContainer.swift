@@ -10,6 +10,7 @@ import SwiftUI
 struct MeetContainer2: View {
     
     var dep: AppDependencies
+    
     @State private var vm: MeetUpViewModel2
     
     @State var showProfiles: Bool
@@ -21,13 +22,12 @@ struct MeetContainer2: View {
     }
     
     var body: some View {
-
         VStack(spacing: 32) {
             Text("Meet")
                 .font(.body(32, .bold))
             ZStack {
                 if showProfiles {
-                    DailyProfiles2(vm: $vm)
+                    DailyProfiles2(vm: $vm, showProfile: $showProfiles)
                 } else {
                     IntroView2(vm: $vm, showProfiles: $showProfiles)
                 }

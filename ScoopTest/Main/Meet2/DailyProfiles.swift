@@ -11,6 +11,8 @@ struct DailyProfiles2: View {
     
     @Binding var vm: MeetUpViewModel2
     
+    @Binding var showProfile: Bool
+    
     var body: some View {
         
         let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
@@ -22,7 +24,7 @@ struct DailyProfiles2: View {
             }
 
             if let time {
-                SimpleClockView(targetTime: time)
+                SimpleClockView(targetTime: time, showProfile: $showProfile)
             }
         }
     }

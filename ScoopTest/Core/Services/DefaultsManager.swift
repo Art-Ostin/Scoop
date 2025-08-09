@@ -39,7 +39,7 @@ final class DefaultsManager {
         return status
     }
     
-    func setDailyProfileTimer(duration: TimeInterval = 300) {
+    func setDailyProfileTimer(duration: TimeInterval = 60) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
@@ -71,7 +71,7 @@ final class DefaultsManager {
             setTwoDailyProfiles(profiles)
             Task { await cacheManager.loadProfileImages(profiles)}
             setHasProfileUpdated(true)
-            print("Updated Status to true")
+            print("Updated Status to true in Load and Check")
             return profiles
         }
         return nil

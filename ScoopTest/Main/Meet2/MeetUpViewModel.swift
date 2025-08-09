@@ -29,7 +29,6 @@ import SwiftUI
         manager.setTwoDailyProfiles(newProfiles)
     }
     
-    
     func loadTwoDailyProfiles() async {
         let manager = dep.defaultsManager        
         if manager.getDailyProfileTimerEnd() != nil {
@@ -45,11 +44,7 @@ import SwiftUI
         } else if !manager.getHasProfileUpdated() {
             await updateTwoDailyProfiles()
             manager.setHasProfileUpdated(true)
-            print("Updated status to true")
+            print("Updated status to true in ViewModel Screen")
         }
     }
 }
-
-
-
-// Issue: will updateTwoDailyProfiles everyTime screen appears (provided I have not clicked on "Two Daily Profiles") I need it to happen only if Two daily profiles has not already been reset.
