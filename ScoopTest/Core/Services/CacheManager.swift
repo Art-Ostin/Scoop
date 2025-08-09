@@ -26,6 +26,10 @@ import SwiftUI
         cache.object(forKey: url as NSURL)
     }
     
+    func deleteImageFromCache(for url: URL) {
+        cache.removeObject(forKey: url as NSURL)
+        print("deleted image from Cache")
+    }
     
     //Checks if image is in Cache, if not converts URL to Image, saves it to the Cache, and returns the image
     func fetchImage(for url: URL) async throws -> UIImage {

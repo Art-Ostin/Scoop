@@ -16,6 +16,7 @@ struct ImageSlot: Equatable {
     var url: URL?
 }
 
+
 @Observable class EditImageViewModel {
     
     var dep: AppDependencies
@@ -39,7 +40,7 @@ struct ImageSlot: Equatable {
                 newImages[i] = img
             }
         }
-        print("assigned new images ")
+        print("assigned images ")
         await MainActor.run {
             for i in 0..<6 {
                 slots[i].path = i < paths.count ? paths[i] : nil
@@ -49,10 +50,13 @@ struct ImageSlot: Equatable {
             images = newImages
         }
     }
-        
+    
     
     func changeImage(at index: Int) async throws {
-            if let oldPath = slots[index].path, let oldURL = slots[index].url {
+
+        //If there's already a image at that index, it will Delete it first in storage manager and the User's Path
+        if let oldPath = slots[index].path, let oldURL = slots[index].url {
+            print("old Paths have containers")
             async let delete: () = dep.storageManager.deleteImage(path: oldPath)
             async let remove: () = dep.profileManager.update(values: [
                 .imagePath: FieldValue.arrayRemove([oldPath]),
@@ -61,44 +65,54 @@ struct ImageSlot: Equatable {
             )
             _ = try await (delete, remove)
             print("deleted Old Path")
+            dep.cacheManager.deleteImageFromCache(for: oldURL)
+            
+            
+        } else {
+            print("Cannot locate images at slot")
         }
         
+        //Immedietely take the new selected Image, convert it to a UIImage, and update it onto the UI
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
             let uiImage = UIImage(data: data)
         else { return print("Error not found and returned")}
-        
         await MainActor.run {
             guard images.indices.contains(index) else { return }
             images[index] = uiImage
-        }        
+        }
         
-        let newPath = try await dep.storageManager.saveImage(data: data)
+        
+        //Save the Image to StorageManager and make it a URL pointing to the NewImage (as old one is deleted automatically)
+        let imagePath = try await dep.storageManager.saveImage(data: data)
+        let url = try await dep.storageManager.getImageURL(path: imagePath)
+        print("fetched URL and Image Path")
+        
+        
+        //Update the imagePath so it now references the newImage (not the one saved) (This updating is done within the URL function)
+        let updatedImagePath = imagePath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         print("New Path Generated")
         
-        let revisedPath = newPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         
-        
-        print(newPath)
-        let newURL = try await dep.storageManager.getImageURL(path: newPath)
-        print("New URL Generated")
-
+        //Updated the values in the user's profile to point to the new ImagePath (for path and URL)
         async let updateProfile: () = dep.profileManager.update(values: [
-            .imagePath: FieldValue.arrayUnion([revisedPath]),
-            .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
+            .imagePath: FieldValue.arrayUnion([updatedImagePath]),
+            .imagePathURL: FieldValue.arrayUnion([url.absoluteString])
         ])
-                
         try await updateProfile
-        print("profile Updated")
-        let _ = try await dep.cacheManager.fetchImage(for: newURL)
+        print("profile Updated and URLs added")
         
         
         await MainActor.run {
             guard images.indices.contains(index) else { return }
-            slots[index].path = revisedPath
-            slots[index].url = newURL
+            slots[index].path = updatedImagePath
+            slots[index].url = url
             slots[index].pickerItem = nil
-            }
+        }
+        
+        //Add the user's Image to the Cache
+        let _ = try await dep.cacheManager.fetchImage(for: url)
+        print("reloaded cache with new Image")
     }
 }
