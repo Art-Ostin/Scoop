@@ -77,24 +77,10 @@ struct ImageSlot: Equatable {
             .imagePathURL: FieldValue.arrayUnion([url.absoluteString])
         ])
         
-        
         //Update User and UI
-        print("still going")
         try await updateProfile
-        
-        do {
-            let _ = try await dep.cacheManager.fetchImage(for: url)
-        } catch {
-            print("failed because \(error)")
-        }
-        do {
-            print("trying to load image")
-            try await dep.userManager.loadUser()
-            print("reloaded user worked")
-        } catch {
-            print ("Reloaded user failed")
-        }
-        
+        try await dep.userManager.loadUser()
+
         await MainActor.run {
             guard images.indices.contains(index) else { return }
             slots[index].path = updatedImagePath

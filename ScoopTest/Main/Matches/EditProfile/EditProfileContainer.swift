@@ -15,9 +15,11 @@ struct EditProfileContainer: View {
     var body: some View {
         
         if let user = dep.userManager.user {
+
             Group {
                 if isView {
                     ProfileView(profile: user, showInviteButton: false, dep: dep)
+                        .id(user.imagePath ?? [])
                         .transition(.move(edge: .leading))
                 } else {
                     EditProfileView(dep: dep)
@@ -28,11 +30,12 @@ struct EditProfileContainer: View {
                 EditProfileButton(isView: $isView)
                     .padding(.bottom)
                     .onTapGesture {
-                        Task { try await dep.userManager.loadUser() }
                         withAnimation{ isView.toggle()}
                     }
             }
         }
+        
+        
     }
 }
 
