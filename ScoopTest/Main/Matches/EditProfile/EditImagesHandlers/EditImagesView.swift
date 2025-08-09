@@ -3,7 +3,8 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 23/07/2025.
-//
+// Allow Editing on their profile and the option to cancel it. To
+
 
 import SwiftUI
 
