@@ -49,43 +49,54 @@ struct ImageSlot: Equatable {
     }
     
     func changeImage(at index: Int) async throws {
-
+        
         //Delete old Images at index
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             dep.cacheManager.removeImage(for: oldURL)
-            async let delete: () = dep.storageManager.deleteImage(path: oldPath)
-            async let remove: () = dep.profileManager.update(values: [
-                .imagePath: FieldValue.arrayRemove([oldPath]),
-                .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])]
-            )
-            _ = try await (delete, remove)
+            try await dep.storageManager.deleteImage(path: oldPath)
+            
         }
         
-        //Immedietely update UI
-        guard let selection = slots[index].pickerItem, let data = try? await selection.loadTransferable(type: Data.self), let uiImage = UIImage(data: data) else { return }
-        await MainActor.run { guard images.indices.contains(index) else { return }
-            images[index] = uiImage
+        guard
+            let selection = slots[index].pickerItem,
+            let data = try? await selection.loadTransferable(type: Data.self),
+            let uiImage = UIImage(data: data)
+        else { return }
+        
+        await MainActor.run {
+            if images.indices.contains(index) { images[index] = uiImage }
         }
         
-        //get/save new paths to User (Firebase)
-        let imagePath = try await dep.storageManager.saveImage(data: data)
-        let url = try await dep.storageManager.getImageURL(path: imagePath)
-        let updatedImagePath = imagePath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+        let originalPath = try await dep.storageManager.saveImage(data: data)
+        let url = try await dep.storageManager.getImageURL(path: originalPath)
+        let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         
-        async let updateProfile: () = dep.profileManager.update(values: [
-            .imagePath: FieldValue.arrayUnion([updatedImagePath]),
-            .imagePathURL: FieldValue.arrayUnion([url.absoluteString])
+        var paths = dep.userManager.user?.imagePath ?? []
+        var urls  = dep.userManager.user?.imagePathURL ?? []
+        if paths.count < 6 { paths.append(contentsOf: Array(repeating: "", count: 6 - paths.count)) }
+        if urls.count  < 6 { urls.append(contentsOf:  Array(repeating: "", count: 6 - urls.count)) }
+        
+        
+        paths[index] = resizedPath
+        urls[index]  = url.absoluteString
+        
+        try await dep.profileManager.update(values: [
+            .imagePath: paths,
+            .imagePathURL: urls
         ])
         
-        //Update User and UI
-        try await updateProfile
-        try await dep.userManager.loadUser()
-
+        
+        do {
+            try await dep.userManager.loadUser()
+            print("loaded User")
+        } catch {
+            print("Error")
+        }
         await MainActor.run {
-            guard images.indices.contains(index) else { return }
-            slots[index].path = updatedImagePath
+            slots[index].path = resizedPath
             slots[index].url = url
             slots[index].pickerItem = nil
         }
     }
 }
+

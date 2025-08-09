@@ -15,12 +15,9 @@ import Foundation
         self.p = profile
         self.showInviteButton = showInviteButton
         self.dep = dep
+        print("profile screen initialised")
     }
 }
-
-
-
-
 
 
 import SwiftUI
