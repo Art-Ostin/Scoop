@@ -50,6 +50,7 @@ import SwiftUI
         print("Image Deleted")
     }
     
+    
     func updateImagePath(url: URL) -> URL {
         let urlString = url.absoluteString
         let newUrlString = urlString.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg", options: [.literal, .backwards])
