@@ -31,20 +31,6 @@ import SwiftUI
         cache.removeObject(forKey: url as NSURL)
     }
     
-    func refreshCache(user: UserProfile) async {
-        let urlStrings = user.imagePathURL
-        guard let urlStrings else {return}
-        let urls = urlStrings.compactMap(URL.init(string:))
-        
-        for url in urls {
-            cache.removeObject(forKey: url as NSURL)
-            print("removed from Cache")
-        }
-        _ = await loadProfileImages([user])
-    }
-    
-    
-    
     
     //Checks if image is in Cache, if not converts URL to Image, saves it to the Cache, and returns the image
     func fetchImage(for url: URL) async throws -> UIImage {

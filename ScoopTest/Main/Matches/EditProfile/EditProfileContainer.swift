@@ -25,7 +25,7 @@ struct EditProfileContainer: View {
                     EditProfileView(dep: dep)
                         .transition(.move(edge: .trailing))
                 }
-            }
+            }            
             .overlay(alignment: .bottom) {
                 EditProfileButton(isView: $isView)
                     .padding(.bottom)
@@ -34,8 +34,6 @@ struct EditProfileContainer: View {
                     }
             }
         }
-        
-        
     }
 }
 

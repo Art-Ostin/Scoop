@@ -19,6 +19,7 @@ struct ProfileImageView: View {
             imageScroller
         }
         .task {
+            print("got all user's images")
             images = await vm.dep.cacheManager.loadProfileImages([vm.p])
         }
     }

@@ -10,6 +10,8 @@ import SwiftUI
 
 struct EditProfileView: View {
     
+    
+    
     var dep: AppDependencies
     
     init(dep: AppDependencies) {
@@ -34,9 +36,6 @@ struct EditProfileView: View {
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { NavButton(.down)}
-            }
-            .task {
-               try? await dep.userManager.loadUser()
             }
         }
     }
