@@ -26,9 +26,11 @@ import SwiftUI
     func getImageURL(path: String) async throws -> URL {
         print("getImageURL Called")
         let url = try await imagePath(path).downloadURL()
+        print(url)
         return updateImagePath(url: url)
     }
     
+    //Do Not Update Path Here as I need it for the DownloadURL and breaks if I update path before downloadURL
     func saveImage(data: Data) async throws -> String {
         print("Save Image Called")
         guard let userId = userManager.user?.userId else  {return "Unverified User" }
@@ -38,10 +40,7 @@ import SwiftUI
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
         print("save Image Performed")
-        
-        let newPath = updateStringPath(path: path)
-        print(newPath)
-        return updateStringPath(path: path)
+        return path
         }
     
     func deleteImage(path: String) async throws {
