@@ -39,6 +39,7 @@ struct ImageSlot: Equatable {
         let urls: [URL] = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
         
+        
         for i in 0..<min(urls.count, 6) {
             if let img = try? await dep.cacheManager.fetchImage(for: urls[i]) {
                 newImages[i] = img
