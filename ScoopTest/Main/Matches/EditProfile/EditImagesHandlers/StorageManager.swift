@@ -3,7 +3,7 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 22/07/2025.
-//
+// Cannot Update Path Here as I need it for the DownloadURL and breaks if I update path before downloadURL
 
 import Foundation
 import FirebaseStorage
@@ -28,37 +28,24 @@ import SwiftUI
         return updateImagePath(url: url)
     }
     
-    //Do Not Update Path Here as I need it for the DownloadURL and breaks if I update path before downloadURL
     func saveImage(data: Data) async throws -> String {
-        print("Save Image Called")
-        guard let userId = userManager.user?.userId else  {return "Unverified User" }
+        guard let userId = userManager.user?.userId else {return ""}
         let filename = "\(UUID().uuidString).jpeg"
         let path = "users/\(userId)/\(filename)"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
-        print("save Image Performed")
         return path
-        }
+    }
     
     func deleteImage(path: String) async throws {
         try await imagePath(path).delete()
-        print("Image Deleted")
     }
-    
     
     func updateImagePath(url: URL) -> URL {
         let urlString = url.absoluteString
         let newUrlString = urlString.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg", options: [.literal, .backwards])
-
-        if let newURL = URL(string: newUrlString) {
-            print(newURL)
-            return newURL
-        }
+        if let newURL = URL(string: newUrlString) { return newURL}
         return url
-    }
-    
-    func updateStringPath(path: String) -> String {
-        return path.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg", options: [.literal, .backwards])
     }
 }
