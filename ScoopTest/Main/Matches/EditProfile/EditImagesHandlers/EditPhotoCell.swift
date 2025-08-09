@@ -32,7 +32,10 @@ struct EditPhotoCell: View {
         .shadow(color: image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
         .onChange(of: picker) {_, newValue in
             guard newValue != nil else { return }
-            Task { try? await action() }
+            Task {
+                do { try await action() }
+                catch { print("changeImage failed:", error) }
+            }
         }
     }
 }

@@ -50,6 +50,7 @@ struct ImageSlot: Equatable {
     
     func changeImage(at index: Int) async throws {
 
+        //Delete old Images at index
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             dep.cacheManager.removeImage(for: oldURL)
             async let delete: () = dep.storageManager.deleteImage(path: oldPath)
@@ -66,7 +67,7 @@ struct ImageSlot: Equatable {
             images[index] = uiImage
         }
         
-        //get/save new paths
+        //get/save new paths to User (Firebase)
         let imagePath = try await dep.storageManager.saveImage(data: data)
         let url = try await dep.storageManager.getImageURL(path: imagePath)
         let updatedImagePath = imagePath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
@@ -77,11 +78,15 @@ struct ImageSlot: Equatable {
         ])
         
         
+        //Update User and UI
         print("still going")
-        
         try await updateProfile
-        let _ = try await dep.cacheManager.fetchImage(for: url)
         
+        do {
+            let _ = try await dep.cacheManager.fetchImage(for: url)
+        } catch {
+            print("failed because \(error)")
+        }
         do {
             print("trying to load image")
             try await dep.userManager.loadUser()
