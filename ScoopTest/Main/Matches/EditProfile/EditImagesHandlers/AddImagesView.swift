@@ -14,9 +14,10 @@ struct AddImageView: View {
     @Binding var showLogin: Bool
     
     init(dep: AppDependencies, showLogin: Binding<Bool>) {
-        self._vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userManager))
+        self._vm = State(initialValue: EditImageViewModel(dep: dep))
         self._showLogin = showLogin
     }
+    
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     var body: some View {
         VStack(spacing: 36) {
@@ -29,8 +30,8 @@ struct AddImageView: View {
 
             LazyVGrid(columns: columns, spacing: 36) {
                 ForEach(0..<6) {idx in
-                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, url: vm.slots[idx].url) {
-                        try? await vm.changeImage(at: idx)
+                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
+                        try await vm.changeImage(at: idx)
                     }
                 }
             }
@@ -39,8 +40,7 @@ struct AddImageView: View {
             })
         }
         .task {
-            try? await vm.user.loadUser()
-            vm.assignSlots()
+            await vm.loadUpImages()
         }
     }
 }

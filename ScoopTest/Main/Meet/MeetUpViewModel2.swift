@@ -66,9 +66,7 @@ import Foundation
         } catch {
             print("Error")
         }
-    }
-    
-    
+    }    
     
     
     private func assignProfiles(_ profiles: [UserProfile]) async {

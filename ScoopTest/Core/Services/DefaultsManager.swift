@@ -39,7 +39,7 @@ final class DefaultsManager {
         return status
     }
     
-    func setDailyProfileTimer(duration: TimeInterval = 60) {
+    func setDailyProfileTimer(duration: TimeInterval = 20) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }

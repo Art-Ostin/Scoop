@@ -28,7 +28,7 @@ import SwiftUI
     
     
     //Checks if image is in Cache, if not converts URL to Image, saves it to the Cache, and returns the image
-    private func fetchImage(for url: URL) async throws -> UIImage {
+    func fetchImage(for url: URL) async throws -> UIImage {
         if let image = fetchImageFromCache(for: url) {
             print("Got image from Cache")
             return image
@@ -41,6 +41,7 @@ import SwiftUI
         cache.setObject(image, forKey: url as NSURL, cost: data.count)
         return image
     }
+    
     
     //Function saves images to the Cache
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {

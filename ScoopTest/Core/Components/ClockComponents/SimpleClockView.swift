@@ -12,7 +12,7 @@ struct SimpleClockView: View {
     let targetTime: Date
     @Binding var showProfile: Bool
     var body: some View {
-        CountdownTimer(targetTime: targetTime, onFinished: { showProfile = true}) { timeRemaining in
+        CountdownTimer(targetTime: targetTime, onFinished: { showProfile = false}) { timeRemaining in
             let h = timeRemaining.hour ?? 0
             let m = timeRemaining.minute ?? 0
             let s = timeRemaining.second ?? 0
@@ -20,8 +20,6 @@ struct SimpleClockView: View {
             Text(timeString)
                 .font(.body(16))
         }
-        
-        
     }
 }
 

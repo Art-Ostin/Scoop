@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "ImagePlaceHolder.png",
+      "filename" : "ImagePlaceholder2.pdf",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "ImagePlaceHolder2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "ImagePlaceHolder3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

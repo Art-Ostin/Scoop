@@ -10,32 +10,36 @@ import SwiftUI
 struct ImagesView: View {
 
     @State private var vm: EditImageViewModel
-    
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
     
-    
     init(dep: AppDependencies) {
-        _vm = State(initialValue: EditImageViewModel(profileManager: dep.profileManager, storageManager: dep.storageManager, user: dep.userManager))
+        _vm = State(initialValue: EditImageViewModel(dep: dep))
     }
-    
     var body: some View {
         CustomList {
             LazyVGrid(columns: columns, spacing: 24) {
-                ForEach(0..<6) {idx in
-                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, url: vm.slots[idx].url) {
-                       try? await  vm.changeImage(at: idx)
+                ForEach(0..<6) {idx in                    
+                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
+                        try await vm.changeImage(at: idx)
                     }
                 }
             }
             .padding(.horizontal)
         }
         .task {
-            try? await vm.user.loadUser()
-            vm.assignSlots()
-        }
-        .onChange(of: vm.user.user?.imagePathURL) {
-            vm.assignSlots() // runs only when the profile data really changes
+           await vm.loadUpImages()
         }
         .padding(.horizontal, 32)
     }
 }
+
+
+
+
+
+
+//await MainActor.run {
+//    guard var arr = images, arr.indices.contains(idx) else { return }
+//    arr[idx] = newImage ?? UIImage()
+//    images = arr
+//}

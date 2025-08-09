@@ -33,6 +33,7 @@ struct CountdownTimer<Content: View>: View {
         if now >= targetTime {
             timeRemaining = DateComponents(hour: 0, minute: 0, second: 0)
             onFinished()
+            print("Is done")
             return
         }
         timeRemaining = Calendar.current.dateComponents([.hour, .minute, .second], from: now, to: targetTime)

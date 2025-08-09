@@ -17,36 +17,37 @@ struct ImageSlot: Equatable {
 }
 
 
+
 @Observable class EditImageViewModel {
     
-    var profileManager: ProfileManaging
-    var storageManager: StorageManaging
-    var user: UserManager
-    
+    var dep: AppDependencies
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     
-    init (profileManager: ProfileManaging, storageManager: StorageManaging, user: UserManager) {
-        self.profileManager = profileManager
-        self.storageManager = storageManager
-        self.user = user
-    }
+    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     
-    @MainActor
-    func assignSlots() {
-        guard let user = user.user else { return }
-        let paths = user.imagePath ?? []
-        let urls = user.imagePathURL?.compactMap { URL(string: $0) } ?? []
-        for i in slots.indices {
-            slots[i].path =  i < paths.count ? paths[i] : nil
-            slots[i].url = i < urls.count ? urls[i] : nil
+    var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    
+    init(dep: AppDependencies) { self.dep = dep }
+
+    
+    func loadUpImages() async {
+        if let user = dep.userManager.user {
+          let loaded = await dep.cacheManager.loadProfileImages([user])
+            await MainActor.run {
+                let count = min(loaded.count, 6)
+                images.replaceSubrange(0..<count, with: loaded.prefix(count))
+                if count < 6 {
+                    images.replaceSubrange(count..<6, with: Array(repeating: UIImage(), count: 6 - count))
+                }
+            }
         }
     }
-    
+
+
     func changeImage(at index: Int) async throws {
-                
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
-            async let delete: () = storageManager.deleteImage(path: oldPath)
-            async let remove: () = profileManager.update(values: [
+            async let delete: () = dep.storageManager.deleteImage(path: oldPath)
+            async let remove: () = dep.profileManager.update(values: [
                 .imagePath: FieldValue.arrayRemove([oldPath]),
                 .imagePathURL: FieldValue.arrayRemove([oldURL.absoluteString])
             ]
@@ -58,19 +59,26 @@ struct ImageSlot: Equatable {
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self) else {return}
         
-        
-        let newPath = try await storageManager.saveImage(data: data)
+        let newPath = try await dep.storageManager.saveImage(data: data)
         print("New Path Generated")
-        let newURL = try await storageManager.getImageURL(path: newPath)
+        let newURL = try await dep.storageManager.getImageURL(path: newPath)
         print("New URL Generated")
 
-        async let updateProfile: () = profileManager.update(values: [
+        async let updateProfile: () = dep.profileManager.update(values: [
             .imagePath: FieldValue.arrayUnion([newPath]),
             .imagePathURL: FieldValue.arrayUnion([newURL.absoluteString])
         ])
         try await updateProfile
         print("profile Updated")
-        await MainActor.run { slots[index].path = newPath; slots[index].url = newURL; slots[index].pickerItem = nil}
+        
+        let newImage = try await dep.cacheManager.fetchImage(for: newURL)
+        
+        await MainActor.run {
+                guard images.indices.contains(index) else { return }
+                images[index] = newImage                    // <- update where the UI reads
+                slots[index].path = newPath
+                slots[index].url = newURL
+                slots[index].pickerItem = nil
+            }
     }
 }
-

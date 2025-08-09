@@ -10,8 +10,9 @@ import SwiftUI
 struct DailyProfiles2: View {
     
     @Binding var vm: MeetUpViewModel2
-    
     @Binding var showProfile: Bool
+    
+    @State var selection: String? = nil
     
     var body: some View {
         
