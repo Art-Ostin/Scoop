@@ -15,10 +15,8 @@ import FirebaseAuth
     var totalDuration: Int {2 + countdownDuration}
     var timeRemaining = 0
     let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
-
     
     func resendEmail() -> some View {
-        
         Group {
             if timeRemaining == 0 {
                 Text("Resend")
@@ -103,8 +101,9 @@ struct EmailVerificationView: View {
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.horizontal)
             .flowNavigation()
-            .onChange(of: code) {
+            .task {
                 
+                try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
                 Task {
                     guard ((try? await AuthenticateEmail()) != nil) else { return }
                     
@@ -114,7 +113,6 @@ struct EmailVerificationView: View {
                         }
                         else {
                             if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {
-                                try? await dependencies.userManager.loadUser()
                                 showEmail = false
                             }
                         }

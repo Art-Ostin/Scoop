@@ -5,7 +5,7 @@
 //  Created by Art Ostin on 23/07/2025.
 // Explained: Assigns a data type "slot" to each image, which has its path, and Url for each image. Accordingly, when you change every image update on the backend and the front end, but also you need to change the slots its assigned to.
 
-// Allow Editing on their profile and the option to cancel it. Just store the images here, in their profile as well. (Not just here). 
+// Allow Editing on their profile and the option to cancel it. Just store the images here, in their profile as well. (Not just here).
 
 
 

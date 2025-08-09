@@ -17,8 +17,6 @@ import SwiftUI
     
     init(dep: AppDependencies) {
         self.dep = dep
-        Task { await loadTwoDailyProfiles()
-            print("populated two daily Profiles") }
     }
 
     func updateTwoDailyProfiles() async {
