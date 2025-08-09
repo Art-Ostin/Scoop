@@ -435,6 +435,7 @@
 				65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */,
 				659497092E01DD4000880921 /* LimitedAccessView.swift */,
 				65E820982E37C2720098CC36 /* OnboardingContainer.swift */,
+				65F450D12E47815500AE3503 /* Storage */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -556,6 +557,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		65F450D12E47815500AE3503 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
 		65FAF97B2E4112780015E231 /* Invite Folder */ = {
 			isa = PBXGroup;
 			children = (
@@ -593,7 +602,6 @@
 				654982D32E3101BE00CA335F /* AddImagesView.swift */,
 				654982D72E3152C000CA335F /* EditImagesView.swift */,
 				654982DD2E315B1B00CA335F /* EditPhotoCell.swift */,
-				655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */,
 			);
 			path = EditImagesHandlers;
 			sourceTree = "<group>";

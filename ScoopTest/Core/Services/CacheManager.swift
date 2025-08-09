@@ -30,7 +30,6 @@ import SwiftUI
     //Checks if image is in Cache, if not converts URL to Image, saves it to the Cache, and returns the image
     func fetchImage(for url: URL) async throws -> UIImage {
         if let image = fetchImageFromCache(for: url) {
-            print("Got image from Cache")
             return image
         }
         let (data, _) = try await URLSession.shared.data(from: url)

@@ -47,9 +47,9 @@ final class AppDependencies {
         self.eventManager = eventManager
         self.defaultsManager = defaultsManager
 
-//        if let manager = profile as? FirestoreManager {
-//            manager.userManager = self.userManager
-//        }
+        if let manager = profile as? FirestoreManager {
+            manager.userManager = self.userManager
+        }
     }
 }
 

@@ -29,20 +29,34 @@ struct ImageSlot: Equatable {
     init(dep: AppDependencies) { self.dep = dep }
 
     
+    
+
     func loadUpImages() async {
-        if let user = dep.userManager.user {
-          let loaded = await dep.cacheManager.loadProfileImages([user])
-            await MainActor.run {
-                let count = min(loaded.count, 6)
-                images.replaceSubrange(0..<count, with: loaded.prefix(count))
-                if count < 6 {
-                    images.replaceSubrange(count..<6, with: Array(repeating: UIImage(), count: 6 - count))
-                }
+        guard let user = dep.userManager.user else { return }
+
+        let paths: [String] = user.imagePath ?? []
+        let urlStrings: [String] = user.imagePathURL ?? []
+        let urls: [URL] = urlStrings.compactMap(URL.init(string:))
+        var newImages = Array(repeating: Self.placeholder, count: 6)
+        
+        for i in 0..<min(urls.count, 6) {
+            if let img = try? await dep.cacheManager.fetchImage(for: urls[i]) {
+                newImages[i] = img
             }
         }
+        await MainActor.run {
+            for i in 0..<6 {
+                slots[i].path = i < paths.count ? paths[i] : nil
+                slots[i].url  = i < urls.count  ? urls[i]  : nil
+                slots[i].pickerItem = nil
+            }
+            images = newImages
+        }
     }
+        
+    
 
-
+    
     func changeImage(at index: Int) async throws {
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             async let delete: () = dep.storageManager.deleteImage(path: oldPath)

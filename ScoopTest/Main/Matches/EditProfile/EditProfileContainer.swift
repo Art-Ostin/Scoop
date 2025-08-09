@@ -15,7 +15,6 @@ struct EditProfileContainer: View {
     var body: some View {
         
         if let user = dep.userManager.user {
-            
             Group {
                 if isView {
                     ProfileView(profile: user, showInviteButton: false, dep: dep)
@@ -32,6 +31,8 @@ struct EditProfileContainer: View {
                         withAnimation{ isView.toggle()}
                     }
             }
+        } else {
+            Text("No Current User")
         }
     }
 }

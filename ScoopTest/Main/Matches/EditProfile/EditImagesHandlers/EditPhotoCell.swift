@@ -21,14 +21,12 @@ struct EditPhotoCell: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
-                    .id(image)
             } else {
                 Image("ImagePlaceholder2")
                     .resizable()
                     .scaledToFill()
             }
         }
-        .id(image)
         .frame(width: 110, height: 110)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)

@@ -47,13 +47,23 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        CirclePhoto(image: profileImage ?? UIImage())
-                            .onTapGesture {showProfileView = true }
+                        
+                        VStack {
+                            
+                            Text("hello World")
+                            
+                            CirclePhoto(image: profileImage ?? UIImage())
+                            
+                        }
+                        .onTapGesture {showProfileView = true }
+
                     }
                 }
             }
         }
         .fullScreenCover(isPresented: $showProfileView, content: {
+            
+            
             EditProfileContainer()
         })
         .task {
