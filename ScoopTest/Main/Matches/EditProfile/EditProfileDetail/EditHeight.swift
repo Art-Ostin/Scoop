@@ -20,7 +20,7 @@ struct EditHeight: View {
     
     
     var body: some View {
-        
+
         let manager = dependencies.profileManager
         VStack {
             SignUpTitle(text: "Height")

@@ -32,14 +32,3 @@ struct ImagesView: View {
         .padding(.horizontal, 32)
     }
 }
-
-
-
-
-
-
-//await MainActor.run {
-//    guard var arr = images, arr.indices.contains(idx) else { return }
-//    arr[idx] = newImage ?? UIImage()
-//    images = arr
-//}

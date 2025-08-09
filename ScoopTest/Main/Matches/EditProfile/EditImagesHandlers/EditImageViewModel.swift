@@ -24,7 +24,6 @@ struct ImageSlot: Equatable {
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
-    
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
     
     init(dep: AppDependencies) { self.dep = dep }
