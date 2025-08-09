@@ -40,14 +40,12 @@ struct ImageSlot: Equatable {
                 newImages[i] = img
             }
         }
-        await MainActor.run {
-            for i in 0..<6 {
-                slots[i].path = i < paths.count ? paths[i] : nil
-                slots[i].url  = i < urls.count  ? urls[i]  : nil
-                slots[i].pickerItem = nil
-            }
-            images = newImages
+        for i in 0..<6 {
+            slots[i].path = i < paths.count ? paths[i] : nil
+            slots[i].url  = i < urls.count  ? urls[i]  : nil
+            slots[i].pickerItem = nil
         }
+        images = newImages
     }
     
     func changeImage(at index: Int) async throws {
@@ -61,13 +59,13 @@ struct ImageSlot: Equatable {
             )
             _ = try await (delete, remove)
         }
+        
         //Immedietely update UI
         guard let selection = slots[index].pickerItem, let data = try? await selection.loadTransferable(type: Data.self), let uiImage = UIImage(data: data) else { return }
         await MainActor.run { guard images.indices.contains(index) else { return }
             images[index] = uiImage
         }
-
-
+        
         //get/save new paths
         let imagePath = try await dep.storageManager.saveImage(data: data)
         let url = try await dep.storageManager.getImageURL(path: imagePath)
@@ -77,9 +75,20 @@ struct ImageSlot: Equatable {
             .imagePath: FieldValue.arrayUnion([updatedImagePath]),
             .imagePathURL: FieldValue.arrayUnion([url.absoluteString])
         ])
+        
+        
+        print("still going")
+        
         try await updateProfile
-        try? await dep.userManager.loadUser()
         let _ = try await dep.cacheManager.fetchImage(for: url)
+        
+        do {
+            print("trying to load image")
+            try await dep.userManager.loadUser()
+            print("reloaded user worked")
+        } catch {
+            print ("Reloaded user failed")
+        }
         
         await MainActor.run {
             guard images.indices.contains(index) else { return }
