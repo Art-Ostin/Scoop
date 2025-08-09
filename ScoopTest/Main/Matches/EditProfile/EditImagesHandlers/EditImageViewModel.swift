@@ -54,7 +54,6 @@ struct ImageSlot: Equatable {
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             dep.cacheManager.removeImage(for: oldURL)
             try await dep.storageManager.deleteImage(path: oldPath)
-            
         }
         
         guard
@@ -85,13 +84,13 @@ struct ImageSlot: Equatable {
             .imagePathURL: urls
         ])
         
-        
         do {
             try await dep.userManager.loadUser()
             print("loaded User")
         } catch {
             print("Error")
         }
+        
         await MainActor.run {
             slots[index].path = resizedPath
             slots[index].url = url
