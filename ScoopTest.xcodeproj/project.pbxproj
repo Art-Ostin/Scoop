@@ -105,6 +105,7 @@
 		65F450CB2E463E7900AE3503 /* DailyProfiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CA2E463E7900AE3503 /* DailyProfiles.swift */; };
 		65F450CD2E463F9900AE3503 /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CC2E463F9900AE3503 /* IntroView.swift */; };
 		65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450D22E482B2F00AE3503 /* ProfileCard.swift */; };
+		65F450DD2E48D19400AE3503 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450DC2E48D19400AE3503 /* ProfileViewModel.swift */; };
 		65FAF97D2E4112C80015E231 /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF97C2E4112C80015E231 /* PopUpView.swift */; };
 		65FAF9862E413B100015E231 /* EventPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9852E413B100015E231 /* EventPlaceholder.swift */; };
 		65FAF9882E4140740015E231 /* EventContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9872E4140740015E231 /* EventContainer.swift */; };
@@ -235,6 +236,7 @@
 		65F450CA2E463E7900AE3503 /* DailyProfiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProfiles.swift; sourceTree = "<group>"; };
 		65F450CC2E463F9900AE3503 /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
 		65F450D22E482B2F00AE3503 /* ProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCard.swift; sourceTree = "<group>"; };
+		65F450DC2E48D19400AE3503 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		65FAF97C2E4112C80015E231 /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
 		65FAF9852E413B100015E231 /* EventPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPlaceholder.swift; sourceTree = "<group>"; };
 		65FAF9872E4140740015E231 /* EventContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventContainer.swift; sourceTree = "<group>"; };
@@ -299,8 +301,8 @@
 				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
 				652FC9722E1AD7360034A387 /* AuthenticationManager.swift */,
-				65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
+				65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */,
 				654C009A2E35689000FFD504 /* UserManager.swift */,
 				65BFE7DC2E400D3C00B31A58 /* EventManager.swift */,
 				65FAF98B2E41658D0015E231 /* DefaultsManager.swift */,
@@ -334,6 +336,7 @@
 		653770542E0A1E710058D225 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				65F450DC2E48D19400AE3503 /* ProfileViewModel.swift */,
 				659496FF2E01DD4000880921 /* ProfileContainer.swift */,
 				653BAFAA2E0C944600C1AB9E /* ProfileImageView.swift */,
 				653BAFAC2E0C95AE00C1AB9E /* ProfileImageScroller.swift */,
@@ -842,6 +845,7 @@
 				65F450C92E463D1300AE3503 /* MeetContainer.swift in Sources */,
 				65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
+				65F450DD2E48D19400AE3503 /* ProfileViewModel.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */,
 				65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */,
 				654982D62E31285000CA335F /* EditImageViewModel.swift in Sources */,

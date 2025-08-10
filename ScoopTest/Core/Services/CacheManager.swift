@@ -70,8 +70,5 @@ import SwiftUI
             }
         }
         return images
-    }
-    
-    
-    
+    }    
 }

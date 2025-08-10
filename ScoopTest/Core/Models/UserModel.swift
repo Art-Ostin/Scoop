@@ -43,8 +43,16 @@ struct UserProfile: Codable, Equatable {
     let character: [String]?
     let imagePath: [String]?
     let imagePathURL: [String]?
-
-
+    
+    //Option 1 -- method of storing events
+    let userEvents: [Event]?
+    
+    //Option 2 -- method of storing events
+    let successfulEvents: [Event]?
+    let potentialEvents: [Event]?
+    let declinedEvents: [Event]?
+    
+    
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid
         self.email = auth.user.email ?? ""

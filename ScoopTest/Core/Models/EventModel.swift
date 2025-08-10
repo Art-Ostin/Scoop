@@ -9,7 +9,8 @@ import MapKit
 
 
 enum Status: Codable{
-    case pending
+    case inviteSentPending
+    case inviteReceivedPending
     case accepted
     case declined
     case cancelled
@@ -25,8 +26,9 @@ struct Event: Identifiable, Codable {
     var date_created: Date?
     var time: Date?
     var location: EventLocation?
-    var status: Status = .pending
+    var status: Status?
 }
+
 
 enum EventType: CaseIterable, Codable {
     case grabFood

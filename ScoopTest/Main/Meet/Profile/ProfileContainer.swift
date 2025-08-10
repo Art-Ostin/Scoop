@@ -1,40 +1,18 @@
 
 import Foundation
-
-@Observable class ProfileViewModel {
-    
-    var p: UserProfile
-    
-    let dep: AppDependencies
-    var invitePopup: Bool = false
-    var showInviteButton: Bool
-    
-    let pageSpacing: CGFloat = -48
-    
-    init(profile: UserProfile, showInviteButton: Bool, dep: AppDependencies) {
-        self.p = profile
-        self.showInviteButton = showInviteButton
-        self.dep = dep
-        print("profile screen initialised")
-    }
-}
-
-
 import SwiftUI
+
 
 struct ProfileView: View {
         
-    @Environment(\.appDependencies) private var dep
     @Environment(\.dismiss) private var dismiss
-    
+    @State var invitePopup: Bool = false
     @State private var vm: ProfileViewModel
-    var showInviteButton: Bool
     let onDismiss: () -> Void
-
+    
     
     init(profile: UserProfile, showInviteButton: Bool = true, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton, dep: dep))
-        self.showInviteButton = showInviteButton
+        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton, dep: dep, profileType: .sendInvite))
         self.onDismiss = onDismiss
     }
     
@@ -59,19 +37,19 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if vm.invitePopup  && (vm.showInviteButton == true), let user = dep.userManager.user?.userId {
+                    if invitePopup  && (vm.showInviteButton == true), let user = vm.dep.userManager.user?.userId {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                vm.invitePopup = false
+                                invitePopup = false
                             }
                         SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
                     }
                 }
             }
-            .toolbar(vm.invitePopup ? .hidden : .visible, for: .tabBar)
+            .toolbar(invitePopup ? .hidden : .visible, for: .tabBar)
         }
     }
 }

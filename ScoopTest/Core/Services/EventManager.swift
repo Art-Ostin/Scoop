@@ -42,7 +42,6 @@ class EventManager {
     }
     
     
-    
     func updateEvent(eventId: String, updateTo: Bool) async throws {
         let data: [String: Any] = [
             "accepted": updateTo

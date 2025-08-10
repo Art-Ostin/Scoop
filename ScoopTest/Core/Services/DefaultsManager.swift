@@ -22,6 +22,8 @@ final class DefaultsManager {
     private enum Keys: String {
         case dailyProfileTimerEnd
         case twoDailyProfiles
+        case sentInviteToProfile1
+        case sentInviteToProfile2
     }
     
     init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
@@ -53,4 +55,25 @@ final class DefaultsManager {
     func deleteTwoDailyProfiles() {
         defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
     }
+    
+    func sentInviteToProfile1() {
+        defaults.set(true, forKey: Keys.sentInviteToProfile1.rawValue)
+    }
+    func sentInviteToProfile2() {
+        defaults.set(true, forKey: Keys.sentInviteToProfile2.rawValue)
+    }
+    
+    func getInviteToProfile1Status() -> Bool {
+        defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
+    }
+    
+    func getInviteToProfile2Status() -> Bool {
+        defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
+    }
+    
+    func refreshInviteStatus() {
+        defaults.removeObject(forKey: Keys.sentInviteToProfile1.rawValue)
+        defaults.removeObject(forKey: Keys.sentInviteToProfile2.rawValue)
+    }
+    
 }

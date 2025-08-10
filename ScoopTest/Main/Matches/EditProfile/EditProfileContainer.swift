@@ -12,6 +12,10 @@ struct EditProfileContainer: View {
     @Environment(\.appDependencies) var dep
     @State var isView: Bool = true
     
+    
+    
+    
+    
     var body: some View {
         
         if let user = dep.userManager.user {
