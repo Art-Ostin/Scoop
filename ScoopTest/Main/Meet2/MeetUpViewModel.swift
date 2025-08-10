@@ -49,4 +49,19 @@ import SwiftUI
             print("deleted two daily profiles")
         }
     }
+    
+    func loadInvites() async throws {
+        print("starting load Invites")
+        let pendingEvents = try await dep.eventManager.getInvitedEvents()
+
+        try await withThrowingTaskGroup(of: UserProfile.self) { group in
+            for event in pendingEvents {
+                group.addTask { try await self.dep.eventManager.getEventMatch(event: event) }
+            }
+            var results: [UserProfile] = []
+            for try await profile in group { results.append(profile) }
+            shownDailyProfiles.append(contentsOf: results)
+        }
+        print("Finishing load Invites")
+    }
 }

@@ -112,7 +112,6 @@
 		65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* DefaultsManager.swift */; };
 		65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */; };
 		65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9952E42960A0015E231 /* EventViewModel.swift */; };
-		65FAF9982E42B1C30015E231 /* ProfilePreviewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */; };
 		65FAF99E2E42BCA40015E231 /* LargeClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF99D2E42BCA40015E231 /* LargeClockView.swift */; };
 		65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */; };
 		65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF22E229E19006CF3CD /* PromptsView.swift */; };
@@ -243,7 +242,6 @@
 		65FAF98B2E41658D0015E231 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		65FAF9952E42960A0015E231 /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
-		65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePreviewScreen.swift; sourceTree = "<group>"; };
 		65FAF99D2E42BCA40015E231 /* LargeClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeClockView.swift; sourceTree = "<group>"; };
 		65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleClockView.swift; sourceTree = "<group>"; };
 		65FEDAF22E229E19006CF3CD /* PromptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptsView.swift; sourceTree = "<group>"; };
@@ -388,12 +386,6 @@
 		6561C8D12E044638006A72DF /* Meet */ = {
 			isa = PBXGroup;
 			children = (
-				65BFE7BC2E3D6FE900B31A58 /* CountdownViewModelOld.swift */,
-				65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel2.swift */,
-				659496FD2E01DD4000880921 /* MeetContainerOld.swift */,
-				653770332E0862800058D225 /* IntroViewOld.swift */,
-				659497002E01DD4000880921 /* DailyProfilesOld.swift */,
-				65FAF9972E42B1C30015E231 /* ProfilePreviewScreen.swift */,
 				653770542E0A1E710058D225 /* Profile */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
@@ -559,6 +551,11 @@
 		65F450D12E47815500AE3503 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				65BFE7BC2E3D6FE900B31A58 /* CountdownViewModelOld.swift */,
+				65BFE7B22E3CEE8E00B31A58 /* MeetUpViewModel2.swift */,
+				659496FD2E01DD4000880921 /* MeetContainerOld.swift */,
+				653770332E0862800058D225 /* IntroViewOld.swift */,
+				659497002E01DD4000880921 /* DailyProfilesOld.swift */,
 				655F52002E3BA12E00E67534 /* CachedAsyncImage.swift */,
 			);
 			path = Storage;
@@ -846,7 +843,6 @@
 				65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */,
-				65FAF9982E42B1C30015E231 /* ProfilePreviewScreen.swift in Sources */,
 				65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */,
 				654982D62E31285000CA335F /* EditImageViewModel.swift in Sources */,
 				6509DDC72E37A1CC0042917B /* EditTextfield.swift in Sources */,

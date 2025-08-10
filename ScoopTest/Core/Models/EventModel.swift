@@ -16,7 +16,6 @@ enum Status: Codable{
 }
 
 
-
 struct Event: Identifiable, Codable {
     var id = UUID().uuidString
     var profile1_id: String?
@@ -26,7 +25,7 @@ struct Event: Identifiable, Codable {
     var date_created: Date?
     var time: Date?
     var location: EventLocation?
-    var status: Status?
+    var status: Status = .pending
 }
 
 enum EventType: CaseIterable, Codable {

@@ -41,12 +41,15 @@ class EventManager {
         try await eventDocument(id: eventId).updateData(data)
     }
     
+    
+    
     func updateEvent(eventId: String, updateTo: Bool) async throws {
         let data: [String: Any] = [
             "accepted": updateTo
         ]
         try await eventDocument(id: eventId).updateData(data)
     }
+    
     
     func getUserEvents ()  async throws  -> [Event] {
         guard let currentUser = user.user else {return []}
@@ -72,5 +75,21 @@ class EventManager {
             throw URLError(.badURL)
         }
         return try await profile.getProfile(userId: matchId)
+    }
+    
+    func getFutureEvent () async throws -> [Event] {
+        let events = try await getUserEvents()
+        let now = Date()
+        return events.filter {$0.time ?? Date() > now}
+    }
+    
+    func getAcceptedEvents () async throws -> [Event] {
+        let events = try await getUserEvents()
+        return events.filter {$0.status == .accepted}
+    }
+    
+    func getInvitedEvents () async throws -> [Event] {
+        let events = try await getUserEvents()
+        return events.filter {$0.status == .pending}
     }
 }
