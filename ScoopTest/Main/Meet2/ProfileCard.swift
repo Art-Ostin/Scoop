@@ -13,7 +13,6 @@ struct ProfileCard : View {
     let dep: AppDependencies
     
     @State private var image: UIImage?
-    @State private var showProfile: Bool = false
     
     @Binding var selectedProfile: UserProfile?
     
@@ -34,9 +33,6 @@ struct ProfileCard : View {
         .task {
             guard let url = firstURL else {return}
             image = try? await dep.cacheManager.fetchImage(for: url)
-        }
-        .fullScreenCover(isPresented: $showProfile) {
-            ProfileView(profile: profile, dep: dep)
         }
     }
     private func firstImage(image: UIImage) -> some View {
