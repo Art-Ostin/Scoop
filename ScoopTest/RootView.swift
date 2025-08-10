@@ -26,7 +26,7 @@ struct RootView : View {
         }.task {
             if let _ = try? dependencies.authManager.getAuthenticatedUser(){
                 try? await dependencies.userManager.loadUser()
-                 _ = try? await dependencies.defaultsManager.loadAndCheckProfiles()
+//                 _ = try? await dependencies.defaultsManager.loadTwoDailyProfiles()
                 showLogin = false
             } else {
                 showLogin = true

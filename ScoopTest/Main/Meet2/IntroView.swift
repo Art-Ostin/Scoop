@@ -24,8 +24,6 @@ struct IntroView2: View {
                 Task { await vm.updateTwoDailyProfiles() }
                 showProfiles = true
                 vm.dep.defaultsManager.setDailyProfileTimer()
-                vm.dep.defaultsManager.setHasProfileUpdated(false)
-                print("updatedStatus to false")
             })
             }
             .padding(.horizontal, 32)

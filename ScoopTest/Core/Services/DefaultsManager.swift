@@ -22,21 +22,12 @@ final class DefaultsManager {
     private enum Keys: String {
         case dailyProfileTimerEnd
         case twoDailyProfiles
-        case profilesUpdated
     }
     
     init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
         self.defaults = defaults
         self.firestoreManager = firesoreManager
         self.cacheManager = cacheManager
-    }
-    
-    func setHasProfileUpdated(_ bool: Bool) {
-        defaults.set(bool, forKey: Keys.profilesUpdated.rawValue)
-    }
-    func getHasProfileUpdated() -> Bool {
-        let status = defaults.bool(forKey: Keys.profilesUpdated.rawValue)
-        return status
     }
     
     func setDailyProfileTimer(duration: TimeInterval = 60) {
@@ -63,37 +54,25 @@ final class DefaultsManager {
         defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
     }
     
-    func loadAndCheckProfiles() async throws -> [UserProfile]?  {
-        if getDailyProfileTimerEnd() != nil {
-            return try await loadTwoDailyProfiles()
-        } else if !getHasProfileUpdated() {
-            let profiles = try await firestoreManager.getRandomProfile()
-            setTwoDailyProfiles(profiles)
-            Task { await cacheManager.loadProfileImages(profiles)}
-            setHasProfileUpdated(true)
-            print("Updated Status to true in Load and Check")
-            return profiles
-        }
-        return nil
-    }
-    
-    
     // Takes the two Ids and saves to Cache upon Loading
-    func loadTwoDailyProfiles() async throws -> [UserProfile] {
-        let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
-        return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
-            for id in ids {
-                group.addTask { try await self.firestoreManager.getProfile(userId: id) }
-            }
-            var results: [UserProfile] = []
-            for try await profile in group {
-                results.append(profile)
-            }
-            Task {
-                await cacheManager.loadProfileImages(results)
-            }
-            print("Loaded daily Profiles")
-            return results
-        }
-    }
+//    func loadTwoDailyProfiles() async throws -> [UserProfile]? {
+//        if getDailyProfileTimerEnd() != nil {
+//            let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
+//            return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
+//                for id in ids {
+//                    group.addTask { try await self.firestoreManager.getProfile(userId: id) }
+//                }
+//                var results: [UserProfile] = []
+//                for try await profile in group {
+//                    results.append(profile)
+//                }
+//                Task { await cacheManager.loadProfileImages(results)}
+//                print("Loaded daily Profiles")
+//                return results
+//            }
+//        } else {
+//            print("Timer over, no profiles Loaded")
+//            return nil
+//        }
+//    }
 }

@@ -17,11 +17,8 @@ import SwiftUI
     
     init(dep: AppDependencies) {
         self.dep = dep
-        Task { await loadTwoDailyProfiles()
-            print("populated two daily Profiles") }
-    }
-    
-    
+        Task { await loadTwoDailyProfiles()}
+    }    
 
     func updateTwoDailyProfiles() async {
         let manager = dep.defaultsManager
@@ -41,10 +38,13 @@ import SwiftUI
                 for id in ids {
                     group.addTask { try? await self.dep.profileManager.getProfile(userId: id) }
                 }
+                Task { await dep.cacheManager.loadProfileImages(results)}
                 for await p in group { if let p { results.append(p) } }
             }
             shownDailyProfiles = results
-            print("added two Daily Profiles to cache")
+            print("populated two daily profiles into the Meet Up view ")
+        } else {
+            print("No daily profiles, so none added")
         }
     }
 }
