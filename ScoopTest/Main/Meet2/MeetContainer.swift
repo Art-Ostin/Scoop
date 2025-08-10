@@ -14,7 +14,6 @@ struct MeetContainer2: View {
     @State private var vm: MeetUpViewModel2
     
     @State var showProfiles: Bool
-    
     @State private var selectedProfile: UserProfile?
     
     
@@ -46,7 +45,7 @@ struct MeetContainer2: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(profile: profile, dep: dep, onDismiss: { selectedProfile = nil })
+                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut) { selectedProfile = nil } })
                         .transition(.move(edge: .bottom))
                         .ignoresSafeArea(.container, edges: .top)
                 }
@@ -54,8 +53,4 @@ struct MeetContainer2: View {
             }
         }.animation(.default, value: selectedProfile)
     }
-}
-
-#Preview {
-    //    MeetContainer2()
 }

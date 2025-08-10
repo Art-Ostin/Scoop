@@ -28,7 +28,7 @@ struct ProfileCard : View {
         ZStack {
             if let image = image {
                 firstImage(image: image)
-                    .onTapGesture { selectedProfile = profile }
+                    .onTapGesture { withAnimation(.easeInOut) { selectedProfile = profile} }
             }
         }
         .task {
