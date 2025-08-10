@@ -45,12 +45,12 @@ struct MeetContainer2: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut) { selectedProfile = nil } })
-                        .transition(.move(edge: .bottom))
-                        .ignoresSafeArea(.container, edges: .top)
+                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } })
                 }
+                .transition(.move(edge: .bottom))
                 .zIndex(1)
             }
-        }.animation(.default, value: selectedProfile)
+        }
+
     }
 }

@@ -24,22 +24,16 @@ import SwiftUI
 
 struct ProfileView: View {
         
-    
     @Environment(\.appDependencies) private var dep
     @Environment(\.dismiss) private var dismiss
     
     @State private var vm: ProfileViewModel
-    
-    var vm2: Binding<MeetUpViewModel>?
-    
     var showInviteButton: Bool
-    
     let onDismiss: () -> Void
 
     
-    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil, showInviteButton: Bool = true, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
+    init(profile: UserProfile, showInviteButton: Bool = true, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
         self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton, dep: dep))
-        self.vm2 = vm2
         self.showInviteButton = showInviteButton
         self.onDismiss = onDismiss
     }
