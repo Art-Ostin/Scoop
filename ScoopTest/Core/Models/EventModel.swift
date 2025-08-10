@@ -17,6 +17,12 @@ enum Status: Codable{
 }
 
 
+struct EventArray : Codable {
+    let events: [Event]
+    let total, skip, limit: Int
+}
+
+
 struct Event: Identifiable, Codable {
     var id = UUID().uuidString
     var profile1_id: String?

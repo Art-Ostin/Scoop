@@ -9,12 +9,12 @@ import SwiftUI
 
 struct InviteButton: View {
     
-    @Bindable var vm: ProfileViewModel
+    @Binding var vm: ProfileViewModel
     
     
     var body: some View {
         Button {
-            vm.invitePopup.toggle()
+            vm.showInvite.toggle()
         } label: {
             Image("LetterIconProfile")
                 .foregroundStyle(.white)

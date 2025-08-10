@@ -15,43 +15,20 @@ struct PromptResponse: Codable  {
 }
 
 struct UserProfile: Codable, Equatable {
-      
-    let userId: String
-    let email: String
+    
+    let userId, email: String
+    
     let dateCreated: Date?
-    let sex: String?
-    let attractedTo: String?
-    let year: String?
-    let height: String?
-    let interests: [String]?
-    let degree: String?
-    let hometown: String?
-    let name: String?
-    let nationality: [String]?
-    let lookingFor: String?
-    let prompt1: PromptResponse?
-    let prompt2: PromptResponse?
-    let prompt3: PromptResponse?
-    let drinking: String?
-    let smoking: String?
-    let marijuana: String?
-    let drugs: String?
-    let languages: String?
-    let favouriteMovie: String?
-    let favouriteSong: String?
-    let favouriteBook: String?
-    let character: [String]?
-    let imagePath: [String]?
-    let imagePathURL: [String]?
     
-    //Option 1 -- method of storing events
-    let userEvents: [Event]?
+    let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
+        smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook: String?
     
-    //Option 2 -- method of storing events
-    let successfulEvents: [Event]?
-    let potentialEvents: [Event]?
-    let declinedEvents: [Event]?
+    let interests, nationality, character, imagePath, imagePathURL: [String]?
     
+    let prompt1, prompt2, prompt3: PromptResponse?
+      
+    
+
     
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid

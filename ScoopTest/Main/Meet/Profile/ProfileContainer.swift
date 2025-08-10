@@ -6,13 +6,13 @@ import SwiftUI
 struct ProfileView: View {
         
     @Environment(\.dismiss) private var dismiss
-    @State var invitePopup: Bool = false
     @State private var vm: ProfileViewModel
     let onDismiss: () -> Void
+
     
     
     init(profile: UserProfile, showInviteButton: Bool = true, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton, dep: dep, profileType: .sendInvite))
+        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInvite: showInviteButton, dep: dep, profileType: .sendInvite))
         self.onDismiss = onDismiss
     }
     
@@ -37,19 +37,19 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if invitePopup  && (vm.showInviteButton == true), let user = vm.dep.userManager.user?.userId {
+                    if vm.showInvite,  let user = vm.dep.userManager.user?.userId {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                invitePopup = false
+                                vm.showInvite = false
                             }
                         SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
                     }
                 }
             }
-            .toolbar(invitePopup ? .hidden : .visible, for: .tabBar)
+            .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
         }
     }
 }

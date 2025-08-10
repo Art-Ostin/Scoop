@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PromptResponseView: View {
     
-    @Bindable var vm: ProfileViewModel
+    @Binding var vm: ProfileViewModel
     var prompt: PromptResponse
     
     var body: some View {
@@ -35,11 +35,9 @@ struct PromptResponseView: View {
             
         )
         .overlay(alignment: .bottomTrailing) {
-            if vm.invitePopup {
-                InviteButton(vm: vm)
+            InviteButton(vm: $vm)
                     .padding(.horizontal, 12)
                     .offset(y: 24)
-            }
         }
         .padding(.horizontal, 24)
     }

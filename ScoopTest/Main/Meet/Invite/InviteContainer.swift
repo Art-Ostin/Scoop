@@ -15,7 +15,6 @@ struct SendInviteView: View {
     
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
-    
     @FocusState var isFocused: Bool
     
     init(profile1: String, profile2: UserProfile, profileVM: Binding<ProfileViewModel>) {
@@ -24,7 +23,6 @@ struct SendInviteView: View {
     }
     
     var body: some View {
-                
         ZStack {
             PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.profile2?.name ?? "")") {
                 VStack(spacing: 30) {
@@ -34,8 +32,7 @@ struct SendInviteView: View {
                     Divider()
                     InvitePlaceRow
                     ActionButton(isValid: InviteIsValid, text: "Confirm & Send", onTap: {
-                        profileVM.invitePopup.toggle()
-                        profileVM.showInviteButton = false
+                        profileVM.showInvite.toggle()
                         vm.event.date_created = Date()
                         Task {
                             try? await  dep.eventManager.createEvent(event: vm.event)

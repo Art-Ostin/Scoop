@@ -89,6 +89,27 @@ class EventManager {
     
     func getInvitedEvents () async throws -> [Event] {
         let events = try await getUserEvents()
-        return events.filter {$0.status == .pending}
+        return events.filter {$0.status == .inviteSentPending}
     }
+    
+    //----------------
+    
+    
+    func getEvent(eventId: String) async throws -> Event {
+        try await eventCollection.document(eventId).getDocument(as: Event.self)
+    }
+    
+    
+    func getAllEvents() async throws -> [Event] {
+        try await eventCollection.getDocuments(as: Event.self)
+    }
+}
+
+extension Query {
+    
+    func getDocuments<T>(as: T.Type) async throws -> [T] where T: Decodable {
+        let snapshot = try await self.getDocuments()
+        return try snapshot.documents.map { try $0.data(as: T.self)}
+    }
+    
 }

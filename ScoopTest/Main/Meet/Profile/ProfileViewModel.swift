@@ -16,10 +16,13 @@ enum ProfileType {
     let dep: AppDependencies
     var profileType: ProfileType
     
+    var showInvite: Bool
     
-    init(profile: UserProfile, showInviteButton: Bool, dep: AppDependencies, profileType: ProfileType) {
+    
+    init(profile: UserProfile, showInvite: Bool, dep: AppDependencies, profileType: ProfileType) {
         self.p = profile
         self.dep = dep
         self.profileType = profileType
+        self.showInvite = showInvite
     }
 }
