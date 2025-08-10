@@ -37,7 +37,6 @@ struct IntroView2: View {
     }
 }
 
-
 extension IntroView2 {
     
     private var quoteSection: some View {

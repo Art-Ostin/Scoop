@@ -30,7 +30,7 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
-    func setDailyProfileTimer(duration: TimeInterval = 60) {
+    func setDailyProfileTimer(duration: TimeInterval = 120) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
@@ -53,26 +53,4 @@ final class DefaultsManager {
     func deleteTwoDailyProfiles() {
         defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
     }
-    
-    // Takes the two Ids and saves to Cache upon Loading
-//    func loadTwoDailyProfiles() async throws -> [UserProfile]? {
-//        if getDailyProfileTimerEnd() != nil {
-//            let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
-//            return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
-//                for id in ids {
-//                    group.addTask { try await self.firestoreManager.getProfile(userId: id) }
-//                }
-//                var results: [UserProfile] = []
-//                for try await profile in group {
-//                    results.append(profile)
-//                }
-//                Task { await cacheManager.loadProfileImages(results)}
-//                print("Loaded daily Profiles")
-//                return results
-//            }
-//        } else {
-//            print("Timer over, no profiles Loaded")
-//            return nil
-//        }
-//    }
 }

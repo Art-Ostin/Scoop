@@ -30,7 +30,6 @@ protocol ProfileManaging {
     func getRandomProfile() async throws -> [UserProfile]
 }
 
-
 protocol StorageManaging {
     func imagePath(_ imageId: String) -> StorageReference
     func getImageURL(path: String) async throws -> URL

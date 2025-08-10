@@ -34,3 +34,26 @@ struct CachedAsyncImage<Content: View>: View {
 //        uiImage = try? await dependencies.imageCache.fetchImage(for: url)
     }
 }
+
+
+// Takes the two Ids and saves to Cache upon Loading
+//    func loadTwoDailyProfiles() async throws -> [UserProfile]? {
+//        if getDailyProfileTimerEnd() != nil {
+//            let ids = defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
+//            return try await withThrowingTaskGroup(of: UserProfile.self, returning: [UserProfile].self) { group in
+//                for id in ids {
+//                    group.addTask { try await self.firestoreManager.getProfile(userId: id) }
+//                }
+//                var results: [UserProfile] = []
+//                for try await profile in group {
+//                    results.append(profile)
+//                }
+//                Task { await cacheManager.loadProfileImages(results)}
+//                print("Loaded daily Profiles")
+//                return results
+//            }
+//        } else {
+//            print("Timer over, no profiles Loaded")
+//            return nil
+//        }
+//    }

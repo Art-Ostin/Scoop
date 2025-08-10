@@ -39,7 +39,7 @@ struct EventView: View {
                             .frame(maxWidth: .infinity)
                         
                         if let date = event.event.time {
-                            LargeClockView(targetTime: date)
+                            LargeClockView(targetTime: date) {}
                         }
                         
                         Text(vm.formatDate(date: event.event.time))

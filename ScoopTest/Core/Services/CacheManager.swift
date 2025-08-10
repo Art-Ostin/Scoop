@@ -14,6 +14,7 @@ import SwiftUI
 @Observable class CacheManager: CacheManaging  {
     
     
+    
     private let cache: NSCache<NSURL, UIImage>
     
     init() {
@@ -46,6 +47,7 @@ import SwiftUI
         return image
     }
     
+    
     //Function saves images to the Cache
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
         let urls = profiles.flatMap { profile in
@@ -55,7 +57,12 @@ import SwiftUI
         await withTaskGroup(of: UIImage?.self) { group in
             for url in urls {
                 group.addTask {
-                    try? await self.fetchImage(for: url)
+                    do {
+                        return try await self.fetchImage(for: url)
+                    } catch {
+                        print("unable to add images to cache")
+                        return nil
+                    }
                 }
             }
             for await img in group {

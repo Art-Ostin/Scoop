@@ -17,18 +17,19 @@ import SwiftUI
     
     init(dep: AppDependencies) {
         self.dep = dep
-        Task { await loadTwoDailyProfiles()}
-    }    
+            Task { await loadTwoDailyProfiles()}
+    }
 
     func updateTwoDailyProfiles() async {
         let manager = dep.defaultsManager
         let profiles = try? await dep.profileManager.getRandomProfile()
         guard let newProfiles = profiles else { return }
+        Task {await dep.cacheManager.loadProfileImages(newProfiles)}
         shownDailyProfiles = newProfiles
         manager.setTwoDailyProfiles(newProfiles)
     }
     
-    //Gets two Daily Profiles from UserDefaults and saves them to cache upon Launch
+    //If the timer is still going load the two daily profiles. If not, remove the old two daily profiles
     func loadTwoDailyProfiles() async {
         let manager = dep.defaultsManager
         if manager.getDailyProfileTimerEnd() != nil {
@@ -38,13 +39,14 @@ import SwiftUI
                 for id in ids {
                     group.addTask { try? await self.dep.profileManager.getProfile(userId: id) }
                 }
-                Task { await dep.cacheManager.loadProfileImages(results)}
                 for await p in group { if let p { results.append(p) } }
             }
+            Task { await dep.cacheManager.loadProfileImages(results) }
             shownDailyProfiles = results
             print("populated two daily profiles into the Meet Up view ")
         } else {
-            print("No daily profiles, so none added")
+            manager.deleteTwoDailyProfiles()
+            print("deleted two daily profiles")
         }
     }
 }

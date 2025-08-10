@@ -20,17 +20,20 @@ struct DailyProfiles2: View {
         
         VStack(spacing: 36) {
             
-            ForEach(vm.shownDailyProfiles) {profile in
-                Text(profile.name ?? "")
+            TabView {
+                ForEach(vm.shownDailyProfiles) {profile in
+                    ProfileCard(profile: profile, dep: vm.dep)
+                }
             }
-
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            
             if let time {
-                SimpleClockView(targetTime: time, showProfile: $showProfile)
+                SimpleClockView(targetTime: time, showProfile: $showProfile) {
+                    vm.dep.defaultsManager.deleteTwoDailyProfiles()
+                    showProfile = false
+                    print("deleted old profiles")
+                }
             }
         }
     }
 }
-//
-//#Preview {
-//    DailyProfiles2()
-//}

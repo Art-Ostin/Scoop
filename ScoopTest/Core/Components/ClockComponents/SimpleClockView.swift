@@ -11,8 +11,10 @@ struct SimpleClockView: View {
     
     let targetTime: Date
     @Binding var showProfile: Bool
+    let onFinished: () -> Void
+    
     var body: some View {
-        CountdownTimer(targetTime: targetTime, onFinished: { showProfile = false}) { timeRemaining in
+        CountdownTimer(targetTime: targetTime, onFinished: { onFinished() }) { timeRemaining in
             let h = timeRemaining.hour ?? 0
             let m = timeRemaining.minute ?? 0
             let s = timeRemaining.second ?? 0

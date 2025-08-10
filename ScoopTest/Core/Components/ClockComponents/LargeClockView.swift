@@ -10,9 +10,10 @@ import SwiftUI
 struct LargeClockView: View {
     
     let targetTime: Date
+    let onFinished: () -> Void
     
     var body: some View {
-        CountdownTimer(targetTime: targetTime) { timeRemaining in
+        CountdownTimer(targetTime: targetTime, onFinished: {onFinished()}) { timeRemaining in
             HStack(spacing: 32) {
                 clockSection(time: timeRemaining.hour ?? 0, sign: "hr")
                 clockSection(time: timeRemaining.minute ?? 0, sign: "m")
