@@ -11,8 +11,8 @@ struct DailyProfiles2: View {
     
     @Binding var vm: MeetUpViewModel2
     @Binding var showProfile: Bool
+    @Binding var selectedProfile: UserProfile?
     
-    @State var selection: String? = nil
     
     var body: some View {
         
@@ -22,7 +22,7 @@ struct DailyProfiles2: View {
             
             TabView {
                 ForEach(vm.shownDailyProfiles) {profile in
-                    ProfileCard(profile: profile, dep: vm.dep)
+                    ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))

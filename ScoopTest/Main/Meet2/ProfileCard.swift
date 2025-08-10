@@ -15,6 +15,9 @@ struct ProfileCard : View {
     @State private var image: UIImage?
     @State private var showProfile: Bool = false
     
+    @Binding var selectedProfile: UserProfile?
+    
+    
     var firstURL: URL? {
         guard let s = profile.imagePathURL?.first else {return nil}
         return URL(string: s)
@@ -25,7 +28,7 @@ struct ProfileCard : View {
         ZStack {
             if let image = image {
                 firstImage(image: image)
-                    .onTapGesture { showProfile = true }
+                    .onTapGesture { selectedProfile = profile }
             }
         }
         .task {

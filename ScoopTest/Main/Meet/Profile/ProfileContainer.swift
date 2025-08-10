@@ -23,6 +23,7 @@ import Foundation
 import SwiftUI
 
 struct ProfileView: View {
+        
     
     @Environment(\.appDependencies) private var dep
     @Environment(\.dismiss) private var dismiss
@@ -33,10 +34,14 @@ struct ProfileView: View {
     
     var showInviteButton: Bool
     
-    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil, showInviteButton: Bool = true, dep: AppDependencies) {
+    let onDismiss: () -> Void
+
+    
+    init(profile: UserProfile, vm2: Binding<MeetUpViewModel>? = nil, showInviteButton: Bool = true, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
         self._vm = State(initialValue: ProfileViewModel(profile: profile, showInviteButton: showInviteButton, dep: dep))
         self.vm2 = vm2
         self.showInviteButton = showInviteButton
+        self.onDismiss = onDismiss
     }
     
     
@@ -91,11 +96,8 @@ extension ProfileView {
             Image(systemName: "chevron.down")
                 .font(.body(20, .bold))
                 .onTapGesture {
-                    if let vm2 {
-                        vm2.wrappedValue.state = .twoDailyProfiles
-                    } else {
-                        dismiss()
-                    }
+                    onDismiss()
+                    dismiss()
                 }
         }
     }

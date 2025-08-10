@@ -15,6 +15,9 @@ struct MeetContainer2: View {
     
     @State var showProfiles: Bool
     
+    @State private var selectedProfile: UserProfile?
+    
+    
     init(dep: AppDependencies) {
         self.dep = dep
         _vm = .init(initialValue: MeetUpViewModel2(dep: dep))
@@ -22,22 +25,37 @@ struct MeetContainer2: View {
     }
     
     var body: some View {
-        VStack(spacing: 32) {
-            Text("Meet")
-                .font(.body(32, .bold))
-            ZStack {
-                if showProfiles {
-                    DailyProfiles2(vm: $vm, showProfile: $showProfiles)
-                } else {
-                    IntroView2(vm: $vm, showProfiles: $showProfiles)
+        ZStack {
+            VStack(spacing: 32) {
+                Text("Meet")
+                    .font(.body(32, .bold))
+                ZStack {
+                    if showProfiles {
+                        DailyProfiles2(vm: $vm, showProfile: $showProfiles, selectedProfile: $selectedProfile)
+                    } else {
+                        IntroView2(vm: $vm, showProfiles: $showProfiles)
+                    }
                 }
             }
-        }
-        .padding(.top, 36)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(.top, 36)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            
+            if let profile = selectedProfile {
+                ZStack {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .ignoresSafeArea()
+                        .onTapGesture { }
+                    ProfileView(profile: profile, dep: dep, onDismiss: { selectedProfile = nil })
+                        .transition(.move(edge: .bottom))
+                        .ignoresSafeArea(.container, edges: .top)
+                }
+                .zIndex(1)
+            }
+        }.animation(.default, value: selectedProfile)
     }
 }
 
 #Preview {
-//    MeetContainer2()
+    //    MeetContainer2()
 }

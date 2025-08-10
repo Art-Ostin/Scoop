@@ -14,7 +14,7 @@ struct PromptResponse: Codable  {
     let response: String
 }
 
-struct UserProfile: Codable {
+struct UserProfile: Codable, Equatable {
       
     let userId: String
     let email: String
@@ -172,4 +172,9 @@ struct UserProfile: Codable {
 
 extension UserProfile: Identifiable {
     var id: String { userId }
+}
+extension UserProfile {
+    static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
+        lhs.userId == rhs.userId
+    }
 }
