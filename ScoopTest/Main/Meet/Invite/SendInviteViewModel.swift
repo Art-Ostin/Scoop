@@ -8,14 +8,17 @@
 import Foundation
 
 @Observable final class SendInviteViewModel {
-        
-    var event: Event
     
-    let profile2: UserProfile?
+    let recipient: UserProfile
+    let dep: AppDependencies
     
-    init(profile1: String, profile2: UserProfile) {
-        self.event = Event(profile1_id: profile1, profile2_id: profile2.userId)
-        self.profile2 = profile2
+    var event: Event {
+        event.recipientId = p.userId
+    }
+
+    init(recipient: UserProfile, dep: AppDependencies) {
+        self.recipient = recipient
+        self.dep = dep
     }
     
     var showTypePopup: Bool = false

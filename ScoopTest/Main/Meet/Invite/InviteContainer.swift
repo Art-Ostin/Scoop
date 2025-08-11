@@ -10,21 +10,20 @@ import MapKit
 
 
 struct SendInviteView: View {
-    
-    @Environment(\.appDependencies) private var dep
-    
+        
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     @FocusState var isFocused: Bool
     
-    init(profile1: String, profile2: UserProfile, profileVM: Binding<ProfileViewModel>) {
-        self._vm = State(initialValue: SendInviteViewModel(profile1: profile1, profile2: profile2))
+    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>) {
+        self._vm = State(initialValue: SendInviteViewModel(recipient: recipient, dep: dep))
         self._profileVM = profileVM
     }
     
+    
     var body: some View {
         ZStack {
-            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.profile2?.name ?? "")") {
+            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.recipient.name ?? "")") {
                 VStack(spacing: 30) {
                     InviteTypeRow
                     Divider()

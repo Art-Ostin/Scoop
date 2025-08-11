@@ -25,7 +25,7 @@ enum Status: String, Codable{
 
 struct Event: Identifiable, Codable {
     @DocumentID var id: String?
-    var initiatorId: String?
+    var initiatorId: String? 
     var recipientId: String?
     var type: String?
     var message: String?

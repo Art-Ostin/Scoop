@@ -27,6 +27,8 @@ class EventManager {
     }
     
     func createEvent(event: Event) async throws {
+        var event = event
+        event.initiatorId = try currentId()
         try eventDocument(id: event.id ?? "").setData(from: event)
     }
     
