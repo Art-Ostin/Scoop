@@ -21,13 +21,13 @@ class EventManager {
     }
     
     private let eventCollection = Firestore.firestore().collection("events")
-    
+        
     private func eventDocument(id: String) -> DocumentReference {
         eventCollection.document(id)
     }
     
     func createEvent(event: Event) async throws {
-        try eventDocument(id: event.id).setData(from: event)
+        try eventDocument(id: event.id ?? "").setData(from: event)
     }
     
     func fetchEvent(eventId: String) async throws -> Event {
@@ -41,7 +41,6 @@ class EventManager {
         try await eventDocument(id: eventId).updateData(data)
     }
     
-    
     func updateEvent(eventId: String, updateTo: Bool) async throws {
         let data: [String: Any] = [
             "accepted": updateTo
@@ -50,59 +49,66 @@ class EventManager {
     }
     
     
-    func getUserEvents ()  async throws  -> [Event] {
-        guard let currentUser = user.user else {return []}
-        let userId = currentUser.userId
-        let snapshot = try await eventCollection.getDocuments()
-        let events = snapshot.documents.compactMap { try? $0.data(as: Event.self) }
-        return events
-            .filter { $0.profile1_id == userId || $0.profile2_id == userId}
-    }
-    
-    func getCurrentEvents () async throws -> [Event] {
-        let events = try await getUserEvents()
-        let now = Date()
-        let currentEvents = events.filter {$0.time ?? Date() > now}
-        let userCurrentEvents = currentEvents.filter {$0.status == .accepted}
-        return userCurrentEvents
-    }
-    
-    func getEventMatch(event: Event) async throws -> UserProfile {
-        let userIds: [String] = [event.profile1_id, event.profile2_id].compactMap {$0}
-        let currentUserId = user.user?.userId ?? ""
-        guard let matchId = userIds.first(where: { $0 != currentUserId }) else {
-            throw URLError(.badURL)
-        }
-        return try await profile.getProfile(userId: matchId)
-    }
-    
-    func getFutureEvent () async throws -> [Event] {
-        let events = try await getUserEvents()
-        let now = Date()
-        return events.filter {$0.time ?? Date() > now}
-    }
-    
-    func getAcceptedEvents () async throws -> [Event] {
-        let events = try await getUserEvents()
-        return events.filter {$0.status == .accepted}
-    }
-    
-    func getInvitedEvents () async throws -> [Event] {
-        let events = try await getUserEvents()
-        return events.filter {$0.status == .inviteSentPending}
-    }
-    
     //----------------
     
+    private func currentId() throws -> String {
+        guard let uid = user.user?.userId else { throw URLError(.badURL)}
+        return uid
+    }
     
-    func getEvent(eventId: String) async throws -> Event {
-        try await eventCollection.document(eventId).getDocument(as: Event.self)
+    private func involvedFilter(for uid: String) -> Filter {
+        .orFilter([
+            .whereField(Event.CodingKeys.initiatorId.stringValue, isEqualTo: uid),
+            .whereField(Event.CodingKeys.recipientId.stringValue, isEqualTo: uid)
+        ])
+    }
+    
+    enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
+    
+    func eventsQuery (_ scope: EventScope, now: Date = .init()) throws -> Query {
+        let uid = try currentId()
+        let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
+        switch scope {
+        case .upcomingInvited:
+            return eventCollection
+                .whereField(Event.CodingKeys.recipientId.stringValue, isEqualTo: uid)
+                .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
+                .order(by: Event.CodingKeys.time.stringValue)
+        case .upcomingAccepted:
+            return eventCollection
+                .whereFilter(.andFilter([
+                    involvedFilter(for: uid),
+                    .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date:now)),
+                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.accepted.rawValue)
+                ]))
+                .order(by: Event.CodingKeys.time.stringValue)
+        case .pastAccepted:
+            return eventCollection
+                .whereFilter(.andFilter([
+                    involvedFilter(for: uid),
+                    .whereField(Event.CodingKeys.time.stringValue, isLessThan: Timestamp(date:plus3h)),
+                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.accepted.rawValue)
+                ]))
+                .order(by: Event.CodingKeys.time.stringValue)
+        }
+    }
+    
+    private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [Event] {
+        var q = try eventsQuery(scope, now: now)
+        return try await q.getDocuments(as: Event.self)
+    }
+    
+    func getUpcomingAcceptedEvents() async throws -> [Event] {
+        try await getEvents(.upcomingAccepted)
+    }
+    func getUpcomingInvitedEvents() async throws -> [Event] {
+        try await getEvents(.upcomingInvited)
+    }
+    func getPastAcceptedEvents(limit: Int? = nil) async throws -> [Event] {
+        try await getEvents(.pastAccepted)
     }
     
     
-    func getAllEvents() async throws -> [Event] {
-        try await eventCollection.getDocuments(as: Event.self)
-    }
 }
 
 extension Query {

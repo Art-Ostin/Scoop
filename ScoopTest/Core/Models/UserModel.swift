@@ -27,9 +27,6 @@ struct UserProfile: Codable, Equatable {
     
     let prompt1, prompt2, prompt3: PromptResponse?
       
-    
-
-    
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid
         self.email = auth.user.email ?? ""

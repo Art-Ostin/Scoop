@@ -6,15 +6,8 @@
 //
 import Foundation
 import MapKit
+import FirebaseFirestore
 
-
-enum Status: Codable{
-    case inviteSentPending
-    case inviteReceivedPending
-    case accepted
-    case declined
-    case cancelled
-}
 
 
 struct EventArray : Codable {
@@ -22,17 +15,36 @@ struct EventArray : Codable {
     let total, skip, limit: Int
 }
 
+enum Status: String, Codable{
+    case pending
+    case accepted
+    case declined
+    case cancelled
+}
+
 
 struct Event: Identifiable, Codable {
-    var id = UUID().uuidString
-    var profile1_id: String?
-    var profile2_id: String?
+    @DocumentID var id: String?
+    var initiatorId: String?
+    var recipientId: String?
     var type: String?
     var message: String?
-    var date_created: Date?
+    @ServerTimestamp var date_created: Date?
     var time: Date?
     var location: EventLocation?
-    var status: Status?
+    var status: Status = .pending 
+    
+    enum CodingKeys: CodingKey {
+        case id
+        case initiatorId
+        case recipientId
+        case type
+        case message
+        case date_created
+        case time
+        case location
+        case status
+    }
 }
 
 
