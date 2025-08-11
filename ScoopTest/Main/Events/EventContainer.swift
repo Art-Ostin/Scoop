@@ -26,7 +26,6 @@ struct EventContainer: View {
                 EventPlaceholder()
             }
         }
-        .task { await vm.loadEvents() }
     }
 }
 

@@ -28,7 +28,7 @@ class EventManager {
     
     func createEvent(event: Event) async throws {
         var event = event
-        event.initiatorId = try currentId()
+        event.initiatorId = currentId()
         try eventDocument(id: event.id ?? "").setData(from: event)
     }
     
@@ -50,14 +50,13 @@ class EventManager {
         try await eventDocument(id: eventId).updateData(data)
     }
     
-    func getEventMatch(event: Event) async throws -> UserProfile? {
+    func getEventMatch(event: Event) async throws -> UserProfile {
         let ids = [event.initiatorId ?? "", event.recipientId ?? ""]
-        
-        if let matchId = ids.filter ( { $0 != currentId() }).first {
-            return try await profile.getProfile(userId: matchId)
-        }
-        return nil 
+        let matchId = ids.filter ( { $0 != currentId() }).first ?? ""
+        return try await profile.getProfile(userId: matchId)
     }
+    
+    
     
     
     //----------------

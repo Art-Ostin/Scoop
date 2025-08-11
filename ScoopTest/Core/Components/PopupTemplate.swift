@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PopupTemplate<Content: View>: View {
     
-    var profileImage: CirclePhoto?
+    var profileImage: CirclePhoto
     var title: String
     @ViewBuilder let content: () -> Content
     

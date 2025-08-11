@@ -142,13 +142,18 @@ extension SendInviteView {
                 .onTapGesture { vm.showMapView.toggle() }
         }
     }
+
     private var InviteImage: CirclePhoto {
         var image: UIImage?
+        
+        let urlString = vm.recipient.imagePathURL?.first ?? ""
+        guard let url = URL(string: urlString) else {
+            return CirclePhoto(image: UIImage())
+        }
         Task {
-            if let profile = vm.profile2 {
-                image = await dep.cacheManager.loadProfileImages([profile]).first
-            }
+            image = try await vm.dep.cacheManager.fetchImage(for: url)
         }
         return CirclePhoto(image: image ?? UIImage())
     }
 }
+

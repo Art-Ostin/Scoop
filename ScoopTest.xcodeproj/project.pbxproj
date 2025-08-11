@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6501355E2E4A0FAE00630CF3 /* EventTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6501355D2E4A0FAD00630CF3 /* EventTest.swift */; };
 		650135602E4A0FC100630CF3 /* EventViewModelTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6501355F2E4A0FC100630CF3 /* EventViewModelTest.swift */; };
+		650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 650135682E4A41F400630CF3 /* AsyncAlgorithms */; };
 		65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 65058E8D2E1C4080009AD7FD /* FirebaseFirestore */; };
 		65058E902E1C40AA009AD7FD /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */; };
 		6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 6508A0B92DF209B600312AFD /* SwiftUIFlowLayout */; };
@@ -279,6 +280,7 @@
 				653BAF8C2E0B860800C1AB9E /* FirebaseAuth in Frameworks */,
 				65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */,
 				6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */,
+				650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -634,6 +636,7 @@
 				653BAF8B2E0B860800C1AB9E /* FirebaseAuth */,
 				653BAF8D2E0B860800C1AB9E /* FirebaseStorage */,
 				65058E8D2E1C4080009AD7FD /* FirebaseFirestore */,
+				650135682E4A41F400630CF3 /* AsyncAlgorithms */,
 			);
 			productName = ScoopTest;
 			productReference = 6578382C2DE773CC00770B49 /* ScoopTest.app */;
@@ -720,6 +723,7 @@
 			packageReferences = (
 				6508A0B82DF209B600312AFD /* XCRemoteSwiftPackageReference "swiftui-flow-layout" */,
 				653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				650135672E4A408D00630CF3 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6578382D2DE773CC00770B49 /* Products */;
@@ -1202,6 +1206,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		650135672E4A408D00630CF3 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 		6508A0B82DF209B600312AFD /* XCRemoteSwiftPackageReference "swiftui-flow-layout" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/globulus/swiftui-flow-layout";
@@ -1221,6 +1233,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		650135682E4A41F400630CF3 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 650135672E4A408D00630CF3 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
 		65058E8D2E1C4080009AD7FD /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
