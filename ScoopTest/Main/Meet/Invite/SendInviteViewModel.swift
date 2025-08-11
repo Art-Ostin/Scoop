@@ -13,7 +13,7 @@ import Foundation
     let dep: AppDependencies
     
     var event: Event {
-        event.recipientId = p.userId
+        event.recipientId = recipient.userId
     }
 
     init(recipient: UserProfile, dep: AppDependencies) {
