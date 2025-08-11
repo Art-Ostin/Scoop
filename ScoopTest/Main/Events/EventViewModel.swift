@@ -32,7 +32,9 @@ struct EventMatch: Identifiable {
     @MainActor
     func fetchUserEvents() async throws {
         
-        let events = try await dep.eventManager.getUpcomingAcceptedEvents()
+        guard let events = try await dep.eventManager.getUpcomingAcceptedEvents() else {
+            print("Issue")
+            return}
         
         let matches: [EventMatch] = await withThrowingTaskGroup(of: EventMatch?.self) { group in
             for event in events {
@@ -48,7 +50,6 @@ struct EventMatch: Identifiable {
             } catch {
                 print("Unable to add")
             }
-            
             return out
         }
         userEvents.append(contentsOf: matches)

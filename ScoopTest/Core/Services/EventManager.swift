@@ -57,10 +57,9 @@ class EventManager {
         let matchId = ids.filter ( { $0 != currentId() }).first ?? ""
         return try await profile.getProfile(userId: matchId)
     }
-    
-    
-    //----------------
-    
+
+    //--------------------
+
     private func currentId() -> String {
         guard let uid = user.user?.userId else { return ""}
         return uid
@@ -72,8 +71,8 @@ class EventManager {
             .whereField(Event.CodingKeys.recipientId.stringValue, isEqualTo: uid)
         ])
     }
-    enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
     
+    enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
     
     func eventsQuery (_ scope: EventScope, now: Date = .init()) throws -> Query {
         let uid = currentId()
@@ -102,14 +101,17 @@ class EventManager {
                 .order(by: Event.CodingKeys.time.stringValue)
         }
     }
-    
     private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [Event] {
         let q = try eventsQuery(scope, now: now)
         return try await q.getDocuments(as: Event.self)
     }
-    
-    func getUpcomingAcceptedEvents() async throws -> [Event] {
-        try await getEvents(.upcomingAccepted)
+    func getUpcomingAcceptedEvents() async throws -> [Event]? {
+        do {
+            return try await getEvents(.upcomingAccepted)
+        } catch  {
+            print("Error getting upcoming events")
+        }
+        return nil
     }
     func getUpcomingInvitedEvents() async throws -> [Event] {
         try await getEvents(.upcomingInvited)
@@ -117,14 +119,11 @@ class EventManager {
     func getPastAcceptedEvents(limit: Int? = nil) async throws -> [Event] {
         try await getEvents(.pastAccepted)
     }
-    
 }
 
 extension Query {
-    
     func getDocuments<T>(as: T.Type) async throws -> [T] where T: Decodable {
         let snapshot = try await self.getDocuments()
         return try snapshot.documents.map { try $0.data(as: T.self)}
     }
-    
 }

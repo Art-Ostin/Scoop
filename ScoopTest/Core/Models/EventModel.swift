@@ -47,7 +47,6 @@ struct Event: Identifiable, Codable {
     }
 }
 
-
 enum EventType: CaseIterable, Codable {
     case grabFood
     case grabADrink

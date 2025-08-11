@@ -8,9 +8,23 @@
 import SwiftUI
 
 struct FetchEvents: View {
+    
+    
+    var events: [Event] = []
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        VStack {
+            ForEach(events) {event in
+                HStack {
+                    Text(event.recipientId ?? "")
+                }
+                
+            }
+        }
     }
+    
+    
 }
 
 #Preview {
