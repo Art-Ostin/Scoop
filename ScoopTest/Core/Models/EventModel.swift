@@ -32,7 +32,7 @@ struct Event: Identifiable, Codable {
     @ServerTimestamp var date_created: Date?
     var time: Date?
     var location: EventLocation?
-    var status: Status = .pending 
+    var status: Status = .accepted
     
     enum CodingKeys: CodingKey {
         case id

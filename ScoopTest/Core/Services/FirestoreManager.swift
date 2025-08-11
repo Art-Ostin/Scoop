@@ -13,13 +13,13 @@ import SwiftUI
 @Observable final class FirestoreManager: ProfileManaging {
     
     var userManager: UserManager?
-
+    
     init(userManager: UserManager? = nil) {
         self.userManager = userManager
     }
     
     private let userCollection = Firestore.firestore().collection("users")
-
+    
     private func userDocument(userId: String) -> DocumentReference {
         userCollection.document(userId)
     }
@@ -38,10 +38,10 @@ import SwiftUI
     }
     
     func update(userId: String, values: [UserProfile.CodingKeys: Any]) async throws {
-            var data: [String: Any] = [:]
-            for (key, value) in values { data[key.rawValue] = value }
-            try await userDocument(userId: userId).updateData(data)
-        }
+        var data: [String: Any] = [:]
+        for (key, value) in values { data[key.rawValue] = value }
+        try await userDocument(userId: userId).updateData(data)
+    }
     
     func update(values: [UserProfile.CodingKeys: Any]) async throws {
         guard let id = userManager?.user?.userId else { throw URLError(.userAuthenticationRequired) }
@@ -65,10 +65,12 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
+    
+    //Need to update this, so that it is querying on the database, and only getting the right kind of user's. 
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()
         let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)
-    }
+        }
         return Array(profiles.shuffled().prefix(2))
-}
+    }
 }

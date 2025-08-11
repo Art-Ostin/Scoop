@@ -88,7 +88,7 @@ class EventManager {
                 .whereFilter(.andFilter([
                     involvedFilter(for: uid),
                     .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date:now)),
-                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.pending.rawValue)
+                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.accepted.rawValue)
                 ]))
                 .order(by: Event.CodingKeys.time.stringValue)
         case .pastAccepted:
@@ -105,14 +105,11 @@ class EventManager {
         let q = try eventsQuery(scope, now: now)
         return try await q.getDocuments(as: Event.self)
     }
+        
     func getUpcomingAcceptedEvents() async throws -> [Event]? {
-        do {
-            return try await getEvents(.upcomingAccepted)
-        } catch  {
-            print("Error getting upcoming events")
-        }
-        return nil
+        return try await getEvents(.upcomingAccepted)
     }
+    
     func getUpcomingInvitedEvents() async throws -> [Event] {
         try await getEvents(.upcomingInvited)
     }
