@@ -37,7 +37,7 @@ struct ProfileView: View {
                             ProfileDetailsView(vm: $vm)
                         }
                     }
-                    if vm.showInvite,  let user = vm.dep.userManager.user?.userId {
+                    if vm.showInvite {
                         Rectangle()
                             .fill(.thinMaterial)
                             .ignoresSafeArea()
@@ -45,7 +45,7 @@ struct ProfileView: View {
                             .onTapGesture {
                                 vm.showInvite = false
                             }
-                        SendInviteView(profile1: user, profile2: vm.p, profileVM: $vm)
+                        SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
                     }
                 }
             }
