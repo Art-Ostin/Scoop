@@ -106,7 +106,7 @@ class EventManager {
         return try await q.getDocuments(as: Event.self)
     }
         
-    func getUpcomingAcceptedEvents() async throws -> [Event]? {
+    func getUpcomingAcceptedEvents() async throws -> [Event] {
         return try await getEvents(.upcomingAccepted)
     }
     

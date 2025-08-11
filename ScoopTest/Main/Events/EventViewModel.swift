@@ -31,30 +31,19 @@ struct EventMatch: Identifiable {
     
     @MainActor
     func fetchUserEvents() async throws {
-        
-        guard let events = try await dep.eventManager.getUpcomingAcceptedEvents() else {
-            print("Issue")
-            return}
-        
-        let matches: [EventMatch] = await withThrowingTaskGroup(of: EventMatch?.self) { group in
+        print("function run")
+        let events = try await dep.eventManager.getUpcomingAcceptedEvents()
+        let matches: [EventMatch] = try await withThrowingTaskGroup(of: EventMatch.self) { group in
             for event in events {
                 group.addTask {
-                        let profile = try await self.dep.eventManager.getEventMatch(event: event)
-                        return EventMatch(event: event, profile: profile)
+                    let profile = try await self.dep.eventManager.getEventMatch(event: event)
+                    return EventMatch(event: event, profile: profile)
                 }
             }
-            var out: [EventMatch] = []
-            
-            do {
-                for try await m in group { if let m { out.append(m) } }
-            } catch {
-                print("Unable to add")
-            }
-            return out
+            return try await group.reduce(into: []) { $0.append($1) }
         }
-        userEvents.append(contentsOf: matches)
+        userEvents = matches
     }
-    
     
     func formatDate(date: Date?) -> String {
         guard let date = date else { return "" }
