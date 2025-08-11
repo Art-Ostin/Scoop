@@ -25,11 +25,15 @@ class EventManager {
     private func eventDocument(id: String) -> DocumentReference {
         eventCollection.document(id)
     }
-    
+
+    //Create Event with default Values
     func createEvent(event: Event) async throws {
-        var event = event
-        event.initiatorId = currentId()
-        try eventDocument(id: event.id ?? "").setData(from: event)
+        let doc = eventCollection.document()
+        var e = event
+        e.initiatorId = currentId()
+        e.id = doc.documentID
+        e.date_created = Date()
+        try doc.setData(from: e)
     }
     
     func fetchEvent(eventId: String) async throws -> Event {
@@ -43,10 +47,8 @@ class EventManager {
         try await eventDocument(id: eventId).updateData(data)
     }
     
-    func updateEvent(eventId: String, updateTo: Bool) async throws {
-        let data: [String: Any] = [
-            "accepted": updateTo
-        ]
+    func updateStatus(eventId: String, updateTo: Status) async throws {
+        let data: [String: Any] = [Event.CodingKeys.status.stringValue : updateTo.rawValue]
         try await eventDocument(id: eventId).updateData(data)
     }
     
@@ -55,8 +57,6 @@ class EventManager {
         let matchId = ids.filter ( { $0 != currentId() }).first ?? ""
         return try await profile.getProfile(userId: matchId)
     }
-    
-    
     
     
     //----------------
@@ -72,8 +72,8 @@ class EventManager {
             .whereField(Event.CodingKeys.recipientId.stringValue, isEqualTo: uid)
         ])
     }
-    
     enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
+    
     
     func eventsQuery (_ scope: EventScope, now: Date = .init()) throws -> Query {
         let uid = currentId()
@@ -89,7 +89,7 @@ class EventManager {
                 .whereFilter(.andFilter([
                     involvedFilter(for: uid),
                     .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date:now)),
-                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.accepted.rawValue)
+                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.pending.rawValue)
                 ]))
                 .order(by: Event.CodingKeys.time.stringValue)
         case .pastAccepted:
@@ -104,7 +104,7 @@ class EventManager {
     }
     
     private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [Event] {
-        var q = try eventsQuery(scope, now: now)
+        let q = try eventsQuery(scope, now: now)
         return try await q.getDocuments(as: Event.self)
     }
     
@@ -117,7 +117,6 @@ class EventManager {
     func getPastAcceptedEvents(limit: Int? = nil) async throws -> [Event] {
         try await getEvents(.pastAccepted)
     }
-    
     
 }
 

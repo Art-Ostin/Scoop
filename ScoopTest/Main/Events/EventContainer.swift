@@ -16,7 +16,6 @@ struct EventContainer: View {
         _vm = State(initialValue: EventViewModel(dependencies: dependencies))
     }
     
-    
     var body: some View {
         
         ZStack {

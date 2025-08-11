@@ -31,8 +31,10 @@ struct EventMatch: Identifiable {
     
     
     func fetchUserEvents() async throws {
-        let events = try await dep.eventManager.getUpcomingAcceptedEvents()
         
+        print("fetched Events called")
+        let events = try await dep.eventManager.getUpcomingAcceptedEvents()
+
         let matches: [EventMatch] = try await withThrowingTaskGroup(of: EventMatch.self) { group in
             for event in events {
                 guard !userEvents.contains(where: { $0.id == event.id }) else {return []}
@@ -42,11 +44,12 @@ struct EventMatch: Identifiable {
                 }
             }
             var out: [EventMatch] = []
-            for try await m in group { out.append(m) }
+            for try await m in group { out.append(m)  }
             return out
         }
         userEvents = matches
     }
+    
     
     func formatDate(date: Date?) -> String {
         guard let date = date else { return "" }

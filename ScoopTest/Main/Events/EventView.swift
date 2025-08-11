@@ -60,7 +60,7 @@ struct EventView: View {
             
             .fullScreenCover(isPresented: $showProfile, content: {
                 if let newUser = vm.currentUser {
-                    ProfileView(profile: newUser, dep: vm.dependencies)
+                    ProfileView(profile: newUser, dep: vm.dep)
                 }
             })
             .sheet(isPresented: $showEventDetails) {

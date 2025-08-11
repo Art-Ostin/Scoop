@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 650135682E4A41F400630CF3 /* AsyncAlgorithms */; };
+		650135742E4A603E00630CF3 /* FetchEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650135732E4A603E00630CF3 /* FetchEvents.swift */; };
+		650135762E4A604700630CF3 /* FetchEventsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650135752E4A604700630CF3 /* FetchEventsViewModel.swift */; };
 		65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 65058E8D2E1C4080009AD7FD /* FirebaseFirestore */; };
 		65058E902E1C40AA009AD7FD /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */; };
 		6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 6508A0B92DF209B600312AFD /* SwiftUIFlowLayout */; };
@@ -140,6 +142,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		650135732E4A603E00630CF3 /* FetchEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchEvents.swift; sourceTree = "<group>"; };
+		650135752E4A604700630CF3 /* FetchEventsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchEventsViewModel.swift; sourceTree = "<group>"; };
 		65058E8F2E1C40AA009AD7FD /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
 		6509DDC22E36F6EE0042917B /* EditSingleChoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSingleChoice.swift; sourceTree = "<group>"; };
 		6509DDC62E37A1CC0042917B /* EditTextfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextfield.swift; sourceTree = "<group>"; };
@@ -297,6 +301,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		650135722E4A603500630CF3 /* EventTest */ = {
+			isa = PBXGroup;
+			children = (
+				650135752E4A604700630CF3 /* FetchEventsViewModel.swift */,
+				650135732E4A603E00630CF3 /* FetchEvents.swift */,
+			);
+			path = EventTest;
+			sourceTree = "<group>";
+		};
 		65058E872E1C2935009AD7FD /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -405,6 +418,7 @@
 				65FAF9892E414D1B0015E231 /* EventView.swift */,
 				65FAF9852E413B100015E231 /* EventPlaceholder.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
+				650135722E4A603500630CF3 /* EventTest */,
 				65FAF97B2E4112780015E231 /* Invite Folder */,
 			);
 			path = Events;
@@ -815,6 +829,7 @@
 				65BFE7DD2E400D3C00B31A58 /* EventManager.swift in Sources */,
 				65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */,
 				654982DE2E315B1B00CA335F /* EditPhotoCell.swift in Sources */,
+				650135742E4A603E00630CF3 /* FetchEvents.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
@@ -838,6 +853,7 @@
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
 				654982B22E2D748B00CA335F /* LoginContainer.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserManager.swift in Sources */,
+				650135762E4A604700630CF3 /* FetchEventsViewModel.swift in Sources */,
 				653BAFAD2E0C95AE00C1AB9E /* ProfileImageScroller.swift in Sources */,
 				65BFE7E12E40D0B500B31A58 /* LocationModel.swift in Sources */,
 				65F450CB2E463E7900AE3503 /* DailyProfiles.swift in Sources */,
