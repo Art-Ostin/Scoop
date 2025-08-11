@@ -32,9 +32,9 @@ struct EventView: View {
             }
             
             TabView(selection: $selection) {
-                ForEach(vm.events, id: \.id) {event in
+                ForEach(vm.userEvents, id: \.id) {event in
                     VStack(spacing: 36) {
-                        Text(event.user.name ?? "")
+                        Text(event.profile.name ?? "")
                             .font(.title)
                             .frame(maxWidth: .infinity)
                         
@@ -53,10 +53,11 @@ struct EventView: View {
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .onAppear { selection = vm.currentEvent?.id }
             .onChange(of: selection) { _, newId in
-                guard let id = newId, let pair = vm.events.first(where: { $0.id == id }) else { return }
+                guard let id = newId, let pair = vm.userEvents.first(where: { $0.id == id }) else { return }
                 vm.currentEvent = pair.event
-                vm.currentUser  = pair.user
+                vm.currentUser  = pair.profile
             }
+            
             .fullScreenCover(isPresented: $showProfile, content: {
                 if let newUser = vm.currentUser {
                     ProfileView(profile: newUser, dep: vm.dependencies)
