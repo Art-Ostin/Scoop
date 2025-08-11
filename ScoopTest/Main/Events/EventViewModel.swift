@@ -31,8 +31,15 @@ struct EventMatch: Identifiable {
     var currentUser: UserProfile?
     
     
+    
+    
     @MainActor
     func loadEvents() async {
+    
+        
+        
+        
+        
         Task {
             do {
                 let userEvents = try await dependencies.eventManager.getUserEvents()

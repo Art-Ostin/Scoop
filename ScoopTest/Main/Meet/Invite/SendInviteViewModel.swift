@@ -12,13 +12,12 @@ import Foundation
     let recipient: UserProfile
     let dep: AppDependencies
     
-    var event: Event {
-        event.recipientId = recipient.userId
-    }
+    var event: Event
 
     init(recipient: UserProfile, dep: AppDependencies) {
         self.recipient = recipient
         self.dep = dep
+        self.event = Event(recipientId: recipient.id)
     }
     
     var showTypePopup: Bool = false

@@ -50,11 +50,20 @@ class EventManager {
         try await eventDocument(id: eventId).updateData(data)
     }
     
+    func getEventMatch(event: Event) async throws -> UserProfile? {
+        let ids = [event.initiatorId ?? "", event.recipientId ?? ""]
+        
+        if let matchId = ids.filter ( { $0 != currentId() }).first {
+            return try await profile.getProfile(userId: matchId)
+        }
+        return nil 
+    }
+    
     
     //----------------
     
-    private func currentId() throws -> String {
-        guard let uid = user.user?.userId else { throw URLError(.badURL)}
+    private func currentId() -> String {
+        guard let uid = user.user?.userId else { return ""}
         return uid
     }
     
@@ -68,7 +77,7 @@ class EventManager {
     enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
     
     func eventsQuery (_ scope: EventScope, now: Date = .init()) throws -> Query {
-        let uid = try currentId()
+        let uid = currentId()
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
         case .upcomingInvited:

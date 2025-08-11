@@ -34,7 +34,7 @@ struct SendInviteView: View {
                         profileVM.showInvite.toggle()
                         vm.event.date_created = Date()
                         Task {
-                            try? await  dep.eventManager.createEvent(event: vm.event)
+                            try? await  vm.dep.eventManager.createEvent(event: vm.event)
                         }
                     })
                 }
