@@ -14,14 +14,9 @@ import Foundation
     
     
     var events: [Event] = []
-    
-    
-    
-    
+        
     func fetchEvents() {
-        
-        
-        
+                
         
     }
     

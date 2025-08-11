@@ -21,7 +21,6 @@ struct EventMatch: Identifiable {
     
     init(dependencies: AppDependencies) {
         self.dep = dependencies
-        Task { try? await fetchUserEvents() }
     }
     var userEvents: [EventMatch] = []
     
@@ -30,24 +29,29 @@ struct EventMatch: Identifiable {
     var currentUser: UserProfile?
     
     
+    @MainActor
     func fetchUserEvents() async throws {
         
-        print("fetched Events called")
         let events = try await dep.eventManager.getUpcomingAcceptedEvents()
-
-        let matches: [EventMatch] = try await withThrowingTaskGroup(of: EventMatch.self) { group in
+        
+        let matches: [EventMatch] = await withThrowingTaskGroup(of: EventMatch?.self) { group in
             for event in events {
-                guard !userEvents.contains(where: { $0.id == event.id }) else {return []}
                 group.addTask {
-                    let profile = try await self.dep.eventManager.getEventMatch(event: event)
-                    return EventMatch(event: event, profile: profile)
+                        let profile = try await self.dep.eventManager.getEventMatch(event: event)
+                        return EventMatch(event: event, profile: profile)
                 }
             }
             var out: [EventMatch] = []
-            for try await m in group { out.append(m)  }
+            
+            do {
+                for try await m in group { if let m { out.append(m) } }
+            } catch {
+                print("Unable to add")
+            }
+            
             return out
         }
-        userEvents = matches
+        userEvents.append(contentsOf: matches)
     }
     
     
@@ -62,6 +66,7 @@ struct EventMatch: Identifiable {
         return "\(day), \(time)"
     }
 }
+
 
 
 /*

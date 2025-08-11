@@ -25,6 +25,14 @@ struct EventContainer: View {
                 EventPlaceholder()
             }
         }
+        .task {
+            do {
+                try await vm.fetchUserEvents()
+                print("fetched")
+            } catch {
+                print("Error")
+            }
+        }
     }
 }
 
