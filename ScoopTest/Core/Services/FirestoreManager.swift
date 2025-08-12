@@ -76,8 +76,6 @@ import SwiftUI
     
     func addUserEvent(userId: String, matchId: String, event: Event, matchImageString: String, role: EdgeRole)  async throws {
         guard let eventId = event.id else { return }
-        
-        
         var data: [String: Any] = [
             UserEvent.CodingKeys.id.rawValue: eventId,
             UserEvent.CodingKeys.otherUserId.rawValue: matchId,
@@ -89,25 +87,8 @@ import SwiftUI
             UserEvent.CodingKeys.otherUserPhoto.rawValue: matchImageString,
             UserEvent.CodingKeys.updatedAt.rawValue: Date()
         ]
-        
-        if let place = event.location {
-            data[UserEvent.CodingKeys.place.rawValue] = place
-        }
-        
-        enum CodingKeys: String, CodingKey {
-            case id = "id"
-            case otherUserId = "other_user_id"
-            case role = "role"
-            case status = "status"
-            case time = "time"
-            case type = "type"
-            case message = "message"
-            case place = "place"
-            case otherUserName = "other_user_name"
-            case otherUserPhoto = "other_user_photo"
-            case updatedAt = "updated_at"
-        }
-                
+        let location = try Firestore.Encoder().encode(event.location)
+        data[UserEvent.CodingKeys.place.rawValue] = location
         try await userEventCollection(userId: userId).document(eventId).setData(data)
     }
     
