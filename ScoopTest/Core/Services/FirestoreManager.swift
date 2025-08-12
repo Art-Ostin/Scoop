@@ -20,6 +20,15 @@ import SwiftUI
     
     private let userCollection = Firestore.firestore().collection("users")
     
+    
+    private func userEventCollection (userId: String) -> CollectionReference {
+        userCollection.document(userId).collection("user_events")
+    }
+    
+    private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
+        userEventCollection(userId: userId).document(userEventId)
+    }
+    
     private func userDocument(userId: String) -> DocumentReference {
         userCollection.document(userId)
     }
@@ -65,8 +74,23 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
+    func addUserEvent(userId: String, eventId: String) async throws {
+        let document = userEventCollection(userId: userId).document()
+        let documentId = document.documentID
+        let data: [String: Any] = [
+            "event_id": eventId,
+            "document_id" : documentId,
+            "date_created": Date()
+        ]
+        try await document.setData(data)
+    }
     
-    //Need to update this, so that it is querying on the database, and only getting the right kind of user's. 
+    func removeUserEvent(userId: String, userEventId: String) async throws {
+        try await userEventDocument(userId: userId, userEventId: userEventId).delete() 
+    }
+    
+
+    //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()
         let profiles = try snapshot.documents.compactMap { try $0.data(as: UserProfile.self)

@@ -27,6 +27,7 @@ protocol ProfileManaging {
     func update(values: [UserProfile.CodingKeys: Any]) async throws
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws
     func updatePrompt(promptIndex: Int, prompt: PromptResponse) async throws
+    func addUserEvent(userId: String, eventId: String) async throws
     func getRandomProfile() async throws -> [UserProfile]
 }
 

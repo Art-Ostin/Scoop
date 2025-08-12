@@ -33,8 +33,23 @@ class EventManager {
         e.initiatorId = currentId()
         e.id = doc.documentID
         e.date_created = Date()
+        
         try doc.setData(from: e)
+        
+        let recipientId = event.recipientId ?? ""
+        let initiatorId = event.initiatorId ?? ""
+        
+        Task {
+            guard let eventId = e.id else { return }
+            try? await profile.addUserEvent(userId: recipientId, eventId: eventId)
+            try? await profile.addUserEvent(userId: initiatorId, eventId: eventId)
+            print("add user Event ")
+        }
     }
+    
+    
+    
+    
     
     func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
@@ -74,7 +89,7 @@ class EventManager {
     
     enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
     
-    func eventsQuery (_ scope: EventScope, now: Date = .init()) throws -> Query {
+    func eventsQuery (_ scope: EventScope, now: Date = .init()) -> Query {
         let uid = currentId()
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
@@ -101,13 +116,15 @@ class EventManager {
                 .order(by: Event.CodingKeys.time.stringValue)
         }
     }
+    
     private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [Event] {
-        let q = try eventsQuery(scope, now: now)
-        return try await q.getDocuments(as: Event.self)
+        let query = eventsQuery(scope, now: now)
+        return try await query
+            .getDocuments(as: Event.self)
     }
         
     func getUpcomingAcceptedEvents() async throws -> [Event] {
-        return try await getEvents(.upcomingAccepted)
+        try await getEvents(.upcomingAccepted)
     }
     
     func getUpcomingInvitedEvents() async throws -> [Event] {

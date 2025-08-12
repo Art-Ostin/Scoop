@@ -29,21 +29,13 @@ struct EventMatch: Identifiable {
     var currentUser: UserProfile?
     
     
-    @MainActor
+    
     func fetchUserEvents() async throws {
-        print("function run")
-        let events = try await dep.eventManager.getUpcomingAcceptedEvents()
-        let matches: [EventMatch] = try await withThrowingTaskGroup(of: EventMatch.self) { group in
-            for event in events {
-                group.addTask {
-                    let profile = try await self.dep.eventManager.getEventMatch(event: event)
-                    return EventMatch(event: event, profile: profile)
-                }
-            }
-            return try await group.reduce(into: []) { $0.append($1) }
-        }
-        userEvents = matches
+        
     }
+    
+    
+    
     
     func formatDate(date: Date?) -> String {
         guard let date = date else { return "" }
@@ -93,6 +85,23 @@ struct EventMatch: Identifiable {
      let eventMatch: EventMatch = EventMatch(event: event, profile: profile)
      userEvents.append(eventMatch)
  }
+ */
 
- 
+
+/*
+ @MainActor
+ func fetchUserEvents() async throws {
+     print("function run")
+     let events = try await dep.eventManager.getUpcomingAcceptedEvents()
+     let matches: [EventMatch] = try await withThrowingTaskGroup(of: EventMatch.self) { group in
+         for event in events {
+             group.addTask {
+                 let profile = try await self.dep.eventManager.getEventMatch(event: event)
+                 return EventMatch(event: event, profile: profile)
+             }
+         }
+         return try await group.reduce(into: []) { $0.append($1) }
+     }
+     userEvents = matches
+ }
  */

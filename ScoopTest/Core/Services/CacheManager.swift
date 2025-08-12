@@ -27,7 +27,7 @@ import SwiftUI
     private func fetchImageFromCache(for url: URL) -> UIImage? {
         cache.object(forKey: url as NSURL)
     }
-    
+
     func removeImage(for url: URL) {
         cache.removeObject(forKey: url as NSURL)
     }
