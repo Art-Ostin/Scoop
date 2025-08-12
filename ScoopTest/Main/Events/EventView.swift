@@ -32,11 +32,7 @@ struct EventView: View {
             TabView(selection: $selection) {
                 ForEach(vm.userEvents) { event in
                     VStack(spacing: 36) {
-                        if let type = event.type {
-                            Text(type)
-                        }
-                        
-                        
+                        Text(event.type ?? "No Type")
                         
                         if let time = event.time {
                             LargeClockView(targetTime: time) {}
@@ -48,9 +44,6 @@ struct EventView: View {
                     .tag(event.id)
                     .frame(maxHeight: .infinity)
                 }
-            }
-            .task {
-                try? await vm.fetchUserEvents()
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
