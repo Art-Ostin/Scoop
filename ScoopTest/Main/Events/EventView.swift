@@ -36,6 +36,8 @@ struct EventView: View {
                             Text(type)
                         }
                         
+                        
+                        
                         if let time = event.time {
                             LargeClockView(targetTime: time) {}
                         }
@@ -49,9 +51,7 @@ struct EventView: View {
             }
             .task {
                 try? await vm.fetchUserEvents()
-                print("fetched User events")
             }
-            
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .onAppear { selection = vm.currentEvent?.id }

@@ -25,8 +25,12 @@ import AsyncAlgorithms
 
     
     func fetchUserEvents() async throws {
+        guard let userId = dep.userManager.user?.userId else {
+            print("No id")
+            return }
+        
         Task {
-            try await dep.profileManager.getAllUserEvents(userId: dep.userManager.user?.id ?? "")
+            userEvents = try await dep.profileManager.getAllUserEvents(userId: userId)
         }
     }
     
