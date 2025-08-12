@@ -12,7 +12,7 @@ import AsyncAlgorithms
 struct EventMatch: Identifiable {
     let event: UserEvent
     let profile: UserProfile
-    var id: String {event.id}
+    var id: String {event.id ?? ""}
 }
 
 @Observable class EventViewModel {

@@ -6,14 +6,14 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 
 enum EdgeRole: String, Codable { case sent, received }
 
 
 struct UserEvent: Identifiable, Codable {
-    
-    let id: String
+    @DocumentID var id: String?
     let otherUserId: String
     
     let role: EdgeRole
