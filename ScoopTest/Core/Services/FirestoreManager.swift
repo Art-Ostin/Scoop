@@ -74,22 +74,73 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
-    func addUserEvent(userId: String, eventId: String) async throws {
-        let document = userEventCollection(userId: userId).document()
-        let documentId = document.documentID
-        let data: [String: Any] = [
-            "event_id": eventId,
-            "document_id" : documentId,
-            "date_created": Date()
+    
+    func addUserEvent(userId: String, event: Event) async throws {
+        
+        let ids: [String] = [(event.initiatorId ?? ""), (event.recipientId ?? "") ]
+        let otherUserId = ids.filter { $0 != userId }.first ?? ""
+        
+        let role: EdgeRole
+        
+        if event.initiatorId == userId {
+            role = .sent
+        } else if event.recipientId == userId {
+            role = .received
+        }
+        let status: EventStatus = .pending
+        
+        
+        
+
+        let otherUserPhotoUrl
+        
+        
+        
+        
+        
+        
+        
+        
+        let data: [String: Any] =  [
+            UserEvents.CodingKeys.eventId.rawValue : event.id ?? "",
+            UserEvents.CodingKeys.otherUserId.rawValue : otherUserId,
+            UserEvents.CodingKeys.role.rawValue : role,
+            UserEvents.CodingKeys.status.rawValue : event.status,
+            UserEvents.CodingKeys.eventTime.rawValue : event.time ?? Date(),
+            UserEvents.CodingKeys.eventType.rawValue : event.type ?? "",
+            UserEvents.CodingKeys.eventType.rawValue : event.message,
+            UserEvents.CodingKeys.otherUserPhoto.rawValue :
+            
+            
+            
         ]
-        try await document.setData(data)
+        
+        
+        enum CodingKeys: String, CodingKey {
+            case eventId = "event_id"
+            case otherUserId = "other_user_id"
+            case role = "role"
+            case status = "status"
+            case eventTime = "event_time"
+            case eventType = "event_type"
+            case eventMessage = "event_message"
+            case eventPlace = "event_place"
+            case otherUserPhoto = "other_user_photo"
+            case updatedAt = "updated_at"
+        }
+
+        
+        try await userEventCollection(userId: userId).document(event.id)
     }
     
     func removeUserEvent(userId: String, userEventId: String) async throws {
-        try await userEventDocument(userId: userId, userEventId: userEventId).delete() 
+        try await userEventDocument(userId: userId, userEventId: userEventId).delete()
     }
+    //
+    //    func getAllUserEvets(userId: String) async throws -> [Event] {
+    //        try await userEventCollection(userId: userId).getDocuments(as: )
+    //    }
     
-
     //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()
@@ -98,3 +149,7 @@ import SwiftUI
         return Array(profiles.shuffled().prefix(2))
     }
 }
+
+
+
+

@@ -15,13 +15,12 @@ struct EventArray : Codable {
     let total, skip, limit: Int
 }
 
-enum Status: String, Codable{
+enum EventStatus: String, Codable{
     case pending
     case accepted
     case declined
     case cancelled
 }
-
 
 struct Event: Identifiable, Codable {
     @DocumentID var id: String?
@@ -32,7 +31,7 @@ struct Event: Identifiable, Codable {
     @ServerTimestamp var date_created: Date?
     var time: Date?
     var location: EventLocation?
-    var status: Status = .accepted
+    var status: EventStatus = .accepted
     
     enum CodingKeys: CodingKey {
         case id
@@ -56,7 +55,6 @@ enum EventType: CaseIterable, Codable {
     case writeAMessage
 }
 
-
 extension EventType {
     var description: (emoji: String?, label: String) {
         switch self {
@@ -75,4 +73,3 @@ extension EventType {
         }
     }
 }
-

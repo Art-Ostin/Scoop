@@ -26,27 +26,25 @@ class EventManager {
         eventCollection.document(id)
     }
 
-    //Create Event with default Values
     func createEvent(event: Event) async throws {
+        
+        //Create the event with some default Values
         let doc = eventCollection.document()
         var e = event
         e.initiatorId = currentId()
         e.id = doc.documentID
         e.date_created = Date()
-        
         try doc.setData(from: e)
         
+        //Add the event to each User's Profile
         let recipientId = event.recipientId ?? ""
-        let initiatorId = event.initiatorId ?? ""
-        
         Task {
             guard let eventId = e.id else { return }
             try? await profile.addUserEvent(userId: recipientId, eventId: eventId)
-            try? await profile.addUserEvent(userId: initiatorId, eventId: eventId)
-            print("add user Event ")
+            try? await profile.addUserEvent(userId: currentId(), eventId: eventId)
+            print("add user Event")
         }
     }
-    
     
     
     
@@ -62,7 +60,7 @@ class EventManager {
         try await eventDocument(id: eventId).updateData(data)
     }
     
-    func updateStatus(eventId: String, updateTo: Status) async throws {
+    func updateStatus(eventId: String, updateTo: EventStatus) async throws {
         let data: [String: Any] = [Event.CodingKeys.status.stringValue : updateTo.rawValue]
         try await eventDocument(id: eventId).updateData(data)
     }
@@ -103,7 +101,7 @@ class EventManager {
                 .whereFilter(.andFilter([
                     involvedFilter(for: uid),
                     .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date:now)),
-                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.accepted.rawValue)
+                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
                 ]))
                 .order(by: Event.CodingKeys.time.stringValue)
         case .pastAccepted:
@@ -111,7 +109,7 @@ class EventManager {
                 .whereFilter(.andFilter([
                     involvedFilter(for: uid),
                     .whereField(Event.CodingKeys.time.stringValue, isLessThan: Timestamp(date:plus3h)),
-                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: Status.accepted.rawValue)
+                    .whereField(Event.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
                 ]))
                 .order(by: Event.CodingKeys.time.stringValue)
         }

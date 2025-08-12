@@ -32,7 +32,7 @@ struct EventMatch: Identifiable {
     
     func fetchUserEvents() async throws {
         
-    }
+    } 
     
     
     
