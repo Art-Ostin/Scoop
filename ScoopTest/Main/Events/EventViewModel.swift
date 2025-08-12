@@ -22,13 +22,18 @@ import AsyncAlgorithms
     var hasEvents: Bool { !userEvents.isEmpty }
     var currentEvent: Event?
     var currentUser: UserProfile?
-        
+
     
     func fetchUserEvents() async throws {
         Task {
-            userEvents = try await dep.profileManager.getAllUserEvents(userId: dep.userManager.user?.id ?? "")
+            do {
+                try await dep.profileManager.getAllUserEvents(userId: dep.userManager.user?.id ?? "")
+            } catch {
+                print(error)
+            }
         }
     }
+    
     
     
     func formatDate(date: Date?) -> String {
