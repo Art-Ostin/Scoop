@@ -30,6 +30,7 @@ import AsyncAlgorithms
         }
     }
     
+    
     func formatDate(date: Date?) -> String {
         guard let date = date else { return "" }
         let day = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))

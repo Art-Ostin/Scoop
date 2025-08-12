@@ -34,7 +34,6 @@ struct Event: Identifiable, Codable {
     var location: EventLocation?
     var status: EventStatus = .accepted
     
-    
     enum CodingKeys: CodingKey {
         case id
         case initiatorId

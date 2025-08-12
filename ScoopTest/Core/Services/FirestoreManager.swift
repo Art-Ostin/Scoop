@@ -76,20 +76,39 @@ import SwiftUI
     
     func addUserEvent(userId: String, matchId: String, event: Event, matchImageString: String, role: EdgeRole)  async throws {
         guard let eventId = event.id else { return }
-        let userEvent = UserEvent(
-            id: eventId,
-            other_user_id: matchId,
-            role: role,
-            status: event.status,
-            event_time: event.time ?? Date(),
-            event_type: event.type ?? "",
-            event_message: event.message,
-            event_place: event.location,
-            other_user_name: nil,
-            other_user_photo: matchImageString,
-            updated_at: Date()
-        )
-        try userEventCollection(userId: userId).document(eventId).setData(from: userEvent)
+        
+        
+        var data: [String: Any] = [
+            UserEvent.CodingKeys.id.rawValue: eventId,
+            UserEvent.CodingKeys.otherUserId.rawValue: matchId,
+            UserEvent.CodingKeys.role.rawValue: role.rawValue,
+            UserEvent.CodingKeys.status.rawValue: event.status,
+            UserEvent.CodingKeys.time.rawValue: event.time ?? Date(),
+            UserEvent.CodingKeys.type.rawValue: event.type ?? "",
+            UserEvent.CodingKeys.message.rawValue: event.message ?? "",
+            UserEvent.CodingKeys.otherUserPhoto.rawValue: matchImageString,
+            UserEvent.CodingKeys.updatedAt.rawValue: Date()
+        ]
+        
+        if let place = event.location {
+            data[UserEvent.CodingKeys.place.rawValue] = place
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case id = "id"
+            case otherUserId = "other_user_id"
+            case role = "role"
+            case status = "status"
+            case time = "time"
+            case type = "type"
+            case message = "message"
+            case place = "place"
+            case otherUserName = "other_user_name"
+            case otherUserPhoto = "other_user_photo"
+            case updatedAt = "updated_at"
+        }
+                
+        try await userEventCollection(userId: userId).document(eventId).setData(data)
     }
     
     func removeUserEvent(userId: String, userEventId: String) async throws {

@@ -35,11 +35,9 @@ struct EventView: View {
                 
                 ForEach(vm.userEvents) {event in
                     VStack(spacing: 36) {
-                        Text(event.eventType)
-                            .font(.title)
-                            .frame(maxWidth: .infinity)
+                        Text(event.type)
 
-                            LargeClockView(targetTime: event.eventTime) {}
+                            LargeClockView(targetTime: event.time) {}
                         
                         Text(vm.formatDate(date: event.eventTime))
                             .font(.body(24, .bold))
@@ -51,6 +49,10 @@ struct EventView: View {
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .onAppear { selection = vm.currentEvent?.id }
+            
+            
+            
+            
 //            .onChange(of: selection) { _, newId in
 //                guard let id = newId, let pair = vm.userEvents.first(where: { $0.id == id }) else { return }
 //                vm.currentEvent = pair.

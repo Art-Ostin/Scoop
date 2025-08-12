@@ -85,7 +85,6 @@ struct UserProfile: Codable, Equatable {
         case character = "character"
         case imagePath = "image_path"
         case imagePathURL = "image_path_url"
-
     }
     
     init(from decoder: any Decoder) throws {
@@ -118,7 +117,6 @@ struct UserProfile: Codable, Equatable {
         self.imagePath = try container.decodeIfPresent([String].self, forKey: .imagePath)
         self.imagePathURL = try container.decodeIfPresent([String].self, forKey: .imagePathURL)
     }
-    
     
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
