@@ -35,14 +35,13 @@ class EventManager {
         e.date_created = Date()
         try doc.setData(from: e)
         
-        //Add to the event the other users profileURL
+        
+        //Create UserEvent
         let recipientProfile = try await profile.getProfile(userId: event.recipientId ?? "")
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
         
         let inviteeProfile = user.user
-        let inviteeImageString = inviteeProfile?.imagePathURL?.first ?? ""
-                
-            
+        let inviteeImageString = inviteeProfile?.imagePathURL?.first ?? ""            
         Task {
             try? await profile.addUserEvent(userId: currentId(), matchId: recipientProfile.id, event: e, matchImageString: recipientImageString, role: .sent)
             try? await profile.addUserEvent(userId: recipientProfile.id, matchId: currentId(), event: e, matchImageString: inviteeImageString, role: .received)

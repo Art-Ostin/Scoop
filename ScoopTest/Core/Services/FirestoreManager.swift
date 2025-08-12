@@ -76,25 +76,21 @@ import SwiftUI
     
     func addUserEvent(userId: String, matchId: String, event: Event, matchImageString: String, role: EdgeRole)  async throws {
         guard let eventId = event.id else { return }
-        var data: [String: Any] =  [
-            UserEvent.CodingKeys.id : eventId,
-            UserEvent.CodingKeys.otherUserId.rawValue : matchId,
-            UserEvent.CodingKeys.role.rawValue : role.rawValue,
-            UserEvent.CodingKeys.status.rawValue : event.status.rawValue,
-            UserEvent.CodingKeys.eventTime.rawValue : event.time ?? Date(),
-            UserEvent.CodingKeys.eventType.rawValue : event.type ?? "",
-            UserEvent.CodingKeys.eventPlace.rawValue : event.location ?? "",
-            UserEvent.CodingKeys.eventMessage.rawValue : event.message ?? "",
-            UserEvent.CodingKeys.otherUserPhoto.rawValue : matchImageString,
-            UserEvent.CodingKeys.updatedAt.rawValue : Date()
-        ]
-        if let location = event.location {
-            let locationData = try Firestore.Encoder().encode(location)
-            data[UserEvent.CodingKeys.eventPlace.rawValue] = locationData
-        }
-        try await userEventCollection(userId: userId).document(event.id ?? "").setData(data)
+        let userEvent = UserEvent(
+            id: eventId,
+            other_user_id: matchId,
+            role: role,
+            status: event.status,
+            event_time: event.time ?? Date(),
+            event_type: event.type ?? "",
+            event_message: event.message,
+            event_place: event.location,
+            other_user_name: nil,
+            other_user_photo: matchImageString,
+            updated_at: Date()
+        )
+        try userEventCollection(userId: userId).document(eventId).setData(from: userEvent)
     }
-    
     
     func removeUserEvent(userId: String, userEventId: String) async throws {
         try await userEventDocument(userId: userId, userEventId: userEventId).delete()
@@ -103,8 +99,6 @@ import SwiftUI
     func getAllUserEvents(userId: String) async throws -> [UserEvent] {
         try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
     }
-
-    
     
     //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
     func getRandomProfile() async throws -> [UserProfile] {

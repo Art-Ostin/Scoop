@@ -32,6 +32,7 @@ struct EventView: View {
             }
             
             TabView(selection: $selection) {
+                
                 ForEach(vm.userEvents) {event in
                     VStack(spacing: 36) {
                         Text(event.eventType)

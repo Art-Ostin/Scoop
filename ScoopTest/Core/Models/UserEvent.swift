@@ -22,7 +22,7 @@ struct UserEvent: Identifiable, Codable {
     let event_message: String?
     let event_place: EventLocation?
     let other_user_name: String?
-    let other_user_photo: URL
+    let other_user_photo: String?
     let updated_at: Date?
     
     
