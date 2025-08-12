@@ -32,9 +32,13 @@ struct EventView: View {
             TabView(selection: $selection) {
                 ForEach(vm.userEvents) { event in
                     VStack(spacing: 36) {
-                        Text(event.type)
+                        if let type = event.type {
+                            Text(type)
+                        }
                         
-                        LargeClockView(targetTime: event.time) {}
+                        if let time = event.time {
+                            LargeClockView(targetTime: time) {}
+                        }
                         
                         Text(vm.formatDate(date: event.time))
                             .font(.body(24, .bold))

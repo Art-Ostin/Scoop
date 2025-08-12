@@ -18,8 +18,8 @@ struct UserEvent: Identifiable, Codable {
     let otherUserId: String
     let role: EdgeRole
     let status: EventStatus
-    let time: Date
-    let type: String
+    let time: Date?
+    let type: String?
     let message: String?
     let place: EventLocation?
     let otherUserName: String?
@@ -46,8 +46,8 @@ struct UserEvent: Identifiable, Codable {
         self.otherUserId = try container.decode(String.self, forKey: .otherUserId)
         self.role = try container.decode(EdgeRole.self, forKey: .role)
         self.status = try container.decode(EventStatus.self, forKey: .status)
-        self.time = try container.decode(Date.self, forKey: .time)
-        self.type = try container.decode(String.self, forKey: .type)
+        self.time = try container.decodeIfPresent(Date.self, forKey: .time)
+        self.type = try container.decodeIfPresent(String.self, forKey: .type)
         self.message = try container.decodeIfPresent(String.self, forKey: .message)
         self.place = try container.decodeIfPresent(EventLocation.self, forKey: .place)
         self.otherUserName = try container.decodeIfPresent(String.self, forKey: .otherUserName)
@@ -61,8 +61,8 @@ struct UserEvent: Identifiable, Codable {
         try container.encode(self.otherUserId, forKey: .otherUserId)
         try container.encode(self.role, forKey: .role)
         try container.encode(self.status, forKey: .status)
-        try container.encode(self.time, forKey: .time)
-        try container.encode(self.type, forKey: .type)
+        try container.encodeIfPresent(self.time, forKey: .time)
+        try container.encodeIfPresent(self.type, forKey: .type)
         try container.encodeIfPresent(self.message, forKey: .message)
         try container.encodeIfPresent(self.place, forKey: .place)
         try container.encodeIfPresent(self.otherUserName, forKey: .otherUserName)

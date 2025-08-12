@@ -26,11 +26,7 @@ import AsyncAlgorithms
     
     func fetchUserEvents() async throws {
         Task {
-            do {
-                try await dep.profileManager.getAllUserEvents(userId: dep.userManager.user?.id ?? "")
-            } catch {
-                print(error)
-            }
+            try await dep.profileManager.getAllUserEvents(userId: dep.userManager.user?.id ?? "")
         }
     }
     
