@@ -14,57 +14,30 @@ enum EdgeRole: String, Codable { case sent, received }
 
 struct UserEvent: Identifiable, Codable {
     @DocumentID var id: String?
-    let otherUserId: String
-    
+    let other_user_id: String
     let role: EdgeRole
     let status: EventStatus
-
-    let eventTime: Date
-    let eventType: String
-    let eventMessage: String?
-    let eventPlace: EventLocation?
-    let otherUserPhoto: URL
-    let updatedAt: Date?
+    let event_time: Date
+    let event_type: String
+    let event_message: String?
+    let event_place: EventLocation?
+    let other_user_name: String?
+    let other_user_photo: URL
+    let updated_at: Date?
     
     
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.id, forKey: .id)
-        try container.encode(self.otherUserId, forKey: .otherUserId)
-        try container.encode(self.role, forKey: .role)
-        try container.encode(self.status, forKey: .status)
-        try container.encode(self.eventTime, forKey: .eventTime)
-        try container.encode(self.eventType, forKey: .eventType)
-        try container.encodeIfPresent(self.eventMessage, forKey: .eventMessage)
-        try container.encodeIfPresent(self.eventPlace, forKey: .eventPlace)
-        try container.encode(self.otherUserPhoto, forKey: .otherUserPhoto)
-        try container.encodeIfPresent(self.updatedAt, forKey: .updatedAt)
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case id = "id"
-        case otherUserId = "other_user_id"
-        case role = "role"
-        case status = "status"
-        case eventTime = "event_time"
-        case eventType = "event_type"
-        case eventMessage = "event_message"
-        case eventPlace = "event_place"
-        case otherUserPhoto = "other_user_photo"
-        case updatedAt = "updated_at"
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.otherUserId = try container.decode(String.self, forKey: .otherUserId)
-        self.role = try container.decode(EdgeRole.self, forKey: .role)
-        self.status = try container.decode(EventStatus.self, forKey: .status)
-        self.eventTime = try container.decode(Date.self, forKey: .eventTime)
-        self.eventType = try container.decode(String.self, forKey: .eventType)
-        self.eventMessage = try container.decodeIfPresent(String.self, forKey: .eventMessage)
-        self.eventPlace = try container.decodeIfPresent(EventLocation.self, forKey: .eventPlace)
-        self.otherUserPhoto = try container.decode(URL.self, forKey: .otherUserPhoto)
-        self.updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+    enum CodingKeys: CodingKey {
+        case id
+        case other_user_id
+        case role
+        case status
+        case event_time
+        case event_type
+        case event_message
+        case event_place
+        case other_user_name
+        case other_user_photo
+        case updated_at
     }
 }
+

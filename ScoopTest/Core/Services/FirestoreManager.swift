@@ -77,7 +77,7 @@ import SwiftUI
     func addUserEvent(userId: String, matchId: String, event: Event, matchImageString: String, role: EdgeRole)  async throws {
         guard let eventId = event.id else { return }
         var data: [String: Any] =  [
-            UserEvent.CodingKeys.id.rawValue : eventId,
+            UserEvent.CodingKeys.id : eventId,
             UserEvent.CodingKeys.otherUserId.rawValue : matchId,
             UserEvent.CodingKeys.role.rawValue : role.rawValue,
             UserEvent.CodingKeys.status.rawValue : event.status.rawValue,
@@ -101,24 +101,8 @@ import SwiftUI
     }
     
     func getAllUserEvents(userId: String) async throws -> [UserEvent] {
-        
-        var userEvents: [UserEvent] = []
-        
-        
-        do {
-            userEvents =  try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
-        } catch {
-            print("error fetching because \(error)")
-        }
-        
-        return userEvents
+        try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
     }
-    
-    
-    
-    
-    
-    
 
     
     
