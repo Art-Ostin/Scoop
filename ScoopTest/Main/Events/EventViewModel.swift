@@ -10,9 +10,9 @@ import AsyncAlgorithms
 
 
 struct EventMatch: Identifiable {
-    let event: Event
+    let event: UserEvent
     let profile: UserProfile
-    var id: String { event.id ?? ""}
+    var id: String {event.id}
 }
 
 @Observable class EventViewModel {
@@ -22,20 +22,19 @@ struct EventMatch: Identifiable {
     init(dependencies: AppDependencies) {
         self.dep = dependencies
     }
-    var userEvents: [EventMatch] = []
+    var userEvents: [UserEvent] = []
     
     var hasEvents: Bool { !userEvents.isEmpty }
     var currentEvent: Event?
     var currentUser: UserProfile?
-    
-    
-    
-    func fetchUserEvents() async throws {
         
-    } 
-    
-    
-    
+    func fetchUserEvents() async throws {
+        Task {
+            print("going to fetch user Events")
+            userEvents = try await dep.profileManager.getAllUserEvents(userId: dep.userManager.user?.id ?? "")
+            print("fetched UsersEvents")
+        }
+    }
     
     func formatDate(date: Date?) -> String {
         guard let date = date else { return "" }

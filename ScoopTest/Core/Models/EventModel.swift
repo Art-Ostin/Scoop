@@ -15,6 +15,7 @@ struct EventArray : Codable {
     let total, skip, limit: Int
 }
 
+
 enum EventStatus: String, Codable{
     case pending
     case accepted
@@ -32,6 +33,7 @@ struct Event: Identifiable, Codable {
     var time: Date?
     var location: EventLocation?
     var status: EventStatus = .accepted
+    
     
     enum CodingKeys: CodingKey {
         case id

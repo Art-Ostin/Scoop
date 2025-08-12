@@ -74,20 +74,24 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
-    
-    func addUserEvent(userId: String, matchId: String, event: Event, matchUrl: URL, role: EdgeRole)  async throws {
-        let data: [String: Any] =  [
-            UserEvents.CodingKeys.eventId.rawValue : event.id ?? "",
-            UserEvents.CodingKeys.otherUserId.rawValue : matchId,
-            UserEvents.CodingKeys.role.rawValue : role,
-            UserEvents.CodingKeys.status.rawValue : event.status,
-            UserEvents.CodingKeys.eventTime.rawValue : event.time ?? Date(),
-            UserEvents.CodingKeys.eventType.rawValue : event.type ?? "",
-            UserEvents.CodingKeys.eventMessage.rawValue : event.message ?? "",
-            UserEvents.CodingKeys.otherUserPhoto.rawValue : matchUrl,
-            UserEvents.CodingKeys.updatedAt.rawValue : Date()
+    func addUserEvent(userId: String, matchId: String, event: Event, matchImageString: String, role: EdgeRole)  async throws {
+        guard let eventId = event.id else { return }
+        var data: [String: Any] =  [
+            UserEvent.CodingKeys.id.rawValue : eventId,
+            UserEvent.CodingKeys.otherUserId.rawValue : matchId,
+            UserEvent.CodingKeys.role.rawValue : role.rawValue,
+            UserEvent.CodingKeys.status.rawValue : event.status.rawValue,
+            UserEvent.CodingKeys.eventTime.rawValue : event.time ?? Date(),
+            UserEvent.CodingKeys.eventType.rawValue : event.type ?? "",
+            UserEvent.CodingKeys.eventPlace.rawValue : event.location ?? "",
+            UserEvent.CodingKeys.eventMessage.rawValue : event.message ?? "",
+            UserEvent.CodingKeys.otherUserPhoto.rawValue : matchImageString,
+            UserEvent.CodingKeys.updatedAt.rawValue : Date()
         ]
-        guard (event.id != nil) else { return }
+        if let location = event.location {
+            let locationData = try Firestore.Encoder().encode(location)
+            data[UserEvent.CodingKeys.eventPlace.rawValue] = locationData
+        }
         try await userEventCollection(userId: userId).document(event.id ?? "").setData(data)
     }
     
@@ -96,16 +100,17 @@ import SwiftUI
         try await userEventDocument(userId: userId, userEventId: userEventId).delete()
     }
     
+    func getAllUserEvents(userId: String) async throws -> [UserEvent] {
+        try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
+    }
     
     
     
     
     
-//
-//        func getAllUserEvets(userId: String) async throws -> [Event] {
-//            try await userEventCollection(userId: userId).getDocuments(as: )
-//        }
-//    
+
+    
+    
     //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()

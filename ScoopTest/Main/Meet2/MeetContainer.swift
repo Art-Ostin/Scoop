@@ -16,7 +16,6 @@ struct MeetContainer2: View {
     @State var showProfiles: Bool
     @State private var selectedProfile: UserProfile?
     
-    
     init(dep: AppDependencies) {
         self.dep = dep
         _vm = .init(initialValue: MeetUpViewModel2(dep: dep))

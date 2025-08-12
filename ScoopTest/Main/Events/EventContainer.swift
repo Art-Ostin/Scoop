@@ -10,8 +10,7 @@ import SwiftUI
 struct EventContainer: View {
     
     @State var vm: EventViewModel
-    
-    
+
     init(dependencies: AppDependencies) {
         _vm = State(initialValue: EventViewModel(dependencies: dependencies))
     }
@@ -26,7 +25,11 @@ struct EventContainer: View {
             }
         }
         .task {
-            try? await vm.fetchUserEvents()
+            do {
+                try await vm.fetchUserEvents()
+            } catch  {
+                print("error \(error)")
+            }
         }
     }
 }

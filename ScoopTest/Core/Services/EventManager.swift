@@ -38,17 +38,14 @@ class EventManager {
         //Add to the event the other users profileURL
         let recipientProfile = try await profile.getProfile(userId: event.recipientId ?? "")
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
-        let recipientImageURL = URL(string: recipientImageString)
         
         let inviteeProfile = user.user
         let inviteeImageString = inviteeProfile?.imagePathURL?.first ?? ""
-        let inviteeImageURL = URL(string: inviteeImageString)
                 
             
         Task {
-            guard let eventId = e.id, let inviteeUrl = inviteeImageURL, let recipientURL = recipientImageURL else { return }
-            try? await profile.addUserEvent(userId: currentId(), matchId: recipientProfile.id, event: e, matchUrl: recipientURL, role: .sent)
-            try? await profile.addUserEvent(userId: recipientProfile.id, matchId: currentId(), event: e, matchUrl: inviteeUrl, role: .received)
+            try? await profile.addUserEvent(userId: currentId(), matchId: recipientProfile.id, event: e, matchImageString: recipientImageString, role: .sent)
+            try? await profile.addUserEvent(userId: recipientProfile.id, matchId: currentId(), event: e, matchImageString: inviteeImageString, role: .received)
         }
     }
     

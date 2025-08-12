@@ -32,17 +32,15 @@ struct EventView: View {
             }
             
             TabView(selection: $selection) {
-                ForEach(vm.userEvents, id: \.id) {event in
+                ForEach(vm.userEvents) {event in
                     VStack(spacing: 36) {
-                        Text(event.profile.name ?? "")
+                        Text(event.eventType)
                             .font(.title)
                             .frame(maxWidth: .infinity)
+
+                            LargeClockView(targetTime: event.eventTime) {}
                         
-                        if let date = event.event.time {
-                            LargeClockView(targetTime: date) {}
-                        }
-                        
-                        Text(vm.formatDate(date: event.event.time))
+                        Text(vm.formatDate(date: event.eventTime))
                             .font(.body(24, .bold))
                     }
                     .tag(event.id)
@@ -52,11 +50,11 @@ struct EventView: View {
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .onAppear { selection = vm.currentEvent?.id }
-            .onChange(of: selection) { _, newId in
-                guard let id = newId, let pair = vm.userEvents.first(where: { $0.id == id }) else { return }
-                vm.currentEvent = pair.event
-                vm.currentUser  = pair.profile
-            }
+//            .onChange(of: selection) { _, newId in
+//                guard let id = newId, let pair = vm.userEvents.first(where: { $0.id == id }) else { return }
+//                vm.currentEvent = pair.
+//                vm.currentUser  = pair.profile
+//            }
             
             .fullScreenCover(isPresented: $showProfile, content: {
                 if let newUser = vm.currentUser {
