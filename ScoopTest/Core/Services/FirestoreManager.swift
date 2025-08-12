@@ -75,72 +75,37 @@ import SwiftUI
     }
     
     
-    func addUserEvent(userId: String, event: Event) async throws {
-        
-        let ids: [String] = [(event.initiatorId ?? ""), (event.recipientId ?? "") ]
-        let otherUserId = ids.filter { $0 != userId }.first ?? ""
-        
-        let role: EdgeRole
-        
-        if event.initiatorId == userId {
-            role = .sent
-        } else if event.recipientId == userId {
-            role = .received
-        }
-        let status: EventStatus = .pending
-        
-        
-        
-
-        let otherUserPhotoUrl
-        
-        
-        
-        
-        
-        
-        
-        
+    func addUserEvent(userId: String, matchId: String, event: Event, matchUrl: URL, role: EdgeRole)  async throws {
         let data: [String: Any] =  [
             UserEvents.CodingKeys.eventId.rawValue : event.id ?? "",
-            UserEvents.CodingKeys.otherUserId.rawValue : otherUserId,
+            UserEvents.CodingKeys.otherUserId.rawValue : matchId,
             UserEvents.CodingKeys.role.rawValue : role,
             UserEvents.CodingKeys.status.rawValue : event.status,
             UserEvents.CodingKeys.eventTime.rawValue : event.time ?? Date(),
             UserEvents.CodingKeys.eventType.rawValue : event.type ?? "",
-            UserEvents.CodingKeys.eventType.rawValue : event.message,
-            UserEvents.CodingKeys.otherUserPhoto.rawValue :
-            
-            
-            
+            UserEvents.CodingKeys.eventMessage.rawValue : event.message ?? "",
+            UserEvents.CodingKeys.otherUserPhoto.rawValue : matchUrl,
+            UserEvents.CodingKeys.updatedAt.rawValue : Date()
         ]
-        
-        
-        enum CodingKeys: String, CodingKey {
-            case eventId = "event_id"
-            case otherUserId = "other_user_id"
-            case role = "role"
-            case status = "status"
-            case eventTime = "event_time"
-            case eventType = "event_type"
-            case eventMessage = "event_message"
-            case eventPlace = "event_place"
-            case otherUserPhoto = "other_user_photo"
-            case updatedAt = "updated_at"
-        }
-
-        
-        try await userEventCollection(userId: userId).document(event.id)
+        guard (event.id != nil) else { return }
+        try await userEventCollection(userId: userId).document(event.id ?? "").setData(data)
     }
+    
     
     func removeUserEvent(userId: String, userEventId: String) async throws {
         try await userEventDocument(userId: userId, userEventId: userEventId).delete()
     }
-    //
-    //    func getAllUserEvets(userId: String) async throws -> [Event] {
-    //        try await userEventCollection(userId: userId).getDocuments(as: )
-    //    }
     
+    
+    
+    
+    
+    
+//
+//        func getAllUserEvets(userId: String) async throws -> [Event] {
+//            try await userEventCollection(userId: userId).getDocuments(as: )
+//        }
+//    
     //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
     func getRandomProfile() async throws -> [UserProfile] {
         let snapshot = try await userCollection.getDocuments()

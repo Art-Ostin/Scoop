@@ -27,7 +27,6 @@ class EventManager {
     }
 
     func createEvent(event: Event) async throws {
-        
         //Create the event with some default Values
         let doc = eventCollection.document()
         var e = event
@@ -36,18 +35,22 @@ class EventManager {
         e.date_created = Date()
         try doc.setData(from: e)
         
-        //Add the event to each User's Profile
-        let recipientId = event.recipientId ?? ""
+        //Add to the event the other users profileURL
+        let recipientProfile = try await profile.getProfile(userId: event.recipientId ?? "")
+        let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
+        let recipientImageURL = URL(string: recipientImageString)
+        
+        let inviteeProfile = user.user
+        let inviteeImageString = inviteeProfile?.imagePathURL?.first ?? ""
+        let inviteeImageURL = URL(string: inviteeImageString)
+                
+            
         Task {
-            guard let eventId = e.id else { return }
-            try? await profile.addUserEvent(userId: recipientId, eventId: eventId)
-            try? await profile.addUserEvent(userId: currentId(), eventId: eventId)
-            print("add user Event")
+            guard let eventId = e.id, let inviteeUrl = inviteeImageURL, let recipientURL = recipientImageURL else { return }
+            try? await profile.addUserEvent(userId: currentId(), matchId: recipientProfile.id, event: e, matchUrl: recipientURL, role: .sent)
+            try? await profile.addUserEvent(userId: recipientProfile.id, matchId: currentId(), event: e, matchUrl: inviteeUrl, role: .received)
         }
     }
-    
-    
-    
     
     func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
