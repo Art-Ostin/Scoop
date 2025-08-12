@@ -25,7 +25,7 @@ struct UserEvent: Identifiable, Codable {
     let otherUserName: String?
     let otherUserPhoto: String?
     let updatedAt: Date?
-    
+
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case otherUserId = "other_user_id"

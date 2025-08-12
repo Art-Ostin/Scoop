@@ -37,7 +37,7 @@ struct EventView: View {
                         if let time = event.time {
                             LargeClockView(targetTime: time) {}
                         }
-                        
+                                                
                         Text(vm.formatDate(date: event.time))
                             .font(.body(24, .bold))
                     }

@@ -89,6 +89,7 @@ import SwiftUI
         ]
         let location = try Firestore.Encoder().encode(event.location)
         data[UserEvent.CodingKeys.place.rawValue] = location
+        
         try await userEventCollection(userId: userId).document(eventId).setData(data)
     }
     

@@ -393,6 +393,11 @@
 		6561C8D12E044638006A72DF /* Meet */ = {
 			isa = PBXGroup;
 			children = (
+				65F450C62E45815B00AE3503 /* MeetUpViewModel.swift */,
+				65F450C82E463D1300AE3503 /* MeetContainer.swift */,
+				65F450CC2E463F9900AE3503 /* IntroView.swift */,
+				65F450CA2E463E7900AE3503 /* DailyProfiles.swift */,
+				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				653770542E0A1E710058D225 /* Profile */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
@@ -497,7 +502,6 @@
 		659497012E01DD4000880921 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				65FAF9992E42B54B0015E231 /* Meet2 */,
 				6561C8D12E044638006A72DF /* Meet */,
 				6561C8D22E04464C006A72DF /* Events */,
 				6561C8D32E04465A006A72DF /* Matches */,
@@ -575,18 +579,6 @@
 				65FAF97C2E4112C80015E231 /* PopUpView.swift */,
 			);
 			path = "Invite Folder";
-			sourceTree = "<group>";
-		};
-		65FAF9992E42B54B0015E231 /* Meet2 */ = {
-			isa = PBXGroup;
-			children = (
-				65F450C62E45815B00AE3503 /* MeetUpViewModel.swift */,
-				65F450C82E463D1300AE3503 /* MeetContainer.swift */,
-				65F450CC2E463F9900AE3503 /* IntroView.swift */,
-				65F450CA2E463E7900AE3503 /* DailyProfiles.swift */,
-				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
-			);
-			path = Meet2;
 			sourceTree = "<group>";
 		};
 		65FAF99C2E42BAC30015E231 /* ClockComponents */ = {
