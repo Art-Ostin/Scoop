@@ -101,8 +101,19 @@ import SwiftUI
     }
     
     func getAllUserEvents(userId: String) async throws -> [UserEvent] {
-        try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
+        
+        var userEvents: [UserEvent] = []
+        
+        
+        do {
+            userEvents =  try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
+        } catch {
+            print("error fetching because \(error)")
+        }
+        
+        return userEvents
     }
+    
     
     
     
