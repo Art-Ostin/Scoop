@@ -15,18 +15,40 @@ struct ProfileCard : View {
 
     @State private var image: UIImage?
     @Binding var selectedProfile: UserProfile?
+    @Binding var selectedInvite: (UserProfile, UserEvent)?
+    
+    init(
+        userEvent: UserEvent? = nil,
+        profile: UserProfile,
+        dep: AppDependencies,
+        selectedProfile: Binding<UserProfile?> = .constant(nil),
+        selectedInvite: Binding<(UserProfile, UserEvent)?> = .constant(nil)
+    ) {
+        self.userEvent = userEvent
+        self.profile = profile
+        self.dep = dep
+        self._selectedProfile = selectedProfile
+        self._selectedInvite = selectedInvite
+    }
     
     var firstURL: URL? {
         guard let s = profile.imagePathURL?.first else {return nil}
         return URL(string: s)
     }
-    
+
+
     var body: some View {
         
         ZStack {
             if let image = image {
                 firstImage(image: image)
-                    .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) { selectedProfile = profile} }
+                    .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
+                                                
+                        if let (profile, event) = selectedInvite {
+                            profile, event = selectedInvite
+                        }
+                    }
+                }
             }
         }
         .task {

@@ -10,6 +10,7 @@ struct ProfileView: View {
     
     let onDismiss: () -> Void
 
+    @State var image: UIImage?
     
     
     init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, onDismiss: @escaping () -> Void = {}, event: UserEvent? = nil) {
@@ -19,7 +20,7 @@ struct ProfileView: View {
     
     
     var body: some View {
-        
+
         GeometryReader { _ in
             NavigationStack {
                 ZStack {
@@ -46,14 +47,17 @@ struct ProfileView: View {
                                 vm.showInvite = false
                             }
                         
-                        if vm.event != nil {
-                            
-//                            PopUpView(image: vm.p., event: <#T##UserEvent#>, vm: <#T##ProfileViewModel#>)
+                        if let event = vm.event {
+                            if let image {
+                                PopUpView(image: image, event: event, vm: vm)
+                            }
                         }
-                        
                         SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
                     }
                 }
+            }
+            .task {
+                image = await vm.dep.cacheManager.loadProfileImages([vm.p]).first
             }
             .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
         }

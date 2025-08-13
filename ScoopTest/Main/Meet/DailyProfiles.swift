@@ -12,10 +12,9 @@ struct DailyProfiles: View {
     @Binding var vm: MeetViewModel
     @Binding var showProfile: Bool
     @Binding var selectedProfile: UserProfile?
-    
+    @Binding var selectedInvite: (UserProfile, UserEvent)?
     
     var body: some View {
-        
         let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
 
         VStack(spacing: 36) {
@@ -23,7 +22,7 @@ struct DailyProfiles: View {
             TabView {
 
                 ForEach(vm.profileInvites, id: \.0.id) { profile, event in
-                    ProfileCard(userEvent: event, profile: profile, dep: vm.dep, selectedProfile: $selectedProfile)
+                    ProfileCard(userEvent: event, profile: profile, dep: vm.dep, selectedInvite: $selectedInvite)
                 }
                 
                 ForEach(vm.profileRecs) {profile in

@@ -15,6 +15,7 @@ struct MeetContainer: View {
     
     @State var showProfiles: Bool
     @State private var selectedProfile: UserProfile?
+    @State private var selectedInvite: (UserProfile, UserEvent)?
     
     init(dep: AppDependencies) {
         self.dep = dep
@@ -30,7 +31,7 @@ struct MeetContainer: View {
                     .font(.body(32, .bold))
                 ZStack {
                     if showProfiles {
-                        DailyProfiles(vm: $vm, showProfile: $showProfiles, selectedProfile: $selectedProfile)
+                        DailyProfiles(vm: $vm, showProfile: $showProfiles, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
                     } else {
                         IntroView2(vm: $vm, showProfiles: $showProfiles)
                     }
@@ -53,6 +54,17 @@ struct MeetContainer: View {
                 }
                 .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
                 .zIndex(1)
+            }
+            
+            
+            if let (profile, event) = selectedInvite {
+                ZStack {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .ignoresSafeArea()
+                        .onTapGesture { }
+                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedInvite = nil } }, event: event)
+                }
             }
         }
 
