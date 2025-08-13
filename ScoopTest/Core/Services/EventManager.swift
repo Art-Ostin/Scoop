@@ -42,7 +42,16 @@ class EventManager {
         user.user?.userId
     }
     
-    
+    func formatTime(date: Date?) -> String {
+        guard let date = date else { return "" }
+        let day = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
+        let time = date.formatted(
+            .dateTime
+                .weekday(.wide)
+                .hour(.twoDigits(amPM: .omitted))
+                .minute(.twoDigits))
+        return "\(day), \(time)"
+    }
 
     func createEvent(event: Event) async throws {
         //Creates event and local reference in the two users subcollection of events

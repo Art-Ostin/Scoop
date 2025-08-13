@@ -38,9 +38,6 @@ extension ProfileImageView {
                     imageContainer(image: image, size: size) {
                         InviteButton(vm: $vm)
                     }.tag(index)
-                    
-                    
-                    
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))

@@ -46,6 +46,11 @@ struct ProfileView: View {
                             .onTapGesture {
                                 vm.showInvite = false
                             }
+                        
+                        if vm.event != nil {
+                            
+                        }
+                        
                         SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
                     }
                 }
