@@ -152,7 +152,7 @@ class EventManager {
         let aEdgeRef = userEventDocument(userId: a, userEventId: eventId)
         let bEdgeRef = userEventDocument(userId: b, userEventId: eventId)
         
-        batch.updateData([Event.CodingKeys.status.stringValue : newStatus], forDocument: eventRef)
+        batch.updateData([Event.CodingKeys.status.stringValue: newStatus.rawValue], forDocument: eventRef)
         
         let statusUpdate: [String : Any] =  ([
             UserEvent.CodingKeys.status.rawValue : newStatus.rawValue,
@@ -167,9 +167,6 @@ class EventManager {
         guard let uid = user.user?.userId else { return ""}
         return uid
     }
-    
-    
-    
     
 }
 

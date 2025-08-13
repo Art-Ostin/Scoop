@@ -24,8 +24,8 @@ import SwiftUI
     var currentUser: UserProfile?
     
     @MainActor
-    func fetchUserEvents() {
-        Task { userEvents = try await dep.profileManager.getUpcomingAcceptedEvents() }
+    func fetchUserEvents() async throws {
+        userEvents = try await dep.profileManager.getUpcomingAcceptedEvents()
     }
     
     func saveUserImagesToCache() async throws {
