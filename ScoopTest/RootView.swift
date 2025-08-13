@@ -24,11 +24,11 @@ struct RootView : View {
                     .transition(.move(edge: .bottom))
             }
         }.task {
-            if let _ = try? dependencies.authManager.getAuthenticatedUser(){
-                try? await dependencies.userManager.loadUser()
-//                 _ = try? await dependencies.defaultsManager.loadTwoDailyProfiles()
+            do {
+                _ = try dependencies.authManager.getAuthenticatedUser()
+                try await dependencies.userManager.loadUser()
                 showLogin = false
-            } else {
+            } catch  {
                 showLogin = true
             }
         }
@@ -38,3 +38,4 @@ struct RootView : View {
 #Preview {
     RootView()
 }
+

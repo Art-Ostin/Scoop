@@ -23,9 +23,8 @@ class EventManager {
     
     private let eventCollection = Firestore.firestore().collection("events")
     private let userCollection = Firestore.firestore().collection("users")
-    private func userEventCollection (userId: String) -> CollectionReference {
-        userCollection.document(userId).collection("user_events")
-    }
+    
+
 
     private func eventDocument(id: String) -> DocumentReference {
         eventCollection.document(id)
@@ -199,6 +198,10 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: aEdgeRef)
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
+    }
+    
+    private func userEventCollection (userId: String) -> CollectionReference {
+        userCollection.document(userId).collection("user_events")
     }
 }
 
