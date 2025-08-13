@@ -19,13 +19,14 @@ struct EventContainer: View {
         
         ZStack {
             if vm.hasEvents {
-                EventView(vm: $vm)
+                EventView(dep: vm.dep, vm: vm)
             } else {
                 EventPlaceholder()
             }
         }
         .task {
             try? await vm.fetchUserEvents()
+            try? await vm.saveUserImagesToCache()
         }
     }
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DailyProfiles2: View {
+struct DailyProfiles: View {
     
     @Binding var vm: MeetUpViewModel2
     @Binding var showProfile: Bool

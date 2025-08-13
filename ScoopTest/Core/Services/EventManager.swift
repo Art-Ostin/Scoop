@@ -38,13 +38,17 @@ class EventManager {
         
         //Create UserEvent
         let recipientProfile = try await profile.getProfile(userId: event.recipientId ?? "")
+        let recipientName = recipientProfile.name ?? ""
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
         
         let inviteeProfile = user.user
-        let inviteeImageString = inviteeProfile?.imagePathURL?.first ?? ""            
+        let inviteeName = inviteeProfile?.name ?? ""
+        let inviteeImageString = inviteeProfile?.imagePathURL?.first ?? ""
         Task {
-            try? await profile.addUserEvent(userId: currentId(), matchId: recipientProfile.id, event: e, matchImageString: recipientImageString, role: .sent)
-            try? await profile.addUserEvent(userId: recipientProfile.id, matchId: currentId(), event: e, matchImageString: inviteeImageString, role: .received)
+            try? await profile.addUserEvent(userId: currentId(), matchId: recipientProfile.id, event: e,
+                                            matchImageString: recipientImageString, role: .sent, matchName: recipientName)
+            try? await profile.addUserEvent(userId: recipientProfile.id, matchId: currentId(), event: e,
+                                            matchImageString: inviteeImageString, role: .received, matchName: inviteeName)
         }
     }
     
@@ -83,6 +87,8 @@ class EventManager {
             .whereField(Event.CodingKeys.recipientId.stringValue, isEqualTo: uid)
         ])
     }
+    
+
     
     enum EventScope { case upcomingAccepted, upcomingInvited, pastAccepted }
     

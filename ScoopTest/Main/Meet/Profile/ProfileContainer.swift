@@ -11,7 +11,7 @@ struct ProfileView: View {
 
     
     
-    init(profile: UserProfile, showInviteButton: Bool = true, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
+    init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
         self._vm = State(initialValue: ProfileViewModel(profile: profile, showInvite: showInviteButton, dep: dep, profileType: .sendInvite))
         self.onDismiss = onDismiss
     }

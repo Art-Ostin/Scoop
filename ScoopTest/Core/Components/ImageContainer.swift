@@ -9,22 +9,35 @@ import SwiftUI
 
 struct imageContainer<Overlay: View>: View {
     
-    let image: UIImage
+    let image: UIImage?
     let size: CGFloat
     let shadow: CGFloat
+    let url: URL?
     @ViewBuilder var overlay: () -> Overlay
     
-    init(image: UIImage, size: CGFloat, shadow: CGFloat = 5, @ViewBuilder overlay: @escaping () -> Overlay = {EmptyView()}) {
+    init(image: UIImage? = nil, size: CGFloat, shadow: CGFloat = 5, @ViewBuilder overlay: @escaping () -> Overlay = {EmptyView()}, url: URL? = nil) {
         self.image = image
         self.size = size
         self.shadow = shadow
         self.overlay = overlay
+        self.url = url
+    }
+    
+    @ViewBuilder private var content: some View {
+        if let url {
+            AsyncImage(url: url) { image in
+                image
+                    .resizable()
+            } placeholder: {
+                ProgressView()
+            }
+        } else if let image = image {
+            Image(uiImage: image).resizable()
+        }
     }
     
     var body: some View {
-        
-        Image(uiImage: image)
-            .resizable()
+        content
             .scaledToFill()
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: 10))

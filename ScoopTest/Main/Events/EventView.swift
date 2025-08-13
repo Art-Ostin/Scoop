@@ -7,59 +7,52 @@
 import SwiftUI
 
 struct EventView: View {
+    let dep: AppDependencies
     
-    @Binding var vm: EventViewModel
+    let vm: EventViewModel
     
     @State var showEventDetails: Bool = false
     @State var selection: String?
     @State var showProfile: Bool = false
     
+    @State var selectedProfile: UserProfile?
+    
     var body: some View {
         
-        VStack {
-            HStack {
-                TitleSection()
-                    .padding(.top, 72)
-                    .padding(.horizontal, 32)
-                
-                Image(systemName: "info.circle")
-                    .frame(width: 20, height: 20)
-                    .onTapGesture {
-                        showEventDetails.toggle()
+        ZStack {
+            VStack {
+                HStack {
+                    TitleSection()
+                        .padding(.top, 72)
+                        .padding(.horizontal, 32)
+                    
+                    Image(systemName: "info.circle")
+                        .frame(width: 20, height: 20)
+                        .onTapGesture {
+                            showEventDetails.toggle()
+                        }
+                }
+
+                TabView(selection: $selection) {
+                    ForEach(vm.userEvents) { event in
+                        EventSlot(dep: dep, vm: vm, event: event, selectedProfile: $selectedProfile)
                     }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .automatic))
             }
             
-            TabView(selection: $selection) {
-                ForEach(vm.userEvents) { event in
-                    VStack(spacing: 36) {
-                        Text(event.type ?? "No Type")
-                        
-                        if let time = event.time {
-                            LargeClockView(targetTime: time) {}
-                        }
-                                                
-                        Text(vm.formatDate(date: event.time))
-                            .font(.body(24, .bold))
-                    }
-                    .tag(event.id)
-                    .frame(maxHeight: .infinity)
+            if let profile = selectedProfile {
+                ZStack {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .ignoresSafeArea()
+                        .onTapGesture { }
+                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } })
                 }
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
             }
-            .tabViewStyle(.page(indexDisplayMode: .automatic))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .onAppear { selection = vm.currentEvent?.id }
         }
-        //            .onChange(of: selection) { _, newId in
-        //                guard let id = newId, let pair = vm.userEvents.first(where: { $0.id == id }) else { return }
-        //                vm.currentEvent = pair.
-        //                vm.currentUser  = pair.profile
-        //            }
-        
-        .fullScreenCover(isPresented: $showProfile, content: {
-            if let newUser = vm.currentUser {
-                ProfileView(profile: newUser, dep: vm.dep)
-            }
-        })
         .sheet(isPresented: $showEventDetails) {
             if let newEvent = vm.currentEvent, let newUser = vm.currentUser {
                 EventDetailsView(event: newEvent, user: newUser)
@@ -69,3 +62,9 @@ struct EventView: View {
         }
     }
 }
+
+
+
+
+//    .indexViewStyle(.page(backgroundDisplayMode: .always))
+//    .onAppear { selection = vm.currentEvent?.id }

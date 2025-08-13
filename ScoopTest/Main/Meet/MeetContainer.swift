@@ -29,7 +29,7 @@ struct MeetContainer2: View {
                     .font(.body(32, .bold))
                 ZStack {
                     if showProfiles {
-                        DailyProfiles2(vm: $vm, showProfile: $showProfiles, selectedProfile: $selectedProfile)
+                        DailyProfiles(vm: $vm, showProfile: $showProfiles, selectedProfile: $selectedProfile)
                     } else {
                         IntroView2(vm: $vm, showProfiles: $showProfiles)
                     }

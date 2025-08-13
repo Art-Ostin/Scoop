@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AsyncAlgorithms
+import SwiftUI
 
 
 
@@ -22,14 +22,52 @@ import AsyncAlgorithms
     var hasEvents: Bool { !userEvents.isEmpty }
     var currentEvent: Event?
     var currentUser: UserProfile?
-
     
     func fetchUserEvents() async throws {
-        guard let userId = dep.userManager.user?.userId else {return }
-        Task {
-            userEvents = try await dep.profileManager.getAllUserEvents(userId: userId)
-        }
+        Task { userEvents = try await dep.profileManager.getUpcomingAcceptedEvents() }
     }
+    
+    func saveUserImagesToCache() async throws {
+        let ids = Set(userEvents.map(\.otherUserId))
+        let profiles: [UserProfile] = try await withThrowingTaskGroup(of: UserProfile.self) { group in
+            for id in ids {
+                group.addTask { try await self.dep.profileManager.getProfile(userId: id) } }
+            var results: [UserProfile] = []
+            for try await p in group { results.append(p) }
+            return results
+        }
+        _ = await self.dep.cacheManager.loadProfileImages(profiles)
+        print("saved Images to Cache")
+    }
+    
+    /*
+     Task {
+     do {
+     let userEvents = try await dependencies.eventManager.getUserEvents()
+     let newEvents = try await withThrowingTaskGroup(of: EventMatch.self) { group -> [EventMatch] in
+     for event in userEvents {
+     guard !events.contains(where:{ $0.event.id == event.id}) else { continue }
+     group.addTask {
+     let match = try await self.dependencies.eventManager.getEventMatch(event: event)
+     return EventMatch(event: event, user: match)
+     }
+     }
+     var collected: [EventMatch] = []
+     for try await result in group {
+     collected.append(result)
+     }
+     return collected
+     }
+     events.append(contentsOf: newEvents)
+     if currentEvent == nil, let first = events.first {
+     currentEvent = first.event
+     currentUser  = first.user
+     }
+     } catch {
+     print("Failed to load events: \(error)")
+     }
+     }
+     */
     
     
     func formatDate(date: Date?) -> String {
@@ -45,36 +83,8 @@ import AsyncAlgorithms
 }
 
 
-
 /*
- 
- Task {
-     do {
-         let userEvents = try await dependencies.eventManager.getUserEvents()
-         let newEvents = try await withThrowingTaskGroup(of: EventMatch.self) { group -> [EventMatch] in
-             for event in userEvents {
-                 guard !events.contains(where:{ $0.event.id == event.id}) else { continue }
-                 group.addTask {
-                     let match = try await self.dependencies.eventManager.getEventMatch(event: event)
-                     return EventMatch(event: event, user: match)
-                 }
-             }
-             var collected: [EventMatch] = []
-             for try await result in group {
-                 collected.append(result)
-             }
-             return collected
-         }
-         events.append(contentsOf: newEvents)
-         if currentEvent == nil, let first = events.first {
-             currentEvent = first.event
-             currentUser  = first.user
-         }
-     } catch {
-         print("Failed to load events: \(error)")
-     }
- }
- 
+
  for event in events {
      guard !events.contains(where: { $0.id == event.id }), let profile = dependencies.eventManager.getEventMatch(event: event) else { return}
      let eventMatch: EventMatch = EventMatch(event: event, profile: profile)
