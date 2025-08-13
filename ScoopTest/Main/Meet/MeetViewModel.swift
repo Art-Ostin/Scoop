@@ -9,6 +9,13 @@ import Foundation
 import SwiftUI
 import AsyncAlgorithms
 
+struct ProfileInvite: Identifiable, Hashable {
+    let profile: UserProfile
+    let event: UserEvent
+    var id { UserEvent.CodingKeys.id }
+    
+}
+
 @Observable class MeetViewModel {
     
     var dep: AppDependencies
@@ -17,7 +24,7 @@ import AsyncAlgorithms
     
     init(dep: AppDependencies) { self.dep = dep }
     
-    func loadTwoDailyProfiles() async {
+    func loadProfileRecs() async {
         let manager = dep.defaultsManager
         guard manager.getDailyProfileTimerEnd() != nil else { manager.deleteTwoDailyProfiles() ; profileRecs = [] ; return }
         let ids = manager.getTwoDailyProfiles()

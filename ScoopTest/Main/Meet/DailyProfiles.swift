@@ -22,10 +22,19 @@ struct DailyProfiles: View {
 
             TabView {
                 
+                ForEach(vm.profileInvites, id: \.self) { profile, event in
+                    ProfileCard(userEvent: event, profile: profile, dep: vm.dep, selectedProfile: $selectedProfile)                    
+                }
+                
                 
                 ForEach(vm.profileRecs) {profile in
                     ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
                 }
+            }
+            .task {
+                await vm.loadProfileRecs()
+                await vm.loadEventInvites()
+                
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             

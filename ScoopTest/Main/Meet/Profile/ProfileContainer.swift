@@ -33,7 +33,6 @@ struct ProfileView: View {
 
                                 ProfileImageView(vm: $vm)
                                     .frame(height: 420)
-                                
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
                             ProfileDetailsView(vm: $vm)

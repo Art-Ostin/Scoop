@@ -9,11 +9,14 @@ import SwiftUI
 
 struct ProfileCard : View {
     
+    var userEvent: UserEvent?
     let profile: UserProfile
     let dep: AppDependencies
 
     @State private var image: UIImage?
     @Binding var selectedProfile: UserProfile?
+    
+    
     
     
     var firstURL: URL? {
