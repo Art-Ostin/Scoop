@@ -109,8 +109,6 @@ import SwiftUI
     
     enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
     
-    
-    
     private func eventsQuery(_ scope: EventScope, now: Date = .init()) -> Query {
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         let uid = currentId()
