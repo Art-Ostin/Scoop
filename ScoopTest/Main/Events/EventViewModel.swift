@@ -23,9 +23,8 @@ import SwiftUI
     var currentEvent: Event?
     var currentUser: UserProfile?
     
-    @MainActor
     func fetchUserEvents() async throws {
-        userEvents = try await dep.profileManager.getUpcomingAcceptedEvents()
+        userEvents = try await dep.eventManager.getUpcomingAcceptedEvents()
     }
     
     func saveUserImagesToCache() async throws {
@@ -40,7 +39,6 @@ import SwiftUI
         _ = await self.dep.cacheManager.loadProfileImages(profiles)
         print("saved Images to Cache")
     }
-    
     
     func formatDate(date: Date?) -> String {
         guard let date = date else { return "" }

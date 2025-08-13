@@ -11,7 +11,7 @@ import SwiftUI
 
 struct IntroView2: View {
     
-    @Binding var vm: MeetUpViewModel2
+    @Binding var vm: MeetViewModel
     @Binding var showProfiles: Bool
     
     let quote = quotes.shared.allQuotes.randomElement()!

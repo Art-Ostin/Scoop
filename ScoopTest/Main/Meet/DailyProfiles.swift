@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DailyProfiles: View {
     
-    @Binding var vm: MeetUpViewModel2
+    @Binding var vm: MeetViewModel
     @Binding var showProfile: Bool
     @Binding var selectedProfile: UserProfile?
     
@@ -17,11 +17,13 @@ struct DailyProfiles: View {
     var body: some View {
         
         let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
-        
+
         VStack(spacing: 36) {
-            
+
             TabView {
-                ForEach(vm.shownDailyProfiles) {profile in
+                
+                
+                ForEach(vm.profileRecs) {profile in
                     ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
                 }
             }

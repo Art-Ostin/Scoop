@@ -7,12 +7,14 @@ struct ProfileView: View {
         
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ProfileViewModel
+    
+    
     let onDismiss: () -> Void
 
     
     
-    init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, onDismiss: @escaping () -> Void = {}) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInvite: showInviteButton, dep: dep, profileType: .sendInvite))
+    init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, onDismiss: @escaping () -> Void = {}, event: UserEvent? = nil) {
+        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInvite: showInviteButton, dep: dep, profileType: .sendInvite, event: event))
         self.onDismiss = onDismiss
     }
     
@@ -28,7 +30,7 @@ struct ProfileView: View {
                             VStack {
                                 heading
                                     .padding()
-                                
+
                                 ProfileImageView(vm: $vm)
                                     .frame(height: 420)
                                 

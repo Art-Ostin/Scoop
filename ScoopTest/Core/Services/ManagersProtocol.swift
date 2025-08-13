@@ -27,10 +27,6 @@ protocol ProfileManaging {
     func update(values: [UserProfile.CodingKeys: Any]) async throws
     func updatePrompt(userId: String, promptIndex: Int, prompt: PromptResponse) async throws
     func updatePrompt(promptIndex: Int, prompt: PromptResponse) async throws
-    func getAllUserEvents(userId: String) async throws -> [UserEvent]
-    func getUpcomingAcceptedEvents() async throws -> [UserEvent]
-    func getUpcomingInvitedEvents() async throws -> [UserEvent]
-    func getPastAcceptedEvents() async throws -> [UserEvent]
     func getRandomProfile() async throws -> [UserProfile]
 }
 
@@ -43,6 +39,7 @@ protocol StorageManaging {
 }
 
 protocol CacheManaging {
+    @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
     func fetchImage(for url: URL) async throws -> UIImage
     func removeImage(for url: URL)

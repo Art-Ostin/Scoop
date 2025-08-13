@@ -11,17 +11,18 @@ struct MeetContainer: View {
     
     var dep: AppDependencies
     
-    @State private var vm: MeetUpViewModel2
+    @State private var vm: MeetViewModel
     
     @State var showProfiles: Bool
     @State private var selectedProfile: UserProfile?
     
     init(dep: AppDependencies) {
         self.dep = dep
-        _vm = .init(initialValue: MeetUpViewModel2(dep: dep))
+        _vm = .init(initialValue: MeetViewModel(dep: dep))
         self.showProfiles = dep.defaultsManager.getDailyProfileTimerEnd() != nil
     }
-    
+
+
     var body: some View {
         ZStack {
             VStack(spacing: 32) {
@@ -34,6 +35,10 @@ struct MeetContainer: View {
                         IntroView2(vm: $vm, showProfiles: $showProfiles)
                     }
                 }
+            }
+            .task {
+                await vm.loadTwoDailyProfiles()
+                await vm.loadEventInvites()
             }
             .padding(.top, 36)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

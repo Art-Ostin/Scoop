@@ -9,6 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 
+
 @Observable
 class EventManager {
     
@@ -21,24 +22,25 @@ class EventManager {
     }
     
     private let eventCollection = Firestore.firestore().collection("events")
-        
-    private func eventDocument(id: String) -> DocumentReference {
-        eventCollection.document(id)
-    }
-    
     private let userCollection = Firestore.firestore().collection("users")
-    
     private func userEventCollection (userId: String) -> CollectionReference {
         userCollection.document(userId).collection("user_events")
+    }
+
+    private func eventDocument(id: String) -> DocumentReference {
+        eventCollection.document(id)
     }
     private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
         userEventCollection(userId: userId).document(userEventId)
     }
     
-    func fetchEvent(eventId: String) async throws -> Event {
+    private func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
     }
-    
+    private func currentId() -> String {
+        guard let uid = user.user?.userId else { return ""}
+        return uid
+    }
 
     func createEvent(event: Event) async throws {
         //Creates event and local reference in the two users subcollection of events
@@ -119,6 +121,43 @@ class EventManager {
         try await batch.commit()
     }
     
+    private func eventsQuery(_ scope: EventScope, now: Date = .init()) -> Query {
+        let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
+        let uid = currentId()
+        switch scope {
+        case .upcomingInvited:
+            return userEventCollection(userId: uid)
+                .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
+                .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
+                .order(by: Event.CodingKeys.time.stringValue)
+        case .upcomingAccepted:
+            return userEventCollection(userId: uid)
+                .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
+                .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
+                .order(by: Event.CodingKeys.time.stringValue)
+            
+        case .pastAccepted:
+            return userEventCollection(userId: uid)
+                .whereField(UserEvent.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
+                .whereField(UserEvent.CodingKeys.time.stringValue, isLessThan: Timestamp(date: plus3h))
+        }
+    }
+    private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [UserEvent] {
+        let query = eventsQuery(scope, now: now)
+        return try await query
+            .getDocuments(as: UserEvent.self)
+    }
+    
+    func getUpcomingAcceptedEvents() async throws -> [UserEvent] {
+        try await getEvents(.upcomingAccepted)
+    }
+    func getUpcomingInvitedEvents() async throws -> [UserEvent] {
+        try await getEvents(.upcomingInvited)
+    }
+    func getPastAcceptedEvents() async throws -> [UserEvent] {
+        try await getEvents(.pastAccepted)
+    }
+    
     func updateTime(eventId: String, to newTime: Date) async throws {
         
         let batch = Firestore.firestore().batch()
@@ -140,7 +179,6 @@ class EventManager {
         
         try await batch.commit()
     }
-    
     func updateStatus(eventId: String, to newStatus: EventStatus) async throws {
         
         let batch = Firestore.firestore().batch()
@@ -162,12 +200,6 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
     }
-    
-    private func currentId() -> String {
-        guard let uid = user.user?.userId else { return ""}
-        return uid
-    }
-    
 }
 
 extension Query {
@@ -176,3 +208,15 @@ extension Query {
         return try snapshot.documents.map { try $0.data(as: T.self)}
     }
 }
+
+
+
+/* Don't think I need anymore
+ func removeUserEvent(userId: String, userEventId: String) async throws {
+     try await userEventDocument(userId: userId, userEventId: userEventId).delete()
+ }
+
+ func getAllUserEvents(userId: String) async throws -> [UserEvent] {
+     try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
+ }
+ */

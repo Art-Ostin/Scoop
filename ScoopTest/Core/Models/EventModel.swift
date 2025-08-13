@@ -16,12 +16,13 @@ struct EventArray : Codable {
 }
 
 
-enum EventStatus: String, Codable{
-    case pending
-    case accepted
-    case declined
-    case cancelled
+enum EventStatus: String, Codable {
+    case pending, accepted, declined, cancelled
 }
+enum EventScope {
+    case upcomingInvited, upcomingAccepted, pastAccepted
+}
+
 
 struct Event: Identifiable, Codable {
     @DocumentID var id: String?

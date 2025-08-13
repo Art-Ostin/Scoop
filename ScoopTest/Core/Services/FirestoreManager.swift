@@ -74,60 +74,10 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
-    func removeUserEvent(userId: String, userEventId: String) async throws {
-        try await userEventDocument(userId: userId, userEventId: userEventId).delete()
-    }
-
-    func getAllUserEvents(userId: String) async throws -> [UserEvent] {
-        try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
-    }
-
     
     func currentId() -> String {
         guard let id  = userManager?.user?.userId else {return ""}
         return id
-    }
-    
-    enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
-    
-    private func eventsQuery(_ scope: EventScope, now: Date = .init()) -> Query {
-        let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
-        let uid = currentId()
-        switch scope {
-        case .upcomingInvited:
-            return userEventCollection(userId: uid)
-                .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
-                .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
-                .order(by: Event.CodingKeys.time.stringValue)
-        case .upcomingAccepted:
-            return userEventCollection(userId: uid)
-                .whereField(Event.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
-                .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
-                .order(by: Event.CodingKeys.time.stringValue)
-            
-        case .pastAccepted:
-            return userEventCollection(userId: uid)
-                .whereField(Event.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
-                .whereField(Event.CodingKeys.time.stringValue, isLessThan: Timestamp(date: plus3h))
-        }
-    }
-    
-    private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [UserEvent] {
-        let query = eventsQuery(scope, now: now)
-        return try await query
-            .getDocuments(as: UserEvent.self)
-    }
-    
-    func getUpcomingAcceptedEvents() async throws -> [UserEvent] {
-        try await getEvents(.upcomingAccepted)
-    }
-    
-    func getUpcomingInvitedEvents() async throws -> [UserEvent] {
-        try await getEvents(.upcomingInvited)
-    }
-
-    func getPastAcceptedEvents() async throws -> [UserEvent] {
-        try await getEvents(.pastAccepted)
     }
     
     

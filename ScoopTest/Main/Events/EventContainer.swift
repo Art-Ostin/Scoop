@@ -23,10 +23,8 @@ struct EventContainer: View {
                 EventPlaceholder()
             }
         }
-        .onAppear {
-            vm.fetchUserEvents()
-        }
         .task {
+            try? await vm.fetchUserEvents()
             try? await vm.saveUserImagesToCache()
         }
         

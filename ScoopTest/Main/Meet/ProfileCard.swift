@@ -11,9 +11,8 @@ struct ProfileCard : View {
     
     let profile: UserProfile
     let dep: AppDependencies
-    
+
     @State private var image: UIImage?
-    
     @Binding var selectedProfile: UserProfile?
     
     
