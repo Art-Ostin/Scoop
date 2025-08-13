@@ -16,9 +16,6 @@ struct ProfileCard : View {
     @State private var image: UIImage?
     @Binding var selectedProfile: UserProfile?
     
-    
-    
-    
     var firstURL: URL? {
         guard let s = profile.imagePathURL?.first else {return nil}
         return URL(string: s)

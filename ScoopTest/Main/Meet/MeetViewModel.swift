@@ -34,7 +34,7 @@ import AsyncAlgorithms
     func updateTwoDailyProfiles() async {
         guard let newProfiles = try? await dep.profileManager.getRandomProfile() else { return }
         await dep.cacheManager.loadProfileImages(newProfiles)
-        profileRecs = profileRecs
+        profileRecs = newProfiles
         dep.defaultsManager.setTwoDailyProfiles(newProfiles)
     }
     

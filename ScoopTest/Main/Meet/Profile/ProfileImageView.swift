@@ -32,11 +32,15 @@ extension ProfileImageView {
             let size = geo.size.width - 16
             
             TabView(selection: $selection) {
+                                
                 ForEach(images.indices, id: \.self) {index in
                     let image = images[index]
                     imageContainer(image: image, size: size) {
                         InviteButton(vm: $vm)
                     }.tag(index)
+                    
+                    
+                    
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))

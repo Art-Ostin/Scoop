@@ -21,7 +21,7 @@ struct DailyProfiles: View {
         VStack(spacing: 36) {
 
             TabView {
-                
+
                 ForEach(vm.profileInvites, id: \.0.id) { profile, event in
                     ProfileCard(userEvent: event, profile: profile, dep: vm.dep, selectedProfile: $selectedProfile)
                 }
@@ -29,11 +29,6 @@ struct DailyProfiles: View {
                 ForEach(vm.profileRecs) {profile in
                     ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
                 }
-            }
-            .task {
-                await vm.loadProfileRecs()
-                await vm.loadEventInvites()
-                
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             

@@ -10,7 +10,7 @@ import SwiftUI
 struct InviteButton: View {
     
     @Binding var vm: ProfileViewModel
-    
+    var isInvite: Bool?
     
     var body: some View {
         Button {
