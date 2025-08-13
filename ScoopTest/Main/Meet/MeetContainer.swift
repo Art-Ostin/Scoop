@@ -22,7 +22,6 @@ struct MeetContainer: View {
         self.showProfiles = dep.defaultsManager.getDailyProfileTimerEnd() != nil
     }
 
-
     var body: some View {
         ZStack {
             VStack(spacing: 32) {
@@ -37,7 +36,7 @@ struct MeetContainer: View {
                 }
             }
             .task {
-                await vm.loadTwoDailyProfiles()
+                await vm.loadProfileRecs()
                 await vm.loadEventInvites()
             }
             .padding(.top, 36)

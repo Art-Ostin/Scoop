@@ -9,13 +9,6 @@ import Foundation
 import SwiftUI
 import AsyncAlgorithms
 
-struct ProfileInvite: Identifiable, Hashable {
-    let profile: UserProfile
-    let event: UserEvent
-    var id { UserEvent.CodingKeys.id }
-    
-}
-
 @Observable class MeetViewModel {
     
     var dep: AppDependencies
