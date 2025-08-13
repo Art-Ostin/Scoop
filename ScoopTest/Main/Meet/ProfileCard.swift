@@ -34,6 +34,7 @@ struct ProfileCard : View {
             image = try? await dep.cacheManager.fetchImage(for: url)
         }
     }
+    
     private func firstImage(image: UIImage) -> some View {
         Image(uiImage: image)
             .resizable()

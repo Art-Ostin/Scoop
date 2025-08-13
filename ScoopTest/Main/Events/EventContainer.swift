@@ -27,7 +27,6 @@ struct EventContainer: View {
             try? await vm.fetchUserEvents()
             try? await vm.saveUserImagesToCache()
         }
-        
         }
     }
 

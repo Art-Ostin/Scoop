@@ -8,7 +8,6 @@ struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ProfileViewModel
     
-    
     let onDismiss: () -> Void
 
     
@@ -49,6 +48,7 @@ struct ProfileView: View {
                         
                         if vm.event != nil {
                             
+//                            PopUpView(image: vm.p., event: <#T##UserEvent#>, vm: <#T##ProfileViewModel#>)
                         }
                         
                         SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)

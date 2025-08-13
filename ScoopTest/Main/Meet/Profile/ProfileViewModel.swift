@@ -11,7 +11,6 @@ enum ProfileType {
 }
 
 @Observable class ProfileViewModel {
-    
     var p: UserProfile
     var event: UserEvent?
     let dep: AppDependencies

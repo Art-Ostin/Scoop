@@ -99,15 +99,9 @@ extension SendInviteView {
         
         let time = vm.event.time
         
-        let formattedTime: String = {
-            guard let date = time else {return "Time"}
-            let formatter = DateFormatter()
-            formatter.dateFormat = "E, MMM d – h:mm a"
-            return formatter.string(from: date)
-        }()
         
         return HStack {
-            if time != nil { Text(formattedTime).font(.body(18))
+            if time != nil { Text(vm.dep.eventManager.formatTime(date: time)).font(.body(18))
             } else {Text("Time").font(.body(20, .bold))}
             
             Spacer()

@@ -29,7 +29,7 @@ import FirebaseAuth
             else if timeRemaining > countdownDuration {
                 Image(systemName: "checkmark")
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.defualtGreen)
+                    .foregroundStyle(Color.defaultGreen)
             }
             else {
                 Text("\(timeRemaining)")

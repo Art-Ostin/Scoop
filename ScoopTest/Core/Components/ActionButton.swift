@@ -11,14 +11,16 @@ struct ActionButton: View {
     
     var text: String
     var isValid: Bool
+    var isInvite: Bool
     var onTap: () -> Void
     var cornerRadius: CGFloat
     
-    init(isValid: Bool = true, text: String, onTap: @escaping () -> Void, cornerRadius: CGFloat = 24) {
+    init(isValid: Bool = true, text: String, isInvite: Bool = false, cornerRadius: CGFloat = 24, onTap: @escaping () -> Void) {
         self.isValid = isValid
         self.text = text
         self.onTap = onTap
         self.cornerRadius = cornerRadius
+        self.isInvite = isInvite
     }
     
     var body: some View {
@@ -31,7 +33,7 @@ struct ActionButton: View {
                 .font(.body(18, .bold))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .background(isValid ? Color.accent : Color.grayBackground)
+                .background(isValid ? (isInvite ? Color.defaultGreen : Color.accent) : Color.grayBackground)
                 .foregroundStyle(.white)
                 .cornerRadius(cornerRadius)
                 .shadow(color: isValid ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 2)

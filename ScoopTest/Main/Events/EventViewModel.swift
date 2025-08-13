@@ -39,15 +39,5 @@ import SwiftUI
         _ = await self.dep.cacheManager.loadProfileImages(profiles)
         print("saved Images to Cache")
     }
-    
-    func formatDate(date: Date?) -> String {
-        guard let date = date else { return "" }
-        let day = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
-        let time = date.formatted(
-            .dateTime
-                .weekday(.wide)
-                .hour(.twoDigits(amPM: .omitted))
-                .minute(.twoDigits))
-        return "\(day), \(time)"
-    }
+
 }
