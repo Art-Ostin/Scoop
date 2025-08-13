@@ -29,6 +29,8 @@ import SwiftUI
         manager.setTwoDailyProfiles(newProfiles)
     }
     
+    
+    
     //If the timer is still going load the two daily profiles. If not, remove the old two daily profiles
     func loadTwoDailyProfiles() async {
         let manager = dep.defaultsManager

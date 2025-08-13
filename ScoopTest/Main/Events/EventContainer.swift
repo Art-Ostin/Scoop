@@ -16,7 +16,6 @@ struct EventContainer: View {
     }
     
     var body: some View {
-        
         ZStack {
             if vm.hasEvents {
                 EventView(dep: vm.dep, vm: vm)
@@ -24,12 +23,15 @@ struct EventContainer: View {
                 EventPlaceholder()
             }
         }
+        .onAppear {
+            vm.fetchUserEvents()
+        }
         .task {
-            try? await vm.fetchUserEvents()
             try? await vm.saveUserImagesToCache()
         }
+        
+        }
     }
-}
 
 #Preview {
     EventContainer(dependencies: AppDependencies())

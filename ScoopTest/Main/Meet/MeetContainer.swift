@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MeetContainer2: View {
+struct MeetContainer: View {
     
     var dep: AppDependencies
     
@@ -46,7 +46,7 @@ struct MeetContainer2: View {
                         .onTapGesture { }
                     ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } })
                 }
-                .transition(.move(edge: .bottom))
+                .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
                 .zIndex(1)
             }
         }

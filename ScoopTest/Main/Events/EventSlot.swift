@@ -9,7 +9,6 @@ import SwiftUI
 
 struct EventSlot: View {
     
-    let dep: AppDependencies
     
     let vm: EventViewModel
     let event: UserEvent
@@ -26,6 +25,11 @@ struct EventSlot: View {
                     .onTapGesture {
                         if let profileHolder {
                             withAnimation(.easeInOut(duration: 0.27)) { selectedProfile = profileHolder}
+                            
+                            Task { try await  vm.dep.eventManager.updateStatus(eventId: event.id ?? "", to: .pending)
+                                print("updated Status")
+                                
+                            }
                         }
                     }
             }
@@ -40,7 +44,7 @@ struct EventSlot: View {
                 .font(.body(24, .bold))
         }
         .task {
-            profileHolder = try? await dep.profileManager.getProfile(userId: event.otherUserId)
+            profileHolder = try? await vm.dep.profileManager.getProfile(userId: event.otherUserId)
         }
         
         .tag(event.id)

@@ -23,7 +23,8 @@ import SwiftUI
     var currentEvent: Event?
     var currentUser: UserProfile?
     
-    func fetchUserEvents() async throws {
+    @MainActor
+    func fetchUserEvents() {
         Task { userEvents = try await dep.profileManager.getUpcomingAcceptedEvents() }
     }
     

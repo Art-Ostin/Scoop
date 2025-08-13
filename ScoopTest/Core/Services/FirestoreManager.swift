@@ -74,25 +74,6 @@ import SwiftUI
         try await updatePrompt(userId: id, promptIndex: promptIndex, prompt: prompt)
     }
     
-    func addUserEvent(userId: String, matchId: String, event: Event, matchImageString: String, role: EdgeRole, matchName: String)  async throws {
-        guard let eventId = event.id else { return }
-        var data: [String: Any] = [
-            UserEvent.CodingKeys.id.rawValue: eventId,
-            UserEvent.CodingKeys.otherUserId.rawValue: matchId,
-            UserEvent.CodingKeys.role.rawValue: role.rawValue,
-            UserEvent.CodingKeys.status.rawValue: event.status.rawValue,
-            UserEvent.CodingKeys.time.rawValue: event.time ?? Date(),
-            UserEvent.CodingKeys.type.rawValue: event.type ?? "",
-            UserEvent.CodingKeys.message.rawValue: event.message ?? "",
-            UserEvent.CodingKeys.otherUserPhoto.rawValue: matchImageString,
-            UserEvent.CodingKeys.otherUserName.rawValue: matchName,
-            UserEvent.CodingKeys.updatedAt.rawValue: Date()
-        ]
-        let location = try Firestore.Encoder().encode(event.location)
-        data[UserEvent.CodingKeys.place.rawValue] = location
-        try await userEventCollection(userId: userId).document(eventId).setData(data)
-    }
-    
     func removeUserEvent(userId: String, userEventId: String) async throws {
         try await userEventDocument(userId: userId, userEventId: userEventId).delete()
     }

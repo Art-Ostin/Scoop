@@ -35,7 +35,7 @@ struct EventView: View {
 
                 TabView(selection: $selection) {
                     ForEach(vm.userEvents) { event in
-                        EventSlot(dep: dep, vm: vm, event: event, selectedProfile: $selectedProfile)
+                        EventSlot(vm: vm, event: event, selectedProfile: $selectedProfile)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
