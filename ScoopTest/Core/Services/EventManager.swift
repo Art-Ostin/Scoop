@@ -36,10 +36,13 @@ class EventManager {
     private func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
     }
-    private func currentId() -> String {
-        guard let uid = user.user?.userId else { return ""}
-        return uid
+    
+    
+    private var currentId: String? {
+        user.user?.userId
     }
+    
+    
 
     func createEvent(event: Event) async throws {
         //Creates event and local reference in the two users subcollection of events
@@ -50,12 +53,17 @@ class EventManager {
         let eventRef = db.collection("events").document()
         let eventId = eventRef.documentID
         
-        let initiatorId = currentId()
+
+        guard let initiatorId = currentId,
+              let recipientId = event.recipientId else {
+            print("failed to get user")
+            throw URLError(.userAuthenticationRequired)
+        }
+
         var e = event
         e.id = eventId
         e.initiatorId = initiatorId
         
-        let recipientId = event.recipientId ?? ""
         let recipientProfile = try await profile.getProfile(userId: recipientId)
         let recipientName = recipientProfile.name ?? ""
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
@@ -120,9 +128,12 @@ class EventManager {
         try await batch.commit()
     }
     
-    private func eventsQuery(_ scope: EventScope, now: Date = .init()) -> Query {
+    private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
+        
+        guard let uid = currentId else { throw URLError(.userAuthenticationRequired) }
+
+        
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
-        let uid = currentId()
         switch scope {
         case .upcomingInvited:
             return userEventCollection(userId: uid)
@@ -142,7 +153,7 @@ class EventManager {
         }
     }
     private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [UserEvent] {
-        let query = eventsQuery(scope, now: now)
+        let query = try eventsQuery(scope, now: now)
         return try await query
             .getDocuments(as: UserEvent.self)
     }
