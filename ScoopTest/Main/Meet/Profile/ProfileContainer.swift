@@ -13,7 +13,7 @@ struct ProfileView: View {
     @State var image: UIImage?
     
     
-    init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, onDismiss: @escaping () -> Void = {}, event: UserEvent? = nil) {
+    init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, event: UserEvent? = nil, onDismiss: @escaping () -> Void = {}) {
         self._vm = State(initialValue: ProfileViewModel(profile: profile, showInvite: showInviteButton, dep: dep, profileType: .sendInvite, event: event))
         self.onDismiss = onDismiss
     }

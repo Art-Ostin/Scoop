@@ -50,20 +50,24 @@ struct MeetContainer: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } })
+                    ProfileView(profile: profile, dep: dep) {
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
+                    }
                 }
                 .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
                 .zIndex(1)
             }
             
             
-            if let (profile, event) = selectedInvite {
+            if let invite = selectedInvite {
                 ZStack {
                     Color.clear
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedInvite = nil } }, event: event)
+                    ProfileView(profile: invite.profile, dep: dep, event: invite.event) {
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
+                    }
                 }
             }
         }
