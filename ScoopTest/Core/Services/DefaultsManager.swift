@@ -54,7 +54,7 @@ final class DefaultsManager {
     
     func removeATwoDailyProfile(_ profile: UserProfile){
         let id = profile.userId
-        defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
+        defaults.removeObject(id, forKey: Keys.twoDailyProfiles.rawValue)
     }
     
     
