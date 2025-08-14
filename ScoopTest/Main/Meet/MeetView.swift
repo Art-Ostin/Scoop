@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-struct DailyProfiles: View {
+struct MeetView: View {
     
     @State var vm: MeetViewModel
     @State var selectedProfile: UserProfile?
     @State var selectedInvite: EventInvite?
-    
     
     init(dep: AppDependencies) { _vm = State(initialValue: MeetViewModel(dep: dep))}
     
@@ -52,7 +51,7 @@ struct DailyProfiles: View {
     }
 }
 
-extension DailyProfiles {
+extension MeetView {
     
     private var tabView: some View {
         TabView{

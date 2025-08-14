@@ -12,7 +12,7 @@ struct ProfileCard : View {
     var userEvent: UserEvent?
     let profile: UserProfile
     let dep: AppDependencies
-    
+
     @State private var image: UIImage?
     @Binding var selectedProfile: UserProfile?
     @Binding var selectedInvite: EventInvite?
@@ -34,7 +34,7 @@ struct ProfileCard : View {
                             selectedProfile = profile
                         }
                     }
-                    }
+                }
             }
         }
         .task {

@@ -14,16 +14,16 @@ struct SendInviteView: View {
     @Environment(MeetViewModel.self) private var meetVM
     
     @Binding var image: UIImage?
-    var profileVM: ProfileViewModel
+    @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     @FocusState var isFocused: Bool
     @State var showAlert: Bool = false
     
     let onDismiss: () -> Void
     
-    init(recipient: UserProfile, dep: AppDependencies, profileVM: ProfileViewModel, image: Binding<UIImage?>, onDismiss: @escaping () -> Void) {
+    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: Binding<UIImage?>, onDismiss: @escaping () -> Void) {
         self._vm = State(initialValue: SendInviteViewModel(recipient: recipient, dep: dep))
-        self.profileVM = profileVM
+        self._profileVM = profileVM
         self._image = image
         self.onDismiss = onDismiss
     }

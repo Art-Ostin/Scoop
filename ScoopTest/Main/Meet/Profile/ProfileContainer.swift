@@ -3,52 +3,52 @@ import Foundation
 import SwiftUI
 
 struct ProfileView: View {
-        
+    
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ProfileViewModel
     let onDismiss: () -> Void
     @State var image: UIImage?
     
     
-    init(profile: UserProfile, showInviteButton: Bool = false, dep: AppDependencies, event: UserEvent? = nil, onDismiss: @escaping () -> Void = {}) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile, showInvite: showInviteButton, dep: dep, profileType: .sendInvite, event: event))
+    init(profile: UserProfile, dep: AppDependencies, event: UserEvent? = nil, onDismiss: @escaping () -> Void = {}) {
+        self._vm = State(initialValue: ProfileViewModel(profile: profile, dep: dep, profileType: .sendInvite, event: event))
         self.onDismiss = onDismiss
     }
     
+    
     var body: some View {
-        GeometryReader { _ in
-            NavigationStack {
-                ZStack {
-                    Color.background.edgesIgnoringSafeArea(.all)
-                    ScrollView {
+        
+        NavigationStack {
+            ZStack {
+                Color.background.edgesIgnoringSafeArea(.all)
+                ScrollView {
+                    VStack {
                         VStack {
-                            VStack {
-                                heading
-                                    .padding()
-
-                                ProfileImageView(vm: $vm)
-                                    .frame(height: 420)
-                            }
-                            .frame(maxHeight: .infinity, alignment: .top)
-                            ProfileDetailsView(vm: $vm)
+                            heading
+                                .padding()
+                            
+                            ProfileImageView(vm: $vm)
+                                .frame(height: 420)
                         }
+                        .frame(maxHeight: .infinity, alignment: .top)
+                        ProfileDetailsView(vm: $vm)
                     }
-                    if vm.showInvite {
-                        Rectangle()
-                            .fill(.thinMaterial)
-                            .ignoresSafeArea()
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                vm.showInvite = false
-                            }
-                        if let event = vm.event {
-                            ZStack {
-                                InvitePopup(vm: vm, image: $image, event: event)
-                            }
-                        } else  {
-                            SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: $image) {
-                                dismiss() 
-                            }
+                }
+                if vm.showInvite {
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            vm.showInvite = false
+                        }
+                    if let event = vm.event {
+                        ZStack {
+                            InvitePopup(vm: vm, image: $image, event: event)
+                        }
+                    } else  {
+                        SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: $image) {
+                            dismiss()
                         }
                     }
                 }

@@ -19,10 +19,10 @@ struct EditProfileContainer: View {
     var body: some View {
         
         if let user = dep.userManager.user {
-
+            
             Group {
                 if isView {
-                    ProfileView(profile: user, showInviteButton: false, dep: dep)
+                    ProfileView(profile: user, dep: dep)
                         .id(user.imagePath ?? [])
                         .transition(.move(edge: .leading))
                 } else {
