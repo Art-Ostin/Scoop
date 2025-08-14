@@ -39,7 +39,7 @@ struct EventInvite {
         profileRecs = results
         await dep.cacheManager.loadProfileImages(results)
     }
-        
+    
     func updateTwoDailyProfiles() async {
         guard let newProfiles = try? await dep.profileManager.getRandomProfile() else { return }
         await dep.cacheManager.loadProfileImages(newProfiles)
@@ -48,19 +48,18 @@ struct EventInvite {
     }
     
     func loadEventInvites() async {
-        guard let userInvites = try? await dep.eventManager.getUpcomingInvitedEvents() else { return}
-        if userInvites.isEmpty == true { return }
-
-        await withTaskGroup(of: UserProfile?.self) { group in
-            for event in userInvites {
-                group.addTask { try? await self.dep.profileManager.getProfile(userId: event.otherUserId) }
-                for await profile in group {
-                    if let profile {
-                        profileInvites.append(.init(profile, event))
-                        await dep.cacheManager.loadProfileImages([profile])
+        guard let events = try? await dep.eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
+        var out: [EventInvite] = []
+        await withTaskGroup(of: EventInvite?.self) {group in
+            for e in events {
+                group.addTask {
+                    guard let p = try? await self.dep.profileManager.getProfile(userId: e.otherUserId) else {return nil }
+                        return EventInvite(p, e)
                     }
                 }
+            for await i in group { if let i { out.append(i) } }
             }
-        }
+        profileInvites = out
+        await dep.cacheManager.loadProfileImages(out.map(\.self.profile))
     }
 }

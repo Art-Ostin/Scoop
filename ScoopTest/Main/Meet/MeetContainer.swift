@@ -56,7 +56,8 @@ struct MeetContainer: View {
                 }
                 .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
                 .zIndex(1)
-            }            
+            }
+            
             if let invite = selectedInvite {
                 ZStack {
                     Color.clear
