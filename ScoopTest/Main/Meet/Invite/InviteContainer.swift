@@ -18,10 +18,13 @@ struct SendInviteView: View {
     @FocusState var isFocused: Bool
     @State var showAlert: Bool = false
     
-    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: Binding<UIImage?>) {
+    let onDismiss: () -> Void
+    
+    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: Binding<UIImage?>, onDismiss: @escaping () -> Void) {
         self._vm = State(initialValue: SendInviteViewModel(recipient: recipient, dep: dep))
         self._profileVM = profileVM
         self._image = image
+        self.onDismiss = onDismiss
     }
     
     var body: some View {
@@ -78,9 +81,10 @@ struct SendInviteView: View {
             Button ("I Understand") {
                 Task {
                     try await vm.dep.eventManager.createEvent(event: vm.event)
-                    showAlert.toggle()
+                    onDismiss() 
                     
-                    // Other code Once accepted. 
+                    
+                    // Other code Once accepted.
                 }
             }
         } message : {
