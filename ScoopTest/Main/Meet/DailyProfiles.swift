@@ -52,8 +52,8 @@ extension DailyProfiles {
             ForEach(vm.profileInvites, id: \.id) {invite in
                 ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
             }
-            if vm.time == nil {
-                IntroView2(vm: $vm)
+            if time == nil {
+                IntroView(vm: $vm)
             } else {
                 ForEach(vm.profileRecs) {profile in
                     ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)

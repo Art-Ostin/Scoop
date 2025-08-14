@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct IntroView2: View {
+struct IntroView: View {
     @Binding var vm: MeetViewModel
     let quote = quotes.shared.allQuotes.randomElement()!
     var body: some View {

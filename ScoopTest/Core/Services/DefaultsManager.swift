@@ -32,7 +32,7 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
-    func setDailyProfileTimer(duration: TimeInterval = 480) {
+    func setDailyProfileTimer(duration: TimeInterval = 240) {
         let endDate = Date().addingTimeInterval(duration)
         defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
