@@ -14,6 +14,8 @@ struct InvitePopup: View {
     let event: UserEvent
     var isMessage: Bool { event.message != nil }
     @State var showAlert: Bool = false
+    @Environment(\.tabSelection) private var tabSelection
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         
@@ -51,9 +53,9 @@ struct InvitePopup: View {
             Button ("I Understand") {
                 Task {
                     if let id = event.id {
-                        Task { try await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)}
-                        
-                        // Other code once accepted (to take me to the right page)
+                        try? await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)
+                        dismiss()
+                        tabSelection.wrappedValue = 1
                     }
                 }
             }

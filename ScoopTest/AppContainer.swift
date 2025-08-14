@@ -48,6 +48,7 @@ struct AppContainer: View {
         }
         .indexViewStyle(.page(backgroundDisplayMode: .never))
         .background(Color.clear)
+        .environment(\.tabSelection, $selection)
     }
 }
 
