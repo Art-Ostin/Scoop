@@ -59,6 +59,7 @@ final class DefaultsManager {
         var ids = defaults.stringArray(forKey: Keys.suggestedProfiles.rawValue)
         ids?.removeAll(where: {$0 == id})
         defaults.set(ids, forKey: Keys.suggestedProfiles.rawValue)
+        print("updated suggestedProfiles")
     }
     
     func removeAllSuggestedProfiles() {

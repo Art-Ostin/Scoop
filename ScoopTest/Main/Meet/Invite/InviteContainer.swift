@@ -11,9 +11,7 @@ import MapKit
 
 struct SendInviteView: View {
     
-    
     @Environment(MeetViewModel.self) private var meetVM
-    
     
     @Binding var image: UIImage?
     @Binding var profileVM: ProfileViewModel
@@ -85,9 +83,9 @@ struct SendInviteView: View {
                 Task {
                     try await vm.dep.eventManager.createEvent(event: vm.event)
                     onDismiss()
-                    
+                    vm.dep.defaultsManager.removeSuggestedProfile(profileVM.p)
                    await meetVM.loadProfileRecs()
-                    
+
                     // Other code Once accepted.
                 }
             }
@@ -176,17 +174,3 @@ extension SendInviteView {
         }
     }
 }
-
-//    .alert("Event commitment", isPresented: $showAlert) {
-//        Button("I understand") {
-//            Task {
-//                if let id = event.id {
-//                    try? await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)
-//                }
-//            }
-//        } .tint(.blue)
-//        
-//        Button("Cancel", role: .cancel) {}
-//    } message: {
-//        Text("If they accept & you don't show, you'll be blocked from Scoop")
-//    }
