@@ -33,9 +33,8 @@ struct InviteAcceptPopup: View {
                 RoundedRectangle(cornerRadius: 30)
                     .inset(by: 0.5)
                     .stroke(Color.grayBackground, lineWidth: 0.5)
-                    .background(Color.blue)
             )
-            frame(width: (geo.size.width - 24))
+            frame(width: (geo.size.width - 64))
         }
         
     }
