@@ -27,6 +27,7 @@ struct IntroView: View {
                 Task {
                     await vm.updateTwoDailyProfiles()
                     vm.dep.defaultsManager.setDailyProfileTimer()
+                    vm.time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
                 }
             }
         }

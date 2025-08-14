@@ -89,7 +89,7 @@
 		65BFE7DD2E400D3C00B31A58 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7DC2E400D3C00B31A58 /* EventManager.swift */; };
 		65BFE7E12E40D0B500B31A58 /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7E02E40D0B500B31A58 /* LocationModel.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
-		65E5C8EF2E4E5CC90093410B /* IntroView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8EE2E4E5CC90093410B /* IntroView2.swift */; };
+		65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8EE2E4E5CC90093410B /* IntroView.swift */; };
 		65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820982E37C2720098CC36 /* OnboardingContainer.swift */; };
 		65E8209B2E37CCCE0098CC36 /* EditNationality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8209A2E37CCCE0098CC36 /* EditNationality.swift */; };
 		65E820A12E37F3460098CC36 /* Interests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820A02E37F3460098CC36 /* Interests.swift */; };
@@ -101,7 +101,7 @@
 		65F450C72E45815B00AE3503 /* MeetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450C62E45815B00AE3503 /* MeetViewModel.swift */; };
 		65F450C92E463D1300AE3503 /* MeetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450C82E463D1300AE3503 /* MeetContainer.swift */; };
 		65F450CB2E463E7900AE3503 /* DailyProfiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CA2E463E7900AE3503 /* DailyProfiles.swift */; };
-		65F450CD2E463F9900AE3503 /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CC2E463F9900AE3503 /* IntroView.swift */; };
+		65F450CD2E463F9900AE3503 /* IntroViewOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CC2E463F9900AE3503 /* IntroViewOld.swift */; };
 		65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450D22E482B2F00AE3503 /* ProfileCard.swift */; };
 		65F450DD2E48D19400AE3503 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450DC2E48D19400AE3503 /* ProfileViewModel.swift */; };
 		65FAF9862E413B100015E231 /* EventPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9852E413B100015E231 /* EventPlaceholder.swift */; };
@@ -216,7 +216,7 @@
 		65BFE7DC2E400D3C00B31A58 /* EventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
 		65BFE7E02E40D0B500B31A58 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
-		65E5C8EE2E4E5CC90093410B /* IntroView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView2.swift; sourceTree = "<group>"; };
+		65E5C8EE2E4E5CC90093410B /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
 		65E820982E37C2720098CC36 /* OnboardingContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainer.swift; sourceTree = "<group>"; };
 		65E8209A2E37CCCE0098CC36 /* EditNationality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNationality.swift; sourceTree = "<group>"; };
 		65E820A02E37F3460098CC36 /* Interests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interests.swift; sourceTree = "<group>"; };
@@ -228,7 +228,7 @@
 		65F450C62E45815B00AE3503 /* MeetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetViewModel.swift; sourceTree = "<group>"; };
 		65F450C82E463D1300AE3503 /* MeetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetContainer.swift; sourceTree = "<group>"; };
 		65F450CA2E463E7900AE3503 /* DailyProfiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProfiles.swift; sourceTree = "<group>"; };
-		65F450CC2E463F9900AE3503 /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
+		65F450CC2E463F9900AE3503 /* IntroViewOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroViewOld.swift; sourceTree = "<group>"; };
 		65F450D22E482B2F00AE3503 /* ProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCard.swift; sourceTree = "<group>"; };
 		65F450DC2E48D19400AE3503 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		65FAF9852E413B100015E231 /* EventPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPlaceholder.swift; sourceTree = "<group>"; };
@@ -385,7 +385,7 @@
 			isa = PBXGroup;
 			children = (
 				65F450C62E45815B00AE3503 /* MeetViewModel.swift */,
-				65E5C8EE2E4E5CC90093410B /* IntroView2.swift */,
+				65E5C8EE2E4E5CC90093410B /* IntroView.swift */,
 				65F450CA2E463E7900AE3503 /* DailyProfiles.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				653770542E0A1E710058D225 /* Profile */,
@@ -515,7 +515,7 @@
 			isa = PBXGroup;
 			children = (
 				65F450C82E463D1300AE3503 /* MeetContainer.swift */,
-				65F450CC2E463F9900AE3503 /* IntroView.swift */,
+				65F450CC2E463F9900AE3503 /* IntroViewOld.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -775,11 +775,11 @@
 				659497222E01DD4000880921 /* LimitedAccessView.swift in Sources */,
 				653BAFAB2E0C944600C1AB9E /* ProfileImageView.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageManager.swift in Sources */,
-				65F450CD2E463F9900AE3503 /* IntroView.swift in Sources */,
+				65F450CD2E463F9900AE3503 /* IntroViewOld.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventContainer.swift in Sources */,
 				654982D42E3101BE00CA335F /* AddImagesView.swift in Sources */,
 				65058E902E1C40AA009AD7FD /* FirestoreManager.swift in Sources */,
-				65E5C8EF2E4E5CC90093410B /* IntroView2.swift in Sources */,
+				65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventManager.swift in Sources */,
 				65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */,
 				654982DE2E315B1B00CA335F /* EditPhotoCell.swift in Sources */,

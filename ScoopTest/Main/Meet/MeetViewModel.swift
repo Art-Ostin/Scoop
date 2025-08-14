@@ -24,12 +24,23 @@ struct EventInvite {
     var profileRecs: [UserProfile] = []
     var profileInvites: [EventInvite] = []
     
-    init(dep: AppDependencies) { self.dep = dep }
+    var time: Date?
+    
+    init(dep: AppDependencies) {
+        self.dep = dep
+        self.time = dep.defaultsManager.getDailyProfileTimerEnd()
+    }
     
     func loadProfileRecs() async {
         let manager = dep.defaultsManager
-        guard manager.getDailyProfileTimerEnd() != nil else { manager.deleteTwoDailyProfiles() ; profileRecs = [] ; return }
         let ids = manager.getTwoDailyProfiles()
+        
+        guard time != nil else {
+            manager.deleteTwoDailyProfiles()
+            profileRecs = []
+            return
+        }
+        
         let results = await withTaskGroup(of: UserProfile?.self, returning: [UserProfile].self) { group in
             for id in ids {
                 group.addTask { try? await self.dep.profileManager.getProfile(userId: id) }
@@ -63,5 +74,4 @@ struct EventInvite {
         await dep.cacheManager.loadProfileImages(out.map(\.self.profile))
     }
     
-    var time: Date? { dep.defaultsManager.getDailyProfileTimerEnd()}
 }

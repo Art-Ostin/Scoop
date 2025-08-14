@@ -13,7 +13,6 @@ struct DailyProfiles: View {
     @State var selectedProfile: UserProfile?
     @State var selectedInvite: EventInvite?
     
-    var time: Date? { vm.dep.defaultsManager.getDailyProfileTimerEnd()}
     
     init(dep: AppDependencies) { _vm = State(initialValue: MeetViewModel(dep: dep))}
     
@@ -26,7 +25,11 @@ struct DailyProfiles: View {
                 
                 tabView
                 
-                SimpleClockView(targetTime: vm.time ?? Date()) { vm.dep.defaultsManager.deleteTwoDailyProfiles() }
+                SimpleClockView(targetTime: vm.time ?? Date()) {
+                    vm.dep.defaultsManager.deleteTwoDailyProfiles()
+                    vm.dep.defaultsManager.clearDailyProfileTimer()
+                    vm.profileRecs = []
+                }
             }
             if let invite = selectedInvite {
                 profileInviteView(invite)
@@ -52,7 +55,8 @@ extension DailyProfiles {
             ForEach(vm.profileInvites, id: \.id) {invite in
                 ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
             }
-            if time == nil {
+            
+            if vm.time == nil {
                 IntroView(vm: $vm)
             } else {
                 ForEach(vm.profileRecs) {profile in
