@@ -27,8 +27,8 @@ struct DailyProfiles: View {
                 
                 if let target = vm.time {
                     SimpleClockView(targetTime: target) {
-                        vm.dep.defaultsManager.deleteTwoDailyProfiles()
-                        vm.dep.defaultsManager.clearDailyProfileTimer()
+                        vm.dep.defaultsManager.removeAllSuggestedProfiles()
+                        vm.dep.defaultsManager.clearSuggestedProfilesTimer()
                         vm.profileRecs = []
                         vm.time = nil
                     }
@@ -48,6 +48,7 @@ struct DailyProfiles: View {
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .environment(vm)
     }
 }
 

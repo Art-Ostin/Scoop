@@ -11,8 +11,11 @@ import MapKit
 
 struct SendInviteView: View {
     
-    @Binding var image: UIImage?
     
+    @Environment(MeetViewModel.self) private var meetVM
+    
+    
+    @Binding var image: UIImage?
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     @FocusState var isFocused: Bool
@@ -83,11 +86,7 @@ struct SendInviteView: View {
                     try await vm.dep.eventManager.createEvent(event: vm.event)
                     onDismiss()
                     
-                    let id = vm.dep.defaultsManager.getTwoDailyProfiles()
-                    
-                    let localId = profileVM.p.userId
-                    
-                    
+                   await meetVM.loadProfileRecs()
                     
                     // Other code Once accepted.
                 }

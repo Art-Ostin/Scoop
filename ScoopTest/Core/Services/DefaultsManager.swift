@@ -20,10 +20,8 @@ final class DefaultsManager {
     private let defaults: UserDefaults
     
     private enum Keys: String {
-        case dailyProfileTimerEnd
-        case twoDailyProfiles
-        case sentInviteToProfile1
-        case sentInviteToProfile2
+        case suggestedProfilesTimer
+        case suggestedProfiles
     }
     
     init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
@@ -32,59 +30,61 @@ final class DefaultsManager {
         self.cacheManager = cacheManager
     }
     
-    func setDailyProfileTimer(duration: TimeInterval = 240) {
+    func setSuggestedProfilesTimer(duration: TimeInterval = 240) {
         let endDate = Date().addingTimeInterval(duration)
-        defaults.set(endDate, forKey: Keys.dailyProfileTimerEnd.rawValue)
+        defaults.set(endDate, forKey: Keys.suggestedProfilesTimer.rawValue)
     }
     
-    func getDailyProfileTimerEnd() -> Date? {
-        guard let end = defaults.object(forKey: Keys.dailyProfileTimerEnd.rawValue) as? Date else { return nil }
-        if end <= .now { clearDailyProfileTimer(); return nil }
+    func getSuggestedProfilesTimer() -> Date? {
+        guard let end = defaults.object(forKey: Keys.suggestedProfilesTimer.rawValue) as? Date else { return nil }
+        if end <= .now { clearSuggestedProfilesTimer(); return nil }
         return end
     }
     
-    func clearDailyProfileTimer() {
-        defaults.removeObject(forKey: Keys.dailyProfileTimerEnd.rawValue)
+    func clearSuggestedProfilesTimer() {
+        defaults.removeObject(forKey: Keys.suggestedProfilesTimer.rawValue)
     }
     
-    func setTwoDailyProfiles(_ profiles: [UserProfile]) {
+    func setSuggestedProfiles(_ profiles: [UserProfile]) {
         let ids = profiles.map { $0.userId }
-        defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
+        defaults.set(ids, forKey: Keys.suggestedProfiles.rawValue)
     }
     
-    func removeATwoDailyProfile(_ profile: UserProfile){
+    func getSuggestedProfiles() -> [String] {
+        defaults.stringArray(forKey: Keys.suggestedProfiles.rawValue) ?? []
+    }
+    
+    func removeSuggestedProfile(_ profile: UserProfile){
         let id = profile.userId
-        defaults.removeObject(id, forKey: Keys.twoDailyProfiles.rawValue)
+        var ids = defaults.stringArray(forKey: Keys.suggestedProfiles.rawValue)
+        ids?.removeAll(where: {$0 == id})
+        defaults.set(ids, forKey: Keys.suggestedProfiles.rawValue)
     }
     
-    
-    func getTwoDailyProfiles() -> [String] {
-        defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
+    func removeAllSuggestedProfiles() {
+        defaults.removeObject(forKey: Keys.suggestedProfiles.rawValue)
     }
-    
-    func deleteTwoDailyProfiles() {
-        defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
-    }
-        
-    
-    func sentInviteToProfile1() {
-        defaults.set(true, forKey: Keys.sentInviteToProfile1.rawValue)
-    }
-    func sentInviteToProfile2() {
-        defaults.set(true, forKey: Keys.sentInviteToProfile2.rawValue)
-    }
-    
-    func getInviteToProfile1Status() -> Bool {
-        defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
-    }
-    
-    func getInviteToProfile2Status() -> Bool {
-        defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
-    }
-    
-    func refreshInviteStatus() {
-        defaults.removeObject(forKey: Keys.sentInviteToProfile1.rawValue)
-        defaults.removeObject(forKey: Keys.sentInviteToProfile2.rawValue)
-    }
-    
 }
+
+
+/*
+ func sentInviteToProfile1() {
+     defaults.set(true, forKey: Keys.sentInviteToProfile1.rawValue)
+ }
+ func sentInviteToProfile2() {
+     defaults.set(true, forKey: Keys.sentInviteToProfile2.rawValue)
+ }
+
+ func getInviteToProfile1Status() -> Bool {
+     defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
+ }
+
+ func getInviteToProfile2Status() -> Bool {
+     defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
+ }
+
+ func refreshInviteStatus() {
+     defaults.removeObject(forKey: Keys.sentInviteToProfile1.rawValue)
+     defaults.removeObject(forKey: Keys.sentInviteToProfile2.rawValue)
+ }
+ */

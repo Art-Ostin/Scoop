@@ -26,8 +26,8 @@ struct IntroView: View {
             ActionButton(text: "2 Daily Profiles") {
                 Task {
                     await vm.updateTwoDailyProfiles()
-                    vm.dep.defaultsManager.setDailyProfileTimer()
-                    vm.time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
+                    vm.dep.defaultsManager.setSuggestedProfilesTimer()
+                    vm.time = vm.dep.defaultsManager.getSuggestedProfilesTimer()
                 }
             }
         }

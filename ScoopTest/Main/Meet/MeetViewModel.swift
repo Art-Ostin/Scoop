@@ -28,15 +28,15 @@ struct EventInvite {
     
     init(dep: AppDependencies) {
         self.dep = dep
-        self.time = dep.defaultsManager.getDailyProfileTimerEnd()
+        self.time = dep.defaultsManager.getSuggestedProfilesTimer()
     }
     
     func loadProfileRecs() async {
         let manager = dep.defaultsManager
-        let ids = manager.getTwoDailyProfiles()
+        let ids = manager.getSuggestedProfiles()
         
         guard time != nil else {
-            manager.deleteTwoDailyProfiles()
+            manager.removeAllSuggestedProfiles()
             profileRecs = []
             return
         }
@@ -49,13 +49,15 @@ struct EventInvite {
         }
         profileRecs = results
         await dep.cacheManager.loadProfileImages(results)
+        
+        print("Function successfully called")
     }
     
     func updateTwoDailyProfiles() async {
         guard let newProfiles = try? await dep.profileManager.getRandomProfile() else { return }
         await dep.cacheManager.loadProfileImages(newProfiles)
         profileRecs = newProfiles
-        dep.defaultsManager.setTwoDailyProfiles(newProfiles)
+        dep.defaultsManager.setSuggestedProfiles(newProfiles)
     }
     
     func loadEventInvites() async {
