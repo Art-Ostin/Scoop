@@ -18,11 +18,15 @@ struct InvitePopup: View {
         
         VStack(spacing: 32) {
             
-            HStack {
+            HStack() {
                 CirclePhoto(image: image)
                 
                 Text("Meet \(event.otherUserName ?? "")")
                     .font(.title(24, .bold))
+                
+                if isMessage {
+                    Spacer()
+                }
             }
             
             vm.dep.eventManager.eventFormatter(event: event)
@@ -33,7 +37,7 @@ struct InvitePopup: View {
         }
         .padding(.top, 24)
         .padding(.bottom, 32)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 16)
         .frame(maxWidth: .infinity)
         .background(Color.background, in: RoundedRectangle(cornerRadius: 30))
         .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Color.grayBackground, lineWidth: 0.5))

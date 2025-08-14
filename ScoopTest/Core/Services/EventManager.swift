@@ -54,7 +54,7 @@ class EventManager {
         
         let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
         
-        return VStack(spacing: isMessage ? 24 : 0) {
+        return VStack(alignment: isMessage ? .leading: .center, spacing: isMessage ? 16 : 0) {
             
             header
                 .font(.body(size))
@@ -66,9 +66,9 @@ class EventManager {
                 Text (message)
                     .font(.body(.italic))
                     .foregroundStyle(Color.grayText)
-                    .offset(x: -4)
             }
-        }.frame(maxWidth: .infinity, alignment: isMessage ? .leading : .center)
+        }
+        .frame(maxWidth: .infinity, alignment: isMessage ? .leading : .center)
     }
     
     func formatTime(date: Date?) -> String {
