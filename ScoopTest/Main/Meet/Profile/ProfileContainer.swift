@@ -47,12 +47,12 @@ struct ProfileView: View {
                                 vm.showInvite = false
                             }
                         
-                        if let event = vm.event {
+                        if let event = vm.event, let image {
                             ZStack {
-                                InvitePopup()
+                                InvitePopup(vm: vm, image: image, event: event )
                             }
-                        } else {
-                            SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
+                        } else if let image {
+                            SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: image)
                         }
                     }
                 }

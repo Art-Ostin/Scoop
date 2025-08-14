@@ -11,19 +11,21 @@ import MapKit
 
 struct SendInviteView: View {
         
+    let image: UIImage
+    
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     @FocusState var isFocused: Bool
     
-    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>) {
+    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: UIImage) {
         self._vm = State(initialValue: SendInviteViewModel(recipient: recipient, dep: dep))
         self._profileVM = profileVM
+        self.image = image
     }
-    
     
     var body: some View {
         ZStack {
-            PopupTemplate(profileImage: InviteImage, title: "Meet \(vm.recipient.name ?? "")") {
+            PopupTemplate(image: image, title: "Meet \(vm.recipient.name ?? "")") {
                 VStack(spacing: 30) {
                     InviteTypeRow
                     Divider()
@@ -134,19 +136,6 @@ extension SendInviteView {
             Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
                 .onTapGesture { vm.showMapView.toggle() }
         }
-    }
-
-    private var InviteImage: CirclePhoto {
-        var image: UIImage?
-        
-        let urlString = vm.recipient.imagePathURL?.first ?? ""
-        guard let url = URL(string: urlString) else {
-            return CirclePhoto(image: UIImage())
-        }
-        Task {
-            image = try await vm.dep.cacheManager.fetchImage(for: url)
-        }
-        return CirclePhoto(image: image ?? UIImage())
     }
 }
 

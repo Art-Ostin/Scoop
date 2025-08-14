@@ -14,13 +14,12 @@ struct InviteButton: View {
     var isInvite: Bool {
         vm.event != nil
     }
-    
     var body: some View {
         Button {
             vm.showInvite.toggle()
         } label: {
             Group {
-                if isInvite { Image (systemName: "heart").resizable().frame(width: 25, height: 25).font(.body(17, .bold))} else {Image("LetterIconProfile")}
+                if isInvite { Image (systemName: "heart").resizable().frame(width: 25, height: 25).font(.system(size: 25, weight: .heavy))} else {Image("LetterIconProfile")}
             }
             .foregroundStyle(.white)
             .frame(width: 53, height: 53)

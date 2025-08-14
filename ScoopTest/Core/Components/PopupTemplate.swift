@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PopupTemplate<Content: View>: View {
     
-    var profileImage: CirclePhoto
+    let image : UIImage
     var title: String
     @ViewBuilder let content: () -> Content
     
@@ -19,7 +19,7 @@ struct PopupTemplate<Content: View>: View {
         VStack (spacing: 32) {
             
             HStack{
-                profileImage
+                CirclePhoto(image: image)
                 
                 Text(title)
                     .font(.title(24))
