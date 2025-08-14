@@ -15,7 +15,7 @@ struct MeetContainer: View {
     
     @State var showProfiles: Bool
     @State private var selectedProfile: UserProfile?
-    @State private var selectedInvite: (UserProfile, UserEvent)?
+    @State private var selectedInvite: EventInvite?
     
     init(dep: AppDependencies) {
         self.dep = dep

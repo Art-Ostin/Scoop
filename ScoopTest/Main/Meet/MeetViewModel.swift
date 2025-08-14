@@ -9,11 +9,20 @@ import Foundation
 import SwiftUI
 import AsyncAlgorithms
 
+
+struct EventInvite {
+    var event: UserEvent
+    var profile: UserProfile
+    var id: String { event.id ?? "" }
+    init(_ profile: UserProfile, _ event: UserEvent) { self.profile = profile ; self.event = event }
+}
+
+
 @Observable class MeetViewModel {
     
     var dep: AppDependencies
     var profileRecs: [UserProfile] = []
-    var profileInvites: [(UserProfile, UserEvent)] = []
+    var profileInvites: [EventInvite] = []
     
     init(dep: AppDependencies) { self.dep = dep }
     
@@ -47,7 +56,7 @@ import AsyncAlgorithms
                 group.addTask { try? await self.dep.profileManager.getProfile(userId: event.otherUserId) }
                 for await profile in group {
                     if let profile {
-                        profileInvites.append((profile, event))
+                        profileInvites.append(.init(profile, event))
                         await dep.cacheManager.loadProfileImages([profile])
                     }
                 }

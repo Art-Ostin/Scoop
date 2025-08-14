@@ -15,14 +15,14 @@ struct ProfileCard : View {
 
     @State private var image: UIImage?
     @Binding var selectedProfile: UserProfile?
-    @Binding var selectedInvite: (UserProfile, UserEvent)?
+    @Binding var selectedInvite: EventInvite?
     
     init(
         userEvent: UserEvent? = nil,
         profile: UserProfile,
         dep: AppDependencies,
         selectedProfile: Binding<UserProfile?> = .constant(nil),
-        selectedInvite: Binding<(UserProfile, UserEvent)?> = .constant(nil)
+        selectedInvite: Binding<EventInvite?> = .constant(nil)
     ) {
         self.userEvent = userEvent
         self.profile = profile
@@ -43,9 +43,11 @@ struct ProfileCard : View {
             if let image = image {
                 firstImage(image: image)
                     .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
-                                                
-                        if let (profile, event) = selectedInvite {
-                            profile, event = selectedInvite
+                        
+                        if let event = userEvent {
+                            selectedInvite = .init(profile, event)
+                        } else {
+                            selectedProfile = profile
                         }
                     }
                 }

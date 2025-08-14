@@ -12,7 +12,7 @@ struct DailyProfiles: View {
     @Binding var vm: MeetViewModel
     @Binding var showProfile: Bool
     @Binding var selectedProfile: UserProfile?
-    @Binding var selectedInvite: (UserProfile, UserEvent)?
+    @Binding var selectedInvite: EventInvite?
     
     var body: some View {
         let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
