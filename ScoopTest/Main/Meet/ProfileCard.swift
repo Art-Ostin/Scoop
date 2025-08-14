@@ -12,45 +12,29 @@ struct ProfileCard : View {
     var userEvent: UserEvent?
     let profile: UserProfile
     let dep: AppDependencies
-
+    
     @State private var image: UIImage?
     @Binding var selectedProfile: UserProfile?
     @Binding var selectedInvite: EventInvite?
-    
-    init(
-        userEvent: UserEvent? = nil,
-        profile: UserProfile,
-        dep: AppDependencies,
-        selectedProfile: Binding<UserProfile?> = .constant(nil),
-        selectedInvite: Binding<EventInvite?> = .constant(nil)
-    ) {
-        self.userEvent = userEvent
-        self.profile = profile
-        self.dep = dep
-        self._selectedProfile = selectedProfile
-        self._selectedInvite = selectedInvite
-    }
     
     var firstURL: URL? {
         guard let s = profile.imagePathURL?.first else {return nil}
         return URL(string: s)
     }
-
-
+    
     var body: some View {
         
         ZStack {
             if let image = image {
                 firstImage(image: image)
                     .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
-                        
                         if let event = userEvent {
                             selectedInvite = .init(profile, event)
                         } else {
                             selectedProfile = profile
                         }
                     }
-                }
+                    }
             }
         }
         .task {
@@ -69,3 +53,21 @@ struct ProfileCard : View {
             .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
     }
 }
+
+
+
+/*
+ init(
+     userEvent: UserEvent? = nil,
+     profile: UserProfile,
+     dep: AppDependencies,
+     selectedProfile: Binding<UserProfile?> = .constant(nil),
+     selectedInvite: Binding<EventInvite?> = .constant(nil)
+ ) {
+     self.userEvent = userEvent
+     self.profile = profile
+     self.dep = dep
+     self._selectedProfile = selectedProfile
+     self._selectedInvite = selectedInvite
+ }
+ */

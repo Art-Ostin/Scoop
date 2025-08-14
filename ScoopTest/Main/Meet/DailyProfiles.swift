@@ -9,35 +9,117 @@ import SwiftUI
 
 struct DailyProfiles: View {
     
-    @Binding var vm: MeetViewModel
-    @Binding var showProfile: Bool
-    @Binding var selectedProfile: UserProfile?
-    @Binding var selectedInvite: EventInvite?
+    @State var vm: MeetViewModel
+    @State var selectedProfile: UserProfile?
+    @State var selectedInvite: EventInvite?
+    
+    var time: Date? { vm.dep.defaultsManager.getDailyProfileTimerEnd()}
+    
+    init(dep: AppDependencies) { _vm = State(initialValue: MeetViewModel(dep: dep))}
     
     var body: some View {
-        let time = vm.dep.defaultsManager.getDailyProfileTimerEnd()
-
-        VStack(spacing: 36) {
-
-            TabView {
-
-                ForEach(vm.profileInvites, id: \.id) {invite in
-                    ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedInvite: $selectedInvite)
-                }
+        
+        ZStack {
+            VStack(spacing: 36) {
+                Text("Meet")
+                    .font(.body(32, .bold))
                 
-                ForEach(vm.profileRecs) {profile in
-                    ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
-                }
+                tabView
+                
+                SimpleClockView(targetTime: vm.time ?? Date()) { vm.dep.defaultsManager.deleteTwoDailyProfiles() }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+            if let invite = selectedInvite {
+                profileInviteView(invite)
+            }
             
-            if let time {
-                SimpleClockView(targetTime: time, showProfile: $showProfile) {
-                    vm.dep.defaultsManager.deleteTwoDailyProfiles()
-                    showProfile = false
-                    print("deleted old profiles")
+            if let profile = selectedProfile {
+                profileRecView(profile)
+            }
+        }
+        .task {
+            if vm.profileRecs.isEmpty { await vm.loadProfileRecs() }
+            if vm.profileInvites.isEmpty { await vm.loadEventInvites() }
+        }
+        .padding(.top, 36)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+extension DailyProfiles {
+    
+    private var tabView: some View {
+        TabView{
+            ForEach(vm.profileInvites, id: \.id) {invite in
+                ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
+            }
+            if vm.time == nil {
+                IntroView2(vm: $vm)
+            } else {
+                ForEach(vm.profileRecs) {profile in
+                    ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
                 }
             }
         }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+    }
+
+    private func profileRecView(_ profile: UserProfile) -> some View {
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .ignoresSafeArea()
+                .onTapGesture { }
+            ProfileView(profile: profile, dep: vm.dep) {
+                withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
+            }
+        }
+        .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
+        .zIndex(1)
+    }
+
+    private func profileInviteView(_ invite: EventInvite) -> some View {
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .ignoresSafeArea()
+                .onTapGesture { }
+            ProfileView(profile: invite.profile, dep: vm.dep, event: invite.event) {
+                withAnimation(.easeInOut(duration: 0.2)) { selectedInvite = nil }
+            }
+        }
+        .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
+        .zIndex(1)
     }
 }
+
+
+
+
+/*
+ VStack(spacing: 36) {
+     TabView {
+         
+         ForEach(vm.profileInvites, id: \.id) {invite in
+             ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedInvite: $selectedInvite)
+         }
+
+         if time == nil {
+             VStack {
+                 quoteSection
+                 
+                 ActionButton(text: "2 Daily Profiles", onTap: {
+                     Task { await vm.updateTwoDailyProfiles()
+                         vm.dep.defaultsManager.setDailyProfileTimer()
+                     }
+                 })
+             }
+         } else {
+             ForEach(vm.profileRecs) {profile in
+                 ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
+             }
+         }
+     }
+     .tabViewStyle(.page(indexDisplayMode: .never))
+ }
+ */
+

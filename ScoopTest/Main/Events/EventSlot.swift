@@ -38,9 +38,8 @@ struct EventSlot: View {
             if let time = event.time {
                 LargeClockView(targetTime: time) {}
             }
-            
-            Text(vm.dep.eventManager.formatTime(date: event.time))
-                .font(.body(24, .bold))
+            vm.dep.eventManager.eventFormatter(event: event, isInvite: false)
+                .padding(.horizontal, 32)
         }
         .task {
             profileHolder = try? await vm.dep.profileManager.getProfile(userId: event.otherUserId)

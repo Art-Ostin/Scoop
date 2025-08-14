@@ -10,16 +10,17 @@ import SwiftUI
 struct InvitePopup: View {
     
     let vm: ProfileViewModel
-    let image: UIImage
+    @Binding var image: UIImage?
     let event: UserEvent
     var isMessage: Bool { event.message != nil }
+    @State var showAlert: Bool = false
     
     var body: some View {
         
         VStack(spacing: 32) {
             
             HStack() {
-                CirclePhoto(image: image)
+                CirclePhoto(image: image ?? UIImage())
                 
                 Text("Meet \(event.otherUserName ?? "")")
                     .font(.title(24, .bold))
@@ -28,11 +29,9 @@ struct InvitePopup: View {
                     Spacer()
                 }
             }
-            
             vm.dep.eventManager.eventFormatter(event: event)
-
             
-            ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { }
+            ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle()}
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.top, 24)
@@ -47,6 +46,18 @@ struct InvitePopup: View {
                 .padding(20) //32
         }
         .padding(.horizontal, 24)
+        .alert("Event Commitment", isPresented: $showAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button ("I Understand") {
+                Task {
+                    if let id = event.id {
+                        Task { try await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)}
+                    }
+                }
+            }
+        } message : {
+            Text("If you dont show, you'll be blocked from Scoop")
+        }.tint(.blue)
     }
 }
 
@@ -113,4 +124,14 @@ struct InvitePopup: View {
 //    }
 //}
 
-
+//
+//Alert(
+//    title: Text("Event Commitment"),
+//    message: Text("If you don't show, you're blocked from Scoop"),
+//    primaryButton: .default(Text("I understand").tint(.blue), action: {
+//        if let id = event.id {
+//            Task { try await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted) }
+//        }
+//    }),
+//    secondaryButton: .cancel()
+//)

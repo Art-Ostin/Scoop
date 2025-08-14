@@ -62,4 +62,6 @@ struct EventInvite {
         profileInvites = out
         await dep.cacheManager.loadProfileImages(out.map(\.self.profile))
     }
+    
+    var time: Date? { dep.defaultsManager.getDailyProfileTimerEnd()}
 }

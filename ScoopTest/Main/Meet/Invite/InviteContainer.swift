@@ -10,36 +10,51 @@ import MapKit
 
 
 struct SendInviteView: View {
-        
-    let image: UIImage
+    
+    @Binding var image: UIImage?
     
     @Binding var profileVM: ProfileViewModel
     @State var vm: SendInviteViewModel
     @FocusState var isFocused: Bool
+    @State var showAlert: Bool = false
     
-    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: UIImage) {
+    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: Binding<UIImage?>) {
         self._vm = State(initialValue: SendInviteViewModel(recipient: recipient, dep: dep))
         self._profileVM = profileVM
-        self.image = image
+        self._image = image
     }
     
     var body: some View {
         ZStack {
-            PopupTemplate(image: image, title: "Meet \(vm.recipient.name ?? "")") {
-                VStack(spacing: 30) {
-                    InviteTypeRow
-                    Divider()
-                    InviteTimeRow
-                    Divider()
-                    InvitePlaceRow
-                    ActionButton(isValid: InviteIsValid, text: "Confirm & Send", onTap: {
-                        profileVM.showInvite.toggle()
-                        Task {
-                            try? await  vm.dep.eventManager.createEvent(event: vm.event)
-                        }
-                    })
+            VStack(spacing: 32) {
+                HStack {
+                    CirclePhoto(image: image ?? UIImage())
+                    
+                    Text("Meet \(vm.recipient.name ?? "")")
+                        .font(.title(24))
+                }
+                InviteTypeRow
+                Divider()
+                InviteTimeRow
+                Divider()
+                InvitePlaceRow
+                ActionButton(isValid: InviteIsValid, text: "Confirm & Send") {
+                    showAlert.toggle()
                 }
             }
+            .frame(alignment: .top)
+            .padding(.top, 24)
+            .padding([.leading, .trailing, .bottom], 32)
+            .frame(width: 365)
+            .background(Color.background)
+            .cornerRadius(30)
+            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+            .overlay(
+                RoundedRectangle(cornerRadius: 30)
+                    .inset(by: 0.5)
+                    .stroke(Color.grayBackground, lineWidth: 0.5)
+            )
+            
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
                     .offset(y: 96)
@@ -55,6 +70,20 @@ struct SendInviteView: View {
         .fullScreenCover(isPresented: $vm.showMapView) {
             MapView(vm2: $vm)
         }
+        .alert("Event Commitment", isPresented: $showAlert) {
+            Button("Cancel", role: .cancel) {
+                
+                
+            }
+            Button ("I Understand") {
+                Task {
+                    try await vm.dep.eventManager.createEvent(event: vm.event)
+                    showAlert.toggle()
+                }
+            }
+        } message : {
+            Text("If they accept and you do'nt show, you'll be blocked from Scoop")
+        }.tint(.blue)
     }
     private var InviteIsValid: Bool {
         return (vm.event.type != nil || vm.event.message != nil) && vm.event.time != nil && vm.event.location != nil
@@ -101,7 +130,6 @@ extension SendInviteView {
         
         let time = vm.event.time
         
-        
         return HStack {
             if time != nil { Text(vm.dep.eventManager.formatTime(date: time)).font(.body(18))
             } else {Text("Time").font(.body(20, .bold))}
@@ -139,3 +167,16 @@ extension SendInviteView {
     }
 }
 
+//    .alert("Event commitment", isPresented: $showAlert) {
+//        Button("I understand") {
+//            Task {
+//                if let id = event.id {
+//                    try? await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)
+//                }
+//            }
+//        } .tint(.blue)
+//        
+//        Button("Cancel", role: .cancel) {}
+//    } message: {
+//        Text("If they accept & you don't show, you'll be blocked from Scoop")
+//    }

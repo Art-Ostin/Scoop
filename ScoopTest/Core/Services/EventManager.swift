@@ -68,7 +68,6 @@ class EventManager {
                     .foregroundStyle(Color.grayText)
             }
         }
-        .frame(maxWidth: .infinity, alignment: isMessage ? .leading : .center)
     }
     
     func formatTime(date: Date?) -> String {
@@ -77,7 +76,7 @@ class EventManager {
         let weekDay = date.formatted(.dateTime.weekday(.wide))
         let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
         
-        return "\(weekDay) (\(dayOfMonth)) at \(time)"
+        return "\(weekDay) (\(dayOfMonth)) \(time)"
     }
     
     

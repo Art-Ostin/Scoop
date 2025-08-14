@@ -10,7 +10,6 @@ import SwiftUI
 struct SimpleClockView: View {
     
     let targetTime: Date
-    @Binding var showProfile: Bool
     let onFinished: () -> Void
     
     var body: some View {
