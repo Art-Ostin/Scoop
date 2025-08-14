@@ -12,11 +12,7 @@ struct InvitePopup: View {
     let vm: ProfileViewModel
     let image: UIImage
     let event: UserEvent
-
     var isMessage: Bool { event.message != nil }
-    
-    
-    
     
     var body: some View {
         
@@ -25,30 +21,19 @@ struct InvitePopup: View {
             HStack {
                 CirclePhoto(image: image)
                 
-                Text(event.otherUserName ?? "")
+                Text("Meet \(event.otherUserName ?? "")")
                     .font(.title(24, .bold))
-                
-            }
-
-            VStack(spacing: isMessage ? 24 : 0) {
-                
-                Text(vm.dep.eventManager.formatTime(date: event.time))
-                    .font(.body(22, .bold))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(12)
-                
-                if let message = event.message {
-                    Text(message)
-                        .font(.body(.italic))
-                        .foregroundStyle(Color.grayText)
-                }
             }
             
-            ActionButton(text: "Confirm Meet Up", isInvite: true, cornerRadius: 12) { }
+            vm.dep.eventManager.eventFormatter(event: event)
+
+            
+            ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { }
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.top, 24)
-        .padding([.horizontal, .bottom], 32)
+        .padding(.bottom, 32)
+        .padding(.horizontal, 8)
         .frame(maxWidth: .infinity)
         .background(Color.background, in: RoundedRectangle(cornerRadius: 30))
         .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Color.grayBackground, lineWidth: 0.5))
@@ -60,6 +45,22 @@ struct InvitePopup: View {
         .padding(.horizontal, 24)
     }
 }
+
+
+
+//VStack(spacing: isMessage ? 24 : 0) {
+//    
+//    Text(vm.dep.eventManager.formatTime(date: event.time))
+//        .font(.body(22, .bold))
+//        .multilineTextAlignment(.center)
+//        .lineSpacing(12)
+//    
+//    if let message = event.message {
+//        Text(message)
+//            .font(.body(.italic))
+//            .foregroundStyle(Color.grayText)
+//    }
+//}
 
 //#Preview {
 //    InvitePopup()

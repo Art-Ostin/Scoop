@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestore
+import SwiftUI
 
 
 
@@ -24,8 +25,8 @@ class EventManager {
     private let eventCollection = Firestore.firestore().collection("events")
     private let userCollection = Firestore.firestore().collection("users")
     
-
-
+    
+    
     private func eventDocument(id: String) -> DocumentReference {
         eventCollection.document(id)
     }
@@ -42,17 +43,44 @@ class EventManager {
         user.user?.userId
     }
     
+    
+    func eventFormatter (event: UserEvent, isInvite: Bool = true, size: CGFloat = 22) -> some View {
+        
+        var isMessage: Bool { event.message?.isEmpty == false }
+        
+        let time = formatTime(date: event.time)
+        let type = event.type ?? ""
+        let place = event.place?.name  ?? ""
+        
+        let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
+        
+        return VStack(spacing: isMessage ? 24 : 0) {
+            
+            header
+                .font(.body(size))
+                .multilineTextAlignment(isMessage ? .leading : .center)
+                .lineSpacing(isMessage ? 4 : 12)
+            
+            
+            if let message = event.message {
+                Text (message)
+                    .font(.body(.italic))
+                    .foregroundStyle(Color.grayText)
+                    .offset(x: -4)
+            }
+        }.frame(maxWidth: .infinity, alignment: isMessage ? .leading : .center)
+    }
+    
     func formatTime(date: Date?) -> String {
         guard let date = date else { return "" }
-        let day = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
-        let time = date.formatted(
-            .dateTime
-                .weekday(.wide)
-                .hour(.twoDigits(amPM: .omitted))
-                .minute(.twoDigits))
-        return "\(day), \(time)"
+        let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
+        let weekDay = date.formatted(.dateTime.weekday(.wide))
+        let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
+        
+        return "\(weekDay) (\(dayOfMonth)) at \(time)"
     }
-
+    
+    
     func createEvent(event: Event) async throws {
         //Creates event and local reference in the two users subcollection of events
         
@@ -62,13 +90,13 @@ class EventManager {
         let eventRef = db.collection("events").document()
         let eventId = eventRef.documentID
         
-
+        
         guard let initiatorId = currentId,
               let recipientId = event.recipientId else {
             print("failed to get user")
             throw URLError(.userAuthenticationRequired)
         }
-
+        
         var e = event
         e.id = eventId
         e.initiatorId = initiatorId
@@ -125,7 +153,7 @@ class EventManager {
             .collection("user_events").document(eventId)
         let recipientEdgeRef = db.collection("users").document(recipientId)
             .collection("user_events").document(eventId)
-
+        
         
         let edgeA = try edgeData(otherUserId: recipientId, role: .sent, otherName: recipientName, otherPhoto: recipientImageString)
         let edgeB = try edgeData(otherUserId: initiatorId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
@@ -140,7 +168,7 @@ class EventManager {
     private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
         
         guard let uid = currentId else { throw URLError(.userAuthenticationRequired) }
-
+        
         
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
@@ -243,3 +271,5 @@ extension Query {
      try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
  }
  */
+
+

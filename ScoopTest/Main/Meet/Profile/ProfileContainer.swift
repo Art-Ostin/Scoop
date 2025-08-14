@@ -2,7 +2,6 @@
 import Foundation
 import SwiftUI
 
-
 struct ProfileView: View {
         
     @Environment(\.dismiss) private var dismiss
@@ -18,9 +17,7 @@ struct ProfileView: View {
         self.onDismiss = onDismiss
     }
     
-    
     var body: some View {
-
         GeometryReader { _ in
             NavigationStack {
                 ZStack {
@@ -46,19 +43,19 @@ struct ProfileView: View {
                             .onTapGesture {
                                 vm.showInvite = false
                             }
-                        
-                        if let event = vm.event, let image {
+                        if let event = vm.event {
                             ZStack {
-                                InvitePopup(vm: vm, image: image, event: event )
+                                InvitePopup(vm: vm, image: image ?? UIImage(), event: event )
                             }
-                        } else if let image {
-                            SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: image)
+                        } else  {
+                            SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: image ?? UIImage())
                         }
                     }
                 }
             }
             .task {
                 image = await vm.dep.cacheManager.loadProfileImages([vm.p]).first
+                print("Loaded image")
             }
             .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
         }
