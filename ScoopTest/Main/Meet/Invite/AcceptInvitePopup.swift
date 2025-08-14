@@ -52,6 +52,8 @@ struct InvitePopup: View {
                 Task {
                     if let id = event.id {
                         Task { try await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)}
+                        
+                        // Other code once accepted (to take me to the right page)
                     }
                 }
             }

@@ -175,6 +175,7 @@ class EventManager {
             return userEventCollection(userId: uid)
                 .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
                 .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
+                .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
                 .order(by: Event.CodingKeys.time.stringValue)
         case .upcomingAccepted:
             return userEventCollection(userId: uid)

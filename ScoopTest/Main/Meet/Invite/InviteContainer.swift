@@ -79,6 +79,8 @@ struct SendInviteView: View {
                 Task {
                     try await vm.dep.eventManager.createEvent(event: vm.event)
                     showAlert.toggle()
+                    
+                    // Other code Once accepted. 
                 }
             }
         } message : {

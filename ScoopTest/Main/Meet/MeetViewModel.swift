@@ -60,18 +60,17 @@ struct EventInvite {
     
     func loadEventInvites() async {
         guard let events = try? await dep.eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
-        var out: [EventInvite] = []
-        await withTaskGroup(of: EventInvite?.self) {group in
+        
+        let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) {group in
             for e in events {
                 group.addTask {
                     guard let p = try? await self.dep.profileManager.getProfile(userId: e.otherUserId) else {return nil }
                         return EventInvite(p, e)
                     }
                 }
-            for await i in group { if let i { out.append(i) } }
+            return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
             }
-        profileInvites = out
-        await dep.cacheManager.loadProfileImages(out.map(\.self.profile))
+        profileInvites = results
+        await dep.cacheManager.loadProfileImages(results.map(\.profile))
     }
-    
 }

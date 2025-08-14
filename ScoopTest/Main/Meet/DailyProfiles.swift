@@ -25,10 +25,13 @@ struct DailyProfiles: View {
                 
                 tabView
                 
-                SimpleClockView(targetTime: vm.time ?? Date()) {
-                    vm.dep.defaultsManager.deleteTwoDailyProfiles()
-                    vm.dep.defaultsManager.clearDailyProfileTimer()
-                    vm.profileRecs = []
+                if let target = vm.time {
+                    SimpleClockView(targetTime: target) {
+                        vm.dep.defaultsManager.deleteTwoDailyProfiles()
+                        vm.dep.defaultsManager.clearDailyProfileTimer()
+                        vm.profileRecs = []
+                        vm.time = nil
+                    }
                 }
             }
             if let invite = selectedInvite {
@@ -55,7 +58,6 @@ extension DailyProfiles {
             ForEach(vm.profileInvites, id: \.id) {invite in
                 ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
             }
-            
             if vm.time == nil {
                 IntroView(vm: $vm)
             } else {
@@ -95,35 +97,3 @@ extension DailyProfiles {
         .zIndex(1)
     }
 }
-
-
-
-
-/*
- VStack(spacing: 36) {
-     TabView {
-         
-         ForEach(vm.profileInvites, id: \.id) {invite in
-             ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedInvite: $selectedInvite)
-         }
-
-         if time == nil {
-             VStack {
-                 quoteSection
-                 
-                 ActionButton(text: "2 Daily Profiles", onTap: {
-                     Task { await vm.updateTwoDailyProfiles()
-                         vm.dep.defaultsManager.setDailyProfileTimer()
-                     }
-                 })
-             }
-         } else {
-             ForEach(vm.profileRecs) {profile in
-                 ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile)
-             }
-         }
-     }
-     .tabViewStyle(.page(indexDisplayMode: .never))
- }
- */
-
