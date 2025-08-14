@@ -33,7 +33,7 @@ struct ActionButton: View {
                 .font(.body(18, .bold))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .background(isValid ? (isInvite ? Color.defaultGreen : Color.accent) : Color.grayBackground)
+                .background(isValid ? (isInvite ? Color.appGreen : Color.accent) : Color.grayBackground)
                 .foregroundStyle(.white)
                 .cornerRadius(cornerRadius)
                 .shadow(color: isValid ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 2)
@@ -41,5 +41,5 @@ struct ActionButton: View {
     }
 }
 #Preview{
-    ActionButton(text: "Login / Sign Up", onTap: {})
+    ActionButton(isValid: true, text: "Login / Sign Up", isInvite: true, onTap: {})
 }

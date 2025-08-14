@@ -96,7 +96,7 @@
 		65E820A52E382C7F0098CC36 /* InterestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820A42E382C7F0098CC36 /* InterestsView.swift */; };
 		65E820A92E3836CA0098CC36 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820A82E3836CA0098CC36 /* InfoView.swift */; };
 		65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */; };
-		65EA17492E4DFDB300EF38DC /* InviteAcceptPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EA17482E4DFDB300EF38DC /* InviteAcceptPopup.swift */; };
+		65EA17492E4DFDB300EF38DC /* InvitePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EA17482E4DFDB300EF38DC /* InvitePopup.swift */; };
 		65F450BF2E45567900AE3503 /* ImageContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450BE2E45567900AE3503 /* ImageContainer.swift */; };
 		65F450C72E45815B00AE3503 /* MeetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450C62E45815B00AE3503 /* MeetViewModel.swift */; };
 		65F450C92E463D1300AE3503 /* MeetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450C82E463D1300AE3503 /* MeetContainer.swift */; };
@@ -224,7 +224,7 @@
 		65E820A42E382C7F0098CC36 /* InterestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsView.swift; sourceTree = "<group>"; };
 		65E820A82E3836CA0098CC36 /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileContainer.swift; sourceTree = "<group>"; };
-		65EA17482E4DFDB300EF38DC /* InviteAcceptPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteAcceptPopup.swift; sourceTree = "<group>"; };
+		65EA17482E4DFDB300EF38DC /* InvitePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitePopup.swift; sourceTree = "<group>"; };
 		65F450BE2E45567900AE3503 /* ImageContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContainer.swift; sourceTree = "<group>"; };
 		65F450C62E45815B00AE3503 /* MeetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetViewModel.swift; sourceTree = "<group>"; };
 		65F450C82E463D1300AE3503 /* MeetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetContainer.swift; sourceTree = "<group>"; };
@@ -555,8 +555,8 @@
 		65FAF97B2E4112780015E231 /* Invite Folder */ = {
 			isa = PBXGroup;
 			children = (
+				65EA17482E4DFDB300EF38DC /* InvitePopup.swift */,
 				65FAF97C2E4112C80015E231 /* PopUpView.swift */,
-				65EA17482E4DFDB300EF38DC /* InviteAcceptPopup.swift */,
 			);
 			path = "Invite Folder";
 			sourceTree = "<group>";
@@ -820,7 +820,7 @@
 				65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
 				65F450DD2E48D19400AE3503 /* ProfileViewModel.swift in Sources */,
-				65EA17492E4DFDB300EF38DC /* InviteAcceptPopup.swift in Sources */,
+				65EA17492E4DFDB300EF38DC /* InvitePopup.swift in Sources */,
 				6501358A2E4C06DF00630CF3 /* EventSlot.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */,
 				65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */,

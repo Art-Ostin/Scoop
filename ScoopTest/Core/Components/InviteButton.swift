@@ -26,7 +26,7 @@ struct InviteButton: View {
             .frame(width: 53, height: 53)
             .background(
                 Circle()
-                    .fill(isInvite ? Color.defaultGreen : Color.accent)
+                    .fill(isInvite ? Color.appGreen : Color.accent)
                     .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 5)
             )
         }

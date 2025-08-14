@@ -24,7 +24,7 @@ extension Color {
     
     static let secondary = Color (red: 0, green: 0.6, blue: 0.52)
     
-    static let defaultGreen =  Color (red: 0.16, green: 0.65, blue: 0.27)
+    static let appGreen =  Color(red: 0, green: 0.6, blue: 0.52)
 }
 
 extension Font {

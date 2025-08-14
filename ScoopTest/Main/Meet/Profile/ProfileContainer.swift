@@ -48,8 +48,8 @@ struct ProfileView: View {
                             }
                         
                         if let event = vm.event {
-                            if let image {
-                                PopUpView(image: image, event: event, vm: vm)
+                            ZStack {
+                                InvitePopup()
                             }
                         } else {
                             SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
