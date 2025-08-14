@@ -27,7 +27,7 @@ struct PopUpView: View {
             if let message = event.message {
                 Text(message)
             }
-
+            
             ActionButton(text: "Accept", isInvite: true) {
                 if let id = event.id {
                     Task { try await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted) }
@@ -48,7 +48,3 @@ struct PopUpView: View {
     }
 }
 
-
-//#Preview {
-//    PopUpView(profile: )
-//}

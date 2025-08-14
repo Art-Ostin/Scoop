@@ -33,7 +33,7 @@ struct MeetContainer: View {
                     if showProfiles {
                         DailyProfiles(vm: $vm, showProfile: $showProfiles, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
                     } else {
-                        IntroView2(vm: $vm, showProfiles: $showProfiles)
+                        IntroView(vm: $vm, showProfiles: $showProfiles)
                     }
                 }
             }
@@ -41,6 +41,8 @@ struct MeetContainer: View {
                 if vm.profileRecs.isEmpty { await vm.loadProfileRecs() }
                 if vm.profileInvites.isEmpty { await vm.loadEventInvites() }
             }
+            
+            
             .padding(.top, 36)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             
@@ -65,7 +67,7 @@ struct MeetContainer: View {
                         .ignoresSafeArea()
                         .onTapGesture { }
                     ProfileView(profile: invite.profile, dep: dep, event: invite.event) {
-                        withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedInvite = nil }
                     }
                 }
             }

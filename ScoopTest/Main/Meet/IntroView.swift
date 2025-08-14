@@ -9,7 +9,7 @@ import SwiftUI
 
 import SwiftUI
 
-struct IntroView2: View {
+struct IntroView: View {
     
     @Binding var vm: MeetViewModel
     @Binding var showProfiles: Bool
@@ -21,9 +21,10 @@ struct IntroView2: View {
         VStack (spacing: 156) {
                 quoteSection
             ActionButton(text: "2 Daily Profiles", onTap: {
-                Task { await vm.updateTwoDailyProfiles() }
-                showProfiles = true
-                vm.dep.defaultsManager.setDailyProfileTimer()
+                Task { await vm.updateTwoDailyProfiles()
+                    showProfiles = true
+                    vm.dep.defaultsManager.setDailyProfileTimer()
+                }
             })
             }
             .padding(.horizontal, 32)
@@ -37,7 +38,7 @@ struct IntroView2: View {
     }
 }
 
-extension IntroView2 {
+extension IntroView {
     
     private var quoteSection: some View {
         VStack(spacing: 36) {
