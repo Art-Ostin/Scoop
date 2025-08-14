@@ -42,20 +42,30 @@ final class DefaultsManager {
         if end <= .now { clearDailyProfileTimer(); return nil }
         return end
     }
+    
     func clearDailyProfileTimer() {
         defaults.removeObject(forKey: Keys.dailyProfileTimerEnd.rawValue)
     }
-
+    
     func setTwoDailyProfiles(_ profiles: [UserProfile]) {
         let ids = profiles.map { $0.userId }
         defaults.set(ids, forKey: Keys.twoDailyProfiles.rawValue)
     }
+    
+    func removeATwoDailyProfile(_ profile: UserProfile){
+        let id = profile.userId
+        defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
+    }
+    
+    
     func getTwoDailyProfiles() -> [String] {
         defaults.stringArray(forKey: Keys.twoDailyProfiles.rawValue) ?? []
     }
+    
     func deleteTwoDailyProfiles() {
         defaults.removeObject(forKey: Keys.twoDailyProfiles.rawValue)
     }
+        
     
     func sentInviteToProfile1() {
         defaults.set(true, forKey: Keys.sentInviteToProfile1.rawValue)

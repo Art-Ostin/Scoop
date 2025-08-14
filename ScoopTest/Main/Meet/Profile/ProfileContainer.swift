@@ -47,7 +47,7 @@ struct ProfileView: View {
                             }
                         } else  {
                             SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: $image) {
-                                onDismiss()
+                                dismiss() 
                             }
                         }
                     }

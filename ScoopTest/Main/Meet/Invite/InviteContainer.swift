@@ -81,7 +81,12 @@ struct SendInviteView: View {
             Button ("I Understand") {
                 Task {
                     try await vm.dep.eventManager.createEvent(event: vm.event)
-                    onDismiss() 
+                    onDismiss()
+                    
+                    let id = vm.dep.defaultsManager.getTwoDailyProfiles()
+                    
+                    let localId = profileVM.p.userId
+                    
                     
                     
                     // Other code Once accepted.
