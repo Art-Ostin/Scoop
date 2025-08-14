@@ -7,16 +7,25 @@
 
 import SwiftUI
 
-struct InvitePopup: View {
+struct AcceptInvitePopup: View {
     
-    let vm: ProfileViewModel
-    @Binding var image: UIImage?
     let event: UserEvent
     var isMessage: Bool { event.message != nil }
-    @State var showAlert: Bool = false
-    @Environment(\.tabSelection) private var tabSelection
-    @Environment(\.dismiss) private var dismiss
     
+    @Binding var vm: ProfileViewModel
+    @Binding var image: UIImage?
+    
+    @State var showAlert: Bool = false
+    
+    var onDismiss : () -> Void
+    
+    init(vm: Binding<ProfileViewModel>, image: Binding<UIImage?>, event: UserEvent, onDismiss: @escaping () -> Void = {}) {
+        self._vm = vm
+        self._image = image
+        self.event = event
+        self.onDismiss = onDismiss
+    }
+
     var body: some View {
         
         VStack(spacing: 32) {
@@ -54,8 +63,7 @@ struct InvitePopup: View {
                 Task {
                     if let id = event.id {
                         try? await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)
-                        dismiss()
-                        tabSelection.wrappedValue = 1
+                        onDismiss()
                     }
                 }
             }

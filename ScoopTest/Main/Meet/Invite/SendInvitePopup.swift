@@ -1,23 +1,19 @@
-//
-//  SendInviteView.swift
-//  ScoopTest
-//
-//  Created by Art Ostin on 24/06/2025.
-
 import SwiftUI
 import MapKit
 
 
 
-struct SendInviteView: View {
+struct SendInvitePopup: View {
     
     @Environment(MeetViewModel.self) private var meetVM
     
     @Binding var image: UIImage?
     @Binding var profileVM: ProfileViewModel
+    
     @State var vm: SendInviteViewModel
-    @FocusState var isFocused: Bool
     @State var showAlert: Bool = false
+
+    @FocusState var isFocused: Bool
     
     let onDismiss: () -> Void
     
@@ -75,22 +71,17 @@ struct SendInviteView: View {
             MapView(vm2: $vm)
         }
         .alert("Event Commitment", isPresented: $showAlert) {
-            Button("Cancel", role: .cancel) {
-                
-                
-            }
+            Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
                 Task {
-                    try await vm.dep.eventManager.createEvent(event: vm.event)
-                    onDismiss()
                     vm.dep.defaultsManager.removeSuggestedProfile(profileVM.p)
-                   await meetVM.loadProfileRecs()
-                    
-                    // Other code Once accepted.
+                    await meetVM.loadProfileRecs()
+                    onDismiss()
                 }
+                Task {try await vm.dep.eventManager.createEvent(event: vm.event)}
             }
         } message : {
-            Text("If they accept and you do'nt show, you'll be blocked from Scoop")
+            Text("If you don't show, you'll be blocked from Scoop")
         }.tint(.blue)
     }
     private var InviteIsValid: Bool {
@@ -98,7 +89,7 @@ struct SendInviteView: View {
     }
 }
 
-extension SendInviteView {
+extension SendInvitePopup {
     
     private var InviteTypeRow: some View {
         

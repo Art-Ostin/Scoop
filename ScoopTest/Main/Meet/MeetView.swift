@@ -13,7 +13,10 @@ struct MeetView: View {
     @State var selectedProfile: UserProfile?
     @State var selectedInvite: EventInvite?
     
-    init(dep: AppDependencies) { _vm = State(initialValue: MeetViewModel(dep: dep))}
+    init(dep: AppDependencies) {
+        _vm = State(initialValue: MeetViewModel(dep: dep))
+        print("Reinitialised the screen")
+    }
     
     var body: some View {
         
@@ -42,7 +45,8 @@ struct MeetView: View {
             }
         }
         .task {
-            if vm.profileRecs.isEmpty { await vm.loadProfileRecs() }
+            if vm.profileRecs.isEmpty { await vm.loadProfileRecs()
+                print("function to loadProfileRecs called") }
             if vm.profileInvites.isEmpty { await vm.loadEventInvites() }
         }
         .padding(.top, 36)

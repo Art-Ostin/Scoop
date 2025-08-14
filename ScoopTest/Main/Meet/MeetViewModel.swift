@@ -29,6 +29,10 @@ struct EventInvite {
     init(dep: AppDependencies) {
         self.dep = dep
         self.time = dep.defaultsManager.getSuggestedProfilesTimer()
+        Task {
+            if profileRecs.isEmpty { await loadProfileRecs() }
+            if profileInvites.isEmpty { await loadEventInvites() }
+        }
     }
     
     func loadProfileRecs() async {
