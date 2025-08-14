@@ -51,8 +51,9 @@ struct ProfileView: View {
                             if let image {
                                 PopUpView(image: image, event: event, vm: vm)
                             }
+                        } else {
+                            SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
                         }
-                        SendInviteView(recipient: vm.p, dep: vm.dep, profileVM: $vm)
                     }
                 }
             }

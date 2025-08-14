@@ -20,7 +20,7 @@ struct InviteButton: View {
             vm.showInvite.toggle()
         } label: {
             Group {
-                if isInvite { Image (systemName: "heart.fill")} else {Image("LetterIconProfile")}
+                if isInvite { Image (systemName: "heart").resizable().frame(width: 25, height: 25).font(.body(17, .bold))} else {Image("LetterIconProfile")}
             }
             .foregroundStyle(.white)
             .frame(width: 53, height: 53)

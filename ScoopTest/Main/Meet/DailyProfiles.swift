@@ -21,8 +21,8 @@ struct DailyProfiles: View {
 
             TabView {
 
-                ForEach(vm.profileInvites, id: \.0.id) { profile, event in
-                    ProfileCard(userEvent: event, profile: profile, dep: vm.dep, selectedInvite: $selectedInvite)
+                ForEach(vm.profileInvites, id: \.id) {invite in
+                    ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedInvite: $selectedInvite)
                 }
                 
                 ForEach(vm.profileRecs) {profile in
