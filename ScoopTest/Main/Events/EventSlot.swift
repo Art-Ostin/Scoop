@@ -14,7 +14,6 @@ struct EventSlot: View {
     let event: UserEvent
     
     @Binding var selectedProfile: UserProfile?
-    
     @State var profileHolder: UserProfile?
     
     var body: some View {
@@ -24,11 +23,8 @@ struct EventSlot: View {
                 imageContainer(size: 150, url: url)
                     .onTapGesture {
                         if let profileHolder {
-                            withAnimation(.easeInOut(duration: 0.27)) { selectedProfile = profileHolder}
-                            
-                            Task { try await  vm.dep.eventManager.updateStatus(eventId: event.id ?? "", to: .pending)
-                                print("updated Status")
-                                
+                            withAnimation(.easeInOut(duration: 0.27)) {
+                                selectedProfile = profileHolder
                             }
                         }
                     }
