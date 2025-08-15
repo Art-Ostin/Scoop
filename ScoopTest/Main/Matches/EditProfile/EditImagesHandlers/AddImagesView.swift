@@ -10,16 +10,12 @@ import PhotosUI
 struct AddImageView: View {
     
     @State private var vm: EditImageViewModel
-    
-    @Binding var showLogin: Bool
-    
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     @State var images: [UIImage] = Array(repeating: placeholder, count: 6)
-
     
-    init(dep: AppDependencies, showLogin: Binding<Bool>) {
+    
+    init(dep: AppDependencies) {
         self._vm = State(initialValue: EditImageViewModel(dep: dep))
-        self._showLogin = showLogin
     }
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
@@ -40,7 +36,6 @@ struct AddImageView: View {
                 }
             }
             ActionButton(isValid: true, text: "Complete", onTap: {
-                showLogin = false
             })
         }
         .task {

@@ -12,7 +12,7 @@ struct AppContainer: View {
     @Environment(\.appDependencies) private var dependencies
     
     @State var selection: Int = 0
-    @Binding var showLogin: Bool
+
     
     var body: some View {
         
@@ -40,7 +40,7 @@ struct AppContainer: View {
                 
                 ZStack {
                     Color.background.ignoresSafeArea()
-                    MatchesView(showLogin: $showLogin)
+                    MatchesView()
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -53,5 +53,5 @@ struct AppContainer: View {
 }
 
 #Preview {
-    AppContainer(showLogin: .constant(false))
+    AppContainer()
 }

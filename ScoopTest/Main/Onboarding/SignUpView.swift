@@ -14,7 +14,6 @@ struct SignUpView: View {
     @State var selection: Int = 0
     @State var showCover: Bool = false
     @Binding var showEmail: Bool
-    @Binding var showLogin: Bool
         
     var body: some View {
         ZStack {
@@ -27,14 +26,14 @@ struct SignUpView: View {
                 })
             }
             .fullScreenCover(isPresented: $showCover) {
-                EnterEmailView(dep: dep, showLogin: $showLogin, showEmail: $showEmail)
+                EnterEmailView(dep: dep, showEmail: $showEmail)
             }
         }
     }
 }
 
 #Preview {
-    SignUpView(showEmail: .constant(true), showLogin: .constant(true))
+    SignUpView(showEmail: .constant(true))
 }
 
 extension SignUpView {

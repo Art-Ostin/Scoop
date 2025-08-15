@@ -71,7 +71,6 @@ struct EmailVerificationView: View {
     @Environment(\.appDependencies) private var dependencies
     @State var UILogic = EmailVerificationUILogic()
     @Binding var vm: EmailVerificationViewModel
-    @Binding var showLogin: Bool
     @Binding var showEmail: Bool
     @FocusState var focused: Bool
     
@@ -109,7 +108,6 @@ struct EmailVerificationView: View {
                     
                     if let _ = try? await vm.signInUser(email: vm.email, password: vm.password) {
                         try? await dependencies.userManager.loadUser()
-                            showLogin = false
                         }
                         else {
                             if let _ = try? await vm.createUser(email: vm.email, password: vm.password) {

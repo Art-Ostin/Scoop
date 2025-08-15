@@ -4,7 +4,7 @@ struct LimitedAccessView: View {
     
     
     @Environment(\.appDependencies) private var dependencies
-    @Binding var showLogin: Bool
+
     @State var showOnboarding = false
     @State var current: Int = 0
     
@@ -41,7 +41,7 @@ struct LimitedAccessView: View {
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(showLogin: $showLogin, current: $current)
+            OnboardingContainer(current: $current)
         }
         .task {
             do {
@@ -55,7 +55,7 @@ struct LimitedAccessView: View {
 }
 
 #Preview {
-    LimitedAccessView(showLogin: .constant(true))
+    LimitedAccessView()
 }
 
 

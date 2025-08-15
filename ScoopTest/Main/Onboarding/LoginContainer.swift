@@ -11,19 +11,19 @@ import SwiftUI
 struct LoginContainer: View {
     
     @State var showEmail: Bool = true
-    @Binding var showLogin: Bool
+
     
     var body: some View {
         ZStack {
             if showEmail {
-                SignUpView(showEmail: $showEmail, showLogin: $showLogin)
+                SignUpView(showEmail: $showEmail)
             } else {
-                LimitedAccessView(showLogin: $showLogin)
+                LimitedAccessView()
             }
         }
     }
 }
 
 #Preview {
-    LoginContainer(showLogin: .constant(true))
+    LoginContainer()
 }

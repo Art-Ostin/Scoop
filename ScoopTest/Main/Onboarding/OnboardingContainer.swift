@@ -9,7 +9,6 @@ import SwiftUI
 
 struct OnboardingContainer: View {
     
-    @Binding var showLogin: Bool
     @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
     @Binding var current: Int
@@ -30,7 +29,7 @@ struct OnboardingContainer: View {
                     case 7: EditNationality()
                     case 8: TextFieldEdit(field: ProfileFields.editHometown(dep: dep))
                     case 9: TextFieldEdit(field: ProfileFields.editDegree(dep: dep))
-                    case 10: AddImageView(dep: dep, showLogin: $showLogin)
+                    case 10: AddImageView(dep: dep)
                     default: EmptyView()
                     }
                 }
@@ -44,7 +43,7 @@ struct OnboardingContainer: View {
 }
 
 #Preview {
-    OnboardingContainer(showLogin: .constant(true), current: .constant(4))
+    OnboardingContainer(current: .constant(4))
 }
 
 extension OnboardingContainer {

@@ -9,27 +9,22 @@ import SwiftUI
 struct RootView : View {
     
     @Environment(\.appDependencies) private var dep
-    @State var showLogin: Bool = false
+    @State private var session = AppSession(dep: .init())
+    
     
     var body: some View {
-        
-        ZStack {
-            if !showLogin {
-                AppContainer(showLogin: $showLogin)
-
-            } else {
-                LoginContainer(showLogin: $showLogin)
-                    .transition(.move(edge: .bottom))
+//        Group {
+            switch session.stage {
+            case .booting:
+                ZStack { Color.accent}.task { await session.start() }
+                
+            case .needsLogin:
+                LoginContainer()
+                
+            case .ready:
+                AppContainer()
             }
-        }.task {
-            do {
-                _ = try dep.authManager.getAuthenticatedUser()
-                try await dep.userManager.loadUser()
-                showLogin = false
-            } catch  {
-                showLogin = true
-            }
-        }
+//        }
     }
 }
 

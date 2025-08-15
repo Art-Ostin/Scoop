@@ -16,12 +16,10 @@ struct EnterEmailView: View {
     @State var vm: EmailVerificationViewModel
     
     @FocusState private var isFocused: Bool
-    @Binding var showLogin: Bool
     @Binding var showEmail: Bool
     
-    init(dep: AppDependencies, showLogin: Binding<Bool>, showEmail: Binding<Bool>) {
+    init(dep: AppDependencies, showEmail: Binding<Bool>) {
         self._vm = State(initialValue: EmailVerificationViewModel(authManager: dep.authManager))
-        self._showLogin = showLogin
         self._showEmail = showEmail
     }
     
@@ -47,7 +45,7 @@ struct EnterEmailView: View {
             .padding(.horizontal)
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
-            .navigationDestination(isPresented: $showVerification, destination: {EmailVerificationView(vm: $vm, showLogin: $showLogin, showEmail: $showEmail)})
+            .navigationDestination(isPresented: $showVerification, destination: {EmailVerificationView(vm: $vm, showEmail: $showEmail)})
             .navigationBarBackButtonHidden(true)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)} }
         }
