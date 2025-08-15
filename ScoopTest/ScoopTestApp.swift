@@ -13,12 +13,15 @@ struct ScoopTestApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+private let deps = AppDependencies()
+    
 
   var body: some Scene {
       WindowGroup {
           ZStack {
               Color.background.ignoresSafeArea()
               RootView()
+                  .appDependencies(deps)
           }
       }
   }

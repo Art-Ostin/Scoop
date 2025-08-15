@@ -23,7 +23,6 @@ enum EventScope {
     case upcomingInvited, upcomingAccepted, pastAccepted
 }
 
-
 struct Event: Identifiable, Codable {
     @DocumentID var id: String?
     var initiatorId: String? 

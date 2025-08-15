@@ -8,25 +8,23 @@ import SwiftUI
 
 struct RootView : View {
     
+    @Environment(\.appDependencies) private var dep
     @State var showLogin: Bool = false
-    
-    @State private var dependencies = AppDependencies()
     
     var body: some View {
         
         ZStack {
             if !showLogin {
                 AppContainer(showLogin: $showLogin)
-                    .appDependencies(dependencies)
+
             } else {
                 LoginContainer(showLogin: $showLogin)
-                    .appDependencies(dependencies)
                     .transition(.move(edge: .bottom))
             }
         }.task {
             do {
-                _ = try dependencies.authManager.getAuthenticatedUser()
-                try await dependencies.userManager.loadUser()
+                _ = try dep.authManager.getAuthenticatedUser()
+                try await dep.userManager.loadUser()
                 showLogin = false
             } catch  {
                 showLogin = true
