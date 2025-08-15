@@ -10,7 +10,7 @@ import SwiftUI
 struct AcceptInvitePopup: View {
     
     @Environment(MeetViewModel.self) private var meetVM
-    @Environment(TabSelectionKey.self) private var tabSelection
+    @Environment(\.tabSelection) private var tabSelection
     
     
     
@@ -68,9 +68,13 @@ struct AcceptInvitePopup: View {
                 Task {
                     if let id = event.id {
                         try? await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)
-                        await meetVM.loadEventInvites()
+                        tabSelection.wrappedValue = 1
                         onDismiss()
                     }
+                }
+
+                Task {
+                    await meetVM.loadEventInvites()
                 }
             }
         } message : {
