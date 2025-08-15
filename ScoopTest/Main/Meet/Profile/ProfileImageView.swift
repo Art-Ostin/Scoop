@@ -44,9 +44,8 @@ extension ProfileImageView {
             .frame(width: geo.size.width, height: size)
         }
     }
-    
+
     private var imageScroller : some View {
-        
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 48) {
