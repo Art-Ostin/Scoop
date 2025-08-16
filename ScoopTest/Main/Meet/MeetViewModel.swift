@@ -9,15 +9,6 @@ import Foundation
 import SwiftUI
 
 
-struct EventInvite {
-    var event: UserEvent?
-    var profile: UserProfile
-    var image: UIImage
-    var id: String { profile.userId}
-    init(_ profile: UserProfile, _ event: UserEvent, _ image: UIImage) { self.profile = profile ; self.event = event ; self.image = image}
-}
-
-
 @Observable class MeetViewModel {
     
     var dep: AppDependencies

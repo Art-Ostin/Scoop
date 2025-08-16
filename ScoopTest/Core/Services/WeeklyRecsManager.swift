@@ -45,6 +45,7 @@ import FirebaseFirestore
             .filter { $0 != currentId }
         return Array(ids.shuffled().prefix(4))
     }
+    
     private func setWeeklyItems(weeklyCycleId: String) async throws {
         let ids = try await setWeeklyProfileRecs()
         for id in ids {
@@ -73,6 +74,11 @@ import FirebaseFirestore
     }
     
     
+    func getWeeklyItems(weeklyCycleId: String) async throws -> [String?] {
+        let collectionRef = weeklyCycleItemsCollection (weeklyCycleId: weeklyCycleId)
+        let weeklyItems = try await collectionRef.getDocuments(as: WeeklyRecItem.self)
+        return  weeklyItems.map {$0.id}
+    }
 }
 
 
