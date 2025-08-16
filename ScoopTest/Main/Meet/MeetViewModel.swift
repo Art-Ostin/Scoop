@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import AsyncAlgorithms
 
 
 struct EventInvite {

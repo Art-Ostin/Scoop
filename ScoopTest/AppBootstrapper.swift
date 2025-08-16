@@ -17,11 +17,25 @@ struct Bootstrapper {
     func start () async {
         do {
             _ = try dep.authManager.getAuthenticatedUser()
-            print("User is auth")
             appState = .app
         } catch {
-            print("User is not auth")
             appState = .login
         }
+    }
+    
+    func prefetch () async {
+        
+        async let loadUser = dep.profileManager.getProfile()
+        
+        if let time = dep.defaultsManager.getSuggestedProfilesTimer() {
+            let ids = dep.defaultsManager.getSuggestedProfiles()
+            
+            
+            try await withTaskGrou
+        }
+        
+        
+        
+        
     }
 }

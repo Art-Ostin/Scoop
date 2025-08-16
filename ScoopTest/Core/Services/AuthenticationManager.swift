@@ -45,6 +45,7 @@ struct AuthenticatedUser {
         let _ = try await Auth.auth().signIn(with: EmailAuthProvider.credential(withEmail: email, password: password))
     }
     
+    @discardableResult
     func getAuthenticatedUser () throws -> AuthenticatedUser {
         guard let authData = Auth.auth().currentUser else { throw URLError(.badServerResponse) }
         return AuthenticatedUser(user: authData)
