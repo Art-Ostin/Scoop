@@ -10,26 +10,21 @@ import Firebase
 
 @main
 struct ScoopTestApp: App {
-    
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    private let deps = AppDependencies()
-    
+        
+    private let dep: AppDependencies
     @State var appState: AppState = .booting
+    
+    init() {
+        FirebaseApp.configure()
+        self.dep = AppDependencies()
+    }
     
     var body: some Scene {
         WindowGroup {
             RootView(state: $appState)
-                .appDependencies(deps)
-                .task {await Bootstrapper(appState: $appState, dep: deps).start()}
+                .appDependencies(dep)
+                .task { await Bootstrapper(appState: $appState, dep: dep).start()}
         }
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
-        print("configured ze firebase")
-        return true
-    }
-}

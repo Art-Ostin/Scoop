@@ -18,8 +18,9 @@ import SwiftUI
         self.userManager = userManager
     }
     
-    private let userCollection = Firestore.firestore().collection("users")
-    
+    private var userCollection: CollectionReference {
+        Firestore.firestore().collection("users")
+    }
     
     private func userEventCollection (userId: String) -> CollectionReference {
         userCollection.document(userId).collection("user_events")
