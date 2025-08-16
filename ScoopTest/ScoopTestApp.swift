@@ -13,26 +13,26 @@ struct ScoopTestApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-private let deps = AppDependencies()
+    private let deps = AppDependencies()
+    private let session: AppSession
     
-
-  var body: some Scene {
-      WindowGroup {
-          ZStack {
-              Color.background.ignoresSafeArea()
-              RootView()
-                  .appDependencies(deps)
-          }
-      }
-  }
+    init () {
+        self.session = AppSession(dep: deps)
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+                .appDependencies(deps)
+        }
+    }
 }
 
-
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-      print("confifured ze firebase")
-    return true
-  }
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()
+        print("confifured ze firebase")
+        return true
+    }
 }

@@ -7,44 +7,18 @@
 
 import SwiftUI
 
-struct AppBootstrapper {
+struct Bootstrapper {
     
-    enum Result {
-        case needsLogin
-        case ready
-    }
+    let dep: AppDependencies
     
-    func run(_ dep: AppDependencies) async -> Result {
+    func start () async -> AppState {
         do {
             _ = try dep.authManager.getAuthenticatedUser()
-            return .ready
+            print("User is auth")
+            return .app
         } catch {
-            return .needsLogin
-        }
-    }
-}
-
-@Observable
-final class AppSession {
-    
-    enum Stage { case booting, needsLogin, ready }
-    
-    private let dep: AppDependencies
-    
-    private let bootstrapper: AppBootstrapper
-    
-    var stage: Stage = .booting
-
-    init(dep: AppDependencies, bootstrapper: AppBootstrapper = .init()) {
-        self.dep = dep
-        self.bootstrapper = bootstrapper
-    }
-    
-    
-    func start() async {
-        switch await bootstrapper.run(dep) {
-        case .ready:      await MainActor.run { stage = .ready }
-        case .needsLogin: await MainActor.run { stage = .needsLogin }
+            print("User is not auth")
+            return .login
         }
     }
 }

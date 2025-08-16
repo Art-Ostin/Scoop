@@ -6,29 +6,29 @@
 
 import SwiftUI
 
+enum AppState {
+    case booting, login, app
+}
+
 struct RootView : View {
     
     @Environment(\.appDependencies) private var dep
-    @State private var session = AppSession(dep: .init())
-    
+    @State var state : AppState = .booting
     
     var body: some View {
-//        Group {
-            switch session.stage {
-            case .booting:
-                ZStack { Color.accent}.task { await session.start() }
+        
+        Group {
+            switch state {
                 
-            case .needsLogin:
+            case .booting:
+                ZStack { Color.accent.ignoresSafeArea()}
+                
+            case .login:
                 LoginContainer()
                 
-            case .ready:
+            case .app:
                 AppContainer()
             }
-//        }
+        }
     }
 }
-
-#Preview {
-    RootView()
-}
-

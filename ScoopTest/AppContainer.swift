@@ -10,12 +10,9 @@ import SwiftUI
 struct AppContainer: View {
     
     @Environment(\.appDependencies) private var dependencies
-    
     @State var selection: Int = 0
-
     
     var body: some View {
-        
                 
         TabView (selection: $selection) {
             
@@ -37,7 +34,6 @@ struct AppContainer: View {
                 }
             }
             Tab("", image: "MessageIcon", value: 2) {
-                
                 ZStack {
                     Color.background.ignoresSafeArea()
                     MatchesView()
