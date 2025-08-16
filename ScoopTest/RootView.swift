@@ -11,9 +11,8 @@ enum AppState {
 }
 
 struct RootView : View {
-    
-    @Environment(\.appDependencies) private var dep
-    @State var state : AppState = .booting
+
+    @Binding var state: AppState
     
     var body: some View {
         

@@ -17,3 +17,14 @@ extension EnvironmentValues {
         set { self[TabSelectionKey.self] = newValue }
     }
 }
+
+private struct StateOfApp: EnvironmentKey {
+    static let defaultValue: AppState = .booting
+}
+
+extension EnvironmentValues {
+    var stateOfApp: AppState {
+        get { self[StateOfApp.self] }
+        set { self[StateOfApp.self] = newValue }
+    }
+}

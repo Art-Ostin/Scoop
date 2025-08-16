@@ -7,18 +7,21 @@
 
 import SwiftUI
 
+@MainActor
 struct Bootstrapper {
+    
+    @Binding var appState: AppState
     
     let dep: AppDependencies
     
-    func start () async -> AppState {
+    func start () async {
         do {
             _ = try dep.authManager.getAuthenticatedUser()
             print("User is auth")
-            return .app
+            appState = .app
         } catch {
             print("User is not auth")
-            return .login
+            appState = .login
         }
     }
 }
