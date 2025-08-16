@@ -12,8 +12,11 @@ import Combine
 
 struct MatchesView: View {
     
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
-        
+    @Environment(\.stateOfApp) private var stateOfApp
+    
+    
+    let dependencies: AppDependencies
+            
     @State var showProfileView = false
     
     @State var profileImage: UIImage?
@@ -34,6 +37,7 @@ struct MatchesView: View {
                     
                     ActionButton(text: "Sign Out") {
                         try? dependencies.authManager.signOutUser()
+                        stateOfApp.wrappedValue = .login
                     }
                 }
                 .navigationTitle("Matches")
@@ -63,8 +67,4 @@ struct MatchesView: View {
             }
         }
     }
-}
-
-#Preview {
-    MatchesView()
 }
