@@ -12,12 +12,12 @@ enum AppState {
 
 struct RootView : View {
 
-    @Binding var state: AppState
+    @Environment(\.stateOfApp) private var state
     
     var body: some View {
         
         Group {
-            switch state {
+            switch state.wrappedValue {
                 
             case .booting:
                 ZStack { Color.accent.ignoresSafeArea()}

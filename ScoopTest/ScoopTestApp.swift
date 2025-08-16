@@ -21,8 +21,9 @@ struct ScoopTestApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(state: $appState)
+            RootView()
                 .appDependencies(dep)
+                .environment(\.stateOfApp, $appState)
                 .task { await Bootstrapper(appState: $appState, dep: dep).start()}
         }
     }

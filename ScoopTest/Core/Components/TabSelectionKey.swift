@@ -18,13 +18,13 @@ extension EnvironmentValues {
     }
 }
 
-private struct StateOfApp: EnvironmentKey {
-    static let defaultValue: AppState = .booting
+private struct AppStateKey: EnvironmentKey {
+    static let defaultValue: Binding<AppState> = .constant(.booting)
 }
 
 extension EnvironmentValues {
-    var stateOfApp: AppState {
-        get { self[StateOfApp.self] }
-        set { self[StateOfApp.self] = newValue }
+    var stateOfApp: Binding<AppState> {
+        get { self[AppStateKey.self] }
+        set { self[AppStateKey.self] = newValue }
     }
 }

@@ -21,9 +21,9 @@ struct SignUpView: View {
             VStack(spacing: 60){
                 titleSection
                 tabViewSection
-                ActionButton(text: "Login / Sign Up", onTap: {
+                ActionButton(text: "Login / Sign Up") {
                     showCover = true
-                })
+                }
             }
             .fullScreenCover(isPresented: $showCover) {
                 EnterEmailView(dep: dep, showEmail: $showEmail)

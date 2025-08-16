@@ -102,6 +102,10 @@ struct EmailVerificationView: View {
             .flowNavigation()
             .task {
                 
+                
+                
+                
+                
                 try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
                 Task {
                     guard ((try? await AuthenticateEmail()) != nil) else { return }

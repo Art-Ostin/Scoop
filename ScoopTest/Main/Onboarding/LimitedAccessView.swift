@@ -29,7 +29,7 @@ struct LimitedAccessView: View {
                     }
                 }
                 Tab("", image: "MessageIcon") {
-                    ZStack{
+                    ZStack {
                         Color.background.ignoresSafeArea()
                         LimitedAccessPage(title: "atches", imageName: "DancingCats", description: "View your previous matches here")
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)

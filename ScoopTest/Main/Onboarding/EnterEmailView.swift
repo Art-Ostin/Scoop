@@ -51,9 +51,6 @@ struct EnterEmailView: View {
         }
     }
 }
-//#Preview {
-//    EnterEmailView(dep: AppDependencies, showLogin: .constant(true), showEmail: .constant(false))
-//}
 
 
 extension EnterEmailView {

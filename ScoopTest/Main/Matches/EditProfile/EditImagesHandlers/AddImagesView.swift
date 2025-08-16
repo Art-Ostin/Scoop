@@ -9,6 +9,8 @@ import PhotosUI
 
 struct AddImageView: View {
     
+    @Environment(\.stateOfApp) private var appState
+    
     @State private var vm: EditImageViewModel
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     @State var images: [UIImage] = Array(repeating: placeholder, count: 6)
@@ -35,8 +37,9 @@ struct AddImageView: View {
                     }
                 }
             }
-            ActionButton(isValid: true, text: "Complete", onTap: {
-            })
+            ActionButton(isValid: true, text: "Complete") {
+                appState.wrappedValue = .app
+            }
         }
         .task {
             await vm.assignSlots()
