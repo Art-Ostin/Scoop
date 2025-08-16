@@ -74,6 +74,7 @@ import SwiftUI
     }
     
     //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
+
     func getRandomProfile() async throws -> [UserProfile] {
         let userId = currentId()
         let snapshot = try await userCollection.getDocuments()

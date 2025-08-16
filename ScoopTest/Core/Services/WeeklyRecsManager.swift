@@ -39,13 +39,40 @@ import FirebaseFirestore
     
     
     
+    private func setWeeklyProfileRecs() async throws -> [String] {
+        let snap = try await userCollection.getDocuments()
+        let ids = snap.documents
+            .map(\.documentID)
+            .filter { $0 != currentId }
+        return Array(ids.shuffled().prefix(4))
+    }
     
-    func createWeeklyRecs() async throws {
+    
+    
+    
+    func setWeeklyItems() async throws {
+        let ids = try await setWeeklyProfileRecs()
+        for id in ids {
+            let item = WeeklyRecItem(id: id, profileViews: 0, itemStatus: .pending, addedDay: nil, actedAt: nil)
+            weeklyCycleItemsCollection.document(id).setData(from: item)
+        }
+    }
+    
+    
+    func setWeeklyRecs() async throws {
+        
+        
         
         let data: [String: Any] = [
-            
-            "
-            
+            WeeklyRecCycle(
+                id: <#T##String?#>,
+                startedAt: <#T##Timestamp?#>,
+                cycleStatus: <#T##CycleStatus#>,
+                cycleStats: <#T##CycleStats#>,
+                dailyProfilesAdded: <#T##Int#>,
+                endsAt: <#T##Timestamp#>,
+                autoRemoveTime: Timestamp
+            )
         ]
     }
     

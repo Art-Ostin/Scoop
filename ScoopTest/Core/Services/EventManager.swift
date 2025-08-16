@@ -134,7 +134,6 @@ class EventManager {
         
         guard let uid = currentId else { throw URLError(.userAuthenticationRequired) }
         
-        
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
         case .upcomingInvited:
