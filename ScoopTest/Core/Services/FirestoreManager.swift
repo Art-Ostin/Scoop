@@ -73,16 +73,6 @@ import SwiftUI
         return id
     }
     
-    //Need to update this, so that it is querying on the database, and only getting the right kind of user's.
-
-    func getRandomProfile() async throws -> [UserProfile] {
-        let userId = currentId()
-        let snapshot = try await userCollection.getDocuments()
-        let profiles = try snapshot.documents
-            .compactMap { try $0.data(as: UserProfile.self)}
-            .filter { $0.id != userId }
-        return Array(profiles.shuffled().prefix(2))
-    }
 }
 
 

@@ -25,20 +25,19 @@ import FirebaseFirestore
         userCollection.document(currentId).collection("weekly_cycle_recs")
     }
     
-    private func weeklyRecDocument (weeklyCycleId: String) -> DocumentReference {
-        weeklyCycleCollection().document(weeklyCycleId)
-    }
-    
     private func weeklyCycleItemsCollection (weeklyCycleId: String) -> CollectionReference {
         weeklyRecDocument(weeklyCycleId: weeklyCycleId).collection("items")
+    }
+    
+    private func weeklyRecDocument (weeklyCycleId: String) -> DocumentReference {
+        weeklyCycleCollection().document(weeklyCycleId)
     }
     
     private func weeklyRecItemDocument(weeklyCycleId: String, profileId: String) -> DocumentReference {
         weeklyCycleItemsCollection(weeklyCycleId: weeklyCycleId).document(profileId)
     }
     
-    
-    
+        
     private func setWeeklyProfileRecs() async throws -> [String] {
         let snap = try await userCollection.getDocuments()
         let ids = snap.documents
@@ -46,47 +45,36 @@ import FirebaseFirestore
             .filter { $0 != currentId }
         return Array(ids.shuffled().prefix(4))
     }
-    
-    
-    
-    
-    func setWeeklyItems() async throws {
+    private func setWeeklyItems(weeklyCycleId: String) async throws {
         let ids = try await setWeeklyProfileRecs()
         for id in ids {
             let item = WeeklyRecItem(id: id, profileViews: 0, itemStatus: .pending, addedDay: nil, actedAt: nil)
-            weeklyCycleItemsCollection.document(id).setData(from: item)
+            try weeklyRecItemDocument(weeklyCycleId: weeklyCycleId, profileId: id).setData(from: item)
         }
     }
-    
-    
     func setWeeklyRecs() async throws {
+        let ids = try await setWeeklyProfileRecs()
+        let now = Date()
+        let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: now)!
+        let autoRemove = Calendar.current.date(byAdding: .day, value: 21, to: now)!
+        let cycle = WeeklyRecCycle(
+            id: nil,
+            startedAt: nil,
+            cycleStatus: .active,
+            cycleStats: .init(total: ids.count, invited: 0, dismissed: 0, pending: ids.count),
+            dailyProfilesAdded: 0,
+            endsAt: Timestamp(date: endsAt),
+            autoRemoveTime: Timestamp(date: autoRemove)
+        )
         
-        
-        
-        let data: [String: Any] = [
-            WeeklyRecCycle(
-                id: <#T##String?#>,
-                startedAt: <#T##Timestamp?#>,
-                cycleStatus: <#T##CycleStatus#>,
-                cycleStats: <#T##CycleStats#>,
-                dailyProfilesAdded: <#T##Int#>,
-                endsAt: <#T##Timestamp#>,
-                autoRemoveTime: Timestamp
-            )
-        ]
+        let docRef = try weeklyCycleCollection().addDocument(from: cycle)
+        let weeklyCycleId = docRef.documentID
+        try await setWeeklyItems(weeklyCycleId: weeklyCycleId)
     }
+    
     
 }
 
-//struct WeeklyRecCycle: Identifiable, Codable, Sendable{
-//    @DocumentID var id: String?
-//    @ServerTimestamp var startedAt: Timestamp?
-//    var cycleStatus: CycleStatus
-//    var cycleStats: CycleStats
-//    var dailyProfilesAdded: Int
-//    var endsAt: Timestamp
-//    var autoRemoveTime: Timestamp
-//}
 
 
 
