@@ -22,63 +22,30 @@ class EventManager {
         self.profile = profile
     }
     
+    private var currentId: String? {
+        user.user?.userId
+    }
+
+    
     private let eventCollection = Firestore.firestore().collection("events")
     private let userCollection = Firestore.firestore().collection("users")
-    
-    
-    
-    private func eventDocument(id: String) -> DocumentReference {
-        eventCollection.document(id)
+    private func userEventCollection (userId: String) -> CollectionReference {
+        userCollection.document(userId).collection("user_events")
     }
+    
+    
+    
     private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
         userEventCollection(userId: userId).document(userEventId)
+    }
+    private func eventDocument(id: String) -> DocumentReference {
+        eventCollection.document(id)
     }
     
     private func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
     }
-    
-    
-    private var currentId: String? {
-        user.user?.userId
-    }
-    
-    
-    //Remove from Here
-    func eventFormatter (event: UserEvent, isInvite: Bool = true, size: CGFloat = 22) -> some View {
         
-        var isMessage: Bool { event.message?.isEmpty == false }
-        let time = formatTime(date: event.time)
-        let type = event.type ?? ""
-        let place = event.place?.name  ?? ""
-        let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
-        
-        return VStack(alignment: isMessage ? .leading: .center, spacing: isMessage ? 16 : 0) {
-            
-            header
-                .font(.body(size))
-                .multilineTextAlignment(isMessage ? .leading : .center)
-                .lineSpacing(isMessage ? 4 : 12)
-            
-            
-            if let message = event.message {
-                Text (message)
-                    .font(.body(.italic))
-                    .foregroundStyle(Color.grayText)
-            }
-        }
-    }
-    
-    func formatTime(date: Date?) -> String {
-        guard let date = date else { return "" }
-        let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
-        let weekDay = date.formatted(.dateTime.weekday(.wide))
-        let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
-        
-        return "\(weekDay) (\(dayOfMonth)) \(time)"
-    }
-    
-    
     func createEvent(event: Event) async throws {
         //Creates event and local reference in the two users subcollection of events
         
@@ -247,8 +214,39 @@ class EventManager {
         try await batch.commit()
     }
     
-    private func userEventCollection (userId: String) -> CollectionReference {
-        userCollection.document(userId).collection("user_events")
+    
+    
+    //Remove from this Manager not relevant
+    func eventFormatter (event: UserEvent, isInvite: Bool = true, size: CGFloat = 22) -> some View {
+        
+        var isMessage: Bool { event.message?.isEmpty == false }
+        let time = formatTime(date: event.time)
+        let type = event.type ?? ""
+        let place = event.place?.name  ?? ""
+        let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
+        
+        return VStack(alignment: isMessage ? .leading: .center, spacing: isMessage ? 16 : 0) {
+            
+            header
+                .font(.body(size))
+                .multilineTextAlignment(isMessage ? .leading : .center)
+                .lineSpacing(isMessage ? 4 : 12)
+            
+            
+            if let message = event.message {
+                Text (message)
+                    .font(.body(.italic))
+                    .foregroundStyle(Color.grayText)
+            }
+        }
+    }
+    func formatTime(date: Date?) -> String {
+        guard let date = date else { return "" }
+        let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
+        let weekDay = date.formatted(.dateTime.weekday(.wide))
+        let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
+        
+        return "\(weekDay) (\(dayOfMonth)) \(time)"
     }
 }
 
@@ -258,17 +256,3 @@ extension Query {
         return try snapshot.documents.map { try $0.data(as: T.self)}
     }
 }
-
-
-
-/* Don't think I need anymore
- func removeUserEvent(userId: String, userEventId: String) async throws {
-     try await userEventDocument(userId: userId, userEventId: userEventId).delete()
- }
-
- func getAllUserEvents(userId: String) async throws -> [UserEvent] {
-     try await userEventCollection(userId: userId).getDocuments(as: UserEvent.self)
- }
- */
-
-

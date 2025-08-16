@@ -22,14 +22,6 @@ import SwiftUI
         Firestore.firestore().collection("users")
     }
     
-    private func userEventCollection (userId: String) -> CollectionReference {
-        userCollection.document(userId).collection("user_events")
-    }
-    
-    private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
-        userEventCollection(userId: userId).document(userEventId)
-    }
-    
     private func userDocument(userId: String) -> DocumentReference {
         userCollection.document(userId)
     }

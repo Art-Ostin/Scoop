@@ -10,17 +10,18 @@ import SwiftUI
 
 
 struct EventInvite {
-    var event: UserEvent
+    var event: UserEvent?
     var profile: UserProfile
-    var id: String { event.id ?? "" }
-    init(_ profile: UserProfile, _ event: UserEvent) { self.profile = profile ; self.event = event }
+    var image: UIImage
+    var id: String { profile.userId}
+    init(_ profile: UserProfile, _ event: UserEvent, _ image: UIImage) { self.profile = profile ; self.event = event ; self.image = image}
 }
 
 
 @Observable class MeetViewModel {
     
     var dep: AppDependencies
-    var profileRecs: [UserProfile] = []
+    var profileRecs: [EventInvite] = []
     var profileInvites: [EventInvite] = []
     
     var time: Date?
@@ -35,6 +36,7 @@ struct EventInvite {
     }
     
     func loadProfileRecs() async {
+        
         let manager = dep.defaultsManager
         let ids = manager.getSuggestedProfiles()
         
@@ -64,6 +66,7 @@ struct EventInvite {
     }
     
     func loadEventInvites() async {
+        
         guard let events = try? await dep.eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
         
         let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) {group in

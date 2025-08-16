@@ -22,7 +22,6 @@ struct UserProfile: Codable, Equatable {
     
     let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
         smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook: String?
-    
     let interests, nationality, character, imagePath, imagePathURL: [String]?
     
     let prompt1, prompt2, prompt3: PromptResponse?

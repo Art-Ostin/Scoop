@@ -15,7 +15,6 @@ struct EventArray : Codable {
     let total, skip, limit: Int
 }
 
-
 enum EventStatus: String, Codable {
     case pending, accepted, declined, cancelled
 }

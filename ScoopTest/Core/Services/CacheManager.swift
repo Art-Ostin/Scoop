@@ -48,6 +48,15 @@ import SwiftUI
     }
     
     
+    func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
+        guard
+            let urlString = profile.imagePathURL?.first,
+            let url = URL(string: urlString)
+        else {return nil}
+        return try await fetchImage(for: url)
+    }
+    
+    
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
         let urls = profiles.flatMap { profile in
