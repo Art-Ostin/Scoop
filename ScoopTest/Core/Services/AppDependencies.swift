@@ -20,6 +20,8 @@ final class AppDependencies {
     let eventManager: EventManager
     let defaultsManager: DefaultsManager
     let weeklyRecsManager: WeeklyRecsManager
+    let sessionManager: SessionManager
+    
     
     init(
         authManager: AuthenticationManaging? = nil,
@@ -29,7 +31,8 @@ final class AppDependencies {
         eventManager: EventManager? = nil,
         userManager: UserManager? = nil,
         defaultsManager: DefaultsManager? = nil,
-        weeklyRecsManager: WeeklyRecsManager? = nil
+        weeklyRecsManager: WeeklyRecsManager? = nil,
+        sessionManager: SessionManager? = nil
 
     ) {
         let profile = profileManager ?? FirestoreManager()
@@ -39,7 +42,8 @@ final class AppDependencies {
         let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
         let storage = storageManager ?? StorageManager(user: userManager)
         let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, firesoreManager: profile, cacheManager: cache)
-        let weeklyRecsManager = weeklyRecsManager ?? WeeklyRecsManager(user: userManager)
+        let weeklyRecsManager = weeklyRecsManager ?? WeeklyRecsManager(user: userManager, profile: profile)
+        let sessionManager = sessionManager ?? SessionManager(eventManager: eventManager, cacheManager: cache, profileManager: profile, userManager: userManager, weeklyRecsManager: weeklyRecsManager)
 
         self.authManager = auth
         self.profileManager = profile
@@ -49,6 +53,7 @@ final class AppDependencies {
         self.eventManager = eventManager
         self.defaultsManager = defaultsManager
         self.weeklyRecsManager = weeklyRecsManager
+        self.sessionManager = sessionManager
 
         if let manager = profile as? FirestoreManager {
             manager.userManager = self.userManager

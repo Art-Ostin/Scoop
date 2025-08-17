@@ -79,10 +79,11 @@ import FirebaseFirestore
         try await setWeeklyItems(weeklyCycleId: weeklyCycleId)
     }
     
-    func getWeeklyRecDoc(_ user:UserProfile?) async throws -> WeeklyRecCycle {
-        let id = user?.weeklyRecsId ?? ""
+    func getWeeklyRecDoc(_ user:UserProfile? = nil) async throws -> WeeklyRecCycle {
+        guard let id = (user?.weeklyRecsId ?? self.user.user?.weeklyRecsId) else { throw URLError(.badServerResponse)}
         return try await weeklyRecDocument(weeklyCycleId: id).getDocument(as: WeeklyRecCycle.self)
     }
+    
     
     
     

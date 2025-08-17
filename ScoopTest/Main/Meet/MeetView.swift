@@ -9,14 +9,15 @@ import SwiftUI
 
 struct MeetView: View {
     
-    @State var vm: MeetViewModel
+    
+    let dep: AppDependencies
+    
     @State var selectedProfile: UserProfile?
     @State var selectedInvite: EventInvite?
     
-    init(dep: AppDependencies) {
-        _vm = State(initialValue: MeetViewModel(dep: dep))
-        print("Reinitialised the screen")
-    }
+    
+    init(dep: AppDependencies) { self.dep = dep}
+    
     
     var body: some View {
         
@@ -27,12 +28,17 @@ struct MeetView: View {
                 
                 tabView
                 
-                if let target = vm.time {
+                if let target = dep.weeklyRecsManager.getWeeklyRecDoc().endsAt.dateValue() {
                     SimpleClockView(targetTime: target) {
-                        vm.dep.defaultsManager.removeAllSuggestedProfiles()
-                        vm.dep.defaultsManager.clearSuggestedProfilesTimer()
-                        vm.profileRecs = []
-                        vm.time = nil
+                        
+                        
+                        
+                        
+                        
+                        dep.weeklyRecsManager.deleteWeeklyRec()
+                        
+                        
+                        
                     }
                 }
             }

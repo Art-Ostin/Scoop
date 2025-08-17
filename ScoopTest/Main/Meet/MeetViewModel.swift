@@ -3,16 +3,19 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 17/08/2025.
-//
 
-import SwiftUI
+import Foundation
 
-struct MeetViewModel: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+@Observable class MeetViewModel {
+    
+    let dep: AppDependencies
+    
+    
+    var weeklyRec: WeeklyRecCycle {
+        Task {
+            dep.weeklyRecsManager.getWeeklyRecDoc()
+        }
     }
-}
-
-#Preview {
-    MeetViewModel()
+    
+    
 }

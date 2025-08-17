@@ -65,44 +65,34 @@ struct EventInvite {
         await cacheManager.loadProfileImages(results.map(\.profile))
     }
     
-    
-    
-    
-    // This function called initially, check
-    func loadProfilesChecker () async throws -> Bool {
-        
+    private func loadProfilesChecker () async throws -> Bool {
         let now = Date()
         let docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
         let timeEnd = docs.endsAt.dateValue()
         let timeRefresh = docs.autoRemoveTime.dateValue()
         
         let profilesAdded = docs.profilesAdded
-        let profilesPending = docs.cycleStatus
-        
+        let profilesPending = docs.cycleStats.pending
+
         if now > timeEnd {
             if now > timeRefresh {
                 try? await weeklyRecsManager.deleteWeeklyRec()
                 return false
             }
             
-             
-            
-            
-            
-            
-            
-        } else {
-            return true
+            if profilesPending == 0 {
+                try? await weeklyRecsManager.deleteWeeklyRec()
+                return false
+            }
         }
-        return false
+        return true
     }
-    
-    
-    
-    
-    func loadprofileRecs () async {
-        
-        guard let id = currentUser?.weeklyRecsId else { return }
+
+    func loadprofileRecs () async throws {
+        guard
+            let id = currentUser?.weeklyRecsId,
+            try await loadProfilesChecker()
+        else {return}
         
         guard
             let documentId = currentUser?.weeklyRecsId,
@@ -123,45 +113,4 @@ struct EventInvite {
         profileRecs = results
         await cacheManager.loadProfileImages(results.map {$0.profile})
     }
-    
-    
-    
-    
-    
-    
 }
-
-
-/*
- func loadProfileRecs() async {
-     
-     let manager = dep.defaultsManager
-     let ids = manager.getSuggestedProfiles()
-     
-     guard time != nil else {
-         manager.removeAllSuggestedProfiles()
-         profileRecs = []
-         return
-     }
-     
-     let results = await withTaskGroup(of: UserProfile?.self, returning: [UserProfile].self) { group in
-         for id in ids {
-             group.addTask { try? await self.dep.profileManager.getProfile(userId: id) }
-         }
-         return await group.reduce(into: []) { result, element in if let element { result.append(element) } }
-     }
-     profileRecs = results
-     await dep.cacheManager.loadProfileImages(results)
-     
-     print("Function successfully called")
- }
-
- func updateTwoDailyProfiles() async {
-     guard let newProfiles = try? await dep.profileManager.getRandomProfile() else { return }
-     await dep.cacheManager.loadProfileImages(newProfiles)
-     profileRecs = newProfiles
-     dep.defaultsManager.setSuggestedProfiles(newProfiles)
- }
-
- 
- */
