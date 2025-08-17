@@ -56,7 +56,25 @@ import FirebaseFirestore
     }
     
     
-    // Functions to Create the weekly Cycle
+    
+    //Functions to Create/Fetch and update the cycle documents and reccomendation documents
+    func createCycle() async throws {
+        let addedCount = 4
+        let now = Date()
+        let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: now)!
+        let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: now)!
+        
+        let cycle = RecommendationCycle(
+            cycleStats: .init(total: addedCount, invited: 0, accepted: 0, dismissed: 0, pending: addedCount),
+            profilesAdded: addedCount,
+            endsAt: Timestamp(date: endsAt),
+            autoRemoveAt: Timestamp(date: autoRemoveAt)
+        )
+        
+        let docRef = try cyclesCollection().addDocument(from: cycle)
+        let id = docRef.documentID
+        try await createRecommendedProfiles(cycleId: id)
+    }
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId! }
@@ -67,24 +85,6 @@ import FirebaseFirestore
             try recommendationsCollection(cycleId: cycleId).addDocument(from: newItem)
         }
     }
-    func createCycle() async throws {
-        let addedCount = 4
-        let now = Date()
-        let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: now)!
-        let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: now)!
-        
-        let cycle = RecommendationCycle(
-            cycleStats: .init(total: addedCount, invited: 0, accepted: 0, dismissed: 0, pending: addedCount),
-            profilesAdded: 4,
-            endsAt: Timestamp(date: endsAt),
-            autoRemoveAt: Timestamp(date: autoRemoveAt)
-        )
-        
-        let docRef = try cyclesCollection().addDocument(from: cycle)
-        let id = docRef.documentID
-        try await createRecommendedProfiles(cycleId: id)
-    }
-    
     
     func fetchCycle() async throws -> RecommendationCycle {
         if let id = activeCycleId {
@@ -96,39 +96,44 @@ import FirebaseFirestore
             return try await recommendationDocument(cycleId: id, profileId: profileId).getDocument(as: RecommendationItem.self)
         }
     }
-    
-    
     func fetchAllRecommendations () async throws -> [String] {
         guard let cycleId = activeCycleId else {return []}
         return try await recommendationsCollection(cycleId: cycleId).getDocuments(as: RecommendationItem.self).map {$0.id}
     }
-
     
     func updateCycle(key: String, field: Any) {
-        
-        
+        guard let activeCycleId else {return}
+        cycleDocument(cycleId: activeCycleId).updateData( [key: field] )
     }
+    func updateRecommendationItem(profileId: String, key: String, field: Any) {
+        guard let activeCycleId else {return}
+        recommendationDocument(cycleId: activeCycleId, profileId: profileId).updateData( [key: field] )
+    }
+    
+    //Functions requirred in App
+    
+    func deleteWeeklyRec() async throws {
+        updateCycle(key: "cycleStatus", field: CycleStatus.closed)
+
+        try await profile.update(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
+    }
+    
+    func inviteSent(profileId: String) async throws {
+        guard let activeCycleId else {return}
         
-        
+        updateCycle(key: "stats", field: .invited += 1, .pending -= 1)
+    }
+    
+    
+
         
         
     }
     
     
 
-    
-    func deleteWeeklyRec() async throws {
-        try await updateWeeklyRecDoc(field: "cycleStatus", to: CycleStatus.closed)
-        try await profile.update(values: [UserProfile.CodingKeys.weeklyRecsId: FieldValue.delete()])
-    }
         
-    
-    func getWeeklyItems() async throws -> [WeeklyRecItem] {
-        guard let id = weeklyRecDoc else {return []}
-        let collectionRef = weeklyCycleItemsCollection (weeklyCycleId: id)
-        let items = try await collectionRef.getDocuments(as: WeeklyRecItem.self)
-        return items
-    }
+
 
     
     func updateForInviteSent(profileId: String) async throws {

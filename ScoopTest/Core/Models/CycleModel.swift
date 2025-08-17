@@ -28,6 +28,10 @@ struct RecommendationCycle: Identifiable, Codable, Sendable{
     var profilesAdded: Int
     var endsAt: Timestamp // Always 7 days after the TimeStamp
     var autoRemoveAt: Timestamp //Always 21 days after the TimeStamp
+    
+    
+    
+    
 }
 
 
