@@ -13,12 +13,14 @@ import FirebaseFirestore
     
     //Configureation of WeeklyRecsManager
     @ObservationIgnored private let user: UserManager
-    @ObservationIgnored private let profile: ProfileManaging
+    @ObservationIgnored private let profileManager: ProfileManaging
     @ObservationIgnored private var session: SessionManager?
+    @ObservationIgnored private var cacheManager: CacheManaging?
     
-    init(user: UserManager, profile: ProfileManaging, session: SessionManager? = nil) {
+    init(user: UserManager, profileManager: ProfileManaging, session: SessionManager? = nil, cacheManager: CacheManaging) {
         self.user = user
-        self.profile = profile
+        self.profileManager = profileManager
+        self.cacheManager = cacheManager
         self.session = session
     }
     func configure(session: SessionManager) {
@@ -36,7 +38,7 @@ import FirebaseFirestore
     
     
     //Document and collection Navigations
-        
+    
     private let users = Firestore.firestore().collection("users")
     
     private func cyclesCollection () -> CollectionReference {
@@ -102,24 +104,34 @@ import FirebaseFirestore
     
     
     
-    //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function) 
-    
-    
-    func fetchPendingEvents() throws -> Query {
-        return recommendationsCollection(cycleId: activeCycleId  ?? "")
-            .whereField(RecommendationItem.CodingKeys.recommendationStatus, isEqualTo: RecommendationStatus.pending)
-                
-    }
-    
-    
+    //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
+
     func fetchShownCycleRecommendations() async throws -> [EventInvite] {
         
+        let query = recommendationsCollection(cycleId: activeCycleId ?? "")
+            .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
         
+        let documents = try await query.getDocuments(as: RecommendationItem.self)
         
+        let ids = documents.map (\.id)
         
+        return await withTaskGroup(of: EventInvite.self, returning: [EventInvite].self ) { group in
+            
+            for id in ids {
+                group.addTask {
+                    if let p = try? await self.profileManager.getProfile(userId: id)  {
+                        let firstImage = try? await self.cacheManager?.fetchFirstImage(profile: p)
+                        return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
+                    }
+                }
+                return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
+            }
+        }
     }
-    
         
+    
+    
+    
     
     
     func fetchRecommendations () async throws -> [String] {

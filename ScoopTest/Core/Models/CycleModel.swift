@@ -10,7 +10,7 @@ import Foundation
 
 
 enum CycleStatus: Codable, Sendable { case active, closed }
-enum RecommendationStatus: Codable, Sendable { case pending, invited, dismiss, accepted }
+enum RecommendationStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
 
 struct CycleStats: Codable, Sendable {
     var total: Int
