@@ -45,6 +45,7 @@ struct AcceptInvitePopup: View {
                     Spacer()
                 }
             }
+            
             vm.dep.eventManager.eventFormatter(event: event)
             
             ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle()}
@@ -71,10 +72,6 @@ struct AcceptInvitePopup: View {
                         tabSelection.wrappedValue = 1
                         onDismiss()
                     }
-                }
-
-                Task {
-                    await meetVM.loadEventInvites()
                 }
             }
         } message : {
