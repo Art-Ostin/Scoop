@@ -24,7 +24,7 @@ import FirebaseFirestore
     private var currentId: String {
         user.user?.id ?? ""
     }
-    
+        
     private let userCollection = Firestore.firestore().collection("users")
     
     private func weeklyCycleCollection () -> CollectionReference {
@@ -87,19 +87,20 @@ import FirebaseFirestore
     
     
     func updateWeeklyRecDoc(field: String, to value: Any) async throws {
-        let query = weeklyCycleCollection()
-            .whereField("cycleStatus", isEqualTo: CycleStatus.active)
-        let snap = try await query.getDocuments()
-        for doc in snap.documents {
-            let docId = doc.documentID
-            try await weeklyRecDocument(weeklyCycleId: docId).updateData([field: value])
-        }
+        guard
+            let user = user.user,
+            let id = user.weeklyRecsId
+        else { return }
+        try await weeklyRecDocument(weeklyCycleId: id).updateData([field: value])
     }
 
+    
     func deleteWeeklyRec() async throws {
         try await updateWeeklyRecDoc(field: "cycleStatus", to: CycleStatus.closed)
-        try await profile.update(values: [UserProfile.CodingKeys.weeklyRecsId: ""])
+        try await profile.update(values: [UserProfile.CodingKeys.weeklyRecsId: nil])
     }
+    
+    
         //Update the status to closed
         
     
