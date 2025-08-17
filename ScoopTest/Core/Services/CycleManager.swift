@@ -33,8 +33,8 @@ import FirebaseFirestore
     private var currentUserId: String {
         user.user?.id ?? ""
     }
-    private var activeCycleId: String? {
-        user.user?.activeCycleId
+    private var activeCycleId: String {
+        user.user?.activeCycleId ?? ""
     }
     
     
@@ -89,18 +89,18 @@ import FirebaseFirestore
     }
     
     func fetchCycle() async throws -> RecommendationCycle {
-            return try await cycleDocument(cycleId: currentUserId).getDocument(as: RecommendationCycle.self)
+        return try await cycleDocument(cycleId: activeCycleId).getDocument(as: RecommendationCycle.self)
     }
     func fetchRecommendationItem(profileId: String) async throws -> RecommendationItem {
-        return try await recommendationDocument(cycleId: currentUserId, profileId: profileId).getDocument(as: RecommendationItem.self)
+        return try await recommendationDocument(cycleId: activeCycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
     }
     
     
     
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
-
-    func fetchShownCycleRecommendations() async throws -> [EventInvite] {
-        let query = recommendationsCollection(cycleId: activeCycleId ?? "")
+    
+    func fetchPendingCycleRecommendations() async throws -> [EventInvite] {
+        let query = recommendationsCollection(cycleId: activeCycleId)
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
         let ids = try await query.getDocuments(as: RecommendationItem.self).map(\.id)
         
@@ -108,7 +108,7 @@ import FirebaseFirestore
             for id in ids {
                 group.addTask {
                     guard let p = try? await self.profileManager.getProfile(userId: id) else { return nil }
-                    let firstImage = try? await self.cacheManager?.fetchFirstImage(profile: p)
+                    let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
                     return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
                 }
             }
@@ -120,22 +120,20 @@ import FirebaseFirestore
     
     
     func updateCycle(key: String, field: Any) {
-        guard let activeCycleId else {return}
         cycleDocument(cycleId: activeCycleId).updateData( [key: field] )
     }
     func updateRecommendationItem(profileId: String, key: String, field: Any) {
-        guard let activeCycleId else {return}
         recommendationDocument(cycleId: activeCycleId, profileId: profileId).updateData( [key: field] )
     }
     
     //Functions requirred in App
-    func deleteWeeklyRec() async throws {
-        updateCycle(key: "cycleStatus", field: CycleStatus.closed)
+    func deleteCycle() async throws {
+        updateCycle(key: RecommendationCycle.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
         
         try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
+    
     func inviteSent(profileId: String) async throws {
-        guard let activeCycleId else {return}
         
         var stats = try await fetchCycle().cycleStats
         stats .pending -= 1
@@ -144,6 +142,30 @@ import FirebaseFirestore
         let recItem = try await fetchRecommendationItem(profileId: profileId)
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
         
+    }
+    
+    func loadProfileRecsChecker () async throws -> Bool {
+        guard user.user?.activeCycleId != nil else {return false}
+        let doc = try await fetchCycle()
+        let timeEnd = doc.endsAt.dateValue()
+        let timeRefresh = doc.autoRemoveAt.dateValue()
+        let profilesPending = doc.cycleStats.pending
+        
+        if Date() > timeEnd {
+            if Date() > timeRefresh { try? await deleteCycle() ; return false }
+            if profilesPending == 0 { try? await deleteCycle() ; return false }
+        }
+        return true
+    }
+    
+    func showRespondToProfilesToRefresh() async throws -> Bool {
+        let doc = try await fetchCycle()
+        let timeEnd = doc.endsAt.dateValue()
+        
+        if Date() > timeEnd && doc.cycleStats.pending != 0 {
+            return true
+        }
+        return false
     }
     
     

@@ -22,18 +22,20 @@ import Foundation
     
     func loadWeeklyRecCycle() async {
         do {
-            weeklyRecDoc = try await dep.weeklyRecsManager.fetchCycle()
+            weeklyRecDoc = try await dep.cycleManager.fetchCycle()
         } catch {
             print(error)
         }
     }
+    
+    
     
     func reloadWeeklyRecCycle() {
         let count = weeklyRecDoc?.cycleStats.pending
         if count == 0 {
             Task {
                 do {
-                    try await dep.weeklyRecsManager.deleteWeeklyRec()
+                    try await dep.cycleManager.deleteCycle()
                 } catch  {
                     print(error)
                 }
