@@ -13,12 +13,16 @@ import FirebaseFirestore
     
     @ObservationIgnored private let user: UserManager
     @ObservationIgnored private let profile: ProfileManaging
-    @ObservationIgnored private let session: SessionManager
+    @ObservationIgnored private var session: SessionManager?
 
     
-    init(user: UserManager, profile: ProfileManaging, session: SessionManager) {
+    init(user: UserManager, profile: ProfileManaging, session: SessionManager? = nil) {
         self.user = user
         self.profile = profile
+        self.session = session
+    }
+    
+    func configure(session: SessionManager) {
         self.session = session
     }
     
@@ -121,7 +125,7 @@ import FirebaseFirestore
         if var weeklyItem = items.first(where: { $0.id == profileId}) {
             weeklyItem.itemStatus = .invited
         }
-        session.removeProfileRec(profileId: profileId)
+        session?.removeProfileRec(profileId: profileId)
     }
 }
 

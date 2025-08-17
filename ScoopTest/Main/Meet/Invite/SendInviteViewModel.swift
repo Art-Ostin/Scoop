@@ -11,8 +11,11 @@ import Foundation
     
     let recipient: UserProfile
     let dep: AppDependencies
-    
     var event: Event
+    
+    
+    
+    
 
     init(recipient: UserProfile, dep: AppDependencies) {
         self.recipient = recipient
@@ -24,4 +27,18 @@ import Foundation
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false
     var showMapView: Bool = false
+    
+    
+    func sendInvite() async throws {
+        try await dep.weeklyRecsManager.updateForInviteSent(profileId: recipient.userId)
+        try await dep.eventManager.createEvent(event: event)
+    }
+    
+    func acceptInvite() async throws {
+        
+    }
+    
+    
+    
+    
 }

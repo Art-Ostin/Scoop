@@ -26,34 +26,8 @@ struct SendInvitePopup: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: 32) {
-                HStack {
-                    CirclePhoto(image: image ?? UIImage())
-                    
-                    Text("Meet \(vm.recipient.name ?? "")")
-                        .font(.title(24))
-                }
-                InviteTypeRow
-                Divider()
-                InviteTimeRow
-                Divider()
-                InvitePlaceRow
-                ActionButton(isValid: InviteIsValid, text: "Confirm & Send") {
-                    showAlert.toggle()
-                }
-            }
-            .frame(alignment: .top)
-            .padding(.top, 24)
-            .padding([.leading, .trailing, .bottom], 32)
-            .frame(width: 365)
-            .background(Color.background)
-            .cornerRadius(30)
-            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
-            .overlay(
-                RoundedRectangle(cornerRadius: 30)
-                    .inset(by: 0.5)
-                    .stroke(Color.grayBackground, lineWidth: 0.5)
-            )
+
+            sendInviteScreen
             
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
@@ -74,16 +48,9 @@ struct SendInvitePopup: View {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
                 Task {
-                    vm.dep.defaultsManager.removeSuggestedProfile(profileVM.p)
-                    
-                    //update cycle stats to add 1 for 
-                    
-                    
-                    
-                    await meetVM.loadProfileRecs()
-                    onDismiss()
+                    try? await vm.sendInvite()
                 }
-                Task {try await vm.dep.eventManager.createEvent(event: vm.event)}
+                onDismiss()
             }
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")
@@ -95,6 +62,37 @@ struct SendInvitePopup: View {
 }
 
 extension SendInvitePopup {
+
+    private var sendInviteScreen: some View {
+        VStack(spacing: 32) {
+            HStack {
+                CirclePhoto(image: image ?? UIImage())
+                
+                Text("Meet \(vm.recipient.name ?? "")")
+                    .font(.title(24))
+            }
+            InviteTypeRow
+            Divider()
+            InviteTimeRow
+            Divider()
+            InvitePlaceRow
+            ActionButton(isValid: InviteIsValid, text: "Confirm & Send") {
+                showAlert.toggle()
+            }
+        }
+        .frame(alignment: .top)
+        .padding(.top, 24)
+        .padding([.leading, .trailing, .bottom], 32)
+        .frame(width: 365)
+        .background(Color.background)
+        .cornerRadius(30)
+        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 30)
+                .inset(by: 0.5)
+                .stroke(Color.grayBackground, lineWidth: 0.5)
+        )
+    }
     
     private var InviteTypeRow: some View {
         

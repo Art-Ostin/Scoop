@@ -132,11 +132,8 @@ struct EventInvite {
         await cacheManager.loadProfileImages(results.map {$0.profile})
     }
     
-    
     func removeProfileRec(profileId: String) {
         profileRecs.removeAll(where: {$0.id == profileId})
     }
-    
-    
     
 }
