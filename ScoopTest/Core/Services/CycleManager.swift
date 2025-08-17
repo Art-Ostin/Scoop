@@ -9,28 +9,29 @@ import Foundation
 import FirebaseFirestore
 
 
-@Observable final class WeeklyRecsManager {
+@Observable final class CycleManager {
     
     //Configureation of WeeklyRecsManager
     @ObservationIgnored private let user: UserManager
     @ObservationIgnored private let profileManager: ProfileManaging
     @ObservationIgnored private var session: SessionManager?
-    @ObservationIgnored private var cacheManager: CacheManaging?
+    @ObservationIgnored private var cacheManager: CacheManaging
     
-    init(user: UserManager, profileManager: ProfileManaging, session: SessionManager? = nil, cacheManager: CacheManaging) {
+    init(user: UserManager, profileManager: ProfileManaging, cacheManager: CacheManaging,  session: SessionManager? = nil) {
         self.user = user
         self.profileManager = profileManager
         self.cacheManager = cacheManager
         self.session = session
     }
+    
+    
     func configure(session: SessionManager) {
         self.session = session
     }
     
-    
     //UserId and the activeCycleId for editing and referencing
-    private var currentUserId: String? {
-        user.user?.id
+    private var currentUserId: String {
+        user.user?.id ?? ""
     }
     private var activeCycleId: String? {
         user.user?.activeCycleId
@@ -42,9 +43,7 @@ import FirebaseFirestore
     private let users = Firestore.firestore().collection("users")
     
     private func cyclesCollection () -> CollectionReference {
-        if  let id = currentUserId {
-            users.document(id).collection("recommendation_cycles")
-        }
+        users.document(currentUserId).collection("recommendation_cycles")
     }
     
     private func cycleDocument(cycleId: String) -> DocumentReference {
@@ -80,7 +79,7 @@ import FirebaseFirestore
     }
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
-        let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId! }
+        let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId}
         let selectdIds = Array(ids.shuffled().prefix(4))
         
         for id in selectdIds {
@@ -90,20 +89,16 @@ import FirebaseFirestore
     }
     
     func fetchCycle() async throws -> RecommendationCycle {
-        if let id = activeCycleId {
-            return try await cycleDocument(cycleId: id).getDocument(as: RecommendationCycle.self)
-        }
+            return try await cycleDocument(cycleId: currentUserId).getDocument(as: RecommendationCycle.self)
     }
     func fetchRecommendationItem(profileId: String) async throws -> RecommendationItem {
-        if let id = activeCycleId {
-            return try await recommendationDocument(cycleId: id, profileId: profileId).getDocument(as: RecommendationItem.self)
-        }
+        return try await recommendationDocument(cycleId: currentUserId, profileId: profileId).getDocument(as: RecommendationItem.self)
     }
     
     
     
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
-    
+
     func fetchShownCycleRecommendations() async throws -> [EventInvite] {
         let query = recommendationsCollection(cycleId: activeCycleId ?? "")
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
@@ -149,7 +144,6 @@ import FirebaseFirestore
         let recItem = try await fetchRecommendationItem(profileId: profileId)
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
         
-        _ = try await fetchShownCycleRecommendations()
     }
     
     

@@ -19,7 +19,7 @@ final class AppDependencies {
     let userManager: UserManager
     let eventManager: EventManager
     let defaultsManager: DefaultsManager
-    let weeklyRecsManager: WeeklyRecsManager
+    let cycleManager: CycleManager
     let sessionManager: SessionManager
     
     
@@ -31,7 +31,7 @@ final class AppDependencies {
         eventManager: EventManager? = nil,
         userManager: UserManager? = nil,
         defaultsManager: DefaultsManager? = nil,
-        weeklyRecsManager: WeeklyRecsManager? = nil,
+        cycleManager: CycleManager? = nil,
         sessionManager: SessionManager? = nil
 
     ) {
@@ -42,9 +42,9 @@ final class AppDependencies {
         let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
         let storage = storageManager ?? StorageManager(user: userManager)
         let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, firesoreManager: profile, cacheManager: cache)
-        let weeklyRecsManager = weeklyRecsManager ?? WeeklyRecsManager(user: userManager, profile: profile)
-        let sessionManager = sessionManager ?? SessionManager(eventManager: eventManager, cacheManager: cache, profileManager: profile, userManager: userManager, weeklyRecsManager: weeklyRecsManager)
-        weeklyRecsManager.configure(session: sessionManager)
+        let cycleManager = cycleManager ?? CycleManager(user: userManager, profileManager: profile, cacheManager: cache)
+        let sessionManager = sessionManager ?? SessionManager(eventManager: eventManager, cacheManager: cache, profileManager: profile, userManager: userManager, cycleManager: cycleManager)
+        cycleManager.configure(session: sessionManager)
 
 
         self.authManager = auth
@@ -54,7 +54,7 @@ final class AppDependencies {
         self.userManager = userManager
         self.eventManager = eventManager
         self.defaultsManager = defaultsManager
-        self.weeklyRecsManager = weeklyRecsManager
+        self.cycleManager = cycleManager
         self.sessionManager = sessionManager
 
         if let manager = profile as? FirestoreManager {

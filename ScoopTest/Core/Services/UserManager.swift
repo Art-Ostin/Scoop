@@ -21,6 +21,7 @@ class UserManager {
         self.cacheManager = cacheManager
     }
     
+    
     private(set) var user: UserProfile? = nil
     
     func loadUser() async throws {

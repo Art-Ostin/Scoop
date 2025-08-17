@@ -107,26 +107,15 @@ struct EventInvite {
     }
     
     func loadprofileRecs () async throws {
-        print("Step 2.1: load Profile recs called")
+        
         guard await loadProfileRecsChecker() else {
-            print("no weekly users, nothing loaded")
+            print("no weekly users")
             return
-            
         }
         
-        let weeklyProfiles = try await weeklyRecsManager.getWeeklyItems()
+        profileRecs = try await 
+
         
-        let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
-            for item in weeklyProfiles {
-                group.addTask {
-                    guard
-                        let p = try? await self.profileManager.getProfile(userId: item.id) else {return nil}
-                    let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
-                    return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
-                }
-            }
-            return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
-        }
         profileRecs = results
         await cacheManager.loadProfileImages(results.map {$0.profile})
         print("Step 2.1.1: Load profile recs completed")
@@ -139,3 +128,20 @@ struct EventInvite {
     }
     
 }
+
+
+
+
+//let weeklyProfiles = try await weeklyRecsManager.getWeeklyItems()
+//
+//let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
+//    for item in weeklyProfiles {
+//        group.addTask {
+//            guard
+//                let p = try? await self.profileManager.getProfile(userId: item.id) else {return nil}
+//            let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
+//            return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
+//        }
+//    }
+//    return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
+//}

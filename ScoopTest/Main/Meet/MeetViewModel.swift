@@ -9,7 +9,7 @@ import Foundation
 @Observable class MeetViewModel {
     
     let dep: AppDependencies
-    var weeklyRecDoc: WeeklyRecCycle?
+    var weeklyRecDoc: RecommendationCycle?
     var showWeeklyRecs: Bool
     var showRespondToProfilesToRefresh: Bool
     
@@ -22,7 +22,7 @@ import Foundation
     
     func loadWeeklyRecCycle() async {
         do {
-            weeklyRecDoc = try await dep.weeklyRecsManager.getWeeklyRecDoc()
+            weeklyRecDoc = try await dep.weeklyRecsManager.fetchCycle()
         } catch {
             print(error)
         }
@@ -49,12 +49,19 @@ import Foundation
     
     
     func createWeeklyCycle() async throws {
-        try await dep.weeklyRecsManager.setWeeklyRecs()
+        try await dep.weeklyRecsManager.createCycle()
         showWeeklyRecs = true
         try await dep.sessionManager.loadprofileRecs()
-        
-        
     }
     
+    
+    func inviteSent() async throws {
+        
+        //Handle updating here
+        
+        
+        //        _ = try await fetchShownCycleRecommendations()
+
+    }
     
 }
