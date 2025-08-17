@@ -38,21 +38,13 @@ struct EventInvite {
     var currentUser: UserProfile? {
         userManager.user
     }
-    
+
     var profileRecs: [EventInvite] = []
     var profileInvites: [EventInvite] = []
-    
-    var userEvents: [Event] = []
-    var pastEvents: [Event] = []
+
     
     var showWeeklyRecs: Bool?
     var showRespondToProfilesToRefresh: Bool?
-    
-    
-    
-    
-    
-    
     
     
     func loadProfileInvites() async {
@@ -71,21 +63,25 @@ struct EventInvite {
         profileInvites = results
         await cacheManager.loadProfileImages(results.map(\.profile))
     }
-    
-    
-    
-    private func loadProfilesChecker () async throws -> Bool {
-        
-        let now = Date()
-        let docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
-        let timeEnd = docs.endsAt.dateValue()
-        let timeRefresh = docs.autoRemoveTime.dateValue()
-        
-        let profilesAdded = docs.profilesAdded
-        let profilesPending = docs.cycleStats.pending
+    private func loadProfileRecsChecker () async -> Bool {
 
-        if now > timeEnd {
-            if now > timeRefresh {
+        guard let docId = currentUser?.weeklyRecsId else {
+            showWeeklyRecs = false
+            return false
+        }
+
+        guard let doc = try? await weeklyRecsManager.getWeeklyRecDoc(currentUser) else {
+            showWeeklyRecs = false
+            return false
+        }
+        
+        let timeEnd = doc.endsAt.dateValue()
+        let timeRefresh = doc.autoRemoveTime.dateValue()
+
+        let profilesPending = doc.cycleStats.pending
+
+        if Date() > timeEnd {
+            if Date() > timeRefresh {
                 try? await weeklyRecsManager.deleteWeeklyRec()
                 showWeeklyRecs = false
                 return false
@@ -99,25 +95,17 @@ struct EventInvite {
                 showRespondToProfilesToRefresh = true
                 return true
             }
+        } else {
+            return true
         }
-        return true
     }
-
     func loadprofileRecs () async throws {
+
+        guard await loadProfileRecsChecker() else { return }
+        let weeklyProfiles = try await weeklyRecsManager.getWeeklyItems()
         
-        guard
-            let id = currentUser?.weeklyRecsId,
-            try await loadProfilesChecker()
-        else {
-            showWeeklyRecs = false
-            return
-        }
-        guard
-            let documentId = currentUser?.weeklyRecsId,
-            let ids = try? await weeklyRecsManager.getWeeklyItems()
-        else { return }
         let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
-            for item in ids {
+            for item in weeklyProfiles {
                 group.addTask {
                     guard
                         let item = item.id,
@@ -132,6 +120,8 @@ struct EventInvite {
         await cacheManager.loadProfileImages(results.map {$0.profile})
     }
     
+    
+        
     func removeProfileRec(profileId: String) {
         profileRecs.removeAll(where: {$0.id == profileId})
     }

@@ -23,14 +23,8 @@ struct Bootstrapper {
         }
     }
     
-    func prefetch () async {
-        
-        async let loadUser = dep.profileManager.getProfile()
-        
-        if let time = dep.defaultsManager.getSuggestedProfilesTimer() {
-            let ids = dep.defaultsManager.getSuggestedProfiles()
-
-        }
-    }
+    
+    
+    
 }
 
