@@ -96,10 +96,44 @@ import FirebaseFirestore
             return try await recommendationDocument(cycleId: id, profileId: profileId).getDocument(as: RecommendationItem.self)
         }
     }
-    func fetchAllRecommendations () async throws -> [String] {
+    
+    
+    
+    
+    
+    
+    //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function) 
+    
+    
+    func fetchPendingEvents() throws -> Query {
+        return recommendationsCollection(cycleId: activeCycleId  ?? "")
+            .whereField(RecommendationItem.CodingKeys.recommendationStatus, isEqualTo: RecommendationStatus.pending)
+                
+    }
+    
+    
+    func fetchShownCycleRecommendations() async throws -> [EventInvite] {
+        
+        
+        
+        
+    }
+    
+        
+    
+    
+    func fetchRecommendations () async throws -> [String] {
         guard let cycleId = activeCycleId else {return []}
         return try await recommendationsCollection(cycleId: cycleId).getDocuments(as: RecommendationItem.self).map {$0.id}
+        
+        
+        
+        
+        
+        
     }
+    
+    
     
     func updateCycle(key: String, field: Any) {
         guard let activeCycleId else {return}
@@ -120,8 +154,17 @@ import FirebaseFirestore
     
     func inviteSent(profileId: String) async throws {
         guard let activeCycleId else {return}
+
+        var stats = try await fetchCycle().cycleStats
+        stats .pending -= 1
+        stats .invited += 1
         
-        updateCycle(key: "stats", field: .invited += 1, .pending -= 1)
+        
+        if var weeklyItem = items.first(where: { $0.id == profileId}) {
+            weeklyItem.itemStatus = .invited
+        }
+        session?.removeProfileRec(profileId: profileId)
+        
     }
     
     

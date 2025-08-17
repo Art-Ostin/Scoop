@@ -29,8 +29,15 @@ struct RecommendationCycle: Identifiable, Codable, Sendable{
     var endsAt: Timestamp // Always 7 days after the TimeStamp
     var autoRemoveAt: Timestamp //Always 21 days after the TimeStamp
     
-    
-    
+    enum CodingKeys: CodingKey {
+        case id
+        case startedAt
+        case cycleStatus
+        case cycleStats
+        case profilesAdded
+        case endsAt
+        case autoRemoveAt
+    }
     
 }
 
@@ -41,6 +48,16 @@ struct RecommendationItem: Identifiable, Codable, Sendable{
     var recommendationStatus: RecommendationStatus
     @ServerTimestamp var addedDay: Timestamp?
     var actedAt: Timestamp?
+    
+    
+    enum CodingKeys: CodingKey {
+        case id
+        case profileViews
+        case recommendationStatus
+        case addedDay
+        case actedAt
+    }
+
 }
 
 
