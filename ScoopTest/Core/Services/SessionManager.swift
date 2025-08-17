@@ -112,17 +112,16 @@ struct EventInvite {
             showWeeklyRecs = false
             return
         }
-        
         guard
             let documentId = currentUser?.weeklyRecsId,
-            let ids = try? await weeklyRecsManager.getWeeklyItems(weeklyCycleId: documentId)
+            let ids = try? await weeklyRecsManager.getWeeklyItems()
         else { return }
         let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
-            for id in ids {
+            for item in ids {
                 group.addTask {
                     guard
-                        let id,
-                        let p = try? await self.profileManager.getProfile(userId: id) else {return nil}
+                        let item = item.id,
+                        let p = try? await self.profileManager.getProfile(userId: item) else {return nil}
                     let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
                     return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
                 }
@@ -132,4 +131,12 @@ struct EventInvite {
         profileRecs = results
         await cacheManager.loadProfileImages(results.map {$0.profile})
     }
+    
+    
+    func removeProfileRec(profileId: String) {
+        profileRecs.removeAll(where: {$0.id == profileId})
+    }
+    
+    
+    
 }

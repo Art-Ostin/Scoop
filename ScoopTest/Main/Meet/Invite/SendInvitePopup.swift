@@ -75,6 +75,11 @@ struct SendInvitePopup: View {
             Button ("I Understand") {
                 Task {
                     vm.dep.defaultsManager.removeSuggestedProfile(profileVM.p)
+                    
+                    //update cycle stats to add 1 for 
+                    
+                    
+                    
                     await meetVM.loadProfileRecs()
                     onDismiss()
                 }

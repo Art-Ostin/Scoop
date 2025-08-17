@@ -34,10 +34,6 @@ struct MeetView: View {
                 
             }
             
-            
-            
-            
-            
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -51,7 +47,7 @@ extension MeetView {
     private var tabView: some View {
         TabView {
             ForEach(dep.sessionManager.profileInvites, id: \.id) {invite in
-                ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile)
+                ProfileCard(event: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile)
             }
             if !vm.showWeeklyRecs {
                 IntroView(vm: $vm)

@@ -42,7 +42,7 @@ final class AppDependencies {
         let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
         let storage = storageManager ?? StorageManager(user: userManager)
         let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, firesoreManager: profile, cacheManager: cache)
-        let weeklyRecsManager = weeklyRecsManager ?? WeeklyRecsManager(user: userManager, profile: profile)
+        let weeklyRecsManager = weeklyRecsManager ?? WeeklyRecsManager(user: userManager, profile: profile, session: sessionManager)
         let sessionManager = sessionManager ?? SessionManager(eventManager: eventManager, cacheManager: cache, profileManager: profile, userManager: userManager, weeklyRecsManager: weeklyRecsManager)
 
         self.authManager = auth

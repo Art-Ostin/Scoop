@@ -13,16 +13,21 @@ import FirebaseFirestore
     
     @ObservationIgnored private let user: UserManager
     @ObservationIgnored private let profile: ProfileManaging
+    @ObservationIgnored private let session: SessionManager
 
     
-    
-    init(user: UserManager, profile: ProfileManaging) {
+    init(user: UserManager, profile: ProfileManaging, session: SessionManager) {
         self.user = user
         self.profile = profile
+        self.session = session
     }
     
     private var currentId: String {
         user.user?.id ?? ""
+    }
+    
+    private var weeklyRecDoc: String? {
+        user.user?.weeklyRecsId
     }
         
     private let userCollection = Firestore.firestore().collection("users")
@@ -82,17 +87,14 @@ import FirebaseFirestore
         guard let id = (user?.weeklyRecsId ?? self.user.user?.weeklyRecsId) else { throw URLError(.badServerResponse)}
         return try await weeklyRecDocument(weeklyCycleId: id).getDocument(as: WeeklyRecCycle.self)
     }
-    
-    
-    
+        
     
     func updateWeeklyRecDoc(field: String, to value: Any) async throws {
-        guard
-            let user = user.user,
-            let id = user.weeklyRecsId
-        else { return }
-        try await weeklyRecDocument(weeklyCycleId: id).updateData([field: value])
+        if let id = weeklyRecDoc {
+            try await weeklyRecDocument(weeklyCycleId: id).updateData([field: value])
+        }
     }
+    
 
     
     func deleteWeeklyRec() async throws {
@@ -101,23 +103,25 @@ import FirebaseFirestore
     }
         
     
-    func getWeeklyItems(weeklyCycleId: String) async throws -> [String?] {
-        let collectionRef = weeklyCycleItemsCollection (weeklyCycleId: weeklyCycleId)
-        let weeklyItems = try await collectionRef.getDocuments(as: WeeklyRecItem.self)
-        return  weeklyItems.map {$0.id}
+    func getWeeklyItems() async throws -> [WeeklyRecItem] {
+        guard let id = weeklyRecDoc else {return []}
+        let collectionRef = weeklyCycleItemsCollection (weeklyCycleId: id)
+        let items = try await collectionRef.getDocuments(as: WeeklyRecItem.self)
+        return items
+    }
+
+    
+    func updateForInviteSent(profileId: String) async throws {
+        var stats = try await getWeeklyRecDoc().cycleStats
+        stats.pending -= 1
+        stats.invited += 1
+        
+        let items = try await getWeeklyItems()
+        
+        if var weeklyItem = items.first(where: { $0.id == profileId}) {
+            weeklyItem.itemStatus = .invited
+        }
+        session.removeProfileRec(profileId: profileId)
     }
 }
-
-
-
-
-//let query = weeklyCycleCollection()
-//    .whereField("cycleStatus", isEqualTo: CycleStatus.active)
-//let snap = try await query.getDocuments()
-//for doc in snap.documents {
-//    try await doc.reference.updateData([
-//        "cycleStatus": CycleStatus.closed
-//    ])
-//}
-
 
