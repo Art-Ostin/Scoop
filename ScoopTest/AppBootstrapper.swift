@@ -24,7 +24,10 @@ struct Bootstrapper {
     }
     
     
-    
-    
+    @MainActor
+    func prefetch() async {
+        Task {try? await dep.sessionManager.loadprofileRecs()}
+        Task {await dep.sessionManager.loadProfileInvites()}
+    }
 }
 
