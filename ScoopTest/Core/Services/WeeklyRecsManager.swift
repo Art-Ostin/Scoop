@@ -58,9 +58,6 @@ import FirebaseFirestore
     
     
     // Creating a cycleDocument and populating it with profile recommendations
-    
-    
-    
     func createCycle() async throws {
         let now = Date()
         let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
@@ -68,15 +65,12 @@ import FirebaseFirestore
         
         let cycle = RecommendationCycle(cycleStats: .init(total: 4, invited: 0, accepted: 0, dismissed: 0, pending: 4), profilesAdded: 4, endsAt: endsAt, autoRemoveAt: autoRemoveAt)
         
-        
         let docRef = try cyclesCollection().addDocument(from: cycle)
         let id = docRef.getDocument(as: RecommendationCycle.self)
+        
+        try await createRecommendedProfiles(cycleId: id)
     }
-    
-    
-
-    
-    private func createRecommendedProfiles(cycleId: String) async throws -> [String] {
+    private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId! }
         let selectdIds = Array(ids.shuffled().prefix(4))
@@ -87,6 +81,12 @@ import FirebaseFirestore
         }
     }
 
+    
+    
+    
+    
+    
+    
     
     
     func setWeeklyRecs() async throws {
