@@ -16,8 +16,8 @@ import Foundation
     
     init(dep: AppDependencies) {
         self.dep = dep
-        self.showWeeklyRecs = dep.sessionManager.showWeeklyRecs ?? false
-        self.showRespondToProfilesToRefresh = dep.sessionManager.showRespondToProfilesToRefresh ?? false
+        self.showWeeklyRecs = dep.sessionManager.showProfileRecommendations
+        self.showRespondToProfilesToRefresh = dep.sessionManager.showRespondToProfilesToRefresh
     }
     
     func loadWeeklyRecCycle() async {
@@ -40,7 +40,7 @@ import Foundation
                     print(error)
                 }
             }
-            dep.sessionManager.showWeeklyRecs = false
+            dep.sessionManager.showProfileRecommendations = false
             showWeeklyRecs = false
         } else {
             showRespondToProfilesToRefresh = true
@@ -48,22 +48,10 @@ import Foundation
         }
     }
     
-    
-    
     func createWeeklyCycle() async throws {
-        try await dep.weeklyRecsManager.createCycle()
+        try await dep.cycleManager.createCycle()
         showWeeklyRecs = true
         try await dep.sessionManager.loadprofileRecs()
-    }
-    
-    
-    func inviteSent() async throws {
-        
-        //Handle updating here
-        
-        
-        //        _ = try await fetchShownCycleRecommendations()
-
     }
     
 }

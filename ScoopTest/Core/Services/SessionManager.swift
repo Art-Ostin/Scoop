@@ -45,26 +45,16 @@ struct EventInvite {
     
     var showProfileRecommendations: Bool = true
     var showRespondToProfilesToRefresh: Bool = false
-    
+
     
     func loadProfileInvites() async {
-        print("Load ProfileInvitesCalled")
         guard let events = try? await eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
-        
-        let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) {group in
-            for e in events {
-                group.addTask {
-                    guard let p = try? await self.profileManager.getProfile(userId: e.otherUserId) else {return nil}
-                    let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
-                    return EventInvite(event: e, profile: p, image: firstImage ?? UIImage())
-                }
-            }
-            return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
-        }
-        profileInvites = results
-        await cacheManager.loadProfileImages(results.map(\.profile))
+        let data = events.map { (id: $0.otherUserId, event: $0) }
+        let invites = await cycleManager.inviteLoader(data: data)
+        profileInvites = invites
+        await cacheManager.loadProfileImages(profileInvites.map(\.profile))
     }
-    
+
     func loadprofileRecs () async throws {
         guard try await cycleManager.loadProfileRecsChecker() else {
             showProfileRecommendations = false
@@ -74,5 +64,5 @@ struct EventInvite {
         profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
     }
-
+    
 }

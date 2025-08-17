@@ -30,7 +30,7 @@ import Foundation
     
     
     func sendInvite() async throws {
-        try await dep.weeklyRecsManager.updateForInviteSent(profileId: recipient.userId)
+        try await dep.cycleManager.updateForInviteSent(profileId: recipient.userId)
         try await dep.eventManager.createEvent(event: event)
     }
     

@@ -100,22 +100,14 @@ import FirebaseFirestore
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
     
     func fetchPendingCycleRecommendations() async throws -> [EventInvite] {
-        let query = recommendationsCollection(cycleId: activeCycleId)
-            .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
-        let ids = try await query.getDocuments(as: RecommendationItem.self).map(\.id)
+        let ids = try await recommendationsCollection(cycleId: activeCycleId)
+            .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
+                        isEqualTo: RecommendationStatus.pending.rawValue)
+            .getDocuments(as: RecommendationItem.self)
+            .map(\.id)
         
-        return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
-            for id in ids {
-                group.addTask {
-                    guard let p = try? await self.profileManager.getProfile(userId: id) else { return nil }
-                    let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
-                    return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
-                }
-            }
-            return await group.reduce(into: []) {result, element  in
-                if let element {result.append(element)}
-            }
-        }
+        let data = ids.map { (id: $0, event: nil as UserEvent?) }
+        return await inviteLoader(data: data)
     }
     
     
@@ -170,17 +162,37 @@ import FirebaseFirestore
         return false
     }
     
+        
+    
     func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [EventInvite] {
-        await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
+        return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
             for item in data {
                 group.addTask {
-                    guard let profile = try? await profileManager.getProfile(userId: item.id) else { return nil }
-                    let image = try? await cacheManager.fetchFirstImage(profile: profile)
+                    guard let profile = try? await self.profileManager.getProfile(userId: item.id) else { return nil }
+                    let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
                     return EventInvite(event: item.event, profile: profile, image: image ?? UIImage())
                 }
             }
-            return await group.compactMap { $0 }
+            return await group.reduce(into: []) {result, element  in
+                if let element {result.append(element)}
+            }
         }
     }
 }
 
+
+
+
+
+//return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
+//    for id in ids {
+//        group.addTask {
+//            guard let p = try? await self.profileManager.getProfile(userId: id) else { return nil }
+//            let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
+//            return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
+//        }
+//    }
+//    return await group.reduce(into: []) {result, element  in
+//        if let element {result.append(element)}
+//    }
+//}
