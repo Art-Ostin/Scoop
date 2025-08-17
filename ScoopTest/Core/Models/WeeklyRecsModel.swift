@@ -24,7 +24,7 @@ struct WeeklyRecCycle: Identifiable, Codable, Sendable{
     @ServerTimestamp var startedAt: Timestamp?
     var cycleStatus: CycleStatus
     var cycleStats: CycleStats
-    var dailyProfilesAdded: Int
+    var profilesAdded: Int
     var endsAt: Timestamp
     var autoRemoveTime: Timestamp
 }

@@ -12,8 +12,14 @@ import FirebaseFirestore
 @Observable final class WeeklyRecsManager {
     
     @ObservationIgnored private let user: UserManager
+    @ObservationIgnored private let profile: ProfileManaging
+
     
-    init(user: UserManager) { self.user = user}
+    
+    init(user: UserManager, profile: ProfileManaging) {
+        self.user = user
+        self.profile = profile
+    }
     
     private var currentId: String {
         user.user?.id ?? ""
@@ -65,7 +71,7 @@ import FirebaseFirestore
             startedAt: nil,
             cycleStatus: .active,
             cycleStats: .init(total: ids.count, invited: 0, dismissed: 0, pending: ids.count),
-            dailyProfilesAdded: 0,
+            profilesAdded: ids.count,
             endsAt: Timestamp(date: endsAt),
             autoRemoveTime: Timestamp(date: autoRemove)
         )
@@ -75,11 +81,15 @@ import FirebaseFirestore
         try await setWeeklyItems(weeklyCycleId: weeklyCycleId)
     }
     
-    func getWeeklyRecDoc(_ user:UserProfile?) async throws {
+    func getWeeklyRecDoc(_ user:UserProfile?) async throws -> WeeklyRecCycle {
         let id = user?.weeklyRecsId ?? ""
-        let weeklyRecsDoc: WeeklyRecCycle = try await weeklyRecDocument(weeklyCycleId: id).getDocument(as: WeeklyRecCycle.self)
+        return try await weeklyRecDocument(weeklyCycleId: id).getDocument(as: WeeklyRecCycle.self)
     }
     
+    func deleteWeeklyRec() async throws {
+        
+        
+    }
     
     
     func getWeeklyItems(weeklyCycleId: String) async throws -> [String?] {

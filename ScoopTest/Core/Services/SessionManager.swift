@@ -20,11 +20,11 @@ struct EventInvite {
 
 @Observable final class SessionManager {
     
-    var eventManager: EventManager
-    var cacheManager: CacheManaging
-    var profileManager: ProfileManaging
-    var userManager: UserManager
-    var weeklyRecsManager: WeeklyRecsManager
+    @ObservationIgnored private let eventManager: EventManager
+    @ObservationIgnored private let cacheManager: CacheManaging
+    @ObservationIgnored private let profileManager: ProfileManaging
+    @ObservationIgnored private let userManager: UserManager
+    @ObservationIgnored private let weeklyRecsManager: WeeklyRecsManager
     
     
     init(eventManager: EventManager, cacheManager: CacheManaging, profileManager: ProfileManaging, userManager: UserManager, weeklyRecsManager: WeeklyRecsManager) {
@@ -67,10 +67,21 @@ struct EventInvite {
     
     
     
-    func checkprofileRecs () async throws   {
+    func checkRefreshWeeklyProfileRecs () async throws -> Bool {
         
+        let now = Date()
         var docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
         
+        let timeEnd = docs.endsAt.dateValue()
+        
+        let timeRefresh = docs.autoRemoveTime.dateValue()
+        
+        if now > timeEnd {
+            if now > timeRefresh { return true }
+        } else {
+            return true
+        }
+        return false
     }
     
     
