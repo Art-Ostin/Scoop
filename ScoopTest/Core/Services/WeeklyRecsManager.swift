@@ -105,17 +105,21 @@ import FirebaseFirestore
     
     
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
-
-    func fetchShownCycleRecommendations() async throws -> [EventInvite] {
-        
+    
+    
+    private func fetchPendingProfileIds() async throws -> [String] {
         let query = recommendationsCollection(cycleId: activeCycleId ?? "")
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
-        
         let documents = try await query.getDocuments(as: RecommendationItem.self)
+        return documents.map (\.id)
+    }
+    
+
+    func fetchShownCycleRecommendations() async throws -> [EventInvite] {
+    
+        let ids = try await fetchPendingProfileIds()
         
-        let ids = documents.map (\.id)
-        
-        return await withTaskGroup(of: EventInvite.self, returning: [EventInvite].self ) { group in
+        return await withTaskGroup(of: EventInvite.self) { group in
             
             for id in ids {
                 group.addTask {
@@ -123,16 +127,18 @@ import FirebaseFirestore
                         let firstImage = try? await self.cacheManager?.fetchFirstImage(profile: p)
                         return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
                     }
-                }
-                return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
             }
+            var results: [EventInvite] = []
+            for g in group {
+                results.append(g)
+            }
+            return results
         }
     }
         
-    
-    
-    
-    
+
+        
+        
     
     func fetchRecommendations () async throws -> [String] {
         guard let cycleId = activeCycleId else {return []}
