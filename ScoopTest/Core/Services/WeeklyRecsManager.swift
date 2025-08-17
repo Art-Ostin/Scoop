@@ -59,8 +59,6 @@ import FirebaseFirestore
         }
     }
     
-    
-    
     func setWeeklyRecs() async throws {
         let ids = try await setWeeklyProfileRecs()
         let now = Date()
@@ -86,11 +84,24 @@ import FirebaseFirestore
         return try await weeklyRecDocument(weeklyCycleId: id).getDocument(as: WeeklyRecCycle.self)
     }
     
-    func deleteWeeklyRec() async throws {
-        
-        
-    }
     
+    
+    func updateWeeklyRecDoc(field: String, to value: Any) async throws {
+        let query = weeklyCycleCollection()
+            .whereField("cycleStatus", isEqualTo: CycleStatus.active)
+        let snap = try await query.getDocuments()
+        for doc in snap.documents {
+            let docId = doc.documentID
+            try await weeklyRecDocument(weeklyCycleId: docId).updateData([field: value])
+        }
+    }
+
+    func deleteWeeklyRec() async throws {
+        try await updateWeeklyRecDoc(field: "cycleStatus", to: CycleStatus.closed)
+        try await profile.update(values: [UserProfile.CodingKeys.weeklyRecsId: ""])
+    }
+        //Update the status to closed
+        
     
     func getWeeklyItems(weeklyCycleId: String) async throws -> [String?] {
         let collectionRef = weeklyCycleItemsCollection (weeklyCycleId: weeklyCycleId)
@@ -100,5 +111,15 @@ import FirebaseFirestore
 }
 
 
+
+
+//let query = weeklyCycleCollection()
+//    .whereField("cycleStatus", isEqualTo: CycleStatus.active)
+//let snap = try await query.getDocuments()
+//for doc in snap.documents {
+//    try await doc.reference.updateData([
+//        "cycleStatus": CycleStatus.closed
+//    ])
+//}
 
 

@@ -75,7 +75,6 @@ struct EventInvite {
         let timeEnd = docs.endsAt.dateValue()
         
         let timeRefresh = docs.autoRemoveTime.dateValue()
-        
         if now > timeEnd {
             if now > timeRefresh { return true }
         } else {
@@ -86,6 +85,11 @@ struct EventInvite {
     
     
     func loadprofileRecs () async {
+        
+        if (currentUser?.weeklyRecsId.isEmpty != nil { return }
+        
+        
+        
         guard
             let documentId = currentUser?.weeklyRecsId,
             let ids = try? await weeklyRecsManager.getWeeklyItems(weeklyCycleId: documentId)
