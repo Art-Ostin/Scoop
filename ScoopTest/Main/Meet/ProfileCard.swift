@@ -9,13 +9,12 @@ import SwiftUI
 
 struct ProfileCard : View {
     
-    var userEvent: UserEvent?
+    var event: UserEvent?
     let profile: UserProfile
     let dep: AppDependencies
 
     @State private var image: UIImage?
-    @Binding var selectedProfile: UserProfile?
-    @Binding var selectedInvite: EventInvite?
+    @Binding var selectedProfile: EventInvite?
     
     var firstURL: URL? {
         guard let s = profile.imagePathURL?.first else {return nil}
@@ -28,10 +27,10 @@ struct ProfileCard : View {
             if let image = image {
                 firstImage(image: image)
                     .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
-                        if let event = userEvent {
-                            selectedInvite = .init(profile, event)
+                        if let event {
+                            selectedProfile = EventInvite(event: event, profile: profile)
                         } else {
-                            selectedProfile = profile
+                            selectedProfile = EventInvite(profile: profile)
                         }
                     }
                 }

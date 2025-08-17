@@ -13,7 +13,7 @@ import SwiftUI
 struct EventInvite {
     var event: UserEvent?
     var profile: UserProfile
-    var image: UIImage
+    var image: UIImage?
     var id: String { profile.userId}
 }
 
@@ -44,10 +44,17 @@ struct EventInvite {
     
     var userEvents: [Event] = []
     var pastEvents: [Event] = []
-
+    
+    var showWeeklyRecs: Bool?
+    var showRespondToProfilesToRefresh: Bool?
     
     
-
+    
+    
+    
+    
+    
+    
     func loadProfileInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
         
@@ -65,7 +72,10 @@ struct EventInvite {
         await cacheManager.loadProfileImages(results.map(\.profile))
     }
     
+    
+    
     private func loadProfilesChecker () async throws -> Bool {
+        
         let now = Date()
         let docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
         let timeEnd = docs.endsAt.dateValue()
@@ -77,22 +87,31 @@ struct EventInvite {
         if now > timeEnd {
             if now > timeRefresh {
                 try? await weeklyRecsManager.deleteWeeklyRec()
+                showWeeklyRecs = false
                 return false
             }
             
             if profilesPending == 0 {
                 try? await weeklyRecsManager.deleteWeeklyRec()
+                showWeeklyRecs = false
                 return false
+            } else {
+                showRespondToProfilesToRefresh = true
+                return true
             }
         }
         return true
     }
 
     func loadprofileRecs () async throws {
+        
         guard
             let id = currentUser?.weeklyRecsId,
             try await loadProfilesChecker()
-        else {return}
+        else {
+            showWeeklyRecs = false
+            return
+        }
         
         guard
             let documentId = currentUser?.weeklyRecsId,

@@ -9,51 +9,35 @@ import SwiftUI
 
 struct MeetView: View {
     
+    @State var vm: MeetViewModel
     
     let dep: AppDependencies
     
-    @State var selectedProfile: UserProfile?
-    @State var selectedInvite: EventInvite?
+    @State var selectedProfile: EventInvite?
     
-    
-    init(dep: AppDependencies) { self.dep = dep}
-    
+    init(dep: AppDependencies) {
+        self.dep = dep
+        self._vm = State(initialValue: MeetViewModel(dep: dep))
+    }
     
     var body: some View {
         
         ZStack {
+            
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
-                
+
                 tabView
                 
-                if let target = dep.weeklyRecsManager.getWeeklyRecDoc().endsAt.dateValue() {
-                    SimpleClockView(targetTime: target) {
-                        
-                        
-                        
-                        
-                        
-                        dep.weeklyRecsManager.deleteWeeklyRec()
-                        
-                        
-                        
-                    }
-                }
-            }
-            if let invite = selectedInvite {
-                profileInviteView(invite)
+                clockView
+                
             }
             
-            if let profile = selectedProfile {
-                profileRecView(profile)
-            }
-        }
-        .task {
-            if vm.profileRecs.isEmpty { await vm.loadProfileRecs()
-                print("function to loadProfileRecs called") }
-            if vm.profileInvites.isEmpty { await vm.loadEventInvites() }
+            
+            
+            
+            
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -61,49 +45,56 @@ struct MeetView: View {
     }
 }
 
+
 extension MeetView {
     
     private var tabView: some View {
-        TabView{
-            ForEach(vm.profileInvites, id: \.id) {invite in
-                ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
+        TabView {
+            ForEach(dep.sessionManager.profileInvites, id: \.id) {invite in
+                ProfileCard(userEvent: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile)
             }
-            if vm.time == nil {
+            if !vm.showWeeklyRecs {
                 IntroView(vm: $vm)
             } else {
-                ForEach(vm.profileRecs) {profile in
-                    ProfileCard(profile: profile, dep: vm.dep,  selectedProfile: $selectedProfile, selectedInvite: $selectedInvite)
+                ForEach(dep.sessionManager.profileRecs, id: \.id) {profileRec in
+                    ProfileCard(profile: profileRec.profile, dep: vm.dep,  selectedProfile: $selectedProfile)
                 }
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
-
-    private func profileRecView(_ profile: UserProfile) -> some View {
+    
+    
+    private func profileRecView(profile: UserProfile, event: UserEvent? = nil) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .ignoresSafeArea()
                 .onTapGesture { }
-            ProfileView(profile: profile, dep: vm.dep) {
-                withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
+            
+            if let event = event {
+                ProfileView(profile: profile, dep: dep, event: event) {
+                    withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
+                }
+            } else {
+                ProfileView(profile: profile, dep: dep) {
+                    withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
+                }
             }
         }
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
-
-    private func profileInviteView(_ invite: EventInvite) -> some View {
-        ZStack {
-            Color.clear
-                .contentShape(Rectangle())
-                .ignoresSafeArea()
-                .onTapGesture { }
-            ProfileView(profile: invite.profile, dep: vm.dep, event: invite.event) {
-                withAnimation(.easeInOut(duration: 0.2)) { selectedInvite = nil }
+    
+    @ViewBuilder private var clockView: some View {
+        if !vm.showRespondToProfilesToRefresh {
+            if let time = vm.weeklyRecDoc?.endsAt.dateValue() {
+                SimpleClockView(targetTime: time) {
+                    vm.reloadWeeklyRecCycle()
+                }
             }
+        } else {
+            Text("Respond to profiles to get new matches")
         }
-        .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
-        .zIndex(1)
     }
 }

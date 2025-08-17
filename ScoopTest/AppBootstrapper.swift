@@ -29,13 +29,8 @@ struct Bootstrapper {
         
         if let time = dep.defaultsManager.getSuggestedProfilesTimer() {
             let ids = dep.defaultsManager.getSuggestedProfiles()
-            
-            
-            try await withTaskGrou
+
         }
-        
-        
-        
-        
     }
 }
+

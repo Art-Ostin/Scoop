@@ -73,7 +73,6 @@ import FirebaseFirestore
             endsAt: Timestamp(date: endsAt),
             autoRemoveTime: Timestamp(date: autoRemove)
         )
-        
         let docRef = try weeklyCycleCollection().addDocument(from: cycle)
         let weeklyCycleId = docRef.documentID
         try await setWeeklyItems(weeklyCycleId: weeklyCycleId)
