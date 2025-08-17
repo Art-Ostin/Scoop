@@ -46,6 +46,7 @@ import FirebaseFirestore
             users.document(id).collection("recommendation_cycles")
         }
     }
+    
     private func cycleDocument(cycleId: String) -> DocumentReference {
         cyclesCollection().document(cycleId)
     }
@@ -102,12 +103,12 @@ import FirebaseFirestore
     
     
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
-
+    
     func fetchShownCycleRecommendations() async throws -> [EventInvite] {
         let query = recommendationsCollection(cycleId: activeCycleId ?? "")
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
         let ids = try await query.getDocuments(as: RecommendationItem.self).map(\.id)
-
+        
         return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
             for id in ids {
                 group.addTask {
@@ -122,8 +123,6 @@ import FirebaseFirestore
         }
     }
     
-
-    
     
     func updateCycle(key: String, field: Any) {
         guard let activeCycleId else {return}
@@ -135,16 +134,14 @@ import FirebaseFirestore
     }
     
     //Functions requirred in App
-    
     func deleteWeeklyRec() async throws {
         updateCycle(key: "cycleStatus", field: CycleStatus.closed)
-
+        
         try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
-    
     func inviteSent(profileId: String) async throws {
         guard let activeCycleId else {return}
-
+        
         var stats = try await fetchCycle().cycleStats
         stats .pending -= 1
         stats .invited += 1
@@ -152,35 +149,9 @@ import FirebaseFirestore
         let recItem = try await fetchRecommendationItem(profileId: profileId)
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
         
-        try await fetchShownCycleRecommendations()
+        _ = try await fetchShownCycleRecommendations()
     }
     
     
-    
-    
-    
-
-        
-        
-    }
-    
-    
-
-        
-
-
-    
-    func updateForInviteSent(profileId: String) async throws {
-        var stats = try await getWeeklyRecDoc().cycleStats
-        stats.pending -= 1
-        stats.invited += 1
-        
-        let items = try await getWeeklyItems()
-        
-        if var weeklyItem = items.first(where: { $0.id == profileId}) {
-            weeklyItem.itemStatus = .invited
-        }
-        session?.removeProfileRec(profileId: profileId)
-    }
 }
 
