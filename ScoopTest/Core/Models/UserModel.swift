@@ -21,7 +21,7 @@ struct UserProfile: Codable, Equatable {
     let dateCreated: Date?
     
     let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
-        smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, weeklyRecsId: String?
+        smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
     
     let interests, nationality, character, imagePath, imagePathURL: [String]?
     
@@ -55,7 +55,7 @@ struct UserProfile: Codable, Equatable {
         self.character = nil
         self.imagePath = nil
         self.imagePathURL = nil
-        self.weeklyRecsId = nil
+        self.activeCycleId = nil
     }
       
     enum CodingKeys: String, CodingKey {
@@ -86,7 +86,7 @@ struct UserProfile: Codable, Equatable {
         case character = "character"
         case imagePath = "image_path"
         case imagePathURL = "image_path_url"
-        case weeklyRecsId = "weekly_recs_id"
+        case activeCycleId = "weekly_recs_id"
     }
     
     init(from decoder: any Decoder) throws {
@@ -118,7 +118,7 @@ struct UserProfile: Codable, Equatable {
         self.character = try container.decodeIfPresent([String].self, forKey: .character)
         self.imagePath = try container.decodeIfPresent([String].self, forKey: .imagePath)
         self.imagePathURL = try container.decodeIfPresent([String].self, forKey: .imagePathURL)
-        self.weeklyRecsId = try container.decodeIfPresent(String.self, forKey: .weeklyRecsId)
+        self.activeCycleId = try container.decodeIfPresent(String.self, forKey: .activeCycleId)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -150,7 +150,7 @@ struct UserProfile: Codable, Equatable {
         try container.encodeIfPresent(self.character, forKey: .character)
         try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
         try container.encodeIfPresent(self.imagePathURL, forKey: .imagePathURL)
-        try container.encodeIfPresent(self.weeklyRecsId, forKey: .weeklyRecsId)
+        try container.encodeIfPresent(self.activeCycleId, forKey: .activeCycleId)
     }
 }
 
