@@ -126,6 +126,8 @@ import FirebaseFirestore
         recommendationDocument(cycleId: activeCycleId, profileId: profileId).updateData( [key: field] )
     }
     
+    
+    
     //Functions requirred in App
     func deleteCycle() async throws {
         updateCycle(key: RecommendationCycle.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
@@ -168,6 +170,17 @@ import FirebaseFirestore
         return false
     }
     
-    
+    func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [EventInvite] {
+        await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
+            for item in data {
+                group.addTask {
+                    guard let profile = try? await profileManager.getProfile(userId: item.id) else { return nil }
+                    let image = try? await cacheManager.fetchFirstImage(profile: profile)
+                    return EventInvite(event: item.event, profile: profile, image: image ?? UIImage())
+                }
+            }
+            return await group.compactMap { $0 }
+        }
+    }
 }
 
