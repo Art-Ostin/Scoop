@@ -67,6 +67,11 @@ struct EventInvite {
     
     
     
+    func checkprofileRecs () async throws   {
+        
+        var docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
+        
+    }
     
     
     func loadprofileRecs () async {
@@ -74,19 +79,20 @@ struct EventInvite {
             let documentId = currentUser?.weeklyRecsId,
             let ids = try? await weeklyRecsManager.getWeeklyItems(weeklyCycleId: documentId)
         else { return }
-        
         let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
             for id in ids {
-                guard
-                    let id,
-                    let p = try? await self.profileManager.getProfile(userId: id) else {return nil}
-                let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
-                return EventInvite(event: nil, profile: p, image: firstImage)
+                group.addTask {
+                    guard
+                        let id,
+                        let p = try? await self.profileManager.getProfile(userId: id) else {return nil}
+                    let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
+                    return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
+                }
             }
             return await group.reduce(into: []) {result, element in if let element { result.append(element)}}
         }
-        profileInvites = results
-        await cacheManager.loadProfileImages(results.map($0.profile))
+        profileRecs = results
+        await cacheManager.loadProfileImages(results.map {$0.profile})
     }
     
     

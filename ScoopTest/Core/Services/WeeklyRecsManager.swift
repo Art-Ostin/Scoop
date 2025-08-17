@@ -36,7 +36,6 @@ import FirebaseFirestore
     private func weeklyRecItemDocument(weeklyCycleId: String, profileId: String) -> DocumentReference {
         weeklyCycleItemsCollection(weeklyCycleId: weeklyCycleId).document(profileId)
     }
-    
         
     private func setWeeklyProfileRecs() async throws -> [String] {
         let snap = try await userCollection.getDocuments()
@@ -53,6 +52,9 @@ import FirebaseFirestore
             try weeklyRecItemDocument(weeklyCycleId: weeklyCycleId, profileId: id).setData(from: item)
         }
     }
+    
+    
+    
     func setWeeklyRecs() async throws {
         let ids = try await setWeeklyProfileRecs()
         let now = Date()
@@ -72,6 +74,12 @@ import FirebaseFirestore
         let weeklyCycleId = docRef.documentID
         try await setWeeklyItems(weeklyCycleId: weeklyCycleId)
     }
+    
+    func getWeeklyRecDoc(_ user:UserProfile?) async throws {
+        let id = user?.weeklyRecsId ?? ""
+        let weeklyRecsDoc: WeeklyRecCycle = try await weeklyRecDocument(weeklyCycleId: id).getDocument(as: WeeklyRecCycle.self)
+    }
+    
     
     
     func getWeeklyItems(weeklyCycleId: String) async throws -> [String?] {
