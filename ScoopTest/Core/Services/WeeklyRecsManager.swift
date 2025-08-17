@@ -97,11 +97,8 @@ import FirebaseFirestore
     
     func deleteWeeklyRec() async throws {
         try await updateWeeklyRecDoc(field: "cycleStatus", to: CycleStatus.closed)
-        try await profile.update(values: [UserProfile.CodingKeys.weeklyRecsId: nil])
+        try await profile.update(values: [UserProfile.CodingKeys.weeklyRecsId: FieldValue.delete()])
     }
-    
-    
-        //Update the status to closed
         
     
     func getWeeklyItems(weeklyCycleId: String) async throws -> [String?] {

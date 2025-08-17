@@ -67,16 +67,30 @@ struct EventInvite {
     
     
     
-    func checkRefreshWeeklyProfileRecs () async throws -> Bool {
+    
+    // This function called initially, check
+    func loadProfilesChecker () async throws -> Bool {
         
         let now = Date()
-        var docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
-        
+        let docs = try await weeklyRecsManager.getWeeklyRecDoc(currentUser)
         let timeEnd = docs.endsAt.dateValue()
-        
         let timeRefresh = docs.autoRemoveTime.dateValue()
+        
+        let profilesAdded = docs.profilesAdded
+        let profilesPending = docs.cycleStatus
+        
         if now > timeEnd {
-            if now > timeRefresh { return true }
+            if now > timeRefresh {
+                try? await weeklyRecsManager.deleteWeeklyRec()
+                return false
+            }
+            
+             
+            
+            
+            
+            
+            
         } else {
             return true
         }
@@ -84,11 +98,11 @@ struct EventInvite {
     }
     
     
+    
+    
     func loadprofileRecs () async {
         
-        if (currentUser?.weeklyRecsId.isEmpty != nil { return }
-        
-        
+        guard let id = currentUser?.weeklyRecsId else { return }
         
         guard
             let documentId = currentUser?.weeklyRecsId,
