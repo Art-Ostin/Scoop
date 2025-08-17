@@ -1,0 +1,42 @@
+//
+//  WeeklyRecModel.swift
+//  ScoopTest
+//
+//  Created by Art Ostin on 16/08/2025.
+//
+
+import Foundation
+@preconcurrency import FirebaseFirestore
+
+
+enum CycleStatus: Codable, Sendable { case active, closed }
+enum RecommendationStatus: Codable, Sendable { case pending, invited, dismiss, accepted }
+
+struct CycleStats: Codable, Sendable {
+    var total: Int
+    var invited: Int
+    var accepted: Int
+    var dismissed: Int
+    var pending: Int
+}
+
+struct RecommendationCycle: Identifiable, Codable, Sendable{
+    @DocumentID var id: String?
+    @ServerTimestamp var startedAt: Timestamp?
+    var cycleStatus: CycleStatus = .active
+    var cycleStats: CycleStats
+    var profilesAdded: Int
+    var endsAt: Timestamp // Always 7 days after the TimeStamp
+    var autoRemoveAt: Timestamp //Always 21 days after the TimeStamp
+}
+
+
+struct RecommendationItem: Identifiable, Codable, Sendable{
+    var id: String // = profileId
+    var profileViews: Int
+    var recommendationStatus: RecommendationStatus
+    @ServerTimestamp var addedDay: Timestamp?
+    var actedAt: Timestamp?
+}
+
+

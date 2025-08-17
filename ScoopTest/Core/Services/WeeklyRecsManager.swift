@@ -11,65 +11,91 @@ import FirebaseFirestore
 
 @Observable final class WeeklyRecsManager {
     
+    //Configureation of WeeklyRecsManager
     @ObservationIgnored private let user: UserManager
     @ObservationIgnored private let profile: ProfileManaging
     @ObservationIgnored private var session: SessionManager?
-
     
     init(user: UserManager, profile: ProfileManaging, session: SessionManager? = nil) {
         self.user = user
         self.profile = profile
         self.session = session
     }
-    
     func configure(session: SessionManager) {
         self.session = session
     }
     
-    private var currentId: String {
-        user.user?.id ?? ""
-    }
     
-    private var weeklyRecDoc: String? {
+    //UserId and the activeCycleId for editing and referencing
+    private var currentUserId: String? {
+        user.user?.id
+    }
+    private var activeCycleId: String? {
         user.user?.weeklyRecsId
     }
-        
-    private let userCollection = Firestore.firestore().collection("users")
     
-    private func weeklyCycleCollection () -> CollectionReference {
-        userCollection.document(currentId).collection("weekly_cycle_recs")
-    }
     
-    private func weeklyCycleItemsCollection (weeklyCycleId: String) -> CollectionReference {
-        weeklyRecDocument(weeklyCycleId: weeklyCycleId).collection("items")
-    }
-    
-    private func weeklyRecDocument (weeklyCycleId: String) -> DocumentReference {
-        weeklyCycleCollection().document(weeklyCycleId)
-    }
-    
-    private func weeklyRecItemDocument(weeklyCycleId: String, profileId: String) -> DocumentReference {
-        weeklyCycleItemsCollection(weeklyCycleId: weeklyCycleId).document(profileId)
-    }
-        
-    private func setWeeklyProfileRecs() async throws -> [String] {
-        let snap = try await userCollection.getDocuments()
-        let ids = snap.documents
-            .map(\.documentID)
-            .filter { $0 != currentId }
-        return Array(ids.shuffled().prefix(4))
-    }
-    
-    private func setWeeklyItems(weeklyCycleId: String) async throws {
-        let ids = try await setWeeklyProfileRecs()
-        for id in ids {
-            let item = WeeklyRecItem(id: id, profileViews: 0, itemStatus: .pending, addedDay: nil, actedAt: nil)
-            try weeklyRecItemDocument(weeklyCycleId: weeklyCycleId, profileId: id).setData(from: item)
+    //Document and collection Navigations
+    private let users = Firestore.firestore().collection("users")
+    private func cyclesCollection () -> CollectionReference {
+        if  let id = currentUserId {
+            users.document(id).collection("recommendation_cycles")
         }
     }
     
+    private func cycleDocument() -> DocumentReference {
+        if let id = activeCycleId {
+            cyclesCollection().document(id)
+        }
+    }
+    private func recommendationsCollection () -> CollectionReference {
+        cycleDocument().collection("recommendations")
+    }
+    private func recommendationDocument(profileId: String) -> DocumentReference {
+        recommendationsCollection().document(profileId)
+    }
+    
+    
+    
+    // Creating a cycleDocument and populating it with profile recommendations
+    
+    
+    
+    func createCycle() async throws {
+        let now = Date()
+        let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+        let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: Date())!
+        
+        let cycle = RecommendationCycle(cycleStats: .init(total: 4, invited: 0, accepted: 0, dismissed: 0, pending: 4), profilesAdded: 4, endsAt: endsAt, autoRemoveAt: autoRemoveAt)
+        
+        
+        let docRef = try cyclesCollection().addDocument(from: cycle)
+        let id = docRef.getDocument(as: RecommendationCycle.self)
+    }
+    
+    
+
+    
+    private func createRecommendedProfiles(cycleId: String) async throws -> [String] {
+        let snap = try await users.getDocuments()
+        let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId! }
+        let selectdIds = Array(ids.shuffled().prefix(4))
+        
+        for id in selectdIds {
+            let recommendationDocument = RecommendationItem(id: id, profileViews: 0, recommendationStatus: .pending)
+            try cycleDocument().setData(from: recommendationDocument)
+        }
+    }
+
+    
+    
     func setWeeklyRecs() async throws {
+        
+        
         let ids = try await setWeeklyProfileRecs()
+        
+        
+        
         let now = Date()
         let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: now)!
         let autoRemove = Calendar.current.date(byAdding: .day, value: 21, to: now)!
@@ -85,6 +111,11 @@ import FirebaseFirestore
         let docRef = try weeklyCycleCollection().addDocument(from: cycle)
         let weeklyCycleId = docRef.documentID
         try await setWeeklyItems(weeklyCycleId: weeklyCycleId)
+        
+        
+        
+        
+        
     }
     
     func getWeeklyRecDoc(_ user:UserProfile? = nil) async throws -> WeeklyRecCycle {

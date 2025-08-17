@@ -45,4 +45,16 @@ import Foundation
             dep.sessionManager.showRespondToProfilesToRefresh = true
         }
     }
+    
+    
+    
+    func createWeeklyCycle() async throws {
+        try await dep.weeklyRecsManager.setWeeklyRecs()
+        showWeeklyRecs = true
+        try await dep.sessionManager.loadprofileRecs()
+        
+        
+    }
+    
+    
 }
