@@ -10,7 +10,7 @@ import Firebase
 
 @main
 struct ScoopTestApp: App {
-        
+    
     private let dep: AppDependencies
     @State var appState: AppState = .booting
     
@@ -24,7 +24,11 @@ struct ScoopTestApp: App {
             RootView()
                 .appDependencies(dep)
                 .environment(\.stateOfApp, $appState)
-                .task { await Bootstrapper(appState: $appState, dep: dep).start()}
+                .task {
+                    let bootstrapper = Bootstrapper(appState: $appState, dep: dep)
+                    Task {await bootstrapper.prefetch()}
+                    await bootstrapper.start()
+                }
         }
     }
 }

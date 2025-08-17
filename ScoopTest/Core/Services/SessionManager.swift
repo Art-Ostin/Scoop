@@ -63,13 +63,15 @@ struct EventInvite {
         profileInvites = results
         await cacheManager.loadProfileImages(results.map(\.profile))
     }
+    
+    
     private func loadProfileRecsChecker () async -> Bool {
 
-        guard let docId = currentUser?.weeklyRecsId else {
+        guard let _ = currentUser?.weeklyRecsId else {
             showWeeklyRecs = false
             return false
         }
-
+        
         guard let doc = try? await weeklyRecsManager.getWeeklyRecDoc(currentUser) else {
             showWeeklyRecs = false
             return false
@@ -99,9 +101,11 @@ struct EventInvite {
             return true
         }
     }
+    
     func loadprofileRecs () async throws {
 
         guard await loadProfileRecsChecker() else { return }
+        
         let weeklyProfiles = try await weeklyRecsManager.getWeeklyItems()
         
         let results = await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in

@@ -33,7 +33,9 @@ struct MeetView: View {
                 clockView
                 
             }
-            
+            if let selectedProfile = selectedProfile {
+                profileRecView(profile: selectedProfile.profile, event: selectedProfile.event)
+            }
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
