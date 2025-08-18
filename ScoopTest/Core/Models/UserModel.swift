@@ -17,16 +17,13 @@ struct PromptResponse: Codable  {
 struct UserProfile: Codable, Equatable {
     
     let userId, email: String
-    
-    let dateCreated: Date?
-    
+    let dateCreated: Date
     let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
         smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
-    
     let interests, nationality, character, imagePath, imagePathURL: [String]?
-    
     let prompt1, prompt2, prompt3: PromptResponse?
-      
+    
+    
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid
         self.email = auth.user.email ?? ""
@@ -57,7 +54,7 @@ struct UserProfile: Codable, Equatable {
         self.imagePathURL = nil
         self.activeCycleId = nil
     }
-      
+    
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
         case email = "email"
@@ -87,70 +84,6 @@ struct UserProfile: Codable, Equatable {
         case imagePath = "image_path"
         case imagePathURL = "image_path_url"
         case activeCycleId = "active_cycle_id"
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.userId = try container.decode(String.self, forKey: .userId)
-        self.email = try container.decode(String.self, forKey: .email)
-        self.dateCreated = try container.decodeIfPresent(Date.self, forKey: .dateCreated)
-        self.sex = try container.decodeIfPresent(String.self, forKey: .sex)
-        self.attractedTo = try container.decodeIfPresent(String.self, forKey: .attractedTo)
-        self.year = try container.decodeIfPresent(String.self, forKey: .year)
-        self.height = try container.decodeIfPresent(String.self, forKey: .height)
-        self.interests = try container.decodeIfPresent([String].self, forKey: .interests)
-        self.degree = try container.decodeIfPresent(String.self, forKey: .degree)
-        self.hometown = try container.decodeIfPresent(String.self, forKey: .hometown)
-        self.name = try container.decodeIfPresent(String.self, forKey: .name)
-        self.nationality = try container.decodeIfPresent([String].self, forKey: .nationality)
-        self.lookingFor = try container.decodeIfPresent(String.self, forKey: .lookingFor)
-        self.prompt1 = try container.decodeIfPresent(PromptResponse.self, forKey: .prompt1)
-        self.prompt2 = try container.decodeIfPresent(PromptResponse.self, forKey: .prompt2)
-        self.prompt3 = try container.decodeIfPresent(PromptResponse.self, forKey: .prompt3)
-        self.drinking = try container.decodeIfPresent(String.self, forKey: .drinking)
-        self.smoking = try container.decodeIfPresent(String.self, forKey: .smoking)
-        self.marijuana = try container.decodeIfPresent(String.self, forKey: .marijuana)
-        self.drugs = try container.decodeIfPresent(String.self, forKey: .drugs)
-        self.languages = try container.decodeIfPresent(String.self, forKey: .languages)
-        self.favouriteMovie = try container.decodeIfPresent(String.self, forKey: .favouriteMovie)
-        self.favouriteSong = try container.decodeIfPresent(String.self, forKey: .favouriteSong)
-        self.favouriteBook = try container.decodeIfPresent(String.self, forKey: .favouriteBook)
-        self.character = try container.decodeIfPresent([String].self, forKey: .character)
-        self.imagePath = try container.decodeIfPresent([String].self, forKey: .imagePath)
-        self.imagePathURL = try container.decodeIfPresent([String].self, forKey: .imagePathURL)
-        self.activeCycleId = try container.decodeIfPresent(String.self, forKey: .activeCycleId)
-    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.userId, forKey: .userId)
-        try container.encode(self.email, forKey: .email)
-        try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
-        try container.encodeIfPresent(self.sex, forKey: .sex)
-        try container.encodeIfPresent(self.attractedTo, forKey: .attractedTo)
-        try container.encodeIfPresent(self.year, forKey: .year)
-        try container.encodeIfPresent(self.height, forKey: .height)
-        try container.encodeIfPresent(self.interests, forKey: .interests)
-        try container.encodeIfPresent(self.degree, forKey: .degree)
-        try container.encodeIfPresent(self.hometown, forKey: .hometown)
-        try container.encodeIfPresent(self.name, forKey: .name)
-        try container.encodeIfPresent(self.nationality, forKey: .nationality)
-        try container.encodeIfPresent(self.lookingFor, forKey: .lookingFor)
-        try container.encodeIfPresent(self.prompt1, forKey: .prompt1)
-        try container.encodeIfPresent(self.prompt2, forKey: .prompt2)
-        try container.encodeIfPresent(self.prompt3, forKey: .prompt3)
-        try container.encodeIfPresent(self.drinking, forKey: .drinking)
-        try container.encodeIfPresent(self.smoking, forKey: .smoking)
-        try container.encodeIfPresent(self.marijuana, forKey: .marijuana)
-        try container.encodeIfPresent(self.drugs, forKey: .drugs)
-        try container.encodeIfPresent(self.languages, forKey: .languages)
-        try container.encodeIfPresent(self.favouriteMovie, forKey: .favouriteMovie)
-        try container.encodeIfPresent(self.favouriteSong, forKey: .favouriteSong)
-        try container.encodeIfPresent(self.favouriteBook, forKey: .favouriteBook)
-        try container.encodeIfPresent(self.character, forKey: .character)
-        try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
-        try container.encodeIfPresent(self.imagePathURL, forKey: .imagePathURL)
-        try container.encodeIfPresent(self.activeCycleId, forKey: .activeCycleId)
     }
 }
 

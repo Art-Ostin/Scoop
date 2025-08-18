@@ -20,14 +20,15 @@ struct CycleStats: Codable, Sendable {
     var pending: Int
 }
 
+
 struct RecommendationCycle: Identifiable, Codable, Sendable{
     @DocumentID var id: String?
     @ServerTimestamp var startedAt: Timestamp?
     var cycleStatus: CycleStatus = .active
     var cycleStats: CycleStats
     var profilesAdded: Int
-    var endsAt: Timestamp // Always 7 days after the TimeStamp
-    var autoRemoveAt: Timestamp //Always 21 days after the TimeStamp
+    var endsAt: Timestamp 
+    var autoRemoveAt: Timestamp
     
     enum CodingKeys: CodingKey {
         case id
@@ -46,7 +47,6 @@ struct RecommendationItem: Identifiable, Codable, Sendable{
     var recommendationStatus: RecommendationStatus
     @ServerTimestamp var addedDay: Timestamp?
     var actedAt: Timestamp?
-    
     
     enum CodingKeys: CodingKey {
         case id
