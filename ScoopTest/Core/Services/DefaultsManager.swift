@@ -14,8 +14,8 @@ import Foundation
 
 final class DefaultsManager {
     
-    @ObservationIgnored private let firestoreManager: ProfileManaging
-    @ObservationIgnored private let cacheManager: CacheManaging
+    private let firestoreManager: ProfileManaging
+    private let cacheManager: CacheManaging
     
     private let defaults: UserDefaults
     

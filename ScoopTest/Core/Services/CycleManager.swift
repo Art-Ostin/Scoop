@@ -9,13 +9,13 @@ import Foundation
 import FirebaseFirestore
 
 
-@Observable final class CycleManager {
+final class CycleManager {
     
     //Configureation of WeeklyRecsManager
-    @ObservationIgnored private let user: UserManager
-    @ObservationIgnored private let profileManager: ProfileManaging
-    @ObservationIgnored private var session: SessionManager?
-    @ObservationIgnored private var cacheManager: CacheManaging
+    private let user: UserManager
+    private let profileManager: ProfileManaging
+    private var session: SessionManager?
+    private var cacheManager: CacheManaging
     
     init(user: UserManager, profileManager: ProfileManaging, cacheManager: CacheManaging,  session: SessionManager? = nil) {
         self.user = user
@@ -89,7 +89,7 @@ import FirebaseFirestore
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
         try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: id])
-   
+        
     }
     
     private func createRecommendedProfiles(cycleId: String) async throws {
@@ -188,7 +188,7 @@ import FirebaseFirestore
         return false
     }
     
-        
+    
     
     func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [EventInvite] {
         return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in

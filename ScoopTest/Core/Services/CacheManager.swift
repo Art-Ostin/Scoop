@@ -11,7 +11,7 @@ import SwiftUI
 
 
 
-@Observable class CacheManager: CacheManaging  {
+class CacheManager: CacheManaging  {
     
     private let cache: NSCache<NSURL, UIImage>
 

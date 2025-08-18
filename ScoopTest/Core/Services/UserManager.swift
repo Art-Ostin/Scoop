@@ -9,27 +9,35 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-@Observable
+
+
+struct UserSession {
+    let user: UserProfile
+}
+
+
+@MainActor
 class UserManager {
     
-    @ObservationIgnored private let auth: AuthManaging
+    private let auth: AuthManaging
     init(auth: AuthManaging) { self.auth = auth }
         
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
-
-    private(set) var user: UserProfile? = nil
     
     func createUser (authUser: AuthDataResult) async throws {
         let uid = authUser.user.uid
         let profileUser = UserProfile(auth: authUser)
         try userDocument(userId: uid).setData(from: profileUser)
     }
-    func loadCurrentUser() async throws {
+    
+    func startSession() async throws -> UserSession {
         let uid = try auth.fetchAuthUser()
         let profile = try await fetchUser(userId: uid)
-        self.user = profile
+        return UserSession(user: profile)
     }
+    
+    
     func updateCurrentUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
         var data: [String: Any] = [:]
