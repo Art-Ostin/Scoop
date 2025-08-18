@@ -34,7 +34,7 @@ final class AppDependencies {
     }
 
     func configure(user: UserProfile) {
-        let storage = StorageManager()
+        let storage = StorageManager())
         let event = EventManager(user: user, userManager: userManager)
         let cycle = CycleManager(user: user, cacheManager: cacheManager, sessionManager: sessionManager, userManager: userManager)
         let sessionManager = SessionManager(user: user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
