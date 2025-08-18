@@ -22,6 +22,12 @@ class UserManager {
     
     private(set) var user: UserProfile? = nil
     
+    
+    private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
+    private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
+    
+    
+    
     @MainActor
     func loadUser() async throws {
         let uid = try auth.getAuthenticatedUser().uid
@@ -29,13 +35,15 @@ class UserManager {
         self.user = profile
     }
     
-    func updateCurrentUser(values: [UserProfile.CodingKeys : Any]) async throws {
+    func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.getAuthenticatedUser().uid
-        try await profileManager.update(userId: uid, values: values)
+        var data: [String: Any] = [:]
+        for (key, value) in values { data[key.rawValue] = value }
+        try await userDocument(userId: uid).updateData(data)
         try? await loadUser()
     }
     
-    func updateCurrentUserPrompt(index: Int, prompt: PromptResponse) async throws {
+    func updateUserPrompt(index: Int, prompt: PromptResponse) async throws {
         let uid = try auth.getAuthenticatedUser().uid
         let key: UserProfile.CodingKeys
         switch index {
