@@ -10,8 +10,14 @@ import SwiftUI
 struct EventFormatter: View {
     
     let event: UserEvent
-    let isInvite: Bool = true
-    let size: CGFloat = 22
+    let isInvite: Bool
+    let size: CGFloat
+    
+    init (event: UserEvent, isInvite: Bool = true, size: CGFloat = 22) {
+        self.event = event
+        self.isInvite = isInvite
+        self.size = size
+    }
     
     var body: some View {
         
@@ -46,7 +52,3 @@ struct EventFormatter: View {
         return "\(weekDay) (\(dayOfMonth)) \(time)"
     }
 }
-
-//#Preview {
-//    EventFormatter()
-//}
