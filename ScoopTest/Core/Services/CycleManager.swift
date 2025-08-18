@@ -76,6 +76,8 @@ import FirebaseFirestore
         let docRef = try cyclesCollection().addDocument(from: cycle)
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
+        
+        try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: id])
     }
     
     private func createRecommendedProfiles(cycleId: String) async throws {
