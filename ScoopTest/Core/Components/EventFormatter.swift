@@ -20,7 +20,7 @@ struct EventFormatter: View {
     }
     
     var body: some View {
-        
+
         var isMessage: Bool { event.message?.isEmpty == false }
         let time = formatTime(date: event.time)
         let type = event.type ?? ""
@@ -28,12 +28,11 @@ struct EventFormatter: View {
         let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
         
         return VStack(alignment: isMessage ? .leading: .center, spacing: isMessage ? 16 : 0) {
-            
             header
                 .font(.body(size))
                 .multilineTextAlignment(isMessage ? .leading : .center)
                 .lineSpacing(isMessage ? 4 : 12)
-            
+
             if let message = event.message {
                 Text (message)
                     .font(.body(.italic))

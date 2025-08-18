@@ -31,3 +31,4 @@ struct InviteButton: View {
         }
     }
 }
+

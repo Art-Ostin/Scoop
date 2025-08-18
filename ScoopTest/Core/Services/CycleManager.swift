@@ -20,11 +20,11 @@ final class CycleManager {
         self.userManager = userManager
     }
     
-    
     private var activeCycleId: String {
         userManager.user.activeCycleId ?? ""
     }
     //Document and collection Navigations
+    
     
     private let users = Firestore.firestore().collection("users")
     
@@ -118,12 +118,11 @@ final class CycleManager {
     }
     
     func inviteSent(profileId: String) async throws {
-        
+
         var stats = try await fetchCycle().cycleStats
         stats .pending -= 1
         stats .invited += 1
         
-        let recItem = try await fetchRecommendationItem(profileId: profileId)
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
         
     }

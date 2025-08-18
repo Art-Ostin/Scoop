@@ -46,7 +46,7 @@ struct AcceptInvitePopup: View {
                 }
             }
             
-            vm.dep.eventManager.eventFormatter(event: event)
+            EventFormatter(event: event)
             
             ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle()}
                 .frame(maxWidth: .infinity, alignment: .center)

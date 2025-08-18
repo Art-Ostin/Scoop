@@ -49,19 +49,3 @@ class UserManager {
 }
 
 
-
-// UpdateUser Prompt (Reshuffle so not a function just for this and can use it with updateCurrentUser
-/*
- func updateUserPrompt(index: Int, prompt: PromptResponse) async throws {
-     let key: UserProfile.CodingKeys
-     switch index {
-     case 1: key = .prompt1
-     case 2: key = .prompt2
-     case 3: key = .prompt3
-     default: return
-     }
-     let encoded = try Firestore.Encoder().encode(prompt)
-     try await updateUser(values: [key: encoded])
- }
- */
-

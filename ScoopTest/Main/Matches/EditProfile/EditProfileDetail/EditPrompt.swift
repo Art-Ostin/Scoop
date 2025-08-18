@@ -20,7 +20,16 @@ struct EditPrompt: View {
     
     var prompts: [String]
     var promptIndex: Int
-
+    
+    var key: UserProfile.CodingKeys {
+        switch promptIndex {
+        case 1: return UserProfile.CodingKeys.prompt1
+        case 2: return UserProfile.CodingKeys.prompt2
+        case 3: return UserProfile.CodingKeys.prompt3
+        default: return UserProfile.CodingKeys.prompt1
+        }
+    }
+    
     var body: some View {
                 
         ZStack {
@@ -36,13 +45,12 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: selectedText) { updatePrompt() }
-        .onChange(of: selectedPrompt) { updatePrompt() }
-            
+        .onChange(of: selectedText) { updatePrompt(key: key, prompt: selectedPrompt, response: selectedText)}
+        .onChange(of: selectedPrompt) { updatePrompt(key: key, prompt: selectedPrompt, response: selectedText)}
+        
         .onAppear {
             isFocused = true
             let user = dep.userManager.user
-
                 let promptData: PromptResponse?
                 switch promptIndex {
                 case 1: promptData = user.prompt1
@@ -117,17 +125,38 @@ extension EditPrompt {
             .focused($isFocused)
     }
 
-    private func updatePrompt() {
-        let user = dep.userManager.user
-        
-        let prompt = PromptResponse(prompt: selectedPrompt, response: selectedText)
-        Task {
-            try? await dep.userManager.updatePrompt(
-                userId: user.userId,
-                promptIndex: promptIndex,
-                prompt: prompt
-            )
-            try? await dep.userManager.loadUser()
-        }
+    private func updatePrompt(key: UserProfile.CodingKeys, prompt: String, response: String) {
+        let prompt = PromptResponse(prompt: prompt, response: response)
+        Task { try? await dep.userManager.updateUser(values: [key : response]) }
     }
 }
+
+
+
+/* Old Prompt Update code
+ //Task {
+ //    try? await dep.userManager.updatePrompt(
+ //        userId: user.userId,
+ //        promptIndex: promptIndex,
+ //        prompt: prompt
+ //    )
+ //    try? await dep.userManager.loadUser()
+ //}
+ 
+ 
+ // UpdateUser Prompt (Reshuffle so not a function just for this and can use it with updateCurrentUser
+ /*
+  func updateUserPrompt(index: Int, prompt: PromptResponse) async throws {
+      let key: UserProfile.CodingKeys
+      switch index {
+      case 1: key = .prompt1
+      case 2: key = .prompt2
+      case 3: key = .prompt3
+      default: return
+      }
+      let encoded = try Firestore.Encoder().encode(prompt)
+      try await updateUser(values: [key: encoded])
+  }
+  */
+ */
+

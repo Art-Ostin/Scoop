@@ -52,7 +52,6 @@ class EventManager {
         let recipientName = recipientProfile.name ?? ""
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
         
-        let inviterProfile = userManager.user
         let inviterName = userManager.user.name ?? ""
         let inviterImageString = userManager.user.imagePathURL?.first ?? ""
         
