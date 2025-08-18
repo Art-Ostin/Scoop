@@ -11,16 +11,13 @@ import FirebaseFirestore
 
 final class CycleManager {
     
-    
-    private var sessionManager: SessionManager
     private var cacheManager: CacheManaging
     private var userManager: UserManager
     
     
-    init(cacheManager: CacheManaging,  sessionManager: SessionManager, userManager: UserManager) {
+    init(cacheManager: CacheManaging, userManager: UserManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
-        self.sessionManager = sessionManager
     }
     
     

@@ -51,7 +51,7 @@ struct TextFieldEdit: View {
             }
         }
         .task {
-            text = dep.userManager.user?[keyPath: field.keyPath] ?? ""
+            text = dep.userManager.user[keyPath: field.keyPath] ?? ""
             focused = true
         }
         .flowNavigation()

@@ -32,7 +32,6 @@ class EventManager {
     private func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
     }
-        
     func createEvent(event: Event) async throws {
         //Creates event and local reference in the two users subcollection of events
         
@@ -113,30 +112,31 @@ class EventManager {
         try await batch.commit()
     }
     
+    
     private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
+    
+    let uid = userManager.user.userId
+    
+    let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
+    switch scope {
+    case .upcomingInvited:
+        return userEventCollection(userId: uid)
+            .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
+            .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
+            .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
+            .order(by: Event.CodingKeys.time.stringValue)
+    case .upcomingAccepted:
+        return userEventCollection(userId: uid)
+            .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
+            .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
+            .order(by: Event.CodingKeys.time.stringValue)
         
-        let uid = userManager.user.userId
-        
-        let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
-        switch scope {
-        case .upcomingInvited:
-            return userEventCollection(userId: uid)
-                .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
-                .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
-                .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
-                .order(by: Event.CodingKeys.time.stringValue)
-        case .upcomingAccepted:
-            return userEventCollection(userId: uid)
-                .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
-                .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
-                .order(by: Event.CodingKeys.time.stringValue)
-            
-        case .pastAccepted:
-            return userEventCollection(userId: uid)
-                .whereField(UserEvent.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
-                .whereField(UserEvent.CodingKeys.time.stringValue, isLessThan: Timestamp(date: plus3h))
-        }
+    case .pastAccepted:
+        return userEventCollection(userId: uid)
+            .whereField(UserEvent.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
+            .whereField(UserEvent.CodingKeys.time.stringValue, isLessThan: Timestamp(date: plus3h))
     }
+}
     private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [UserEvent] {
         let query = try eventsQuery(scope, now: now)
         return try await query
@@ -197,6 +197,8 @@ class EventManager {
         try await batch.commit()
     }
 }
+
+
 extension Query {
     func getDocuments<T>(as: T.Type) async throws -> [T] where T: Decodable {
         let snapshot = try await self.getDocuments()

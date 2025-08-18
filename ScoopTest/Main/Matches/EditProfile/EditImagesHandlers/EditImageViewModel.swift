@@ -33,7 +33,7 @@ struct ImageSlot: Equatable {
     
     @MainActor
     func assignSlots() async {
-        guard let user = dep.userManager.user else { return }
+        let user = dep.userManager.user
         let paths = user.imagePath ?? []
         let urlStrings = user.imagePathURL ?? []
         let urls = urlStrings.compactMap(URL.init(string:))
@@ -73,8 +73,8 @@ struct ImageSlot: Equatable {
         let url = try await dep.storageManager.getImageURL(path: originalPath)
         let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         
-        var paths = dep.userManager.user?.imagePath ?? []
-        var urls  = dep.userManager.user?.imagePathURL ?? []
+        var paths = dep.userManager.user.imagePath ?? []
+        var urls  = dep.userManager.user.imagePathURL ?? []
         if paths.count < 6 { paths.append(contentsOf: Array(repeating: "", count: 6 - paths.count)) }
         if urls.count  < 6 { urls.append(contentsOf:  Array(repeating: "", count: 6 - urls.count)) }
         
@@ -82,7 +82,7 @@ struct ImageSlot: Equatable {
         paths[index] = resizedPath
         urls[index]  = url.absoluteString
         
-        try await dep.profileManager.update(values: [
+        try await dep.userManager.updateUser(values: [
             .imagePath: paths,
             .imagePathURL: urls
         ])

@@ -13,9 +13,8 @@ import SwiftUI
 class StorageManager: StorageManaging {
     
     private let userManager: UserManager
-    
     init(userManager: UserManager) { self.userManager = userManager}
-    
+
     private let storage = Storage.storage().reference()
     
     

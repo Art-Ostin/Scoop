@@ -22,7 +22,6 @@ class UserManager {
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
     private var session: UserSession?
-
     var user: UserProfile {
         guard let session else { fatalError("UserSession not configured") }
         return session.user
@@ -33,13 +32,11 @@ class UserManager {
         let profileUser = UserProfile(auth: authUser)
         try userDocument(userId: uid).setData(from: profileUser)
     }
-
     func loadUser() async throws {
         let uid = try auth.fetchAuthUser()
         let user = try await fetchUser(userId: uid)
         self.session = UserSession(user: user)
     }
-    
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
         var data: [String: Any] = [:]

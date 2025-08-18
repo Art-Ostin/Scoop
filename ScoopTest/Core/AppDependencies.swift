@@ -14,34 +14,28 @@ final class AppDependencies {
     let authManager: AuthManaging
     let cacheManager: CacheManaging
     let userManager: UserManager
-    
-    private(set) var storageManager: StorageManaging!
-    private(set) var eventManager: EventManager!
-    private(set) var cycleManager: CycleManager!
-    private(set) var sessionManager: SessionManager!
+    let storageManager: StorageManaging
+    let eventManager: EventManager
+    let cycleManager: CycleManager
+    let sessionManager: SessionManager
     
     init(
         authManager: AuthManaging? = nil,
         cacheManager: CacheManaging? = nil,
-        userManager: UserManager? = nil,
+        userManager: UserManager? = nil
     ) {
         let auth = authManager ?? AuthManager()
         let cache = cacheManager ?? CacheManager()
         let userManager = userManager ?? UserManager(auth: auth)
+        let storage = StorageManager(userManager: userManager)
+        let event = EventManager(userManager: userManager)
+        let cycle = CycleManager(cacheManager: cache, userManager: userManager)
+        let session = SessionManager(eventManager: event, cacheManager: cache, userManager: userManager, cycleManager: cycle)
+        
         self.authManager = auth
         self.cacheManager = cache
         self.userManager = userManager
-    }
-
-    func configure(user: UserProfile) {
-        let storage = StorageManager())
-        let event = EventManager(user: user, userManager: userManager)
-        let cycle = CycleManager(user: user, cacheManager: cacheManager, sessionManager: sessionManager, userManager: userManager)
-        let sessionManager = SessionManager(user: user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
-        self.storageManager = storage
-        self.eventManager = event
-        self.cycleManager = cycle
-        self.sessionManager = sessionManager
+        self.sessionManager = session
     }
 }
 
