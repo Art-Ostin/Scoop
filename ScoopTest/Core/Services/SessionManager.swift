@@ -18,22 +18,19 @@ struct EventInvite {
 }
 
 
-@Observable final class SessionManager {
+final class SessionManager {
     
-    private let user: UserProfile
-    
-    @ObservationIgnored private let eventManager: EventManager
-    @ObservationIgnored private let cacheManager: CacheManaging
-    @ObservationIgnored private let userManager: UserManager
-    @ObservationIgnored private let cycleManager: CycleManager
+    private let eventManager: EventManager
+    private let cacheManager: CacheManaging
+    private let userManager: UserManager
+    private let cycleManager: CycleManager
     
     
-    init(user: UserProfile, eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager) {
+    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.cycleManager = cycleManager
-        self.user = user
     }
     
 

@@ -11,14 +11,13 @@ import FirebaseFirestore
 
 final class CycleManager {
     
-    private let user: UserProfile
+    
     private var sessionManager: SessionManager
     private var cacheManager: CacheManaging
     private var userManager: UserManager
     
     
-    init(user: UserProfile, cacheManager: CacheManaging,  sessionManager: SessionManager, userManager: UserManager) {
-        self.user = user
+    init(cacheManager: CacheManaging,  sessionManager: SessionManager, userManager: UserManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.sessionManager = sessionManager
@@ -26,15 +25,14 @@ final class CycleManager {
     
     
     private var activeCycleId: String {
-        user.activeCycleId ?? ""
+        userManager.user.activeCycleId ?? ""
     }
-    
     //Document and collection Navigations
     
     private let users = Firestore.firestore().collection("users")
     
     private func cyclesCollection () -> CollectionReference {
-        users.document(user.userId).collection("recommendation_cycles")
+        users.document(userManager.user.userId).collection("recommendation_cycles")
     }
     
     private func cycleDocument(cycleId: String) -> DocumentReference {
@@ -73,7 +71,7 @@ final class CycleManager {
     
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
-        let ids = snap.documents.map( \.documentID ).filter { $0 != user.userId}
+        let ids = snap.documents.map( \.documentID ).filter { $0 != userManager.user.userId}
         let selectdIds = Array(ids.shuffled().prefix(4))
         
         for id in selectdIds {

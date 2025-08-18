@@ -24,7 +24,6 @@ final class AppDependencies {
         authManager: AuthManaging? = nil,
         cacheManager: CacheManaging? = nil,
         userManager: UserManager? = nil,
-        
     ) {
         let auth = authManager ?? AuthManager()
         let cache = cacheManager ?? CacheManager()
@@ -33,10 +32,9 @@ final class AppDependencies {
         self.cacheManager = cache
         self.userManager = userManager
     }
-    
-    
+
     func configure(user: UserProfile) {
-        let storage = StorageManager(user: user)
+        let storage = StorageManager()
         let event = EventManager(user: user, userManager: userManager)
         let cycle = CycleManager(user: user, cacheManager: cacheManager, sessionManager: sessionManager, userManager: userManager)
         let sessionManager = SessionManager(user: user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
@@ -50,7 +48,6 @@ final class AppDependencies {
 private struct AppDependenciesKey: EnvironmentKey {
     static let defaultValue = AppDependencies()
 }
-
 
 extension EnvironmentValues {
     var appDependencies: AppDependencies {

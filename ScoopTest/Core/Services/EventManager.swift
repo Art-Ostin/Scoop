@@ -11,14 +11,9 @@ import SwiftUI
 
 class EventManager {
     
-    private let user: UserProfile
     private let userManager: UserManager
     
-    
-    init(user: UserProfile, userManager: UserManager) {
-        self.user = user
-        self.userManager = userManager
-    }
+    init(userManager: UserManager) { self.userManager = userManager }
     
     private let eventCollection = Firestore.firestore().collection("events")
     private let userCollection = Firestore.firestore().collection("users")
@@ -52,20 +47,20 @@ class EventManager {
         
         var e = event
         e.id = eventId
-        e.initiatorId = user.userId
+        e.initiatorId = userManager.user.userId
         
         let recipientProfile = try await userManager.fetchUser(userId: recipientId)
         let recipientName = recipientProfile.name ?? ""
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
         
-        let inviterProfile = user
-        let inviterName = user.name ?? ""
-        let inviterImageString = user.imagePathURL?.first ?? ""
+        let inviterProfile = userManager.user
+        let inviterName = userManager.user.name ?? ""
+        let inviterImageString = userManager.user.imagePathURL?.first ?? ""
         
         
         var eventData: [String: Any] = [
             Event.CodingKeys.id.stringValue: eventId,
-            Event.CodingKeys.initiatorId.stringValue: user.userId,
+            Event.CodingKeys.initiatorId.stringValue: userManager.user.userId,
             Event.CodingKeys.recipientId.stringValue: recipientId,
             Event.CodingKeys.type.stringValue: e.type ?? "",
             Event.CodingKeys.message.stringValue: e.message ?? "",
@@ -102,14 +97,14 @@ class EventManager {
             return data
         }
         
-        let initiatorEdgeRef = db.collection("users").document(user.userId)
+        let initiatorEdgeRef = db.collection("users").document(userManager.user.userId)
             .collection("user_events").document(eventId)
         let recipientEdgeRef = db.collection("users").document(recipientId)
             .collection("user_events").document(eventId)
         
         
         let edgeA = try edgeData(otherUserId: recipientId, role: .sent, otherName: recipientName, otherPhoto: recipientImageString)
-        let edgeB = try edgeData(otherUserId: user.userId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
+        let edgeB = try edgeData(otherUserId: userManager.user.userId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
         
         batch.setData(eventData, forDocument: eventRef)
         batch.setData(edgeA, forDocument: initiatorEdgeRef)
@@ -120,7 +115,7 @@ class EventManager {
     
     private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
         
-        let uid = user.userId
+        let uid = userManager.user.userId
         
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
