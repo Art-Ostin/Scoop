@@ -10,7 +10,6 @@ import SwiftUI
 struct MeetView: View {
     
     @State var vm: MeetViewModel
-    
     @State var selectedProfile: EventInvite?
     
     init(vm: MeetViewModel) {
@@ -24,9 +23,7 @@ struct MeetView: View {
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
-
                 tabView
-                
                 clockView
             }
             if let selectedProfile = selectedProfile {

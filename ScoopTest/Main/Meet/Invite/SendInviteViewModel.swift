@@ -13,14 +13,12 @@ import Foundation
     let eventManager: EventManager
     let cycleManager: CycleManager
     
-    
     let recipient: UserProfile
     var event: Event
-    
 
-    init(dep: AppDependencies, recipient: UserProfile) {
-        self.eventManager = dep.eventManager
-        self.cycleManager = dep.cycleManager
+    init(eventManager: EventManager, cycleManager: CycleManager, recipient: UserProfile) {
+        self.eventManager = eventManager
+        self.cycleManager = cycleManager
         self.recipient = recipient
         self.event = Event(recipientId: recipient.id)
     }
@@ -36,9 +34,7 @@ import Foundation
         try await eventManager.createEvent(event: event)
     }
     
-    func acceptInvite() async throws {
-        if let id = event.id {
-            try await eventManager.updateStatus(eventId: id, to: .accepted)
-        }
+    func acceptInvite(eventId: String) async throws {
+        try await eventManager.updateStatus(eventId: eventId, to: .accepted)
     }
 }

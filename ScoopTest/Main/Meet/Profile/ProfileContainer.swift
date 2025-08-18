@@ -4,13 +4,10 @@ import SwiftUI
 
 struct ProfileView: View {
     
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.appDependencies) private var dep
-    
     @State private var vm: ProfileViewModel
-    @State var image: UIImage?
-    let onDismiss: () -> Void
     
+    let onDismiss: () -> Void
     
     init(vm: ProfileViewModel, onDismiss: @escaping () -> Void = {}) {
         _vm = State(initialValue: vm)
@@ -44,20 +41,15 @@ struct ProfileView: View {
                             vm.showInvite = false
                         }
                     if let event = vm.event {
-                        ZStack {
-                            AcceptInvitePopup(vm: $vm, image: $image, event: event) {
-                                onDismiss()
-                            }
+                        AcceptInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: <#T##UIImage#>) {
+                            onDismiss()
                         }
                     } else  {
-                        SendInvitePopup(recipient: vm.p, profileVM: $vm, image: $image) {
+                        SendInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: $image) {
                             onDismiss()
                         }
                     }
                 }
-            }
-            .task {
-                image = await vm.loadImages().first
             }
             .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
         }
@@ -79,7 +71,6 @@ extension ProfileView {
                 .font(.body(20, .bold))
                 .onTapGesture {
                     onDismiss()
-                    dismiss()
                 }
         }
     }

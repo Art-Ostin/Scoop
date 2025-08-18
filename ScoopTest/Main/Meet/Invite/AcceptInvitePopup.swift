@@ -9,22 +9,20 @@ import SwiftUI
 
 struct AcceptInvitePopup: View {
     
-    @Environment(MeetViewModel.self) private var meetVM
     @Environment(\.tabSelection) private var tabSelection
-    let event: UserEvent
-    var isMessage: Bool { event.message != nil }
-    @Binding var profileVM: ProfileViewModel
-    @Binding var image: UIImage?
     @State var showAlert: Bool = false
+    
+    let image: UIImage
+    let event: UserEvent
+    let vm: SendInviteViewModel
     var onDismiss : () -> Void
     
-    init(vm: Binding<ProfileViewModel>, image: Binding<UIImage?>, event: UserEvent, onDismiss: @escaping () -> Void = {}) {
-        self._vm = vm
-        self._image = image
-        self.event = event
+    
+    init(vm: SendInviteViewModel, image: UIImage, onDismiss: @escaping () -> Void = {}) {
+        self.vm = State(initialValue: vm)
         self.onDismiss = onDismiss
     }
-    
+
     var body: some View {
         
         VStack(spacing: 32) {
@@ -32,15 +30,15 @@ struct AcceptInvitePopup: View {
             HStack() {
                 CirclePhoto(image: image ?? UIImage())
                 
-                Text("Meet \(event.otherUserName ?? "")")
+                Text("Meet \(vm.event.otherUserName ?? "")")
                     .font(.title(24, .bold))
                 
-                if isMessage {
+                if event.message != nil {
                     Spacer()
                 }
             }
             
-            EventFormatter(event: event)
+            EventFormatter(event: vm.event)
             
             ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle()}
                 .frame(maxWidth: .infinity, alignment: .center)

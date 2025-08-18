@@ -31,4 +31,6 @@ enum ProfileType {
     func loadImages() async -> [UIImage] {
         return await cacheManager.loadProfileImages([p])
     }
+    
+    // I want to get the the first UI Image from the profileImages, so that I can pass it into the SendInvite and AcceptInvite pop ups
 }

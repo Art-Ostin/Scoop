@@ -24,25 +24,9 @@ struct IntroView: View {
             }
             
             ActionButton(text: "2 Daily Profiles") {
-                print("Button called")
                 Task {
-                    do {
-                        try await vm.dep.cycleManager.createCycle()
-                    }catch {
-                        print(error)
-                        print("Not worked")
-                    }
-                    
-                    do {
-                        print("load prfoiles called")
-                        try await vm.dep.sessionManager.loadprofileRecs()
-                    } catch {
-                        print(error)
-                        print("Loaded profiles failed")
-
-                    }
+                    try? await vm.createWeeklyCycle()
                 }
-                vm.showWeeklyRecs = true
             }
         }
     }

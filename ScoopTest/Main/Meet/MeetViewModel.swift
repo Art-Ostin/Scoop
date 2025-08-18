@@ -16,10 +16,10 @@ import Foundation
     
     // Dependencies used: (1) SessionManager (2) CycleManager (3) UserManager
     
-    init(dep: AppDependencies) {
-        self.cycleManager = dep.cycleManager
-        self.sessionManager = dep.sessionManager
-        self.cacheManager = dep.cacheManager
+    init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging) {
+        self.cycleManager = cycleManager
+        self.sessionManager = sessionManager
+        self.cacheManager = cacheManager
     }
     
     func fetchWeeklyRecCycle() async throws -> RecommendationCycle {
@@ -65,6 +65,11 @@ import Foundation
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle()
         try await sessionManager.loadprofileRecs()
+        sessionManager.showProfileRecommendations = true
+    }
+    
+    func fetchImage(url: URL) async throws -> UIImage {
+        try await cacheManager.fetchImage(for: url)
     }
     
 }
