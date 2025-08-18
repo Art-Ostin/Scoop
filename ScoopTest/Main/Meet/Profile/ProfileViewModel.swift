@@ -5,23 +5,30 @@
 //  Created by Art Ostin on 10/08/2025.
 //
 import Foundation
+import SwiftUI
 
 enum ProfileType {
     case sendInvite, receivedInvite, view
 }
 
 @Observable class ProfileViewModel {
+
+    
+    let cacheManager: CacheManaging
     var p: UserProfile
     var event: UserEvent?
-    let dep: AppDependencies
     var profileType: ProfileType
     
     var showInvite: Bool = false
     
-    init(profile: UserProfile, dep: AppDependencies, profileType: ProfileType, event: UserEvent?) {
+    init(profile: UserProfile, profileType: ProfileType = .sendInvite, event: UserEvent? = nil, cacheManager: CacheManaging) {
         self.p = profile
-        self.dep = dep
         self.profileType = profileType
         self.event = event
+        self.cacheManager = cacheManager
+    }
+    
+    func loadImages() async -> [UIImage] {
+        return await cacheManager.loadProfileImages([p])
     }
 }

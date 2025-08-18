@@ -9,9 +9,9 @@ import SwiftUI
 
 struct ProfileCard : View {
     
+    @Binding var vm: MeetViewModel
     var event: UserEvent?
     let profile: UserProfile
-    let dep: AppDependencies
 
     @State private var image: UIImage?
     @Binding var selectedProfile: EventInvite?
@@ -38,7 +38,7 @@ struct ProfileCard : View {
         }
         .task {
             guard let url = firstURL else {return}
-            image = try? await dep.cacheManager.fetchImage(for: url)
+            try? await vm.fetchImage(url: url)
         }
     }
     
@@ -52,21 +52,3 @@ struct ProfileCard : View {
             .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
     }
 }
-
-
-
-/*
- init(
-     userEvent: UserEvent? = nil,
-     profile: UserProfile,
-     dep: AppDependencies,
-     selectedProfile: Binding<UserProfile?> = .constant(nil),
-     selectedInvite: Binding<EventInvite?> = .constant(nil)
- ) {
-     self.userEvent = userEvent
-     self.profile = profile
-     self.dep = dep
-     self._selectedProfile = selectedProfile
-     self._selectedInvite = selectedInvite
- }
- */

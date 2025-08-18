@@ -344,7 +344,6 @@
 				65F450DC2E48D19400AE3503 /* ProfileViewModel.swift */,
 				659496FF2E01DD4000880921 /* ProfileContainer.swift */,
 				653BAFAA2E0C944600C1AB9E /* ProfileImageView.swift */,
-				653BAFAC2E0C95AE00C1AB9E /* ProfileImageScroller.swift */,
 				653770512E0A1E190058D225 /* ProfileDetailsView.swift */,
 				6537704D2E0A10DC0058D225 /* PromptResponseView.swift */,
 			);
@@ -532,6 +531,7 @@
 				65F450C82E463D1300AE3503 /* MeetContainer.swift */,
 				65F450CC2E463F9900AE3503 /* IntroViewOld.swift */,
 				65F450C62E45815B00AE3503 /* MeetViewModelOld.swift */,
+				653BAFAC2E0C95AE00C1AB9E /* ProfileImageScroller.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";

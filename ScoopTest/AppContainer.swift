@@ -9,9 +9,10 @@ import SwiftUI
 
 struct AppContainer: View {
     
-    @Environment(\.appDependencies) private var dependencies
     @State var selection: Int = 0
-        
+    @Environment(\.appDependencies) private var dep
+    
+    
     var body: some View {
                 
         TabView (selection: $selection) {
@@ -19,7 +20,7 @@ struct AppContainer: View {
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    MeetView(dep: dependencies)
+                    MeetView(vm: MeetViewModel(dep: dep))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -28,7 +29,7 @@ struct AppContainer: View {
             Tab("", image: "LogoIcon", value: 1) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    EventContainer(dependencies: dependencies)
+                    EventContainer()
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -36,7 +37,7 @@ struct AppContainer: View {
             Tab("", image: "MessageIcon", value: 2) {
                 ZStack {
                     Color.background.ignoresSafeArea()
-                    MatchesView(dep: dependencies)
+                    MatchesView()
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }

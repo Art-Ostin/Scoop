@@ -7,18 +7,23 @@
 import Foundation
 
 @Observable class MeetViewModel {
+        
+    let cycleManager: CycleManager
+    let sessionManager: SessionManager
     
-    let dep: AppDependencies
-    var weeklyRecDoc: RecommendationCycle?
-    var showWeeklyRecs: Bool
-    var showRespondToProfilesToRefresh: Bool
+    let cacheManager: CacheManaging
     
+    
+    // Dependencies used: (1) SessionManager (2) CycleManager (3) UserManager
     
     init(dep: AppDependencies) {
-        self.dep = dep
-        self.showWeeklyRecs = dep.sessionManager.showProfileRecommendations
-        self.showRespondToProfilesToRefresh = dep.sessionManager.showRespondToProfilesToRefresh
+        self.cycleManager = dep.cycleManager
+        self.sessionManager = dep.sessionManager
+        self.cacheManager = dep.cacheManager
     }
+    
+    
+    
     
     func loadWeeklyRecCycle() async {
         do {
@@ -27,15 +32,19 @@ import Foundation
             print(error)
         }
     }
+    func fetchImage(url: URL) async throws {
+        try await cacheManager.fetchImage(for: url)
+    }
     
-    
-    
-    func reloadWeeklyRecCycle() {
-        let count = weeklyRecDoc?.cycleStats.pending
+    func reloadWeeklyRecCycle() async {
+        
+        let count = try await cycleManager.fetchCycle().cycleStats.pending
+        
+        weeklyRecDoc?.cycleStats.pending
         if count == 0 {
             Task {
                 do {
-                    try await dep.cycleManager.deleteCycle()
+                    try await cycleManager.deleteCycle()
                 } catch  {
                     print(error)
                 }

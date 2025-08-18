@@ -10,7 +10,7 @@ import SwiftUI
 struct EventContainer: View {
     
     @State var vm: EventViewModel
-
+    
     init(dependencies: AppDependencies) {
         _vm = State(initialValue: EventViewModel(dependencies: dependencies))
     }
@@ -27,8 +27,8 @@ struct EventContainer: View {
             try? await vm.fetchUserEvents()
             try? await vm.saveUserImagesToCache()
         }
-        }
     }
+}
 
 #Preview {
     EventContainer(dependencies: AppDependencies())

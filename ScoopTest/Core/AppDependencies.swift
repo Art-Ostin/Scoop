@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+@Observable
 final class AppDependencies {
     
     let authManager: AuthManaging

@@ -11,13 +11,10 @@ struct MeetView: View {
     
     @State var vm: MeetViewModel
     
-    let dep: AppDependencies
-    
     @State var selectedProfile: EventInvite?
     
-    init(dep: AppDependencies) {
-        self.dep = dep
-        self._vm = State(initialValue: MeetViewModel(dep: dep))
+    init(vm: MeetViewModel) {
+        _vm = State(initialValue: vm)
     }
     
     var body: some View {
@@ -31,7 +28,6 @@ struct MeetView: View {
                 tabView
                 
                 clockView
-                
             }
             if let selectedProfile = selectedProfile {
                 profileRecView(profile: selectedProfile.profile, event: selectedProfile.event)
@@ -48,14 +44,15 @@ extension MeetView {
     
     private var tabView: some View {
         TabView {
-            ForEach(dep.sessionManager.profileInvites, id: \.id) {invite in
-                ProfileCard(event: invite.event, profile: invite.profile, dep: vm.dep, selectedProfile: $selectedProfile)
+            ForEach(vm.sessionManager.profileInvites, id: \.id) {invite in
+                ProfileCard(vm: $vm, event: invite.event, profile: invite.profile, selectedProfile: $selectedProfile)
             }
-            if !vm.showWeeklyRecs {
+            
+            if vm.cycleManager.showIntroView {
                 IntroView(vm: $vm)
             } else {
-                ForEach(dep.sessionManager.profileRecs, id: \.id) {profileRec in
-                    ProfileCard(profile: profileRec.profile, dep: vm.dep,  selectedProfile: $selectedProfile)
+                ForEach(vm.sessionManager.profileRecs, id: \.id) {profileRec in
+                    ProfileCard(vm: $vm, profile: profileRec.profile,  selectedProfile: $selectedProfile)
                 }
             }
         }
@@ -71,11 +68,11 @@ extension MeetView {
                 .onTapGesture { }
             
             if let event = event {
-                ProfileView(profile: profile, dep: dep, event: event) {
+                ProfileView(vm: ProfileViewModel(profile: profile, event: event, cacheManager: vm.cacheManager)) {
                     withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
                 }
-            } else {
-                ProfileView(profile: profile, dep: dep) {
+             } else {
+                 ProfileView(vm: ProfileViewModel(profile: profile, cacheManager: vm.cacheManager)) {
                     withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
                 }
             }

@@ -5,16 +5,17 @@ import SwiftUI
 struct ProfileView: View {
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appDependencies) private var dep
+    
     @State private var vm: ProfileViewModel
-    let onDismiss: () -> Void
     @State var image: UIImage?
+    let onDismiss: () -> Void
     
     
-    init(profile: UserProfile, dep: AppDependencies, event: UserEvent? = nil, onDismiss: @escaping () -> Void = {}) {
-        self._vm = State(initialValue: ProfileViewModel(profile: profile, dep: dep, profileType: .sendInvite, event: event))
+    init(vm: ProfileViewModel, onDismiss: @escaping () -> Void = {}) {
+        _vm = State(initialValue: vm)
         self.onDismiss = onDismiss
     }
-    
     
     var body: some View {
         
@@ -49,15 +50,14 @@ struct ProfileView: View {
                             }
                         }
                     } else  {
-                        SendInvitePopup(recipient: vm.p, dep: vm.dep, profileVM: $vm, image: $image) {
+                        SendInvitePopup(recipient: vm.p, profileVM: $vm, image: $image) {
                             onDismiss()
                         }
                     }
                 }
             }
             .task {
-                image = await vm.dep.cacheManager.loadProfileImages([vm.p]).first
-                print("Loaded image")
+                image = await vm.loadImages().first
             }
             .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
         }
@@ -84,3 +84,10 @@ extension ProfileView {
         }
     }
 }
+
+
+
+//    init(profile: UserProfile, event: UserEvent? = nil, onDismiss: @escaping () -> Void = {}) {
+//        self._vm = State(initialValue: ProfileViewModel(profile: profile, profileType: .sendInvite, event: event, cacheManager: dep.cacheManager))
+//        self.onDismiss = onDismiss
+//    }

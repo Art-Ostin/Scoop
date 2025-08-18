@@ -20,7 +20,7 @@ final class CycleManager {
         self.userManager = userManager
     }
     
-    private var activeCycleId: String {
+    var activeCycleId: String {
         userManager.user.activeCycleId ?? ""
     }
     //Document and collection Navigations
@@ -42,8 +42,6 @@ final class CycleManager {
     private func recommendationDocument(cycleId: String, profileId: String) -> DocumentReference {
         recommendationsCollection(cycleId: cycleId).document(profileId)
     }
-    
-    
     
     //Functions to Create/Fetch and update the cycle documents and reccomendation documents
     func createCycle() async throws {
@@ -108,6 +106,12 @@ final class CycleManager {
         recommendationDocument(cycleId: activeCycleId, profileId: profileId).updateData( [key: field] )
     }
     
+    var showIntroView: Bool {
+        if userManager.user.activeCycleId == nil {
+            return true
+        }
+        return false
+    }
     
     
     //Functions requirred in App
@@ -118,19 +122,14 @@ final class CycleManager {
     }
     
     func inviteSent(profileId: String) async throws {
-
         var stats = try await fetchCycle().cycleStats
         stats .pending -= 1
         stats .invited += 1
         
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
-        
     }
     
     func loadProfileRecsChecker () async throws -> Bool {
-        
-        
-        
         
         let doc = try await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
@@ -153,6 +152,7 @@ final class CycleManager {
         }
         return false
     }
+    
         
     func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [EventInvite] {
         return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in

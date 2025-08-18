@@ -1,9 +1,9 @@
+////
+////  ProfileImageScrollView.swift
+////  ScoopTest
+////
+////  Created by Art Ostin on 25/06/2025.
 //
-//  ProfileImageScrollView.swift
-//  ScoopTest
-//
-//  Created by Art Ostin on 25/06/2025.
-
 //import SwiftUI
 //
 //struct ProfileImageScroller: View {
@@ -55,8 +55,8 @@
 //        }
 //    }
 //}
-
-//#Preview {
-//    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
-//}
 //
+////#Preview {
+////    ProfileImageScroller(vm: .constant(ProfileViewModel(profile: CurrentUserStore.shared.user!)))
+////}
+////
