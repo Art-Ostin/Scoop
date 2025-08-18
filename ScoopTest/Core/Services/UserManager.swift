@@ -37,7 +37,6 @@ class UserManager {
         return UserSession(user: profile)
     }
     
-    
     func updateCurrentUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
         var data: [String: Any] = [:]
@@ -49,6 +48,8 @@ class UserManager {
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
 }
+
+
 
 
 

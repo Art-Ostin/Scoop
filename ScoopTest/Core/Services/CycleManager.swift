@@ -11,14 +11,17 @@ import FirebaseFirestore
 
 final class CycleManager {
     
-    //Configureation of WeeklyRecsManager
-    private let user: UserManager
+    private let user: UserProfile
+    
+    
+    
+    
     private let profileManager: ProfileManaging
     private var session: SessionManager?
     private var cacheManager: CacheManaging
     
-    init(user: UserManager, profileManager: ProfileManaging, cacheManager: CacheManaging,  session: SessionManager? = nil) {
-        self.user = user
+    init(session: UserSession, profileManager: ProfileManaging, cacheManager: CacheManaging,  session: SessionManager? = nil) {
+        self.user = session.user 
         self.profileManager = profileManager
         self.cacheManager = cacheManager
         self.session = session
