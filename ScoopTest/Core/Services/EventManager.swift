@@ -179,6 +179,7 @@ class EventManager {
         
         try await batch.commit()
     }
+    
     func updateStatus(eventId: String, to newStatus: EventStatus) async throws {
         
         let batch = Firestore.firestore().batch()
@@ -201,7 +202,6 @@ class EventManager {
         try await batch.commit()
     }
 }
-
 extension Query {
     func getDocuments<T>(as: T.Type) async throws -> [T] where T: Decodable {
         let snapshot = try await self.getDocuments()

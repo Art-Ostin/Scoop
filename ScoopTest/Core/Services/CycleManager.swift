@@ -12,12 +12,12 @@ import FirebaseFirestore
 final class CycleManager {
     
     private let user: UserProfile
-    private var sessionManager: SessionManager?
+    private var sessionManager: SessionManager
     private var cacheManager: CacheManaging
-    private var userManager: UserManager?
+    private var userManager: UserManager
     
     
-    init(user: UserProfile, cacheManager: CacheManaging,  sessionManager: SessionManager? = nil, userManager: UserManager) {
+    init(user: UserProfile, cacheManager: CacheManaging,  sessionManager: SessionManager, userManager: UserManager) {
         self.user = user
         self.cacheManager = cacheManager
         self.userManager = userManager
@@ -67,13 +67,13 @@ final class CycleManager {
         let docRef = try cyclesCollection().addDocument(from: cycle)
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
-        try await userManager.update(values: [UserProfile.CodingKeys.activeCycleId: id])
+        try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
         
     }
     
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
-        let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId}
+        let ids = snap.documents.map( \.documentID ).filter { $0 != user.userId}
         let selectdIds = Array(ids.shuffled().prefix(4))
         
         for id in selectdIds {
@@ -119,7 +119,7 @@ final class CycleManager {
     func deleteCycle() async throws {
         updateCycle(key: RecommendationCycle.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
         
-        try await userManager.update(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
+        try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
     
     func inviteSent(profileId: String) async throws {
@@ -135,15 +135,8 @@ final class CycleManager {
     
     func loadProfileRecsChecker () async throws -> Bool {
         
-        guard let user = user.user else {
-            print("No user found")
-            return false
-        }
         
-        guard user.activeCycleId != nil else {
-            print("User cycle is empty")
-            return false
-        }
+        
         
         let doc = try await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
@@ -166,14 +159,12 @@ final class CycleManager {
         }
         return false
     }
-    
-    
-    
+        
     func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [EventInvite] {
         return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
             for item in data {
                 group.addTask {
-                    guard let profile = try? await self.profileManager.getProfile(userId: item.id) else { return nil }
+                    guard let profile = try? await self.userManager.fetchUser(userId: item.id) else { return nil }
                     let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
                     return EventInvite(event: item.event, profile: profile, image: image ?? UIImage())
                 }

@@ -14,7 +14,6 @@ final class AppDependencies {
     let authManager: AuthManaging
     let cacheManager: CacheManaging
     let userManager: UserManager
-    let defaultsManager: DefaultsManager
     
     private(set) var storageManager: StorageManaging!
     private(set) var eventManager: EventManager!
@@ -25,23 +24,21 @@ final class AppDependencies {
         authManager: AuthManaging? = nil,
         cacheManager: CacheManaging? = nil,
         userManager: UserManager? = nil,
-        defaultsManager: DefaultsManager? = nil
         
     ) {
         let auth = authManager ?? AuthManager()
         let cache = cacheManager ?? CacheManager()
         let userManager = userManager ?? UserManager(auth: auth)
-        let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, cacheManager: cache)
         self.authManager = auth
         self.cacheManager = cache
         self.userManager = userManager
-        self.defaultsManager = defaultsManager
     }
+    
     
     func configure(user: UserProfile) {
         let storage = StorageManager(user: user)
         let event = EventManager(user: user, userManager: userManager)
-        let cycle = CycleManager(user: user, cacheManager: cacheManager, userManager: userManager)
+        let cycle = CycleManager(user: user, cacheManager: cacheManager, sessionManager: sessionManager, userManager: userManager)
         let sessionManager = SessionManager(user: user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
         self.storageManager = storage
         self.eventManager = event

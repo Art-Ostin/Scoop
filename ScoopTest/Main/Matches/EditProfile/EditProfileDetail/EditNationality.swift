@@ -38,12 +38,12 @@ import FirebaseFirestore
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})
             Task {
-               try? await dep.profileManager.update(values: [.nationality: FieldValue.arrayRemove([country])])
+               try? await dep.userManager.updateUser(values: [.nationality: FieldValue.arrayRemove([country])])
             }
         } else if selectedCountries.count < 3 {
             selectedCountries.append(country)
             Task {
-               try? await dep.profileManager.update(values: [.nationality: FieldValue.arrayUnion([country])])
+               try? await dep.userManager.updateUser(values: [.nationality: FieldValue.arrayUnion([country])])
             }
         }
     }
@@ -83,7 +83,7 @@ struct EditNationality: View {
             }
         }
         .task {
-            vm.selectedCountries = dep.userManager.user?.nationality ?? []
+            vm.selectedCountries = dep.sessionManager.user.nationality ?? []
         }
         .flowNavigation()
     }

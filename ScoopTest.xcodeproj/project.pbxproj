@@ -112,7 +112,7 @@
 		65FAF9862E413B100015E231 /* EventPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9852E413B100015E231 /* EventPlaceholder.swift */; };
 		65FAF9882E4140740015E231 /* EventContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9872E4140740015E231 /* EventContainer.swift */; };
 		65FAF98A2E414D1B0015E231 /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9892E414D1B0015E231 /* EventView.swift */; };
-		65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* DefaultsManager.swift */; };
+		65FAF98C2E41658D0015E231 /* DefaultsManagerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98B2E41658D0015E231 /* DefaultsManagerOld.swift */; };
 		65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */; };
 		65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9952E42960A0015E231 /* EventViewModel.swift */; };
 		65FAF99E2E42BCA40015E231 /* LargeClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF99D2E42BCA40015E231 /* LargeClockView.swift */; };
@@ -244,7 +244,7 @@
 		65FAF9852E413B100015E231 /* EventPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPlaceholder.swift; sourceTree = "<group>"; };
 		65FAF9872E4140740015E231 /* EventContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventContainer.swift; sourceTree = "<group>"; };
 		65FAF9892E414D1B0015E231 /* EventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
-		65FAF98B2E41658D0015E231 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
+		65FAF98B2E41658D0015E231 /* DefaultsManagerOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManagerOld.swift; sourceTree = "<group>"; };
 		65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		65FAF9952E42960A0015E231 /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
 		65FAF99D2E42BCA40015E231 /* LargeClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeClockView.swift; sourceTree = "<group>"; };
@@ -307,7 +307,6 @@
 				654982BF2E2FA54100CA335F /* StorageManager.swift */,
 				65BFE7DC2E400D3C00B31A58 /* EventManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
-				65FAF98B2E41658D0015E231 /* DefaultsManager.swift */,
 				65E5C91F2E510BBA0093410B /* CycleManager.swift */,
 				65E5C9192E50E7700093410B /* SessionManager.swift */,
 			);
@@ -526,6 +525,7 @@
 		65E5C8F02E4E62C80093410B /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				65FAF98B2E41658D0015E231 /* DefaultsManagerOld.swift */,
 				65F450C82E463D1300AE3503 /* MeetContainer.swift */,
 				65F450CC2E463F9900AE3503 /* IntroViewOld.swift */,
 				65F450C62E45815B00AE3503 /* MeetViewModelOld.swift */,
@@ -832,7 +832,7 @@
 				659109242E19AEC00065696F /* NextButton.swift in Sources */,
 				65E820A92E3836CA0098CC36 /* InfoView.swift in Sources */,
 				65F450C92E463D1300AE3503 /* MeetContainer.swift in Sources */,
-				65FAF98C2E41658D0015E231 /* DefaultsManager.swift in Sources */,
+				65FAF98C2E41658D0015E231 /* DefaultsManagerOld.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
 				65F450DD2E48D19400AE3503 /* ProfileViewModel.swift in Sources */,
 				65EA17492E4DFDB300EF38DC /* AcceptInvitePopup.swift in Sources */,
