@@ -11,17 +11,11 @@ struct AcceptInvitePopup: View {
     
     @Environment(MeetViewModel.self) private var meetVM
     @Environment(\.tabSelection) private var tabSelection
-    
-    
-    
     let event: UserEvent
     var isMessage: Bool { event.message != nil }
-    
-    @Binding var vm: ProfileViewModel
+    @Binding var profileVM: ProfileViewModel
     @Binding var image: UIImage?
-    
     @State var showAlert: Bool = false
-    
     var onDismiss : () -> Void
     
     init(vm: Binding<ProfileViewModel>, image: Binding<UIImage?>, event: UserEvent, onDismiss: @escaping () -> Void = {}) {
@@ -30,7 +24,7 @@ struct AcceptInvitePopup: View {
         self.event = event
         self.onDismiss = onDismiss
     }
-
+    
     var body: some View {
         
         VStack(spacing: 32) {
@@ -60,21 +54,19 @@ struct AcceptInvitePopup: View {
         .shadow(color: .black.opacity(0.25), radius: 50, x: 0, y: 10)
         .overlay(alignment: .topTrailing) {
             NavButton(.cross)
-                .padding(20) //32
+                .padding(20)
         }
         .padding(.horizontal, 24)
         .alert("Event Commitment", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button ("I Understand") {
                 Task {
-                    if let id = event.id {
-                        try? await vm.dep.eventManager.updateStatus(eventId: id, to: .accepted)
-                        tabSelection.wrappedValue = 1
-                        onDismiss()
-                    }
+                    try? await vm.acceptInvite()
+                    tabSelection.wrappedValue = 1
+                    onDismiss()
                 }
             }
-        } message : {
+        } message: {
             Text("If you dont show, you'll be blocked from Scoop")
         }.tint(.blue)
     }

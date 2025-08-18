@@ -9,14 +9,19 @@ import Foundation
 
 @Observable final class SendInviteViewModel {
     
+    
+    let eventManager: EventManager
+    let cycleManager: CycleManager
+    
+    
     let recipient: UserProfile
-    let dep: AppDependencies
     var event: Event
     
 
-    init(recipient: UserProfile, dep: AppDependencies) {
+    init(dep: AppDependencies, recipient: UserProfile) {
+        self.eventManager = dep.eventManager
+        self.cycleManager = dep.cycleManager
         self.recipient = recipient
-        self.dep = dep
         self.event = Event(recipientId: recipient.id)
     }
     
@@ -25,8 +30,15 @@ import Foundation
     var showTimePopup: Bool = false
     var showMapView: Bool = false
     
+    
     func sendInvite() async throws {
-        try await dep.cycleManager.inviteSent(profileId: recipient.userId)
-        try await dep.eventManager.createEvent(event: event)
+        try await cycleManager.inviteSent(profileId: recipient.userId)
+        try await eventManager.createEvent(event: event)
+    }
+    
+    func acceptInvite() async throws {
+        if let id = event.id {
+            try await eventManager.updateStatus(eventId: id, to: .accepted)
+        }
     }
 }

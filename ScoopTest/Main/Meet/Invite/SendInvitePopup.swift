@@ -6,21 +6,19 @@ import MapKit
 struct SendInvitePopup: View {
     
     @Environment(MeetViewModel.self) private var meetVM
+    @Binding var profileVM: ProfileViewModel
+    @State var vm: SendInviteViewModel
+    
+    @State var showAlert: Bool = false
+    @Binding var image: UIImage?
+    @FocusState var isFocused: Bool
+    
     @Environment(\.appDependencies) private var dep
     
-    @Binding var image: UIImage?
-    @Binding var profileVM: ProfileViewModel
-    
-    @State var vm: SendInviteViewModel
-    @State var showAlert: Bool = false
-
-    @FocusState var isFocused: Bool
     
     let onDismiss: () -> Void
     
-    
-    
-    init(recipient: UserProfile, dep: AppDependencies, profileVM: Binding<ProfileViewModel>, image: Binding<UIImage?>, onDismiss: @escaping () -> Void) {
+    init(recipient: UserProfile, profileVM: Binding<ProfileViewModel>, image: Binding<UIImage?>, onDismiss: @escaping () -> Void) {
         self._vm = State(initialValue: SendInviteViewModel(recipient: recipient, dep: dep))
         self._profileVM = profileVM
         self._image = image
@@ -29,7 +27,6 @@ struct SendInvitePopup: View {
     
     var body: some View {
         ZStack {
-
             sendInviteScreen
             
             if vm.showTypePopup {

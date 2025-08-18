@@ -25,7 +25,6 @@ final class CycleManager {
     }
     //Document and collection Navigations
     
-    
     private let users = Firestore.firestore().collection("users")
     
     private func cyclesCollection () -> CollectionReference {
@@ -106,13 +105,6 @@ final class CycleManager {
         recommendationDocument(cycleId: activeCycleId, profileId: profileId).updateData( [key: field] )
     }
     
-    var showIntroView: Bool {
-        if userManager.user.activeCycleId == nil {
-            return true
-        }
-        return false
-    }
-    
     
     //Functions requirred in App
     func deleteCycle() async throws {
@@ -128,6 +120,7 @@ final class CycleManager {
         
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
     }
+    
     
     func loadProfileRecsChecker () async throws -> Bool {
         

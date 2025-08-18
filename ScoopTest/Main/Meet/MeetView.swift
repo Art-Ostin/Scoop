@@ -44,21 +44,20 @@ extension MeetView {
     
     private var tabView: some View {
         TabView {
-            ForEach(vm.sessionManager.profileInvites, id: \.id) {invite in
+            ForEach(vm.fetchWeeklyInvites(), id: \.id) {invite in
                 ProfileCard(vm: $vm, event: invite.event, profile: invite.profile, selectedProfile: $selectedProfile)
             }
-            
-            if vm.cycleManager.showIntroView {
+            if !vm.showProfileRecommendations() {
                 IntroView(vm: $vm)
             } else {
-                ForEach(vm.sessionManager.profileRecs, id: \.id) {profileRec in
+                ForEach(vm.fetchWeeklyRecs(), id: \.id) {profileRec in
                     ProfileCard(vm: $vm, profile: profileRec.profile,  selectedProfile: $selectedProfile)
                 }
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
-    
+
     
     private func profileRecView(profile: UserProfile, event: UserEvent? = nil) -> some View {
         ZStack {
@@ -82,12 +81,12 @@ extension MeetView {
     }
     
     @ViewBuilder private var clockView: some View {
-        if !vm.showRespondToProfilesToRefresh {
-            if let time = vm.weeklyRecDoc?.endsAt.dateValue() {
-                SimpleClockView(targetTime: time) {
-                    vm.reloadWeeklyRecCycle()
-                }
-            }
+        if !vm.showRespondToProfilesToRefresh() {
+//            if let time = vm.weeklyRecDoc?.endsAt.dateValue() {
+//                SimpleClockView(targetTime: time) {
+//                    vm.reloadWeeklyRecCycle()
+//                }
+//            }
         } else {
             Text("Respond to profiles to get new matches")
         }

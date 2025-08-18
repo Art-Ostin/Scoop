@@ -36,7 +36,6 @@ final class SessionManager {
 
     var profileRecs: [EventInvite] = []
     var profileInvites: [EventInvite] = []
-
     
     var showProfileRecommendations: Bool = true
     var showRespondToProfilesToRefresh: Bool = false
@@ -56,7 +55,6 @@ final class SessionManager {
             print("no profiles to load")
             return
         }
-        
         do {
             showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
         } catch {

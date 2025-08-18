@@ -22,25 +22,32 @@ import Foundation
         self.cacheManager = dep.cacheManager
     }
     
-    
-    
-    
-    func loadWeeklyRecCycle() async {
-        do {
-            weeklyRecDoc = try await dep.cycleManager.fetchCycle()
-        } catch {
-            print(error)
-        }
-    }
-    func fetchImage(url: URL) async throws {
-        try await cacheManager.fetchImage(for: url)
+    func fetchWeeklyRecCycle() async throws -> RecommendationCycle {
+        try await cycleManager.fetchCycle()
     }
     
+    func fetchWeeklyRecs() -> [EventInvite] {
+        sessionManager.profileRecs
+    }
+    
+    func fetchWeeklyInvites() -> [EventInvite] {
+        sessionManager.profileInvites
+    }
+    
+    func showProfileRecommendations() -> Bool {
+        sessionManager.showProfileRecommendations
+    }
+    
+    func showRespondToProfilesToRefresh() -> Bool {
+        sessionManager.showRespondToProfilesToRefresh
+    }
+    
+    func fetchTimeUntileEnd() async throws -> Date {
+        try await fetchWeeklyRecCycle().endsAt.dateValue()
+    }
+
     func reloadWeeklyRecCycle() async {
-        
-        let count = try await cycleManager.fetchCycle().cycleStats.pending
-        
-        weeklyRecDoc?.cycleStats.pending
+        let count = try? await fetchWeeklyRecCycle().cycleStats.pending
         if count == 0 {
             Task {
                 do {
@@ -49,18 +56,15 @@ import Foundation
                     print(error)
                 }
             }
-            dep.sessionManager.showProfileRecommendations = false
-            showWeeklyRecs = false
+            sessionManager.showProfileRecommendations = false
         } else {
-            showRespondToProfilesToRefresh = true
-            dep.sessionManager.showRespondToProfilesToRefresh = true
+            sessionManager.showRespondToProfilesToRefresh = true
         }
     }
     
     func createWeeklyCycle() async throws {
-        try await dep.cycleManager.createCycle()
-        showWeeklyRecs = true
-        try await dep.sessionManager.loadprofileRecs()
+        try await cycleManager.createCycle()
+        try await sessionManager.loadprofileRecs()
     }
     
 }
