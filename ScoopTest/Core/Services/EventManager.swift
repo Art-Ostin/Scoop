@@ -34,7 +34,6 @@ class EventManager {
     }
     
     
-    
     private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
         userEventCollection(userId: userId).document(userEventId)
     }
@@ -130,6 +129,7 @@ class EventManager {
         try await batch.commit()
     }
     
+    
     private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
         
         guard let uid = currentId else { throw URLError(.userAuthenticationRequired) }
@@ -212,7 +212,6 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
     }
-    
     
     
     //Remove from this Manager not relevant

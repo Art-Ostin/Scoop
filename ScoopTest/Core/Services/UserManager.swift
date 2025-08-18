@@ -13,25 +13,19 @@ import FirebaseFirestore
 class UserManager {
     
     @ObservationIgnored private let auth: AuthenticationManaging
-    @ObservationIgnored private let profileManager: ProfileManaging
-    
-    init(auth: AuthenticationManaging, profileManager: ProfileManaging) {
-        self.auth = auth
-        self.profileManager = profileManager
-    }
-    
-    private(set) var user: UserProfile? = nil
-    
-    
+    init(auth: AuthenticationManaging) { self.auth = auth }
+        
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
+    
+    private(set) var user: UserProfile? = nil
     
     
     @MainActor
     func loadUser() async throws {
         let uid = try auth.getAuthenticatedUser().uid
-        let profile = try await profileManager.getProfile(userId: uid)
+        let profile = try await fetchProfile(userId: uid)
         self.user = profile
     }
     
@@ -44,7 +38,6 @@ class UserManager {
     }
     
     func updateUserPrompt(index: Int, prompt: PromptResponse) async throws {
-        let uid = try auth.getAuthenticatedUser().uid
         let key: UserProfile.CodingKeys
         switch index {
         case 1: key = .prompt1
@@ -53,7 +46,15 @@ class UserManager {
         default: return
         }
         let encoded = try Firestore.Encoder().encode(prompt)
-        try await profileManager.update(userId: uid, values: [key: encoded])
+        try await updateUser(values: [key: encoded])
+    }
+    
+    func createProfile (profile: UserProfile) async throws {
+        try userDocument(userId: profile.userId).setData(from: profile)
+    }
+
+    func fetchProfile(userId: String) async throws -> UserProfile {
+        try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
 }
 

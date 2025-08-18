@@ -66,26 +66,3 @@ final class DefaultsManager {
         defaults.removeObject(forKey: Keys.suggestedProfiles.rawValue)
     }
 }
-
-
-/*
- func sentInviteToProfile1() {
-     defaults.set(true, forKey: Keys.sentInviteToProfile1.rawValue)
- }
- func sentInviteToProfile2() {
-     defaults.set(true, forKey: Keys.sentInviteToProfile2.rawValue)
- }
-
- func getInviteToProfile1Status() -> Bool {
-     defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
- }
-
- func getInviteToProfile2Status() -> Bool {
-     defaults.bool(forKey: Keys.sentInviteToProfile1.rawValue)
- }
-
- func refreshInviteStatus() {
-     defaults.removeObject(forKey: Keys.sentInviteToProfile1.rawValue)
-     defaults.removeObject(forKey: Keys.sentInviteToProfile2.rawValue)
- }
- */

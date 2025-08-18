@@ -25,7 +25,6 @@ final class AppDependencies {
     
     init(
         authManager: AuthenticationManaging? = nil,
-        profileManager: ProfileManaging? = nil,
         storageManager: StorageManaging? = nil,
         cacheManager: CacheManaging? = nil,
         eventManager: EventManager? = nil,
@@ -35,8 +34,7 @@ final class AppDependencies {
         sessionManager: SessionManager? = nil
 
     ) {
-        let profile = profileManager ?? FirestoreManager()
-        let auth = authManager ?? AuthenticationManager(profile: profile)
+        let auth = authManager ?? AuthManager(profile: profile)
         let cache = cacheManager ?? CacheManager()
         let userManager = userManager ?? UserManager(auth: auth, profile: profile)
         let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
