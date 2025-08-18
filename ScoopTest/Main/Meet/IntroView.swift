@@ -25,8 +25,20 @@ struct IntroView: View {
             
             ActionButton(text: "2 Daily Profiles") {
                 Task {
-                    try await vm.dep.cycleManager.createCycle()
-                    try await vm.dep.sessionManager.loadprofileRecs()
+                    do {
+                        try await vm.dep.cycleManager.createCycle()
+                    }catch {
+                        print(error)
+                        print("Not worked")
+                    }
+                    
+                    do {
+                        try await vm.dep.sessionManager.loadprofileRecs()
+                    } catch {
+                        print(error)
+                        print("Loaded profiles failed")
+
+                    }
                     await vm.dep.sessionManager.loadProfileInvites()
                 }
                 vm.showWeeklyRecs = true
