@@ -38,7 +38,7 @@ final class AppDependencies {
         let profile = profileManager ?? FirestoreManager()
         let auth = authManager ?? AuthenticationManager(profile: profile)
         let cache = cacheManager ?? CacheManager()
-        let userManager = userManager ?? UserManager(auth: auth, profile: profile, cacheManager: cache)
+        let userManager = userManager ?? UserManager(auth: auth, profile: profile)
         let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
         let storage = storageManager ?? StorageManager(user: userManager)
         let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, firesoreManager: profile, cacheManager: cache)
@@ -57,9 +57,6 @@ final class AppDependencies {
         self.cycleManager = cycleManager
         self.sessionManager = sessionManager
 
-        if let manager = profile as? FirestoreManager {
-            manager.userManager = self.userManager
-        }
     }
 }
 

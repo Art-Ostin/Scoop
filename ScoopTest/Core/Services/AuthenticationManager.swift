@@ -29,6 +29,7 @@ struct AuthenticatedUser {
         self.profile = profile
     }
     
+    
     //MOTHER FUNCTION 1  (Change the wording so its specific to the authenticated user) --
     func createUser(email: String, password: String ) async throws {
         
@@ -41,9 +42,12 @@ struct AuthenticatedUser {
         try await profile.createProfile(profile: profileUser)
     }
     
+    
+    
     func signInUser(email: String, password: String ) async throws {
         let _ = try await Auth.auth().signIn(with: EmailAuthProvider.credential(withEmail: email, password: password))
     }
+    
     
     @discardableResult
     func getAuthenticatedUser () throws -> AuthenticatedUser {

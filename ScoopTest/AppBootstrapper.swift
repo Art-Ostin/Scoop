@@ -15,9 +15,22 @@ struct Bootstrapper {
     let dep: AppDependencies
     
     func start () async {
+        
+        
+        
         do {
-            _ = try dep.authManager.getAuthenticatedUser()
+            
+            
+            let authUser = try dep.authManager.getAuthenticatedUser()
+             
+            try await dep.userManager.loadUser(for: authUser)
+            
             appState = .app
+            
+            Task(priority: .utility) {
+                await prefetch()
+            }
+            
         } catch {
             appState = .login
         }
@@ -27,6 +40,7 @@ struct Bootstrapper {
     @MainActor
     func prefetch() async {
         Task {
+            
             try? await dep.userManager.loadUser()
             do {
                 try await dep.sessionManager.loadprofileRecs()

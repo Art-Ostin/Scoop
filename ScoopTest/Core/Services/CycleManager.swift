@@ -30,13 +30,25 @@ import FirebaseFirestore
     }
     
     //UserId and the activeCycleId for editing and referencing
-    private var currentUserId: String {
-        user.user?.id ?? ""
-    }
-    private var activeCycleId: String {
-        user.user?.activeCycleId ?? ""
+    private var currentUserId: String? {
+        user.user?.id
     }
     
+    private var currentUser: UserProfile? {
+        user.user
+    }
+    
+    private var activeCycleId: String {
+        guard (currentUser != nil) else {
+            print("No user ID found")
+        }
+        
+        if let cycleID = currentUser?.activeCycleId {
+            return cycleID
+        } else {
+            print("No id was found at point")
+        }
+    }
     
     //Document and collection Navigations
     
@@ -193,20 +205,3 @@ import FirebaseFirestore
         }
     }
 }
-
-
-
-
-
-//return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
-//    for id in ids {
-//        group.addTask {
-//            guard let p = try? await self.profileManager.getProfile(userId: id) else { return nil }
-//            let firstImage = try? await self.cacheManager.fetchFirstImage(profile: p)
-//            return EventInvite(event: nil, profile: p, image: firstImage ?? UIImage())
-//        }
-//    }
-//    return await group.reduce(into: []) {result, element  in
-//        if let element {result.append(element)}
-//    }
-//}

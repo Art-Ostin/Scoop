@@ -26,7 +26,6 @@ struct ScoopTestApp: App {
                 .environment(\.stateOfApp, $appState)
                 .task {
                     let bootstrapper = Bootstrapper(appState: $appState, dep: dep)
-                    Task {await bootstrapper.prefetch()}
                     await bootstrapper.start()
                 }
         }
