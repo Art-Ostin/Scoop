@@ -15,7 +15,7 @@ struct MatchesView: View {
     @Environment(\.stateOfApp) private var stateOfApp
     
     
-    let dependencies: AppDependencies
+    let dep: AppDependencies
             
     @State var showProfileView = false
     
@@ -33,10 +33,10 @@ struct MatchesView: View {
                     Text("View your past Meet Ups Here")
                         .font(.body(20))
                     
-                    Text(dependencies.userManager.user?.name ?? "No Name")
+                    Text(dep.userManager.user.name ?? "No Name")
                     
                     ActionButton(text: "Sign Out") {
-                        try? dependencies.authManager.signOutUser()
+                        try? dep.authManager.signOutAuthUser()
                         stateOfApp.wrappedValue = .login
                     }
                 }
@@ -61,10 +61,8 @@ struct MatchesView: View {
             EditProfileContainer()
         })
         .task {
-            let user = dependencies.userManager.user
-            if let user {
-                profileImage = await dependencies.cacheManager.loadProfileImages([user]).first
-            }
+            let user = dep.userManager.user
+            profileImage = await dep.cacheManager.loadProfileImages([user]).first
         }
     }
 }

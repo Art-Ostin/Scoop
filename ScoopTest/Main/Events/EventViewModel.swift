@@ -31,7 +31,7 @@ import SwiftUI
         let ids = Set(userEvents.map(\.otherUserId))
         let profiles: [UserProfile] = try await withThrowingTaskGroup(of: UserProfile.self) { group in
             for id in ids {
-                group.addTask { try await self.dep.profileManager.getProfile(userId: id) } }
+                group.addTask { try await self.dep.userManager.fetchUser(userId: id) } }
             var results: [UserProfile] = []
             for try await p in group { results.append(p) }
             return results
@@ -64,6 +64,7 @@ import SwiftUI
             }
         }
     }
+    
     func formatTime(date: Date?) -> String {
         guard let date = date else { return "" }
         let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))

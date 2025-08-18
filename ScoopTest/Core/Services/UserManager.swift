@@ -63,6 +63,5 @@ class UserManager {
      let encoded = try Firestore.Encoder().encode(prompt)
      try await updateUser(values: [key: encoded])
  }
- 
  */
 

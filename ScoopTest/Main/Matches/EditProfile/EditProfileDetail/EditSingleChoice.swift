@@ -42,7 +42,7 @@ struct OptionEditView: View  {
             }
         }
         .flowNavigation()
-        .task {selection = dep.userManager.user?[keyPath: field.keyPath] }
+        .task {selection = dep.userManager.user[keyPath: field.keyPath] }
     }
     
     private func select(_ value: String) {
@@ -66,7 +66,7 @@ struct ProfileFields {
               options: ["Man", "Women", "Beyond Binary"],
               keyPath: \.sex
           ) { value in
-              try? await dep.profileManager.update(values: [.sex: value])
+              try? await dep.userManager.updateUser(values: [.sex: value])
           }
       }
 
@@ -76,7 +76,7 @@ struct ProfileFields {
               options: ["Men", "Women", "Men & Women", "All Genders"],
               keyPath: \.attractedTo
           ) { value in
-              try? await dep.profileManager.update(values: [.attractedTo: value])
+              try? await dep.userManager.updateUser(values: [.attractedTo: value])
           }
       }
 
@@ -86,7 +86,7 @@ struct ProfileFields {
               options: ["Short-term", "Long-term", "Undecided"],
               keyPath: \.lookingFor
           ) { value in
-              try? await dep.profileManager.update(values: [.lookingFor: value])
+              try? await dep.userManager.updateUser(values: [.lookingFor: value])
           }
       }
 
@@ -96,32 +96,32 @@ struct ProfileFields {
               options: ["U0", "U1", "U2", "U3", "U4"],
               keyPath: \.year
           ) { value in
-              try? await dep.profileManager.update(values: [.year: value])
+              try? await dep.userManager.updateUser(values: [.year: value])
           }
       }
 
       static func editDegree(dep: AppDependencies) -> TextFieldField {
           TextFieldField(title: "Degree", keyPath: \.degree) { text in
-              try? await dep.profileManager.update(values: [.degree: text])
+              try? await dep.userManager.updateUser(values: [.degree: text])
           }
       }
     
       static func editHometown(dep: AppDependencies) -> TextFieldField {
           TextFieldField(title: "Hometown", keyPath: \.hometown) { text in
-              try? await dep.profileManager.update(values: [.hometown: text])
+              try? await dep.userManager.updateUser(values: [.hometown: text])
           }
       }
     
     
     static func editName(dep: AppDependencies) -> TextFieldField {
         TextFieldField(title: "Name", keyPath: \.name) { text in
-            try? await dep.profileManager.update(values: [.name: text])
+            try? await dep.userManager.updateUser(values: [.name: text])
         }
     }
 
     static func editLanguages(dep: AppDependencies) -> TextFieldField {
         TextFieldField(title: "I Speak", keyPath: \.languages) { text in
-            try? await dep.profileManager.update(values: [.languages: text])
+            try? await dep.userManager.updateUser(values: [.languages: text])
         }
     }
     

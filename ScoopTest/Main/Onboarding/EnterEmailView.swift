@@ -10,7 +10,7 @@ import SwiftUI
 struct EnterEmailView: View {
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.appDependencies) private var dep
     
     @State var showVerification: Bool = false
     @State var vm: EmailVerificationViewModel
@@ -19,7 +19,7 @@ struct EnterEmailView: View {
     @Binding var showEmail: Bool
     
     init(dep: AppDependencies, showEmail: Binding<Bool>) {
-        self._vm = State(initialValue: EmailVerificationViewModel(authManager: dep.authManager))
+        self._vm = State(initialValue: EmailVerificationViewModel(dep: dep))
         self._showEmail = showEmail
     }
     

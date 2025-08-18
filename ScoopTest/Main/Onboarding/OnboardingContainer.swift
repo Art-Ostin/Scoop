@@ -56,7 +56,7 @@ extension OnboardingContainer {
             options: ["Man", "Women", "Beyond Binary"],
             keyPath: \.sex
         ) { value in
-            try? await dep.profileManager.update(values: [.sex: value])
+            try? await dep.userManager.updateUser(values: [.sex: value])
         }
     }
 
@@ -66,7 +66,7 @@ extension OnboardingContainer {
             options: ["Men", "Women", "Men & Women", "All Genders"],
             keyPath: \.attractedTo
         ) { value in
-            try? await dep.profileManager.update(values: [.attractedTo: value])
+            try? await dep.userManager.updateUser(values: [.attractedTo: value])
         }
     }
 
@@ -76,7 +76,7 @@ extension OnboardingContainer {
             options: ["Short-term", "Long-term", "Undecided"],
             keyPath: \.lookingFor
         ) { value in
-            try? await dep.profileManager.update(values: [.lookingFor: value])
+            try? await dep.userManager.updateUser(values: [.lookingFor: value])
         }
     }
 
@@ -86,19 +86,19 @@ extension OnboardingContainer {
             options: ["U0", "U1", "U2", "U3", "U4"],
             keyPath: \.year
         ) { value in
-            try? await dep.profileManager.update(values: [.year: value])
+            try? await dep.userManager.updateUser(values: [.year: value])
         }
     }
 
     private var degreeField: TextFieldField {
         TextFieldField(title: "Degree", keyPath: \.degree) { text in
-            try? await dep.profileManager.update(values: [.degree: text])
+            try? await dep.userManager.updateUser(values: [.degree: text])
         }
     }
 
     private var hometownField: TextFieldField {
         TextFieldField(title: "Hometown", keyPath: \.hometown) { text in
-            try? await dep.profileManager.update(values: [.hometown: text])
+            try? await dep.userManager.updateUser(values: [.hometown: text])
         }
     }
 }

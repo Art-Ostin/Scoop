@@ -17,26 +17,23 @@ struct EditProfileContainer: View {
     
     
     var body: some View {
-        
-        if let user = dep.userManager.user {
-            
-            Group {
-                if isView {
-                    ProfileView(profile: user, dep: dep)
-                        .id(user.imagePath ?? [])
-                        .transition(.move(edge: .leading))
-                } else {
-                    EditProfileView(dep: dep)
-                        .transition(.move(edge: .trailing))
-                }
-            }            
-            .overlay(alignment: .bottom) {
-                EditProfileButton(isView: $isView)
-                    .padding(.bottom)
-                    .onTapGesture {
-                        withAnimation{ isView.toggle()}
-                    }
+        let user = dep.userManager.user
+        Group {
+            if isView {
+                ProfileView(profile: user, dep: dep)
+                    .id(user.imagePath ?? [])
+                    .transition(.move(edge: .leading))
+            } else {
+                EditProfileView(dep: dep)
+                    .transition(.move(edge: .trailing))
             }
+        }
+        .overlay(alignment: .bottom) {
+            EditProfileButton(isView: $isView)
+                .padding(.bottom)
+                .onTapGesture {
+                    withAnimation{ isView.toggle()}
+                }
         }
     }
 }

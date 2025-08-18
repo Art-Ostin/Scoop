@@ -36,6 +36,9 @@ final class AppDependencies {
         self.cacheManager = cache
         self.userManager = userManager
         self.sessionManager = session
+        self.storageManager = storage
+        self.cycleManager = cycle
+        self.eventManager = event
     }
 }
 

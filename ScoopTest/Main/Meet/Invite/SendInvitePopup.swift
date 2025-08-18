@@ -129,7 +129,7 @@ extension SendInvitePopup {
     }
     
     private var InviteTimeRow: some View {
-        
+
         let time = vm.event.time
         
         return HStack {

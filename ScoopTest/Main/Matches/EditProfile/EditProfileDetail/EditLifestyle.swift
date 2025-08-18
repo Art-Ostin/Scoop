@@ -35,7 +35,7 @@ struct EditLifestyle: View {
         .flowNavigation()
         .padding(.horizontal)
         .task {
-            guard let u = dep.userManager.user else {return}
+            let u = dep.userManager.user
             drinking = u.drinking
             smoking = u.smoking
             marijuana = u.marijuana
@@ -59,7 +59,7 @@ struct EditLifestyle: View {
     
     private func update(key: UserProfile.CodingKeys, _ value: String?) {
         Task {
-            try? await dep.profileManager.update(values: [key: value ?? ""])
+            try? await dep.userManager.updateUser(values: [key: value ?? ""])
         }
     }
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {

@@ -12,7 +12,7 @@ struct InfoView: View {
     @FocusState var isFocused: Bool
     
     private var coreInfo: [EditPreview] {
-        guard let u = dep.userManager.user else { return [] }
+        let u = dep.userManager.user
         return [
             .init("Name", [u.name ?? ""], {TextFieldEdit(field: ProfileFields.editName(dep:dep))}),
             .init("Sex", [u.sex ?? ""], {OptionEditView(field: ProfileFields.editSex(dep:dep))}),
@@ -24,7 +24,7 @@ struct InfoView: View {
     }
     
     private var aboutMe: [EditPreview] {
-        guard let u = dep.userManager.user else { return [] }
+        let u = dep.userManager.user
         
         let lifestyle = "Drinking:  \(u.drinking?.lowercased() ?? "-"), " + "Smoking:  \(u.smoking?.lowercased() ?? "-"), " + "Marijuana: \(u.marijuana?.lowercased() ?? "-"), " + "Drugs:  \(u.drugs?.lowercased() ?? "-")"
         let myLifeAs: [String] = {

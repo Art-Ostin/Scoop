@@ -10,7 +10,7 @@ import SwiftUI
 
 struct EditPrompt: View {
     
-    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
     
     @FocusState var isFocused: Bool
@@ -41,7 +41,8 @@ struct EditPrompt: View {
             
         .onAppear {
             isFocused = true
-            if let user = dependencies.userManager.user {
+            let user = dep.userManager.user
+
                 let promptData: PromptResponse?
                 switch promptIndex {
                 case 1: promptData = user.prompt1
@@ -51,7 +52,6 @@ struct EditPrompt: View {
                 }
                 selectedPrompt = promptData?.prompt ?? prompts.randomElement() ?? ""
                 selectedText = promptData?.response ?? ""
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .flowNavigation()
@@ -118,16 +118,16 @@ extension EditPrompt {
     }
 
     private func updatePrompt() {
+        let user = dep.userManager.user
         
-        guard let user = dependencies.userManager.user else { return }
         let prompt = PromptResponse(prompt: selectedPrompt, response: selectedText)
         Task {
-            try? await dependencies.profileManager.updatePrompt(
+            try? await dep.userManager.updatePrompt(
                 userId: user.userId,
                 promptIndex: promptIndex,
                 prompt: prompt
             )
-            try? await dependencies.userManager.loadUser()
+            try? await dep.userManager.loadUser()
         }
     }
 }

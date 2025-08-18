@@ -12,7 +12,7 @@ import FirebaseFirestore
 
 struct EditInterests: View {
     
-    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
 
     @State var selected: [String] = []
@@ -59,8 +59,8 @@ struct EditInterests: View {
         }
         .flowNavigation()
         .task {
-            selected = dependencies.userManager.user?.interests
-            ?? dependencies.userManager.user?.character
+            selected = dep.userManager.user.interests
+            ?? dep.userManager.user.character
             ?? []
         }
     }
@@ -98,11 +98,11 @@ struct InterestSection: View {
     let title: String?
     let image: String?
     
-    @Environment(\.appDependencies) private var dependencies: AppDependencies
+    @Environment(\.appDependencies) private var dep: AppDependencies
 
     
     private func interestIsSelected (text: String) -> Bool {
-        dependencies.userManager.user?.interests?.contains(text) == true
+        dep.userManager.user.interests?.contains(text) == true
     }
     @Binding var selected: [String]
     
@@ -133,9 +133,9 @@ struct InterestSection: View {
 
                     Task {
                         if interestIsSelected(text: text) {
-                            try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayRemove([text])])
+                            try await dep.userManager.updateUser(values: [.interests : FieldValue.arrayRemove([text])])
                         } else {
-                            try await dependencies.profileManager.update(values: [.interests : FieldValue.arrayUnion([text])])
+                            try await dep.userManager.updateUser(values: [.interests : FieldValue.arrayUnion([text])])
                         }
                     }
                 }
