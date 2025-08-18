@@ -16,21 +16,12 @@ struct Bootstrapper {
     
     func start () async {
         
-        
-        
         do {
-            
-            
-            let authUser = try dep.authManager.getAuthenticatedUser()
-             
-            try await dep.userManager.loadUser(for: authUser)
-            
-            appState = .app
-            
+            try await dep.userManager.loadUser()
             Task(priority: .utility) {
                 await prefetch()
             }
-            
+            appState = .app
         } catch {
             appState = .login
         }

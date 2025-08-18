@@ -12,25 +12,25 @@ import FirebaseFirestore
 @Observable
 class UserManager {
     
-    @ObservationIgnored private let auth: AuthenticationManaging
-    init(auth: AuthenticationManaging) { self.auth = auth }
+    @ObservationIgnored private let auth: AuthManaging
+    init(auth: AuthManaging) { self.auth = auth }
         
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
-    
+
     private(set) var user: UserProfile? = nil
-    
+
     
     @MainActor
     func loadUser() async throws {
-        let uid = try auth.getAuthenticatedUser().uid
+        let uid = try auth.fetchAuthUser().uid
         let profile = try await fetchProfile(userId: uid)
         self.user = profile
     }
     
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
-        let uid = try auth.getAuthenticatedUser().uid
+        let uid = try auth.fetchAuthUser().uid
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value }
         try await userDocument(userId: uid).updateData(data)
@@ -48,7 +48,7 @@ class UserManager {
         let encoded = try Firestore.Encoder().encode(prompt)
         try await updateUser(values: [key: encoded])
     }
-    
+        
     func createProfile (profile: UserProfile) async throws {
         try userDocument(userId: profile.userId).setData(from: profile)
     }

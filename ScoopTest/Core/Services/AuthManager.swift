@@ -22,11 +22,9 @@ struct AuthenticatedUser {
 }
 
 @Observable class AuthManager: AuthManaging {
-    
     let userManager: UserManager
     
     init(userManager: UserManager) { self.userManager = userManager }
-    
     
     func createAuthUser(email: String, password: String ) async throws {
         let authUser = try await Auth.auth().createUser(withEmail: email, password: password)
@@ -43,7 +41,6 @@ struct AuthenticatedUser {
         guard let authData = Auth.auth().currentUser else { throw URLError(.badServerResponse) }
         return AuthenticatedUser(user: authData)
     }
-    
     func signOutAuthUser() throws {
         try Auth.auth().signOut()
     }

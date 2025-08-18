@@ -12,10 +12,10 @@ import FirebaseStorage
 import UIKit
 
 
-protocol AuthenticationManaging {
+protocol AuthManaging {
     func createAuthUser(email: String, password: String) async throws
     func signInAuthUser(email: String, password: String) async throws
-    func getAuthUser() throws -> AuthenticatedUser
+    func fetchAuthUser() throws -> AuthenticatedUser
     func signOutAuthUser() throws
 }
 

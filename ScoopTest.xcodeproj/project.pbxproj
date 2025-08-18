@@ -90,7 +90,7 @@
 		65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8EE2E4E5CC90093410B /* IntroView.swift */; };
 		65E5C8F22E4E79550093410B /* TabSelectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8F12E4E79550093410B /* TabSelectionKey.swift */; };
 		65E5C8FA2E4EAAE70093410B /* SendInvitePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8F92E4EAAE70093410B /* SendInvitePopup.swift */; };
-		65E5C9182E4FF90C0093410B /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C9172E4FF90C0093410B /* AppBootstrapper.swift */; };
+		65E5C9182E4FF90C0093410B /* AppLaunchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C9172E4FF90C0093410B /* AppLaunchCoordinator.swift */; };
 		65E5C91A2E50E7700093410B /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C9192E50E7700093410B /* SessionManager.swift */; };
 		65E5C91E2E5100FC0093410B /* CycleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C91D2E5100FC0093410B /* CycleModel.swift */; };
 		65E5C9202E510BBA0093410B /* CycleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C91F2E510BBA0093410B /* CycleManager.swift */; };
@@ -222,7 +222,7 @@
 		65E5C8EE2E4E5CC90093410B /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
 		65E5C8F12E4E79550093410B /* TabSelectionKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSelectionKey.swift; sourceTree = "<group>"; };
 		65E5C8F92E4EAAE70093410B /* SendInvitePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInvitePopup.swift; sourceTree = "<group>"; };
-		65E5C9172E4FF90C0093410B /* AppBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBootstrapper.swift; sourceTree = "<group>"; };
+		65E5C9172E4FF90C0093410B /* AppLaunchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchCoordinator.swift; sourceTree = "<group>"; };
 		65E5C9192E50E7700093410B /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		65E5C91D2E5100FC0093410B /* CycleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleModel.swift; sourceTree = "<group>"; };
 		65E5C91F2E510BBA0093410B /* CycleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleManager.swift; sourceTree = "<group>"; };
@@ -516,7 +516,7 @@
 				659497172E01DD4000880921 /* ScoopTestApp.swift */,
 				6561C8B12E035BC6006A72DF /* RootView.swift */,
 				659496FE2E01DD4000880921 /* AppContainer.swift */,
-				65E5C9172E4FF90C0093410B /* AppBootstrapper.swift */,
+				65E5C9172E4FF90C0093410B /* AppLaunchCoordinator.swift */,
 				65E820B02E3901080098CC36 /* Core */,
 				659497012E01DD4000880921 /* Main */,
 			);
@@ -845,7 +845,7 @@
 				6537704E2E0A10DC0058D225 /* PromptResponseView.swift in Sources */,
 				654C00932E3549EA00FFD504 /* UserModel.swift in Sources */,
 				65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */,
-				65E5C9182E4FF90C0093410B /* AppBootstrapper.swift in Sources */,
+				65E5C9182E4FF90C0093410B /* AppLaunchCoordinator.swift in Sources */,
 				6594972B2E01DD4000880921 /* SignUpView.swift in Sources */,
 				6522EF272E1EFDE6004531F9 /* EditProfileView.swift in Sources */,
 				653A78CA2E15EB490098747F /* MapSearchView.swift in Sources */,
