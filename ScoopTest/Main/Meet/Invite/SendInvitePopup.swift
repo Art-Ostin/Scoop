@@ -133,7 +133,7 @@ extension SendInvitePopup {
         let time = vm.event.time
         
         return HStack {
-            if time != nil { Text(vm.dep.eventManager.formatTime(date: time)).font(.body(18))
+            if time != nil { Text(formatTime(date: time)).font(.body(18))
             } else {Text("Time").font(.body(20, .bold))}
             
             Spacer()

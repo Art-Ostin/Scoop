@@ -34,7 +34,6 @@ struct EventFormatter: View {
                 .multilineTextAlignment(isMessage ? .leading : .center)
                 .lineSpacing(isMessage ? 4 : 12)
             
-            
             if let message = event.message {
                 Text (message)
                     .font(.body(.italic))
@@ -42,13 +41,13 @@ struct EventFormatter: View {
             }
         }
     }
+}
+
+func formatTime(date: Date?) -> String {
+    guard let date = date else { return "" }
+    let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
+    let weekDay = date.formatted(.dateTime.weekday(.wide))
+    let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
     
-    func formatTime(date: Date?) -> String {
-        guard let date = date else { return "" }
-        let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
-        let weekDay = date.formatted(.dateTime.weekday(.wide))
-        let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
-        
-        return "\(weekDay) (\(dayOfMonth)) \(time)"
-    }
+    return "\(weekDay) (\(dayOfMonth)) \(time)"
 }
