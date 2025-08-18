@@ -76,9 +76,8 @@ import FirebaseFirestore
         let docRef = try cyclesCollection().addDocument(from: cycle)
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
-        
-        
         try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: id])
+   
     }
     
     private func createRecommendedProfiles(cycleId: String) async throws {
@@ -144,10 +143,17 @@ import FirebaseFirestore
     }
     
     func loadProfileRecsChecker () async throws -> Bool {
-        guard user.user?.activeCycleId != nil else {
+        
+        guard let user = user.user else {
+            print("No user found")
+            return false
+        }
+        
+        guard user.activeCycleId != nil else {
             print("User cycle is empty")
             return false
         }
+        
         let doc = try await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
         let timeRefresh = doc.autoRemoveAt.dateValue()

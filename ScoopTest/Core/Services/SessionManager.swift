@@ -61,7 +61,15 @@ struct EventInvite {
             print("no profiles to load")
             return
         }
-        showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
+        
+        do {
+            showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
+        } catch {
+            print("Could not save issue")
+        }
+        
+        
+        
         profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
     }
