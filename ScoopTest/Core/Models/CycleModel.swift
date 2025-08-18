@@ -38,9 +38,7 @@ struct RecommendationCycle: Identifiable, Codable, Sendable{
         case endsAt
         case autoRemoveAt
     }
-    
 }
-
 
 struct RecommendationItem: Identifiable, Codable, Sendable{
     var id: String // = profileId
@@ -57,7 +55,6 @@ struct RecommendationItem: Identifiable, Codable, Sendable{
         case addedDay
         case actedAt
     }
-
 }
 
 

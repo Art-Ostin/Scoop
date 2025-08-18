@@ -63,6 +63,7 @@ struct EventInvite {
         showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
         profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
+        print("Loaded profles called")
     }
     
 }

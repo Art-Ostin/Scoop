@@ -77,6 +77,7 @@ import FirebaseFirestore
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
     }
+    
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != currentUserId}
@@ -100,6 +101,7 @@ import FirebaseFirestore
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
     
     func fetchPendingCycleRecommendations() async throws -> [EventInvite] {
+        print("Fetched recs sucessfully")
         let ids = try await recommendationsCollection(cycleId: activeCycleId)
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
                         isEqualTo: RecommendationStatus.pending.rawValue)

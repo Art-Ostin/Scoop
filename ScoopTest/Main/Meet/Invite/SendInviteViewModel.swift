@@ -13,9 +13,6 @@ import Foundation
     let dep: AppDependencies
     var event: Event
     
-    
-    
-    
 
     init(recipient: UserProfile, dep: AppDependencies) {
         self.recipient = recipient
@@ -28,17 +25,8 @@ import Foundation
     var showTimePopup: Bool = false
     var showMapView: Bool = false
     
-    
     func sendInvite() async throws {
-        try await dep.cycleManager.updateForInviteSent(profileId: recipient.userId)
+        try await dep.cycleManager.inviteSent(profileId: recipient.userId)
         try await dep.eventManager.createEvent(event: event)
     }
-    
-    func acceptInvite() async throws {
-        
-    }
-    
-    
-    
-    
 }

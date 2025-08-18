@@ -13,10 +13,8 @@ import SwiftUI
 
 @Observable class CacheManager: CacheManaging  {
     
-    
-    
     private let cache: NSCache<NSURL, UIImage>
-    
+
     init() {
         cache = NSCache<NSURL, UIImage>()
         cache.countLimit = 100

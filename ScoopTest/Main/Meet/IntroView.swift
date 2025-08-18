@@ -26,9 +26,10 @@ struct IntroView: View {
             ActionButton(text: "2 Daily Profiles") {
                 Task {
                     try await vm.dep.cycleManager.createCycle()
-                    vm.showWeeklyRecs = true
                     try await vm.dep.sessionManager.loadprofileRecs()
+                    await vm.dep.sessionManager.loadProfileInvites()
                 }
+                vm.showWeeklyRecs = true
             }
         }
     }
