@@ -14,7 +14,6 @@ import Foundation
 
 final class DefaultsManager {
     
-    private let firestoreManager: ProfileManaging
     private let cacheManager: CacheManaging
     
     private let defaults: UserDefaults
@@ -24,9 +23,8 @@ final class DefaultsManager {
         case suggestedProfiles
     }
     
-    init(defaults: UserDefaults, firesoreManager: ProfileManaging, cacheManager: CacheManaging) {
+    init(defaults: UserDefaults, cacheManager: CacheManaging) {
         self.defaults = defaults
-        self.firestoreManager = firesoreManager
         self.cacheManager = cacheManager
     }
     

@@ -23,9 +23,8 @@ import SwiftUI
     
     @discardableResult
     func fetchAuthUser () throws -> String {
-        guard let authData = Auth.auth().currentUser else { throw URLError(.badServerResponse) }
+        guard let authData = Auth.auth().currentUser else { throw }
         return authData.uid
     }
-    
 }
 

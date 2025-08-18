@@ -10,14 +10,13 @@ import FirebaseStorage
 import UIKit
 import SwiftUI
 
-@Observable class StorageManager: StorageManaging {
+class StorageManager: StorageManaging {
     
-    @ObservationIgnored private let userManager: UserManager
+    private let user: UserProfile
+    init(user: UserProfile) { self.user = user}
+    
     private let storage = Storage.storage().reference()
-
-    init(user: UserManager) {
-        self.userManager = user
-    }
+    
     
     func imagePath(_ path: String) -> StorageReference {
         storage.child(path)
@@ -29,9 +28,8 @@ import SwiftUI
     }
     
     func saveImage(data: Data) async throws -> String {
-        guard let userId = userManager.user?.userId else {return ""}
         let filename = "\(UUID().uuidString).jpeg"
-        let path = "users/\(userId)/\(filename)"
+        let path = "users/\(user.userId)/\(filename)"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)

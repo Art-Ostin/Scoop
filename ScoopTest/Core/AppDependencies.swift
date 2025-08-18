@@ -12,56 +12,50 @@ import SwiftUI
 @Observable
 final class AppDependencies {
     
-    let authManager: AuthenticationManaging
-    let profileManager: ProfileManaging
-    let storageManager: StorageManaging
+    let authManager: AuthManaging
     let cacheManager: CacheManaging
     let userManager: UserManager
-    let eventManager: EventManager
     let defaultsManager: DefaultsManager
-    let cycleManager: CycleManager
-    let sessionManager: SessionManager
+    
+    private(set) var storageManager: StorageManaging!
+    private(set) var eventManager: EventManager!
+    private(set) var cycleManager: CycleManager!
+    private(set) var sessionManager: SessionManager!
     
     
     init(
-        authManager: AuthenticationManaging? = nil,
-        storageManager: StorageManaging? = nil,
+        authManager: AuthManaging? = nil,
         cacheManager: CacheManaging? = nil,
-        eventManager: EventManager? = nil,
         userManager: UserManager? = nil,
-        defaultsManager: DefaultsManager? = nil,
-        cycleManager: CycleManager? = nil,
-        sessionManager: SessionManager? = nil
+        defaultsManager: DefaultsManager? = nil
 
     ) {
-        let auth = authManager ?? AuthManager(profile: profile)
+        let auth = authManager ?? AuthManager()
         let cache = cacheManager ?? CacheManager()
-        let userManager = userManager ?? UserManager(auth: auth, profile: profile)
-        let eventManager = eventManager ?? EventManager(user: userManager, profile: profile)
-        let storage = storageManager ?? StorageManager(user: userManager)
-        let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, firesoreManager: profile, cacheManager: cache)
-        let cycleManager = cycleManager ?? CycleManager(user: userManager, profileManager: profile, cacheManager: cache)
-        let sessionManager = sessionManager ?? SessionManager(eventManager: eventManager, cacheManager: cache, profileManager: profile, userManager: userManager, cycleManager: cycleManager)
-        cycleManager.configure(session: sessionManager)
-
-
+        let userManager = userManager ?? UserManager(auth: auth)
+        let defaultsManager = defaultsManager ?? DefaultsManager(defaults: .standard, cacheManager: cache)
         self.authManager = auth
-        self.profileManager = profile
         self.cacheManager = cache
-        self.storageManager = storage
         self.userManager = userManager
-        self.eventManager = eventManager
         self.defaultsManager = defaultsManager
-        self.cycleManager = cycleManager
-        self.sessionManager = sessionManager
-
     }
+    
+    func configure(currentUser: CurrentUser) {
+        let storage = StorageManager(user: currentUser.user)
+        let event = EventManager(user: currentUser.user, userManager: userManager)
+        let cycle = CycleManager(user: currentUser.user, cacheManager: cacheManager, userManager: userManager)
+        let sessionManager = SessionManager(user: currentUser.user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
+        self.storageManager = storage
+        self.eventManager = event
+        self.cycleManager = cycle
+        self.sessionManager = sessionManager
 }
 
 private struct AppDependenciesKey: EnvironmentKey {
     static let defaultValue = AppDependencies()
 }
 
+    
 extension EnvironmentValues {
     var appDependencies: AppDependencies {
         get { self[AppDependenciesKey.self] }

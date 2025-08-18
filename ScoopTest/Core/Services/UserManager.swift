@@ -9,19 +9,16 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-
-
-struct UserSession {
+struct CurrentUser {
     let user: UserProfile
 }
 
 
-@MainActor
 class UserManager {
     
     private let auth: AuthManaging
     init(auth: AuthManaging) { self.auth = auth }
-        
+    
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
@@ -30,23 +27,21 @@ class UserManager {
         let profileUser = UserProfile(auth: authUser)
         try userDocument(userId: uid).setData(from: profileUser)
     }
-    
-    func startSession() async throws -> UserSession {
+    func loadUser() async throws -> CurrentUser {
         let uid = try auth.fetchAuthUser()
         let profile = try await fetchUser(userId: uid)
-        return UserSession(user: profile)
+        return CurrentUser(user: profile)
     }
-    
-    func updateCurrentUser(values: [UserProfile.CodingKeys : Any]) async throws {
+    func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value }
         try await userDocument(userId: uid).updateData(data)
-        try? await loadCurrentUser()
     }
     func fetchUser(userId: String) async throws -> UserProfile {
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
+    
 }
 
 

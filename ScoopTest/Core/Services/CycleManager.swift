@@ -12,45 +12,21 @@ import FirebaseFirestore
 final class CycleManager {
     
     private let user: UserProfile
-    
-    
-    
-    
-    private let profileManager: ProfileManaging
-    private var session: SessionManager?
+    private var sessionManager: SessionManager?
     private var cacheManager: CacheManaging
+    private var userManager: UserManager?
     
-    init(session: UserSession, profileManager: ProfileManaging, cacheManager: CacheManaging,  session: SessionManager? = nil) {
-        self.user = session.user 
-        self.profileManager = profileManager
+    
+    init(user: UserProfile, cacheManager: CacheManaging,  sessionManager: SessionManager? = nil, userManager: UserManager) {
+        self.user = user
         self.cacheManager = cacheManager
-        self.session = session
+        self.userManager = userManager
+        self.sessionManager = sessionManager
     }
     
-    
-    func configure(session: SessionManager) {
-        self.session = session
-    }
-    
-    //UserId and the activeCycleId for editing and referencing
-    private var currentUserId: String? {
-        user.user?.id
-    }
-    
-    private var currentUser: UserProfile? {
-        user.user
-    }
     
     private var activeCycleId: String {
-        guard (currentUser != nil) else {
-            print("No user ID found")
-        }
-        
-        if let cycleID = currentUser?.activeCycleId {
-            return cycleID
-        } else {
-            print("No id was found at point")
-        }
+        user.activeCycleId ?? ""
     }
     
     //Document and collection Navigations
@@ -58,7 +34,7 @@ final class CycleManager {
     private let users = Firestore.firestore().collection("users")
     
     private func cyclesCollection () -> CollectionReference {
-        users.document(currentUserId).collection("recommendation_cycles")
+        users.document(user.userId).collection("recommendation_cycles")
     }
     
     private func cycleDocument(cycleId: String) -> DocumentReference {
@@ -91,7 +67,7 @@ final class CycleManager {
         let docRef = try cyclesCollection().addDocument(from: cycle)
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
-        try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: id])
+        try await userManager.update(values: [UserProfile.CodingKeys.activeCycleId: id])
         
     }
     
@@ -143,7 +119,7 @@ final class CycleManager {
     func deleteCycle() async throws {
         updateCycle(key: RecommendationCycle.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
         
-        try await profileManager.update(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
+        try await userManager.update(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
     
     func inviteSent(profileId: String) async throws {

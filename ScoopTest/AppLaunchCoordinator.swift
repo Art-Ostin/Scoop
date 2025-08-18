@@ -17,7 +17,9 @@ struct Bootstrapper {
     func start () async {
         
         do {
-            try await dep.userManager.loadUser()
+            let session = try await dep.userManager.startSession()
+            dep.configure(session: session)
+
             Task(priority: .utility) {
                 await prefetch()
             }
@@ -31,8 +33,6 @@ struct Bootstrapper {
     @MainActor
     func prefetch() async {
         Task {
-            
-            try? await dep.userManager.loadUser()
             do {
                 try await dep.sessionManager.loadprofileRecs()
             } catch {

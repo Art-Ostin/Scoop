@@ -20,24 +20,22 @@ struct EventInvite {
 
 @Observable final class SessionManager {
     
+    private let user: UserProfile
+    
     @ObservationIgnored private let eventManager: EventManager
     @ObservationIgnored private let cacheManager: CacheManaging
-    @ObservationIgnored private let profileManager: ProfileManaging
     @ObservationIgnored private let userManager: UserManager
     @ObservationIgnored private let cycleManager: CycleManager
     
     
-    init(eventManager: EventManager, cacheManager: CacheManaging, profileManager: ProfileManaging, userManager: UserManager, cycleManager: CycleManager) {
+    init(user: UserProfile, eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
-        self.profileManager = profileManager
         self.userManager = userManager
         self.cycleManager = cycleManager
+        self.user = user
     }
     
-    var currentUser: UserProfile? {
-        userManager.user
-    }
 
     var profileRecs: [EventInvite] = []
     var profileInvites: [EventInvite] = []
@@ -67,8 +65,6 @@ struct EventInvite {
         } catch {
             print("Could not save issue")
         }
-        
-        
         
         profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}

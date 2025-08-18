@@ -9,20 +9,16 @@ import Foundation
 import FirebaseFirestore
 import SwiftUI
 
-
-
-@Observable
 class EventManager {
     
-    @ObservationIgnored private let user: UserManager
+    private let user: UserProfile
+    private let userManager: UserManager
     
-    init (user: UserManager) { self.user = user }
     
-    
-    private var currentId: String? {
-        user.user?.userId
+    init(user: UserProfile, userManager: UserManager) {
+        self.user = user
+        self.userManager = userManager
     }
-
     
     private let eventCollection = Firestore.firestore().collection("events")
     private let userCollection = Firestore.firestore().collection("users")
@@ -52,28 +48,24 @@ class EventManager {
         let eventId = eventRef.documentID
         
         
-        guard let initiatorId = currentId,
-              let recipientId = event.recipientId else {
-            print("failed to get user")
-            throw URLError(.userAuthenticationRequired)
-        }
+        guard let recipientId = event.recipientId else { return }
         
         var e = event
         e.id = eventId
-        e.initiatorId = initiatorId
+        e.initiatorId = user.userId
         
-        let recipientProfile = try await user.fetchProfile(userId: recipientId)
+        let recipientProfile = try await userManager.fetchUser(userId: recipientId)
         let recipientName = recipientProfile.name ?? ""
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
         
-        let inviterProfile = user.user
-        let inviterName = inviterProfile?.name ?? ""
-        let inviterImageString = inviterProfile?.imagePathURL?.first ?? ""
+        let inviterProfile = user
+        let inviterName = user.name ?? ""
+        let inviterImageString = user.imagePathURL?.first ?? ""
         
         
         var eventData: [String: Any] = [
             Event.CodingKeys.id.stringValue: eventId,
-            Event.CodingKeys.initiatorId.stringValue: initiatorId,
+            Event.CodingKeys.initiatorId.stringValue: user.userId,
             Event.CodingKeys.recipientId.stringValue: recipientId,
             Event.CodingKeys.type.stringValue: e.type ?? "",
             Event.CodingKeys.message.stringValue: e.message ?? "",
@@ -110,14 +102,14 @@ class EventManager {
             return data
         }
         
-        let initiatorEdgeRef = db.collection("users").document(initiatorId)
+        let initiatorEdgeRef = db.collection("users").document(user.userId)
             .collection("user_events").document(eventId)
         let recipientEdgeRef = db.collection("users").document(recipientId)
             .collection("user_events").document(eventId)
         
         
         let edgeA = try edgeData(otherUserId: recipientId, role: .sent, otherName: recipientName, otherPhoto: recipientImageString)
-        let edgeB = try edgeData(otherUserId: initiatorId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
+        let edgeB = try edgeData(otherUserId: user.userId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
         
         batch.setData(eventData, forDocument: eventRef)
         batch.setData(edgeA, forDocument: initiatorEdgeRef)
@@ -126,10 +118,9 @@ class EventManager {
         try await batch.commit()
     }
     
-    
     private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
         
-        guard let uid = currentId else { throw URLError(.userAuthenticationRequired) }
+        let uid = user.userId
         
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
