@@ -12,11 +12,8 @@ import FirebaseAuth
 
 @Observable class EmailVerificationViewModel {
     
-    private let authManager: AuthenticationManaging
-    
-    init (authManager: AuthenticationManaging) {
-        self.authManager = authManager
-    }
+    private let dep: AppDependencies
+    init (dep: AppDependencies) { self.dep = dep }
     
     func authoriseEmail(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
@@ -31,10 +28,11 @@ import FirebaseAuth
     var password: String = "HelloWorld"
     
     func createUser (email: String, password: String) async throws {
-        try await authManager.createUser(email: email, password: password)
+        let authData = try await dep.authManager.createAuthUser(email: email, password: password)
+        try await dep.userManager.createUser(authUser: authData)
     }
     
     func signInUser(email: String, password: String) async throws {
-        try await authManager.signInUser(email: email, password: password)
+        try await dep.authManager.signInAuthUser(email: email, password: password)
     }
 }

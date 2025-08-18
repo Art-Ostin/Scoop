@@ -110,6 +110,7 @@ struct EmailVerificationView: View {
                     return appState.wrappedValue = .app
                 } catch {
                     try? await vm.createUser(email: vm.email, password: vm.password)
+                    
                     showEmail = false
                 }
             }

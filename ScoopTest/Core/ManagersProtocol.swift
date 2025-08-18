@@ -13,9 +13,9 @@ import UIKit
 
 
 protocol AuthManaging {
-    func createAuthUser(email: String, password: String) async throws
+    func createAuthUser(email: String, password: String) async throws -> AuthDataResult
     func signInAuthUser(email: String, password: String) async throws
-    func fetchAuthUser() throws -> AuthenticatedUser
+    func fetchAuthUser() throws -> String
     func signOutAuthUser() throws
 }
 
