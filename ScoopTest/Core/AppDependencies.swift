@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 
-@Observable
 final class AppDependencies {
     
     let authManager: AuthManaging
@@ -22,13 +21,12 @@ final class AppDependencies {
     private(set) var cycleManager: CycleManager!
     private(set) var sessionManager: SessionManager!
     
-    
     init(
         authManager: AuthManaging? = nil,
         cacheManager: CacheManaging? = nil,
         userManager: UserManager? = nil,
         defaultsManager: DefaultsManager? = nil
-
+        
     ) {
         let auth = authManager ?? AuthManager()
         let cache = cacheManager ?? CacheManager()
@@ -40,22 +38,23 @@ final class AppDependencies {
         self.defaultsManager = defaultsManager
     }
     
-    func configure(currentUser: CurrentUser) {
-        let storage = StorageManager(user: currentUser.user)
-        let event = EventManager(user: currentUser.user, userManager: userManager)
-        let cycle = CycleManager(user: currentUser.user, cacheManager: cacheManager, userManager: userManager)
-        let sessionManager = SessionManager(user: currentUser.user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
+    func configure(user: UserProfile) {
+        let storage = StorageManager(user: user)
+        let event = EventManager(user: user, userManager: userManager)
+        let cycle = CycleManager(user: user, cacheManager: cacheManager, userManager: userManager)
+        let sessionManager = SessionManager(user: user, eventManager: eventManager, cacheManager: cacheManager, userManager: userManager, cycleManager: cycleManager)
         self.storageManager = storage
         self.eventManager = event
         self.cycleManager = cycle
         self.sessionManager = sessionManager
+    }
 }
 
 private struct AppDependenciesKey: EnvironmentKey {
     static let defaultValue = AppDependencies()
 }
 
-    
+
 extension EnvironmentValues {
     var appDependencies: AppDependencies {
         get { self[AppDependenciesKey.self] }

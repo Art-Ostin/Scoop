@@ -9,10 +9,6 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-struct CurrentUser {
-    let user: UserProfile
-}
-
 
 class UserManager {
     
@@ -27,11 +23,12 @@ class UserManager {
         let profileUser = UserProfile(auth: authUser)
         try userDocument(userId: uid).setData(from: profileUser)
     }
-    func loadUser() async throws -> CurrentUser {
+    
+    func loadUser() async throws -> UserProfile {
         let uid = try auth.fetchAuthUser()
-        let profile = try await fetchUser(userId: uid)
-        return CurrentUser(user: profile)
+        return try await fetchUser(userId: uid)
     }
+    
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
         var data: [String: Any] = [:]

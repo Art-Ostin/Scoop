@@ -17,8 +17,8 @@ struct Bootstrapper {
     func start () async {
         
         do {
-            let session = try await dep.userManager.startSession()
-            dep.configure(session: session)
+            let user = try await dep.userManager.loadUser()
+            dep.configure(user: user)
 
             Task(priority: .utility) {
                 await prefetch()
