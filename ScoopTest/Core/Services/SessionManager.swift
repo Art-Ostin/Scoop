@@ -58,12 +58,12 @@ struct EventInvite {
     func loadprofileRecs () async throws {
         guard try await cycleManager.loadProfileRecsChecker() else {
             showProfileRecommendations = false
+            print("no profiles to load")
             return
         }
         showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
         profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
-        print("Loaded profles called")
     }
     
 }

@@ -27,7 +27,17 @@ struct Bootstrapper {
     @MainActor
     func prefetch() async {
         print("Step 1: Prefeched called")
-        Task {try? await dep.sessionManager.loadprofileRecs()}
+        
+        Task {
+            do{
+                print("loaded profiles epon launch")
+                try await dep.sessionManager.loadprofileRecs()
+            } catch {
+                print("error loading profile recs")
+                print(error)
+            }
+        }
+        
         Task {await dep.sessionManager.loadProfileInvites()}
         Task {try? await dep.userManager.loadUser()}
     }

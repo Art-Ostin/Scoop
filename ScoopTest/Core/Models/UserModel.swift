@@ -86,7 +86,7 @@ struct UserProfile: Codable, Equatable {
         case character = "character"
         case imagePath = "image_path"
         case imagePathURL = "image_path_url"
-        case activeCycleId = "weekly_recs_id"
+        case activeCycleId = "active_cycle_id"
     }
     
     init(from decoder: any Decoder) throws {

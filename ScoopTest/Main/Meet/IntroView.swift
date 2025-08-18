@@ -27,7 +27,6 @@ struct IntroView: View {
                 print("Button called")
                 Task {
                     do {
-                        
                         try await vm.dep.cycleManager.createCycle()
                     }catch {
                         print(error)
@@ -42,7 +41,6 @@ struct IntroView: View {
                         print("Loaded profiles failed")
 
                     }
-                    await vm.dep.sessionManager.loadProfileInvites()
                 }
                 vm.showWeeklyRecs = true
             }
