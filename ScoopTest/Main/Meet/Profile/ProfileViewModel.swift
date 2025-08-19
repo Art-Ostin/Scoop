@@ -12,22 +12,18 @@ enum ProfileType {
 }
 
 @Observable class ProfileViewModel {
-
     
     let cacheManager: CacheManaging
     var p: UserProfile
     var event: UserEvent?
     var profileType: ProfileType
-    let profilePicture: UIImage
-    
     var showInvite: Bool = false
     
-    init(profile: UserProfile, profileType: ProfileType = .sendInvite, event: UserEvent? = nil, cacheManager: CacheManaging, profilePicture: UIImage) {
-        self.p = profile
+    init(profileInvite: ProfileInvite, profileType: ProfileType = .sendInvite, cacheManager: CacheManaging) {
+        self.p = profileInvite.profile
+        self.event = profileInvite.event
         self.profileType = profileType
-        self.event = event
         self.cacheManager = cacheManager
-        self.profilePicture = profilePicture
     }
     
     func loadImages() async -> [UIImage] {

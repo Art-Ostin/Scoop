@@ -10,7 +10,7 @@ import SwiftUI
 struct MeetView: View {
     
     @State var vm: MeetViewModel
-    @State var selectedProfile: EventInvite?
+    @State var selectedProfile: ProfileInvite?
     
     init(vm: MeetViewModel) {
         _vm = State(initialValue: vm)
@@ -25,7 +25,7 @@ struct MeetView: View {
                 clockView
             }
             if let selectedProfile = selectedProfile {
-                profileRecView(profile: selectedProfile.profile, event: selectedProfile.event)
+                profileRecView(profileInvite: selectedProfile)
             }
         }
         .padding(.top, 36)
@@ -39,7 +39,7 @@ extension MeetView {
     private var tabView: some View {
         TabView {
             ForEach(vm.fetchWeeklyInvites(), id: \.id) {invite in
-                ProfileCard(vm: $vm, event: invite.event, profile: invite.profile, selectedProfile: $selectedProfile)
+                ProfileCard(vm: $vm, profileInvite: ProfileInvite: invite.event, profile: invite.profile, selectedProfile: $selectedProfile)
             }
             if !vm.showProfileRecommendations() {
                 IntroView(vm: $vm)
@@ -53,26 +53,24 @@ extension MeetView {
     }
 
     
-    private func profileRecView(profile: UserProfile, event: UserEvent? = nil) -> some View {
+    private func profileRecView(profileInvite: ProfileInvite) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .ignoresSafeArea()
                 .onTapGesture { }
             
-            if let event = event {
-                ProfileView(vm: ProfileViewModel(profile: profile, event: event, cacheManager: vm.cacheManager)) {
-                    withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
-                }
-             } else {
-                 ProfileView(vm: ProfileViewModel(profile: profile, cacheManager: vm.cacheManager)) {
-                    withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
-                }
+            ProfileView(vm: ProfileViewModel(profileInvite: profileInvite, cacheManager: vm.cacheManager)) {
+                withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
             }
         }
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
+    
+    
+    
+    
     
     @ViewBuilder private var clockView: some View {
         if !vm.showRespondToProfilesToRefresh() {

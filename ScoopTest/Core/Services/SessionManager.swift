@@ -9,15 +9,6 @@ import Foundation
 import SwiftUI
 
 
-
-struct EventInvite {
-    var event: UserEvent?
-    var profile: UserProfile
-    var image: UIImage?
-    var id: String { profile.userId}
-}
-
-
 final class SessionManager {
     
     private let eventManager: EventManager
@@ -34,8 +25,8 @@ final class SessionManager {
     }
     
 
-    var profileRecs: [EventInvite] = []
-    var profileInvites: [EventInvite] = []
+    var profileRecs: [ProfileInvite] = []
+    var profileInvites: [ProfileInvite] = []
     
     var showProfileRecommendations: Bool = true
     var showRespondToProfilesToRefresh: Bool = false

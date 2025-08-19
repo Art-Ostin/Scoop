@@ -85,14 +85,13 @@ final class CycleManager {
     
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
     
-    func fetchPendingCycleRecommendations() async throws -> [EventInvite] {
+    func fetchPendingCycleRecommendations() async throws -> [ProfileInvite] {
         print("Fetched recs sucessfully")
         let ids = try await recommendationsCollection(cycleId: activeCycleId)
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
                         isEqualTo: RecommendationStatus.pending.rawValue)
             .getDocuments(as: RecommendationItem.self)
             .map(\.id)
-        
         let data = ids.map { (id: $0, event: nil as UserEvent?) }
         return await inviteLoader(data: data)
     }
@@ -147,13 +146,13 @@ final class CycleManager {
     }
     
         
-    func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [EventInvite] {
-        return await withTaskGroup(of: EventInvite?.self, returning: [EventInvite].self) { group in
+    func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileInvite] {
+        return await withTaskGroup(of: ProfileInvite?.self, returning: [ProfileInvite].self) { group in
             for item in data {
                 group.addTask {
                     guard let profile = try? await self.userManager.fetchUser(userId: item.id) else { return nil }
                     let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
-                    return EventInvite(event: item.event, profile: profile, image: image ?? UIImage())
+                    return ProfileInvite(event: item.event, profile: profile, image: image ?? UIImage())
                 }
             }
             return await group.reduce(into: []) {result, element  in

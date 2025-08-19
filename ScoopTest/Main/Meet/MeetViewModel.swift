@@ -15,8 +15,6 @@ import UIKit
     let cacheManager: CacheManaging
     
     
-    // Dependencies used: (1) SessionManager (2) CycleManager (3) UserManager
-    
     init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging) {
         self.cycleManager = cycleManager
         self.sessionManager = sessionManager
@@ -27,11 +25,11 @@ import UIKit
         try await cycleManager.fetchCycle()
     }
     
-    func fetchWeeklyRecs() -> [EventInvite] {
+    func fetchWeeklyRecs() -> [ProfileInvite] {
         sessionManager.profileRecs
     }
     
-    func fetchWeeklyInvites() -> [EventInvite] {
+    func fetchWeeklyInvites() -> [ProfileInvite] {
         sessionManager.profileInvites
     }
     

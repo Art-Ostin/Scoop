@@ -10,37 +10,22 @@ import SwiftUI
 struct ProfileCard : View {
     
     @Binding var vm: MeetViewModel
-    var event: UserEvent?
-    let profile: UserProfile
-    @State private var image: UIImage?
-    @Binding var selectedProfile: EventInvite?
-    
-    var firstURL: URL? {
-        guard let s = profile.imagePathURL?.first else {return nil}
-        return URL(string: s)
-    }
+    let profileInvite: ProfileInvite
+    @Binding var selectedProfile: ProfileInvite?
     
     var body: some View {
-        
         ZStack {
-            if let image = image {
+            if let image = profileInvite.image {
                 firstImage(image: image)
                     .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
-                        if let event {
-                            selectedProfile = EventInvite(event: event, profile: profile)
-                        } else {
-                            selectedProfile = EventInvite(profile: profile)
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            selectedProfile = profileInvite
                         }
                     }
                 }
             }
         }
-        .task {
-            guard let url = firstURL else {return}
-            image = try? await vm.fetchImage(url: url)
-        }
     }
-    
     private func firstImage(image: UIImage) -> some View {
         Image(uiImage: image)
             .resizable()
