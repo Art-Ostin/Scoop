@@ -7,20 +7,19 @@
 
 import Foundation
 
-@Observable final class SendInviteViewModel {
+@Observable final class InviteViewModel {
     
-
     let eventManager: EventManager
     let cycleManager: CycleManager
-    
-    let recipient: UserProfile
+    let profileModel: ProfileModel
+
     var event: Event
     
-    init(eventManager: EventManager, cycleManager: CycleManager, recipient: UserProfile) {
+    init(eventManager: EventManager, cycleManager: CycleManager, profileModel: ProfileModel) {
         self.eventManager = eventManager
         self.cycleManager = cycleManager
-        self.recipient = recipient
-        self.event = Event(recipientId: recipient.id)
+        self.profileModel = profileModel
+        self.event = Event(recipientId: profileModel.profile.id)
     }
     
     var showTypePopup: Bool = false
@@ -30,7 +29,7 @@ import Foundation
     
     
     func sendInvite() async throws {
-        try await cycleManager.inviteSent(profileId: recipient.userId)
+        try await cycleManager.inviteSent(profileId: profileModel.id)
         try await eventManager.createEvent(event: event)
     }
     

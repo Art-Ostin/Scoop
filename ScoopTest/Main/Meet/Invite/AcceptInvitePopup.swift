@@ -8,38 +8,32 @@
 import SwiftUI
 
 struct AcceptInvitePopup: View {
-    
+
     @Environment(\.tabSelection) private var tabSelection
     @State var showAlert: Bool = false
-    
-    let image: UIImage
-    let event: UserEvent
-    let vm: SendInviteViewModel
+    let vm: InviteViewModel
     var onDismiss : () -> Void
     
-    
-    init(vm: SendInviteViewModel, image: UIImage, onDismiss: @escaping () -> Void = {}) {
-        self.vm = State(initialValue: vm)
+    init(vm: InviteViewModel, onDismiss: @escaping () -> Void = {}) {
+        self.vm = vm
         self.onDismiss = onDismiss
     }
-
+    
     var body: some View {
         
         VStack(spacing: 32) {
             
             HStack() {
-                CirclePhoto(image: image ?? UIImage())
+                CirclePhoto(image: vm.profileModel.image)
                 
                 Text("Meet \(vm.event.otherUserName ?? "")")
                     .font(.title(24, .bold))
                 
-                if event.message != nil {
+                if vm.profileModel.event.message != nil {
                     Spacer()
                 }
             }
-            
-            EventFormatter(event: vm.event)
-            
+            EventFormatter(event: vm.profileModel.event)
             ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle()}
                 .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -59,7 +53,9 @@ struct AcceptInvitePopup: View {
             Button("Cancel", role: .cancel) {}
             Button ("I Understand") {
                 Task {
-                    try? await vm.acceptInvite()
+                    if let id = vm.event.id {
+                        try? await vm.acceptInvite(eventId: id)
+                    }
                     tabSelection.wrappedValue = 1
                     onDismiss()
                 }

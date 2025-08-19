@@ -40,11 +40,11 @@ struct ProfileView: View {
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvite = false }
                     if let event = vm.profileModel.event {
-                        AcceptInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.profileModel.profile, event: event), image: vm.profileModel.image) {
+                        AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel)) {
                             onDismiss()
                         }
                     } else {
-                        SendInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: image) {
+                        SendInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel)) {
                             onDismiss()
                         }
                     }
@@ -58,10 +58,11 @@ struct ProfileView: View {
 extension ProfileView {
 
     private var heading: some View {
-        HStack {
-            Text(vm.p.name ?? "")
+        let p = vm.profileModel.profile
+        return HStack {
+            Text(p.name ?? "")
                 .font(.body(24, .bold))
-            ForEach (vm.p.nationality ?? [], id: \.self) {flag in
+            ForEach (p.nationality ?? [], id: \.self) {flag in
                 Text(flag)
                     .font(.body(24))
             }

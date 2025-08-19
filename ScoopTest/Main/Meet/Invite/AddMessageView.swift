@@ -10,7 +10,7 @@
 
 struct InviteAddMessageView: View {
     
-    @Binding var vm: SendInviteViewModel
+    @Binding var vm: InviteViewModel
     
     @FocusState var isFocused: Bool
     var body: some View {
@@ -26,7 +26,6 @@ struct InviteAddMessageView: View {
                     .foregroundStyle(.accent)
             }
             .onTapGesture {  vm.showTypePopup.toggle() }
-            
             
             ZStack {
                 TextEditor(text: Binding(

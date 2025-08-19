@@ -14,7 +14,6 @@ final class CycleManager {
     private var cacheManager: CacheManaging
     private var userManager: UserManager
     
-    
     init(cacheManager: CacheManaging, userManager: UserManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
@@ -81,11 +80,8 @@ final class CycleManager {
         return try await recommendationDocument(cycleId: activeCycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
     }
     
-    
-    
     //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
-    
-    func fetchPendingCycleRecommendations() async throws -> [ProfileInvite] {
+    func fetchPendingCycleRecommendations() async throws -> [ProfileModel] {
         print("Fetched recs sucessfully")
         let ids = try await recommendationsCollection(cycleId: activeCycleId)
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
@@ -144,15 +140,14 @@ final class CycleManager {
         }
         return false
     }
-    
         
-    func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileInvite] {
-        return await withTaskGroup(of: ProfileInvite?.self, returning: [ProfileInvite].self) { group in
+    func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
+        return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
             for item in data {
                 group.addTask {
                     guard let profile = try? await self.userManager.fetchUser(userId: item.id) else { return nil }
                     let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
-                    return ProfileInvite(event: item.event, profile: profile, image: image ?? UIImage())
+                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
                 }
             }
             return await group.reduce(into: []) {result, element  in
