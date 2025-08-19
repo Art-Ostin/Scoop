@@ -28,10 +28,9 @@ import Foundation
     func fetchHeight() -> String {
         userManager.user.height ?? "5' 8"
     }
-    func fetchNationality() -> [String] {
-        userManager.user.nationality ?? []
+    func fetchNationality() {
+        selectedCountries = userManager.user.nationality ?? []
     }
-
     
     func interestIsSelected(text: String) -> Bool {
         userManager.user.interests?.contains(text) == true

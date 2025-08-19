@@ -10,42 +10,30 @@ import FirebaseFirestore
 struct EditNationality: View {
     
     @Environment(\.flowMode) private var mode
-    
-    
     @Binding var vm: EditProfileViewModel
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
-    
-    
     var body: some View {
         
         VStack(spacing: 36) {
-            
             SignUpTitle(text: "Nationality", subtitle: "\(vm.selectedCountries.count)/3")
                 .padding(.top, 12)
             
             selectedCountries
             
             ScrollViewReader { proxy in
-                
                 VStack(spacing: 24) {
-                    
                     alphabet(proxy: proxy)
-                    
                     SoftDivider() .padding(.horizontal)
-                    
                     ZStack {
                         nationalitiesView
-                        
                         nextButton
                     }
                 }
             }
         }
-        .task {
-            vm.fetchNationality()
-        }
+        .onAppear { vm.fetchNationality() }
         .flowNavigation()
     }
 }
@@ -73,7 +61,7 @@ extension EditNationality {
     }
     
     private func alphabet(proxy: ScrollViewProxy) -> some View {
-        LazyVGrid(columns: vm.alphabetColumns, spacing: 24) {
+        LazyVGrid(columns: alphabetColumns, spacing: 24) {
             ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                 Button {
                     withAnimation(.easeInOut) {
@@ -153,7 +141,7 @@ extension EditNationality {
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
         .onTapGesture {
-            withAnimation(.smooth(duration: 0.2)) { vm.toggleCountry(country.flag, dep: dep)}
+            withAnimation(.smooth(duration: 0.2)) { vm.toggleCountry(country.flag)}
         }
     }
     
