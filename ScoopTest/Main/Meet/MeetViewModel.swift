@@ -5,6 +5,7 @@
 //  Created by Art Ostin on 17/08/2025.
 
 import Foundation
+import UIKit
 
 @Observable class MeetViewModel {
         

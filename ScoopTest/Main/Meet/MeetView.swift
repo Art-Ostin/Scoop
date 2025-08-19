@@ -17,9 +17,7 @@ struct MeetView: View {
     }
     
     var body: some View {
-        
         ZStack {
-            
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
@@ -32,7 +30,6 @@ struct MeetView: View {
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .environment(vm)
     }
 }
 

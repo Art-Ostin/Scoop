@@ -21,14 +21,7 @@ struct AppContainer: View {
                 ZStack{
                     Color.background.ignoresSafeArea()
                     MeetView(
-                        vm: MeetViewModel(
-                        
-                        )
-                    
-                    
-                    
-                    
-                    )
+                        vm: MeetViewModel(cycleManager: dep.cycleManager, sessionManager: dep.sessionManager, cacheManager: dep.cacheManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }

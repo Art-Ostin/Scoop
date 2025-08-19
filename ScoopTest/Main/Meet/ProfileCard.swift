@@ -12,7 +12,6 @@ struct ProfileCard : View {
     @Binding var vm: MeetViewModel
     var event: UserEvent?
     let profile: UserProfile
-
     @State private var image: UIImage?
     @Binding var selectedProfile: EventInvite?
     
@@ -38,7 +37,7 @@ struct ProfileCard : View {
         }
         .task {
             guard let url = firstURL else {return}
-            try? await vm.fetchImage(url: url)
+            image = try? await vm.fetchImage(url: url)
         }
     }
     

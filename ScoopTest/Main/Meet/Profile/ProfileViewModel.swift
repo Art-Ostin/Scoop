@@ -18,21 +18,19 @@ enum ProfileType {
     var p: UserProfile
     var event: UserEvent?
     var profileType: ProfileType
-    
-    var firstImage: UIImage?
+    let profilePicture: UIImage
     
     var showInvite: Bool = false
     
-    init(profile: UserProfile, profileType: ProfileType = .sendInvite, event: UserEvent? = nil, cacheManager: CacheManaging) {
+    init(profile: UserProfile, profileType: ProfileType = .sendInvite, event: UserEvent? = nil, cacheManager: CacheManaging, profilePicture: UIImage) {
         self.p = profile
         self.profileType = profileType
         self.event = event
         self.cacheManager = cacheManager
+        self.profilePicture = profilePicture
     }
     
     func loadImages() async -> [UIImage] {
-        let image = await cacheManager.loadProfileImages([p])
-        firstImage = image.first
-        return image
+        return await cacheManager.loadProfileImages([p])
     }
 }
