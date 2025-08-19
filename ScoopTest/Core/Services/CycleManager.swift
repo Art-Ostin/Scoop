@@ -22,14 +22,12 @@ final class CycleManager {
     var activeCycleId: String {
         userManager.user.activeCycleId ?? ""
     }
-    //Document and collection Navigations
+    
     
     private let users = Firestore.firestore().collection("users")
-    
     private func cyclesCollection () -> CollectionReference {
         users.document(userManager.user.userId).collection("recommendation_cycles")
     }
-    
     private func cycleDocument(cycleId: String) -> DocumentReference {
         cyclesCollection().document(cycleId)
     }
@@ -61,7 +59,6 @@ final class CycleManager {
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
         
     }
-    
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != userManager.user.userId}
@@ -73,16 +70,14 @@ final class CycleManager {
         }
     }
     
+    
     func fetchCycle() async throws -> RecommendationCycle {
         return try await cycleDocument(cycleId: activeCycleId).getDocument(as: RecommendationCycle.self)
     }
     func fetchRecommendationItem(profileId: String) async throws -> RecommendationItem {
         return try await recommendationDocument(cycleId: activeCycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
     }
-    
-    //Gets all the shown Reccommendations, return eventInvite. Save the profile Images all to Cache immedietely. (BIG function)
     func fetchPendingCycleRecommendations() async throws -> [ProfileModel] {
-        print("Fetched recs sucessfully")
         let ids = try await recommendationsCollection(cycleId: activeCycleId)
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
                         isEqualTo: RecommendationStatus.pending.rawValue)
@@ -107,7 +102,6 @@ final class CycleManager {
         
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
-    
     func inviteSent(profileId: String) async throws {
         var stats = try await fetchCycle().cycleStats
         stats .pending -= 1
@@ -117,8 +111,8 @@ final class CycleManager {
     }
     
     
-    func loadProfileRecsChecker () async throws -> Bool {
-        
+    func checkCycleSatus () async throws -> Bool {
+        guard (userManager.user.activeCycleId != nil) else { return false }
         let doc = try await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
         let timeRefresh = doc.autoRemoveAt.dateValue()

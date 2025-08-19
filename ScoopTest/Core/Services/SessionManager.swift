@@ -41,7 +41,7 @@ final class SessionManager {
     }
 
     func loadprofileRecs () async throws {
-        guard try await cycleManager.loadProfileRecsChecker() else {
+        guard try await cycleManager.checkCycleSatus() else {
             showProfileRecommendations = false
             print("no profiles to load")
             return

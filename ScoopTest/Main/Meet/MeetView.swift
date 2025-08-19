@@ -38,6 +38,7 @@ extension MeetView {
             ForEach(vm.fetchWeeklyInvites(), id: \.id) {profileInvite in
                 ProfileCard(vm: $vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
+
             if !vm.showProfileRecommendations() {
                 IntroView(vm: $vm)
             } else {

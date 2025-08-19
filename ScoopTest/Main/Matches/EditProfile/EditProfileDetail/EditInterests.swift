@@ -40,7 +40,7 @@ struct EditInterests: View {
                 
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
-                        ForEach(sections.indices) { idx in
+                        ForEach(sections.indices, id: \.self) { idx in
                             let section = sections[idx]
                             InterestSection(vm: $vm, options: section.data, title: section.title, image: section.image, selected: $selected)
                         }
