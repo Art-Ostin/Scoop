@@ -17,7 +17,6 @@ struct SendInvitePopup: View {
         self.onDismiss = onDismiss
     }
         
-    
     var body: some View {
         ZStack {
             sendInviteScreen
@@ -59,9 +58,9 @@ extension SendInvitePopup {
     private var sendInviteScreen: some View {
         VStack(spacing: 32) {
             HStack {
-                CirclePhoto(image: image ?? UIImage())
+                CirclePhoto(image: vm.profileModel.image ?? UIImage())
                 
-                Text("Meet \(vm.recipient.name ?? "")")
+                Text("Meet \(vm.profileModel.profile.name ?? "")")
                     .font(.title(24))
             }
             InviteTypeRow

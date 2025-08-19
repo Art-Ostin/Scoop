@@ -14,48 +14,49 @@ struct ProfileDetailsView: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: 36) {
+            let p = vm.profileModel.profile
             
-            Text(vm.p.nationality?.joined(separator: "") ?? "")
+            Text(p.nationality?.joined(separator: "") ?? "")
             
-            Text (vm.p.hometown ?? "")
+            Text (p.hometown ?? "")
             
-            Text(vm.p.lookingFor ?? "")
+            Text(p.lookingFor ?? "")
             
-            Text(vm.p.year ?? "")
+            Text(p.year ?? "")
             
-            Text(vm.p.degree ?? "")
+            Text(p.degree ?? "")
             
-            Text(vm.p.height ?? "")
+            Text(p.height ?? "")
             
-            Text(vm.p.interests?.joined(separator: ", ") ?? "")
+            Text(p.interests?.joined(separator: ", ") ?? "")
             
-            Text(vm.p.attractedTo ?? "")
+            Text(p.attractedTo ?? "")
             
-            Text(vm.p.drinking ?? "")
+            Text(p.drinking ?? "")
             
-            Text(vm.p.marijuana ?? "")
+            Text(p.marijuana ?? "")
             
-            Text(vm.p.smoking ?? "")
+            Text(p.smoking ?? "")
             
-            Text(vm.p.drugs ?? "")
+            Text(p.drugs ?? "")
             
-            if let book = vm.p.favouriteBook { Text(book) }
+            if let book = p.favouriteBook { Text(book) }
             
-            if let movie = vm.p.favouriteMovie { Text(movie) }
+            if let movie = p.favouriteMovie { Text(movie) }
             
-            if let song = vm.p.favouriteSong { Text(song) }
+            if let song = p.favouriteSong { Text(song) }
             
-            if let languages = vm.p.languages { Text(languages)}
+            if let languages = p.languages { Text(languages)}
             
-            if let prompt1 = vm.p.prompt1 {
+            if let prompt1 = p.prompt1 {
                 PromptResponseView(vm: $vm, prompt: prompt1)
             }
             
-            if let prompt2 = vm.p.prompt2 {
+            if let prompt2 = p.prompt2 {
                 PromptResponseView(vm: $vm, prompt: prompt2)
             }
             
-            if let prompt3 = vm.p.prompt3 {
+            if let prompt3 = p.prompt3 {
                 PromptResponseView(vm: $vm, prompt: prompt3)
             }
         }

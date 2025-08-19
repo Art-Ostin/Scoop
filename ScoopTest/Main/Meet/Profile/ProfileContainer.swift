@@ -32,13 +32,13 @@ struct ProfileView: View {
                         ProfileDetailsView(vm: $vm)
                     }
                 }
-                
-                if vm.showInvite {
+
+                if vm.showInvitePopup {
                     Rectangle()
                         .fill(.thinMaterial)
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
-                        .onTapGesture { vm.showInvite = false }
+                        .onTapGesture { vm.showInvitePopup = false }
                     if let event = vm.profileModel.event {
                         AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel)) {
                             onDismiss()
@@ -50,7 +50,7 @@ struct ProfileView: View {
                     }
                 }
             }
-            .toolbar(vm.showInvite ? .hidden : .visible, for: .tabBar)
+            .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
         }
     }
 }

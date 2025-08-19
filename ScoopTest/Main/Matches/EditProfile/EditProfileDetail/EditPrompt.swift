@@ -7,70 +7,69 @@
 
 import SwiftUI
 
+struct PromptResponse: Codable, Equatable  {
+    var prompt: String
+    var response: String
+}
+
+
 struct EditPrompt: View {
     @Environment(\.flowMode) private var mode
-    
     @Binding var vm: EditProfileViewModel
         
     @FocusState var isFocused: Bool
-    @State var selectedText: String = ""
-    @State var selectedPrompt: String = ""
-    @State var showDropdownMenu: Bool = false
+    @State var prompt = PromptResponse(prompt: "", response: "")
+    @State private var showDropdownMenu = false
+
+    let prompts: [String]
+    let promptIndex: Int
     
-    var prompts: [String]
-    var promptIndex: Int
-    
-    var key: UserProfile.CodingKeys {
-        switch promptIndex {
-        case 1: return UserProfile.CodingKeys.prompt1
-        case 2: return UserProfile.CodingKeys.prompt2
-        case 3: return UserProfile.CodingKeys.prompt3
-        default: return UserProfile.CodingKeys.prompt1
-        }
+    private var key: UserProfile.CodingKeys {
+        [.prompt1, .prompt2, .prompt3] [promptIndex]
+    }
+    private var keyPath: KeyPath<UserProfile, PromptResponse?> {
+        [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
 
     var body: some View {
         
         ZStack {
             VStack(spacing: 12) {
-                selecter
+                selector
                 textEditor
-                if case .onboarding(_, let advance) = mode { NextButton(isEnabled: selectedText.count > 3) {
-                    isFocused = false
-                    advance() }}
+                
+                if case .onboarding(_, let advance) = mode {
+                    NextButton(isEnabled: prompt.response.count > 3) {
+                        isFocused = false
+                        advance()
+                    }
+                }
             }
             if showDropdownMenu {
                 dropdownMenu
                     .offset(y: -48)
             }
         }
-        .onChange(of: selectedText) { Task { try await vm.updateUser(values: [key: PromptResponse(prompt: selectedPrompt, response: selectedText)])} }
-        .onChange(of: selectedPrompt) { Task { try await vm.updateUser(values: [key: PromptResponse(prompt: selectedPrompt, response: selectedText)])} }
+        .onChange(of: prompt) { Task { try await vm.updateUser(values: [key: prompt])}}
         .onAppear {
             isFocused = true
-            let user = vm.fetchUser()
-            let promptData: PromptResponse?
-            switch promptIndex {
-            case 1: promptData = user.prompt1
-            case 2: promptData = user.prompt2
-            case 3: promptData = user.prompt3
-            default: promptData = nil
+            if let prompt = vm.fetchUserField(keyPath) {
+                self.prompt = prompt
+            } else {
+                self.prompt = PromptResponse(prompt: prompts.randomElement() ?? "", response: "")
             }
-            selectedPrompt = promptData?.prompt ?? prompts.randomElement() ?? ""
-            selectedText = promptData?.response ?? ""
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .flowNavigation()
-        
     }
 }
 
 extension EditPrompt {
     
-    private var selecter: some View {
+    private var selector: some View {
         
         HStack {
-            Text(selectedPrompt)
+            Text(prompt.prompt)
                 .font(.body(17, .bold))
                 .lineSpacing(8)
             Spacer()
@@ -88,24 +87,24 @@ extension EditPrompt {
     
     private var dropdownMenu: some View {
         DropDownMenu(width: 350) {
-            ForEach(prompts, id: \.self) {prompt in
+            ForEach(prompts, id: \.self) {option in
                 Group {
-                    Text(prompt)
-                        .font(selectedPrompt == prompt ? .body(17, .bold) : .body(17))
-                        .foregroundStyle(selectedPrompt == prompt ? Color.accent : .black)
+                    Text(option)
+                        .font(prompt.prompt == option ? .body(17, .bold) : .body(17))
+                        .foregroundStyle(prompt.prompt == option ? Color.accent : .black)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .onTapGesture {
-                            selectedPrompt = prompt
+                            prompt.prompt = option
                             showDropdownMenu = false
                         }
-                    if prompt != prompts.last {SoftDivider()}
+                    if option != prompts.last { SoftDivider() }
                 }
             }
         }
     }
     
     private var textEditor: some View {
-        TextEditor(text: $selectedText)
+        TextEditor(text: $prompt.response)
             .padding()
             .scrollContentBackground(.hidden)
             .frame(width: 350, height: 120)

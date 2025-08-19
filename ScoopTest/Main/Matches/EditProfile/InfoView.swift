@@ -8,8 +8,9 @@ import SwiftUI
 
 struct InfoView: View {
     
-    @Environment(\.appDependencies) private var dep
     @FocusState var isFocused: Bool
+    
+    
     
     private var coreInfo: [EditPreview] {
         let u = dep.userManager.user

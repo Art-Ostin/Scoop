@@ -38,7 +38,7 @@ struct EditHeight: View {
             }
             .flowNavigation()
             .task {
-                height = vm.fetchHeight()
+                height = vm.fetchUserField(\.height) ?? "" 
             }
         }
     }

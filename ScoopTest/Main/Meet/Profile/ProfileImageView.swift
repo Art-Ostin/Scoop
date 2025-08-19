@@ -35,7 +35,9 @@ extension ProfileImageView {
                 ForEach(images.indices, id: \.self) {index in
                     let image = images[index]
                     imageContainer(image: image, size: size) {
-                        InviteButton(vm: $vm)
+                        if !(vm.viewProfileType == .view) {
+                            InviteButton(vm: $vm)
+                        }
                     }.tag(index)
                 }
             }

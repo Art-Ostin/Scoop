@@ -11,9 +11,9 @@ import Foundation
     
     var cachManager: CacheManaging
     var userManager: UserManager
-    var storageManager: StorageManager
+    var storageManager: StorageManaging
     
-    init(cachManager: CacheManaging, userManager: UserManager, storageManager: StorageManager) {
+    init(cachManager: CacheManaging, userManager: UserManager, storageManager: StorageManaging) {
         self.cachManager = cachManager
         self.userManager = userManager
         self.storageManager = storageManager

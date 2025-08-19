@@ -9,11 +9,6 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-struct PromptResponse: Codable  {
-    let prompt: String
-    let response: String
-}
-
 struct UserProfile: Codable, Equatable {
     
     let userId, email: String

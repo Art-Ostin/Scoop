@@ -12,9 +12,7 @@ struct MeetView: View {
     @State var vm: MeetViewModel
     @State var selectedProfile: ProfileModel?
     
-    init(vm: MeetViewModel) {
-        _vm = State(initialValue: vm)
-    }
+    init(vm: MeetViewModel) { _vm = State(initialValue: vm) }
     
     var body: some View {
         ZStack {

@@ -11,18 +11,19 @@ import Combine
 
 
 struct MatchesView: View {
+
+    @Environment(\.stateOfApp) private var appState
     
-    @Environment(\.stateOfApp) private var stateOfApp
-    
-    
-    let dep: AppDependencies
-            
+    @State var vm: MatchesViewModel
     @State var showProfileView = false
+    @State var image: UIImage?
     
-    @State var profileImage: UIImage?
-    
+    init(vm: MatchesViewModel) {
+        _vm = State(initialValue: vm)
+    }
+
     var body: some View {
-        
+
         NavigationStack {
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
@@ -33,11 +34,9 @@ struct MatchesView: View {
                     Text("View your past Meet Ups Here")
                         .font(.body(20))
                     
-                    Text(dep.userManager.user.name ?? "No Name")
-                    
                     ActionButton(text: "Sign Out") {
-                        try? dep.authManager.signOutAuthUser()
-                        stateOfApp.wrappedValue = .login
+                        try? vm.authManager.signOutAuthUser()
+                        appState.wrappedValue = .login
                     }
                 }
                 .navigationTitle("Matches")
@@ -48,9 +47,8 @@ struct MatchesView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        
                         VStack {
-                            CirclePhoto(image: profileImage ?? UIImage())
+                            CirclePhoto(image: image ?? UIImage())
                         }
                         .onTapGesture {showProfileView = true }
                     }
@@ -58,11 +56,10 @@ struct MatchesView: View {
             }
         }
         .fullScreenCover(isPresented: $showProfileView, content: {
-            EditProfileContainer()
+            EditProfileContainer(vm: EditProfileViewModel(cachManager: vm.cacheManager, userManager: vm.userManager, storageManager: vm.storageManager))
         })
         .task {
-            let user = dep.userManager.user
-            profileImage = await dep.cacheManager.loadProfileImages([user]).first
+            image = try? await vm.fetchFirstImage()
         }
     }
 }
