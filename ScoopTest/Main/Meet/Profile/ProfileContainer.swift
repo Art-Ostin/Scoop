@@ -39,7 +39,7 @@ struct ProfileView: View {
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvitePopup = false }
-                    if let event = vm.profileModel.event {
+                    if (vm.profileModel.event != nil) {
                         AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel)) {
                             onDismiss()
                         }

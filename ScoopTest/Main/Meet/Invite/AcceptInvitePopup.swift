@@ -26,14 +26,14 @@ struct AcceptInvitePopup: View {
             HStack() {
                 CirclePhoto(image: vm.profileModel.image ?? UIImage())
                 
-                Text("Meet \(vm.event.otherUserName ?? "")")
+                Text("Meet \(vm.profileModel.event?.otherUserName ?? "")")
                     .font(.title(24, .bold))
                 
-                if vm.profileModel.event.message != nil {
+                if vm.profileModel.event?.message != nil {
                     Spacer()
                 }
             }
-            EventFormatter(event: vm.profileModel.event)
+            if let event = vm.profileModel.event {EventFormatter(event: event) }
             ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle() }
                 .frame(maxWidth: .infinity, alignment: .center)
         }
