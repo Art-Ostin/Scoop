@@ -12,10 +12,7 @@ struct DropDownMenu<Content: View> : View {
     let content: () -> Content
     var width: CGFloat
     
-    init(
-        width: CGFloat = 325,
-        @ViewBuilder content: @escaping () -> Content
-    ){
+    init(width: CGFloat = 325, @ViewBuilder content: @escaping () -> Content){
         self.width = width
         self.content = content
     }

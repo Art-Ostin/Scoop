@@ -2,8 +2,7 @@ import SwiftUI
 
 struct LimitedAccessView: View {
     
-    
-    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.appDependencies) private var dep
 
     @State var showOnboarding = false
     @State var current: Int = 0
@@ -41,11 +40,11 @@ struct LimitedAccessView: View {
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(current: $current)
+            OnboardingContainer(vm: EditProfileViewModel(cachManager: dep.cacheManager, userManager: dep.userManager, storageManager: dep.storageManager), current: $current)
         }
         .task {
             do {
-                try await dependencies.userManager.loadUser()
+                try await dep.userManager.loadUser()
                 print("User Loaded")
             } catch {
                 print("failed to load user ")

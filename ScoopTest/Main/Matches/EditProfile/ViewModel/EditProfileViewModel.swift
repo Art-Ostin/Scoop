@@ -64,5 +64,9 @@ import Foundation
             Task {try? await updateUserArray(field: .nationality, value: country, add: true) }
         }
     }
+    
+    func fetchNationality() {
+        selectedCountries = fetchUserField(\.nationality) ?? []
+    }
 }
 

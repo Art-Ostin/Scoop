@@ -14,8 +14,8 @@ struct EditNationality: View {
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
+    
     var body: some View {
-        
         VStack(spacing: 36) {
             SignUpTitle(text: "Nationality", subtitle: "\(vm.selectedCountries.count)/3")
                 .padding(.top, 12)

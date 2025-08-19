@@ -24,7 +24,7 @@ struct AcceptInvitePopup: View {
         VStack(spacing: 32) {
             
             HStack() {
-                CirclePhoto(image: vm.profileModel.image)
+                CirclePhoto(image: vm.profileModel.image ?? UIImage())
                 
                 Text("Meet \(vm.event.otherUserName ?? "")")
                     .font(.title(24, .bold))

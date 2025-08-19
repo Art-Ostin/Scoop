@@ -13,11 +13,11 @@ import UIKit
     
     var userManager: UserManager
     var cacheManager: CacheManaging
-    var authManager: AuthManager
+    var authManager: AuthManaging
     var storageManager: StorageManaging
     
     
-    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManager, storageManager: StorageManaging) {
+    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging) {
         self.userManager = userManager
         self.cacheManager = cacheManager
         self.authManager = authManager

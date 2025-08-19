@@ -55,7 +55,7 @@ struct EditInterests: View {
         }
         .flowNavigation()
         .task {
-            selected = vm.fetchInterests()
+            selected = vm.fetchUserField(\.interests) ?? []
         }
     }
 }
