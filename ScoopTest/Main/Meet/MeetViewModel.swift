@@ -11,16 +11,15 @@ import UIKit
         
     let cycleManager: CycleManager
     let sessionManager: SessionManager
-    
+    let userManager: UserManager
     let cacheManager: CacheManaging
     
-    
-    init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging) {
+    init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging, userManager: UserManager) {
         self.cycleManager = cycleManager
         self.sessionManager = sessionManager
         self.cacheManager = cacheManager
+        self.userManager = userManager
     }
-
     
     func fetchWeeklyRecCycle() async throws -> RecommendationCycle {
         try await cycleManager.fetchCycle()
@@ -49,13 +48,7 @@ import UIKit
     func reloadWeeklyRecCycle() async {
         let count = try? await fetchWeeklyRecCycle().cycleStats.pending
         if count == 0 {
-            Task {
-                do {
-                    try await cycleManager.deleteCycle()
-                } catch  {
-                    print(error)
-                }
-            }
+            Task { try await cycleManager.deleteCycle() }
             sessionManager.showProfileRecommendations = false
         } else {
             sessionManager.showRespondToProfilesToRefresh = true
@@ -64,6 +57,7 @@ import UIKit
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle()
+        try await userManager.loadUser()
         try await sessionManager.loadprofileRecs()
         sessionManager.showProfileRecommendations = true
     }

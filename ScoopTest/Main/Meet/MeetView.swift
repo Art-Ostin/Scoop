@@ -38,7 +38,7 @@ extension MeetView {
             ForEach(vm.fetchWeeklyInvites(), id: \.id) {profileInvite in
                 ProfileCard(vm: $vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
-
+            
             if vm.showProfileRecommendations() {
                 ForEach(vm.fetchWeeklyRecs(), id: \.id) {profileInvite in
                     ProfileCard(vm: $vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)

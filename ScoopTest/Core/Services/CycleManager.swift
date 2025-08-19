@@ -57,8 +57,9 @@ final class CycleManager {
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
-        
     }
+    
+    
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != userManager.user.userId}
@@ -109,7 +110,6 @@ final class CycleManager {
         
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
     }
-    
     
     func checkCycleSatus () async throws -> Bool {
         guard (userManager.user.activeCycleId != nil) else {
