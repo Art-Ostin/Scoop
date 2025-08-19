@@ -7,13 +7,11 @@
 
 import Foundation
 
-
 @Observable class EditProfileViewModel {
     
     var cachManager: CacheManaging
     var userManager: UserManager
     var storageManager: StorageManager
-    
     
     init(cachManager: CacheManaging, userManager: UserManager, storageManager: StorageManager) {
         self.cachManager = cachManager
@@ -21,17 +19,9 @@ import Foundation
         self.storageManager = storageManager
     }
     
-    
-    
-    func fetchUserField(_ key: KeyPath<UserProfile, String?>) -> String? {
+    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         userManager.user[keyPath: key]
     }
-    
-    func fetchUserFieldArray(_ key: KeyPath<UserProfile, [String]?>) -> [String]? {
-        userManager.user[keyPath: key]
-    }
-
-    
     
     func interestIsSelected(text: String) -> Bool {
         userManager.user.interests?.contains(text) == true

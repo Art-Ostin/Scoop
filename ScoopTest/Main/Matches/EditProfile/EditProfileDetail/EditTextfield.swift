@@ -7,21 +7,45 @@
 
 import SwiftUI
 
-struct TextFieldField {
-    let title: String
-    let keyPath: KeyPath<UserProfile, String?>
-    let update: (String) async -> Void
+
+enum TextFieldOptions: CaseIterable {
+    
+    case degree, hometown, name, languages
+    
+    var title: String {
+        switch self {
+        case .degree: return "Degree"
+        case .hometown: return "Hometown"
+        case .name: return "Name"
+        case .languages: return "I Speak"
+        }
+    }
+    
+    var key: UserProfile.CodingKeys {
+        switch self {
+        case .degree: return .degree
+        case .hometown: return .hometown
+        case .name: return .name
+        case .languages: return .languages
+        }
+    }
+    
+    var keyPath: KeyPath<UserProfile, String?> {
+        switch self {
+        case .degree: return \.degree
+        case .hometown: return \.hometown
+        case .name: return \.name
+        case .languages: return \.languages
+        }
+    }
 }
 
 struct TextFieldEdit: View {
-    
-    @Binding var vm: EditProfileViewModel
-    let field: TextFieldField
-    @State private var text: String = ""
     @Environment(\.flowMode) private var mode
+    @Binding var vm: EditProfileViewModel
+    @State private var text: String = ""
     @FocusState var focused: Bool
-    
-    
+    let field: TextFieldOptions
     
     var body: some View {
         
@@ -43,21 +67,15 @@ struct TextFieldEdit: View {
                     .foregroundStyle (Color.grayPlaceholder)
                 
                 if case .onboarding(_, let advance) = mode {
-                    NextButton(isEnabled: text.count > 0) {
-                        Task { await field.update(text)}
-                        advance()
-                    }
+                    NextButton(isEnabled: text.count > 0) { advance() }
                 }
             }
         }
-        .task {
-//            text = dep.userManager.user[keyPath: field.keyPath] ?? ""
+        .onAppear {
+            text =  vm.fetchUserField(field.keyPath) ?? ""
             focused = true
         }
         .flowNavigation()
-        .onChange(of: text) {newValue, _ in
-            guard case .profile = mode else { return }
-            Task { await field.update(newValue) }
-        }
+        .onChange(of: text) { Task { try await vm.updateUser(values: [field.key : text])} }
     }
 }

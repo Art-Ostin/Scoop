@@ -8,12 +8,10 @@
 import SwiftUI
 
 struct EditPrompt: View {
-    
-    
-    @Binding var vm: EditProfileViewModel
-    
     @Environment(\.flowMode) private var mode
     
+    @Binding var vm: EditProfileViewModel
+        
     @FocusState var isFocused: Bool
     @State var selectedText: String = ""
     @State var selectedPrompt: String = ""
