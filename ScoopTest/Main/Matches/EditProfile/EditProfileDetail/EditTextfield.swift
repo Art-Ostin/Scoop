@@ -13,15 +13,15 @@ struct TextFieldField {
     let update: (String) async -> Void
 }
 
-
-
 struct TextFieldEdit: View {
     
+    @Binding var vm: EditProfileViewModel
     let field: TextFieldField
     @State private var text: String = ""
-    @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
     @FocusState var focused: Bool
+    
+    
     
     var body: some View {
         
@@ -51,7 +51,7 @@ struct TextFieldEdit: View {
             }
         }
         .task {
-            text = dep.userManager.user[keyPath: field.keyPath] ?? ""
+//            text = dep.userManager.user[keyPath: field.keyPath] ?? ""
             focused = true
         }
         .flowNavigation()
@@ -61,52 +61,3 @@ struct TextFieldEdit: View {
         }
     }
 }
-
-//#Preview {
-//    TextFieldEdit()
-//}
-
-
-
-
-
-
-// USE WHEN EDITING FrontEnd Layout for textField
-
-//struct InputTextfield: View {
-//
-//    
-//        let placeholder: String
-//        var inputtedText: Binding<String>
-//        let textSize: CGFloat
-//        var isFocused: FocusState<Bool>.Binding
-//        var alignment: Alignment = .leading
-//        
-//        var body: some View {
-//            VStack(spacing: 8) {
-//                ZStack(alignment: .leading) {
-//                    if inputtedText.wrappedValue.isEmpty {
-//                        Text(placeholder)
-//                            .font(.body(textSize, .italic))
-//                            .padding(.horizontal, alignment == .center ? 22 : 0)
-//                            .foregroundStyle(.gray)
-//                            .padding(.leading, 5)
-//                    }
-//                    TextField("", text: inputtedText)
-//                        .font(.body(textSize))
-//                        .padding(.horizontal, alignment == .center ? 22 : 0)
-//                        .focused(isFocused)
-//                        .textFieldStyle(.plain)
-//                        .autocapitalization(.none)
-//                        .disableAutocorrection(true)
-//                        .tint(.blue)
-//                        .kerning(0.5)
-//                        .foregroundStyle(.black)
-//                }
-//                Rectangle()
-//                    .frame(width: 303, height: 1)
-//                    .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
-//                    .frame(maxWidth: .infinity, alignment: alignment)
-//            }
-//        }
-//    }

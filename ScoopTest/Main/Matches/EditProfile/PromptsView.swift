@@ -9,16 +9,16 @@ import SwiftUI
 
 struct PromptsView: View {
     
-    @Environment(\.appDependencies) private var dep
+    @Binding var vm: EditProfileViewModel
         
     var body: some View {
         
-        let user = dep.userManager.user
+        let user = vm.fetchUser()
         
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {
-                    EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 1)
+                    EditPrompt(vm: $vm, prompts: Prompts.instance.prompts1, promptIndex: 1)
                 } label: {
                     promptResponse(prompt: user.prompt1?.prompt ?? "Add Prompt", response: user.prompt1?.response ?? "")
                         .foregroundStyle(.black)
@@ -26,7 +26,7 @@ struct PromptsView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(prompts: Prompts.instance.prompts2, promptIndex: 2)
+                    EditPrompt(vm: $vm, prompts: Prompts.instance.prompts2, promptIndex: 2)
                 } label: {
                     promptResponse(prompt: user.prompt2?.prompt ?? "Add Prompt", response: user.prompt2?.response ?? "")
                         .foregroundStyle(.black)
@@ -34,7 +34,7 @@ struct PromptsView: View {
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(prompts: Prompts.instance.prompts3, promptIndex: 3)
+                    EditPrompt(vm: $vm, prompts: Prompts.instance.prompts3, promptIndex: 3)
                 } label: {
                     promptResponse(prompt: user.prompt3?.prompt ?? "Add Prompt", response: user.prompt3?.response ?? "")
                         .foregroundStyle(.black)

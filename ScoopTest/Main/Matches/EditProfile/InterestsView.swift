@@ -102,12 +102,12 @@ extension Array {
 
 
 struct InterestsView: View {
-    let user: UserManager
+    @Binding var vm: EditProfileViewModel
     var body: some View {
         InterestsHolder(title: "Interests") {
             InterestsLayout()
         } destination: {
-            EditInterests()
+            EditInterests(vm: $vm)
         }
     }
 }

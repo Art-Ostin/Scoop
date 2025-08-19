@@ -48,8 +48,6 @@ import Foundation
         userManager.user
     }
     
-    
-    
     //Nationality Functionality
     var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
@@ -69,14 +67,10 @@ import Foundation
     func toggleCountry(_ country: String) {
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})
-            Task {
-                try? await updateUserArray(field: .nationality, value: country, add: false)
-            }
+            Task { try? await updateUserArray(field: .nationality, value: country, add: false)}
         } else if selectedCountries.count < 3 {
             selectedCountries.append(country)
-            Task {
-                try? await updateUserArray(field: .nationality, value: country, add: true)
-            }
+            Task {try? await updateUserArray(field: .nationality, value: country, add: true) }
         }
     }
 }

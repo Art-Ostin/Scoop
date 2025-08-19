@@ -17,7 +17,6 @@ struct EditInterests: View {
 
     @State var selected: [String] = []
     
-    
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
         return [
@@ -41,11 +40,9 @@ struct EditInterests: View {
                 
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
-                        
-                        ForEach(sections.indices, id: \.self) { idx in
+                        ForEach(sections.indices) { idx in
                             let section = sections[idx]
-                            
-                            InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected)
+                            InterestSection(vm: $vm, options: section.data, title: section.title, image: section.image, selected: $selected)
                         }
                     }
                 }
@@ -70,7 +67,7 @@ extension EditInterests {
             ScrollView(.horizontal) {
                 HStack {
                     ForEach(selected, id: \.self) { item in
-                        optionCell2(text: item, selection: $selected) {text in
+                        OptionCell(text: item, selection: $selected) {text in
                             selected.removeAll { $0 == text }
                         }
                         .id(item)
@@ -117,7 +114,7 @@ struct InterestSection: View {
             .padding(.bottom, 16)
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
-                optionCell2(text: input, selection: $selected) { text in
+                OptionCell(text: input, selection: $selected) { text in
                     selected.contains(text)
                         ? selected.removeAll(where: { $0 == text })
                         : (selected.count < 10 ? selected.append(text) : nil)
@@ -138,10 +135,9 @@ struct InterestSection: View {
     }
 }
 
-struct optionCell2: View {
+struct OptionCell: View {
     
     let text: String
-    
     @Binding var selection: [String]
     
     let onTap: (String) -> Void

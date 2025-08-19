@@ -21,7 +21,7 @@ struct EditProfileContainer: View {
                     .id(user.profile.imagePath ?? [])
                     .transition(.move(edge: .leading))
             } else {
-                EditProfileView(dep: dep)
+                EditProfileView(vm: $vm)
                     .transition(.move(edge: .trailing))
             }
         }
@@ -33,8 +33,4 @@ struct EditProfileContainer: View {
                 }
         }
     }
-}
-
-#Preview {
-    EditProfileContainer()
 }
