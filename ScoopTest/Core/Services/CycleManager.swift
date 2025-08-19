@@ -57,6 +57,7 @@ final class CycleManager {
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
+        try await userManager.loadUser()
     }
     
     

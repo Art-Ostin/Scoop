@@ -11,14 +11,12 @@ import UIKit
         
     let cycleManager: CycleManager
     let sessionManager: SessionManager
-    let userManager: UserManager
     let cacheManager: CacheManaging
     
-    init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging, userManager: UserManager) {
+    init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging) {
         self.cycleManager = cycleManager
         self.sessionManager = sessionManager
         self.cacheManager = cacheManager
-        self.userManager = userManager
     }
     
     func fetchWeeklyRecCycle() async throws -> RecommendationCycle {
@@ -57,7 +55,6 @@ import UIKit
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle()
-        try await userManager.loadUser()
         try await sessionManager.loadprofileRecs()
         sessionManager.showProfileRecommendations = true
     }

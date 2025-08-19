@@ -11,6 +11,7 @@ struct MeetView: View {
     
     @State var vm: MeetViewModel
     @State var selectedProfile: ProfileModel?
+    @State var endTime: Date?
     
     init(vm: MeetViewModel) { _vm = State(initialValue: vm) }
     
@@ -28,6 +29,9 @@ struct MeetView: View {
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .task {
+            
+        }
     }
 }
 
@@ -68,7 +72,23 @@ extension MeetView {
     
     
     @ViewBuilder private var clockView: some View {
+        
+        if let time = endTime {
+            SimpleClockView(targetTime: time) {
+                Task { await vm.reloadWeeklyRecCycle() }
+            }
+        } else {
+            Text("Respond to profiles to get new matches")
+        }
+    }
+        
+        
+        
         if !vm.showRespondToProfilesToRefresh() {
+            
+            
+            
+            
 //            if let time = vm.weeklyRecDoc?.endsAt.dateValue() {
 //                SimpleClockView(targetTime: time) {
 //                    vm.reloadWeeklyRecCycle()
