@@ -12,11 +12,18 @@ import SwiftUI
 
 @Observable class EventViewModel {
     
-    var dep: AppDependencies
     
-    init(dependencies: AppDependencies) {
-        self.dep = dependencies
+    var cacheManager: CacheManaging
+    var userManager: UserManager
+    var eventManager: EventManager
+    
+    
+    init(cacheManager: CacheManager, userManager: UserManager, eventManager: EventManaging) {
+        self.cacheManager = cacheManager
+        self.userManager = userManager
+        self.eventManager = eventManager
     }
+    
     var userEvents: [UserEvent] = []
     
     var hasEvents: Bool { !userEvents.isEmpty }
@@ -24,19 +31,20 @@ import SwiftUI
     var currentUser: UserProfile?
     
     func fetchUserEvents() async throws {
-        userEvents = try await dep.eventManager.getUpcomingAcceptedEvents()
+        userEvents = try await eventManager.getUpcomingAcceptedEvents()
     }
     
     func saveUserImagesToCache() async throws {
         let ids = Set(userEvents.map(\.otherUserId))
         let profiles: [UserProfile] = try await withThrowingTaskGroup(of: UserProfile.self) { group in
             for id in ids {
-                group.addTask { try await self.dep.userManager.fetchUser(userId: id) } }
+                group.addTask { try await self.userManager.fetchUser(userId: id) } }
             var results: [UserProfile] = []
             for try await p in group { results.append(p) }
             return results
         }
-        _ = await self.dep.cacheManager.loadProfileImages(profiles)
+        _ = await self.cacheManager.loadProfileImages(profiles)
         print("saved Images to Cache")
     }
+    
 }

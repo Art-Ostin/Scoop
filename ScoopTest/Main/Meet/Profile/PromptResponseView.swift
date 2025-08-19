@@ -13,14 +13,15 @@ struct PromptResponseView: View {
     var prompt: PromptResponse
     
     var body: some View {
+        let p = vm.profileModel.profile
         VStack {
             
-            Text(vm.p.prompt1?.prompt ?? "")
+            Text(p.prompt1?.prompt ?? "")
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .padding(.bottom, 16)
                 .font(.body(14, .italic))
             
-            Text(vm.p.prompt1?.response ?? "")
+            Text(p.prompt1?.response ?? "")
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .font(.title(24))
                 .lineSpacing(12)

@@ -12,7 +12,7 @@
      
      @State var vm = MapViewModel()
      @Environment(\.dismiss) var dismiss
-     @Binding var vm2: SendInviteViewModel
+     @Binding var vm2: InviteViewModel
      @State var selectedPlace: MKMapItem?
      
      

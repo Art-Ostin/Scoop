@@ -7,15 +7,14 @@
 import SwiftUI
 
 struct EventView: View {
-    let dep: AppDependencies
-    
+        
     let vm: EventViewModel
     
     @State var showEventDetails: Bool = false
     @State var selection: String?
     @State var showProfile: Bool = false
     
-    @State var selectedProfile: UserProfile?
+    @State var selectedProfile: ProfileModel?
     
     var body: some View {
         
@@ -47,7 +46,7 @@ struct EventView: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(profile: profile, dep: dep, onDismiss: { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } })
+                    ProfileView(vm: ProfileViewModel(profileModel: selectedProfile, cacheManager: <#T##any CacheManaging#>), onDismiss: <#T##() -> Void#>)
                 }
                 .transition(.move(edge: .bottom))
                 .zIndex(1)

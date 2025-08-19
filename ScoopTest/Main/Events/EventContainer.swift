@@ -11,8 +11,8 @@ struct EventContainer: View {
     
     @State var vm: EventViewModel
     
-    init(dependencies: AppDependencies) {
-        _vm = State(initialValue: EventViewModel(dependencies: dependencies))
+    init(vm: EventViewModel) {
+        _vm = State(initialValue: vm)
     }
     
     var body: some View {

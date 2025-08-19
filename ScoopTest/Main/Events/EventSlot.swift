@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct EventSlot: View {
-    
-    
+
     let vm: EventViewModel
+    
     let event: UserEvent
     
-    @Binding var selectedProfile: UserProfile?
-    @State var profileHolder: UserProfile?
+    @Binding var selectedProfile: ProfileModel?
+    @State var profileHolder: ProfileModel?
     
     var body: some View {
         
@@ -38,12 +38,18 @@ struct EventSlot: View {
                 .padding(.horizontal, 32)
         }
         .task {
-            profileHolder = try? await vm.dep.userManager.fetchUser(userId: event.otherUserId)
+            guard
+                let profile = try? await vm.userManager.fetchUser(userId: event.otherUserId),
+                let firstImage = try? await vm.cacheManager.fetchFirstImage(profile: profile)
+            else {return}
+            profileHolder = ProfileModel(event: event, profile: profile, image: firstImage)
         }
         .tag(event.id)
         .frame(maxHeight: .infinity)
     }
 }
+
+
 
 //#Preview {
 //    EventSlot()

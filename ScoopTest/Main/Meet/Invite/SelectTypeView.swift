@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SelectTypeView: View {
     
-    @Binding var vm: SendInviteViewModel
+    @Binding var vm: InviteViewModel
     
     var body: some View {
 

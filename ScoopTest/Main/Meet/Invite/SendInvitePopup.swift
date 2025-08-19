@@ -6,13 +6,13 @@ import MapKit
 struct SendInvitePopup: View {
     
     
-    @State var vm: SendInviteViewModel
+    @State var vm: InviteViewModel
     @State var showAlert: Bool = false
     @FocusState var isFocused: Bool
     
     let onDismiss: () -> Void
 
-    init(vm: SendInviteViewModel, onDismiss: @escaping () -> Void) {
+    init(vm: InviteViewModel, onDismiss: @escaping () -> Void) {
         _vm = State(initialValue: vm)
         self.onDismiss = onDismiss
     }

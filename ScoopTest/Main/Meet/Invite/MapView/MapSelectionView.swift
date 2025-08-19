@@ -13,7 +13,7 @@ struct MapSelectionView: View {
     
     @Binding var vm: MapViewModel
     @Binding var selectedPlace: MKMapItem?
-    @Binding var vm2: SendInviteViewModel
+    @Binding var vm2: InviteViewModel
     
     let onCloseMap: () -> Void
     

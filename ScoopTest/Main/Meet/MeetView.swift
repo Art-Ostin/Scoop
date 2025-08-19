@@ -51,7 +51,7 @@ extension MeetView {
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
-    private func profileRecView(profileInvite: ProfileInvite) -> some View {
+    private func profileRecView(profileInvite: ProfileModel) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())

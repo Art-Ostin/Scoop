@@ -11,7 +11,7 @@ struct ProfileCard : View {
     
     @Binding var vm: MeetViewModel
     let profileInvite: ProfileModel
-    @Binding var selectedProfile: ViewProfileModel?
+    @Binding var selectedProfile: ProfileModel?
     
     var body: some View {
         ZStack {

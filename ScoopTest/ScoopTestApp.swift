@@ -27,8 +27,7 @@ struct ScoopTestApp: App {
                 .task {
                     let bootstrapper = Bootstrapper(appState: $appState, dep: dep)
                     await bootstrapper.start()
-                }
+            }
         }
     }
 }
-

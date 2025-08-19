@@ -25,8 +25,8 @@ final class SessionManager {
     }
     
 
-    var profileRecs: [ProfileInvite] = []
-    var profileInvites: [ProfileInvite] = []
+    var profileRecs: [ProfileModel] = []
+    var profileInvites: [ProfileModel] = []
     
     var showProfileRecommendations: Bool = true
     var showRespondToProfilesToRefresh: Bool = false

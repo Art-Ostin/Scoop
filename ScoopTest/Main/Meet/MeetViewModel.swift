@@ -25,11 +25,11 @@ import UIKit
         try await cycleManager.fetchCycle()
     }
     
-    func fetchWeeklyRecs() -> [ProfileInvite] {
+    func fetchWeeklyRecs() -> [ProfileModel] {
         sessionManager.profileRecs
     }
     
-    func fetchWeeklyInvites() -> [ProfileInvite] {
+    func fetchWeeklyInvites() -> [ProfileModel] {
         sessionManager.profileInvites
     }
     
