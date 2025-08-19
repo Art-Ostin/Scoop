@@ -26,6 +26,7 @@ struct IntroView: View {
             ActionButton(text: "2 Daily Profiles") {
                 Task {
                     try? await vm.createWeeklyCycle()
+                    
                 }
             }
         }

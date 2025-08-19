@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 
+@Observable
 final class SessionManager {
     
     private let eventManager: EventManager
@@ -41,19 +42,14 @@ final class SessionManager {
     }
 
     func loadprofileRecs () async throws {
+        print("load profile Recs called")
         guard try await cycleManager.checkCycleSatus() else {
             showProfileRecommendations = false
-            print("no profiles to load")
+            print("No profile Recs")
             return
         }
-        do {
-            showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
-        } catch {
-            print("Could not save issue")
-        }
-        
+        showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
         profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
     }
-    
 }

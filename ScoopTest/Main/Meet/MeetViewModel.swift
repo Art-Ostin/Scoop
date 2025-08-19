@@ -20,6 +20,7 @@ import UIKit
         self.sessionManager = sessionManager
         self.cacheManager = cacheManager
     }
+
     
     func fetchWeeklyRecCycle() async throws -> RecommendationCycle {
         try await cycleManager.fetchCycle()
@@ -66,9 +67,8 @@ import UIKit
         try await sessionManager.loadprofileRecs()
         sessionManager.showProfileRecommendations = true
     }
-    
+
     func fetchImage(url: URL) async throws -> UIImage {
         try await cacheManager.fetchImage(for: url)
     }
-    
 }

@@ -39,12 +39,12 @@ extension MeetView {
                 ProfileCard(vm: $vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
 
-            if !vm.showProfileRecommendations() {
-                IntroView(vm: $vm)
-            } else {
+            if vm.showProfileRecommendations() {
                 ForEach(vm.fetchWeeklyRecs(), id: \.id) {profileInvite in
                     ProfileCard(vm: $vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
                 }
+            } else {
+                IntroView(vm: $vm)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))

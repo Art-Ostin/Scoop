@@ -112,7 +112,10 @@ final class CycleManager {
     
     
     func checkCycleSatus () async throws -> Bool {
-        guard (userManager.user.activeCycleId != nil) else { return false }
+        guard (userManager.user.activeCycleId != nil) else {
+            print("cycle status not found")
+            return false
+        }
         let doc = try await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
         let timeRefresh = doc.autoRemoveAt.dateValue()
