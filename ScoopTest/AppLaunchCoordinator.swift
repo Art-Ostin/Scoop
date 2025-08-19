@@ -18,7 +18,7 @@ struct Bootstrapper {
         
         do {
             try await dep.userManager.loadUser()
-            
+
             Task(priority: .utility) {
                 await prefetch()
             }

@@ -19,6 +19,8 @@ enum ProfileType {
     var event: UserEvent?
     var profileType: ProfileType
     
+    var firstImage: UIImage?
+    
     var showInvite: Bool = false
     
     init(profile: UserProfile, profileType: ProfileType = .sendInvite, event: UserEvent? = nil, cacheManager: CacheManaging) {
@@ -29,8 +31,8 @@ enum ProfileType {
     }
     
     func loadImages() async -> [UIImage] {
-        return await cacheManager.loadProfileImages([p])
+        let image = await cacheManager.loadProfileImages([p])
+        firstImage = image.first
+        return image
     }
-    
-    // I want to get the the first UI Image from the profileImages, so that I can pass it into the SendInvite and AcceptInvite pop ups
 }

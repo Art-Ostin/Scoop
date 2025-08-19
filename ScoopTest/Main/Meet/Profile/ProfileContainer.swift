@@ -33,19 +33,18 @@ struct ProfileView: View {
                     }
                 }
                 if vm.showInvite {
+                    let image = vm.firstImage ?? UIImage()
                     Rectangle()
                         .fill(.thinMaterial)
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
-                        .onTapGesture {
-                            vm.showInvite = false
-                        }
+                        .onTapGesture { vm.showInvite = false }
                     if let event = vm.event {
-                        AcceptInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: <#T##UIImage#>) {
+                        AcceptInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: image) {
                             onDismiss()
                         }
-                    } else  {
-                        SendInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: $image) {
+                    } else {
+                        SendInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: image) {
                             onDismiss()
                         }
                     }
@@ -57,7 +56,7 @@ struct ProfileView: View {
 }
 
 extension ProfileView {
-    
+
     private var heading: some View {
         HStack {
             Text(vm.p.name ?? "")
@@ -75,10 +74,3 @@ extension ProfileView {
         }
     }
 }
-
-
-
-//    init(profile: UserProfile, event: UserEvent? = nil, onDismiss: @escaping () -> Void = {}) {
-//        self._vm = State(initialValue: ProfileViewModel(profile: profile, profileType: .sendInvite, event: event, cacheManager: dep.cacheManager))
-//        self.onDismiss = onDismiss
-//    }
