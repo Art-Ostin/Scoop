@@ -13,17 +13,21 @@ struct OptionField {
     let title: String
     let options: [String]
     let keyPath: KeyPath<UserProfile, String?>
-    let update: (String) async -> Void
+//    let update: (String) async -> Void
 }
 
 
 //Defines the generic layout for OptionSelectionView
 struct OptionEditView: View  {
     
-    let field: OptionField
+    @Binding var vm: EditProfileViewModel
     @State private var selection: String? = nil
-    @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
+
+    let field: OptionField
+    
+    
+    
 
     var body: some View {
         let grid = [GridItem(.flexible()), GridItem(.flexible())]
@@ -42,11 +46,11 @@ struct OptionEditView: View  {
             }
         }
         .flowNavigation()
-        .task {selection = dep.userManager.user[keyPath: field.keyPath] }
+        .onAppear {selection = vm.fetchUserField(\.attractedTo)}
     }
     
     private func select(_ value: String) {
-        Task { await field.update(value) }
+        Task { vm.updateUser(values: [field.keyPath: value]) }
         switch mode {
         case .onboarding(_, let advance):
             advance()
@@ -60,15 +64,14 @@ struct OptionEditView: View  {
 struct ProfileFields {
     
     
-    static func editSex(dep: AppDependencies) -> OptionField {
-          OptionField(
-              title: "Sex",
-              options: ["Man", "Women", "Beyond Binary"],
-              keyPath: \.sex
-          ) { value in
-              try? await dep.userManager.updateUser(values: [.sex: value])
-          }
-      }
+    static func editSex(vm: EditProfileViewModel) -> OptionField {
+        OptionField(
+            title: "Sex",
+            options: ["Man", "Women", "Beyond Binary"],
+            keyPath: \.sex
+        ) }
+        
+        
 
       static func editAttractedTo(dep: AppDependencies) -> OptionField {
           OptionField(

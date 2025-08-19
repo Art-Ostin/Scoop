@@ -32,7 +32,6 @@ struct OnboardingContainer: View {
                     case 7: EditNationality(vm: $vm)
                     case 8: TextFieldEdit(vm: $vm, field: ProfileFields.editHometown(dep: dep))
                     case 9: TextFieldEdit(vm: $vm, field: ProfileFields.editDegree(dep: dep))
-                    case 10: AddImageView(vm: vm)
                     default: EmptyView()
 //                    }
                 }

@@ -22,15 +22,16 @@ import Foundation
     }
     
     
-    func fetchInterests() -> [String] {
-        userManager.user.interests ?? []
+    
+    func fetchUserField(_ key: KeyPath<UserProfile, String?>) -> String? {
+        userManager.user[keyPath: key]
     }
-    func fetchHeight() -> String {
-        userManager.user.height ?? "5' 8"
+    
+    func fetchUserFieldArray(_ key: KeyPath<UserProfile, [String]?>) -> [String]? {
+        userManager.user[keyPath: key]
     }
-    func fetchNationality() {
-        selectedCountries = userManager.user.nationality ?? []
-    }
+
+    
     
     func interestIsSelected(text: String) -> Bool {
         userManager.user.interests?.contains(text) == true
