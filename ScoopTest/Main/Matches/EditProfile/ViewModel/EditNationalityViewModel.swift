@@ -7,22 +7,22 @@
 
 import Foundation
 import SwiftUI
+import FirebaseFirestore
 
 
 
-@Observable class EditNationalityViewModel {
+@Observable final class EditNationalityViewModel {
     
     @Binding var vm: EditProfileViewModel
     
-    init(vm: EditProfileViewModel) {
-        _vm = Binding(initialValue: vm)
+    init(vm: Binding<EditProfileViewModel>){
+        self._vm = vm
     }
 
     var selectedCountries: [String] = []
     
     let countries = CountryDataServices.shared.allCountries
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
-    let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
+
     
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
@@ -39,6 +39,8 @@ import SwiftUI
     func isSelected(_ country: String) -> Bool {
         selectedCountries.contains(country)
     }
+    
+    
     
     func toggleCountry(_ country: String, dep: AppDependencies) {
         if selectedCountries.contains(country) {

@@ -26,6 +26,11 @@ import Foundation
         userManager.user.interests ?? []
     }
     
+    func fetchHeight() -> String {
+        userManager.user.height ?? "5' 8"
+    }
+    
+    
     func interestIsSelected(text: String) -> Bool {
         userManager.user.interests?.contains(text) == true
     }
@@ -34,3 +39,4 @@ import Foundation
         try await userManager.updateUser(values: values)
     }
 }
+

@@ -3,8 +3,6 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 28/07/2025.
-//
-
 
 import SwiftUI
 import FirebaseFirestore
@@ -12,11 +10,13 @@ import FirebaseFirestore
 struct EditNationality: View {
     
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Binding var vm: EditNationalityViewModel
+    
+    @State var vm: EditNationalityViewModel
     
     
-    
-    
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
+    let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
     
     
     var body: some View {
@@ -57,6 +57,9 @@ struct EditNationality: View {
 }
 
 //Views
+
+
+
 extension EditNationality {
     
     private var selectedCountries: some View {

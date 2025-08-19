@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditHeight: View {
     
-    @Environment(\.appDependencies) private var dep
+    @Binding var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
     
     let heightOptions = (53...84).map { inches in
@@ -17,33 +17,28 @@ struct EditHeight: View {
     }
     
     @State var height = "5' 8"
-    
-    
     var body: some View {
-
-        let manager = dep.userManager
-        
         VStack {
             SignUpTitle(text: "Height")
             ZStack {
                 Picker("Height", selection: $height) {
                     ForEach(heightOptions, id: \.self) { option in
                         Text(option).font(.body(20))
-                            .onChange(of: height) {Task{try await manager.updateUser(values: [.height : height])}}
+                            .onChange(of: height) {Task{try await vm.updateUser(values: [.height : height])}}
                     }
                 }
                 .pickerStyle(.wheel)
                 
                 if case .onboarding(_, let advance) = mode {
                     NextButton(isEnabled: true) {
-                        Task { try? await manager.updateUser(values: [.height : height]) }
+                        Task { try? await vm.updateUser(values: [.height : height]) }
                         advance()
                     }
                 }
             }
             .flowNavigation()
             .task {
-                height = manager.user.height ?? "5' 8"
+                height = vm.fetchHeight()
             }
         }
     }
