@@ -11,8 +11,8 @@ import FirebaseFirestore
 
 
 struct EditInterests: View {
-    
-    @Environment(\.appDependencies) private var dep
+
+    @Binding var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
 
     @State var selected: [String] = []
@@ -30,7 +30,6 @@ struct EditInterests: View {
         (nil,nil,i.music3)
         ]
     }
-
     
     var body: some View {
         ZStack {
@@ -59,9 +58,7 @@ struct EditInterests: View {
         }
         .flowNavigation()
         .task {
-            selected = dep.userManager.user.interests
-            ?? dep.userManager.user.character
-            ?? []
+            selected = vm.fetchInterests()
         }
     }
 }
@@ -93,17 +90,11 @@ extension EditInterests {
 
 struct InterestSection: View {
     
+    @Binding var vm: EditProfileViewModel
     @State var options: [String]
-    
     let title: String?
     let image: String?
-    
-    @Environment(\.appDependencies) private var dep: AppDependencies
 
-    
-    private func interestIsSelected (text: String) -> Bool {
-        dep.userManager.user.interests?.contains(text) == true
-    }
     @Binding var selected: [String]
     
     var body: some View {
@@ -132,10 +123,10 @@ struct InterestSection: View {
                         : (selected.count < 10 ? selected.append(text) : nil)
 
                     Task {
-                        if interestIsSelected(text: text) {
-                            try await dep.userManager.updateUser(values: [.interests : FieldValue.arrayRemove([text])])
+                        if vm.interestIsSelected(text: text) {
+                            try await vm.updateUser(values: [.interests : FieldValue.arrayRemove([text])])
                         } else {
-                            try await dep.userManager.updateUser(values: [.interests : FieldValue.arrayUnion([text])])
+                            try await vm.updateUser(values: [.interests : FieldValue.arrayUnion([text])])
                         }
                     }
                 }
@@ -145,10 +136,6 @@ struct InterestSection: View {
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
         
     }
-}
-
-#Preview {
-    EditInterests()
 }
 
 struct optionCell2: View {

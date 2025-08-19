@@ -23,23 +23,33 @@ struct ImageSlot: Equatable {
 
 @Observable class EditImageViewModel {
     
-    var dep: AppDependencies
+   
+    var userManager: UserManager
+    var cacheManager: CacheManaging
+    var storageManager: StorageManaging
+    
+    
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
 
-    init(dep: AppDependencies) { self.dep = dep }
 
+    init(userManager: UserManager, cacheManager: CacheManaging, storageManager: StorageManaging) {
+        self.userManager = userManager
+        self.cacheManager = cacheManager
+        self.storageManager = storageManager
+    }
+    
     
     @MainActor
     func assignSlots() async {
-        let user = dep.userManager.user
+        let user = userManager.user
         let paths = user.imagePath ?? []
         let urlStrings = user.imagePathURL ?? []
         let urls = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
         for i in 0..<min(urls.count, 6) {
-            if let img = try? await dep.cacheManager.fetchImage(for: urls[i]) {
+            if let img = try? await cacheManager.fetchImage(for: urls[i]) {
                 newImages[i] = img
             }
         }
@@ -55,8 +65,8 @@ struct ImageSlot: Equatable {
         
         //Delete old Images at index
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
-            dep.cacheManager.removeImage(for: oldURL)
-            try await dep.storageManager.deleteImage(path: oldPath)
+            cacheManager.removeImage(for: oldURL)
+            try await storageManager.deleteImage(path: oldPath)
         }
         
         guard
@@ -69,12 +79,12 @@ struct ImageSlot: Equatable {
             if images.indices.contains(index) { images[index] = uiImage }
         }
         
-        let originalPath = try await dep.storageManager.saveImage(data: data)
-        let url = try await dep.storageManager.getImageURL(path: originalPath)
+        let originalPath = try await storageManager.saveImage(data: data)
+        let url = try await storageManager.getImageURL(path: originalPath)
         let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         
-        var paths = dep.userManager.user.imagePath ?? []
-        var urls  = dep.userManager.user.imagePathURL ?? []
+        var paths = userManager.user.imagePath ?? []
+        var urls  = userManager.user.imagePathURL ?? []
         if paths.count < 6 { paths.append(contentsOf: Array(repeating: "", count: 6 - paths.count)) }
         if urls.count  < 6 { urls.append(contentsOf:  Array(repeating: "", count: 6 - urls.count)) }
         
@@ -82,13 +92,13 @@ struct ImageSlot: Equatable {
         paths[index] = resizedPath
         urls[index]  = url.absoluteString
         
-        try await dep.userManager.updateUser(values: [
+        try await userManager.updateUser(values: [
             .imagePath: paths,
             .imagePathURL: urls
         ])
         
         do {
-            try await dep.userManager.loadUser()
+            try await userManager.loadUser()
             print("loaded User")
         } catch {
             print("Error")

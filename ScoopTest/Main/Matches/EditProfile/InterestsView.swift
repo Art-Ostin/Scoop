@@ -48,6 +48,7 @@ struct InterestsLayout: View {
     
     @Environment(\.appDependencies) private var dep
     
+    
     var passions: [String] {
         dep.userManager.user.interests ?? []
     }

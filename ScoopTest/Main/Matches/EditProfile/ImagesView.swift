@@ -13,8 +13,8 @@ struct ImagesView: View {
     @State private var vm: EditImageViewModel
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
     
-    init(dep: AppDependencies) {
-        _vm = State(initialValue: EditImageViewModel(dep: dep))
+    init(vm: EditImageViewModel) {
+        _vm = State(initialValue: vm)
     }
     var body: some View {
         CustomList {

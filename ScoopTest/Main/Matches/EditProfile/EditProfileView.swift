@@ -10,21 +10,18 @@ import SwiftUI
 
 struct EditProfileView: View {
     
-    @State var vm: EditProfileViewModel
+    @Binding var vm: EditProfileViewModel
     
-    init(vm: EditProfileViewModel) {
-        _vm = State(initialValue: vm)
-    }
     
     var body: some View {
         
         NavigationStack {
             ZStack {
                 ScrollView {
-                    ImagesView(dep: dep)
+                    ImagesView(vm: EditImageViewModel(userManager: vm.userManager, cacheManager: vm.cachManager, storageManager: vm.storageManager))
                     PromptsView()
                     InfoView()
-                    InterestsView(user: dep.userManager)
+                    InterestsView()
                     YearsView()
                 }
             }
