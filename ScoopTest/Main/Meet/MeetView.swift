@@ -22,8 +22,8 @@ struct MeetView: View {
                 tabView
                 clockView
             }
-            if let selectedProfile = selectedProfile {
-                profileRecView(profileInvite: selectedProfile)
+            if let profileModel = selectedProfile {
+                profileRecView(profileModel: profileModel)
             }
         }
         .padding(.top, 36)
@@ -49,14 +49,14 @@ extension MeetView {
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
-    private func profileRecView(profileInvite: ProfileModel) -> some View {
+    private func profileRecView(profileModel: ProfileModel) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .ignoresSafeArea()
                 .onTapGesture { }
             
-            ProfileView(vm: ProfileViewModel(profileModel: selectedProfile, cacheManager: vm.cacheManager)) {
+            ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager)) {
                 withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
             }
         }

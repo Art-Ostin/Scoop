@@ -16,12 +16,12 @@ enum ProfileViewType {
 @Observable class ProfileViewModel {
     
     let cacheManager: CacheManaging
-    let userManager: UserManager
     let profileModel: ProfileModel
     
     var showInvitePopup: Bool = false
+    
     var viewProfileType: ProfileViewType {
-        if profileModel.profile == userManager.user || profileModel.event?.status == .accepted {
+        if profileModel.event?.status == .accepted {
             return .view
         } else if profileModel.event?.status == .pending {
             return .accept
@@ -30,10 +30,9 @@ enum ProfileViewType {
         }
     }
     
-    init(profileModel: ProfileModel, cacheManager: CacheManaging, userManager: UserManager) {
+    init(profileModel: ProfileModel, cacheManager: CacheManaging) {
         self.profileModel = profileModel
         self.cacheManager = cacheManager
-        self.userManager = userManager
     }
     
     func loadImages() async -> [UIImage] {
