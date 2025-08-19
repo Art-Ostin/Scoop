@@ -7,26 +7,20 @@
 import Foundation
 import SwiftUI
 
-enum ProfileType {
-    case sendInvite, receivedInvite, view
-}
 
 @Observable class ProfileViewModel {
     
     let cacheManager: CacheManaging
-    var p: UserProfile
-    var event: UserEvent?
-    var profileType: ProfileType
+    let profileModel: ProfileModel
+    
     var showInvite: Bool = false
     
-    init(profileInvite: ProfileInvite, profileType: ProfileType = .sendInvite, cacheManager: CacheManaging) {
-        self.p = profileInvite.profile
-        self.event = profileInvite.event
-        self.profileType = profileType
+    init(profileModel: ProfileModel, cacheManager: CacheManaging) {
+        self.profileModel = profileModel
         self.cacheManager = cacheManager
     }
     
     func loadImages() async -> [UIImage] {
-        return await cacheManager.loadProfileImages([p])
+        return await cacheManager.loadProfileImages([profileModel.profile])
     }
 }

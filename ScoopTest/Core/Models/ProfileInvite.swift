@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-struct ProfileInvite {
+struct ProfileModel {
     var event: UserEvent?
     var profile: UserProfile
-    var image: UIImage?
+    var image: UIImage
     var id: String { profile.userId}
 }

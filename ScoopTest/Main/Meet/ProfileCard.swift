@@ -10,8 +10,8 @@ import SwiftUI
 struct ProfileCard : View {
     
     @Binding var vm: MeetViewModel
-    let profileInvite: ProfileInvite
-    @Binding var selectedProfile: ProfileInvite?
+    let profileInvite: ProfileModel
+    @Binding var selectedProfile: ViewProfileModel?
     
     var body: some View {
         ZStack {

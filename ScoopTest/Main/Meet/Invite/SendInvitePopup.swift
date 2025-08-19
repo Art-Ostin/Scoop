@@ -10,15 +10,12 @@ struct SendInvitePopup: View {
     @State var showAlert: Bool = false
     @FocusState var isFocused: Bool
     
-    let image: UIImage
     let onDismiss: () -> Void
 
-    init(vm: SendInviteViewModel, image: UIImage, onDismiss: @escaping () -> Void) {
+    init(vm: SendInviteViewModel, onDismiss: @escaping () -> Void) {
         _vm = State(initialValue: vm)
-        self.image = image
         self.onDismiss = onDismiss
     }
-        
         
     
     var body: some View {

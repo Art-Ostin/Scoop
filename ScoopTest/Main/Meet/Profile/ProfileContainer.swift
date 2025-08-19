@@ -32,15 +32,15 @@ struct ProfileView: View {
                         ProfileDetailsView(vm: $vm)
                     }
                 }
+                
                 if vm.showInvite {
-                    let image = vm.firstImage ?? UIImage()
                     Rectangle()
                         .fill(.thinMaterial)
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvite = false }
-                    if let event = vm.event {
-                        AcceptInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.p), image: image) {
+                    if let event = vm.profileModel.event {
+                        AcceptInvitePopup(vm: SendInviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, recipient: vm.profileModel.profile, event: event), image: vm.profileModel.image) {
                             onDismiss()
                         }
                     } else {

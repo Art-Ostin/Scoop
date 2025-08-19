@@ -9,13 +9,13 @@ import Foundation
 
 @Observable final class SendInviteViewModel {
     
-    
+
     let eventManager: EventManager
     let cycleManager: CycleManager
     
     let recipient: UserProfile
     var event: Event
-
+    
     init(eventManager: EventManager, cycleManager: CycleManager, recipient: UserProfile) {
         self.eventManager = eventManager
         self.cycleManager = cycleManager

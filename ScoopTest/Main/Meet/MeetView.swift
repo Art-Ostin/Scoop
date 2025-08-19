@@ -10,7 +10,7 @@ import SwiftUI
 struct MeetView: View {
     
     @State var vm: MeetViewModel
-    @State var selectedProfile: ProfileInvite?
+    @State var selectedProfile: ProfileModel?
     
     init(vm: MeetViewModel) {
         _vm = State(initialValue: vm)
@@ -33,25 +33,23 @@ struct MeetView: View {
     }
 }
 
-
 extension MeetView {
     
     private var tabView: some View {
         TabView {
-            ForEach(vm.fetchWeeklyInvites(), id: \.id) {invite in
-                ProfileCard(vm: $vm, profileInvite: ProfileInvite: invite.event, profile: invite.profile, selectedProfile: $selectedProfile)
+            ForEach(vm.fetchWeeklyInvites(), id: \.id) {profileInvite in
+                ProfileCard(vm: $vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
             if !vm.showProfileRecommendations() {
                 IntroView(vm: $vm)
             } else {
-                ForEach(vm.fetchWeeklyRecs(), id: \.id) {profileRec in
-                    ProfileCard(vm: $vm, profile: profileRec.profile,  selectedProfile: $selectedProfile)
+                ForEach(vm.fetchWeeklyRecs(), id: \.id) {profileInvite in
+                    ProfileCard(vm: $vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
                 }
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
-
     
     private func profileRecView(profileInvite: ProfileInvite) -> some View {
         ZStack {
@@ -67,9 +65,7 @@ extension MeetView {
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
-    
-    
-    
+
     
     
     @ViewBuilder private var clockView: some View {
