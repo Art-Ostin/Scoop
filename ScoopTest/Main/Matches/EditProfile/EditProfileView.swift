@@ -10,12 +10,10 @@ import SwiftUI
 
 struct EditProfileView: View {
     
+    @State var vm: EditProfileViewModel
     
-    
-    var dep: AppDependencies
-    
-    init(dep: AppDependencies) {
-        self.dep = dep
+    init(vm: EditProfileViewModel) {
+        _vm = State(initialValue: vm)
     }
     
     var body: some View {

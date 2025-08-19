@@ -9,19 +9,16 @@ import SwiftUI
 
 struct EditProfileContainer: View {
     
-    @Environment(\.appDependencies) var dep
     @State var isView: Bool = true
-    
-    
-    
+    @State var vm: EditProfileViewModel
     
     
     var body: some View {
-        let user = dep.userManager.user
+        let user: ProfileModel = ProfileModel(profile: vm.userManager.user)
         Group {
             if isView {
-                ProfileView(profile: user, dep: dep)
-                    .id(user.imagePath ?? [])
+                ProfileView(vm: ProfileViewModel(profileModel: user, cacheManager: vm.cachManager))
+                    .id(user.profile.imagePath ?? [])
                     .transition(.move(edge: .leading))
             } else {
                 EditProfileView(dep: dep)

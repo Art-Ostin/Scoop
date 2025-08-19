@@ -18,7 +18,7 @@ import SwiftUI
     var eventManager: EventManager
     
     
-    init(cacheManager: CacheManager, userManager: UserManager, eventManager: EventManaging) {
+    init(cacheManager: CacheManager, userManager: UserManager, eventManager: EventManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.eventManager = eventManager

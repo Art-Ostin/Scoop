@@ -46,7 +46,9 @@ struct EventView: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(vm: ProfileViewModel(profileModel: selectedProfile, cacheManager: <#T##any CacheManaging#>), onDismiss: <#T##() -> Void#>)
+                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager)) {
+                        selectedProfile = nil
+                    }
                 }
                 .transition(.move(edge: .bottom))
                 .zIndex(1)
