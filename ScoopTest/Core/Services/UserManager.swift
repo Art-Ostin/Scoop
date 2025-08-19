@@ -37,12 +37,23 @@ class UserManager {
         let user = try await fetchUser(userId: uid)
         self.session = UserSession(user: user)
     }
+    
+    
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value }
         try await userDocument(userId: uid).updateData(data)
     }
+    
+    func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
+        if add {
+            try await updateUser(values: [field: FieldValue.arrayUnion([value])])
+        } else {
+            try await updateUser(values: [field: FieldValue.arrayRemove([value])])
+        }
+    }
+    
     func fetchUser(userId: String) async throws -> UserProfile {
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }

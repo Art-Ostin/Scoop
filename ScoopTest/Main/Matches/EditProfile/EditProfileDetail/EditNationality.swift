@@ -10,10 +10,9 @@ import FirebaseFirestore
 struct EditNationality: View {
     
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditNationalityViewModel
     
-    @State var vm: EditNationalityViewModel
     
+    @Binding var vm: EditProfileViewModel
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
@@ -45,19 +44,11 @@ struct EditNationality: View {
             }
         }
         .task {
-            vm.selectedCountries = dep.userManager.user.nationality ?? []
+            vm.fetchNationality()
         }
         .flowNavigation()
     }
 }
-
-
-#Preview {
-    EditNationality()
-}
-
-//Views
-
 
 
 extension EditNationality {
@@ -72,7 +63,7 @@ extension EditNationality {
                             .offset(x: 6, y: -2)
                     }
                     .onTapGesture {
-                        withAnimation(.smooth(duration: 0.2)) {vm.toggleCountry(country, dep: dep) }
+                        withAnimation(.smooth(duration: 0.2)) {vm.toggleCountry(country)}
                     }
             }
         }
@@ -103,7 +94,7 @@ extension EditNationality {
         ScrollView {
             VStack(spacing: 48) {
                 
-                LazyVGrid(columns: vm.columns, spacing: 36) {
+                LazyVGrid(columns: columns, spacing: 36) {
                     
                     ForEach(CountryDataServices.shared.popularCountries) { country in
                         flagItem(country: country)

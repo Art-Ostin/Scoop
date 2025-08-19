@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-
 struct EditPrompt: View {
     
-    @Environment(\.appDependencies) private var dep
+    
+    @Binding var vm: EditProfileViewModel
+    
     @Environment(\.flowMode) private var mode
     
     @FocusState var isFocused: Bool
@@ -29,9 +30,9 @@ struct EditPrompt: View {
         default: return UserProfile.CodingKeys.prompt1
         }
     }
-    
+
     var body: some View {
-                
+        
         ZStack {
             VStack(spacing: 12) {
                 selecter
@@ -45,34 +46,29 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: selectedText) { updatePrompt(key: key, prompt: selectedPrompt, response: selectedText)}
-        .onChange(of: selectedPrompt) { updatePrompt(key: key, prompt: selectedPrompt, response: selectedText)}
-        
+        .onChange(of: selectedText) { Task { try await vm.updateUser(values: [key: PromptResponse(prompt: selectedPrompt, response: selectedText)])} }
+        .onChange(of: selectedPrompt) { Task { try await vm.updateUser(values: [key: PromptResponse(prompt: selectedPrompt, response: selectedText)])} }
         .onAppear {
             isFocused = true
-            let user = dep.userManager.user
-                let promptData: PromptResponse?
-                switch promptIndex {
-                case 1: promptData = user.prompt1
-                case 2: promptData = user.prompt2
-                case 3: promptData = user.prompt3
-                default: promptData = nil
-                }
-                selectedPrompt = promptData?.prompt ?? prompts.randomElement() ?? ""
-                selectedText = promptData?.response ?? ""
+            let user = vm.fetchUser()
+            let promptData: PromptResponse?
+            switch promptIndex {
+            case 1: promptData = user.prompt1
+            case 2: promptData = user.prompt2
+            case 3: promptData = user.prompt3
+            default: promptData = nil
+            }
+            selectedPrompt = promptData?.prompt ?? prompts.randomElement() ?? ""
+            selectedText = promptData?.response ?? ""
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .flowNavigation()
-                
+        
     }
 }
 
-#Preview {
-    EditPrompt(prompts: Prompts.instance.prompts1, promptIndex: 2)
-}
-
 extension EditPrompt {
-
+    
     private var selecter: some View {
         
         HStack {
@@ -111,7 +107,6 @@ extension EditPrompt {
     }
     
     private var textEditor: some View {
-        
         TextEditor(text: $selectedText)
             .padding()
             .scrollContentBackground(.hidden)
@@ -124,39 +119,4 @@ extension EditPrompt {
             )
             .focused($isFocused)
     }
-
-    private func updatePrompt(key: UserProfile.CodingKeys, prompt: String, response: String) {
-        let prompt = PromptResponse(prompt: prompt, response: response)
-        Task { try? await dep.userManager.updateUser(values: [key : response]) }
-    }
 }
-
-
-
-/* Old Prompt Update code
- //Task {
- //    try? await dep.userManager.updatePrompt(
- //        userId: user.userId,
- //        promptIndex: promptIndex,
- //        prompt: prompt
- //    )
- //    try? await dep.userManager.loadUser()
- //}
- 
- 
- // UpdateUser Prompt (Reshuffle so not a function just for this and can use it with updateCurrentUser
- /*
-  func updateUserPrompt(index: Int, prompt: PromptResponse) async throws {
-      let key: UserProfile.CodingKeys
-      switch index {
-      case 1: key = .prompt1
-      case 2: key = .prompt2
-      case 3: key = .prompt3
-      default: return
-      }
-      let encoded = try Firestore.Encoder().encode(prompt)
-      try await updateUser(values: [key: encoded])
-  }
-  */
- */
-
