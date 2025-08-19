@@ -90,7 +90,7 @@ extension EditNationality {
                     }
                 }
                 
-                ForEach(vm.groupedCountries, id: \.letter) { group in
+                ForEach(Array(vm.groupedCountries.enumerated()), id: \.offset) { _, group in
                     VStack(spacing: 24) {
                         Text(group.letter)
                             .font(.body(32))

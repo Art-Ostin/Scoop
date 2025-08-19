@@ -56,7 +56,7 @@ extension MeetView {
                 .ignoresSafeArea()
                 .onTapGesture { }
             
-            ProfileView(vm: ProfileViewModel(profileInvite: profileInvite, cacheManager: vm.cacheManager)) {
+            ProfileView(vm: ProfileViewModel(profileModel: selectedProfile, cacheManager: vm.cacheManager)) {
                 withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
             }
         }

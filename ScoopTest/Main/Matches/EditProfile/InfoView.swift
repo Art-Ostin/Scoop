@@ -8,15 +8,17 @@ import SwiftUI
 
 struct InfoView: View {
     
+    @Binding var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
     
     
     
     private var coreInfo: [EditPreview] {
-        let u = dep.userManager.user
+
+        let u = vm.fetchUser()
         return [
-            .init("Name", [u.name ?? ""], {TextFieldEdit(field: ProfileFields.editName(dep:dep))}),
-            .init("Sex", [u.sex ?? ""], {OptionEditView(field: ProfileFields.editSex(dep:dep))}),
+            .init("Name", [u.name ?? ""], {TextFieldEdit(field: .name}),
+            .init("Sex", [u.sex ?? ""], {OptionEditView(field: .sex}),
             .init("AttractedTo", [u.attractedTo ?? ""], {OptionEditView(field: ProfileFields.editAttractedTo(dep:dep))}),
             .init("Year", [u.year ?? ""], {OptionEditView(field: ProfileFields.editYear(dep:dep))}),
             .init("Height", [u.height ?? ""], {EditHeight()}),
@@ -72,15 +74,12 @@ struct InfoView: View {
     }
 }
 
-#Preview {
-    InfoView()
-}
-
 struct EditPreview: Identifiable {
-    let id = UUID()
+
     let title: String
     let response: [String]
     let destination: AnyView
+    var id: {title}
     
     init<Content : View> (_ title: String, _ response: [String], @ViewBuilder _ destination: @escaping () -> Content) {
         self.title = title
