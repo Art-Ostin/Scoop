@@ -99,7 +99,7 @@ extension EditNationality {
                             .id(group.letter)
                             .offset(x: 16)
                         
-                        LazyVGrid(columns: vm.columns, spacing: 36) {
+                        LazyVGrid(columns: columns, spacing: 36) {
                             ForEach(group.countries) { country in
                                 flagItem(country: country)
                             }

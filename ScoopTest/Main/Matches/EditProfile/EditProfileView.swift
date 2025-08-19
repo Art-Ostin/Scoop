@@ -20,7 +20,7 @@ struct EditProfileView: View {
                 ScrollView {
                     ImagesView(vm: EditImageViewModel(userManager: vm.userManager, cacheManager: vm.cachManager, storageManager: vm.storageManager))
                     PromptsView(vm: $vm)
-                    InfoView()
+                    InfoView(vm: $vm)
                     InterestsView(vm: $vm)
                     YearsView()
                 }

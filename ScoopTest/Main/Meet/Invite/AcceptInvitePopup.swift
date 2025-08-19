@@ -34,7 +34,7 @@ struct AcceptInvitePopup: View {
                 }
             }
             EventFormatter(event: vm.profileModel.event)
-            ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle()}
+            ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle() }
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.top, 24)
