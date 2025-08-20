@@ -10,10 +10,6 @@ import FirebaseStorage
 import SwiftUI
 
 class StorageManager: StorageManaging {
-    
-    private let s: SessionManager
-    
-    init(sessionManager: SessionManager) { self.s = sessionManager}
 
     private let storage = Storage.storage().reference()
     
@@ -26,9 +22,9 @@ class StorageManager: StorageManaging {
         return updateImagePath(url: url)
     }
     
-    func saveImage(data: Data) async throws -> String {
+    func saveImage(data: Data, userId: String) async throws -> String {
         let filename = "\(UUID().uuidString).jpeg"
-        let path = "users/\(s.user.userId)/\(filename)"
+        let path = "users/\(userId)/\(filename)"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
@@ -46,3 +42,4 @@ class StorageManager: StorageManaging {
         return url
     }
 }
+

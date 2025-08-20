@@ -16,6 +16,7 @@ struct ImageSlot: Equatable {
 
 @Observable class EditImageViewModel {
     
+    var s: SessionManager
     var userManager: UserManager
     var cacheManager: CacheManaging
     var storageManager: StorageManaging
@@ -23,18 +24,19 @@ struct ImageSlot: Equatable {
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    
 
-
-    init(userManager: UserManager, cacheManager: CacheManaging, storageManager: StorageManaging) {
+    init(s: SessionManager,userManager: UserManager, cacheManager: CacheManaging, storageManager: StorageManaging) {
+        self.s = s
         self.userManager = userManager
         self.cacheManager = cacheManager
         self.storageManager = storageManager
     }
     
-    
+    var user: UserProfile {s.user}
+        
     @MainActor
     func assignSlots() async {
-        let user = userManager.user
         let paths = user.imagePath ?? []
         let urlStrings = user.imagePathURL ?? []
         let urls = urlStrings.compactMap(URL.init(string:))
@@ -53,7 +55,6 @@ struct ImageSlot: Equatable {
     }
     func changeImage(at index: Int) async throws {
         
-        //Delete old Images at index
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             cacheManager.removeImage(for: oldURL)
             try await storageManager.deleteImage(path: oldPath)
@@ -69,12 +70,12 @@ struct ImageSlot: Equatable {
             if images.indices.contains(index) { images[index] = uiImage }
         }
         
-        let originalPath = try await storageManager.saveImage(data: data)
+        let originalPath = try await storageManager.saveImage(data: data, userId: user.userId)
         let url = try await storageManager.getImageURL(path: originalPath)
         let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         
-        var paths = userManager.user.imagePath ?? []
-        var urls  = userManager.user.imagePathURL ?? []
+        var paths = user.imagePath ?? []
+        var urls  = user.imagePathURL ?? []
         if paths.count < 6 { paths.append(contentsOf: Array(repeating: "", count: 6 - paths.count)) }
         if urls.count  < 6 { urls.append(contentsOf:  Array(repeating: "", count: 6 - urls.count)) }
         
@@ -86,13 +87,7 @@ struct ImageSlot: Equatable {
             .imagePath: paths,
             .imagePathURL: urls
         ])
-        
-        do {
-            try await userManager.loadUser()
-            print("loaded User")
-        } catch {
-            print("Error")
-        }
+        await s.loadUser()
         
         await MainActor.run {
             slots[index].path = resizedPath

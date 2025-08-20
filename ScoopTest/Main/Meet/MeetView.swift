@@ -68,43 +68,12 @@ extension MeetView {
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
-
     
-    
-    private var clockView: some View {
+    @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
             SimpleClockView(targetTime: time) {
-                Task {vm.relo
+                
             }
-        }
-        
-        
-        
-        
-        
-        if let time = endTime {
-            SimpleClockView(targetTime: time) {
-                Task { await vm.reloadWeeklyRecCycle() }
-            }
-        } else {
-            Text("Respond to profiles to get new matches")
-        }
-    }
-        
-        
-        
-        if !vm.showRespondToProfilesToRefresh() {
-            
-            
-            
-            
-//            if let time = vm.weeklyRecDoc?.endsAt.dateValue() {
-//                SimpleClockView(targetTime: time) {
-//                    vm.reloadWeeklyRecCycle()
-//                }
-//            }
-        } else {
-            Text("Respond to profiles to get new matches")
         }
     }
 }

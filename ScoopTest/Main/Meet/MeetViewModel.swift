@@ -19,6 +19,7 @@ import UIKit
         self.cacheManager = cacheManager
     }
     
+    
     var activeCycle: CycleModel? { s.activeCycle }
     
     var invites: [ProfileModel] { s.invites }
@@ -34,7 +35,9 @@ import UIKit
     func reloadWeeklyRecCycle() {
         let count = activeCycle?.cycleStats.pending
         if count == 0 {
-            Task { try await cycleManager.deleteCycle() }
+            if let cycleId = activeCycle?.id {
+                Task { try await cycleManager.deleteCycle(userId: s.user.userId, cycleId: cycleId)}
+            }
             s.showProfiles = false
         } else {
             s.respondToRefresh = true
@@ -42,7 +45,9 @@ import UIKit
     }
     
     func createWeeklyCycle() async throws {
-        try await cycleManager.createCycle()
+        let _ = try await cycleManager.createCycle(userId: s.user.userId)
+        await s.loadUser()
+        await s.loadCycle()
         await s.loadProfiles()
         s.showProfiles = true
     }

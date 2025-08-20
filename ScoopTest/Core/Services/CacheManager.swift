@@ -20,8 +20,7 @@ class CacheManager: CacheManaging  {
         cache.countLimit = 100
         cache.totalCostLimit = 1024 * 1024 * 100
     }
-    
-    // fetches Image from Cache
+
     private func fetchImageFromCache(for url: URL) -> UIImage? {
         cache.object(forKey: url as NSURL)
     }
@@ -30,8 +29,6 @@ class CacheManager: CacheManaging  {
         cache.removeObject(forKey: url as NSURL)
     }
     
-    
-    //Checks if image is in Cache, if not converts URL to Image, saves it to the Cache, and returns the image
     func fetchImage(for url: URL) async throws -> UIImage {
         if let image = fetchImageFromCache(for: url) {
             return image
@@ -45,7 +42,6 @@ class CacheManager: CacheManaging  {
         return image
     }
     
-    
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         guard
             let urlString = profile.imagePathURL?.first,
@@ -53,7 +49,6 @@ class CacheManager: CacheManaging  {
         else {return nil}
         return try await fetchImage(for: url)
     }
-    
     
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {

@@ -29,7 +29,7 @@ final class SessionManager {
     
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
-    
+
     init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
@@ -51,12 +51,12 @@ final class SessionManager {
             let user = try? await userManager.fetchUser(userId: uid)
         else { return false}
         session.user = user
-        return true
         Task { await cacheManager.loadProfileImages([user])}
+        return true
     }
     
     func loadInvites() async {
-        guard let events = try? await eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
+        guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.userId), !events.isEmpty else { return }
         let input = events.map { (id: $0.otherUserId, event: $0) }
         let invites = await profileLoader(data: input)
         session.invites = invites
@@ -64,21 +64,20 @@ final class SessionManager {
     }
     
     func loadProfiles() async {
-        let status = await cycleManager.checkCycleStatus()
-        
+        let status = await cycleManager.checkCycleStatus(userId: user.userId, cycle: activeCycle)
         if status == .closed { showProfiles = false ; return }
         if status == .respond { respondToRefresh = true ; return}
         
-        guard let ids = try? await cycleManager.fetchCycleProfiles() else { return }
-        
+        guard let cycleId = session.activeCycle?.id,
+              let ids = try? await cycleManager.fetchCycleProfiles(userId: user.userId, cycleId: cycleId) else { return }
+
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
         session.profiles = await profileLoader(data: data)
         Task { await cacheManager.loadProfileImages(session.profiles.map{$0.profile})}
     }
     
-    
     func loadEvents() async {
-        guard let events = try? await eventManager.getUpcomingAcceptedEvents() else {return}
+        guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.userId) else {return}
         session.events = events
         Task {
             let input = events.map { (id: $0.otherUserId, event: $0) }
@@ -89,7 +88,7 @@ final class SessionManager {
     
     func loadCycle() async {
         if let cycleId = session.user.activeCycleId {
-            session.activeCycle = try? await cycleManager.fetchCycle(cycleId: cycleId)
+            session.activeCycle = try? await cycleManager.fetchCycle(userId: user.userId, cycleId: cycleId)
         }
     }
     

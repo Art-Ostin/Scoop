@@ -12,15 +12,12 @@ import SwiftUI
 class EventManager {
     
     private let userManager: UserManager
-    private let s: SessionManager
     
-    init(userManager: UserManager, s: SessionManager) {
-        self.userManager = userManager
-        self.s = s
-    }
+    init(userManager: UserManager) { self.userManager = userManager }
     
     private let eventCollection = Firestore.firestore().collection("events")
     private let userCollection = Firestore.firestore().collection("users")
+    
     private func userEventCollection (userId: String) -> CollectionReference {
         userCollection.document(userId).collection("user_events")
     }
@@ -28,6 +25,7 @@ class EventManager {
     private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
         userEventCollection(userId: userId).document(userEventId)
     }
+    
     private func eventDocument(id: String) -> DocumentReference {
         eventCollection.document(id)
     }
@@ -35,33 +33,28 @@ class EventManager {
     private func fetchEvent(eventId: String) async throws -> Event {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
     }
-    func createEvent(event: Event) async throws {
-        //Creates event and local reference in the two users subcollection of events
-        
+    
+    func createEvent(event: Event, currentUser: UserProfile) async throws {
         let db = Firestore.firestore()
         let batch = db.batch()
-        
         let eventRef = db.collection("events").document()
         let eventId = eventRef.documentID
-        
-        
         guard let recipientId = event.recipientId else { return }
-        
         var e = event
         e.id = eventId
-        e.initiatorId = s.user.userId
-        
+        e.initiatorId = currentUser.userId
+                
         let recipientProfile = try await userManager.fetchUser(userId: recipientId)
         let recipientName = recipientProfile.name ?? ""
         let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
         
-        let inviterName = s.user.name ?? ""
-        let inviterImageString = s.user.imagePathURL?.first ?? ""
+        let inviterName = currentUser.name ?? ""
+        let inviterImageString = currentUser.imagePathURL?.first ?? ""
         
         
         var eventData: [String: Any] = [
             Event.CodingKeys.id.stringValue: eventId,
-            Event.CodingKeys.initiatorId.stringValue: s.user.userId,
+            Event.CodingKeys.initiatorId.stringValue: currentUser.userId,
             Event.CodingKeys.recipientId.stringValue: recipientId,
             Event.CodingKeys.type.stringValue: e.type ?? "",
             Event.CodingKeys.message.stringValue: e.message ?? "",
@@ -98,13 +91,13 @@ class EventManager {
             return data
         }
         
-        let initiatorEdgeRef = db.collection("users").document(s.user.userId)
+        let initiatorEdgeRef = db.collection("users").document(currentUser.userId)
             .collection("user_events").document(eventId)
         let recipientEdgeRef = db.collection("users").document(recipientId)
             .collection("user_events").document(eventId)
         
         let edgeA = try edgeData(otherUserId: recipientId, role: .sent, otherName: recipientName, otherPhoto: recipientImageString)
-        let edgeB = try edgeData(otherUserId: s.user.userId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
+        let edgeB = try edgeData(otherUserId: currentUser.userId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
         
         batch.setData(eventData, forDocument: eventRef)
         batch.setData(edgeA, forDocument: initiatorEdgeRef)
@@ -113,45 +106,45 @@ class EventManager {
         try await batch.commit()
     }
     
-    
-    private func eventsQuery(_ scope: EventScope, now: Date = .init()) throws -> Query {
-    
-    let uid = s.user.userId
+    private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {
     
     let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
     switch scope {
     case .upcomingInvited:
-        return userEventCollection(userId: uid)
+        return userEventCollection(userId: userId)
             .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
             .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
             .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
             .order(by: Event.CodingKeys.time.stringValue)
     case .upcomingAccepted:
-        return userEventCollection(userId: uid)
+        return userEventCollection(userId: userId)
             .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
             .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
             .order(by: Event.CodingKeys.time.stringValue)
         
     case .pastAccepted:
-        return userEventCollection(userId: uid)
+        return userEventCollection(userId: userId)
             .whereField(UserEvent.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
             .whereField(UserEvent.CodingKeys.time.stringValue, isLessThan: Timestamp(date: plus3h))
     }
 }
-    private func getEvents(_ scope: EventScope, now: Date = .init()) async throws -> [UserEvent] {
-        let query = try eventsQuery(scope, now: now)
+    
+    private func getEvents(_ scope: EventScope, now: Date = .init(), userId: String) async throws -> [UserEvent] {
+        let query = try eventsQuery(scope, now: now, userId: userId)
         return try await query
             .getDocuments(as: UserEvent.self)
     }
     
-    func getUpcomingAcceptedEvents() async throws -> [UserEvent] {
-        try await getEvents(.upcomingAccepted)
+    func getUpcomingAcceptedEvents(userId: String) async throws -> [UserEvent] {
+        try await getEvents(.upcomingAccepted, userId: userId)
     }
-    func getUpcomingInvitedEvents() async throws -> [UserEvent] {
-        try await getEvents(.upcomingInvited)
+    
+    func getUpcomingInvitedEvents(userId: String) async throws -> [UserEvent] {
+        try await getEvents(.upcomingInvited, userId: userId)
     }
-    func getPastAcceptedEvents() async throws -> [UserEvent] {
-        try await getEvents(.pastAccepted)
+    
+    func getPastAcceptedEvents(userId: String) async throws -> [UserEvent] {
+        try await getEvents(.pastAccepted, userId: userId)
     }
     
     func updateTime(eventId: String, to newTime: Date) async throws {
