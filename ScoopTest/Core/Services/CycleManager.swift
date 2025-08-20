@@ -13,28 +13,28 @@ final class CycleManager {
     
     private var cacheManager: CacheManaging
     private var userManager: UserManager
+    private var sessionManager: SessionManager
     
-    init(cacheManager: CacheManaging, userManager: UserManager) {
+    init(cacheManager: CacheManaging, userManager: UserManager, sessionManager: SessionManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
+        self.sessionManager = sessionManager
     }
-
     
     private let users = Firestore.firestore().collection("users")
     private func cyclesCollection () -> CollectionReference {
-        users.document(userManager.user.userId).collection("recommendation_cycles")
+        users.document(sessionManager.user.userId).collection("recommendation_cycles")
     }
     private func cycleDocument(cycleId: String) -> DocumentReference {
         cyclesCollection().document(cycleId)
     }
-    
     private func recommendationsCollection (cycleId: String) -> CollectionReference {
         cycleDocument(cycleId: cycleId).collection("recommendations")
     }
     private func recommendationDocument(cycleId: String, profileId: String) -> DocumentReference {
         recommendationsCollection(cycleId: cycleId).document(profileId)
     }
-    
+        
     //Functions to Create/Fetch and update the cycle documents and reccomendation documents
     func createCycle() async throws {
         let addedCount = 4
@@ -53,13 +53,15 @@ final class CycleManager {
         let id = docRef.documentID
         try await createRecommendedProfiles(cycleId: id)
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
-        try await userManager.loadUser()
+        await sessionManager.loadUser()
     }
-    
+    var cycleId: String? {
+        sessionManager.activeCycleId
+    }
     
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
-        let ids = snap.documents.map( \.documentID ).filter { $0 != userManager.user.userId}
+        let ids = snap.documents.map( \.documentID ).filter { $0 != sessionManager.user.userId}
         let selectdIds = Array(ids.shuffled().prefix(4))
         
         for id in selectdIds {
@@ -70,30 +72,41 @@ final class CycleManager {
     
     func fetchCycle() async -> RecommendationCycle {
         do {
-            return try await cycleDocument(cycleId: activeCycleId).getDocument(as: RecommendationCycle.self)
+            if let cycleId {
+                return try await cycleDocument(cycleId: cycleId).getDocument(as: RecommendationCycle.self)
+            }
         } catch { print(error)}
     }
     
+    
     func fetchRecommendationItem(profileId: String) async throws -> RecommendationItem {
-        return try await recommendationDocument(cycleId: activeCycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
+        if let cycleId {
+            return try await recommendationDocument(cycleId: cycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
+        }
     }
     
     func fetchPendingCycleRecommendations() async throws -> [ProfileModel] {
-        let ids = try await recommendationsCollection(cycleId: activeCycleId)
-            .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
-                        isEqualTo: RecommendationStatus.pending.rawValue)
-            .getDocuments(as: RecommendationItem.self)
-            .map(\.id)
-        let data = ids.map { (id: $0, event: nil as UserEvent?) }
-        return await inviteLoader(data: data)
+        if let cycleId {
+            let ids = try await recommendationsCollection(cycleId: cycleId)
+                .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
+                            isEqualTo: RecommendationStatus.pending.rawValue)
+                .getDocuments(as: RecommendationItem.self)
+                .map(\.id)
+            let data = ids.map { (id: $0, event: nil as UserEvent?) }
+            return await inviteLoader(data: data)
+        }
     }
     
     
     func updateCycle(key: String, field: Any) {
-        cycleDocument(cycleId: activeCycleId).updateData( [key: field] )
+        if let cycleId {
+            cycleDocument(cycleId: cycleId).updateData( [key: field] )
+        }
     }
     func updateRecommendationItem(profileId: String, key: String, field: Any) {
-        recommendationDocument(cycleId: activeCycleId, profileId: profileId).updateData( [key: field] )
+        if let cycleId {
+            recommendationDocument(cycleId: cycleId, profileId: profileId).updateData( [key: field] )
+        }
     }
     
     
@@ -112,22 +125,18 @@ final class CycleManager {
     }
     
     func checkCycleSatus () async -> Bool {
-        guard (userManager.user.activeCycleId != nil) else {
-            print("cycle status not found")
-            return false
+        guard (cycleId != nil) else { return false }
+        let doc = await fetchCycle()
+        let timeEnd = doc.endsAt.dateValue()
+        let timeRefresh = doc.autoRemoveAt.dateValue()
+        let profilesPending = doc.cycleStats.pending
+        
+        if Date() > timeEnd {
+            if Date() > timeRefresh { try? await deleteCycle() ; return false }
+            if profilesPending == 0 { try? await deleteCycle() ; return false }
         }
-            let doc = await fetchCycle()
-            let timeEnd = doc.endsAt.dateValue()
-            let timeRefresh = doc.autoRemoveAt.dateValue()
-            let profilesPending = doc.cycleStats.pending
-            
-            if Date() > timeEnd {
-                if Date() > timeRefresh { try? await deleteCycle() ; return false }
-                if profilesPending == 0 { try? await deleteCycle() ; return false }
-            }
-            return true
-        }
-    
+        return true
+    }
     
     func showRespondToProfilesToRefresh() async -> Bool {
         let doc = await fetchCycle()
@@ -138,7 +147,7 @@ final class CycleManager {
         }
         return false
     }
-        
+    
     func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
             for item in data {
