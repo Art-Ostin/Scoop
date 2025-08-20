@@ -17,7 +17,7 @@ struct Session  {
 }
 
 @Observable
-final class SessionManager {
+class SessionManager {
 
     private let eventManager: EventManager
     private let cacheManager: CacheManaging
@@ -37,6 +37,7 @@ final class SessionManager {
         self.cycleManager = cycleManager
         self.authManager = authManager
     }
+    
     
     var user: UserProfile { session!.user }
     var invites: [ProfileModel] { session?.invites ?? [] }
@@ -87,9 +88,12 @@ final class SessionManager {
     }
     
     func loadCycle() async {
-        if let cycleId = session?.user.activeCycleId {
-            session?.activeCycle = try? await cycleManager.fetchCycle(userId: user.userId, cycleId: cycleId)
-        }
+        guard
+            let userId = session?.user.userId,
+            let cycleId = session?.user.activeCycleId
+        else { return }
+        let cycle = try? await cycleManager.fetchCycle(userId: userId, cycleId: cycleId)
+        session?.activeCycle = cycle
     }
     
     func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {

@@ -19,9 +19,7 @@ struct AppContainer: View {
             
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
-                    Color.background.ignoresSafeArea()
-                    MeetView(
-                        vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager))
+                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -35,6 +33,7 @@ struct AppContainer: View {
                             .toolbarBackground(Color.background, for: .tabBar)
                 }
             }
+            
             Tab("", image: "MessageIcon", value: 2) {
                 ZStack {
                     Color.background.ignoresSafeArea()
