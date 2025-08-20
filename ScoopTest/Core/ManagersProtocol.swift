@@ -22,7 +22,7 @@ protocol AuthManaging {
 protocol StorageManaging {
     func imagePath(_ imageId: String) -> StorageReference
     func getImageURL(path: String) async throws -> URL
-    func saveImage(data: Data) async throws -> String
+    func saveImage(data: Data, userId: String) async throws -> String
     func deleteImage(path: String) async throws
     func updateImagePath(url: URL) -> URL
 }
