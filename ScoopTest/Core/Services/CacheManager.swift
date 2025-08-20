@@ -33,14 +33,25 @@ class CacheManager: CacheManaging  {
         if let image = fetchImageFromCache(for: url) {
             return image
         }
-        let (data, _) = try await URLSession.shared.data(from: url)
-        guard let image = UIImage(data: data) else {
-            throw URLError(.badServerResponse)
+        print("Function called")
+        do {
+            print("docatch part called")
+            let (data, _) = try await URLSession.shared.data(from: url)
+            print("got data")
+            print(data)
+            if let image = UIImage(data: data) {
+                print("added Image to cache")
+                cache.setObject(image, forKey: url as NSURL, cost: data.count)
+                return image
+            }
+        } catch {
+            print(error)
         }
-        print("added Image to cache")
-        cache.setObject(image, forKey: url as NSURL, cost: data.count)
-        return image
+        print("no image added")
+        return UIImage()
     }
+    
+    
     
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         guard
@@ -49,6 +60,7 @@ class CacheManager: CacheManaging  {
         else {return nil}
         return try await fetchImage(for: url)
     }
+    
     
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
@@ -63,7 +75,6 @@ class CacheManager: CacheManaging  {
                         return try await self.fetchImage(for: url)
                     } catch {
                         print("unable to add images to cache")
-                        print(error)
                         return nil
                     }
                 }

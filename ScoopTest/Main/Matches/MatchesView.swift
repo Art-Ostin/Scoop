@@ -27,8 +27,12 @@ struct MatchesView: View {
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
                 
+                
                 VStack(spacing: 32) {
                     Image("DancingCats")
+                    
+                    Text(vm.user.name ?? "No name found")
+                    
                     
                     Text("View your past Meet Ups Here")
                         .font(.body(20))

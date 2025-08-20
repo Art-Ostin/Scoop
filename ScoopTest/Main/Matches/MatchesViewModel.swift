@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-
+@MainActor
 @Observable class MatchesViewModel {
     
     var userManager: UserManager
@@ -27,7 +27,9 @@ import UIKit
     }
     
     func fetchFirstImage() async throws -> UIImage {
-        let profile = await s.user
+        let profile = s.user
         return try await cacheManager.fetchFirstImage(profile: profile) ?? UIImage()
     }
+    
+    var user: UserProfile { s.user }
 }
