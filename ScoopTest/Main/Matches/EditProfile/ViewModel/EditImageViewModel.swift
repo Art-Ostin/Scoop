@@ -69,7 +69,7 @@ struct ImageSlot: Equatable {
             if images.indices.contains(index) { images[index] = uiImage }
         }
         
-        let originalPath = try await storageManager.saveImage(data: data)
+        let originalPath = try await storageManager.saveImage(data: data, userId: userManager.user.userId)
         let url = try await storageManager.getImageURL(path: originalPath)
         let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
         

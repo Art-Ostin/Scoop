@@ -21,7 +21,7 @@ struct AppContainer: View {
                 ZStack{
                     Color.background.ignoresSafeArea()
                     MeetView(
-                        vm: MeetViewModel(cycleManager: dep.cycleManager, sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, userManager: dep.userManager))
+                        vm: MeetViewModel(cycleManager: dep.cycleManager, sessionManager: dep.sessionManager, cacheManager: dep.cacheManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -30,7 +30,7 @@ struct AppContainer: View {
             Tab("", image: "LogoIcon", value: 1) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    EventContainer(vm: EventViewModel(cacheManager: dep.cacheManager, userManager: dep.userManager, eventManager: dep.eventManager))
+                    EventContainer(vm: EventViewModel(cacheManager: dep.cacheManager, userManager: dep.userManager, eventManager: dep.eventManager, sessionManager: dep.sessionManager))
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                 }

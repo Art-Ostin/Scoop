@@ -16,12 +16,14 @@ import SwiftUI
     var cacheManager: CacheManaging
     var userManager: UserManager
     var eventManager: EventManager
-    
-    
-    init(cacheManager: CacheManaging, userManager: UserManager, eventManager: EventManager) {
+    var sessionManager: SessionManager
+
+
+    init(cacheManager: CacheManaging, userManager: UserManager, eventManager: EventManager, sessionManager: SessionManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.eventManager = eventManager
+        self.sessionManager = sessionManager
     }
     
     var userEvents: [UserEvent] = []
@@ -31,7 +33,7 @@ import SwiftUI
     var currentUser: UserProfile?
     
     func fetchUserEvents() async throws {
-        userEvents = try await eventManager.getUpcomingAcceptedEvents()
+        userEvents = try await eventManager.getUpcomingAcceptedEvents(userId: sessionManager.user.userId)
     }
     
     func saveUserImagesToCache() async throws {
