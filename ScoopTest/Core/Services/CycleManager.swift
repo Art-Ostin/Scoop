@@ -18,11 +18,7 @@ final class CycleManager {
         self.cacheManager = cacheManager
         self.userManager = userManager
     }
-    
-    
-    
-    
-    
+
     
     private let users = Firestore.firestore().collection("users")
     private func cyclesCollection () -> CollectionReference {

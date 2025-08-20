@@ -9,35 +9,19 @@ import SwiftUI
 
 @MainActor
 struct Bootstrapper {
-    
+
     @Binding var appState: AppState
     
-    let dep: AppDependencies
+    let s: SessionManager
     
     func start () async {
-        do {
-            try await dep.userManager.loadUser()
-
-            Task(priority: .utility) {
-                await prefetch()
-            }
-            appState = .app
-        } catch {
-            appState = .login
-        }
-    }
-    
-    @MainActor
-    func prefetch() async {
+        guard await s.loadUser() else { appState = .login ; return }
         Task {
-            do {
-                try await dep.sessionManager.loadprofileRecs()
-            } catch {
-                print("error")
-                print(error)
-            }
-            await dep.sessionManager.loadProfileInvites()
+            await s.loadEvents()
+            await s.loadInvites()
+            await s.loadProfiles()
         }
+        appState = .app
     }
 }
 

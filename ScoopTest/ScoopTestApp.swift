@@ -30,7 +30,7 @@ struct ScoopTestApp: App {
                 .appDependencies(dep)
                 .environment(\.stateOfApp, $appState)
                 .task {
-                    let bootstrapper = Bootstrapper(appState: $appState, dep: dep)
+                    let bootstrapper = Bootstrapper(appState: $appState, s: dep.sessionManager)
                     await bootstrapper.start()
             }
         }

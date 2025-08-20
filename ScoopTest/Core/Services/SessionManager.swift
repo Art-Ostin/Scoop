@@ -26,7 +26,6 @@ final class SessionManager {
     private let cycleManager: CycleManager
     private let authManager: AuthManaging
     
-    
     private(set) var session: Session
     
     var showProfileRecommendations: Bool = true
@@ -46,8 +45,6 @@ final class SessionManager {
     var events: [UserEvent] { session.events }
     var activeCycleId: String? { session.activeCycleId }
     
-    
-    
     @discardableResult
     func loadUser() async -> Bool {
         guard
@@ -56,6 +53,7 @@ final class SessionManager {
         else { return false}
         session.user = user
         return true
+        Task { await cacheManager.loadProfileImages([user])}
     }
     
     func loadInvites() async {
@@ -66,7 +64,6 @@ final class SessionManager {
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
     
-        
     func loadProfiles() async {
         guard await cycleManager.checkCycleSatus() else {
             showProfileRecommendations = false
@@ -79,6 +76,12 @@ final class SessionManager {
     }
     
     func loadEvents() async {
-        
+        guard let events = try? await eventManager.getUpcomingAcceptedEvents() else {return}
+        session.events = events
+        Task {
+            let input = events.map { (id: $0.otherUserId, event: $0) }
+            let profileModels = await cycleManager.inviteLoader(data: input)
+            await cacheManager.loadProfileImages(profileModels.map(\.profile))
+        }
     }
 }

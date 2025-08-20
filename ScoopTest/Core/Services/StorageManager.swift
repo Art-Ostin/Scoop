@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseStorage
-import UIKit
 import SwiftUI
 
 class StorageManager: StorageManaging {
