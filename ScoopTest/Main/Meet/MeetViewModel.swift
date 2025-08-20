@@ -19,43 +19,32 @@ import UIKit
         self.cacheManager = cacheManager
     }
     
-
-    func fetchWeeklyRecs() -> [ProfileModel] {
-        s.profiles
-    }
+    var activeCycle: CycleModel? { s.activeCycle }
     
+    var invites: [ProfileModel] { s.invites }
     
+    var profiles: [ProfileModel] { s.profiles }
     
-    func fetchWeeklyInvites() -> [ProfileModel] {
-        s.profileInvites
-    }
+    var showProfiles: Bool { s.showProfiles }
     
-    func showProfileRecommendations() -> Bool {
-        s.showProfileRecommendations
-    }
+    var showRefresh: Bool { s.respondToRefresh }
     
-    func showRespondToProfilesToRefresh() -> Bool {
-        s.showRespondToProfilesToRefresh
-    }
+    var endTime: Date? { activeCycle?.endsAt.dateValue()}
     
-    func fetchTimeUntileEnd() async throws -> Date {
-        try await fetchWeeklyRecCycle().endsAt.dateValue()
-    }
-
-    func reloadWeeklyRecCycle() async {
-        let count = try? await fetchWeeklyRecCycle().cycleStats.pending
+    func reloadWeeklyRecCycle() {
+        let count = activeCycle?.cycleStats.pending
         if count == 0 {
             Task { try await cycleManager.deleteCycle() }
-            sessionManager.showProfileRecommendations = false
+            s.showProfiles = false
         } else {
-            sessionManager.showRespondToProfilesToRefresh = true
+            s.respondToRefresh = true
         }
     }
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle()
-        try await sessionManager.loadprofileRecs()
-        sessionManager.showProfileRecommendations = true
+        await s.loadProfiles()
+        s.showProfiles = true
     }
 
     func fetchImage(url: URL) async throws -> UIImage {

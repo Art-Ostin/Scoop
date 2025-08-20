@@ -76,6 +76,8 @@ final class CycleManager {
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
         await sessionManager.loadUser()
     }
+    
+    
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != sessionManager.user.userId}
@@ -111,13 +113,15 @@ final class CycleManager {
         }
         return .active
     }
+    
     func inviteSent(profileId: String) {
         guard var stats = sessionManager.activeCycle?.cycleStats else { return }
         stats .pending -= 1
         stats .invited += 1
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
     }
-    private func deleteCycle() async throws {
+    
+    func deleteCycle() async throws {
         updateCycle(key: CycleModel.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }

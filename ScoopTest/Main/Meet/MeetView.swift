@@ -39,12 +39,12 @@ extension MeetView {
     
     private var tabView: some View {
         TabView {
-            ForEach(vm.fetchWeeklyInvites(), id: \.id) {profileInvite in
+            ForEach(vm.invites, id: \.id) {profileInvite in
                 ProfileCard(vm: $vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
             
-            if vm.showProfileRecommendations() {
-                ForEach(vm.fetchWeeklyRecs(), id: \.id) {profileInvite in
+            if vm.showProfiles {
+                ForEach(vm.profiles, id: \.id) {profileInvite in
                     ProfileCard(vm: $vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
                 }
             } else {
@@ -71,7 +71,16 @@ extension MeetView {
 
     
     
-    @ViewBuilder private var clockView: some View {
+    private var clockView: some View {
+        if let time = vm.endTime {
+            SimpleClockView(targetTime: time) {
+                Task {vm.relo
+            }
+        }
+        
+        
+        
+        
         
         if let time = endTime {
             SimpleClockView(targetTime: time) {
