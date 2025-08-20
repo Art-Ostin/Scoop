@@ -13,7 +13,7 @@ struct Session  {
     var invites: [ProfileModel] = []
     var profiles: [ProfileModel] = []
     var events: [UserEvent] = []
-    var activeCycleId: String? { user.activeCycleId }
+    var activeCycle: CycleModel?
 }
 
 @Observable
@@ -27,8 +27,8 @@ final class SessionManager {
     
     private(set) var session: Session
     
-    var showProfileRecommendations: Bool = true
-    var showRespondToProfilesToRefresh: Bool = false
+    var showProfiles: Bool = true
+    var RespondToRefresh: Bool = false
     
     init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging) {
         self.eventManager = eventManager
@@ -42,7 +42,7 @@ final class SessionManager {
     var invites: [ProfileModel] { session.invites }
     var profiles: [ProfileModel] { session.profiles }
     var events: [UserEvent] { session.events }
-    var activeCycleId: String? { session.activeCycleId }
+    var activeCycle: CycleModel? { session.activeCycle }
     
     @discardableResult
     func loadUser() async -> Bool {
@@ -58,20 +58,23 @@ final class SessionManager {
     func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
         let input = events.map { (id: $0.otherUserId, event: $0) }
-        let invites = await cycleManager.inviteLoader(data: input)
+        let invites = await profileLoader(data: input)
         session.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
     
     func loadProfiles() async {
         guard await cycleManager.checkCycleSatus() else {
-            showProfileRecommendations = false
+            showProfiles = false
             return
         }
-        showRespondToProfilesToRefresh = await cycleManager.showRespondToProfilesToRefresh()
-        guard let profileRecs = try? await cycleManager.fetchPendingCycleRecommendations() else { return }
-        session.profiles = profileRecs
-        Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
+        RespondToRefresh = await cycleManager.respondToRefresh()
+        if let ids = try? await cycleManager.fetchPendingCycleRecommendations() {
+            let data = ids.map { (id: $0, event: nil as UserEvent?)}
+            let profiles = await profileLoader(data: data)
+            session.profiles = profiles
+            Task { await cacheManager.loadProfileImages(profiles.map{$0.profile})}
+        }
     }
     
     func loadEvents() async {
@@ -79,8 +82,30 @@ final class SessionManager {
         session.events = events
         Task {
             let input = events.map { (id: $0.otherUserId, event: $0) }
-            let profileModels = await cycleManager.inviteLoader(data: input)
+            let profileModels = await profileLoader(data: input)
             await cacheManager.loadProfileImages(profileModels.map(\.profile))
         }
     }
+    
+    func loadCycle() async {
+        if let cycleId = session.user.activeCycleId {
+            session.activeCycle = try? await cycleManager.fetchCycle(cycleId: cycleId)
+        }
+    }
+    
+    func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
+        return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
+            for item in data {
+                group.addTask {
+                    guard let profile = try? await self.userManager.fetchUser(userId: item.id) else { return nil }
+                    let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
+                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
+                }
+            }
+            return await group.reduce(into: []) {result, element  in
+                if let element {result.append(element)}
+            }
+        }
+    }
 }
+

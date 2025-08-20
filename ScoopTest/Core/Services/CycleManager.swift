@@ -34,7 +34,8 @@ final class CycleManager {
     private func recommendationDocument(cycleId: String, profileId: String) -> DocumentReference {
         recommendationsCollection(cycleId: cycleId).document(profileId)
     }
-        
+    
+
     //Functions to Create/Fetch and update the cycle documents and reccomendation documents
     func createCycle() async throws {
         let addedCount = 4
@@ -42,7 +43,7 @@ final class CycleManager {
         let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: now)!
         let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: now)!
         
-        let cycle = RecommendationCycle(
+        let cycle = CycleModel(
             cycleStats: .init(total: addedCount, invited: 0, accepted: 0, dismissed: 0, pending: addedCount),
             profilesAdded: addedCount,
             endsAt: Timestamp(date: endsAt),
@@ -55,9 +56,7 @@ final class CycleManager {
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
         await sessionManager.loadUser()
     }
-    var cycleId: String? {
-        sessionManager.activeCycleId
-    }
+    
     
     private func createRecommendedProfiles(cycleId: String) async throws {
         let snap = try await users.getDocuments()
@@ -70,30 +69,25 @@ final class CycleManager {
         }
     }
     
-    func fetchCycle() async -> RecommendationCycle {
-        do {
-            if let cycleId {
-                return try await cycleDocument(cycleId: cycleId).getDocument(as: RecommendationCycle.self)
-            }
-        } catch { print(error)}
+    func fetchCycle(cycleId: String) async throws -> CycleModel {
+        return try await cycleDocument(cycleId: cycleId).getDocument(as: CycleModel.self)
     }
     
     
     func fetchRecommendationItem(profileId: String) async throws -> RecommendationItem {
-        if let cycleId {
+         {
             return try await recommendationDocument(cycleId: cycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
         }
     }
     
-    func fetchPendingCycleRecommendations() async throws -> [ProfileModel] {
+    
+    func fetchPendingCycleRecommendations() async throws -> [String] {
         if let cycleId {
-            let ids = try await recommendationsCollection(cycleId: cycleId)
+            return try await recommendationsCollection(cycleId: cycleId)
                 .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
                             isEqualTo: RecommendationStatus.pending.rawValue)
                 .getDocuments(as: RecommendationItem.self)
                 .map(\.id)
-            let data = ids.map { (id: $0, event: nil as UserEvent?) }
-            return await inviteLoader(data: data)
         }
     }
     
@@ -108,7 +102,6 @@ final class CycleManager {
             recommendationDocument(cycleId: cycleId, profileId: profileId).updateData( [key: field] )
         }
     }
-    
     
     //Functions requirred in App
     func deleteCycle() async throws {
@@ -126,6 +119,11 @@ final class CycleManager {
     
     func checkCycleSatus () async -> Bool {
         guard (cycleId != nil) else { return false }
+        guard sessionManager.activeCycle != nil else { return false }
+        
+        
+        
+        
         let doc = await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
         let timeRefresh = doc.autoRemoveAt.dateValue()
@@ -138,7 +136,7 @@ final class CycleManager {
         return true
     }
     
-    func showRespondToProfilesToRefresh() async -> Bool {
+    func respondToRefresh() async -> Bool {
         let doc = await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
         
@@ -146,20 +144,5 @@ final class CycleManager {
             return true
         }
         return false
-    }
-    
-    func inviteLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
-        return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
-            for item in data {
-                group.addTask {
-                    guard let profile = try? await self.userManager.fetchUser(userId: item.id) else { return nil }
-                    let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
-                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
-                }
-            }
-            return await group.reduce(into: []) {result, element  in
-                if let element {result.append(element)}
-            }
-        }
     }
 }

@@ -21,7 +21,7 @@ struct CycleStats: Codable, Sendable {
 }
 
 
-struct RecommendationCycle: Identifiable, Codable, Sendable{
+struct CycleModel: Identifiable, Codable, Sendable{
     @DocumentID var id: String?
     @ServerTimestamp var startedAt: Timestamp?
     var cycleStatus: CycleStatus = .active
