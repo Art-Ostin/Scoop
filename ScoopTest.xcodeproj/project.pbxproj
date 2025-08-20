@@ -321,7 +321,8 @@
 		6522EF242E1EE61A004531F9 /* EditProfile */ = {
 			isa = PBXGroup;
 			children = (
-				65C7D6342E54AAAE00B726B8 /* ViewModel */,
+				654982D52E31285000CA335F /* EditImageViewModel.swift */,
+				65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */,
 				65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */,
 				6522EF262E1EFDE6004531F9 /* EditProfileView.swift */,
 				654982D72E3152C000CA335F /* ImagesView.swift */,
@@ -521,15 +522,6 @@
 				659497012E01DD4000880921 /* Main */,
 			);
 			path = ScoopTest;
-			sourceTree = "<group>";
-		};
-		65C7D6342E54AAAE00B726B8 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */,
-				654982D52E31285000CA335F /* EditImageViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		65E820B02E3901080098CC36 /* Core */ = {

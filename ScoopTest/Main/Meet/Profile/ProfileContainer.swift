@@ -4,6 +4,7 @@ import SwiftUI
 
 struct ProfileView: View {
     
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.appDependencies) private var dep
     @State private var vm: ProfileViewModel
     
@@ -32,7 +33,7 @@ struct ProfileView: View {
                         ProfileDetailsView(vm: $vm)
                     }
                 }
-
+                
                 if vm.showInvitePopup {
                     Rectangle()
                         .fill(.thinMaterial)

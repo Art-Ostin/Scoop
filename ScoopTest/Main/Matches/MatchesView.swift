@@ -23,7 +23,6 @@ struct MatchesView: View {
     }
 
     var body: some View {
-
         NavigationStack {
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
@@ -33,7 +32,7 @@ struct MatchesView: View {
                     
                     Text("View your past Meet Ups Here")
                         .font(.body(20))
-                    
+
                     ActionButton(text: "Sign Out") {
                         try? vm.authManager.signOutAuthUser()
                         appState.wrappedValue = .login

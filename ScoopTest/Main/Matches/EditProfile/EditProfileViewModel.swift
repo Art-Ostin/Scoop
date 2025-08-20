@@ -23,7 +23,6 @@ import Foundation
     
     var user: UserProfile { s.user}
     
-    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }

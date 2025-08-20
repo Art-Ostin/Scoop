@@ -16,6 +16,8 @@ struct Session  {
     var activeCycle: CycleModel?
 }
 
+
+@MainActor
 @Observable
 class SessionManager {
 

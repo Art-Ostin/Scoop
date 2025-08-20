@@ -14,14 +14,11 @@ struct EditProfileButton: View {
     var body: some View {
         
         Group {
-            
             if isView {
                 HStack {
-                    
                     HStack {
                         Text("Edit")
                             .font(.body(14, .bold))
-                        
                         Image(systemName: "chevron.right")
                     }
                 }
