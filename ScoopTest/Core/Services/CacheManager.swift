@@ -63,6 +63,7 @@ class CacheManager: CacheManaging  {
                         return try await self.fetchImage(for: url)
                     } catch {
                         print("unable to add images to cache")
+                        print(error)
                         return nil
                     }
                 }

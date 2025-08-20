@@ -13,7 +13,7 @@ struct ImageSlot: Equatable {
     var url: URL?
 }
 
-
+@MainActor
 @Observable class EditImageViewModel {
     
     var s: SessionManager

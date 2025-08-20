@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 
-@Observable
 final class AppDependencies {
     
     let authManager: AuthManaging
@@ -18,7 +17,17 @@ final class AppDependencies {
     let storageManager: StorageManaging
     let eventManager: EventManager
     let cycleManager: CycleManager
-    let sessionManager: SessionManager
+    
+    @MainActor
+    lazy var sessionManager: SessionManager = {
+        SessionManager(
+            eventManager: eventManager,
+            cacheManager: cacheManager,
+            userManager: userManager,
+            cycleManager: cycleManager,
+            authManager: authManager
+        )
+    }()
     
     init(
         authManager: AuthManaging? = nil,
@@ -31,12 +40,10 @@ final class AppDependencies {
         let storage = StorageManager()
         let event = EventManager(userManager: userManager)
         let cycle = CycleManager(cacheManager: cache, userManager: userManager)
-        let session = SessionManager(eventManager: event, cacheManager: cache, userManager: userManager, cycleManager: cycle, authManager: auth)
         
         self.authManager = auth
         self.cacheManager = cache
         self.userManager = userManager
-        self.sessionManager = session
         self.storageManager = storage
         self.cycleManager = cycle
         self.eventManager = event

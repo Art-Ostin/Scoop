@@ -39,8 +39,7 @@ class SessionManager {
         self.cycleManager = cycleManager
         self.authManager = authManager
     }
-    
-    
+
     var user: UserProfile { session!.user }
     var invites: [ProfileModel] { session?.invites ?? [] }
     var profiles: [ProfileModel] { session?.profiles ?? [] }
@@ -52,8 +51,12 @@ class SessionManager {
         guard
             let uid = authManager.fetchAuthUser(),
             let user = try? await userManager.fetchUser(userId: uid)
-        else { return false}
+        else {
+            print("Unable to load user")
+            return false
+        }
         session = Session(user: user)
+        print("loaded user")
         Task { await cacheManager.loadProfileImages([user])}
         return true
     }
@@ -87,6 +90,7 @@ class SessionManager {
             let profileModels = await profileLoader(data: input)
             await cacheManager.loadProfileImages(profileModels.map(\.profile))
         }
+        print("events were loaded ")
     }
     
     func loadCycle() async {

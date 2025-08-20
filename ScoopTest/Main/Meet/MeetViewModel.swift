@@ -7,6 +7,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 @Observable class MeetViewModel {
         
     let cycleManager: CycleManager

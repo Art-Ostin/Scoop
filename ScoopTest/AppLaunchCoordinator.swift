@@ -17,6 +17,7 @@ struct Bootstrapper {
     func start () async {
         guard await s.loadUser() else { appState = .login ; return }
         Task {
+            print("prefetch was called")
             await s.loadEvents()
             await s.loadInvites()
             await s.loadProfiles()

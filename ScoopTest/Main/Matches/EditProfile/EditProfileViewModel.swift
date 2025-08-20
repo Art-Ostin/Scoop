@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 @Observable class EditProfileViewModel {
     
     var cachManager: CacheManaging
@@ -21,7 +22,7 @@ import Foundation
         self.storageManager = storageManager
     }
     
-    var user: UserProfile { s.user}
+    var user: UserProfile {s.user}
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
