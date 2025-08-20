@@ -16,7 +16,6 @@ struct Session  {
     var activeCycleId: String? { user.activeCycleId }
 }
 
-
 @Observable
 final class SessionManager {
 

@@ -11,11 +11,11 @@ import SwiftUI
 
 class StorageManager: StorageManaging {
     
-    private let userManager: UserManager
-    init(userManager: UserManager) { self.userManager = userManager}
+    private let s: SessionManager
+    
+    init(sessionManager: SessionManager) { self.s = sessionManager}
 
     private let storage = Storage.storage().reference()
-    
     
     func imagePath(_ path: String) -> StorageReference {
         storage.child(path)
@@ -28,7 +28,7 @@ class StorageManager: StorageManaging {
     
     func saveImage(data: Data) async throws -> String {
         let filename = "\(UUID().uuidString).jpeg"
-        let path = "users/\(userManager.user.userId)/\(filename)"
+        let path = "users/\(s.user.userId)/\(filename)"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         _ = try await imagePath(path).putDataAsync(data, metadata: meta)
