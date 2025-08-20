@@ -35,7 +35,7 @@ struct EditLifestyle: View {
         .flowNavigation()
         .padding(.horizontal)
         .task {
-            let u = dep.userManager.user
+            let u = dep.sessionManager.user
             drinking = u.drinking
             smoking = u.smoking
             marijuana = u.marijuana

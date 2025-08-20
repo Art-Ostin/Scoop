@@ -15,17 +15,19 @@ import UIKit
     var cacheManager: CacheManaging
     var authManager: AuthManaging
     var storageManager: StorageManaging
+    var s: SessionManager
     
     
-    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging) {
+    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager) {
         self.userManager = userManager
         self.cacheManager = cacheManager
         self.authManager = authManager
         self.storageManager = storageManager
+        self.s = s
     }
     
     func fetchFirstImage() async throws -> UIImage {
-        let profile = userManager.user
+        let profile = s.user
         return try await cacheManager.fetchFirstImage(profile: profile) ?? UIImage()
     }
 }

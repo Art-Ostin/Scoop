@@ -50,7 +50,7 @@ struct InterestsLayout: View {
     
     
     var passions: [String] {
-        dep.userManager.user.interests ?? []
+        dep.sessionManager.user.interests ?? []
     }
     
     

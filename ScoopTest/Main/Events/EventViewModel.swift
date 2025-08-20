@@ -31,8 +31,9 @@ import SwiftUI
     var currentUser: UserProfile?
     
     func fetchUserEvents() async throws {
-        userEvents = try await eventManager.getUpcomingAcceptedEvents()
     }
+    
+    
     
     func saveUserImagesToCache() async throws {
         let ids = Set(userEvents.map(\.otherUserId))

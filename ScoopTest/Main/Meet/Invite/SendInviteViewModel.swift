@@ -29,8 +29,8 @@ import Foundation
     
     
     func sendInvite() async throws {
-        try await cycleManager.inviteSent(profileId: profileModel.id)
-        try await eventManager.createEvent(event: event)
+//        try await cycleManager.inviteSent(profileId: profileModel.id)
+//        try await eventManager.createEvent(event: event)
     }
     
     func acceptInvite(eventId: String) async throws {

@@ -16,16 +16,20 @@ import Foundation
     
     init(cachManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging) {
         self.cachManager = cachManager
+        self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
     }
     
+    var user: UserProfile { s.user}
+    
+    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
-        userManager.user[keyPath: key]
+        user[keyPath: key]
     }
     
     func interestIsSelected(text: String) -> Bool {
-        userManager.user.interests?.contains(text) == true
+        user.interests?.contains(text) == true
     }
     
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws  {
@@ -34,10 +38,6 @@ import Foundation
     
     func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
         try await userManager.updateUserArray(field: field, value: value, add: add)
-    }
-    
-    func fetchUser() -> UserProfile {
-        userManager.user
     }
     
     //Nationality Functionality

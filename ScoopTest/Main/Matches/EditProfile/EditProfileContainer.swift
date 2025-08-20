@@ -14,11 +14,10 @@ struct EditProfileContainer: View {
     
     
     var body: some View {
-        let user: ProfileModel = ProfileModel(profile: vm.userManager.user)
         Group {
             if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: user, cacheManager: vm.cachManager))
-                    .id(user.profile.imagePath ?? [])
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cachManager))
+                    .id(vm.user.imagePath )
                     .transition(.move(edge: .leading))
             } else {
                 EditProfileView(vm: $vm)

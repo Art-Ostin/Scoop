@@ -10,8 +10,10 @@ struct InfoView: View {
     
     @Binding var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
+    
+    
     private var coreInfo: [EditPreview] {
-        let u = vm.fetchUser()
+        let u = vm.user
         return [
             EditPreview("Name", [u.name ?? ""]) {
                        TextFieldEdit(vm: $vm, field: .name)
@@ -34,8 +36,8 @@ struct InfoView: View {
         ]
     }
     private var aboutMe: [EditPreview] {
-        let u = vm.fetchUser()
-        
+        let u = vm.user
+
         let lifestyle =
         "Drinking: \(u.drinking?.lowercased() ?? "-"), " +
         "Smoking: \(u.smoking?.lowercased() ?? "-"), " +

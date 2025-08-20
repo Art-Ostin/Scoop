@@ -19,9 +19,9 @@ struct ScoopTestApp: App {
         FirebaseApp.configure()
         self.dep = AppDependencies()
         
-        let background = UIColor(red: 0.40, green: 0.98, blue: 0.99, alpha: 1.0)
-        UIView.appearance().backgroundColor = background
-        UITabBar.appearance().backgroundColor = background
+//        let background = UIColor(red: 0.40, green: 0.98, blue: 0.99, alpha: 1.0)
+//        UIView.appearance().backgroundColor = background
+//        UITabBar.appearance().backgroundColor = background
     }
     
     var body: some Scene {

@@ -106,7 +106,7 @@ struct EmailVerificationView: View {
                 try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
                 do {
                     try await vm.signInUser(email: vm.email, password: vm.password)
-                    try await dependencies.userManager.loadUser()
+                    await dependencies.sessionManager.loadUser()
                     return appState.wrappedValue = .app
                 } catch {
                     try? await vm.createUser(email: vm.email, password: vm.password)

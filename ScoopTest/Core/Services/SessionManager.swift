@@ -25,7 +25,7 @@ final class SessionManager {
     private let cycleManager: CycleManager
     private let authManager: AuthManaging
     
-    private(set) var session: Session
+    private(set) var session: Session?
     
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
@@ -38,11 +38,11 @@ final class SessionManager {
         self.authManager = authManager
     }
     
-    var user: UserProfile { session.user }
-    var invites: [ProfileModel] { session.invites }
-    var profiles: [ProfileModel] { session.profiles }
-    var events: [UserEvent] { session.events }
-    var activeCycle: CycleModel? { session.activeCycle }
+    var user: UserProfile { session!.user }
+    var invites: [ProfileModel] { session?.invites ?? [] }
+    var profiles: [ProfileModel] { session?.profiles ?? [] }
+    var events: [UserEvent] { session?.events ?? [] }
+    var activeCycle: CycleModel? { session?.activeCycle }
     
     @discardableResult
     func loadUser() async -> Bool {
@@ -50,7 +50,7 @@ final class SessionManager {
             let uid = authManager.fetchAuthUser(),
             let user = try? await userManager.fetchUser(userId: uid)
         else { return false}
-        session.user = user
+        session = Session(user: user)
         Task { await cacheManager.loadProfileImages([user])}
         return true
     }
@@ -59,7 +59,7 @@ final class SessionManager {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.userId), !events.isEmpty else { return }
         let input = events.map { (id: $0.otherUserId, event: $0) }
         let invites = await profileLoader(data: input)
-        session.invites = invites
+        session?.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
     
@@ -68,17 +68,17 @@ final class SessionManager {
         if status == .closed { showProfiles = false ; return }
         if status == .respond { respondToRefresh = true ; return}
         
-        guard let cycleId = session.activeCycle?.id,
+        guard let cycleId = session?.activeCycle?.id,
               let ids = try? await cycleManager.fetchCycleProfiles(userId: user.userId, cycleId: cycleId) else { return }
 
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
-        session.profiles = await profileLoader(data: data)
-        Task { await cacheManager.loadProfileImages(session.profiles.map{$0.profile})}
+        session?.profiles = await profileLoader(data: data)
+        Task { await cacheManager.loadProfileImages(session?.profiles.map{$0.profile} ?? [])}
     }
     
     func loadEvents() async {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.userId) else {return}
-        session.events = events
+        session?.events = events
         Task {
             let input = events.map { (id: $0.otherUserId, event: $0) }
             let profileModels = await profileLoader(data: input)
@@ -87,8 +87,8 @@ final class SessionManager {
     }
     
     func loadCycle() async {
-        if let cycleId = session.user.activeCycleId {
-            session.activeCycle = try? await cycleManager.fetchCycle(userId: user.userId, cycleId: cycleId)
+        if let cycleId = session?.user.activeCycleId {
+            session?.activeCycle = try? await cycleManager.fetchCycle(userId: user.userId, cycleId: cycleId)
         }
     }
     

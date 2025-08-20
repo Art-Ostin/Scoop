@@ -40,15 +40,10 @@ struct LimitedAccessView: View {
                 .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(vm: EditProfileViewModel(cachManager: dep.cacheManager, userManager: dep.userManager, storageManager: dep.storageManager), current: $current)
+            OnboardingContainer(vm: EditProfileViewModel(cachManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager), current: $current)
         }
         .task {
-            do {
-                try await dep.userManager.loadUser()
-                print("User Loaded")
-            } catch {
-                print("failed to load user ")
-            }
+            await dep.sessionManager.loadUser()
         }
     }
 }
