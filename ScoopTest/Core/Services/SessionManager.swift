@@ -8,48 +8,77 @@
 import Foundation
 import SwiftUI
 
+struct Session  {
+    var user: UserProfile
+    var invites: [ProfileModel] = []
+    var profiles: [ProfileModel] = []
+    var events: [UserEvent] = []
+    var activeCycleId: String? { user.activeCycleId }
+}
+
 
 @Observable
 final class SessionManager {
-    
+
     private let eventManager: EventManager
     private let cacheManager: CacheManaging
     private let userManager: UserManager
     private let cycleManager: CycleManager
+    private let authManager: AuthManaging
     
     
-    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager) {
+    private(set) var session: Session
+    
+    var showProfileRecommendations: Bool = true
+    var showRespondToProfilesToRefresh: Bool = false
+    
+    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.cycleManager = cycleManager
+        self.authManager = authManager
     }
     
-
-    var profileRecs: [ProfileModel] = []
-    var profileInvites: [ProfileModel] = []
+    var user: UserProfile { session.user }
+    var invites: [ProfileModel] { session.invites }
+    var profiles: [ProfileModel] { session.profiles }
+    var events: [UserEvent] { session.events }
+    var activeCycleId: String? { session.activeCycleId }
     
-    var showProfileRecommendations: Bool = true
-    var showRespondToProfilesToRefresh: Bool = false
-
     
-    func loadProfileInvites() async {
+    
+    @discardableResult
+    func loadUser() async -> Bool {
+        guard
+            let uid = authManager.fetchAuthUser(),
+            let user = try? await userManager.fetchUser(userId: uid)
+        else { return false}
+        session.user = user
+        return true
+    }
+    
+    func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(), !events.isEmpty else { return }
-        let data = events.map { (id: $0.otherUserId, event: $0) }
-        let invites = await cycleManager.inviteLoader(data: data)
-        profileInvites = invites
-        await cacheManager.loadProfileImages(profileInvites.map(\.profile))
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let invites = await cycleManager.inviteLoader(data: input)
+        session.invites = invites
+        Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
-
-    func loadprofileRecs () async throws {
-        print("load profile Recs called")
-        guard try await cycleManager.checkCycleSatus() else {
+    
+        
+    func loadProfiles() async {
+        guard await cycleManager.checkCycleSatus() else {
             showProfileRecommendations = false
-            print("No profile Recs")
             return
         }
-        showRespondToProfilesToRefresh = try await cycleManager.showRespondToProfilesToRefresh()
-        profileRecs = try await cycleManager.fetchPendingCycleRecommendations()
+        showRespondToProfilesToRefresh = await cycleManager.showRespondToProfilesToRefresh()
+        guard let profileRecs = try? await cycleManager.fetchPendingCycleRecommendations() else { return }
+        session.profiles = profileRecs
         Task { await cacheManager.loadProfileImages(profileRecs.map{$0.profile})}
+    }
+    
+    func loadEvents() async {
+        
     }
 }

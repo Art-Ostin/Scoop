@@ -9,9 +9,6 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-struct UserSession {
-    let user: UserProfile
-}
 
 class UserManager {
     
@@ -21,23 +18,12 @@ class UserManager {
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
-    private var session: UserSession?
-    var user: UserProfile {
-        guard let session else { fatalError("UserSession not configured") }
-        return session.user
-    }
-    
+
     func createUser (authUser: AuthDataResult) async throws {
         let uid = authUser.user.uid
         let profileUser = UserProfile(auth: authUser)
         try userDocument(userId: uid).setData(from: profileUser)
     }
-    func loadUser() async throws {
-        let uid = try auth.fetchAuthUser()
-        let user = try await fetchUser(userId: uid)
-        self.session = UserSession(user: user)
-    }
-    
     
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
         let uid = try auth.fetchAuthUser()
@@ -58,5 +44,4 @@ class UserManager {
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
 }
-
 

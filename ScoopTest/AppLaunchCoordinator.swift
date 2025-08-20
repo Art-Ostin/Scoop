@@ -15,7 +15,6 @@ struct Bootstrapper {
     let dep: AppDependencies
     
     func start () async {
-        
         do {
             try await dep.userManager.loadUser()
 
@@ -27,7 +26,6 @@ struct Bootstrapper {
             appState = .login
         }
     }
-    
     
     @MainActor
     func prefetch() async {

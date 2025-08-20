@@ -63,9 +63,3 @@ struct EventView: View {
         }
     }
 }
-
-
-
-
-//    .indexViewStyle(.page(backgroundDisplayMode: .always))
-//    .onAppear { selection = vm.currentEvent?.id }

@@ -19,9 +19,9 @@ final class CycleManager {
         self.userManager = userManager
     }
     
-    var activeCycleId: String {
-        userManager.user.activeCycleId ?? ""
-    }
+    
+    
+    
     
     
     private let users = Firestore.firestore().collection("users")
@@ -72,13 +72,16 @@ final class CycleManager {
         }
     }
     
-    
-    func fetchCycle() async throws -> RecommendationCycle {
-        return try await cycleDocument(cycleId: activeCycleId).getDocument(as: RecommendationCycle.self)
+    func fetchCycle() async -> RecommendationCycle {
+        do {
+            return try await cycleDocument(cycleId: activeCycleId).getDocument(as: RecommendationCycle.self)
+        } catch { print(error)}
     }
+    
     func fetchRecommendationItem(profileId: String) async throws -> RecommendationItem {
         return try await recommendationDocument(cycleId: activeCycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
     }
+    
     func fetchPendingCycleRecommendations() async throws -> [ProfileModel] {
         let ids = try await recommendationsCollection(cycleId: activeCycleId)
             .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue,
@@ -105,32 +108,33 @@ final class CycleManager {
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
     func inviteSent(profileId: String) async throws {
-        var stats = try await fetchCycle().cycleStats
+        var stats = await fetchCycle().cycleStats
         stats .pending -= 1
         stats .invited += 1
         
         updateRecommendationItem(profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
     }
     
-    func checkCycleSatus () async throws -> Bool {
+    func checkCycleSatus () async -> Bool {
         guard (userManager.user.activeCycleId != nil) else {
             print("cycle status not found")
             return false
         }
-        let doc = try await fetchCycle()
-        let timeEnd = doc.endsAt.dateValue()
-        let timeRefresh = doc.autoRemoveAt.dateValue()
-        let profilesPending = doc.cycleStats.pending
-        
-        if Date() > timeEnd {
-            if Date() > timeRefresh { try? await deleteCycle() ; return false }
-            if profilesPending == 0 { try? await deleteCycle() ; return false }
+            let doc = await fetchCycle()
+            let timeEnd = doc.endsAt.dateValue()
+            let timeRefresh = doc.autoRemoveAt.dateValue()
+            let profilesPending = doc.cycleStats.pending
+            
+            if Date() > timeEnd {
+                if Date() > timeRefresh { try? await deleteCycle() ; return false }
+                if profilesPending == 0 { try? await deleteCycle() ; return false }
+            }
+            return true
         }
-        return true
-    }
     
-    func showRespondToProfilesToRefresh() async throws -> Bool {
-        let doc = try await fetchCycle()
+    
+    func showRespondToProfilesToRefresh() async -> Bool {
+        let doc = await fetchCycle()
         let timeEnd = doc.endsAt.dateValue()
         
         if Date() > timeEnd && doc.cycleStats.pending != 0 {
