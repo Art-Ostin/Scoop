@@ -33,6 +33,7 @@ struct ActionButton: View {
                 .font(.body(18, .bold))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
+                .buttonStyle(.plain)
                 .background(isValid ? (isInvite ? Color.appGreen : Color.accent) : Color.grayBackground)
                 .foregroundStyle(.white)
                 .cornerRadius(cornerRadius)
