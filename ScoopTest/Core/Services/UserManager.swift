@@ -26,7 +26,7 @@ class UserManager {
     }
     
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
-        let uid = try auth.fetchAuthUser()
+        guard let uid = auth.fetchAuthUser() else {return}
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value }
         try await userDocument(userId: uid).updateData(data)

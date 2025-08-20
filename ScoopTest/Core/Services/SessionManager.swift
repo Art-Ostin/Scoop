@@ -28,7 +28,7 @@ final class SessionManager {
     private(set) var session: Session
     
     var showProfiles: Bool = true
-    var RespondToRefresh: Bool = false
+    var respondToRefresh: Bool = false
     
     init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging) {
         self.eventManager = eventManager
@@ -64,18 +64,18 @@ final class SessionManager {
     }
     
     func loadProfiles() async {
-        guard await cycleManager.checkCycleSatus() else {
-            showProfiles = false
-            return
-        }
-        RespondToRefresh = await cycleManager.respondToRefresh()
-        if let ids = try? await cycleManager.fetchPendingCycleRecommendations() {
-            let data = ids.map { (id: $0, event: nil as UserEvent?)}
-            let profiles = await profileLoader(data: data)
-            session.profiles = profiles
-            Task { await cacheManager.loadProfileImages(profiles.map{$0.profile})}
-        }
+        let status = await cycleManager.checkCycleStatus()
+        
+        if status == .closed { showProfiles = false ; return }
+        if status == .respond { respondToRefresh = true ; return}
+        
+        guard let ids = try? await cycleManager.fetchCycleProfiles() else { return }
+        
+        let data = ids.map { (id: $0, event: nil as UserEvent?)}
+        session.profiles = await profileLoader(data: data)
+        Task { await cacheManager.loadProfileImages(session.profiles.map{$0.profile})}
     }
+    
     
     func loadEvents() async {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents() else {return}

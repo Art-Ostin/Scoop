@@ -9,7 +9,8 @@ import Foundation
 @preconcurrency import FirebaseFirestore
 
 
-enum CycleStatus: Codable, Sendable { case active, closed }
+enum CycleStatus: Codable, Sendable { case active, closed, respond}
+
 enum RecommendationStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
 
 struct CycleStats: Codable, Sendable {

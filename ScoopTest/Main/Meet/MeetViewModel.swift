@@ -10,33 +10,32 @@ import UIKit
 @Observable class MeetViewModel {
         
     let cycleManager: CycleManager
-    let sessionManager: SessionManager
     let cacheManager: CacheManaging
+    let s: SessionManager
     
-    init(cycleManager: CycleManager, sessionManager: SessionManager, cacheManager: CacheManaging) {
+    init(cycleManager: CycleManager, s: SessionManager, cacheManager: CacheManaging) {
         self.cycleManager = cycleManager
-        self.sessionManager = sessionManager
+        self.s = s
         self.cacheManager = cacheManager
     }
     
-    func fetchWeeklyRecCycle() async throws -> RecommendationCycle {
-        try await cycleManager.fetchCycle()
+
+    func fetchWeeklyRecs() -> [ProfileModel] {
+        s.profiles
     }
     
-    func fetchWeeklyRecs() -> [ProfileModel] {
-        sessionManager.profileRecs
-    }
+    
     
     func fetchWeeklyInvites() -> [ProfileModel] {
-        sessionManager.profileInvites
+        s.profileInvites
     }
     
     func showProfileRecommendations() -> Bool {
-        sessionManager.showProfileRecommendations
+        s.showProfileRecommendations
     }
     
     func showRespondToProfilesToRefresh() -> Bool {
-        sessionManager.showRespondToProfilesToRefresh
+        s.showRespondToProfilesToRefresh
     }
     
     func fetchTimeUntileEnd() async throws -> Date {
