@@ -39,7 +39,6 @@ struct SettingsView: View {
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
 
         }
-
     }
     
     private var softDivider: some View {

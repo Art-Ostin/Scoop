@@ -93,9 +93,12 @@ final class CycleManager {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
     }
     
+    
     func checkCycleStatus (userId: String, cycle: CycleModel?) async -> CycleStatus {
-
-        guard let cycle, let id = cycle.id else  { return .closed }
+        guard let cycle, let id = cycle.id else  {
+            print("returned here")
+            return .closed }
+        print("Got to this stage")
         if Date() > cycle.endsAt.dateValue() {
             if cycle.cycleStats.pending == 0 || Date() > cycle.autoRemoveAt.dateValue() {
                 try? await deleteCycle(userId: userId, cycleId: id)
@@ -105,6 +108,7 @@ final class CycleManager {
                 return .respond
             }
         }
+        print("returned active here")
         return .active
     }
     

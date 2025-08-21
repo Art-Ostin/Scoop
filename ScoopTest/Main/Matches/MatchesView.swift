@@ -8,10 +8,8 @@
 import SwiftUI
 import Combine
 
-
-
 struct MatchesView: View {
-
+    
     @Environment(\.appState) private var appState
     
     @State var vm: MatchesViewModel
@@ -24,23 +22,18 @@ struct MatchesView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.background.edgesIgnoringSafeArea(.all)
+            VStack(spacing: 32) {
+                Image("DancingCats")
+                
+                Text(vm.user.name ?? "No name found")
                 
                 
-                VStack(spacing: 32) {
-                    Image("DancingCats")
-                    
-                    Text(vm.user.name ?? "No name found")
-                    
-                    
-                    Text("View your past Meet Ups Here")
-                        .font(.body(20))
-
-                    ActionButton(text: "Sign Out") {
-                        try? vm.authManager.signOutAuthUser()
-                        appState.wrappedValue = .login
-                    }
+                Text("View your past Meet Ups Here")
+                    .font(.body(20))
+                
+                ActionButton(text: "Sign Out") {
+                    try? vm.authManager.signOutAuthUser()
+                    appState.wrappedValue = .login
                 }
                 .navigationTitle("Matches")
                 .toolbar {

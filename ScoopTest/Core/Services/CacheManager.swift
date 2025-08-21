@@ -33,28 +33,14 @@ class CacheManager: CacheManaging  {
         if let image = fetchImageFromCache(for: url) {
             return image
         }
-        print("Function called")
-        do {
-            print("docatch part called")
-            let (data, _) = try await URLSession.shared.data(from: url)
-            print("got data")
-            print(data)
-            if let image = UIImage(data: data) {
-                print("added Image to cache")
-                cache.setObject(image, forKey: url as NSURL, cost: data.count)
-                return image
-            } else {
-                print("Could not conver images")
-            }
-        } catch {
-            print(error)
+        let (data, _) = try await URLSession.shared.data(from: url)
+        if let image = UIImage(data: data) {
+            cache.setObject(image, forKey: url as NSURL, cost: data.count)
+            return image
         }
-        print("no image added")
         return UIImage()
     }
-    
-    
-    
+        
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         guard
             let urlString = profile.imagePathURL?.first,

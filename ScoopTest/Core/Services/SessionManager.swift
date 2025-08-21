@@ -47,6 +47,7 @@ class SessionManager {
     var activeCycle: CycleModel? { session?.activeCycle }
     
     
+    
     func startSession(user: UserProfile) {
         session = Session(user: user)
     }
@@ -74,6 +75,7 @@ class SessionManager {
     
     
     func loadProfiles() async {
+        print(activeCycle ?? "None")
         let status = await cycleManager.checkCycleStatus(userId: user.userId, cycle: activeCycle)
         if status == .closed { showProfiles = false ; return }
         if status == .respond { respondToRefresh = true ; return}
