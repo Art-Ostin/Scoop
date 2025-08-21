@@ -23,7 +23,7 @@ private struct AppStateKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    var stateOfApp: Binding<AppState> {
+    var appState: Binding<AppState> {
         get { self[AppStateKey.self] }
         set { self[AppStateKey.self] = newValue }
     }

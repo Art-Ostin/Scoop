@@ -9,6 +9,7 @@ import SwiftUI
 
 struct EditProfileContainer: View {
     
+    @Environment(\.dismiss) private var dismiss
     @State var isView: Bool = true
     @State var vm: EditProfileViewModel
     
@@ -16,7 +17,9 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cachManager))
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cachManager)){
+                    dismiss()
+                }
                     .id(vm.user.imagePath )
                     .transition(.move(edge: .leading))
             } else {

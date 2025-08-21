@@ -47,18 +47,17 @@ class SessionManager {
     var activeCycle: CycleModel? { session?.activeCycle }
     
     @discardableResult
-    func loadUser() async -> Bool {
+    func loadUser() async -> AppState {
         guard
             let uid = authManager.fetchAuthUser(),
             let user = try? await userManager.fetchUser(userId: uid)
-        else {
-            print("Unable to load user")
-            return false
-        }
+        else { return .login }
+        
+        guard user.accountComplete else { return .createAccount }
+
         session = Session(user: user)
-        print("loaded user")
         Task { await cacheManager.loadProfileImages([user])}
-        return true
+        return .app
     }
     
     func loadInvites() async {

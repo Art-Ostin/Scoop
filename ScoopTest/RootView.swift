@@ -7,12 +7,12 @@
 import SwiftUI
 
 enum AppState {
-    case booting, login, app
+    case booting, login, createAccount, app
 }
 
 struct RootView : View {
 
-    @Environment(\.stateOfApp) private var state
+    @Environment(\.appState) private var state
     
     var body: some View {
         
@@ -23,7 +23,10 @@ struct RootView : View {
                 ZStack { Color.accent.ignoresSafeArea()}
                 
             case .login:
-                LoginContainer()
+                SignUpView()
+                
+            case .createAccount:
+                LimitedAccessView()
                 
             case .app:
                 AppContainer()

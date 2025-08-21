@@ -36,7 +36,6 @@
 		653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653BAFB52E0D6BA900C1AB9E /* EventModel.swift */; };
 		653BAFBC2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 653BAFBB2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf */; };
 		653BAFC02E0D930900C1AB9E /* SFCompactRounded-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 653BAFBF2E0D930900C1AB9E /* SFCompactRounded-Regular.otf */; };
-		654982B22E2D748B00CA335F /* LoginContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982B12E2D748B00CA335F /* LoginContainer.swift */; };
 		654982BC2E2E66A500CA335F /* EmailVerificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982BB2E2E66A500CA335F /* EmailVerificationViewModel.swift */; };
 		654982C02E2FA54100CA335F /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982BF2E2FA54100CA335F /* StorageManager.swift */; };
 		654982D42E3101BE00CA335F /* AddImagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982D32E3101BE00CA335F /* AddImagesView.swift */; };
@@ -163,7 +162,6 @@
 		653BAFB52E0D6BA900C1AB9E /* EventModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventModel.swift; sourceTree = "<group>"; };
 		653BAFBB2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFCompactRounded-Semibold.otf"; sourceTree = "<group>"; };
 		653BAFBF2E0D930900C1AB9E /* SFCompactRounded-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFCompactRounded-Regular.otf"; sourceTree = "<group>"; };
-		654982B12E2D748B00CA335F /* LoginContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContainer.swift; sourceTree = "<group>"; };
 		654982BB2E2E66A500CA335F /* EmailVerificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailVerificationViewModel.swift; sourceTree = "<group>"; };
 		654982BF2E2FA54100CA335F /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		654982D32E3101BE00CA335F /* AddImagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddImagesView.swift; sourceTree = "<group>"; };
@@ -429,7 +427,6 @@
 		6561C8D52E04587D006A72DF /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
-				654982B12E2D748B00CA335F /* LoginContainer.swift */,
 				659497122E01DD4000880921 /* SignUpView.swift */,
 				659497072E01DD4000880921 /* EnterEmailView.swift */,
 				654982BB2E2E66A500CA335F /* EmailVerificationViewModel.swift */,
@@ -805,7 +802,6 @@
 				6593365C2E193CEA00150AAC /* MapSelectionView.swift in Sources */,
 				653A78C42E15DBD80098747F /* MapView.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
-				654982B22E2D748B00CA335F /* LoginContainer.swift in Sources */,
 				65C7D6292E54007000B726B8 /* ProfileModel.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserManager.swift in Sources */,
 				65BFE7E12E40D0B500B31A58 /* LocationModel.swift in Sources */,

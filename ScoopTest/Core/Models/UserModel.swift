@@ -13,6 +13,7 @@ struct UserProfile: Codable, Equatable {
     
     let userId, email: String
     let dateCreated: Date
+    let accountComplete: Bool
     let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
         smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
     let interests, nationality, character, imagePath, imagePathURL: [String]?
@@ -47,7 +48,9 @@ struct UserProfile: Codable, Equatable {
         self.imagePath = nil
         self.imagePathURL = nil
         self.activeCycleId = nil
+        self.accountComplete = false
     }
+    
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
         case email = "email"
@@ -77,6 +80,7 @@ struct UserProfile: Codable, Equatable {
         case imagePath = "image_path"
         case imagePathURL = "image_path_url"
         case activeCycleId = "active_cycle_id"
+        case accountComplete = "account_complete"
     }
 }
 

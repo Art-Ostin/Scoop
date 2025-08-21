@@ -9,14 +9,12 @@ import PhotosUI
 
 struct AddImageView: View {
     
-    @Environment(\.stateOfApp) private var appState
+    @Environment(\.appState) private var appState
     
     @State private var vm: EditImageViewModel
-    @State var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    @State var images: [UIImage] = Array(repeating: UIImage(named: "ImagePlaceholder") ?? UIImage(), count: 6)
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
-    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
-    
     init(vm: EditImageViewModel) { self._vm = State(initialValue: vm) }
     
     var body: some View {
@@ -37,6 +35,7 @@ struct AddImageView: View {
             }
             ActionButton(isValid: true, text: "Complete") {
                 appState.wrappedValue = .app
+                Task { try? await vm.userManager.updateUser(values: [UserProfile.CodingKeys.accountComplete : true]) }
             }
         }
         .task {

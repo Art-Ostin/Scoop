@@ -69,12 +69,11 @@ import FirebaseAuth
 struct EmailVerificationView: View {
     
     @Environment(\.appDependencies) private var dependencies
-    @Environment(\.stateOfApp) private var appState
+    @Environment(\.appState) private var appState
     
     @State var UILogic = EmailVerificationUILogic()
     @Binding var vm: EmailVerificationViewModel
     
-    @Binding var showEmail: Bool
     @FocusState var focused: Bool
     
     @State var code = ""
@@ -110,8 +109,7 @@ struct EmailVerificationView: View {
                     return appState.wrappedValue = .app
                 } catch {
                     try? await vm.createUser(email: vm.email, password: vm.password)
-                    
-                    showEmail = false
+                    return appState.wrappedValue = .createAccount
                 }
             }
         }

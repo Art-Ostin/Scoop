@@ -15,14 +15,23 @@ struct Bootstrapper {
     let s: SessionManager
     
     func start () async {
-        guard await s.loadUser() else { appState = .login ; return }
-        Task {
-            print("prefetch was called")
-            await s.loadEvents()
-            await s.loadInvites()
-            await s.loadProfiles()
+
+        let state = await s.loadUser()
+        if state == .app {
+            Task {
+                print("prefetch was called")
+                await s.loadEvents()
+                await s.loadInvites()
+                await s.loadProfiles()
+            }
+            appState = .app
+            return
+        } else if state == .createAccount {
+            appState = .createAccount
+            return
+        } else if state == .login {
+            appState = .login
         }
-        appState = .app
     }
 }
 

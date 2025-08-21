@@ -12,7 +12,7 @@ import Combine
 
 struct MatchesView: View {
 
-    @Environment(\.stateOfApp) private var appState
+    @Environment(\.appState) private var appState
     
     @State var vm: MatchesViewModel
     @State var showProfileView = false

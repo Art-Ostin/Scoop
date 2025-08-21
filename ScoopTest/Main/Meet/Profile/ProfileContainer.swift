@@ -4,7 +4,6 @@ import SwiftUI
 
 struct ProfileView: View {
     
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.appDependencies) private var dep
     @State private var vm: ProfileViewModel
     
@@ -72,7 +71,6 @@ extension ProfileView {
                 .font(.body(20, .bold))
                 .onTapGesture {
                     onDismiss()
-                    dismiss
                 }
         }
     }
