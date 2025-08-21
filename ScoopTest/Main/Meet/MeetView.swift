@@ -44,9 +44,9 @@ extension MeetView {
             }
             
             if vm.showProfiles {
-            
                 ForEach(vm.profiles, id: \.id) {profileInvite in
                     ProfileCard(vm: $vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
+                    Text("Hello world")
                 }
             } else {
                 IntroView(vm: $vm)

@@ -24,7 +24,7 @@ struct ProfileView: View {
                         VStack {
                             heading
                                 .padding()
-                            
+
                             ProfileImageView(vm: $vm)
                                 .frame(height: 420)
                         }
@@ -40,11 +40,11 @@ struct ProfileView: View {
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvitePopup = false }
                     if (vm.profileModel.event != nil) {
-                        AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel)) {
+                        AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager)) {
                             onDismiss()
                         }
                     } else {
-                        SendInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel)) {
+                        SendInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager)) {
                             onDismiss()
                         }
                     }

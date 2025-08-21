@@ -47,7 +47,6 @@ class SessionManager {
     var activeCycle: CycleModel? { session?.activeCycle }
     
     
-    
     func startSession(user: UserProfile) {
         session = Session(user: user)
     }
@@ -65,7 +64,6 @@ class SessionManager {
         return .app
     }
     
-    
     func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.userId), !events.isEmpty else { return }
         let input = events.map { (id: $0.otherUserId, event: $0) }
@@ -73,7 +71,6 @@ class SessionManager {
         session?.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
-    
     
     func loadProfiles() async {
         await loadCycle() // IF not will always return closed
@@ -85,12 +82,12 @@ class SessionManager {
         guard let cycleId = session?.activeCycle?.id,
               let ids = try? await cycleManager.fetchCycleProfiles(userId: user.userId, cycleId: cycleId) else { return }
         
-        print(ids)
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
-        print(data)
         session?.profiles = await profileLoader(data: data)
         Task { await cacheManager.loadProfileImages(session?.profiles.map{$0.profile} ?? [])}
+        print(session?.profiles)
     }
+    
     
     func loadEvents() async {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.userId) else {return}
@@ -115,18 +112,9 @@ class SessionManager {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
             for item in data {
                 group.addTask {
-                    
-                    do {
-                        let profile = try await self.userManager.fetchUser(userId: item.id)
-                        print(profile)
-                        let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
-                        return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
-                    } catch {
-                        print(error)
-                        print("Unable to fetch")
-                    }
-                    
-                    return nil
+                    guard let profile = try? await self.userManager.fetchUser(userId: item.id) else {return nil}
+                    let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
+                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
                 }
             }
             return await group.reduce(into: []) {result, element  in

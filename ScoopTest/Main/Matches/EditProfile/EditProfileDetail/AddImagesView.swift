@@ -33,15 +33,12 @@ struct AddImageView: View {
                     }
                 }
             }
-            
-            ActionButton(isValid: vm.s.user.imagePathURL?.count == 6, text: "Complete") {
+            ActionButton(isValid: vm.isValid, text: "Complete") {
                 appState.wrappedValue = .app
                 Task { try? await vm.userManager.updateUser(values: [UserProfile.CodingKeys.accountComplete : true]) }
                 vm.s.showProfiles = false
             }
         }
-        .task {
-            await vm.assignSlots()
-        }
+        .task { await vm.assignSlots() }
     }
 }

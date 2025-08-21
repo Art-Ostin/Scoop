@@ -12,13 +12,15 @@ import Foundation
     let eventManager: EventManager
     let cycleManager: CycleManager
     let profileModel: ProfileModel
+    let sessionManager: SessionManager
 
     var event: Event
     
-    init(eventManager: EventManager, cycleManager: CycleManager, profileModel: ProfileModel) {
+    init(eventManager: EventManager, cycleManager: CycleManager, profileModel: ProfileModel, sessionManager: SessionManager) {
         self.eventManager = eventManager
         self.cycleManager = cycleManager
         self.profileModel = profileModel
+        self.sessionManager = sessionManager
         self.event = Event(recipientId: profileModel.profile.id)
     }
     
@@ -29,8 +31,11 @@ import Foundation
     
     
     func sendInvite() async throws {
-//        try await cycleManager.inviteSent(profileId: profileModel.id)
-//        try await eventManager.createEvent(event: event)
+        let user = await sessionManager.user
+        let cycle = await sessionManager.activeCycle
+        guard let profileId = event.recipientId else {return}
+        cycleManager.inviteSent(userId: user.userId, cycle: cycle, profileId: profileId)
+        try await eventManager.createEvent(event: event, currentUser: user)
     }
     
     func acceptInvite(eventId: String) async throws {

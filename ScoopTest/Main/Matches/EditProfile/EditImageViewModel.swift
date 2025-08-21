@@ -34,6 +34,11 @@ struct ImageSlot: Equatable {
     }
     
     var user: UserProfile {s.user}
+    
+    var isValid: Bool {
+        images.allSatisfy { $0 !== EditImageViewModel.placeholder }
+    }
+
         
     @MainActor
     func assignSlots() async {

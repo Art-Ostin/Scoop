@@ -93,12 +93,8 @@ final class CycleManager {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
     }
     
-    
     func checkCycleStatus (userId: String, cycle: CycleModel?) async -> CycleStatus {
-        guard let cycle, let id = cycle.id else  {
-            print("returned here")
-            return .closed }
-        print("Got to this stage")
+        guard let cycle, let id = cycle.id else  {return .closed }
         if Date() > cycle.endsAt.dateValue() {
             if cycle.cycleStats.pending == 0 || Date() > cycle.autoRemoveAt.dateValue() {
                 try? await deleteCycle(userId: userId, cycleId: id)
@@ -108,13 +104,15 @@ final class CycleManager {
                 return .respond
             }
         }
-        print("returned active here")
         return .active
     }
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
         guard let cycleId = cycle?.id else { return }
+                
         updateProfileItem(userId: userId, cycleId: cycleId, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
+        
+        
     }
         
     func deleteCycle(userId: String, cycleId: String) async throws {
