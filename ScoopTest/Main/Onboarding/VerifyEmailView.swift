@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 
-@Observable class EmailVerificationUILogic {
+@Observable class VerifyEmailUILogic {
     
     // Logic for the "Click Resend" and Confirm button
     let countdownDuration = 20
@@ -66,51 +66,47 @@ import FirebaseAuth
 }
 
 
-struct EmailVerificationView: View {
+struct VerifyEmailView: View {
     
-    @Environment(\.appDependencies) private var dependencies
     @Environment(\.appState) private var appState
     
-    @State var UILogic = EmailVerificationUILogic()
-    @Binding var vm: EmailVerificationViewModel
+    @State var UILogic = VerifyEmailUILogic()
+    @Binding var vm: VerifyEmailViewModel
     
     @FocusState var focused: Bool
     
     @State var code = ""
     
     var body: some View {
-        ZStack {
-            Color.background.ignoresSafeArea()
-            VStack(spacing: 24) {
+        VStack(spacing: 24) {
+            
+            SignUpTitle(text: "Check Your email")
+            HStack(spacing: 48) {
+                Text("\(vm.email)")
+                    .foregroundStyle(Color.grayText)
                 
-                SignUpTitle(text: "Check Your email")
-                HStack(spacing: 48) {
-                    Text("\(vm.email)")
-                        .foregroundStyle(Color.grayText)
-                    
-                    UILogic.resendEmail()
-                }
-                .font(.body())
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 72)
-                .padding(.horizontal)
-                
-                EnterOTP(code: $code)
+                UILogic.resendEmail()
             }
-            .padding(.top, 48)
-            .frame(maxHeight: .infinity, alignment: .top)
+            .font(.body())
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 72)
             .padding(.horizontal)
-            .flowNavigation()
-            .task {
-                try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
-                do {
-                    try await vm.signInUser(email: vm.email, password: vm.password)
-                    await dependencies.sessionManager.loadUser()
-                    return appState.wrappedValue = .app
-                } catch {
-                    try? await vm.createUser(email: vm.email, password: vm.password)
-                    return appState.wrappedValue = .createAccount
-                }
+            
+            EnterOTP(code: $code)
+        }
+        .padding(.top, 48)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.horizontal)
+        .flowNavigation()
+        .task {
+            try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
+            do {
+                try await vm.signInUser(email: vm.email, password: vm.password)
+                await vm.sessionManager.loadUser()
+                return appState.wrappedValue = .app
+            } catch {
+                guard let user = try? await vm.createUser(email: vm.email, password: vm.password) else {return}
+                return appState.wrappedValue = .createAccount
             }
         }
     }

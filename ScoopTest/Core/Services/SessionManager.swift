@@ -46,16 +46,20 @@ class SessionManager {
     var events: [UserEvent] { session?.events ?? [] }
     var activeCycle: CycleModel? { session?.activeCycle }
     
+    
+    func startSession(user: UserProfile) {
+        session = Session(user: user)
+    }
+    
     @discardableResult
     func loadUser() async -> AppState {
         guard
             let uid = authManager.fetchAuthUser(),
             let user = try? await userManager.fetchUser(userId: uid)
         else { return .login }
-        
+        startSession(user: user)
         guard user.accountComplete else { return .createAccount }
 
-        session = Session(user: user)
         Task { await cacheManager.loadProfileImages([user])}
         return .app
     }
@@ -67,6 +71,7 @@ class SessionManager {
         session?.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
+    
     
     func loadProfiles() async {
         let status = await cycleManager.checkCycleStatus(userId: user.userId, cycle: activeCycle)

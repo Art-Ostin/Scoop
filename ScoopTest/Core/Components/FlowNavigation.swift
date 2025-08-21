@@ -41,9 +41,7 @@ struct FlowNavigation: ViewModifier {
                             .foregroundStyle(Color.grayText)
                     }
                 case .profile:
-                    ToolbarItem(placement: .topBarLeading) {
-                        NavButton()
-                    }
+                    ToolbarItem(placement: .topBarLeading) { NavButton() }
                 }
             }
     }

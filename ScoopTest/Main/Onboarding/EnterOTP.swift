@@ -64,7 +64,3 @@ struct EnterOTP: View {
         }
     }
 }
-
-//#Preview {
-//    EnterOTP()
-//}

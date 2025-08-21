@@ -10,10 +10,17 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 
-@Observable class EmailVerificationViewModel {
+@Observable class VerifyEmailViewModel {
     
-    private let dep: AppDependencies
-    init (dep: AppDependencies) { self.dep = dep }
+    let sessionManager: SessionManager
+    let authManager: AuthManaging
+    let userManager: UserManager
+    
+    init (sessionManager: SessionManager, authManager: AuthManaging, userManager: UserManager) {
+        self.sessionManager = sessionManager
+        self.authManager = authManager
+        self.userManager = userManager
+    }
     
     func authoriseEmail(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
@@ -28,11 +35,12 @@ import FirebaseAuth
     var password: String = "HelloWorld"
     
     func createUser (email: String, password: String) async throws {
-        let authData = try await dep.authManager.createAuthUser(email: email, password: password)
-        try await dep.userManager.createUser(authUser: authData)
+        let authData = try await authManager.createAuthUser(email: email, password: password)
+        let user = try await userManager.createUser(authUser: authData)
+        await sessionManager.startSession(user: user)
     }
     
     func signInUser(email: String, password: String) async throws {
-        try await dep.authManager.signInAuthUser(email: email, password: password)
+        try await authManager.signInAuthUser(email: email, password: password)
     }
 }

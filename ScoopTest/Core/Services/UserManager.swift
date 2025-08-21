@@ -20,10 +20,11 @@ class UserManager {
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
         
     
-    func createUser (authUser: AuthDataResult) async throws {
+    func createUser (authUser: AuthDataResult) async throws -> UserProfile {
         let uid = authUser.user.uid
         let profileUser = UserProfile(auth: authUser)
         try userDocument(userId: uid).setData(from: profileUser)
+        return profileUser
     }
     
     func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {

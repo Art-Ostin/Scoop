@@ -22,7 +22,7 @@ struct SignUpView: View {
             }
         }
         .fullScreenCover(isPresented: $showCover) {
-            EnterEmailView(dep: dep)
+            EnterEmailView(vm: VerifyEmailViewModel(sessionManager: dep.sessionManager, authManager: dep.authManager, userManager: dep.userManager))
         }
     }
 }
