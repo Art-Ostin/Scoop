@@ -32,7 +32,7 @@ import UIKit
     
     var endTime: Date? { activeCycle?.endsAt.dateValue()}
     
-    func reloadWeeklyRecCycle() {
+    func reloadWeeklyCycle() {
         let count = activeCycle?.cycleStats.pending
         if count == 0 {
             if let cycleId = activeCycle?.id {

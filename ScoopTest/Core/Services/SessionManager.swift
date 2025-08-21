@@ -82,7 +82,7 @@ struct Session  {
         
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
         profiles = await profileLoader(data: data)
-        Task { await cacheManager.loadProfileImages(session?.profiles.map{$0.profile} ?? [])}
+        Task { await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }
     
     

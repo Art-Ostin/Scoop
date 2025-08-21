@@ -41,8 +41,8 @@ struct SendInvitePopup: View {
             Button ("I Understand") {
                 Task {
                     try? await vm.sendInvite()
+                    onDismiss()
                 }
-                onDismiss()
             }
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")

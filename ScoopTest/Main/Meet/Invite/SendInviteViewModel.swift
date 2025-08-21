@@ -35,7 +35,9 @@ import Foundation
         let cycle = await sessionManager.activeCycle
         guard let profileId = event.recipientId else {return}
         cycleManager.inviteSent(userId: user.userId, cycle: cycle, profileId: profileId)
-        try await eventManager.createEvent(event: event, currentUser: user)
+        await sessionManager.loadProfiles()
+        Task { try await eventManager.createEvent(event: event, currentUser: user) ; print("Finished task") }
+        print("Finished function ")
     }
     
     func acceptInvite(eventId: String) async throws {

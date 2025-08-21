@@ -72,7 +72,9 @@ extension MeetView {
 
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
-            SimpleClockView(targetTime: time) { }
+            SimpleClockView(targetTime: time) {
+                vm.reloadWeeklyCycle() 
+            }
         }
     }
 }

@@ -57,7 +57,7 @@ final class CycleManager {
     func createCycle(userId: String) async throws -> String {
         let addedCount = 4
         let now = Date()
-        let endsAt = Calendar.current.date(byAdding: .day, value: 7, to: now)!
+        let endsAt = Calendar.current.date(byAdding: .minute, value: 3, to: now)!
         let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: now)!
         
         let cycle = CycleModel(
@@ -85,8 +85,8 @@ final class CycleManager {
         }
     }
 
-    func updateCycle(userId: String, cycleId: String, key: String, field: Any) {
-        cycleDocument(userId: userId, cycleId: cycleId).updateData([key: field])
+    func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
+        cycleDocument(userId: userId, cycleId: cycleId).updateData(data)
     }
     
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
@@ -100,7 +100,7 @@ final class CycleManager {
                 try? await deleteCycle(userId: userId, cycleId: id)
                 return .closed
             } else {
-                updateCycle(userId: userId, cycleId: id, key: CycleModel.CodingKeys.cycleStatus.stringValue, field: CycleStatus.respond)
+                updateCycle(userId: userId, cycleId: id, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.respond])
                 return .respond
             }
         }
@@ -108,13 +108,16 @@ final class CycleManager {
     }
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
-        guard let cycleId = cycle?.id else { return }
-                
-        updateProfileItem(userId: userId, cycleId: cycleId, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
         
+        guard var cycle, let id = cycle.id else  { return }
+        updateProfileItem(userId: userId, cycleId: id, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
         
+        let statsKey   = CycleModel.CodingKeys.cycleStats.stringValue
+        let invitedKey = "\(statsKey).\(CycleStats.CodingKeys.invited.stringValue)"
+        let pendingKey = "\(statsKey).\(CycleStats.CodingKeys.pending.stringValue)"
+    
     }
-        
+    
     func deleteCycle(userId: String, cycleId: String) async throws {
         updateCycle(userId: userId, cycleId: cycleId, key: CycleModel.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])

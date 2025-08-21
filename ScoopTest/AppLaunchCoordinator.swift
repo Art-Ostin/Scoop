@@ -18,11 +18,10 @@ struct Bootstrapper {
         
         let state = await s.loadUser()
         if state == .app {
-            Task {
-                await s.loadEvents()
-                await s.loadInvites()
-                await s.loadProfiles()
-            }
+            async let events: ()  = s.loadEvents()
+            async let invites: ()  = s.loadInvites()
+            async let profiles: () = s.loadProfiles()
+                _ = await (events, invites, profiles)
             appState = .app
             return
         } else if state == .createAccount {
