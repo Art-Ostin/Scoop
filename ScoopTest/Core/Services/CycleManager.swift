@@ -109,17 +109,21 @@ final class CycleManager {
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
         
-        guard var cycle, let id = cycle.id else  { return }
+        guard let id = cycle?.id else { return }
         updateProfileItem(userId: userId, cycleId: id, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
-        
+
         let statsKey   = CycleModel.CodingKeys.cycleStats.stringValue
         let invitedKey = "\(statsKey).\(CycleStats.CodingKeys.invited.stringValue)"
         let pendingKey = "\(statsKey).\(CycleStats.CodingKeys.pending.stringValue)"
     
+        cycleDocument(userId: userId, cycleId: id).updateData([
+            invitedKey: FieldValue.increment(Int64(1)),
+            pendingKey: FieldValue.increment(Int64(-1))
+        ])
     }
     
     func deleteCycle(userId: String, cycleId: String) async throws {
-        updateCycle(userId: userId, cycleId: cycleId, key: CycleModel.CodingKeys.cycleStatus.stringValue, field: CycleStatus.closed)
+        updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.closed])
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
 }

@@ -18,7 +18,11 @@ struct CycleStats: Codable, Sendable {
     var invited: Int
     var accepted: Int
     var dismissed: Int
-    var pending: Int    
+    var pending: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case total, invited, accepted, dismissed, pending
+    }
 }
 
 
