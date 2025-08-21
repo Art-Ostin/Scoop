@@ -43,6 +43,8 @@ class CacheManager: CacheManaging  {
                 print("added Image to cache")
                 cache.setObject(image, forKey: url as NSURL, cost: data.count)
                 return image
+            } else {
+                print("Could not conver images")
             }
         } catch {
             print(error)

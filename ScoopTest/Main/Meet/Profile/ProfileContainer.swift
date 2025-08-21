@@ -72,6 +72,7 @@ extension ProfileView {
                 .font(.body(20, .bold))
                 .onTapGesture {
                     onDismiss()
+                    dismiss
                 }
         }
     }

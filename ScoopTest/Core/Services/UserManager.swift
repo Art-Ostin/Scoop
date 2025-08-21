@@ -18,8 +18,8 @@ class UserManager {
     
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
+        
     
-
     func createUser (authUser: AuthDataResult) async throws {
         let uid = authUser.user.uid
         let profileUser = UserProfile(auth: authUser)
