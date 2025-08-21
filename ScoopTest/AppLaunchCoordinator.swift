@@ -17,7 +17,6 @@ struct Bootstrapper {
     func start () async {
         
         let state = await s.loadUser()
-        
         if state == .app {
             Task {
                 print("prefetch was called")

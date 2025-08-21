@@ -78,10 +78,10 @@ final class CycleManager {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != userId}
         let selectdIds = Array(ids.shuffled().prefix(4))
-        
+                
         for id in selectdIds {
             let newItem = RecommendationItem(id: id, profileViews: 0, recommendationStatus: .pending)
-            try profilesCollection(userId: userId, cycleId: cycleId).addDocument(from: newItem)
+            try profileDocument(userId: userId, cycleId: cycleId, profileId: id).setData(from: newItem)
         }
     }
 

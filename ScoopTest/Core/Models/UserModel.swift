@@ -19,10 +19,12 @@ struct UserProfile: Codable, Equatable {
     let interests, nationality, character, imagePath, imagePathURL: [String]?
     let prompt1, prompt2, prompt3: PromptResponse?
     
+    
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid
         self.email = auth.user.email ?? ""
         self.dateCreated = Date()
+        self.accountComplete = false
         self.sex = nil
         self.attractedTo = nil
         self.year = nil
@@ -48,8 +50,8 @@ struct UserProfile: Codable, Equatable {
         self.imagePath = nil
         self.imagePathURL = nil
         self.activeCycleId = nil
-        self.accountComplete = false
     }
+
     
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
