@@ -29,9 +29,6 @@ struct MeetView: View {
         }
         .padding(.top, 36)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .task {
-            
-        }
     }
 }
 
@@ -40,16 +37,16 @@ extension MeetView {
     private var tabView: some View {
         TabView {
             ForEach(vm.invites, id: \.id) {profileInvite in
-                ProfileCard(vm: $vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
+                ProfileCard(vm: vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
-            
             if vm.showProfiles {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
-                    ProfileCard(vm: $vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
-                    Text("Hello world")
+                    Text(profileInvite.profile.name ?? "No Name")
+                    
+                    ProfileCard(vm: vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
                 }
             } else {
-                IntroView(vm: $vm)
+                IntroView(vm: vm)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -69,12 +66,10 @@ extension MeetView {
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
-    
+
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
-            SimpleClockView(targetTime: time) {
-                
-            }
+            SimpleClockView(targetTime: time) { }
         }
     }
 }

@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct IntroView: View {
-    @Binding var vm: MeetViewModel
+    
+    @Bindable var vm: MeetViewModel
     let quote = quotes.shared.allQuotes.randomElement()!
     var body: some View {
         
@@ -22,12 +23,8 @@ struct IntroView: View {
                 Text("- \(quote.name)")
                     .font(.body(14, .bold))
             }
-
             ActionButton(text: "2 Daily Profiles") {
-                Task {
-                    try? await vm.createWeeklyCycle()
-                    
-                }
+                Task { try? await vm.createWeeklyCycle() }
             }
         }
     }

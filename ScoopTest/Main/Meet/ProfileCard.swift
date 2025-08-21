@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileCard : View {
     
-    @Binding var vm: MeetViewModel
+    @Bindable var vm: MeetViewModel
     let profileInvite: ProfileModel
     @Binding var selectedProfile: ProfileModel?
     

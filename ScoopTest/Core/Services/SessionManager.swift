@@ -85,7 +85,8 @@ class SessionManager {
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
         session?.profiles = await profileLoader(data: data)
         Task { await cacheManager.loadProfileImages(session?.profiles.map{$0.profile} ?? [])}
-        print(session?.profiles)
+        let names = session?.profiles.map { $0.profile.name}
+        print(names ?? ["No names"])
     }
     
     
