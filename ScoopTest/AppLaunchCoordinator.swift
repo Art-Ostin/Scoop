@@ -19,7 +19,6 @@ struct Bootstrapper {
         let state = await s.loadUser()
         if state == .app {
             Task {
-                print("prefetch was called")
                 await s.loadEvents()
                 await s.loadInvites()
                 await s.loadProfiles()
