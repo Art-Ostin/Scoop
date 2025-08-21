@@ -18,8 +18,7 @@ struct Session  {
 
 
 @MainActor
-@Observable
-class SessionManager {
+@Observable class SessionManager {
 
     private let eventManager: EventManager
     private let cacheManager: CacheManaging

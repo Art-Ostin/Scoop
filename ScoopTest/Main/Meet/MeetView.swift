@@ -41,15 +41,18 @@ extension MeetView {
             }
             if vm.showProfiles {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
-                    Text(profileInvite.profile.name ?? "No Name")
-                    
-                    ProfileCard(vm: vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
+                    VStack {
+                        Text(profileInvite.profile.name ?? "No Name")
+                        ProfileCard(vm: vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
+                    }
                 }
             } else {
                 IntroView(vm: vm)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
+        .id(vm.s.profiles.count)
+
     }
     
     private func profileRecView(profileModel: ProfileModel) -> some View {

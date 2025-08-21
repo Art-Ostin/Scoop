@@ -8,7 +8,7 @@ import Foundation
 import UIKit
 
 @MainActor
-@Observable class MeetViewModel {
+@Observable final class MeetViewModel {
         
     let cycleManager: CycleManager
     let cacheManager: CacheManaging
@@ -19,7 +19,6 @@ import UIKit
         self.s = s
         self.cacheManager = cacheManager
     }
-    
     
     var activeCycle: CycleModel? { s.activeCycle }
     
