@@ -27,22 +27,18 @@ import Foundation
     
     
     var user: UserProfile { s.user }
-
-    
     var updatedFields: [UserProfile.CodingKeys : Any] = [:]
     
-    func set(_ key: UserProfile.CodingKeys, to value: Any) {
+    func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         updatedFields[key] = value
+        draftUser[keyPath: kp] = value
     }
-    
+
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(values: updatedFields)
     }
-    
-    
-    
-    
+
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }
