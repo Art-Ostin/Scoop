@@ -107,7 +107,7 @@ struct InterestsView: View {
         InterestsHolder(title: "Interests") {
             InterestsLayout()
         } destination: {
-            EditInterests(vm: $vm)
+            EditInterests(vm: vm)
         }
     }
 }

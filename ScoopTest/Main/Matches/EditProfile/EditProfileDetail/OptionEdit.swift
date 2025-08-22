@@ -50,7 +50,7 @@ enum OptionField: CaseIterable {
 struct OptionEditView: View  {
     @Environment(\.flowMode) private var mode
     
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @State private var selection: String? = nil
 
     let field: OptionField

@@ -16,22 +16,22 @@ struct InfoView: View {
         let u = vm.user
         return [
             EditPreview("Name", [u.name ?? ""]) {
-                       TextFieldEdit(vm: $vm, field: .name)
+                       TextFieldEdit(vm: vm, field: .name)
                    },
                    EditPreview("Sex", [u.sex ?? ""]) {
-                       OptionEditView(vm: $vm, field: .sex)
+                       OptionEditView(vm: vm, field: .sex)
                    },
                    EditPreview("Attracted To", [u.attractedTo ?? ""]) {
-                       OptionEditView(vm: $vm, field: .attractedTo)
+                       OptionEditView(vm: vm, field: .attractedTo)
                    },
                    EditPreview("Year", [u.year ?? ""]) {
-                       OptionEditView(vm: $vm, field: .year)
+                       OptionEditView(vm: vm, field: .year)
                    },
                    EditPreview("Height", [u.height ?? ""]) {
-                       EditHeight(vm: $vm)
+                       EditHeight(vm: vm)
                    },
                    EditPreview("Nationality", [u.nationality?.joined(separator: ", ") ?? ""]) {
-                       EditNationality(vm: $vm)
+                       EditNationality(vm: vm)
                    }
         ]
     }
@@ -55,13 +55,13 @@ struct InfoView: View {
         
         return [
             EditPreview("Looking For", [u.lookingFor ?? ""]) {
-                OptionEditView(vm: $vm, field: .lookingFor)
+                OptionEditView(vm: vm, field: .lookingFor)
             },
             EditPreview("Degree", [u.degree ?? ""]) {
-                TextFieldEdit(vm: $vm, field: .degree)
+                TextFieldEdit(vm: vm, field: .degree)
             },
             EditPreview("Hometown", [u.hometown ?? ""]) {
-                TextFieldEdit(vm: $vm, field: .hometown)
+                TextFieldEdit(vm: vm, field: .hometown)
             },
             EditPreview("Lifestyle", [lifestyle]) {
                 EditLifestyle()
@@ -70,7 +70,7 @@ struct InfoView: View {
                 EditMyLifeAs()
             },
             EditPreview("Languages", [u.languages ?? ""]) {
-                TextFieldEdit(vm: $vm, field: .languages)
+                TextFieldEdit(vm: vm, field: .languages)
             }
         ]
     }

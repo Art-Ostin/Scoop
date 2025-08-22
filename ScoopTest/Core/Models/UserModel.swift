@@ -16,8 +16,12 @@ struct UserProfile: Codable, Equatable {
     let accountComplete: Bool
     let rating: Int
     
-    let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
+    var height: String?
+    
+    let sex, attractedTo, year, degree, hometown, name, lookingFor, drinking,
         smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
+    
+    
     let interests, nationality, character, imagePath, imagePathURL: [String]?
     let prompt1, prompt2, prompt3: PromptResponse?
     

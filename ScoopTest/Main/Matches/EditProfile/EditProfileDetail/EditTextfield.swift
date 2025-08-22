@@ -42,7 +42,7 @@ enum TextFieldOptions: CaseIterable {
 
 struct TextFieldEdit: View {
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @State private var text: String = ""
     @FocusState var focused: Bool
     let field: TextFieldOptions

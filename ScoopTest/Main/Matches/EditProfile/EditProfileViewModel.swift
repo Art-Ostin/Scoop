@@ -25,21 +25,19 @@ import Foundation
         self.draftUser = draftUser
     }
     
-    
     var user: UserProfile { s.user }
-    var updatedFields: [UserProfile.CodingKeys : Any] = [:]
+    var updatedFields: [UserProfile.CodingKeys : Any] = [:] 
     
     func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         updatedFields[key] = value
         draftUser[keyPath: kp] = value
+        print("height function complete")
     }
 
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(values: updatedFields)
     }
-
-    
     
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
@@ -57,9 +55,6 @@ import Foundation
     func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
         try await userManager.updateUserArray(field: field, value: value, add: add)
     }
-    
-    
-    
     
     
     //Nationality Functionality

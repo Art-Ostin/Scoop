@@ -10,7 +10,7 @@ import FirebaseFirestore
 struct EditNationality: View {
     
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)

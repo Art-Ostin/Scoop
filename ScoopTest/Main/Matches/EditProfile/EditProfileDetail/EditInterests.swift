@@ -12,7 +12,7 @@ import FirebaseFirestore
 
 struct EditInterests: View {
 
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
 
     @State var selected: [String] = []
