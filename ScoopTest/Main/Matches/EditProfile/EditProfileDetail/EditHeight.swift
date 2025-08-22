@@ -41,7 +41,7 @@ struct EditHeight: View {
             Task { try await vm.updateUser(values: [.height : height]) }
         }
         .task {
-            height = vm.fetchUserField(\.height) ?? ""
+            height = vm.draftUser.height ??
         }
     }
 }

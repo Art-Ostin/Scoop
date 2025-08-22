@@ -58,12 +58,16 @@ struct ImageSlot: Equatable {
         }
         images = newImages
     }
+    
+    
+    
     func changeImage(at index: Int) async throws {
-        
+
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             cacheManager.removeImage(for: oldURL)
             try await storageManager.deleteImage(path: oldPath)
         }
+        
         
         guard
             let selection = slots[index].pickerItem,
@@ -83,7 +87,6 @@ struct ImageSlot: Equatable {
         var urls  = user.imagePathURL ?? []
         if paths.count < 6 { paths.append(contentsOf: Array(repeating: "", count: 6 - paths.count)) }
         if urls.count  < 6 { urls.append(contentsOf:  Array(repeating: "", count: 6 - urls.count)) }
-        
         
         paths[index] = resizedPath
         urls[index]  = url.absoluteString

@@ -29,19 +29,20 @@ import Foundation
     var updatedFields: [UserProfile.CodingKeys : Any] = [:]
     
     func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
+        draftUser[keyPath: kp] = value
         updatedFields[key] = value
-        
         print("height function complete")
         print(updatedFields)
-        print(user.height ?? "")
+        print(draftUser.height ?? "")
     }
-
+    
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(values: updatedFields)
         print("User Fields updates")
         await s.loadUser()
     }
+    
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
@@ -77,7 +78,6 @@ import Foundation
     func isSelected(_ country: String) -> Bool {
         selectedCountries.contains(country)
     }
-    
     func toggleCountry(_ country: String) {
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})

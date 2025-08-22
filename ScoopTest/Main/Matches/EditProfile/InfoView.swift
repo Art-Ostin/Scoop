@@ -13,7 +13,7 @@ struct InfoView: View {
     
     
     private var coreInfo: [EditPreview] {
-        let u = vm.user
+        let u = vm.draftUser
         return [
             EditPreview("Name", [u.name ?? ""]) {
                        TextFieldEdit(vm: vm, field: .name)
@@ -36,7 +36,7 @@ struct InfoView: View {
         ]
     }
     private var aboutMe: [EditPreview] {
-        let u = vm.user
+        let u = vm.draftUser
 
         let lifestyle =
         "Drinking: \(u.drinking?.lowercased() ?? "-"), " +
@@ -63,6 +63,7 @@ struct InfoView: View {
             EditPreview("Hometown", [u.hometown ?? ""]) {
                 TextFieldEdit(vm: vm, field: .hometown)
             },
+            
             EditPreview("Lifestyle", [lifestyle]) {
                 EditLifestyle()
             },
