@@ -118,9 +118,10 @@ struct InterestSection: View {
                     selected.contains(text)
                         ? selected.removeAll(where: { $0 == text })
                         : (selected.count < 10 ? selected.append(text) : nil)
-
+                    
                     Task {
                         if vm.interestIsSelected(text: text) {
+                            
                             try await vm.updateUser(values: [.interests : FieldValue.arrayRemove([text])])
                         } else {
                             try await vm.updateUser(values: [.interests : FieldValue.arrayUnion([text])])

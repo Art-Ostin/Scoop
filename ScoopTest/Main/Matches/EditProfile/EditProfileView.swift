@@ -30,7 +30,6 @@ struct EditProfileView: View {
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    
                     if vm.updatedFields.isEmpty {
                         NavButton(.down)
                     } else {
@@ -40,7 +39,6 @@ struct EditProfileView: View {
                         }
                     }
                 }
-                
                 ToolbarItem(placement: .topBarLeading) {
                     if !vm.updatedFields.isEmpty {
                         NavButton(.cross)

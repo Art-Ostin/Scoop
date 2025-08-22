@@ -17,7 +17,7 @@ struct EditHeight: View {
     }
     
     @State var height = "5' 8"
-    
+
     var body: some View {
         VStack {
             SignUpTitle(text: "Height")
@@ -32,18 +32,12 @@ struct EditHeight: View {
                 if case .onboarding(_, let advance) = mode {
                     NextButton(isEnabled: true) {
                         advance()
-                        Task{try await vm.updateUser(values: [.height : height])}
                     }
                 }
             }
         }
         .flowNavigation()
-        .onChange(of: height) {
-            Task { try await vm.updateUser(values: [.height : height]) }
-        }
-        .onAppear {
-            height = vm.draftUser.height ?? ""
-        }
+        .onAppear { height = vm.draftUser.height ?? "" }
     }
 }
 

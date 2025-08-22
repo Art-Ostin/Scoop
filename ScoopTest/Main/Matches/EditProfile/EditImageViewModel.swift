@@ -68,7 +68,6 @@ struct ImageSlot: Equatable {
             try await storageManager.deleteImage(path: oldPath)
         }
         
-        
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),

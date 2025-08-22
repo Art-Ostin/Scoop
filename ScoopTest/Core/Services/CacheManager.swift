@@ -40,7 +40,7 @@ class CacheManager: CacheManaging  {
         }
         return UIImage()
     }
-        
+    
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         guard
             let urlString = profile.imagePathURL?.first,
