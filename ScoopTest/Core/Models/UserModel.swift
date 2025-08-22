@@ -13,6 +13,7 @@ struct UserProfile: Codable, Equatable {
     
     let userId, email: String
     let dateCreated: Date
+    let rating: Int
     let accountComplete: Bool
     let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
         smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
@@ -25,6 +26,7 @@ struct UserProfile: Codable, Equatable {
         self.email = auth.user.email ?? ""
         self.name = email.components(separatedBy: ".")[0].capitalized
         self.dateCreated = Date()
+        self.rating = 1000
         self.accountComplete = false
         self.sex = nil // Make non optional
         self.attractedTo = nil // Make non optional
@@ -83,12 +85,15 @@ struct UserProfile: Codable, Equatable {
         case imagePathURL = "image_path_url"
         case activeCycleId = "active_cycle_id"
         case accountComplete = "account_complete"
+        case rating = "rating"
     }
 }
 
 extension UserProfile: Identifiable {
     var id: String { userId }
 }
+
+
 extension UserProfile {
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.userId == rhs.userId

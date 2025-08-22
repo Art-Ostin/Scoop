@@ -51,7 +51,6 @@ class EventManager {
         let inviterName = currentUser.name ?? ""
         let inviterImageString = currentUser.imagePathURL?.first ?? ""
         
-        
         var eventData: [String: Any] = [
             Event.CodingKeys.id.stringValue: eventId,
             Event.CodingKeys.initiatorId.stringValue: currentUser.userId,

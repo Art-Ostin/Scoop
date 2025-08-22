@@ -28,12 +28,6 @@ import Foundation
 
     
     
-    
-    
-    
-    
-    
-    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }
