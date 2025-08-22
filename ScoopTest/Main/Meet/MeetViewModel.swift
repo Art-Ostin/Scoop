@@ -35,9 +35,8 @@ import UIKit
     func reloadWeeklyCycle() async {
         let status = await cycleManager.checkCycleStatus(userId: s.user.userId , cycle: activeCycle)
         if status == .respond { s.respondToRefresh = true }
-        if status == .closed { s.showProfiles = false}
+        if status == .closed { s.showProfiles = false ; s.respondToRefresh = false }
     }
-    
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle(userId: s.user.userId)
@@ -46,7 +45,6 @@ import UIKit
         await s.loadProfiles()
         s.showProfiles = true
     }
-
     
     func fetchImage(url: URL) async throws -> UIImage {
         try await cacheManager.fetchImage(for: url)

@@ -17,9 +17,14 @@ struct MeetView: View {
     
     var body: some View {
         ZStack {
+            if let profileModel = selectedProfile {
+                profileRecView(profileModel: profileModel)
+            }
+
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
+                
                 tabView
                 
                 if vm.showProfiles && !vm.showRefresh {
@@ -27,11 +32,7 @@ struct MeetView: View {
                 } else if vm.showRefresh {
                     Text("Respond to Refresh")
                 }
-                //Want it to check this function, every time CheckWeeklyCycles is called
                 
-            }
-            if let profileModel = selectedProfile {
-                profileRecView(profileModel: profileModel)
             }
         }
         .padding(.top, 36)
