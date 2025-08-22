@@ -19,7 +19,11 @@ struct EditProfileButton: View {
                     HStack {
                         Text("Edit")
                             .font(.body(14, .bold))
+                        
                         Image(systemName: "chevron.right")
+                            .font(.body(12, .bold))
+                            .offset(y: -1)
+
                     }
                 }
             } else {
@@ -27,6 +31,9 @@ struct EditProfileButton: View {
                     HStack {
                         
                         Image(systemName: "chevron.left")
+                            .font(.body(12, .bold))
+                            .offset(y: -1)
+
 
                         Text("View" )
                             .font(.body(14, .bold))

@@ -13,15 +13,14 @@ struct EditProfileContainer: View {
     @State var isView: Bool = true
     @State var vm: EditProfileViewModel
     
-    
     var body: some View {
         Group {
             if isView {
                 ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cachManager)){
                     dismiss()
                 }
-                    .id(vm.user.imagePath )
-                    .transition(.move(edge: .leading))
+                .id(vm.user.imagePath )
+                .transition(.move(edge: .leading))
             } else {
                 EditProfileView(vm: $vm)
                     .transition(.move(edge: .trailing))

@@ -23,18 +23,20 @@ struct UserProfile: Codable, Equatable {
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid
         self.email = auth.user.email ?? ""
+        self.name = email.components(separatedBy: ".")[0].capitalized
         self.dateCreated = Date()
         self.accountComplete = false
-        self.sex = nil
-        self.attractedTo = nil
-        self.year = nil
-        self.height = nil
-        self.interests = nil
-        self.degree = nil
-        self.hometown = nil
-        self.name = email.components(separatedBy: ".")[0].capitalized
-        self.nationality = nil
-        self.lookingFor = nil
+        self.sex = nil // Make non optional
+        self.attractedTo = nil // Make non optional
+        self.year = nil // Make non optional
+        self.height = nil // make non optional
+        self.interests = nil // make non optional
+        self.degree = nil // make non optional
+        self.hometown = nil // make non optional
+        self.nationality = nil // Make non optional
+        self.lookingFor = nil // Make non optional
+        self.imagePath = nil // Make non optional
+        self.imagePathURL = nil // Make non optional
         self.prompt1 = nil
         self.prompt2 = nil
         self.prompt3 = nil
@@ -47,8 +49,6 @@ struct UserProfile: Codable, Equatable {
         self.favouriteSong = nil
         self.favouriteBook = nil
         self.character = nil
-        self.imagePath = nil
-        self.imagePathURL = nil
         self.activeCycleId = nil
     }
 

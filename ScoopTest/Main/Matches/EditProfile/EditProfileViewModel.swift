@@ -22,7 +22,17 @@ import Foundation
         self.storageManager = storageManager
     }
     
-    var user: UserProfile {s.user}
+    
+    
+    var user: UserProfile  { s.user }
+
+    
+    
+    
+    
+    
+    
+    
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
@@ -39,6 +49,10 @@ import Foundation
     func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
         try await userManager.updateUserArray(field: field, value: value, add: add)
     }
+    
+    
+    
+    
     
     //Nationality Functionality
     var selectedCountries: [String] = []
