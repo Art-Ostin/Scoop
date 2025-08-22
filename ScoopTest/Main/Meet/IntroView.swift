@@ -23,7 +23,7 @@ struct IntroView: View {
                 Text("- \(quote.name)")
                     .font(.body(14, .bold))
             }
-            ActionButton(text: "2 Daily Profiles") {
+            ActionButton(text: "View Profiles") {
                 Task { try? await vm.createWeeklyCycle() }
             }
         }

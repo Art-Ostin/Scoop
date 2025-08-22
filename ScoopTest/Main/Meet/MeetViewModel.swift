@@ -32,26 +32,22 @@ import UIKit
     
     var endTime: Date? { activeCycle?.endsAt.dateValue()}
     
-    func reloadWeeklyCycle() {
-        let count = activeCycle?.cycleStats.pending
-        if count == 0 {
-            if let cycleId = activeCycle?.id {
-                Task { try await cycleManager.deleteCycle(userId: s.user.userId, cycleId: cycleId)}
-            }
-            s.showProfiles = false
-        } else {
-            s.respondToRefresh = true
-        }
+    func reloadWeeklyCycle() async {
+        let status = await cycleManager.checkCycleStatus(userId: s.user.userId , cycle: activeCycle)
+        if status == .respond { s.respondToRefresh = true }
+        if status == .closed { s.showProfiles = false}
     }
     
+    
     func createWeeklyCycle() async throws {
-        let _ = try await cycleManager.createCycle(userId: s.user.userId)
+        try await cycleManager.createCycle(userId: s.user.userId)
         await s.loadUser()
         await s.loadCycle()
         await s.loadProfiles()
         s.showProfiles = true
     }
 
+    
     func fetchImage(url: URL) async throws -> UIImage {
         try await cacheManager.fetchImage(for: url)
     }

@@ -5,7 +5,6 @@ import MapKit
 
 struct SendInvitePopup: View {
     
-    
     @State var vm: InviteViewModel
     @State var showAlert: Bool = false
     @FocusState var isFocused: Bool

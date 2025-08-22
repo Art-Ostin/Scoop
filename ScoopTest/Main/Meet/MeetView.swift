@@ -22,6 +22,10 @@ struct MeetView: View {
                     .font(.body(32, .bold))
                 tabView
                 clockView
+                
+                if vm.s.respondToRefresh {
+                    Text("Respond to refresh")
+                }
             }
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
@@ -51,7 +55,6 @@ extension MeetView {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .id(vm.s.showProfiles)
     }
     
     private func profileRecView(profileModel: ProfileModel) -> some View {
@@ -62,7 +65,10 @@ extension MeetView {
                 .onTapGesture { }
             
             ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager)) {
-                withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil  }
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedProfile = nil
+                    Task { await vm.reloadWeeklyCycle() }
+                }
             }
         }
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
@@ -72,7 +78,7 @@ extension MeetView {
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
             SimpleClockView(targetTime: time) {
-                vm.reloadWeeklyCycle() 
+                Task { await vm.reloadWeeklyCycle() ; print("reloaded cycle")}
             }
         }
     }

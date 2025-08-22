@@ -99,12 +99,15 @@ final class CycleManager {
         if Date() > cycle.endsAt.dateValue() {
             if cycle.cycleStats.pending == 0 || Date() > cycle.autoRemoveAt.dateValue() {
                 try? await deleteCycle(userId: userId, cycleId: id)
+                print("closed")
                 return .closed
             } else {
-                updateCycle(userId: userId, cycleId: id, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.respond])
+                updateCycle(userId: userId, cycleId: id, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.respond.rawValue])
+                print("respond")
                 return .respond
             }
         }
+        print("active")
         return .active
     }
     
@@ -124,7 +127,7 @@ final class CycleManager {
     }
     
     func deleteCycle(userId: String, cycleId: String) async throws {
-        updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.closed])
+        updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.closed.rawValue])
         try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
     }
 }
