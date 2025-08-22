@@ -14,17 +14,13 @@ struct UserProfile: Codable, Equatable {
     let userId, email: String
     let dateCreated: Date
     let accountComplete: Bool
-    let rating: Int
+    var rating: Int
     
-    var height: String?
-    
-    let sex, attractedTo, year, degree, hometown, name, lookingFor, drinking,
+    var sex, attractedTo, year, degree, height, hometown, name, lookingFor, drinking,
         smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
     
-    
-    let interests, nationality, character, imagePath, imagePathURL: [String]?
-    let prompt1, prompt2, prompt3: PromptResponse?
-    
+    var interests, nationality, character, imagePath, imagePathURL: [String]?
+    var prompt1, prompt2, prompt3: PromptResponse?
     
     init(auth: AuthDataResult) {
         self.userId = auth.user.uid

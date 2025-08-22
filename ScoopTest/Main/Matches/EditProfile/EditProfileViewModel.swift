@@ -26,19 +26,22 @@ import Foundation
     }
     
     var user: UserProfile { s.user }
-    var updatedFields: [UserProfile.CodingKeys : Any] = [:] 
+    var updatedFields: [UserProfile.CodingKeys : Any] = [:]
     
     func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         updatedFields[key] = value
-        draftUser[keyPath: kp] = value
+        
         print("height function complete")
+        print(updatedFields)
+        print(user.height ?? "")
     }
 
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(values: updatedFields)
+        print("User Fields updates")
+        await s.loadUser()
     }
-    
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
@@ -56,13 +59,13 @@ import Foundation
         try await userManager.updateUserArray(field: field, value: value, add: add)
     }
     
-    
     //Nationality Functionality
     var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
     }
+    
     var groupedCountries: [(letter: String, countries: [CountryData])] {
         let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
         let sortedKeys = groups.keys.sorted()
@@ -70,9 +73,11 @@ import Foundation
             (key, groups[key]!.sorted { $0.name < $1.name })
         }
     }
+    
     func isSelected(_ country: String) -> Bool {
         selectedCountries.contains(country)
     }
+    
     func toggleCountry(_ country: String) {
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})

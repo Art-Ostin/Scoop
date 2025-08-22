@@ -31,16 +31,19 @@ struct EditHeight: View {
                 if case .onboarding(_, let advance) = mode {
                     NextButton(isEnabled: true) {
                         advance()
+                        Task{try await vm.updateUser(values: [.height : height])}
                     }
                 }
             }
-            .flowNavigation()
-            .task {
-                height = vm.fetchUserField(\.height) ?? ""
-            }
+        }
+        .flowNavigation()
+        .onChange(of: height) {
+            Task { try await vm.updateUser(values: [.height : height]) }
+        }
+        .task {
+            height = vm.fetchUserField(\.height) ?? ""
         }
     }
 }
 
 
-//    Task{try await vm.updateUser(values: [.height : height])}}

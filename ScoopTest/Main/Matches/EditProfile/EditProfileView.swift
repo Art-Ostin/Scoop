@@ -10,8 +10,8 @@ import SwiftUI
 
 struct EditProfileView: View {
     
+    @Environment(\.dismiss) private var dismiss
     @Binding var vm: EditProfileViewModel
-    
     
     var body: some View {
         
@@ -30,7 +30,16 @@ struct EditProfileView: View {
             .navigationBarBackButtonHidden()
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { NavButton(.down)}
+                ToolbarItem(placement: .topBarTrailing) {
+                    if vm.updatedFields.isEmpty {
+                        NavButton(.down)
+                    } else {
+                        Button("SAVE") {
+                            dismiss()
+                            Task { try await vm.saveUser() }
+                        }
+                    }
+                }
             }
         }
     }

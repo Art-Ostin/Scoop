@@ -42,7 +42,7 @@ struct EditInterests: View {
                     LazyVStack(spacing: 0) {
                         ForEach(sections.indices, id: \.self) { idx in
                             let section = sections[idx]
-                            InterestSection(vm: $vm, options: section.data, title: section.title, image: section.image, selected: $selected)
+                            InterestSection(vm: vm, options: section.data, title: section.title, image: section.image, selected: $selected)
                         }
                     }
                 }
@@ -87,7 +87,7 @@ extension EditInterests {
 
 struct InterestSection: View {
     
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @State var options: [String]
     let title: String?
     let image: String?
