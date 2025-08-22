@@ -17,6 +17,7 @@ struct EditHeight: View {
     }
     
     @State var height = "5' 8"
+    
     var body: some View {
         VStack {
             SignUpTitle(text: "Height")
@@ -40,8 +41,8 @@ struct EditHeight: View {
         .onChange(of: height) {
             Task { try await vm.updateUser(values: [.height : height]) }
         }
-        .task {
-            height = vm.draftUser.height ??
+        .onAppear {
+            height = vm.draftUser.height ?? ""
         }
     }
 }
