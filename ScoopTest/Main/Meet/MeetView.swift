@@ -51,8 +51,7 @@ extension MeetView {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .id(vm.s.profiles.count)
-
+        .id(vm.s.showProfiles)
     }
     
     private func profileRecView(profileModel: ProfileModel) -> some View {
@@ -69,7 +68,7 @@ extension MeetView {
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
-
+    
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
             SimpleClockView(targetTime: time) {

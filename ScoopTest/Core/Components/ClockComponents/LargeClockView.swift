@@ -37,10 +37,3 @@ struct LargeClockView: View {
         }
     }
 }
-
-
-
-
-//#Preview {
-//    MainClockView(targetTime: Date.da)
-//}

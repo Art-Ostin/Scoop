@@ -57,7 +57,7 @@ final class CycleManager {
     func createCycle(userId: String) async throws -> String {
         let addedCount = 4
         let now = Date()
-        let endsAt = Calendar.current.date(byAdding: .minute, value: 3, to: now)!
+        let endsAt = Calendar.current.date(byAdding: .second, value: 30, to: now)!
         let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: now)!
         
         let cycle = CycleModel(
@@ -88,6 +88,7 @@ final class CycleManager {
     func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
         cycleDocument(userId: userId, cycleId: cycleId).updateData(data)
     }
+    
     
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])

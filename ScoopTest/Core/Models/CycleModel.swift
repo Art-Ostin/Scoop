@@ -9,7 +9,7 @@ import Foundation
 @preconcurrency import FirebaseFirestore
 
 
-enum CycleStatus: Codable, Sendable { case active, closed, respond}
+enum CycleStatus: String, Codable, Sendable { case active, closed, respond}
 
 enum RecommendationStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
 
@@ -20,11 +20,11 @@ struct CycleStats: Codable, Sendable {
     var dismissed: Int
     var pending: Int
     
-    enum CodingKeys: String, CodingKey {
+    enum CodingKeys: CodingKey {
         case total, invited, accepted, dismissed, pending
     }
 }
-
+ 
 
 struct CycleModel: Identifiable, Codable, Sendable{
     @DocumentID var id: String?
@@ -61,5 +61,3 @@ struct RecommendationItem: Identifiable, Codable, Sendable{
         case actedAt
     }
 }
-
-

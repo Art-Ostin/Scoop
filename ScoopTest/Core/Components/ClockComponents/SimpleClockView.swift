@@ -23,7 +23,3 @@ struct SimpleClockView: View {
         }
     }
 }
-
-//#Preview {
-//    SimpleClockView()
-//}
