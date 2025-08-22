@@ -24,7 +24,7 @@ struct CycleStats: Codable, Sendable {
         case total, invited, accepted, dismissed, pending
     }
 }
- 
+
 
 struct CycleModel: Identifiable, Codable, Sendable{
     @DocumentID var id: String?

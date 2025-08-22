@@ -50,6 +50,7 @@ struct Session  {
         session = Session(user: user)
     }
     
+    
     @discardableResult
     func loadUser() async -> AppState {
         guard
@@ -75,8 +76,8 @@ struct Session  {
         await loadCycle() // IF not will always return closed
         let status = await cycleManager.checkCycleStatus(userId: user.userId, cycle: activeCycle)
         if status == .closed { showProfiles = false ; return }
-        if status == .respond { respondToRefresh = true ; return}
-
+        if status == .respond { respondToRefresh = true }
+        
         guard let cycleId = session?.activeCycle?.id,
               let ids = try? await cycleManager.fetchCycleProfiles(userId: user.userId, cycleId: cycleId) else { return }
         
@@ -84,7 +85,6 @@ struct Session  {
         profiles = await profileLoader(data: data)
         Task { await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }
-    
     
     func loadEvents() async {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.userId) else {return}

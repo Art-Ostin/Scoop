@@ -52,7 +52,6 @@ final class CycleManager {
             .map(\.id)
     }
     
-    
     @discardableResult
     func createCycle(userId: String) async throws -> String {
         let addedCount = 4
@@ -106,13 +105,13 @@ final class CycleManager {
                 print("respond")
                 return .respond
             }
+        } else {
+            print("active")
+            return .active
         }
-        print("active")
-        return .active
     }
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
-        
         guard let id = cycle?.id else { return }
         updateProfileItem(userId: userId, cycleId: id, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
 

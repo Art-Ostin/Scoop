@@ -10,6 +10,7 @@ import SwiftUI
 struct CountdownTimer<Content: View>: View {
     
     @State private var timeRemaining = DateComponents()
+    @State private var didFinish = false
         
     private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     let targetTime: Date
@@ -29,11 +30,12 @@ struct CountdownTimer<Content: View>: View {
     }
     
     private func updateTimeRemaining() {
-        var done = false
-        if Date() >= targetTime && !done {
+        if Date() >= targetTime {
             timeRemaining = DateComponents(hour: 0, minute: 0, second: 0)
-            onFinished()
-            done = true
+            if !didFinish {
+                didFinish = true
+                onFinished()
+            }
             return
         }
         timeRemaining = Calendar.current.dateComponents([.hour, .minute, .second], from: Date(), to: targetTime)
