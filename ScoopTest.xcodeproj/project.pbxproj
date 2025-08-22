@@ -441,14 +441,14 @@
 		6577D7C92E201A2600FFCF82 /* EditProfileDetail */ = {
 			isa = PBXGroup;
 			children = (
-				6509DDC22E36F6EE0042917B /* OptionEdit.swift */,
 				6509DDC62E37A1CC0042917B /* EditTextfield.swift */,
+				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
+				6509DDC22E36F6EE0042917B /* OptionEdit.swift */,
 				6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */,
 				6577D7DC2E20424300FFCF82 /* EditHeight.swift */,
 				65E8209A2E37CCCE0098CC36 /* EditNationality.swift */,
 				6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */,
 				656126642E23212C00088B6D /* EditInterests.swift */,
-				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
 				654982D32E3101BE00CA335F /* AddImagesView.swift */,
 			);
 			path = EditProfileDetail;

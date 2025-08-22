@@ -23,17 +23,17 @@ import Foundation
     }
     
     
-    
     var user: UserProfile  { s.user }
+    
+    
+    var draftUser: UserProfile?
+    
+    func saveUser() async throws {
+        
+    } 
+    
+    
 
-    
-    
-    
-    
-    
-    
-    
-    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }
