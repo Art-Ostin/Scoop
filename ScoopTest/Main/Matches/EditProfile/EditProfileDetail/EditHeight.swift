@@ -26,7 +26,7 @@ struct EditHeight: View {
                         Text(option).font(.body(20))
                     }
                 }
-                .onChange(of: height) { vm.set(.height, to: height) }
+                .onChange(of: height) { vm.set(.height, \.height, to: height) }
                 .pickerStyle(.wheel)
                 if case .onboarding(_, let advance) = mode {
                     NextButton(isEnabled: true) {

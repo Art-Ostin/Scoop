@@ -39,6 +39,9 @@ import Foundation
         try await userManager.updateUser(values: updatedFields)
     }
 
+    
+    
+    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }
