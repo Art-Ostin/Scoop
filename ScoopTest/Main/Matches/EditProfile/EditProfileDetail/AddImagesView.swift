@@ -33,6 +33,7 @@ struct AddImageView: View {
                     }
                 }
             }
+            
             ActionButton(isValid: vm.isValid, text: "Complete") {
                 appState.wrappedValue = .app
                 Task { try? await vm.userManager.updateUser(values: [UserProfile.CodingKeys.accountComplete : true]) }

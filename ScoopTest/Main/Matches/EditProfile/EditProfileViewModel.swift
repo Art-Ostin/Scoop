@@ -15,25 +15,34 @@ import Foundation
     var s: SessionManager
     var storageManager: StorageManaging
     
-    init(cachManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging) {
+    var draftUser: UserProfile
+    
+    init(cachManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile) {
         self.cachManager = cachManager
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
+        self.draftUser = draftUser
     }
     
     
-    var user: UserProfile  { s.user }
+    var user: UserProfile { s.user }
+
     
+    var updatedFields: [UserProfile.CodingKeys : Any] = [:]
     
-    var draftUser: UserProfile?
+    func set(_ key: UserProfile.CodingKeys, to value: Any) {
+        updatedFields[key] = value
+    }
     
     func saveUser() async throws {
-        
-    } 
+        guard !updatedFields.isEmpty else { return }
+        try await userManager.updateUser(values: updatedFields)
+    }
     
     
-
+    
+    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }

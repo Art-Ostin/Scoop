@@ -52,7 +52,7 @@ struct MatchesView: View {
             }
         }
         .fullScreenCover(isPresented: $showProfileView, content: {
-            EditProfileContainer(vm: EditProfileViewModel(cachManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager))
+            EditProfileContainer(vm: EditProfileViewModel(cachManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user))
         })
         .task {
             image = try? await vm.fetchFirstImage()
