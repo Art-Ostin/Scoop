@@ -105,7 +105,7 @@ struct VerifyEmailView: View {
                 await vm.sessionManager.loadUser()
                 return appState.wrappedValue = .app
             } catch {
-                guard let user = try? await vm.createUser(email: vm.email, password: vm.password) else {return}
+                guard let _ = try? await vm.createUser(email: vm.email, password: vm.password) else {return}
                 return appState.wrappedValue = .createAccount
             }
         }

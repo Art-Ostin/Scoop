@@ -39,7 +39,7 @@ import Foundation
     
     var updatedFieldsArray: [(field: UserProfile.CodingKeys, value: String, add: Bool)] = []
     
-    func setAray(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, [String]?>,  to element: String, add: Bool) {
+    func setArray(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, [String]?>,  to element: String, add: Bool) {
         if add == true {
             draftUser[keyPath: kp]?.append(element)
         } else {
@@ -110,10 +110,10 @@ import Foundation
     func toggleCountry(_ country: String) {
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})
-            Task { try? await updateUserArray(field: .nationality, value: country, add: false)}
+            setArray(.nationality, \.nationality, to: country, add: false)
         } else if selectedCountries.count < 3 {
             selectedCountries.append(country)
-            Task {try? await updateUserArray(field: .nationality, value: country, add: true) }
+            setArray(.nationality, \.nationality, to: country, add: true)
         }
     }
     

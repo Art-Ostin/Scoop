@@ -118,7 +118,7 @@ struct InterestSection: View {
                         ? selected.removeAll(where: { $0 == text })
                         : (selected.count < 10 ? selected.append(text) : nil)
                     Task {
-                        vm.setAray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
+                        vm.setArray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
                     }
                 }
             }
