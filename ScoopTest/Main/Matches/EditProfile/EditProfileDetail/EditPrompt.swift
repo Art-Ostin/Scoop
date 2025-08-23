@@ -20,7 +20,8 @@ struct EditPrompt: View {
     @FocusState var isFocused: Bool
     @State var prompt = PromptResponse(prompt: "", response: "")
     @State private var showDropdownMenu = false
-
+    
+    
     let prompts: [String]
     let promptIndex: Int
     
@@ -30,8 +31,7 @@ struct EditPrompt: View {
     private var keyPath: WritableKeyPath<UserProfile, PromptResponse?> {
         [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
-    
-    
+
     
     var body: some View {
         
@@ -52,7 +52,8 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: prompt.prompt) { vm.set(key, keyPath, to: prompt)}        
+        .onChange(of: prompt.prompt) { vm.set(key, keyPath, to: prompt.prompt)}
+        .onChange(of: prompt.response) {vm.set(key, keyPath, to: prompt.response)}
         
         
         .onChange(of: prompt.response) { Task { try await vm.updateUser(values: [key : prompt.response])}}
