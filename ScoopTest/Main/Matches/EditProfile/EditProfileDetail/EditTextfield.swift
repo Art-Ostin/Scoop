@@ -30,7 +30,7 @@ enum TextFieldOptions: CaseIterable {
         }
     }
     
-    var keyPath: KeyPath<UserProfile, String?> {
+    var keyPath: WritableKeyPath<UserProfile, String?> {
         switch self {
         case .degree: return \.degree
         case .hometown: return \.hometown
@@ -50,9 +50,8 @@ struct TextFieldEdit: View {
     var body: some View {
         
         VStack {
-
-            SignUpTitle(text: field.title)
             
+            SignUpTitle(text: field.title)
             VStack {
                 TextField("Type \(field.title) here", text: $text)
                     .frame(maxWidth: .infinity)
@@ -72,10 +71,10 @@ struct TextFieldEdit: View {
             }
         }
         .onAppear {
-            text =  vm.fetchUserField(field.keyPath) ?? ""
+            text = vm.draftUser[keyPath: field.keyPath] ?? ""
             focused = true
         }
         .flowNavigation()
-        .onChange(of: text) { Task { try await vm.updateUser(values: [field.key : text])} }
+        .onChange(of: text) { vm.set(field.key, field.keyPath, to: text) }
     }
 }

@@ -37,7 +37,7 @@ enum OptionField: CaseIterable {
         }
     }
     
-    var keyPath: KeyPath<UserProfile, String?> {
+    var keyPath: WritableKeyPath<UserProfile, String?> {
         switch self {
         case .sex: return \.sex
         case .attractedTo: return \.attractedTo
@@ -69,14 +69,15 @@ struct OptionEditView: View  {
             }
         }
         .flowNavigation()
-        .onAppear {selection = vm.fetchUserField(field.keyPath)}
+        .onAppear {selection = vm.draftUser[keyPath: field.keyPath] ?? ""}
     }
+    
     private func select(_ value: String) {
         switch mode {
         case .onboarding(_, let advance):
             advance()
         case .profile: break
         }
-        Task { try await vm.updateUser(values: [field.key: value]) }
+        vm.set(field.key, field.keyPath, to: value)
     }
 }

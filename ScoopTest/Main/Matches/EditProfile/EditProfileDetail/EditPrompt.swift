@@ -27,10 +27,12 @@ struct EditPrompt: View {
     private var key: UserProfile.CodingKeys {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
-    private var keyPath: KeyPath<UserProfile, PromptResponse?> {
+    private var keyPath: WritableKeyPath<UserProfile, PromptResponse?> {
         [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
-
+    
+    
+    
     var body: some View {
         
         ZStack {
@@ -50,7 +52,9 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: prompt.prompt) { Task { try await vm.updateUser(values: [key : prompt.prompt])}}
+        .onChange(of: prompt.prompt) { vm.set(key, keyPath, to: prompt)}        
+        
+        
         .onChange(of: prompt.response) { Task { try await vm.updateUser(values: [key : prompt.response])}}
         
         .onAppear {

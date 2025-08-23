@@ -68,7 +68,7 @@ struct InfoView: View {
                 EditLifestyle()
             },
             EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")]) {
-                EditMyLifeAs()
+                EditMyLifeAs(vm: vm)
             },
             EditPreview("Languages", [u.languages ?? ""]) {
                 TextFieldEdit(vm: vm, field: .languages)
