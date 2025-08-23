@@ -52,12 +52,7 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: prompt.prompt) { vm.set(key, keyPath, to: prompt.prompt)}
-        .onChange(of: prompt.response) {vm.set(key, keyPath, to: prompt.response)}
-        
-        
-        .onChange(of: prompt.response) { Task { try await vm.updateUser(values: [key : prompt.response])}}
-        
+//        .onChange(of: prompt.prompt) { vm.setPrompt(key, keyPath, to: prompt)}
         .onAppear {
             isFocused = true
             if let prompt = vm.fetchUserField(keyPath) {

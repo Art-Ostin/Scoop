@@ -10,7 +10,7 @@ import UIKit
 
 @MainActor
 @Observable class MatchesViewModel {
-    
+
     var userManager: UserManager
     var cacheManager: CacheManaging
     var authManager: AuthManaging
@@ -30,6 +30,5 @@ import UIKit
         let profile = s.user
         return try await cacheManager.fetchFirstImage(profile: profile) ?? UIImage()
     }
-    
     var user: UserProfile { s.user }
 }

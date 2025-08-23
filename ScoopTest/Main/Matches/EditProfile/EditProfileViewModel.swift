@@ -50,6 +50,14 @@ import Foundation
         print(updatedFieldsArray)
     }
     
+//    func setPrompt(_ key: UserProfile.CodingKeys,
+//                   _ kp: WritableKeyPath<UserProfile, PromptResponse?>,
+//                   to value: PromptResponse) {
+//        draftUser[keyPath: kp] = value
+//        updatedFields[key] = ["prompt": value.prompt, "response": value.response]
+//    }
+//    
+    
     
     
     func saveUserArray() async throws {
