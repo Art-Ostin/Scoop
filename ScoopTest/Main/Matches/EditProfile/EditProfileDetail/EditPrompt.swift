@@ -32,7 +32,6 @@ struct EditPrompt: View {
         [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
 
-    
     var body: some View {
         
         ZStack {
@@ -52,10 +51,11 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-//        .onChange(of: prompt.prompt) { vm.setPrompt(key, keyPath, to: prompt)}
+        .onChange(of: prompt) { vm.setPrompt(key, keyPath, to: prompt)}
+        
         .onAppear {
             isFocused = true
-            if let prompt = vm.fetchUserField(keyPath) {
+            if let prompt = vm.draftUser[keyPath: keyPath] {
                 self.prompt = prompt
             } else {
                 self.prompt = PromptResponse(prompt: prompts.randomElement() ?? "", response: "")

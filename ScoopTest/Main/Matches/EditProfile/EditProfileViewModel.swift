@@ -36,6 +36,7 @@ import Foundation
         updatedFields[key] = value
     }
     
+    
     var updatedFieldsArray: [(field: UserProfile.CodingKeys, value: String, add: Bool)] = []
     
     func setAray(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, [String]?>,  to element: String, add: Bool) {
@@ -43,30 +44,26 @@ import Foundation
             draftUser[keyPath: kp]?.append(element)
         } else {
             draftUser[keyPath: kp]?.removeAll(where: {$0 == element})
-            print("function called")
         }
         updatedFieldsArray.append((field: key, value: element, add: add))
-        print("Added from Array")
         print(updatedFieldsArray)
     }
     
-//    func setPrompt(_ key: UserProfile.CodingKeys,
-//                   _ kp: WritableKeyPath<UserProfile, PromptResponse?>,
-//                   to value: PromptResponse) {
-//        draftUser[keyPath: kp] = value
-//        updatedFields[key] = ["prompt": value.prompt, "response": value.response]
-//    }
-//    
     
-    
-    
+    func setPrompt(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, PromptResponse?>, to value: PromptResponse) {
+        print(value)
+        print(kp)
+        draftUser[keyPath: kp] = value
+        updatedFields[key] = ["prompt": value.prompt, "response": value.response]
+        print(updatedFields)
+    }
+        
     func saveUserArray() async throws {
         guard !updatedFieldsArray.isEmpty else { return }
         for (field, value, add) in updatedFieldsArray {
             try await userManager.updateUserArray(field: field, value: value, add: add)
         }
         await s.loadUser()
-        print("savedToUserArray")
     }
     
     func saveUser() async throws {
