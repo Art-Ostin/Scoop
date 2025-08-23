@@ -18,9 +18,9 @@ struct EditProfileView: View {
             ZStack {
                 ScrollView {
                     ImagesView(vm: EditImageViewModel(s: vm.s, userManager: vm.userManager, cacheManager: vm.cachManager, storageManager: vm.storageManager))
-                    PromptsView(vm: $vm)
-                    InfoView(vm: $vm)
-                    InterestsView(vm: $vm)
+                    PromptsView(vm: vm)
+                    InfoView(vm: vm)
+                    InterestsView(vm: vm)
                     YearsView()
                 }
             }
@@ -30,12 +30,15 @@ struct EditProfileView: View {
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    if vm.updatedFields.isEmpty {
+                    if vm.updatedFields.isEmpty && vm.updatedFieldsArray.isEmpty {
                         NavButton(.down)
                     } else {
                         Button("SAVE") {
                             dismiss()
-                            Task { try await vm.saveUser() }
+                            Task {
+                                try await vm.saveUser()
+                                try await vm.saveUserArray()
+                            }
                         }
                     }
                 }

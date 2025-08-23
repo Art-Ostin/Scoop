@@ -46,11 +46,10 @@ struct InterestsHolder<Content: View, Destination: View>: View {
 
 struct InterestsLayout: View {
     
-    @Environment(\.appDependencies) private var dep
-    
+    @Bindable var vm: EditProfileViewModel
     
     var passions: [String] {
-        dep.sessionManager.user.interests ?? []
+        vm.draftUser.interests ?? []
     }
     
     
@@ -102,10 +101,10 @@ extension Array {
 
 
 struct InterestsView: View {
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     var body: some View {
         InterestsHolder(title: "Interests") {
-            InterestsLayout()
+            InterestsLayout(vm: vm)
         } destination: {
             EditInterests(vm: vm)
         }

@@ -26,25 +26,44 @@ import Foundation
     }
     
     var user: UserProfile { s.user }
+    
+    
+    //For String Updates
     var updatedFields: [UserProfile.CodingKeys : Any] = [:]
     
     func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draftUser[keyPath: kp] = value
         updatedFields[key] = value
-        print("height function complete")
-        print(updatedFields)
-        print(draftUser.height ?? "")
     }
     
-    func setArray<T>(_key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
-        
+    var updatedFieldsArray: [(field: UserProfile.CodingKeys, value: String, add: Bool)] = []
+    
+    func setAray(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, [String]?>,  to element: String, add: Bool) {
+        if add == true {
+            draftUser[keyPath: kp]?.append(element)
+        } else {
+            draftUser[keyPath: kp]?.removeAll(where: {$0 == element})
+            print("function called")
+        }
+        updatedFieldsArray.append((field: key, value: element, add: add))
+        print("Added from Array")
+        print(updatedFieldsArray)
     }
-
+    
+    
+    
+    func saveUserArray() async throws {
+        guard !updatedFieldsArray.isEmpty else { return }
+        for (field, value, add) in updatedFieldsArray {
+            try await userManager.updateUserArray(field: field, value: value, add: add)
+        }
+        await s.loadUser()
+        print("savedToUserArray")
+    }
+    
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(values: updatedFields)
-
-        print("User Fields updates")
         await s.loadUser()
     }
     

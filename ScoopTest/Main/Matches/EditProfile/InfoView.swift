@@ -8,7 +8,7 @@ import SwiftUI
 
 struct InfoView: View {
     
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
     
     

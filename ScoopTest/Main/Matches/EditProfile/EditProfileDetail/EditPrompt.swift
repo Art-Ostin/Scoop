@@ -15,7 +15,7 @@ struct PromptResponse: Codable, Equatable  {
 
 struct EditPrompt: View {
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
         
     @FocusState var isFocused: Bool
     @State var prompt = PromptResponse(prompt: "", response: "")

@@ -55,7 +55,7 @@ struct EditInterests: View {
         }
         .flowNavigation()
         .task {
-            selected = vm.fetchUserField(\.interests) ?? []
+            selected = vm.draftUser.interests ?? []
         }
     }
 }
@@ -112,27 +112,19 @@ struct InterestSection: View {
             }
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
-            
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 OptionCell(text: input, selection: $selected) { text in
                     selected.contains(text)
                         ? selected.removeAll(where: { $0 == text })
                         : (selected.count < 10 ? selected.append(text) : nil)
-                    
                     Task {
-                        if vm.interestIsSelected(text: text) {
-                            
-                            try await vm.updateUser(values: [.interests : FieldValue.arrayRemove([text])])
-                        } else {
-                            try await vm.updateUser(values: [.interests : FieldValue.arrayUnion([text])])
-                        }
+                        vm.setAray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
                     }
                 }
             }
             .offset(x: -5)
         }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
-        
     }
 }
 
