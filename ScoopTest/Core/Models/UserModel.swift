@@ -9,23 +9,9 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-
-struct AuthUser: Codable, Equatable {
+struct DraftProfile: Codable {
     let id: String
     let email: String
-    @ServerTimestamp var createdAt: Date?
-    
-    init(auth: AuthDataResult) {
-        self.id = auth.user.uid
-        self.email = auth.user.email ?? ""
-        self.createdAt = nil
-    }
-}
-
-struct DraftProfile {
-    let id: String
-    let email: String
-    let createdAt: Date
     var sex = ""
     var attractedTo = ""
     var year = ""
@@ -42,10 +28,9 @@ struct DraftProfile {
     var marijuana = ""
     var drugs = ""
     
-    init(auth: AuthUser) {
-        self.id = auth.id
-        self.email = auth.email
-        self.createdAt = auth.createdAt ?? Date()
+    init(auth: AuthDataResult) {
+        self.id = auth.user.uid
+        self.email = auth.user.email ?? ""
     }
 }
 
@@ -53,7 +38,6 @@ struct UserProfile: Codable, Equatable, Identifiable {
     
     let id: String
     let email: String
-    let createdAt: Date
     var name: String
     var rating = 1000
     var sex: String
@@ -81,6 +65,7 @@ struct UserProfile: Codable, Equatable, Identifiable {
     var favouriteBook: String?
     var activeCycleId: String?
     var character: [String]?
+    @ServerTimestamp var createdAt: Date?
 }
 
 extension UserProfile {
@@ -89,7 +74,6 @@ extension UserProfile {
         self.init(
             id: draft.id,
             email: draft.email,
-            createdAt: draft.createdAt,
             name: draft.email.split(separator: ".").first.map(String.init)?.capitalized ?? "",
             sex: draft.sex,
             attractedTo: draft.attractedTo,
@@ -120,14 +104,16 @@ extension UserProfile {
     }
 }
 
-
-
-
-
-
-
-
-
+struct AuthUser: Codable, Equatable {
+    let id: String
+    let email: String
+    @ServerTimestamp var createdAt: Date?
+    
+    init(auth: AuthDataResult) {
+        self.id = auth.user.uid
+        self.email = auth.user.email ?? ""
+    }
+}
 
 
 /*

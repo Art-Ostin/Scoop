@@ -22,7 +22,7 @@ import FirebaseAuth
         self.userManager = userManager
     }
     
-    func authoriseEmail(email: String) -> Bool {
+    func isValid(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
             return false
         }
@@ -34,10 +34,10 @@ import FirebaseAuth
     var email: String { "\(username)@mail.mcgill.ca" }
     var password: String = "HelloWorld"
     
-    func createUser (email: String, password: String) async throws {
-//        let authData = try await authManager.createAuthUser(email: email, password: password)
-//        let user = try await userManager.createUser(authUser: authData)
-//        await sessionManager.startSession(user: user)
+    
+    func createAuthUser (email: String, password: String) async throws {
+        let authData = try await authManager.createAuthUser(email: email, password: password)
+        
     }
     
     func signInUser(email: String, password: String) async throws {
