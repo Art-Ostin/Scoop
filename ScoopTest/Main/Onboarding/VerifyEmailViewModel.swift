@@ -35,7 +35,7 @@ import FirebaseAuth
     var password: String = "HelloWorld"
     
     func createUser (email: String, password: String) async throws {
-        let authData = try await authManager.createAuthUser(email: email, password: password)
+//        let authData = try await authManager.createAuthUser(email: email, password: password)
 //        let user = try await userManager.createUser(authUser: authData)
 //        await sessionManager.startSession(user: user)
     }

@@ -27,41 +27,26 @@ struct DraftProfile {
     let id: String
     let email: String
     let createdAt: Date
-    var sex: String?
-    var attractedTo: String?
-    var year: String?
-    var height: String?
-    var interests: [String]?
-    var degree: String?
-    var hometown: String?
-    var nationality: [String]?
-    var lookingFor: String?
-    var imagePath: [String]?
-    var imagePathURL: [String]?
-    var drinking: String?
-    var smoking: String?
-    var marijuana: String?
-    var drugs: String?
+    var sex = ""
+    var attractedTo = ""
+    var year = ""
+    var height = ""
+    var interests: [String] = []
+    var degree = ""
+    var hometown = ""
+    var nationality: [String] = []
+    var lookingFor = ""
+    var imagePath: [String] = []
+    var imagePathURL: [String] = []
+    var drinking = ""
+    var smoking = ""
+    var marijuana = ""
+    var drugs = ""
     
     init(auth: AuthAccount) {
         self.id = auth.id
         self.email = auth.email
         self.createdAt = auth.createdAt ?? Date()
-        self.sex = nil
-        self.attractedTo = nil
-        self.year = nil
-        self.height = nil
-        self.interests = nil
-        self.degree = nil
-        self.hometown = nil
-        self.nationality = nil
-        self.lookingFor = nil
-        self.imagePath = nil
-        self.imagePathURL = nil
-        self.drinking = nil
-        self.smoking = nil
-        self.marijuana = nil
-        self.drugs = nil
     }
 }
 
@@ -72,7 +57,7 @@ struct UserProfile: Codable, Equatable, Identifiable {
     let email: String
     let createdAt: Date
     var name: String
-    var rating: Int
+    var rating = 1000
     var sex: String
     var attractedTo: String
     var year: String
@@ -88,48 +73,42 @@ struct UserProfile: Codable, Equatable, Identifiable {
     var smoking: String
     var marijuana: String
     var drugs: String
+    var languages: String = ""
     
     var prompt1: PromptResponse?
     var prompt2: PromptResponse?
     var prompt3: PromptResponse?
-    var languages: String
-    
-    var character: [String]?
     var favouriteMovie: String?
     var favouriteSong: String?
     var favouriteBook: String?
     var activeCycleId: String?
+    var character: [String]?
+}
+
+extension UserProfile {
     
     init(draft: DraftProfile) {
-        self.id = draft.id
-        self.email = draft.email
-        self.createdAt = draft.createdAt
-        self.name = email.components(separatedBy: ".")[0].capitalized
-        self.rating = 1000
-        self.sex = draft.sex ?? ""
-        self.attractedTo = draft.attractedTo ?? ""
-        self.year = draft.year ?? ""
-        self.height = draft.height ?? ""
-        self.interests = draft.interests ?? []
-        self.degree = draft.degree ?? ""
-        self.hometown = draft.hometown ?? ""
-        self.nationality = draft.nationality ?? []
-        self.lookingFor = draft.lookingFor ?? ""
-        self.imagePath = draft.imagePath ?? []
-        self.imagePathURL = draft.imagePathURL ?? []
-        self.drinking = draft.drinking ?? ""
-        self.smoking = draft.smoking ?? ""
-        self.marijuana = draft.marijuana ?? ""
-        self.drugs = draft.drugs ?? ""
-        
-        self.prompt1 = nil
-        self.prompt2 = nil
-        self.prompt3 = nil
-        self.languages =  ""
-        self.character = nil
-        self.favouriteMovie = nil
-        self.favouriteBook = nil
-        self.activeCycleId = nil
+        self.init(
+            id: draft.id,
+            email: draft.email,
+            createdAt: draft.createdAt,
+            name: draft.email.split(separator: ".").first.map(String.init)?.capitalized ?? "",
+            sex: draft.sex,
+            attractedTo: draft.attractedTo,
+            year: draft.year,
+            height: draft.height,
+            interests: draft.interests,
+            degree: draft.degree,
+            hometown: draft.hometown,
+            nationality: draft.nationality,
+            lookingFor: draft.lookingFor,
+            imagePath: draft.imagePath,
+            imagePathURL: draft.imagePathURL,
+            drinking: draft.drinking,
+            smoking: draft.smoking,
+            marijuana: draft.marijuana,
+            drugs: draft.drugs
+        )
     }
     
     enum Field: String {

@@ -15,22 +15,22 @@ struct InfoView: View {
     private var coreInfo: [EditPreview] {
         let u = vm.draftUser
         return [
-            EditPreview("Name", [u.name ?? ""]) {
+            EditPreview("Name", [u.name]) {
                        TextFieldEdit(vm: vm, field: .name)
                    },
-                   EditPreview("Sex", [u.sex ?? ""]) {
+                   EditPreview("Sex", [u.sex]) {
                        OptionEditView(vm: vm, field: .sex)
                    },
-                   EditPreview("Attracted To", [u.attractedTo ?? ""]) {
+                   EditPreview("Attracted To", [u.attractedTo]) {
                        OptionEditView(vm: vm, field: .attractedTo)
                    },
-                   EditPreview("Year", [u.year ?? ""]) {
+                   EditPreview("Year", [u.year]) {
                        OptionEditView(vm: vm, field: .year)
                    },
-                   EditPreview("Height", [u.height ?? ""]) {
+                   EditPreview("Height", [u.height]) {
                        EditHeight(vm: vm)
                    },
-                   EditPreview("Nationality", [u.nationality?.joined(separator: ", ") ?? ""]) {
+                   EditPreview("Nationality", [u.nationality.joined(separator: ", ")]) {
                        EditNationality(vm: vm)
                    }
         ]
@@ -39,10 +39,10 @@ struct InfoView: View {
         let u = vm.draftUser
 
         let lifestyle =
-        "Drinking: \(u.drinking?.lowercased() ?? "-"), " +
-        "Smoking: \(u.smoking?.lowercased() ?? "-"), " +
-        "Marijuana: \(u.marijuana?.lowercased() ?? "-"), " +
-        "Drugs: \(u.drugs?.lowercased() ?? "-")"
+        "Drinking: \(u.drinking.lowercased()), " +
+        "Smoking: \(u.smoking.lowercased()), " +
+        "Marijuana: \(u.marijuana.lowercased()), " +
+        "Drugs: \(u.drugs.lowercased())"
         
         let myLifeAs: [String] = {
             let choices = [
@@ -54,13 +54,13 @@ struct InfoView: View {
         }()
         
         return [
-            EditPreview("Looking For", [u.lookingFor ?? ""]) {
+            EditPreview("Looking For", [u.lookingFor]) {
                 OptionEditView(vm: vm, field: .lookingFor)
             },
-            EditPreview("Degree", [u.degree ?? ""]) {
+            EditPreview("Degree", [u.degree]) {
                 TextFieldEdit(vm: vm, field: .degree)
             },
-            EditPreview("Hometown", [u.hometown ?? ""]) {
+            EditPreview("Hometown", [u.hometown]) {
                 TextFieldEdit(vm: vm, field: .hometown)
             },
             
@@ -70,7 +70,7 @@ struct InfoView: View {
             EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")]) {
                 EditMyLifeAs(vm: vm)
             },
-            EditPreview("Languages", [u.languages ?? ""]) {
+            EditPreview("Languages", [u.languages]) {
                 TextFieldEdit(vm: vm, field: .languages)
             }
         ]
