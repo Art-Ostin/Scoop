@@ -162,6 +162,8 @@ struct ImageSlot: Equatable {
     
     
     func changeImage(at index: Int) async throws {
+        
+        print("change image called")
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
@@ -169,11 +171,15 @@ struct ImageSlot: Equatable {
         else { return }
         
         await MainActor.run {
-            if images.indices.contains(index) { images[index] = uiImage }
+            if images.indices.contains(index) { images[index] = uiImage } else {
+                print("error did not contain")
+            }
         }
         
         if let i = updatedImages.firstIndex(where: {$0.index == index}) {
             updatedImages[i] = (index: index, data: data)
+            
+            
         } else {
             updatedImages.append((index: index, data: data))
         }

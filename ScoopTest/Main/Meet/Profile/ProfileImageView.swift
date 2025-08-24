@@ -20,7 +20,7 @@ struct ProfileImageView: View {
             imageScroller
         }
         .task {
-            if let pre = preloaded, pre.contains(where: { $0.cgImage != nil || $0.ciImage != nil }) {
+            if let pre = preloaded {
             images = pre
             } else {
                 images = await vm.loadImages()
