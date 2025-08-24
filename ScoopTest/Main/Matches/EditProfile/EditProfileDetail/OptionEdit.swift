@@ -28,7 +28,7 @@ enum OptionField: CaseIterable {
         }
     }
     
-    var key: UserProfile.CodingKeys {
+    var key: UserProfile.Field {
         switch self {
         case .sex: return .sex
         case .attractedTo: return .attractedTo
@@ -37,7 +37,7 @@ enum OptionField: CaseIterable {
         }
     }
     
-    var keyPath: WritableKeyPath<UserProfile, String?> {
+    var keyPath: WritableKeyPath<UserProfile, String> {
         switch self {
         case .sex: return \.sex
         case .attractedTo: return \.attractedTo
@@ -73,12 +73,11 @@ struct OptionEditView: View  {
     }
     
     private func select(_ value: String) {
+        vm.set(field.key, field.keyPath, to: value)
         switch mode {
         case .onboarding(_, let advance):
-            
             advance()
         case .profile: break
         }
-        vm.set(field.key, field.keyPath, to: value)
     }
 }

@@ -22,7 +22,7 @@ struct ImageSlot: Equatable {
 @Observable class EditProfileViewModel {
 
     
-    var defaultsManager = DefaultsManager(defaults: .standard)
+    var defaults: DefaultsManager
     
     var cacheManager: CacheManaging
     var userManager: UserManager
@@ -31,28 +31,31 @@ struct ImageSlot: Equatable {
     
     var draftUser: UserProfile
     
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile) {
+    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile, defaults: DefaultsManager) {
         self.cacheManager = cacheManager
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
         self.draftUser = draftUser
+        self.defaults = defaults
     }
     
     var user: UserProfile { s.user }
     
-    var updatedFields: [UserProfile.CodingKeys : Any] = [:]
+    var updatedFields: [UserProfile.Field : Any] = [:]
     
-    func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
+    func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draftUser[keyPath: kp] = value
         updatedFields[key] = value
+        saveDraft()
     }
     
-    func setPrompt(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, PromptResponse?>, to value: PromptResponse) {
+    func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse?>, to value: PromptResponse) {
         print(value)
         print(kp)
         draftUser[keyPath: kp] = value
         updatedFields[key] = ["prompt": value.prompt, "response": value.response]
+        saveDraft()
     }
     
     func saveUser() async throws {
@@ -60,16 +63,18 @@ struct ImageSlot: Equatable {
         try await userManager.updateUser(values: updatedFields)
     }
     
-    var updatedFieldsArray: [(field: UserProfile.CodingKeys, value: String, add: Bool)] = []
+    var updatedFieldsArray: [(field: UserProfile.Field, value: String, add: Bool)] = []
     
-    func setArray(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, [String]?>,  to element: String, add: Bool) {
+    func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to element: String, add: Bool) {
         if add == true {
-            draftUser[keyPath: kp]?.append(element)
+            draftUser[keyPath: kp].append(element)
         } else {
-            draftUser[keyPath: kp]?.removeAll(where: {$0 == element})
+            draftUser[keyPath: kp].removeAll(where: {$0 == element})
         }
         updatedFieldsArray.append((field: key, value: element, add: add))
         print(updatedFieldsArray)
+        saveDraft()
+
     }
     
     func saveUserArray() async throws {
@@ -91,8 +96,8 @@ struct ImageSlot: Equatable {
     
     @MainActor
     func assignSlots() async {
-        let paths = s.user.imagePath ?? []
-        let urlStrings = s.user.imagePathURL ?? []
+        let paths = s.user.imagePath
+        let urlStrings = s.user.imagePathURL
         let urls = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
         for i in 0..<min(urls.count, 6) {
@@ -120,11 +125,11 @@ struct ImageSlot: Equatable {
         
         let updates = updatedImages
         let snapshotSlots = slots
-        var paths = user.imagePath ?? []
-        var urls  = user.imagePathURL ?? []
+        var paths = user.imagePath
+        var urls  = user.imagePathURL
         if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
         if urls.count  < 6 { urls  += Array(repeating: "", count: 6 - urls.count) }
-        let userId = user.userId
+        let userId = user.id
         
         struct ImgResult { let index: Int; let path: String; let url: URL }
         
@@ -178,14 +183,14 @@ struct ImageSlot: Equatable {
     }
     
     func interestIsSelected(text: String) -> Bool {
-        user.interests?.contains(text) == true
+        user.interests.contains(text) == true
     }
 
-    func updateUser(values: [UserProfile.CodingKeys : Any]) async throws  {
+    func updateUser(values: [UserProfile.Field : Any]) async throws  {
         try await userManager.updateUser(values: values)
     }
     
-    func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
+    func updateUserArray(field: UserProfile.Field, value: String, add: Bool) async throws {
         try await userManager.updateUserArray(field: field, value: value, add: add)
     }
     
@@ -219,6 +224,12 @@ struct ImageSlot: Equatable {
     }
 
     func fetchNationality() {
-        selectedCountries = draftUser.nationality ?? []
+        selectedCountries = draftUser.nationality
+    }
+    
+    private func saveDraft() {
+        defaults.saveUserProfile(profile: draftUser)
+        defaults.onboardingStep += 1
+        print(draftUser)
     }
 }

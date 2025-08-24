@@ -16,7 +16,7 @@ import Foundation
     
     private enum Keys: String {
         case draftProfile
-        case suggestedProfiles
+        case onboardingStep
     }
     
     init(defaults: UserDefaults) {
@@ -24,6 +24,25 @@ import Foundation
     }
     
     func saveUserProfile(profile: UserProfile) {
-        defaults.set(profile, forKey: Keys.draftProfile.rawValue)
+        guard let data = try? JSONEncoder().encode(profile) else { return }
+        defaults.set(data, forKey: Keys.draftProfile.rawValue)
+        draftUser = profile
     }
+    
+    @discardableResult
+    func loadDraftUser() -> UserProfile? {
+        guard
+            let data = defaults.data(forKey: Keys.draftProfile.rawValue),
+            let profile = try? JSONDecoder().decode(UserProfile.self, from: data)
+        else { return nil }
+        draftUser = profile
+        return profile
+    }
+    
+    var onboardingStep: Int {
+        get { defaults.integer(forKey: Keys.onboardingStep.rawValue) }
+        set { defaults.set(newValue, forKey: Keys.onboardingStep.rawValue) }
+    }
+    
+    
 }

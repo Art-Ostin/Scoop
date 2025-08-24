@@ -21,7 +21,7 @@ enum TextFieldOptions: CaseIterable {
         }
     }
     
-    var key: UserProfile.CodingKeys {
+    var key: UserProfile.Field {
         switch self {
         case .degree: return .degree
         case .hometown: return .hometown
@@ -30,7 +30,7 @@ enum TextFieldOptions: CaseIterable {
         }
     }
     
-    var keyPath: WritableKeyPath<UserProfile, String?> {
+    var keyPath: WritableKeyPath<UserProfile, String> {
         switch self {
         case .degree: return \.degree
         case .hometown: return \.hometown
@@ -71,7 +71,7 @@ struct TextFieldEdit: View {
             }
         }
         .onAppear {
-            text = vm.draftUser[keyPath: field.keyPath] ?? ""
+            text = vm.draftUser[keyPath: field.keyPath]
             focused = true
         }
         .flowNavigation()

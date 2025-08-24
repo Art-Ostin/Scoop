@@ -42,19 +42,19 @@ class EventManager {
         guard let recipientId = event.recipientId else { return }
         var e = event
         e.id = eventId
-        e.initiatorId = currentUser.userId
+        e.initiatorId = currentUser.id
                 
         let recipientProfile = try await userManager.fetchUser(userId: recipientId)
-        let recipientName = recipientProfile.name ?? ""
-        let recipientImageString = recipientProfile.imagePathURL?.first ?? ""
+        let recipientName = recipientProfile.name
+        let recipientImageString = recipientProfile.imagePathURL.first ?? ""
         
-        let inviterName = currentUser.name ?? ""
-        let inviterImageString = currentUser.imagePathURL?.first ?? ""
+        let inviterName = currentUser.name
+        let inviterImageString = currentUser.imagePathURL.first ?? ""
         
         
         var eventData: [String: Any] = [
             Event.CodingKeys.id.stringValue: eventId,
-            Event.CodingKeys.initiatorId.stringValue: currentUser.userId,
+            Event.CodingKeys.initiatorId.stringValue: currentUser.id,
             Event.CodingKeys.recipientId.stringValue: recipientId,
             Event.CodingKeys.type.stringValue: e.type ?? "",
             Event.CodingKeys.message.stringValue: e.message ?? "",
@@ -91,13 +91,13 @@ class EventManager {
             return data
         }
         
-        let initiatorEdgeRef = db.collection("users").document(currentUser.userId)
+        let initiatorEdgeRef = db.collection("users").document(currentUser.id)
             .collection("user_events").document(eventId)
         let recipientEdgeRef = db.collection("users").document(recipientId)
             .collection("user_events").document(eventId)
         
         let edgeA = try edgeData(otherUserId: recipientId, role: .sent, otherName: recipientName, otherPhoto: recipientImageString)
-        let edgeB = try edgeData(otherUserId: currentUser.userId, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
+        let edgeB = try edgeData(otherUserId: currentUser.id, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
         
         batch.setData(eventData, forDocument: eventRef)
         batch.setData(edgeA, forDocument: initiatorEdgeRef)

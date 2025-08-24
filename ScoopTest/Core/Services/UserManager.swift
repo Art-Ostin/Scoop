@@ -20,21 +20,21 @@ class UserManager {
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
         
     
-    func createUser (authUser: AuthDataResult) async throws -> UserProfile {
-        let uid = authUser.user.uid
-        let profileUser = UserProfile(auth: authUser)
-        try userDocument(userId: uid).setData(from: profileUser)
+    func createUser (draft: DraftProfile) async throws -> UserProfile {
+        let profileUser = UserProfile(draft: draft)
+        try userDocument(userId: profileUser.id).setData(from: profileUser)
         return profileUser
     }
     
-    func updateUser(values: [UserProfile.CodingKeys : Any]) async throws {
+    
+    func updateUser(values: [UserProfile.Field : Any]) async throws {
         guard let uid = auth.fetchAuthUser() else {return}
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value }
         try await userDocument(userId: uid).updateData(data)
     }
     
-    func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
+    func updateUserArray(field: UserProfile.Field, value: String, add: Bool) async throws {
         if add {
             try await updateUser(values: [field: FieldValue.arrayUnion([value])])
         } else {

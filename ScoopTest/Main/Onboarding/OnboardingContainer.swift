@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct OnboardingContainer: View {
-    @Environment(\.appDependencies) private var dep
     @Environment(\.flowMode) private var mode
     @State var vm: EditProfileViewModel
     @Binding var current: Int

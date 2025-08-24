@@ -11,6 +11,7 @@ import Combine
 struct MatchesView: View {
     
     @Environment(\.appState) private var appState
+    @Environment(\.appDependencies) private var dep
     
     @State var vm: MatchesViewModel
     @State var showProfileView = false
@@ -52,7 +53,7 @@ struct MatchesView: View {
             }
         }
         .fullScreenCover(isPresented: $showProfileView, content: {
-            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user))
+            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: dep.defaultsManager))
         })
         .task {
             do {
