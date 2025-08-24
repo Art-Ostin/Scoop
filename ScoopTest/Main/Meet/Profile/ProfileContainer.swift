@@ -6,12 +6,14 @@ struct ProfileView: View {
     
     @Environment(\.appDependencies) private var dep
     @State private var vm: ProfileViewModel
+    let preloadedImages: [UIImage]?
     
     let onDismiss: () -> Void
     
-    init(vm: ProfileViewModel, onDismiss: @escaping () -> Void = {}) {
+    init(vm: ProfileViewModel,preloadedImages: [UIImage]? = nil, onDismiss: @escaping () -> Void = {}) {
         _vm = State(initialValue: vm)
         self.onDismiss = onDismiss
+        self.preloadedImages = preloadedImages
     }
     
     var body: some View {
@@ -25,7 +27,7 @@ struct ProfileView: View {
                             heading
                                 .padding()
 
-                            ProfileImageView(vm: $vm)
+                            ProfileImageView(vm: $vm, preloaded: preloadedImages)
                                 .frame(height: 420)
                         }
                         .frame(maxHeight: .infinity, alignment: .top)

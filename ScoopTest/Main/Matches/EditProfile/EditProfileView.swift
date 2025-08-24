@@ -24,7 +24,6 @@ struct EditProfileView: View {
                     YearsView()
                 }
             }
-            
             .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden()
@@ -39,7 +38,7 @@ struct EditProfileView: View {
                                 try await vm.saveUser()
                                 try await vm.saveUserArray()
                                 try await vm.saveUpdatedImages()
-                                await vm.loadUser() 
+                                await vm.loadUser()
                                 dismiss()
                             }
                         }

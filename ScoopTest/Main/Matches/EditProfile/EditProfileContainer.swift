@@ -16,15 +16,19 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.draftUser), cacheManager: vm.cacheManager)){
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.draftUser), cacheManager: vm.cacheManager), preloadedImages: vm.images){
                     dismiss()
                 }
-                .id(vm.user.imagePath )
                 .transition(.move(edge: .leading))
+
             } else {
                 EditProfileView(vm: $vm)
                     .transition(.move(edge: .trailing))
             }
+        }
+        .id(vm.updatedImages.count)   
+        .task {
+          await vm.assignSlots()
         }
         .overlay(alignment: .bottom) {
             EditProfileButton(isView: $isView)
