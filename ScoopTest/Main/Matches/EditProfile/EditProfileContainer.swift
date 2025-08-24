@@ -26,7 +26,10 @@ struct EditProfileContainer: View {
             }
         }
         .id(vm.updatedImages.count)
-        .task { await vm.assignSlots() }
+        .task {
+            await vm.loadUser()
+            await vm.assignSlots()
+        }
         .overlay(alignment: .bottom) {
             EditProfileButton(isView: $isView)
                 .padding(.bottom)

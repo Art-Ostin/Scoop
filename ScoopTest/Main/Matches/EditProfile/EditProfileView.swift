@@ -34,12 +34,13 @@ struct EditProfileView: View {
                         NavButton(.down)
                     } else {
                         Button("SAVE") {
+                            dismiss()
                             Task {
                                 try await vm.saveUser()
                                 try await vm.saveUserArray()
                                 try await vm.saveUpdatedImages()
                                 await vm.loadUser()
-                                dismiss()
+                                print("completed")
                             }
                         }
                     }

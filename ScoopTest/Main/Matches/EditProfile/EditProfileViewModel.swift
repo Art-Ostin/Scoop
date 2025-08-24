@@ -40,7 +40,6 @@ struct ImageSlot: Equatable {
     
     var user: UserProfile { s.user }
     
-    
     var updatedFields: [UserProfile.CodingKeys : Any] = [:]
     
     func set<T>(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
@@ -61,7 +60,6 @@ struct ImageSlot: Equatable {
         await s.loadUser()
     }
     
-
     var updatedFieldsArray: [(field: UserProfile.CodingKeys, value: String, add: Bool)] = []
     
     func setArray(_ key: UserProfile.CodingKeys, _ kp: WritableKeyPath<UserProfile, [String]?>,  to element: String, add: Bool) {
@@ -112,47 +110,48 @@ struct ImageSlot: Equatable {
     
     var updatedImages: [(index: Int, data: Data)] = []
     
-    func saveUpdatedImages () async throws {
-        for (index, data) in updatedImages {
-           try await updateImage(index: index, data: data)
-        }
-    }
     
     func loadUser() async {
        await s.loadUser()
+        print("Load User Called")
     }
     
-    
-    func updateImage(index: Int, data: Data) async throws {
-
-        if let oldPath = slots[index].path, let oldURL = slots[index].url {
-            cacheManager.removeImage(for: oldURL)
-            try await storageManager.deleteImage(path: oldPath)
-        }
-                let originalPath = try await storageManager.saveImage(data: data, userId: user.userId)
-                let url = try await storageManager.getImageURL(path: originalPath)
-                let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+    func saveUpdatedImages() async throws {
         
-                var paths = user.imagePath ?? []
-                var urls  = user.imagePathURL ?? []
-                if paths.count < 6 { paths.append(contentsOf: Array(repeating: "", count: 6 - paths.count)) }
-                if urls.count  < 6 { urls.append(contentsOf:  Array(repeating: "", count: 6 - urls.count)) }
+        let updates = updatedImages
+        let snapshotSlots = slots
+        var paths = user.imagePath ?? []
+        var urls  = user.imagePathURL ?? []
+        if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
+        if urls.count  < 6 { urls  += Array(repeating: "", count: 6 - urls.count) }
+        let userId = user.userId
         
-                paths[index] = resizedPath
-                urls[index]  = url.absoluteString
+        struct ImgResult { let index: Int; let path: String; let url: URL }
         
-                try await userManager.updateUser(values: [
-                    .imagePath: paths,
-                    .imagePathURL: urls
-                ])
-        
-                await s.loadUser()
-        
-                await MainActor.run {
-                    slots[index].path = resizedPath
-                    slots[index].url = url
-                    slots[index].pickerItem = nil
+        let results: [ImgResult] = try await withThrowingTaskGroup(of: ImgResult.self, returning: [ImgResult].self) { group in
+            for (index, data) in updates {
+                let oldPath = snapshotSlots[index].path
+                let oldURL  = snapshotSlots[index].url
+                
+                group.addTask {
+                    if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
+                    if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
+                    let originalPath = try await self.storageManager.saveImage(data: data, userId: userId)
+                    let url = try await self.storageManager.getImageURL(path: originalPath)
+                    let resized = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+                    return ImgResult(index: index, path: resized, url: url)
                 }
+            }
+            var tmp: [ImgResult] = []
+            for try await r in group { tmp.append(r) }
+            return tmp
+        }
+        
+        for r in results {
+            paths[r.index] = r.path
+            urls[r.index]  = r.url.absoluteString
+        }
+        try await userManager.updateUser(values: [.imagePath: paths, .imagePathURL: urls])
     }
     
     
@@ -173,8 +172,7 @@ struct ImageSlot: Equatable {
             updatedImages.append((index: index, data: data))
         }
     }
-
-
+    
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
     }
@@ -190,8 +188,6 @@ struct ImageSlot: Equatable {
     func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
         try await userManager.updateUserArray(field: field, value: value, add: add)
     }
-    
-    
     
     //Nationality Functionality
     var selectedCountries: [String] = []

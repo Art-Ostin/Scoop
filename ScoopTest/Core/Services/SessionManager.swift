@@ -60,7 +60,10 @@ struct Session  {
         startSession(user: user)
         guard user.accountComplete else { return .createAccount }
 
-        Task { await cacheManager.loadProfileImages([user])}
+        Task {
+            await cacheManager.loadProfileImages([user])
+            print("images added to Cache")
+        }
         return .app
     }
     
