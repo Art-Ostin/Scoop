@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseAuth
 
 
-struct AuthAccount: Codable, Equatable {
+struct AuthUser: Codable, Equatable {
     let id: String
     let email: String
     @ServerTimestamp var createdAt: Date?
@@ -23,7 +23,6 @@ struct AuthAccount: Codable, Equatable {
 }
 
 struct DraftProfile {
-
     let id: String
     let email: String
     let createdAt: Date
@@ -43,13 +42,12 @@ struct DraftProfile {
     var marijuana = ""
     var drugs = ""
     
-    init(auth: AuthAccount) {
+    init(auth: AuthUser) {
         self.id = auth.id
         self.email = auth.email
         self.createdAt = auth.createdAt ?? Date()
     }
 }
-
 
 struct UserProfile: Codable, Equatable, Identifiable {
     
@@ -110,22 +108,17 @@ extension UserProfile {
             drugs: draft.drugs
         )
     }
-    
     enum Field: String {
       case name, sex, attractedTo, year, height, interests, degree, hometown,
            nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
            marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
            favouriteMovie, favouriteSong, favouriteBook, activeCycleId
     }
-
-}
-
-extension UserProfile {
+    
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id
     }
 }
-
 
 
 

@@ -11,8 +11,9 @@ import SwiftUI
 
 class AuthManager: AuthManaging {
 
-    func createAuthUser(email: String, password: String ) async throws -> AuthDataResult {
-        return try await Auth.auth().createUser(withEmail: email, password: password)
+    func createAuthUser(email: String, password: String ) async throws -> AuthUser {
+        let dataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        return AuthUser(auth: dataResult)
     }
     
     func signInAuthUser(email: String, password: String ) async throws {
@@ -27,5 +28,10 @@ class AuthManager: AuthManaging {
         guard let authData = Auth.auth().currentUser else { return nil }
         return authData.uid
     }
+            
+    private func createAuth() async throws {
+        
+    }
+    
 }
 
