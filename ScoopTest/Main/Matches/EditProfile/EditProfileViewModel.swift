@@ -82,16 +82,14 @@ struct ImageSlot: Equatable {
         await s.loadUser()
     }
     
-    
-    
     //Images
-    
+    var didAssignSlots = false
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)    
     
     var isValid: Bool {
-        images.allSatisfy { $0 !== EditProfileViewModel.placeholder }
+      images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
     }
     
     @MainActor
@@ -111,6 +109,7 @@ struct ImageSlot: Equatable {
             slots[i].pickerItem = nil
         }
         images = newImages
+        didAssignSlots = true
         print("slots assigned")
     }
     
@@ -128,7 +127,7 @@ struct ImageSlot: Equatable {
     
     
     func updateImage(index: Int, data: Data) async throws {
-        
+
         if let oldPath = slots[index].path, let oldURL = slots[index].url {
             cacheManager.removeImage(for: oldURL)
             try await storageManager.deleteImage(path: oldPath)
@@ -157,13 +156,10 @@ struct ImageSlot: Equatable {
                     slots[index].url = url
                     slots[index].pickerItem = nil
                 }
-        print("Updated image called")
     }
     
     
     func changeImage(at index: Int) async throws {
-        
-        print("change image called")
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
@@ -171,19 +167,14 @@ struct ImageSlot: Equatable {
         else { return }
         
         await MainActor.run {
-            if images.indices.contains(index) { images[index] = uiImage } else {
-                print("error did not contain")
-            }
+            if images.indices.contains(index) { images[index] = uiImage }
         }
         
         if let i = updatedImages.firstIndex(where: {$0.index == index}) {
             updatedImages[i] = (index: index, data: data)
-            
-            
         } else {
             updatedImages.append((index: index, data: data))
         }
-        print(updatedImages)
     }
 
 
@@ -202,7 +193,6 @@ struct ImageSlot: Equatable {
     func updateUserArray(field: UserProfile.CodingKeys, value: String, add: Bool) async throws {
         try await userManager.updateUserArray(field: field, value: value, add: add)
     }
-    
     
     
     

@@ -24,9 +24,10 @@ struct ImagesView: View {
             }
             .padding(.horizontal)
         }
-        .id(vm.updatedImages.count)
         .task {
-           await vm.assignSlots()
+            if !vm.didAssignSlots {
+                await vm.assignSlots()
+            }
         }
         .padding(.horizontal, 32)
     }

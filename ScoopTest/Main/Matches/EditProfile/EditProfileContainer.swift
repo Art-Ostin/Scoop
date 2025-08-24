@@ -20,11 +20,7 @@ struct EditProfileContainer: View {
                     dismiss()
                 }
                 .id(vm.updatedImages.count)
-                .task {
-                  await vm.assignSlots()
-                }
                 .transition(.move(edge: .leading))
-
             } else {
                 EditProfileView(vm: $vm)
                     .transition(.move(edge: .trailing))
