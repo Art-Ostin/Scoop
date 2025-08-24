@@ -20,7 +20,7 @@ struct EditLifestyle: View {
     var body: some View {
         
         
-        let fields: [(String, Binding<String?>, UserProfile.CodingKeys)] = [
+        let fields: [(String, Binding<String?>, UserProfile.Field)] = [
             ("Drinking", $drinking, .drinking),
             ("Smoking", $smoking, .smoking),
             ("Marijuana", $marijuana, .marijuana),
@@ -40,15 +40,15 @@ struct EditLifestyle: View {
             smoking = u.smoking
             marijuana = u.marijuana
             drugs = u.drugs
-            
-            if [ u.drinking,
-                 u.smoking,
-                 u.marijuana,
-                 u.drugs ].allSatisfy({ $0 == nil }) {
-                if case .onboarding(_, let advance) = mode {
-                    advance()
-                }
-            }
+//            
+//            if [ u.drinking,
+//                 u.smoking,
+//                 u.marijuana,
+//                 u.drugs ].allSatisfy({ $0 == nil }) {
+//                if case .onboarding(_, let advance) = mode {
+//                    advance()
+//                }
+//            }
         }
         .onChange(of: drinking) { update(key: .drinking, drinking)}
         .onChange(of: smoking) { update(key: .smoking, smoking)}
@@ -57,7 +57,7 @@ struct EditLifestyle: View {
         
     }
     
-    private func update(key: UserProfile.CodingKeys, _ value: String?) {
+    private func update(key: UserProfile.Field, _ value: String?) {
         Task {
             try? await dep.userManager.updateUser(values: [key: value ?? ""])
         }

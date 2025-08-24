@@ -26,7 +26,7 @@ struct MatchesView: View {
             VStack(spacing: 32) {
                 Image("DancingCats")
                 
-                Text(vm.user.name ?? "No name found")
+                Text(vm.user.name)
                 
                 
                 Text("View your past Meet Ups Here")

@@ -12,5 +12,5 @@ struct ProfileModel {
     var event: UserEvent?
     var profile: UserProfile
     var image: UIImage?
-    var id: String { profile.userId}
+    var id: String { profile.id}
 }

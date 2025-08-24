@@ -59,7 +59,7 @@ extension SendInvitePopup {
             HStack {
                 CirclePhoto(image: vm.profileModel.image ?? UIImage())
                 
-                Text("Meet \(vm.profileModel.profile.name ?? "")")
+                Text("Meet \(vm.profileModel.profile.name)")
                     .font(.title(24))
             }
             InviteTypeRow

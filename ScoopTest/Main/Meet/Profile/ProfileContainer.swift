@@ -62,9 +62,9 @@ extension ProfileView {
     private var heading: some View {
         let p = vm.profileModel.profile
         return HStack {
-            Text(p.name ?? "")
+            Text(p.name)
                 .font(.body(24, .bold))
-            ForEach (p.nationality ?? [], id: \.self) {flag in
+            ForEach (p.nationality, id: \.self) {flag in
                 Text(flag)
                     .font(.body(24))
             }

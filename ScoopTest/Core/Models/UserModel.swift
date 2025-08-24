@@ -92,7 +92,7 @@ struct UserProfile: Codable, Equatable, Identifiable {
     var prompt1: PromptResponse?
     var prompt2: PromptResponse?
     var prompt3: PromptResponse?
-    var languages: String?
+    var languages: String
     
     var character: [String]?
     var favouriteMovie: String?
@@ -125,7 +125,7 @@ struct UserProfile: Codable, Equatable, Identifiable {
         self.prompt1 = nil
         self.prompt2 = nil
         self.prompt3 = nil
-        self.languages = nil
+        self.languages =  ""
         self.character = nil
         self.favouriteMovie = nil
         self.favouriteBook = nil

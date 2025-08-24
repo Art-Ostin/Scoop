@@ -50,7 +50,7 @@ extension MeetView {
             if vm.showProfiles {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
                     VStack {
-                        Text(profileInvite.profile.name ?? "No Name")
+                        Text(profileInvite.profile.name)
                         ProfileCard(vm: vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
                     }
                 }

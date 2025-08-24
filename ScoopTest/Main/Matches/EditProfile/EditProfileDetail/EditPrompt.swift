@@ -25,7 +25,7 @@ struct EditPrompt: View {
     let prompts: [String]
     let promptIndex: Int
     
-    private var key: UserProfile.CodingKeys {
+    private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
     private var keyPath: WritableKeyPath<UserProfile, PromptResponse?> {

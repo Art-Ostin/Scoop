@@ -69,7 +69,7 @@ struct OptionEditView: View  {
             }
         }
         .flowNavigation()
-        .onAppear {selection = vm.draftUser[keyPath: field.keyPath] ?? ""}
+        .onAppear {selection = vm.draftUser[keyPath: field.keyPath]}
     }
     
     private func select(_ value: String) {
