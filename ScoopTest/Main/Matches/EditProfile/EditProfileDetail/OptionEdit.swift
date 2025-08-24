@@ -73,11 +73,13 @@ struct OptionEditView: View  {
     }
     
     private func select(_ value: String) {
-        vm.set(field.key, field.keyPath, to: value)
         switch mode {
         case .onboarding(_, let advance):
+            vm.saveDraft(_kp: <#T##WritableKeyPath<DraftProfile, T>#>, to: <#T##T#>)
             advance()
-        case .profile: break
+        case .profile:
+            vm.set(field.key, field.keyPath, to: value)
+            break
         }
     }
 }

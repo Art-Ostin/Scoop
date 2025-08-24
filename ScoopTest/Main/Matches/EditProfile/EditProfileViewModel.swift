@@ -29,9 +29,6 @@ struct ImageSlot: Equatable {
     
     var draftUser: UserProfile
     
-    
-    
-    
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile, defaults: DefaultsManager) {
         self.cacheManager = cacheManager
         self.s = s
@@ -75,7 +72,7 @@ struct ImageSlot: Equatable {
         updatedFieldsArray.append((field: key, value: element, add: add))
         print(updatedFieldsArray)
         saveDraft()
-
+        
     }
     
     func saveUserArray() async throws {
@@ -89,10 +86,10 @@ struct ImageSlot: Equatable {
     //Images
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
-    var images: [UIImage] = Array(repeating: placeholder, count: 6)    
+    var images: [UIImage] = Array(repeating: placeholder, count: 6)
     
     var isValid: Bool {
-      images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
+        images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
     }
     
     @MainActor
@@ -118,7 +115,7 @@ struct ImageSlot: Equatable {
     
     
     func loadUser() async {
-       await s.loadUser()
+        await s.loadUser()
         print("Load User Called")
     }
     
@@ -186,7 +183,7 @@ struct ImageSlot: Equatable {
     func interestIsSelected(text: String) -> Bool {
         user.interests.contains(text) == true
     }
-
+    
     func updateUser(values: [UserProfile.Field : Any]) async throws  {
         try await userManager.updateUser(values: values)
     }
@@ -223,23 +220,25 @@ struct ImageSlot: Equatable {
             setArray(.nationality, \.nationality, to: country, add: true)
         }
     }
-
+    
     func fetchNationality() {
         selectedCountries = draftUser.nationality
     }
-
+    
     
     //Onboarding Functions
+    
+    
+    var defaultProfile: DraftProfile? { defaults.fetch() }
+    
+    
     
     func createUserProfile(draft: DraftProfile) async throws  {
         try await userManager.createUser(draft: draft)
     }
     
-    func saveDraft(draft: DraftProfile)  {
-            defaults.save(draft)
+    func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
+        defaults.update(kp, to: value)
+        print("saved")
     }
-    
-    
-    
-    
 }
