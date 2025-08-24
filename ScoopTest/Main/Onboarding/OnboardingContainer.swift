@@ -12,7 +12,6 @@ struct OnboardingContainer: View {
     @State var vm: EditProfileViewModel
     @Binding var current: Int
     
-    
     var body: some View {
         
         NavigationStack {

@@ -71,7 +71,9 @@ struct TextFieldEdit: View {
             }
         }
         .onAppear {
-            text = vm.draftUser[keyPath: field.keyPath]
+            if let user = vm.draftUser {
+                text = user[keyPath: field.keyPath]
+            }
             focused = true
         }
         .flowNavigation()

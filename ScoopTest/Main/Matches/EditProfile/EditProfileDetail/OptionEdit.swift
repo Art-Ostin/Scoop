@@ -45,6 +45,15 @@ enum OptionField: CaseIterable {
         case .year: return \.year
         }
     }
+    
+    var keyPathDraft: WritableKeyPath<DraftProfile, String> {
+        switch self {
+        case .sex: return \.sex
+        case .attractedTo: return \.attractedTo
+        case .lookingFor: return \.lookingFor
+        case .year: return \.year
+        }
+    }
 }
 
 struct OptionEditView: View  {
@@ -75,7 +84,7 @@ struct OptionEditView: View  {
     private func select(_ value: String) {
         switch mode {
         case .onboarding(_, let advance):
-            vm.saveDraft(_kp: <#T##WritableKeyPath<DraftProfile, T>#>, to: <#T##T#>)
+            vm.saveDraft(_kp: field.keyPathDraft, to: value)
             advance()
         case .profile:
             vm.set(field.key, field.keyPath, to: value)

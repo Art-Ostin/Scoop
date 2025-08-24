@@ -71,7 +71,7 @@ struct VerifyEmailView: View {
     @Environment(\.appState) private var appState
     
     @State var UILogic = VerifyEmailUILogic()
-    @Binding var vm: VerifyEmailViewModel
+    @Bindable var vm: VerifyEmailViewModel
     
     @FocusState var focused: Bool
     
@@ -105,7 +105,7 @@ struct VerifyEmailView: View {
                 await vm.sessionManager.loadUser()
                 return appState.wrappedValue = .app
             } catch {
-                guard let _ = try? await vm.createUser(email: vm.email, password: vm.password) else {return}
+                guard let _ = try? await vm.createAuthUser(email: vm.email, password: vm.password) else {return}
                 return appState.wrappedValue = .createAccount
             }
         }

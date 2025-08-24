@@ -13,7 +13,7 @@ struct PromptsView: View {
         
     var body: some View {
         
-                
+        
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {

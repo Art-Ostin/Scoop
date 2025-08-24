@@ -104,16 +104,7 @@ extension UserProfile {
     }
 }
 
-struct AuthUser: Codable, Equatable {
-    let id: String
-    let email: String
-    @ServerTimestamp var createdAt: Date?
-    
-    init(auth: AuthDataResult) {
-        self.id = auth.user.uid
-        self.email = auth.user.email ?? ""
-    }
-}
+
 
 
 /*

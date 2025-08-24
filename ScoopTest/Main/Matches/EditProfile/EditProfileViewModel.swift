@@ -27,9 +27,9 @@ struct ImageSlot: Equatable {
     var s: SessionManager
     var storageManager: StorageManaging
     
-    var draftUser: UserProfile
+    var draftUser: UserProfile?
     
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile, defaults: DefaultsManager) {
+    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
         self.cacheManager = cacheManager
         self.s = s
         self.userManager = userManager
@@ -43,17 +43,17 @@ struct ImageSlot: Equatable {
     var updatedFields: [UserProfile.Field : Any] = [:]
     
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
+        guard var draftUser else {return}
         draftUser[keyPath: kp] = value
         updatedFields[key] = value
-        saveDraft()
     }
     
     func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse?>, to value: PromptResponse) {
+        guard var draftUser else {return}
         print(value)
         print(kp)
         draftUser[keyPath: kp] = value
         updatedFields[key] = ["prompt": value.prompt, "response": value.response]
-        saveDraft()
     }
     
     func saveUser() async throws {
@@ -64,15 +64,14 @@ struct ImageSlot: Equatable {
     var updatedFieldsArray: [(field: UserProfile.Field, value: String, add: Bool)] = []
     
     func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to element: String, add: Bool) {
+        guard var draftUser else {return}
         if add == true {
             draftUser[keyPath: kp].append(element)
         } else {
             draftUser[keyPath: kp].removeAll(where: {$0 == element})
         }
         updatedFieldsArray.append((field: key, value: element, add: add))
-        print(updatedFieldsArray)
-        saveDraft()
-        
+        print(updatedFieldsArray)        
     }
     
     func saveUserArray() async throws {
@@ -222,6 +221,7 @@ struct ImageSlot: Equatable {
     }
     
     func fetchNationality() {
+        guard var draftUser else {return}
         selectedCountries = draftUser.nationality
     }
     

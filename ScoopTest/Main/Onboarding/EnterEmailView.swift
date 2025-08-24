@@ -41,7 +41,7 @@ struct EnterEmailView: View {
             .padding(.horizontal)
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
-            .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: $vm)})
+            .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
             .navigationBarBackButtonHidden(true)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)} }
         }

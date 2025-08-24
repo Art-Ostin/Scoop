@@ -35,7 +35,6 @@ struct AddImageView: View {
             }
             
             ActionButton(isValid: vm.isValid, text: "Complete") {
-                vm.
                 appState.wrappedValue = .app
                 vm.s.showProfiles = false
             }

@@ -44,6 +44,9 @@ import FirebaseAuth
         if let data = try? JSONEncoder().encode(draft) {
             defaults.set(data, forKey: Keys.draftProfile.rawValue)
         }
+        if let draftProfile = fetch() {
+            print("Saved draft profile: \(draftProfile)")
+        }
     }
     
     var onboardingStep: Int {
