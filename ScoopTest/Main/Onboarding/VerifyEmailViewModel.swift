@@ -15,11 +15,13 @@ import FirebaseAuth
     let sessionManager: SessionManager
     let authManager: AuthManaging
     let userManager: UserManager
+    let defaultsManager: DefaultsManager
     
-    init (sessionManager: SessionManager, authManager: AuthManaging, userManager: UserManager) {
+    init (sessionManager: SessionManager, authManager: AuthManaging, userManager: UserManager, defaultsManager: DefaultsManager) {
         self.sessionManager = sessionManager
         self.authManager = authManager
         self.userManager = userManager
+        self.defaultsManager = defaultsManager
     }
     
     func isValid(email: String) -> Bool {
@@ -37,7 +39,7 @@ import FirebaseAuth
     
     func createAuthUser (email: String, password: String) async throws {
         let authData = try await authManager.createAuthUser(email: email, password: password)
-        
+        defaultsManager.setDraftProfile(authUser: authData)
     }
     
     func signInUser(email: String, password: String) async throws {

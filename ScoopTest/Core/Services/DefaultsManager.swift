@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 
 
 @Observable final class DefaultsManager {
@@ -17,20 +18,32 @@ import Foundation
         case onboardingStep
     }
     
-    init(defaults: UserDefaults) {
+    init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
     
-    func setDraftProfile(profile: DraftProfile) {
+    func setDraftProfile(authUser: AuthDataResult) {
+        let profile = DraftProfile(auth: authUser)
         guard let data = try? JSONEncoder().encode(profile) else {return}
         defaults.set(data, forKey: Keys.draftProfile.rawValue)
     }
     
-    func fetchDraftProfile() -> DraftProfile? {
+    func fetch() -> DraftProfile? {
         guard let data = defaults.data(forKey: Keys.draftProfile.rawValue),
             let profile = try? JSONDecoder().decode(DraftProfile.self, from: data)
         else { return nil }
         return profile
+    }
+    
+    func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T){
+        guard var draft = fetch() else { return }
+        draft[keyPath: keyPath] = value
+    }
+    
+    func save(_ draft: DraftProfile) {
+        if let data = try? JSONEncoder().encode(draft) {
+            defaults.set(data, forKey: Keys.draftProfile.rawValue)
+        }
     }
     
     var onboardingStep: Int {

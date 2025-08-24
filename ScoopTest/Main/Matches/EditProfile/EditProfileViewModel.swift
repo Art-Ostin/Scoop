@@ -20,16 +20,17 @@ struct ImageSlot: Equatable {
 
 @MainActor
 @Observable class EditProfileViewModel {
-
     
     var defaults: DefaultsManager
-    
     var cacheManager: CacheManaging
     var userManager: UserManager
     var s: SessionManager
     var storageManager: StorageManaging
     
     var draftUser: UserProfile
+    
+    
+    
     
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile, defaults: DefaultsManager) {
         self.cacheManager = cacheManager
@@ -226,10 +227,19 @@ struct ImageSlot: Equatable {
     func fetchNationality() {
         selectedCountries = draftUser.nationality
     }
+
     
-    private func saveDraft() {
-        defaults.saveUserProfile(profile: draftUser)
-        defaults.onboardingStep += 1
-        print(draftUser)
+    //Onboarding Functions
+    
+    func createUserProfile(draft: DraftProfile) async throws  {
+        try await userManager.createUser(draft: draft)
     }
+    
+    func saveDraft(draft: DraftProfile)  {
+            defaults.save(draft)
+    }
+    
+    
+    
+    
 }
