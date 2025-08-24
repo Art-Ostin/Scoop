@@ -55,7 +55,7 @@ struct EditPrompt: View {
         
         .onAppear {
             isFocused = true
-            if let prompt = vm.draftUser[keyPath: keyPath] {
+            if let prompt = vm.draftUser?[keyPath: keyPath] {
                 self.prompt = prompt
             } else {
                 self.prompt = PromptResponse(prompt: prompts.randomElement() ?? "", response: "")

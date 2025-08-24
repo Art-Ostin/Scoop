@@ -19,7 +19,6 @@ struct EditLifestyle: View {
     
     var body: some View {
         
-        
         let fields: [(String, Binding<String?>, UserProfile.Field)] = [
             ("Drinking", $drinking, .drinking),
             ("Smoking", $smoking, .smoking),

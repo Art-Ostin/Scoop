@@ -49,7 +49,7 @@ struct InterestsLayout: View {
     @Bindable var vm: EditProfileViewModel
     
     var passions: [String] {
-        vm.draftUser.interests
+        vm.draftUser?.interests ?? []
     }
     
     

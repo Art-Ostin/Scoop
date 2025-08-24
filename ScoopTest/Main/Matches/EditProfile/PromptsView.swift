@@ -19,7 +19,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(vm: vm, prompts: Prompts.instance.prompts1, promptIndex: 0)
                 } label: {
-                    promptResponse(prompt: vm.draftUser.prompt1?.prompt ?? "Add Prompt", response: vm.draftUser.prompt1?.response ?? "")
+                    promptResponse(prompt: vm.draftUser?.prompt1?.prompt ?? "Add Prompt", response: vm.draftUser?.prompt1?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -27,7 +27,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(vm: vm, prompts: Prompts.instance.prompts2, promptIndex: 1)
                 } label: {
-                    promptResponse(prompt: vm.draftUser.prompt2?.prompt ?? "Add Prompt", response: vm.draftUser.prompt2?.response ?? "")
+                    promptResponse(prompt: vm.draftUser?.prompt2?.prompt ?? "Add Prompt", response: vm.draftUser?.prompt2?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -35,7 +35,7 @@ struct PromptsView: View {
                 NavigationLink {
                     EditPrompt(vm: vm, prompts: Prompts.instance.prompts3, promptIndex: 2)
                 } label: {
-                    promptResponse(prompt: vm.draftUser.prompt3?.prompt ?? "Add Prompt", response: vm.draftUser.prompt3?.response ?? "")
+                    promptResponse(prompt: vm.draftUser?.prompt3?.prompt ?? "Add Prompt", response: vm.draftUser?.prompt3?.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)

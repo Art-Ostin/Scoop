@@ -13,30 +13,33 @@ struct InfoView: View {
     
     
     private var coreInfo: [EditPreview] {
-        let u = vm.draftUser
+        guard let u = vm.draftUser else { return [] }
+
         return [
             EditPreview("Name", [u.name]) {
                        TextFieldEdit(vm: vm, field: .name)
                    },
-                   EditPreview("Sex", [u.sex]) {
+            EditPreview("Sex", [u.sex]) {
                        OptionEditView(vm: vm, field: .sex)
                    },
-                   EditPreview("Attracted To", [u.attractedTo]) {
+            EditPreview("Attracted To", [u.attractedTo]) {
                        OptionEditView(vm: vm, field: .attractedTo)
                    },
-                   EditPreview("Year", [u.year]) {
+            EditPreview("Year", [u.year]) {
                        OptionEditView(vm: vm, field: .year)
                    },
-                   EditPreview("Height", [u.height]) {
+            EditPreview("Height", [u.height]) {
                        EditHeight(vm: vm)
                    },
                    EditPreview("Nationality", [u.nationality.joined(separator: ", ")]) {
                        EditNationality(vm: vm)
-                   }
+                }
         ]
     }
+    
+    
     private var aboutMe: [EditPreview] {
-        let u = vm.draftUser
+        guard let u = vm.draftUser else { return [] }
 
         let lifestyle =
         "Drinking: \(u.drinking.lowercased()), " +

@@ -63,9 +63,9 @@ struct EditMyLifeAs: View {
         .onChange(of: selectedSong) { vm.set(.favouriteSong, \.favouriteSong, to: selectedSong)}
         .onChange(of: selectedBook) { vm.set(.favouriteBook, \.favouriteBook, to: selectedBook)}
         .onAppear {
-            selectedMovie = vm.draftUser.favouriteMovie ?? ""
-            selectedSong = vm.draftUser.favouriteSong ?? ""
-            selectedBook =  vm.draftUser.favouriteBook ?? ""
+            selectedMovie = vm.draftUser?.favouriteMovie ?? ""
+            selectedSong = vm.draftUser?.favouriteSong ?? ""
+            selectedBook =  vm.draftUser?.favouriteBook ?? ""
             DispatchQueue.main.async { focus = .movie }
         }
     }

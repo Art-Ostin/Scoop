@@ -37,7 +37,7 @@ struct EditHeight: View {
             }
         }
         .flowNavigation()
-        .onAppear { height = vm.draftUser.height }
+        .onAppear { height = vm.draftUser?.height ?? "" }
     }
 }
 

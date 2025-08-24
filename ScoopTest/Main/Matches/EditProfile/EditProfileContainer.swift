@@ -15,8 +15,8 @@ struct EditProfileContainer: View {
     
     var body: some View {
         Group {
-            if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.draftUser), cacheManager: vm.cacheManager), preloadedImages: vm.isValid ? vm.images : nil){
+            if let user = vm.draftUser, isView {
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: user), cacheManager: vm.cacheManager), preloadedImages: vm.isValid ? vm.images : nil){
                     dismiss()
                 }
                 .transition(.move(edge: .leading))

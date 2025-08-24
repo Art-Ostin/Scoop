@@ -38,6 +38,7 @@ struct ImageSlot: Equatable {
         self.defaults = defaults
     }
     
+    
     var user: UserProfile { s.user }
     
     var updatedFields: [UserProfile.Field : Any] = [:]
@@ -111,7 +112,6 @@ struct ImageSlot: Equatable {
     }
     
     var updatedImages: [(index: Int, data: Data)] = []
-    
     
     func loadUser() async {
         await s.loadUser()
