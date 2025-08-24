@@ -10,8 +10,20 @@ import Foundation
 
 @Observable final class DefaultsManager {
     
-    var draftUser: UserProfile
+    private let defaults: UserDefaults
     
+    var draftUser: UserProfile?
     
+    private enum Keys: String {
+        case draftProfile
+        case suggestedProfiles
+    }
     
+    init(defaults: UserDefaults) {
+        self.defaults = defaults
+    }
+    
+    func saveUserProfile(profile: UserProfile) {
+        defaults.set(profile, forKey: Keys.draftProfile.rawValue)
+    }
 }

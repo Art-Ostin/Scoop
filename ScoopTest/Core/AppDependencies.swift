@@ -17,6 +17,7 @@ final class AppDependencies {
     let storageManager: StorageManaging
     let eventManager: EventManager
     let cycleManager: CycleManager
+    let defaultsManager: DefaultsManager
     
     @MainActor
     lazy var sessionManager: SessionManager = {
@@ -40,6 +41,7 @@ final class AppDependencies {
         let storage = StorageManager()
         let event = EventManager(userManager: userManager)
         let cycle = CycleManager(cacheManager: cache, userManager: userManager)
+        let defaults = DefaultsManager(defaults: .standard)
         
         self.authManager = auth
         self.cacheManager = cache
@@ -47,6 +49,7 @@ final class AppDependencies {
         self.storageManager = storage
         self.cycleManager = cycle
         self.eventManager = event
+        self.defaultsManager = defaults
     }
 }
 

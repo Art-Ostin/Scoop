@@ -20,6 +20,9 @@ struct ImageSlot: Equatable {
 
 @MainActor
 @Observable class EditProfileViewModel {
+
+    
+    var defaultsManager = DefaultsManager(defaults: .standard)
     
     var cacheManager: CacheManaging
     var userManager: UserManager
@@ -55,7 +58,6 @@ struct ImageSlot: Equatable {
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(values: updatedFields)
-        await s.loadUser()
     }
     
     var updatedFieldsArray: [(field: UserProfile.CodingKeys, value: String, add: Bool)] = []
