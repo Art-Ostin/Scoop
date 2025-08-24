@@ -16,8 +16,12 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.draftUser), cacheManager: vm.cacheManager), preloadedImages: vm.images){
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.draftUser), cacheManager: vm.cacheManager), preloadedImages: vm.isValid ? vm.images : nil){
                     dismiss()
+                }
+                .id(vm.updatedImages.count)
+                .task {
+                  await vm.assignSlots()
                 }
                 .transition(.move(edge: .leading))
 
@@ -26,7 +30,7 @@ struct EditProfileContainer: View {
                     .transition(.move(edge: .trailing))
             }
         }
-        .id(vm.updatedImages.count)   
+        .id(vm.updatedImages.count)
         .task {
           await vm.assignSlots()
         }

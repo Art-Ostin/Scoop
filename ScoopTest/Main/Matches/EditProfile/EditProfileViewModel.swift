@@ -96,8 +96,8 @@ struct ImageSlot: Equatable {
     
     @MainActor
     func assignSlots() async {
-        let paths = user.imagePath ?? []
-        let urlStrings = user.imagePathURL ?? []
+        let paths = draftUser.imagePath ?? []
+        let urlStrings = draftUser.imagePathURL ?? []
         let urls = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
         for i in 0..<min(urls.count, 6) {
@@ -111,6 +111,7 @@ struct ImageSlot: Equatable {
             slots[i].pickerItem = nil
         }
         images = newImages
+        print("slots assigned")
     }
     
     var updatedImages: [(index: Int, data: Data)] = []
