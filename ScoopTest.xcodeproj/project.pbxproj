@@ -322,7 +322,6 @@
 		6522EF242E1EE61A004531F9 /* EditProfile */ = {
 			isa = PBXGroup;
 			children = (
-				654982D52E31285000CA335F /* EditImageViewModel.swift */,
 				65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */,
 				65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */,
 				6522EF262E1EFDE6004531F9 /* EditProfileView.swift */,
@@ -437,6 +436,7 @@
 				65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */,
 				659497092E01DD4000880921 /* LimitedAccessView.swift */,
 				65E820982E37C2720098CC36 /* OnboardingContainer.swift */,
+				6585044A2E5B78760005C643 /* Storage */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -498,6 +498,14 @@
 				657838432DE773CE00770B49 /* ScoopTestUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		6585044A2E5B78760005C643 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				654982D52E31285000CA335F /* EditImageViewModel.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		659497012E01DD4000880921 /* Main */ = {

@@ -18,8 +18,6 @@ struct ImageSlot: Equatable {
 }
 
 
-
-
 @MainActor
 @Observable class EditProfileViewModel {
     

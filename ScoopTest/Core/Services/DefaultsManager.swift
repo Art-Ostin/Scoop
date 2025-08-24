@@ -8,10 +8,10 @@
 import Foundation
 
 
-//@Observable final class DefaultsManager {
-//    
-//    enum Key: String {
-//        
-//    }
-//    
-//}
+@Observable final class DefaultsManager {
+    
+    var draftUser: UserProfile
+    
+    
+    
+}

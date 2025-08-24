@@ -45,11 +45,9 @@ struct Session  {
     var user: UserProfile { session!.user }
     var activeCycle: CycleModel? { session?.activeCycle }
     
-
     func startSession(user: UserProfile) {
         session = Session(user: user)
     }
-    
     
     @discardableResult
     func loadUser() async -> AppState {
@@ -63,6 +61,7 @@ struct Session  {
         Task {
             await cacheManager.loadProfileImages([user])
             print("images added to Cache")
+            print(user.imagePathURL ?? [])
         }
         return .app
     }

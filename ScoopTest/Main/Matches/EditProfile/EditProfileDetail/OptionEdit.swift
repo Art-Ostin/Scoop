@@ -75,6 +75,7 @@ struct OptionEditView: View  {
     private func select(_ value: String) {
         switch mode {
         case .onboarding(_, let advance):
+            
             advance()
         case .profile: break
         }
