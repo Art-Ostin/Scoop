@@ -16,7 +16,7 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cachManager)){
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cacheManager)){
                     dismiss()
                 }
                 .id(vm.user.imagePath )

@@ -10,10 +10,10 @@ import SwiftUI
 
 struct ImagesView: View {
 
-    @State private var vm: EditImageViewModel
+    @State private var vm: EditProfileViewModel
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
     
-    init(vm: EditImageViewModel) {
+    init(vm: EditProfileViewModel) {
         _vm = State(initialValue: vm)
     }
     var body: some View {

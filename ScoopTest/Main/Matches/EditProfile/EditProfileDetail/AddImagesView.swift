@@ -11,11 +11,11 @@ struct AddImageView: View {
     
     @Environment(\.appState) private var appState
     
-    @State private var vm: EditImageViewModel
+    @State private var vm: EditProfileViewModel
     @State var images: [UIImage] = Array(repeating: UIImage(named: "ImagePlaceholder") ?? UIImage(), count: 6)
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
-    init(vm: EditImageViewModel) { self._vm = State(initialValue: vm) }
+    init(vm: EditProfileViewModel) { self._vm = State(initialValue: vm) }
     
     var body: some View {
         VStack(spacing: 36) {

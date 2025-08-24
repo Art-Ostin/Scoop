@@ -17,7 +17,7 @@ struct EditProfileView: View {
         NavigationStack {
             ZStack {
                 ScrollView {
-                    ImagesView(vm: EditImageViewModel(s: vm.s, userManager: vm.userManager, cacheManager: vm.cachManager, storageManager: vm.storageManager))
+                    ImagesView(vm: vm)
                     PromptsView(vm: vm)
                     InfoView(vm: vm)
                     InterestsView(vm: vm)

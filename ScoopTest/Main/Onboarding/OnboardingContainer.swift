@@ -30,7 +30,7 @@ struct OnboardingContainer: View {
                     case 7: EditNationality(vm: vm)
                     case 8: TextFieldEdit(vm: vm, field: .hometown)
                     case 9: TextFieldEdit(vm: vm, field: .degree)
-                    case 10: AddImageView(vm: EditImageViewModel(s: vm.s, userManager: vm.userManager, cacheManager: vm.cachManager, storageManager: vm.storageManager))
+                    case 10: AddImageView(vm: vm)
                     default: EmptyView()
                     }
                 }
