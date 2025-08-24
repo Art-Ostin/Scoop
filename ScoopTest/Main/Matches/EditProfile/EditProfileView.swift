@@ -10,7 +10,7 @@ import SwiftUI
 struct EditProfileView: View {
     
     @Environment(\.dismiss) private var dismiss
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     
     var body: some View {
         

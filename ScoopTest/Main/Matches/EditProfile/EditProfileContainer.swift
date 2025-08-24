@@ -19,23 +19,18 @@ struct EditProfileContainer: View {
                 ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.draftUser), cacheManager: vm.cacheManager), preloadedImages: vm.isValid ? vm.images : nil){
                     dismiss()
                 }
-                .id(vm.updatedImages.count)
                 .transition(.move(edge: .leading))
             } else {
-                EditProfileView(vm: $vm)
+                EditProfileView(vm: vm)
                     .transition(.move(edge: .trailing))
             }
         }
         .id(vm.updatedImages.count)
-        .task {
-          await vm.assignSlots()
-        }
+        .task { await vm.assignSlots() }
         .overlay(alignment: .bottom) {
             EditProfileButton(isView: $isView)
                 .padding(.bottom)
-                .onTapGesture {
-                    withAnimation{ isView.toggle()}
-                }
+                .onTapGesture { withAnimation { isView.toggle() } }
         }
     }
 }

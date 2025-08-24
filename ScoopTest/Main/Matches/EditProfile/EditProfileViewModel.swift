@@ -83,7 +83,6 @@ struct ImageSlot: Equatable {
     }
     
     //Images
-    var didAssignSlots = false
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)    
@@ -94,8 +93,8 @@ struct ImageSlot: Equatable {
     
     @MainActor
     func assignSlots() async {
-        let paths = draftUser.imagePath ?? []
-        let urlStrings = draftUser.imagePathURL ?? []
+        let paths = s.user.imagePath ?? []
+        let urlStrings = s.user.imagePathURL ?? []
         let urls = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
         for i in 0..<min(urls.count, 6) {
@@ -109,8 +108,6 @@ struct ImageSlot: Equatable {
             slots[i].pickerItem = nil
         }
         images = newImages
-        didAssignSlots = true
-        print("slots assigned")
     }
     
     var updatedImages: [(index: Int, data: Data)] = []

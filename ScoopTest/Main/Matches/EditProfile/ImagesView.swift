@@ -24,11 +24,6 @@ struct ImagesView: View {
             }
             .padding(.horizontal)
         }
-        .task {
-            if !vm.didAssignSlots {
-                await vm.assignSlots()
-            }
-        }
         .padding(.horizontal, 32)
     }
 }
