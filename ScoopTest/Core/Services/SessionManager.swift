@@ -55,6 +55,7 @@ struct Session  {
     func loadUser() async -> AppState {
         guard
             let uid = authManager.fetchAuthUser()
+                
         else {
             defaultManager.deleteDefaults()
             return .login
@@ -63,6 +64,7 @@ struct Session  {
             print("User not found")
             return .createAccount
         }
+        
         startSession(user: user)
         Task {
             await cacheManager.loadProfileImages([user])

@@ -25,8 +25,8 @@ class AuthManager: AuthManaging {
     
     @discardableResult func fetchAuthUser () -> String? {
         guard let authData = Auth.auth().currentUser else { return nil }
+        print(authData.uid)
         return authData.uid
     }
-    
 }
 
