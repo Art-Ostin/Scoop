@@ -18,8 +18,14 @@ import FirebaseAuth
         case onboardingStep
     }
     
+    var onboardingStep: Int {
+        didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
+    }
+    
+    
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        self.onboardingStep = defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0
     }
     
     func setDraftProfile(authUser: AuthDataResult) {
@@ -38,6 +44,7 @@ import FirebaseAuth
     func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T){
         guard var draft = fetch() else { return }
         draft[keyPath: keyPath] = value
+        save(draft)
     }
     
     func save(_ draft: DraftProfile) {
@@ -49,10 +56,9 @@ import FirebaseAuth
         }
     }
     
-    var onboardingStep: Int {
-        get { defaults.integer(forKey: Keys.onboardingStep.rawValue) }
-        set { defaults.set(newValue, forKey: Keys.onboardingStep.rawValue) }
-    }
+    func advanceOnboarding() { onboardingStep += 1 }
+
     
+
     
 }

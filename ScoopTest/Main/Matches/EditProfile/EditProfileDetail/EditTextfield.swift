@@ -38,6 +38,14 @@ enum TextFieldOptions: CaseIterable {
         case .languages: return \.languages
         }
     }
+    
+    var draftKeyPath: WritableKeyPath<DraftProfile, String> {
+        switch self {
+        case .degree: return \.degree
+        case .hometown: return \.hometown
+        default : return \.degree
+        }
+    }
 }
 
 struct TextFieldEdit: View {
@@ -66,7 +74,10 @@ struct TextFieldEdit: View {
                     .foregroundStyle (Color.grayPlaceholder)
                 
                 if case .onboarding(_, let advance) = mode {
-                    NextButton(isEnabled: text.count > 0) { advance() }
+                    NextButton(isEnabled: text.count > 0) {
+                        advance()
+                        vm.saveDraft(_kp: field.draftKeyPath, to: text)
+                    }
                 }
             }
         }

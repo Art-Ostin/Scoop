@@ -10,6 +10,8 @@ import SwiftUI
 struct OnboardingContainer: View {
     @Environment(\.flowMode) private var mode
     @State var vm: EditProfileViewModel
+    
+    @Bindable var defaults: DefaultsManager
     @Binding var current: Int
     
     var body: some View {
@@ -17,13 +19,13 @@ struct OnboardingContainer: View {
         NavigationStack {
             ZStack {
                 Group {
-                    switch current {
+                    switch defaults.onboardingStep {
                     case 0: OptionEditView(vm: vm, field: .sex)
                     case 1: OptionEditView(vm: vm, field: .attractedTo)
                     case 2: OptionEditView(vm: vm, field: .lookingFor)
                     case 3: OptionEditView(vm: vm, field: .year)
                     case 4: EditHeight(vm: vm)
-                    case 5: EditLifestyle()
+                    case 5: EditLifestyle(vm: vm)
                     case 6: EditInterests(vm: vm)
                     case 7: EditNationality(vm: vm)
                     case 8: TextFieldEdit(vm: vm, field: .hometown)
@@ -33,7 +35,8 @@ struct OnboardingContainer: View {
                     }
                 }
                 .environment(\.flowMode, .onboarding(step: current) {
-                    withAnimation { current += 1 }
+                    withAnimation { defaults.advanceOnboarding() }
+                    print(defaults.fetch())
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             }

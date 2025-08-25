@@ -68,7 +68,7 @@ struct InfoView: View {
             },
             
             EditPreview("Lifestyle", [lifestyle]) {
-                EditLifestyle()
+                EditLifestyle(vm: vm)
             },
             EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")]) {
                 EditMyLifeAs(vm: vm)
