@@ -54,8 +54,7 @@ struct Session  {
     @discardableResult
     func loadUser() async -> AppState {
         guard
-            let uid = authManager.fetchAuthUser()
-                
+            let uid = await authManager.fetchAuthUser()
         else {
             defaultManager.deleteDefaults()
             return .login

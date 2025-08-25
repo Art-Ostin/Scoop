@@ -14,7 +14,7 @@ struct LimitedAccessView: View {
                 Tab("", image: "LetterIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(title: "eet", imageName: "CoolGuys", description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting.")
+                        LimitedAccessPage(logOut: false, title: "eet", imageName: "CoolGuys", description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting.")
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -22,7 +22,7 @@ struct LimitedAccessView: View {
                 Tab("", image: "LogoIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(title: "eeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.")
+                        LimitedAccessPage(logOut: false, title: "eeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.")
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -30,14 +30,16 @@ struct LimitedAccessView: View {
                 Tab("", image: "MessageIcon") {
                     ZStack {
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(title: "atches", imageName: "DancingCats", description: "View your previous matches here")
+                        LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here")
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
                 }
             }
-            ActionButton(text: (current == 0) ? "Create Profile" : "Complete \(current)/10", onTap: {showOnboarding = true})
-                .padding(.top, 420)
+            ActionButton(text: (dep.defaultsManager.onboardingStep == 0) ? "Create Profile" : "Complete\(dep.defaultsManager.onboardingStep)/10") {
+                showOnboarding = true
+            }
+            .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)
@@ -54,6 +56,8 @@ struct LimitedAccessView: View {
 
 
 struct LimitedAccessPage: View {
+    
+    let logOut: Bool
     
     let title, imageName, description: String
     
@@ -83,8 +87,31 @@ struct LimitedAccessPage: View {
                 .padding(.horizontal, 32)
                 .font(.body(18, .medium))
         }
+        .overlay(alignment: .topLeading) {
+            
+        }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 72)
+    }
+}
+
+struct logOut : View {
+    
+    let onTap: () -> Void
+    
+    var body: some View {
         
+        Text("Sign Out")
+            .font(.body(14, .bold))
+            .padding(8)
+            .background (
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white )
+            )
+            .overlay (
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(.black, lineWidth: 1)
+            )
+            .shadow
     }
 }

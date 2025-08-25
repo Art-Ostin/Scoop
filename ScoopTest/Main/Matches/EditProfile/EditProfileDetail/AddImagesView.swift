@@ -10,6 +10,7 @@ import PhotosUI
 struct AddImageView: View {
     
     @Environment(\.appState) private var appState
+    @Environment(\.flowMode) private var mode
     
     @State private var vm: EditProfileViewModel
     @State var images: [UIImage] = Array(repeating: UIImage(named: "ImagePlaceholder") ?? UIImage(), count: 6)
@@ -34,10 +35,20 @@ struct AddImageView: View {
                 }
             }
             ActionButton(isValid: vm.isValid, text: "Complete") {
-                appState.wrappedValue = .app
-                vm.s.showProfiles = false
+                if let draftUser = vm.draftProfile {
+                    Task {
+                        do {
+                            let user = try await vm.createUserProfile(draft: draftUser)
+                            vm.startSession(user: user)
+                            appState.wrappedValue = .app
+                            vm.s.showProfiles = false
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
             }
         }
-        .task { await vm.assignSlots() }
+        .flowNavigation()
     }
 }

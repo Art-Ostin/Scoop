@@ -31,6 +31,7 @@ import FirebaseAuth
         let profile = DraftProfile(auth: authUser)
         guard let data = try? JSONEncoder().encode(profile) else {return}
         defaults.set(data, forKey: Keys.draftProfile.rawValue)
+        print("set draft Profile Called")
     }
     
     func fetch() -> DraftProfile? {

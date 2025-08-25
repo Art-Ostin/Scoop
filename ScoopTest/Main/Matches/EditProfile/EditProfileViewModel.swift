@@ -94,9 +94,8 @@ struct ImageSlot: Equatable {
     
     @MainActor
     func assignSlots() async {
-        
-        let paths = s.user.imagePath
-        let urlStrings = s.user.imagePathURL
+        let paths = user.imagePath
+        let urlStrings = user.imagePathURL
         let urls = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
         for i in 0..<min(urls.count, 6) {
@@ -195,8 +194,8 @@ struct ImageSlot: Equatable {
     }
     
     private func setDraftImage(at index: Int, path: String, url: URL) {
-        var p = defaultProfile?.imagePath ?? []
-        var u = defaultProfile?.imagePathURL ?? []
+        var p = draftProfile?.imagePath ?? []
+        var u = draftProfile?.imagePathURL ?? []
         if p.count < 6 { p += Array(repeating: "", count: 6 - p.count) }
         if u.count < 6 { u += Array(repeating: "", count: 6 - u.count) }
         
@@ -263,27 +262,20 @@ struct ImageSlot: Equatable {
         selectedCountries = draftUser.nationality
     }
     
-    
     //Onboarding Functions
     
-    var defaultProfile: DraftProfile? { defaults.fetch() }
+    var draftProfile: DraftProfile? { defaults.fetch() }
     
-    func createUserProfile(draft: DraftProfile) async throws  {
-        try await userManager.createUser(draft: draft)
+    func createUserProfile(draft: DraftProfile) async throws -> UserProfile {
+        return try await userManager.createUser(draft: draft)
+    }
+    
+    func startSession(user: UserProfile) {
+        s.startSession(user: user)
     }
     
     func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
         defaults.update(kp, to: value)
         print("saved")
-    }
-
-    var draftStorage: [String] = []
-    
-    func toggleDraftStorage(_ string: String) {
-        if draftStorage.contains(string) {
-            draftStorage.removeAll(where: {$0 == string})
-        } else if draftStorage.count < 10 {
-            draftStorage.append(string)
-        }
     }
 }
