@@ -3,6 +3,7 @@ import SwiftUI
 struct LimitedAccessView: View {
     
     @Environment(\.appDependencies) private var dep
+    @Binding var appState: AppState
 
     @State var showOnboarding = false
     @State var current: Int = 0
@@ -14,7 +15,7 @@ struct LimitedAccessView: View {
                 Tab("", image: "LetterIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: false, title: "eet", imageName: "CoolGuys", description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting.")
+                        LimitedAccessPage(logOut: false, title: "eet", imageName: "CoolGuys", description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting."){}
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -22,7 +23,7 @@ struct LimitedAccessView: View {
                 Tab("", image: "LogoIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: false, title: "eeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.")
+                        LimitedAccessPage(logOut: false, title: "eeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here."){}
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -30,7 +31,12 @@ struct LimitedAccessView: View {
                 Tab("", image: "MessageIcon") {
                     ZStack {
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here")
+                        LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here") {
+                            Task {
+                                appState = .login
+                                try? await dep.authManager.deleteAuthUser()
+                            }                            
+                        }
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -54,12 +60,13 @@ struct LimitedAccessView: View {
     LimitedAccessView()
 }
 
-
 struct LimitedAccessPage: View {
     
     let logOut: Bool
     
     let title, imageName, description: String
+    
+    let onTap: () -> Void
     
     var body: some View {
         
@@ -88,14 +95,16 @@ struct LimitedAccessPage: View {
                 .font(.body(18, .medium))
         }
         .overlay(alignment: .topLeading) {
-            
+            LogOutButton {
+                onTap()
+            }
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 72)
     }
 }
 
-struct logOut : View {
+struct LogOutButton : View {
     
     let onTap: () -> Void
     
@@ -112,6 +121,6 @@ struct logOut : View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(.black, lineWidth: 1)
             )
-            .shadow
+            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
 }

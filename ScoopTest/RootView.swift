@@ -16,7 +16,7 @@ struct RootView : View {
     
     var body: some View {
         
-        Group {
+//        Group {
             switch state.wrappedValue {
                 
             case .booting:
@@ -26,7 +26,7 @@ struct RootView : View {
                 SignUpView()
                 
             case .createAccount:
-                LimitedAccessView()
+                LimitedAccessView(appState: $state)
                 
             case .app:
                 AppContainer()

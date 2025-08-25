@@ -33,4 +33,9 @@ class AuthManager: AuthManaging {
         print(user.uid)
         return Auth.auth().currentUser?.uid
     }
+
+    func deleteAuthUser() async throws {
+        guard let user = Auth.auth().currentUser else { return }
+        try await user.delete()
+    }
 }

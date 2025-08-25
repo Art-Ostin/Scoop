@@ -17,11 +17,10 @@ struct MeetView: View {
     
     var body: some View {
         ZStack {
-
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
-
+                
                 tabView
                 
                 if vm.showProfiles && !vm.showRefresh {

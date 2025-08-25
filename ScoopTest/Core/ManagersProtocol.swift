@@ -17,6 +17,7 @@ protocol AuthManaging {
     func signInAuthUser(email: String, password: String) async throws
     func fetchAuthUser () async -> String?
     func signOutAuthUser() throws
+    func deleteAuthUser() async throws
 }
 
 protocol StorageManaging {
