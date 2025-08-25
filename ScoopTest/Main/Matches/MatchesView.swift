@@ -11,6 +11,7 @@ import Combine
 struct MatchesView: View {
     
     @Environment(\.appState) private var appState
+    @Environment(\.appDependencies) private var dep
     
     @State var vm: MatchesViewModel
     @State var showProfileView = false
@@ -25,14 +26,14 @@ struct MatchesView: View {
             VStack(spacing: 32) {
                 Image("DancingCats")
                 
-                Text(vm.user.name ?? "No name found")
-                
-                
+                Text(vm.user.name)
+
                 Text("View your past Meet Ups Here")
                     .font(.body(20))
                 
                 ActionButton(text: "Sign Out") {
                     try? vm.authManager.signOutAuthUser()
+                    vm.defaultsManager.deleteDefaults()
                     appState.wrappedValue = .login
                 }
                 .navigationTitle("Matches")
@@ -52,10 +53,14 @@ struct MatchesView: View {
             }
         }
         .fullScreenCover(isPresented: $showProfileView, content: {
-            EditProfileContainer(vm: EditProfileViewModel(cachManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager))
+            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: dep.defaultsManager))
         })
         .task {
-            image = try? await vm.fetchFirstImage()
+            do {
+                image = try await vm.fetchFirstImage()
+            } catch {
+                print(error)
+            }
         }
     }
 }

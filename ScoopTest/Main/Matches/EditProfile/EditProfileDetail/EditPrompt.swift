@@ -15,19 +15,20 @@ struct PromptResponse: Codable, Equatable  {
 
 struct EditPrompt: View {
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
         
     @FocusState var isFocused: Bool
     @State var prompt = PromptResponse(prompt: "", response: "")
     @State private var showDropdownMenu = false
-
+    
+    
     let prompts: [String]
     let promptIndex: Int
     
-    private var key: UserProfile.CodingKeys {
+    private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
-    private var keyPath: KeyPath<UserProfile, PromptResponse?> {
+    private var keyPath: WritableKeyPath<UserProfile, PromptResponse?> {
         [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
 
@@ -50,12 +51,11 @@ struct EditPrompt: View {
                     .offset(y: -48)
             }
         }
-        .onChange(of: prompt.prompt) { Task { try await vm.updateUser(values: [key : prompt.prompt])}}
-        .onChange(of: prompt.response) { Task { try await vm.updateUser(values: [key : prompt.response])}}
+        .onChange(of: prompt) { vm.setPrompt(key, keyPath, to: prompt)}
         
         .onAppear {
             isFocused = true
-            if let prompt = vm.fetchUserField(keyPath) {
+            if let prompt = vm.draftUser?[keyPath: keyPath] {
                 self.prompt = prompt
             } else {
                 self.prompt = PromptResponse(prompt: prompts.randomElement() ?? "", response: "")

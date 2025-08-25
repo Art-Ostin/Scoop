@@ -28,7 +28,7 @@ enum OptionField: CaseIterable {
         }
     }
     
-    var key: UserProfile.CodingKeys {
+    var key: UserProfile.Field {
         switch self {
         case .sex: return .sex
         case .attractedTo: return .attractedTo
@@ -37,7 +37,16 @@ enum OptionField: CaseIterable {
         }
     }
     
-    var keyPath: KeyPath<UserProfile, String?> {
+    var keyPath: WritableKeyPath<UserProfile, String> {
+        switch self {
+        case .sex: return \.sex
+        case .attractedTo: return \.attractedTo
+        case .lookingFor: return \.lookingFor
+        case .year: return \.year
+        }
+    }
+    
+    var keyPathDraft: WritableKeyPath<DraftProfile, String> {
         switch self {
         case .sex: return \.sex
         case .attractedTo: return \.attractedTo
@@ -50,7 +59,7 @@ enum OptionField: CaseIterable {
 struct OptionEditView: View  {
     @Environment(\.flowMode) private var mode
     
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @State private var selection: String? = nil
 
     let field: OptionField
@@ -69,14 +78,17 @@ struct OptionEditView: View  {
             }
         }
         .flowNavigation()
-        .onAppear {selection = vm.fetchUserField(field.keyPath)}
+        .onAppear {selection = vm.draftUser?[keyPath: field.keyPath] ?? ""}
     }
+    
     private func select(_ value: String) {
         switch mode {
         case .onboarding(_, let advance):
+            vm.saveDraft(_kp: field.keyPathDraft, to: value)
             advance()
-        case .profile: break
+        case .profile:
+            vm.set(field.key, field.keyPath, to: value)
+            break
         }
-        Task { try await vm.updateUser(values: [field.key: value]) }
     }
 }

@@ -14,9 +14,7 @@ import SwiftUI
 
 extension Color {
     
-    
     static let appBackground = Color(red: 0.42, green: 0.40, blue: 0.30)
-
         
     static let background = Color(red: 0.98, green: 0.98, blue: 0.99)
 
@@ -31,9 +29,9 @@ extension Color {
     static let appGreen =  Color(red: 0, green: 0.6, blue: 0.52)
 }
 
+
 extension UIColor {
     static let appBackground = UIColor(red: 0.42, green: 0.40, blue: 0.30, alpha: 1)
-
 }
 
 extension Font {

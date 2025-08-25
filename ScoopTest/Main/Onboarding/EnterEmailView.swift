@@ -27,7 +27,7 @@ struct EnterEmailView: View {
                 SignUpTitle(text: "McGill Email")
                 VStack(spacing: 96){
                     enterEmailSection
-                    NextButton(isEnabled: vm.authoriseEmail(email: vm.username), onTap: {
+                    NextButton(isEnabled: vm.isValid(email: vm.username), onTap: {
                         showVerification = true
                     })
                 }
@@ -41,7 +41,7 @@ struct EnterEmailView: View {
             .padding(.horizontal)
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
-            .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: $vm)})
+            .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
             .navigationBarBackButtonHidden(true)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)} }
         }

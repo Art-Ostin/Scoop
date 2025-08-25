@@ -16,29 +16,29 @@ struct ProfileDetailsView: View {
         VStack(alignment: .leading, spacing: 36) {
             let p = vm.profileModel.profile
             
-            Text(p.nationality?.joined(separator: "") ?? "")
+            Text(p.nationality.joined(separator: ""))
             
-            Text (p.hometown ?? "")
+            Text (p.hometown)
             
-            Text(p.lookingFor ?? "")
+            Text(p.lookingFor)
             
-            Text(p.year ?? "")
+            Text(p.year)
             
-            Text(p.degree ?? "")
+            Text(p.degree)
             
-            Text(p.height ?? "")
+            Text(p.height)
             
-            Text(p.interests?.joined(separator: ", ") ?? "")
+            Text(p.interests.joined(separator: ", "))
             
-            Text(p.attractedTo ?? "")
+            Text(p.attractedTo)
             
-            Text(p.drinking ?? "")
+            Text(p.drinking)
             
-            Text(p.marijuana ?? "")
+            Text(p.marijuana)
             
-            Text(p.smoking ?? "")
+            Text(p.smoking)
             
-            Text(p.drugs ?? "")
+            Text(p.drugs)
             
             if let book = p.favouriteBook { Text(book) }
             
@@ -46,8 +46,8 @@ struct ProfileDetailsView: View {
             
             if let song = p.favouriteSong { Text(song) }
             
-            if let languages = p.languages { Text(languages)}
-            
+            if !p.languages.isEmpty { Text("Languages:") }
+                        
             if let prompt1 = p.prompt1 {
                 PromptResponseView(vm: $vm, prompt: prompt1)
             }

@@ -40,12 +40,13 @@ class CacheManager: CacheManaging  {
         }
         return UIImage()
     }
-        
+    
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         guard
-            let urlString = profile.imagePathURL?.first,
+            let urlString = profile.imagePathURL.first,
             let url = URL(string: urlString)
         else {return nil}
+        print("returning image")
         return try await fetchImage(for: url)
     }
     
@@ -53,7 +54,7 @@ class CacheManager: CacheManaging  {
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
         let urls = profiles.flatMap { profile in
-            profile.imagePathURL?.compactMap { URL(string: $0) } ?? []
+            profile.imagePathURL.compactMap { URL(string: $0) }
         }
         var images: [UIImage] = []
         await withTaskGroup(of: UIImage?.self) { group in

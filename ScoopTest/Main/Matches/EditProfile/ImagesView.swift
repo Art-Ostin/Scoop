@@ -10,12 +10,9 @@ import SwiftUI
 
 struct ImagesView: View {
 
-    @State private var vm: EditImageViewModel
+    @Bindable var vm: EditProfileViewModel
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
-    
-    init(vm: EditImageViewModel) {
-        _vm = State(initialValue: vm)
-    }
+
     var body: some View {
         CustomList {
             LazyVGrid(columns: columns, spacing: 24) {
@@ -26,9 +23,6 @@ struct ImagesView: View {
                 }
             }
             .padding(.horizontal)
-        }
-        .task {
-           await vm.assignSlots()
         }
         .padding(.horizontal, 32)
     }

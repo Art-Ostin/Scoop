@@ -15,23 +15,25 @@ struct EditProfileContainer: View {
     
     var body: some View {
         Group {
-            if isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cachManager)){
+            if let user = vm.draftUser, isView {
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: user), cacheManager: vm.cacheManager), preloadedImages: vm.isValid ? vm.images : nil){
                     dismiss()
                 }
-                .id(vm.user.imagePath )
                 .transition(.move(edge: .leading))
             } else {
-                EditProfileView(vm: $vm)
+                EditProfileView(vm: vm)
                     .transition(.move(edge: .trailing))
             }
+        }
+        .id(vm.updatedImages.count)
+        .task {
+            await vm.loadUser()
+            await vm.assignSlots()
         }
         .overlay(alignment: .bottom) {
             EditProfileButton(isView: $isView)
                 .padding(.bottom)
-                .onTapGesture {
-                    withAnimation{ isView.toggle()}
-                }
+                .onTapGesture { withAnimation { isView.toggle() } }
         }
     }
 }

@@ -37,7 +37,7 @@ struct AppContainer: View {
             Tab("", image: "MessageIcon", value: 2) {
                 ZStack {
                     Color.background.ignoresSafeArea()
-                    MatchesView(vm: MatchesViewModel(userManager: dep.userManager, cacheManager: dep.cacheManager, authManager: dep.authManager, storageManager: dep.storageManager, s: dep.sessionManager))
+                    MatchesView(vm: MatchesViewModel(userManager: dep.userManager, cacheManager: dep.cacheManager, authManager: dep.authManager, storageManager: dep.storageManager, s: dep.sessionManager, defaultsManager: dep.defaultsManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }

@@ -15,14 +15,16 @@ import FirebaseAuth
     let sessionManager: SessionManager
     let authManager: AuthManaging
     let userManager: UserManager
+    let defaultsManager: DefaultsManager
     
-    init (sessionManager: SessionManager, authManager: AuthManaging, userManager: UserManager) {
+    init (sessionManager: SessionManager, authManager: AuthManaging, userManager: UserManager, defaultsManager: DefaultsManager) {
         self.sessionManager = sessionManager
         self.authManager = authManager
         self.userManager = userManager
+        self.defaultsManager = defaultsManager
     }
     
-    func authoriseEmail(email: String) -> Bool {
+    func isValid(email: String) -> Bool {
         guard email.count > 4, let dotRange = email.range(of: ".") else {
             return false
         }
@@ -34,10 +36,10 @@ import FirebaseAuth
     var email: String { "\(username)@mail.mcgill.ca" }
     var password: String = "HelloWorld"
     
-    func createUser (email: String, password: String) async throws {
+    
+    func createAuthUser (email: String, password: String) async throws {
         let authData = try await authManager.createAuthUser(email: email, password: password)
-        let user = try await userManager.createUser(authUser: authData)
-        await sessionManager.startSession(user: user)
+        defaultsManager.setDraftProfile(authUser: authData)
     }
     
     func signInUser(email: String, password: String) async throws {

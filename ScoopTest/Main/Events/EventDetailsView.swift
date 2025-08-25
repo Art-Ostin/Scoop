@@ -43,11 +43,11 @@ enum EventDisplay: String {
         switch self {
         case .grabFood:
             let location = event.location?.name ?? "the place"
-            let name = user.name ?? "them"
+            let name = user.name
             return "Go to \(location) for \(EventDetailsViewModel.formatTime(date: event.time)) and meet \(name) there. Can text 1 hour before."
             
         case .grabDrink:
-            let name = user.name ?? "them"
+            let name = user.name
             return "Go to the bar for \(EventDetailsViewModel.formatTime(date: event.time)) and meet \(name) there. Can text 1 hour before"
         case .houseParty:
             return "Head to the house party and meet there. You can text 1 hour before"
@@ -59,7 +59,7 @@ enum EventDisplay: String {
             return "Head to \(location) with your mates & meet them & their friends there. Can text 1 hour before"
         case .writeMessage:
             let location = event.location?.name ?? "the venue"
-            let name = user.name ?? "them"
+            let name = user.name
             return "Just head to \(location) and meet \(name) there for \(EventDetailsViewModel.formatTime(date: event.time))"
         }
     }
@@ -134,7 +134,7 @@ struct EventDetailsView: View {
             
             
             VStack(alignment: .leading, spacing: 16) {
-                Text((vm.typeTitle()) + " " + (vm.user.name ?? ""))
+                Text((vm.typeTitle()) + " " + (vm.user.name))
                     .font(.body(24, .bold))
                 
                 Text("\(time) at \(location)")

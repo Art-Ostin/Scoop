@@ -46,12 +46,10 @@ struct InterestsHolder<Content: View, Destination: View>: View {
 
 struct InterestsLayout: View {
     
-    @Environment(\.appDependencies) private var dep
+    @Bindable var vm: EditProfileViewModel
     
     
-    var passions: [String] {
-        dep.sessionManager.user.interests ?? []
-    }
+    @State var passions: [String] = []
     
     
     private var rows: [[String]] {
@@ -80,6 +78,13 @@ struct InterestsLayout: View {
                 }
             }
         }
+        .onAppear {
+            guard let user = vm.draftUser else {
+                print("No passions here")
+                return
+            }
+            self.passions = user.interests
+        }
         .padding()
         .font(.body())
         .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
@@ -102,12 +107,12 @@ extension Array {
 
 
 struct InterestsView: View {
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     var body: some View {
         InterestsHolder(title: "Interests") {
-            InterestsLayout()
+            InterestsLayout(vm: vm)
         } destination: {
-            EditInterests(vm: $vm)
+            EditInterests(vm: vm)
         }
     }
 }

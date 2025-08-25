@@ -63,6 +63,7 @@
 		6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */; };
 		6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */; };
 		6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */; };
+		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
 		659109242E19AEC00065696F /* NextButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109232E19AEC00065696F /* NextButton.swift */; };
 		6591092C2E19B0810065696F /* Countries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109252E19B0810065696F /* Countries.swift */; };
 		6591092D2E19B0810065696F /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109262E19B0810065696F /* Prompts.swift */; };
@@ -192,6 +193,7 @@
 		6578382C2DE773CC00770B49 /* ScoopTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScoopTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838392DE773CE00770B49 /* ScoopTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838432DE773CE00770B49 /* ScoopTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		659109232E19AEC00065696F /* NextButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButton.swift; sourceTree = "<group>"; };
 		659109252E19B0810065696F /* Countries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countries.swift; sourceTree = "<group>"; };
 		659109262E19B0810065696F /* Prompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompts.swift; sourceTree = "<group>"; };
@@ -300,6 +302,7 @@
 			children = (
 				652FC9722E1AD7360034A387 /* AuthManager.swift */,
 				654C009A2E35689000FFD504 /* UserManager.swift */,
+				6585043C2E59105D0005C643 /* DefaultsManager.swift */,
 				654982BF2E2FA54100CA335F /* StorageManager.swift */,
 				65BFE7DC2E400D3C00B31A58 /* EventManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
@@ -319,7 +322,6 @@
 		6522EF242E1EE61A004531F9 /* EditProfile */ = {
 			isa = PBXGroup;
 			children = (
-				654982D52E31285000CA335F /* EditImageViewModel.swift */,
 				65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */,
 				65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */,
 				6522EF262E1EFDE6004531F9 /* EditProfileView.swift */,
@@ -434,6 +436,7 @@
 				65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */,
 				659497092E01DD4000880921 /* LimitedAccessView.swift */,
 				65E820982E37C2720098CC36 /* OnboardingContainer.swift */,
+				6585044A2E5B78760005C643 /* Storage */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -441,14 +444,14 @@
 		6577D7C92E201A2600FFCF82 /* EditProfileDetail */ = {
 			isa = PBXGroup;
 			children = (
-				6509DDC22E36F6EE0042917B /* OptionEdit.swift */,
 				6509DDC62E37A1CC0042917B /* EditTextfield.swift */,
+				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
+				6509DDC22E36F6EE0042917B /* OptionEdit.swift */,
 				6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */,
 				6577D7DC2E20424300FFCF82 /* EditHeight.swift */,
 				65E8209A2E37CCCE0098CC36 /* EditNationality.swift */,
 				6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */,
 				656126642E23212C00088B6D /* EditInterests.swift */,
-				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
 				654982D32E3101BE00CA335F /* AddImagesView.swift */,
 			);
 			path = EditProfileDetail;
@@ -495,6 +498,14 @@
 				657838432DE773CE00770B49 /* ScoopTestUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		6585044A2E5B78760005C643 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				654982D52E31285000CA335F /* EditImageViewModel.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		659497012E01DD4000880921 /* Main */ = {
@@ -803,6 +814,7 @@
 				653A78C42E15DBD80098747F /* MapView.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
 				65C7D6292E54007000B726B8 /* ProfileModel.swift in Sources */,
+				6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserManager.swift in Sources */,
 				65BFE7E12E40D0B500B31A58 /* LocationModel.swift in Sources */,
 				65F450CB2E463E7900AE3503 /* MeetView.swift in Sources */,

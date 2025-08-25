@@ -33,13 +33,13 @@ import UIKit
     var endTime: Date? { activeCycle?.endsAt.dateValue()}
     
     func reloadWeeklyCycle() async {
-        let status = await cycleManager.checkCycleStatus(userId: s.user.userId , cycle: activeCycle)
+        let status = await cycleManager.checkCycleStatus(userId: s.user.id , cycle: activeCycle)
         if status == .respond { s.respondToRefresh = true }
         if status == .closed { s.showProfiles = false ; s.respondToRefresh = false }
     }
     
     func createWeeklyCycle() async throws {
-        try await cycleManager.createCycle(userId: s.user.userId)
+        try await cycleManager.createCycle(userId: s.user.id)
         await s.loadUser()
         await s.loadCycle()
         await s.loadProfiles()

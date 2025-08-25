@@ -10,7 +10,7 @@ import FirebaseFirestore
 struct EditNationality: View {
     
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
@@ -113,7 +113,10 @@ extension EditNationality {
     @ViewBuilder private var nextButton: some View {
         if case .onboarding(_, let advance) = mode {
             NextButton(isEnabled: vm.selectedCountries.count > 0) {
-                withAnimation { advance()}
+                withAnimation {
+                    advance()
+                    vm.saveDraft(_kp: \.nationality, to: vm.selectedCountries)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding()

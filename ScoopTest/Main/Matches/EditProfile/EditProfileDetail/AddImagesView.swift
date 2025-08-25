@@ -10,12 +10,13 @@ import PhotosUI
 struct AddImageView: View {
     
     @Environment(\.appState) private var appState
+    @Environment(\.flowMode) private var mode
     
-    @State private var vm: EditImageViewModel
+    @State private var vm: EditProfileViewModel
     @State var images: [UIImage] = Array(repeating: UIImage(named: "ImagePlaceholder") ?? UIImage(), count: 6)
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
-    init(vm: EditImageViewModel) { self._vm = State(initialValue: vm) }
+    init(vm: EditProfileViewModel) { self._vm = State(initialValue: vm) }
     
     var body: some View {
         VStack(spacing: 36) {
@@ -29,16 +30,25 @@ struct AddImageView: View {
             LazyVGrid(columns: columns, spacing: 36) {
                 ForEach(0..<6) {idx in
                     EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
-                        try await vm.changeImage(at: idx)
+                        try await vm.changeImage(at: idx, onboarding: true)
                     }
                 }
             }
             ActionButton(isValid: vm.isValid, text: "Complete") {
-                appState.wrappedValue = .app
-                Task { try? await vm.userManager.updateUser(values: [UserProfile.CodingKeys.accountComplete : true]) }
-                vm.s.showProfiles = false
+                if let draftUser = vm.draftProfile {
+                    Task {
+                        do {
+                            let user = try await vm.createUserProfile(draft: draftUser)
+                            vm.startSession(user: user)
+                            appState.wrappedValue = .app
+                            vm.s.showProfiles = false
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
             }
         }
-        .task { await vm.assignSlots() }
+        .flowNavigation()
     }
 }

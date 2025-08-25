@@ -12,7 +12,7 @@ import FirebaseFirestore
 
 struct EditInterests: View {
 
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
 
     @State var selected: [String] = []
@@ -42,7 +42,7 @@ struct EditInterests: View {
                     LazyVStack(spacing: 0) {
                         ForEach(sections.indices, id: \.self) { idx in
                             let section = sections[idx]
-                            InterestSection(vm: $vm, options: section.data, title: section.title, image: section.image, selected: $selected)
+                            InterestSection(vm: vm, options: section.data, title: section.title, image: section.image, selected: $selected)
                         }
                     }
                 }
@@ -50,12 +50,15 @@ struct EditInterests: View {
             }
             .padding(.top, 12)
             if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: selected.count > 3) {advance()}
+                NextButton(isEnabled: selected.count > 3) {
+                    advance()
+                    vm.saveDraft(_kp: \.interests, to: selected)
+                }
             }
         }
         .flowNavigation()
         .task {
-            selected = vm.fetchUserField(\.interests) ?? []
+            selected = vm.draftUser?.interests ?? []
         }
     }
 }
@@ -87,7 +90,7 @@ extension EditInterests {
 
 struct InterestSection: View {
     
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @State var options: [String]
     let title: String?
     let image: String?
@@ -112,26 +115,19 @@ struct InterestSection: View {
             }
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
-            
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 OptionCell(text: input, selection: $selected) { text in
-                    selected.contains(text)
-                        ? selected.removeAll(where: { $0 == text })
-                        : (selected.count < 10 ? selected.append(text) : nil)
-
-                    Task {
-                        if vm.interestIsSelected(text: text) {
-                            try await vm.updateUser(values: [.interests : FieldValue.arrayRemove([text])])
-                        } else {
-                            try await vm.updateUser(values: [.interests : FieldValue.arrayUnion([text])])
-                        }
+                        selected.contains(text)
+                            ? selected.removeAll(where: { $0 == text })
+                            : (selected.count < 10 ? selected.append(text) : nil)
+                    if vm.draftUser != nil {
+                        vm.setArray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
                     }
                 }
             }
             .offset(x: -5)
         }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
-        
     }
 }
 

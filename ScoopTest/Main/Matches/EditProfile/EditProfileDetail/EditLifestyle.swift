@@ -9,9 +9,9 @@ import SwiftUI
 
 struct EditLifestyle: View {
     
-    @Environment(\.appDependencies) private var dep
+    @Bindable var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
-
+    
     @State var drinking: String?
     @State var smoking: String?
     @State var marijuana: String?
@@ -19,49 +19,39 @@ struct EditLifestyle: View {
     
     var body: some View {
         
-        
-        let fields: [(String, Binding<String?>, UserProfile.CodingKeys)] = [
-            ("Drinking", $drinking, .drinking),
-            ("Smoking", $smoking, .smoking),
-            ("Marijuana", $marijuana, .marijuana),
-            ("Drugs", $drugs, .drugs)
-        ]
-        
         VStack(spacing: 48) {
-            ForEach(Array(fields.enumerated()), id: \.offset) { _, field in
-                vicesOptions(title: field.0, isSelected: field.1)
-            }
+            vicesOptions(title: "Drinking", isSelected: $drinking)
+            vicesOptions(title: "Smoking", isSelected: $smoking)
+            vicesOptions(title: "Marijuana", isSelected: $marijuana)
+            vicesOptions(title: "Drugs", isSelected: $drugs)
         }
         .flowNavigation()
         .padding(.horizontal)
         .task {
-            let u = dep.sessionManager.user
+            guard let u = vm.draftUser else {return}
             drinking = u.drinking
             smoking = u.smoking
             marijuana = u.marijuana
             drugs = u.drugs
-            
-            if [ u.drinking,
-                 u.smoking,
-                 u.marijuana,
-                 u.drugs ].allSatisfy({ $0 == nil }) {
-                if case .onboarding(_, let advance) = mode {
-                    advance()
-                }
-            }
         }
-        .onChange(of: drinking) { update(key: .drinking, drinking)}
-        .onChange(of: smoking) { update(key: .smoking, smoking)}
-        .onChange(of: marijuana) { update(key: .marijuana, marijuana)}
-        .onChange(of: drugs) { update(key: .drugs, drugs)}
-        
+        .onChange(of: drinking) {
+            vm.set(.drinking, \.drinking, to: drinking ?? "")
+            saveIfComplete()
+        }
+        .onChange(of: smoking) {
+            vm.set(.smoking, \.smoking, to: smoking ?? "")
+            saveIfComplete()
+        }
+        .onChange(of: marijuana) {
+            vm.set(.marijuana, \.marijuana, to: marijuana ?? "")
+            saveIfComplete()
+        }
+        .onChange(of: drugs) {
+            vm.set(.drugs, \.drugs, to: drugs ?? "")
+            saveIfComplete()
+        }
     }
     
-    private func update(key: UserProfile.CodingKeys, _ value: String?) {
-        Task {
-            try? await dep.userManager.updateUser(values: [key: value ?? ""])
-        }
-    }
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {
         VStack(alignment: .leading, spacing: 24) {
             Text(title)
@@ -75,8 +65,21 @@ struct EditLifestyle: View {
             }
         }
     }
-}
-
-#Preview {
-    EditLifestyle()
+    
+    private func saveIfComplete() {
+        guard
+            let d = drinking,
+            let s = smoking,
+            let m = marijuana,
+            let g = drugs
+        else { return }
+        
+        if case .onboarding(_, let advance) = mode {
+            advance()
+        }
+        vm.saveDraft(_kp: \.drinking, to: d)
+        vm.saveDraft(_kp: \.smoking, to: s)
+        vm.saveDraft(_kp: \.marijuana, to: m)
+        vm.saveDraft(_kp: \.drugs, to: g)
+    }
 }

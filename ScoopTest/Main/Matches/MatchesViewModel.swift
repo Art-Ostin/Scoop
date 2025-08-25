@@ -10,24 +10,25 @@ import UIKit
 
 @MainActor
 @Observable class MatchesViewModel {
-    
+
     var userManager: UserManager
     var cacheManager: CacheManaging
     var authManager: AuthManaging
     var storageManager: StorageManaging
     var s: SessionManager
+    var defaultsManager: DefaultsManager
     
-    
-    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager) {
+    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, defaultsManager: DefaultsManager) {
         self.userManager = userManager
         self.cacheManager = cacheManager
         self.authManager = authManager
         self.storageManager = storageManager
         self.s = s
+        self.defaultsManager = defaultsManager
     }
     
     func fetchFirstImage() async throws -> UIImage {
-        let profile = s.user
+        guard let profile = s.session?.user else { return UIImage() }
         return try await cacheManager.fetchFirstImage(profile: profile) ?? UIImage()
     }
     

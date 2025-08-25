@@ -17,11 +17,10 @@ struct MeetView: View {
     
     var body: some View {
         ZStack {
-
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
-
+                
                 tabView
                 
                 if vm.showProfiles && !vm.showRefresh {
@@ -50,7 +49,7 @@ extension MeetView {
             if vm.showProfiles {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
                     VStack {
-                        Text(profileInvite.profile.name ?? "No Name")
+                        Text(profileInvite.profile.name)
                         ProfileCard(vm: vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
                     }
                 }

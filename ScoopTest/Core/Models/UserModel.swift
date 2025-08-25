@@ -9,93 +9,98 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-struct UserProfile: Codable, Equatable {
-    
-    let userId, email: String
-    let dateCreated: Date
-    let rating: Int
-    let accountComplete: Bool
-    let sex, attractedTo, year, height, degree, hometown, name, lookingFor, drinking,
-        smoking, marijuana, drugs, languages, favouriteMovie, favouriteSong, favouriteBook, activeCycleId: String?
-    let interests, nationality, character, imagePath, imagePathURL: [String]?
-    let prompt1, prompt2, prompt3: PromptResponse?
-    
+struct DraftProfile: Codable {
+    let id: String
+    let email: String
+    var sex = ""
+    var attractedTo = ""
+    var year = ""
+    var height = ""
+    var interests: [String] = []
+    var degree = ""
+    var hometown = ""
+    var nationality: [String] = []
+    var lookingFor = ""
+    var imagePath: [String] = []
+    var imagePathURL: [String] = []
+    var drinking = ""
+    var smoking = ""
+    var marijuana = ""
+    var drugs = ""
     
     init(auth: AuthDataResult) {
-        self.userId = auth.user.uid
+        self.id = auth.user.uid
         self.email = auth.user.email ?? ""
-        self.name = email.components(separatedBy: ".")[0].capitalized
-        self.dateCreated = Date()
-        self.rating = 1000
-        self.accountComplete = false
-        self.sex = nil // Make non optional
-        self.attractedTo = nil // Make non optional
-        self.year = nil // Make non optional
-        self.height = nil // make non optional
-        self.interests = nil // make non optional
-        self.degree = nil // make non optional
-        self.hometown = nil // make non optional
-        self.nationality = nil // Make non optional
-        self.lookingFor = nil // Make non optional
-        self.imagePath = nil // Make non optional
-        self.imagePathURL = nil // Make non optional
-        self.prompt1 = nil
-        self.prompt2 = nil
-        self.prompt3 = nil
-        self.drinking = nil
-        self.smoking = nil
-        self.marijuana = nil
-        self.drugs = nil
-        self.languages = nil
-        self.favouriteMovie = nil
-        self.favouriteSong = nil
-        self.favouriteBook = nil
-        self.character = nil
-        self.activeCycleId = nil
     }
+}
 
+struct UserProfile: Codable, Equatable, Identifiable {
     
-    enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case email = "email"
-        case dateCreated = "date_created"
-        case sex = "sex"
-        case attractedTo = "attracted_to"
-        case year = "year"
-        case height = "height"
-        case interests = "interests"
-        case degree = "degree"
-        case hometown = "hometown"
-        case name = "name"
-        case nationality = "nationality"
-        case lookingFor = "lookingFor"
-        case prompt1 = "prompt1"
-        case prompt2 = "prompt2"
-        case prompt3 = "prompt3"
-        case drinking = "drinking"
-        case smoking = "smoking"
-        case marijuana = "marijuana"
-        case drugs = "drugs"
-        case languages = "languages"
-        case favouriteMovie = "favourite_movie"
-        case favouriteSong = "favourite_song"
-        case favouriteBook = "favourite_book"
-        case character = "character"
-        case imagePath = "image_path"
-        case imagePathURL = "image_path_url"
-        case activeCycleId = "active_cycle_id"
-        case accountComplete = "account_complete"
-        case rating = "rating"
-    }
+    let id: String
+    let email: String
+    var name: String
+    var rating = 1000
+    var sex: String
+    var attractedTo: String
+    var year: String
+    var height: String
+    var interests: [String]
+    var degree: String
+    var hometown: String
+    var nationality: [String]
+    var lookingFor: String
+    var imagePath: [String]
+    var imagePathURL: [String]
+    var drinking: String
+    var smoking: String
+    var marijuana: String
+    var drugs: String
+    var languages: String = ""
+    
+    var prompt1: PromptResponse?
+    var prompt2: PromptResponse?
+    var prompt3: PromptResponse?
+    var favouriteMovie: String?
+    var favouriteSong: String?
+    var favouriteBook: String?
+    var activeCycleId: String?
+    var character: [String]?
+    @ServerTimestamp var createdAt: Date?
 }
-
-extension UserProfile: Identifiable {
-    var id: String { userId }
-}
-
 
 extension UserProfile {
+    
+    init(draft: DraftProfile) {
+        self.init(
+            id: draft.id,
+            email: draft.email,
+            name: draft.email.split(separator: ".").first.map(String.init)?.capitalized ?? "",
+            sex: draft.sex,
+            attractedTo: draft.attractedTo,
+            year: draft.year,
+            height: draft.height,
+            interests: draft.interests,
+            degree: draft.degree,
+            hometown: draft.hometown,
+            nationality: draft.nationality,
+            lookingFor: draft.lookingFor,
+            imagePath: draft.imagePath,
+            imagePathURL: draft.imagePathURL,
+            drinking: draft.drinking,
+            smoking: draft.smoking,
+            marijuana: draft.marijuana,
+            drugs: draft.drugs
+        )
+    }
+    enum Field: String {
+      case name, sex, attractedTo, year, height, interests, degree, hometown,
+           nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
+           marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
+           favouriteMovie, favouriteSong, favouriteBook, activeCycleId
+    }
+    
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
-        lhs.userId == rhs.userId
+        lhs.id == rhs.id
     }
 }
+

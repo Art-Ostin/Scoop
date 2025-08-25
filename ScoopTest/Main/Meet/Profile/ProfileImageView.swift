@@ -11,6 +11,7 @@ struct ProfileImageView: View {
     
     @Binding var vm: ProfileViewModel
     @State private var images: [UIImage] = []
+    var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
 
     var body: some View {
@@ -19,7 +20,11 @@ struct ProfileImageView: View {
             imageScroller
         }
         .task {
-            images = await vm.loadImages()
+            if let pre = preloaded {
+            images = pre
+            } else {
+                images = await vm.loadImages()
+            }
         }
     }
 }

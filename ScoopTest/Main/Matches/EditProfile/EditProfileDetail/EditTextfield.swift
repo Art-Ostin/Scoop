@@ -21,7 +21,7 @@ enum TextFieldOptions: CaseIterable {
         }
     }
     
-    var key: UserProfile.CodingKeys {
+    var key: UserProfile.Field {
         switch self {
         case .degree: return .degree
         case .hometown: return .hometown
@@ -30,7 +30,7 @@ enum TextFieldOptions: CaseIterable {
         }
     }
     
-    var keyPath: KeyPath<UserProfile, String?> {
+    var keyPath: WritableKeyPath<UserProfile, String> {
         switch self {
         case .degree: return \.degree
         case .hometown: return \.hometown
@@ -38,11 +38,19 @@ enum TextFieldOptions: CaseIterable {
         case .languages: return \.languages
         }
     }
+    
+    var draftKeyPath: WritableKeyPath<DraftProfile, String> {
+        switch self {
+        case .degree: return \.degree
+        case .hometown: return \.hometown
+        default : return \.degree
+        }
+    }
 }
 
 struct TextFieldEdit: View {
     @Environment(\.flowMode) private var mode
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @State private var text: String = ""
     @FocusState var focused: Bool
     let field: TextFieldOptions
@@ -50,9 +58,8 @@ struct TextFieldEdit: View {
     var body: some View {
         
         VStack {
-
-            SignUpTitle(text: field.title)
             
+            SignUpTitle(text: field.title)
             VStack {
                 TextField("Type \(field.title) here", text: $text)
                     .frame(maxWidth: .infinity)
@@ -67,15 +74,20 @@ struct TextFieldEdit: View {
                     .foregroundStyle (Color.grayPlaceholder)
                 
                 if case .onboarding(_, let advance) = mode {
-                    NextButton(isEnabled: text.count > 0) { advance() }
+                    NextButton(isEnabled: text.count > 0) {
+                        advance()
+                        vm.saveDraft(_kp: field.draftKeyPath, to: text)
+                    }
                 }
             }
         }
         .onAppear {
-            text =  vm.fetchUserField(field.keyPath) ?? ""
+            if let user = vm.draftUser {
+                text = user[keyPath: field.keyPath]
+            }
             focused = true
         }
         .flowNavigation()
-        .onChange(of: text) { Task { try await vm.updateUser(values: [field.key : text])} }
+        .onChange(of: text) { vm.set(field.key, field.keyPath, to: text) }
     }
 }

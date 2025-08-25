@@ -8,41 +8,44 @@ import SwiftUI
 
 struct InfoView: View {
     
-    @Binding var vm: EditProfileViewModel
+    @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
     
     
     private var coreInfo: [EditPreview] {
-        let u = vm.user
+        guard let u = vm.draftUser else { return [] }
+
         return [
-            EditPreview("Name", [u.name ?? ""]) {
-                       TextFieldEdit(vm: $vm, field: .name)
+            EditPreview("Name", [u.name]) {
+                       TextFieldEdit(vm: vm, field: .name)
                    },
-                   EditPreview("Sex", [u.sex ?? ""]) {
-                       OptionEditView(vm: $vm, field: .sex)
+            EditPreview("Sex", [u.sex]) {
+                       OptionEditView(vm: vm, field: .sex)
                    },
-                   EditPreview("Attracted To", [u.attractedTo ?? ""]) {
-                       OptionEditView(vm: $vm, field: .attractedTo)
+            EditPreview("Attracted To", [u.attractedTo]) {
+                       OptionEditView(vm: vm, field: .attractedTo)
                    },
-                   EditPreview("Year", [u.year ?? ""]) {
-                       OptionEditView(vm: $vm, field: .year)
+            EditPreview("Year", [u.year]) {
+                       OptionEditView(vm: vm, field: .year)
                    },
-                   EditPreview("Height", [u.height ?? ""]) {
-                       EditHeight(vm: $vm)
+            EditPreview("Height", [u.height]) {
+                       EditHeight(vm: vm)
                    },
-                   EditPreview("Nationality", [u.nationality?.joined(separator: ", ") ?? ""]) {
-                       EditNationality(vm: $vm)
-                   }
+                   EditPreview("Nationality", [u.nationality.joined(separator: ", ")]) {
+                       EditNationality(vm: vm)
+                }
         ]
     }
+    
+    
     private var aboutMe: [EditPreview] {
-        let u = vm.user
+        guard let u = vm.draftUser else { return [] }
 
         let lifestyle =
-        "Drinking: \(u.drinking?.lowercased() ?? "-"), " +
-        "Smoking: \(u.smoking?.lowercased() ?? "-"), " +
-        "Marijuana: \(u.marijuana?.lowercased() ?? "-"), " +
-        "Drugs: \(u.drugs?.lowercased() ?? "-")"
+        "Drinking: \(u.drinking.lowercased()), " +
+        "Smoking: \(u.smoking.lowercased()), " +
+        "Marijuana: \(u.marijuana.lowercased()), " +
+        "Drugs: \(u.drugs.lowercased())"
         
         let myLifeAs: [String] = {
             let choices = [
@@ -54,23 +57,24 @@ struct InfoView: View {
         }()
         
         return [
-            EditPreview("Looking For", [u.lookingFor ?? ""]) {
-                OptionEditView(vm: $vm, field: .lookingFor)
+            EditPreview("Looking For", [u.lookingFor]) {
+                OptionEditView(vm: vm, field: .lookingFor)
             },
-            EditPreview("Degree", [u.degree ?? ""]) {
-                TextFieldEdit(vm: $vm, field: .degree)
+            EditPreview("Degree", [u.degree]) {
+                TextFieldEdit(vm: vm, field: .degree)
             },
-            EditPreview("Hometown", [u.hometown ?? ""]) {
-                TextFieldEdit(vm: $vm, field: .hometown)
+            EditPreview("Hometown", [u.hometown]) {
+                TextFieldEdit(vm: vm, field: .hometown)
             },
+            
             EditPreview("Lifestyle", [lifestyle]) {
-                EditLifestyle()
+                EditLifestyle(vm: vm)
             },
             EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")]) {
-                EditMyLifeAs()
+                EditMyLifeAs(vm: vm)
             },
-            EditPreview("Languages", [u.languages ?? ""]) {
-                TextFieldEdit(vm: $vm, field: .languages)
+            EditPreview("Languages", [u.languages]) {
+                TextFieldEdit(vm: vm, field: .languages)
             }
         ]
     }

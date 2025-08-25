@@ -71,7 +71,7 @@ final class CycleManager {
         let docRef = try cycleCollection(userId: userId).addDocument(from: cycle)
         let id = docRef.documentID
         try await createRecommendedProfiles(userId: userId, cycleId: id)
-        try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: id])
+        try await userManager.updateUser(values: [UserProfile.Field.activeCycleId: id])
         return id
     }
     
@@ -89,7 +89,7 @@ final class CycleManager {
     func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
         cycleDocument(userId: userId, cycleId: cycleId).updateData(data)
     }
-    
+
     
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
@@ -129,6 +129,6 @@ final class CycleManager {
     
     func deleteCycle(userId: String, cycleId: String) async throws {
         updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.closed.rawValue])
-        try await userManager.updateUser(values: [UserProfile.CodingKeys.activeCycleId: FieldValue.delete()])
+        try await userManager.updateUser(values: [UserProfile.Field.activeCycleId: FieldValue.delete()])
     }
 }
