@@ -54,12 +54,12 @@ struct LimitedAccessView: View {
                         if dep.defaultsManager.onboardingStep == 0 {
                             Text("Are you sure you want to sign Out?")
                         } else {
-                            Text("Are you sure you want to sign Out?, Your Progress will be lost")
+                            Text("Are you sure you want to sign Out? Your Progress will be lost.")
                         }
                     }
                 }
             }
-            ActionButton(text: (dep.defaultsManager.onboardingStep == 0) ? "Create Profile" : "Complete\(dep.defaultsManager.onboardingStep)/10") {
+            ActionButton(text: (dep.defaultsManager.onboardingStep == 0) ? "Create Profile" : "Complete \(dep.defaultsManager.onboardingStep)/10") {
                 showOnboarding = true
             }
             .padding(.top, 420)
@@ -109,6 +109,8 @@ struct LimitedAccessPage: View {
                 .padding(.horizontal, 32)
                 .font(.body(18, .medium))
         }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.top, 72)
         .overlay(alignment: .topTrailing) {
             if logOut {
                 LogOutButton {
@@ -116,8 +118,7 @@ struct LimitedAccessPage: View {
                 }
             }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 72)
+        .padding(.top, 36)
     }
 }
 
@@ -144,7 +145,6 @@ struct LogOutButton : View {
                         .stroke(.black, lineWidth: 1)
                 )
                 .padding(.horizontal, 16)
-                .offset(y: -48)
         }
     }
 }
