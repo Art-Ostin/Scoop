@@ -78,6 +78,50 @@
             endingLineNumber = "30"
             landmarkName = "fetchFirstImage()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "7089D2B9-2E77-44DF-8DAE-B4C5106053DE - f32c321359d9589"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for ScoopTest.MatchesViewModel.fetchFirstImage() async throws -&gt; __C.UIImage"
+                  moduleName = "ScoopTest.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/napoleon/Documents/code/ScoopTest/ScoopTest/Main/Matches/MatchesViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "30"
+                  endingLineNumber = "30">
+               </Location>
+               <Location
+                  uuid = "7089D2B9-2E77-44DF-8DAE-B4C5106053DE - 6aad19974bf6598f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for ScoopTest.MatchesViewModel.fetchFirstImage() async throws -&gt; __C.UIImage"
+                  moduleName = "ScoopTest.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/napoleon/Documents/code/ScoopTest/ScoopTest/Main/Matches/MatchesViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "30"
+                  endingLineNumber = "30">
+               </Location>
+               <Location
+                  uuid = "7089D2B9-2E77-44DF-8DAE-B4C5106053DE - c49744b056e2bb8e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for ScoopTest.MatchesViewModel.fetchFirstImage() async throws -&gt; __C.UIImage"
+                  moduleName = "ScoopTest.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/napoleon/Documents/code/ScoopTest/ScoopTest/Main/Matches/MatchesViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "30"
+                  endingLineNumber = "30">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -27,8 +27,7 @@ import UIKit
     }
     
     func fetchFirstImage() async throws -> UIImage {
-        let profile = s.user
-        return try await cacheManager.fetchFirstImage(profile: profile) ?? UIImage()
+        return try await cacheManager.fetchFirstImage(profile: s.user) ?? UIImage()
     }
     var user: UserProfile { s.user }
 }

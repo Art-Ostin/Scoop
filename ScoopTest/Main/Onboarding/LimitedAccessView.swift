@@ -3,10 +3,11 @@ import SwiftUI
 struct LimitedAccessView: View {
     
     @Environment(\.appDependencies) private var dep
-    @Binding var appState: AppState
-
+    @Environment(\.appState) private var appState
     @State var showOnboarding = false
     @State var current: Int = 0
+    
+    @State var showAlert: Bool = false
     
     var body: some View {
         
@@ -32,13 +33,10 @@ struct LimitedAccessView: View {
                     ZStack {
                         Color.background.ignoresSafeArea()
                         LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here") {
-                            Task {
-                                appState = .login
-                                try? await dep.authManager.deleteAuthUser()
-                            }                            
+                            showAlert = true
                         }
-                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                            .toolbarBackground(Color.background, for: .tabBar)
+                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                        .toolbarBackground(Color.background, for: .tabBar)
                     }
                 }
             }
@@ -50,11 +48,25 @@ struct LimitedAccessView: View {
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)
         }
-        .task {
-            await dep.sessionManager.loadUser()
-        }
+        .alert("Sign Out", isPresented: $showAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Sign Out") {
+                Task {
+                    appState.wrappedValue = .login
+                    try? await dep.authManager.deleteAuthUser()
+                    dep.defaultsManager.deleteDefaults()
+                }
+            }
+        } message: {
+            if dep.defaultsManager.onboardingStep == 0 {
+                Text("Are you sure you want to sign Out?")
+            } else {
+                Text("Are you sure you want to sign Out?, Your Progress will be lost")
+            }
+        }.tint(.blue)
     }
 }
+
 
 #Preview {
     LimitedAccessView()
