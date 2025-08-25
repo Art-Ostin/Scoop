@@ -48,9 +48,8 @@ struct InterestsLayout: View {
     
     @Bindable var vm: EditProfileViewModel
     
-    var passions: [String] {
-        vm.draftUser?.interests ?? []
-    }
+    
+    @State var passions: [String] = []
     
     
     private var rows: [[String]] {
@@ -78,6 +77,13 @@ struct InterestsLayout: View {
                     Divider()
                 }
             }
+        }
+        .onAppear {
+            guard let user = vm.draftUser else {
+                print("No passions here")
+                return
+            }
+            self.passions = user.interests
         }
         .padding()
         .font(.body())

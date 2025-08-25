@@ -123,7 +123,6 @@ struct ImageSlot: Equatable {
     }
     
     func saveUpdatedImages() async throws {
-        let draft: DraftProfile
         let updates = updatedImages
         let snapshotSlots = slots
         var paths = user.imagePath
@@ -200,18 +199,19 @@ struct ImageSlot: Equatable {
         var u = defaultProfile?.imagePathURL ?? []
         if p.count < 6 { p += Array(repeating: "", count: 6 - p.count) }
         if u.count < 6 { u += Array(repeating: "", count: 6 - u.count) }
-
+        
         p[index] = path
         u[index] = url.absoluteString
-
+        
         saveDraft(_kp: \.imagePath, to: p)
         saveDraft(_kp: \.imagePathURL, to: u)
-
+        
         if slots.indices.contains(index) {
             slots[index].path = path
             slots[index].url  = url
         }
     }
+    
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
