@@ -117,11 +117,15 @@ struct InterestSection: View {
             .padding(.bottom, 16)
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 OptionCell(text: input, selection: $selected) { text in
-                    selected.contains(text)
-                        ? selected.removeAll(where: { $0 == text })
-                        : (selected.count < 10 ? selected.append(text) : nil)
-                    Task {
-                        vm.setArray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
+                    if vm.draftUser != nil {
+                        selected.contains(text)
+                            ? selected.removeAll(where: { $0 == text })
+                            : (selected.count < 10 ? selected.append(text) : nil)
+                        Task {
+                            vm.setArray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
+                        }
+                    } else {
+                        vm.toggleDraftStorage(text)
                     }
                 }
             }

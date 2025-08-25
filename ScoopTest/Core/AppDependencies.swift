@@ -26,7 +26,8 @@ final class AppDependencies {
             cacheManager: cacheManager,
             userManager: userManager,
             cycleManager: cycleManager,
-            authManager: authManager
+            authManager: authManager,
+            defaultManager: defaultsManager
         )
     }()
     

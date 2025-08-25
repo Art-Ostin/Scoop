@@ -22,7 +22,6 @@ import FirebaseAuth
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
     
-    
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.onboardingStep = defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0
@@ -54,6 +53,12 @@ import FirebaseAuth
         if let draftProfile = fetch() {
             print("Saved draft profile: \(draftProfile)")
         }
+    }
+    
+    func deleteDefaults() {
+        defaults.removeObject(forKey: Keys.onboardingStep.rawValue)
+        defaults.removeObject(forKey: Keys.draftProfile.rawValue)
+        onboardingStep = 0
     }
     
     func advanceOnboarding() { onboardingStep += 1 }

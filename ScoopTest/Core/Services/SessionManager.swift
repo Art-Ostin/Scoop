@@ -24,18 +24,20 @@ struct Session  {
     private let userManager: UserManager
     private let cycleManager: CycleManager
     private let authManager: AuthManaging
+    private let defaultManager: DefaultsManager
     
     private(set) var session: Session?
     
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
 
-    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging) {
+    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.cycleManager = cycleManager
         self.authManager = authManager
+        self.defaultManager = defaultManager
     }
 
     var profiles: [ProfileModel] = []
@@ -52,12 +54,16 @@ struct Session  {
     @discardableResult
     func loadUser() async -> AppState {
         guard
-            let uid = authManager.fetchAuthUser(),
-            let user = try? await userManager.fetchUser(userId: uid)
-        else { return .login }
+            let uid = authManager.fetchAuthUser()
+        else {
+            defaultManager.deleteDefaults()
+            return .login
+        }
+        guard let user = try? await userManager.fetchUser(userId: uid) else {
+            print("User not found")
+            return .createAccount
+        }
         startSession(user: user)
-//        guard user.accountComplete else { return .createAccount }
-
         Task {
             await cacheManager.loadProfileImages([user])
             print("images added to Cache")

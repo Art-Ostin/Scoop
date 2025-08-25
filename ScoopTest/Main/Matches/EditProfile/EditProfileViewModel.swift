@@ -276,4 +276,14 @@ struct ImageSlot: Equatable {
         defaults.update(kp, to: value)
         print("saved")
     }
+
+    var draftStorage: [String] = []
+    
+    func toggleDraftStorage(_ string: String) {
+        if draftStorage.contains(string) {
+            draftStorage.removeAll(where: {$0 == string})
+        } else if draftStorage.count < 10 {
+            draftStorage.append(string)
+        }
+    }
 }
