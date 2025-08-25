@@ -113,7 +113,10 @@ extension EditNationality {
     @ViewBuilder private var nextButton: some View {
         if case .onboarding(_, let advance) = mode {
             NextButton(isEnabled: vm.selectedCountries.count > 0) {
-                withAnimation { advance()}
+                withAnimation {
+                    advance()
+                    vm.saveDraft(_kp: \.nationality, to: vm.selectedCountries)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding()

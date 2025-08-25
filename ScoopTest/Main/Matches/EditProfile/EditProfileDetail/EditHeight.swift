@@ -32,6 +32,7 @@ struct EditHeight: View {
                 if case .onboarding(_, let advance) = mode {
                     NextButton(isEnabled: true) {
                         advance()
+                        vm.saveDraft(_kp: \.height, to: height)
                     }
                 }
             }

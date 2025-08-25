@@ -50,7 +50,10 @@ struct EditInterests: View {
             }
             .padding(.top, 12)
             if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: selected.count > 3) {advance()}
+                NextButton(isEnabled: selected.count > 3) {
+                    advance()
+                    vm.saveDraft(_kp: \.interests, to: selected)
+                }
             }
         }
         .flowNavigation()
