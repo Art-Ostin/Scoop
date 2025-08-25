@@ -27,13 +27,13 @@ struct MatchesView: View {
                 Image("DancingCats")
                 
                 Text(vm.user.name)
-                
-                
+
                 Text("View your past Meet Ups Here")
                     .font(.body(20))
                 
                 ActionButton(text: "Sign Out") {
                     try? vm.authManager.signOutAuthUser()
+                    vm.defaultsManager.deleteDefaults()
                     appState.wrappedValue = .login
                 }
                 .navigationTitle("Matches")

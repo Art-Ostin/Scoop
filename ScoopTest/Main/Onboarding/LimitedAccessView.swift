@@ -21,6 +21,7 @@ struct LimitedAccessView: View {
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
                 }
+
                 Tab("", image: "LogoIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
@@ -29,14 +30,32 @@ struct LimitedAccessView: View {
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
                 }
+                
                 Tab("", image: "MessageIcon") {
                     ZStack {
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here") {
+                        LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here")
+                        {
                             showAlert = true
                         }
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
+                    }
+                    .alert("Sign Out", isPresented: $showAlert) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Sign Out") {
+                            Task {
+                                appState.wrappedValue = .login
+                                try? await dep.authManager.deleteAuthUser()
+                                dep.defaultsManager.deleteDefaults()
+                            }
+                        }
+                    } message: {
+                        if dep.defaultsManager.onboardingStep == 0 {
+                            Text("Are you sure you want to sign Out?")
+                        } else {
+                            Text("Are you sure you want to sign Out?, Your Progress will be lost")
+                        }
                     }
                 }
             }
@@ -48,25 +67,9 @@ struct LimitedAccessView: View {
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)
         }
-        .alert("Sign Out", isPresented: $showAlert) {
-            Button("Cancel", role: .cancel) {}
-            Button("Sign Out") {
-                Task {
-                    appState.wrappedValue = .login
-                    try? await dep.authManager.deleteAuthUser()
-                    dep.defaultsManager.deleteDefaults()
-                }
-            }
-        } message: {
-            if dep.defaultsManager.onboardingStep == 0 {
-                Text("Are you sure you want to sign Out?")
-            } else {
-                Text("Are you sure you want to sign Out?, Your Progress will be lost")
-            }
-        }.tint(.blue)
+
     }
 }
-
 
 #Preview {
     LimitedAccessView()
@@ -106,9 +109,11 @@ struct LimitedAccessPage: View {
                 .padding(.horizontal, 32)
                 .font(.body(18, .medium))
         }
-        .overlay(alignment: .topLeading) {
-            LogOutButton {
-                onTap()
+        .overlay(alignment: .topTrailing) {
+            if logOut {
+                LogOutButton {
+                    onTap()
+                }
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
@@ -122,17 +127,24 @@ struct LogOutButton : View {
     
     var body: some View {
         
-        Text("Sign Out")
-            .font(.body(14, .bold))
-            .padding(8)
-            .background (
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white )
-            )
-            .overlay (
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(.black, lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+        Button {
+            onTap()
+        } label : {
+            Text("Sign out")
+                .font(.body(14, .bold))
+                .padding(8)
+                .foregroundStyle(.black)
+                .background (
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white )
+                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                )
+                .overlay (
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(.black, lineWidth: 1)
+                )
+                .padding(.horizontal, 16)
+                .offset(y: -48)
+        }
     }
 }
