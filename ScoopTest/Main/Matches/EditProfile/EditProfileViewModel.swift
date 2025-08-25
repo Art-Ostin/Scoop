@@ -94,6 +94,7 @@ struct ImageSlot: Equatable {
     
     @MainActor
     func assignSlots() async {
+        
         let paths = s.user.imagePath
         let urlStrings = s.user.imagePathURL
         let urls = urlStrings.compactMap(URL.init(string:))
@@ -111,6 +112,9 @@ struct ImageSlot: Equatable {
         images = newImages
     }
     
+    
+    
+    
     var updatedImages: [(index: Int, data: Data)] = []
     
     func loadUser() async {
@@ -119,7 +123,7 @@ struct ImageSlot: Equatable {
     }
     
     func saveUpdatedImages() async throws {
-        
+        let draft: DraftProfile
         let updates = updatedImages
         let snapshotSlots = slots
         var paths = user.imagePath
@@ -156,14 +160,13 @@ struct ImageSlot: Equatable {
         try await userManager.updateUser(values: [.imagePath: paths, .imagePathURL: urls])
     }
     
-    
-    func changeImage(at index: Int) async throws {
+    func changeImage(at index: Int, onboarding: Bool = false) async throws {
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
             let uiImage = UIImage(data: data)
         else { return }
-        
+
         await MainActor.run {
             if images.indices.contains(index) { images[index] = uiImage }
         }
@@ -172,6 +175,41 @@ struct ImageSlot: Equatable {
             updatedImages[i] = (index: index, data: data)
         } else {
             updatedImages.append((index: index, data: data))
+        }
+        
+        if onboarding {
+            if let oldURL = slots[index].url { cacheManager.removeImage(for: oldURL) }
+            if let oldPath = slots[index].path { try? await storageManager.deleteImage(path: oldPath)}
+            
+
+            if let draftProfile = defaults.fetch() {
+                let id = draftProfile.id
+                
+                
+                let originalPath = try await storageManager.saveImage(data: data, userId: id)
+                let url = try await storageManager.getImageURL(path: originalPath)
+
+                let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+                setDraftImage(at: index, path: resizedPath, url: url)
+            }
+        }
+    }
+    
+    private func setDraftImage(at index: Int, path: String, url: URL) {
+        var p = defaultProfile?.imagePath ?? []
+        var u = defaultProfile?.imagePathURL ?? []
+        if p.count < 6 { p += Array(repeating: "", count: 6 - p.count) }
+        if u.count < 6 { u += Array(repeating: "", count: 6 - u.count) }
+
+        p[index] = path
+        u[index] = url.absoluteString
+
+        saveDraft(_kp: \.imagePath, to: p)
+        saveDraft(_kp: \.imagePathURL, to: u)
+
+        if slots.indices.contains(index) {
+            slots[index].path = path
+            slots[index].url  = url
         }
     }
     
@@ -221,17 +259,14 @@ struct ImageSlot: Equatable {
     }
     
     func fetchNationality() {
-        guard var draftUser else {return}
+        guard let draftUser else {return}
         selectedCountries = draftUser.nationality
     }
     
     
     //Onboarding Functions
     
-    
     var defaultProfile: DraftProfile? { defaults.fetch() }
-    
-    
     
     func createUserProfile(draft: DraftProfile) async throws  {
         try await userManager.createUser(draft: draft)

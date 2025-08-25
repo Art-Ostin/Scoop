@@ -29,11 +29,10 @@ struct AddImageView: View {
             LazyVGrid(columns: columns, spacing: 36) {
                 ForEach(0..<6) {idx in
                     EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
-                        try await vm.changeImage(at: idx)
+                        try await vm.changeImage(at: idx, onboarding: true)
                     }
                 }
             }
-            
             ActionButton(isValid: vm.isValid, text: "Complete") {
                 appState.wrappedValue = .app
                 vm.s.showProfiles = false
