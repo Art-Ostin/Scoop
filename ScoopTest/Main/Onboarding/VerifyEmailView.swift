@@ -84,7 +84,6 @@ struct VerifyEmailView: View {
             HStack(spacing: 48) {
                 Text("\(vm.email)")
                     .foregroundStyle(Color.grayText)
-                
                 UILogic.resendEmail()
             }
             .font(.body())

@@ -37,7 +37,6 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Settings")
             .background(Color(red: 0.97, green: 0.98, blue: 0.98))
-
         }
     }
     

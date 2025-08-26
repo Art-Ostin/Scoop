@@ -64,7 +64,6 @@ struct Session  {
                     appState.wrappedValue = .login // Logsin User
                     userStreamTask?.cancel()
                     defaultManager.deleteDefaults()
-                    session = nil
                     continue
                 }
                 
