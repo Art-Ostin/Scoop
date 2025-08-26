@@ -18,6 +18,9 @@ struct Bootstrapper {
         
         let state = await s.loadUser()
         if state == .app {
+            
+            s.watchAuthState(appState: $appState)
+            
             async let events: ()  = s.loadEvents()
             async let invites: ()  = s.loadInvites()
             async let profiles: () = s.loadProfiles()

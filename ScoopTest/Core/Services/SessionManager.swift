@@ -16,6 +16,8 @@ struct Session  {
     var activeCycle: CycleModel?
 }
 
+
+
 @MainActor
 @Observable class SessionManager {
 
@@ -33,7 +35,7 @@ struct Session  {
         
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
-
+   
     init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
@@ -49,6 +51,16 @@ struct Session  {
     
     var user: UserProfile { session!.user }
     var activeCycle: CycleModel? { session?.activeCycle }
+
+
+        func stopAllStreams() {
+            authStreamTask?.cancel()
+            userStreamTask?.cancel()
+            authStreamTask = nil
+            userStreamTask = nil
+        }
+    
+        deinit { stopAllStreams() }
     
     
     
@@ -170,8 +182,4 @@ struct Session  {
     }
 }
 
-extension SessionManager {
-    
-    
-}
 
