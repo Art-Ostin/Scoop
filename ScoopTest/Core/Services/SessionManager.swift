@@ -53,34 +53,46 @@ struct Session  {
         return session.user
     }
     
-    func watchAuthState(appState: Binding<AppState>) {
+    
+    
+    
+    func AuthUserListener(appState: Binding<AppState>) {
         authStreamTask?.cancel()
         authStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
-                print("stream called")
-                if let uid {
-                    if let user = try? await userManager.fetchUser(userId: uid) {
-                        if session == nil { startSession(user: user)}
-                        appState.wrappedValue = .app
-                    } else {
-                        session = nil
-                        appState.wrappedValue = .createAccount
-                    }
-                } else {
-                    appState.wrappedValue = .login
-                    print("listener cancelled")
+                
+                guard let uid else {
+                    appState.wrappedValue = .login // Logsin User
                     userStreamTask?.cancel()
                     defaultManager.deleteDefaults()
                     session = nil
+                    return
                 }
+                
+                guard let user = try? await userManager.fetchUser(userId: uid) else {
+                    appState.wrappedValue = .createAccount
+                    session = nil
+                    return
+                }
+                
+                if session == nil { startSession(user: user)}
+                appState.wrappedValue = .app
             }
         }
     }
     
-    
+    // I want to start the app Listeners and call all the PreFetch Functions upon Launch 
     func startSession(user: UserProfile) {
         session = Session(user: user)
         userStreamTask?.cancel()
+        
+        Task {
+            async let events: ()  = loadEvents()
+            async let invites: ()  = loadInvites()
+            async let profiles: () = loadProfiles()
+            _ = await (events, invites, profiles)
+            await cacheManager.loadProfileImages([user])
+        }
         
         userStreamTask = Task { @MainActor in
                 do {
@@ -92,27 +104,6 @@ struct Session  {
                     print(error)
                 }
         }
-    }
-    
-    @discardableResult
-    func loadUser() async -> AppState {
-        guard
-            let uid = await authManager.fetchAuthUser()
-        else {
-            defaultManager.deleteDefaults()
-            return .login
-        }
-        guard let user = try? await userManager.fetchUser(userId: uid) else {
-            print("User not found")
-            return .createAccount
-        }
-        startSession(user: user)
-        Task {
-            await cacheManager.loadProfileImages([user])
-            print("images added to Cache")
-            print(user.imagePathURL)
-        }
-        return .app
     }
     
     
@@ -177,3 +168,28 @@ struct Session  {
 }
 
 
+/*
+ @discardableResult
+ func loadUser() async -> AppState {
+     guard
+         let uid = await authManager.fetchAuthUser()
+     else {
+         defaultManager.deleteDefaults()
+         return .login
+     }
+     guard let user = try? await userManager.fetchUser(userId: uid) else {
+         print("User not found")
+         return .createAccount
+     }
+     startSession(user: user)
+     Task {
+         await cacheManager.loadProfileImages([user])
+         print("images added to Cache")
+         print(user.imagePathURL)
+     }
+     return .app
+ }
+
+
+ 
+ */

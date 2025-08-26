@@ -24,10 +24,8 @@ struct ScoopTestApp: App {
         WindowGroup {
             RootView()
                 .appDependencies(dep)
-                .environment(\.appState, $appState)
                 .task {
-                    let bootstrapper = Bootstrapper(appState: $appState, s: dep.sessionManager)
-                    await bootstrapper.start()
+                    dep.sessionManager.AuthUserListener(appState: $appState)
             }
         }
     }

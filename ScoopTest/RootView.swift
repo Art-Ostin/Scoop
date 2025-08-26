@@ -30,11 +30,6 @@ struct RootView : View {
                 LimitedAccessView()
                 
             case .app:
-                if dep.sessionManager.session == nil {
-                    
-                }
-                
-                
                 if dep.sessionManager.session != nil {
                     AppContainer()
                     .id(dep.sessionManager.user.id)
