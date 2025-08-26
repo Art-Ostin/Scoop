@@ -44,5 +44,6 @@ import FirebaseAuth
     
     func signInUser(email: String, password: String) async throws {
         try await authManager.signInAuthUser(email: email, password: password)
+        print("Signed in User 1")
     }
 }

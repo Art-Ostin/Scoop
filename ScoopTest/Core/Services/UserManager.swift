@@ -25,7 +25,7 @@ class UserManager {
         return profileUser
     }
     
-    
+
     func updateUser(values: [UserProfile.Field : Any]) async throws {
         guard let uid = await auth.fetchAuthUser() else {return}
         var data: [String: Any] = [:]

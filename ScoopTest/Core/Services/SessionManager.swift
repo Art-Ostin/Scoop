@@ -54,7 +54,6 @@ struct Session  {
         return session.user
     }
     
-    
     func AuthUserListener(appState: Binding<AppState>) {
         print("Call to start session")
         authStreamTask?.cancel()
@@ -66,13 +65,13 @@ struct Session  {
                     userStreamTask?.cancel()
                     defaultManager.deleteDefaults()
                     session = nil
-                    return
+                    continue
                 }
                 
                 guard let user = try? await userManager.fetchUser(userId: uid) else {
                     appState.wrappedValue = .createAccount
                     session = nil
-                    return
+                    continue
                 }
                 await startSession(user: user)
                 appState.wrappedValue = .app
@@ -106,9 +105,6 @@ struct Session  {
             }
         }
     }
-
-    
-    
     
     func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
@@ -171,6 +167,8 @@ struct Session  {
 }
 
 
+
+
 /*
  @discardableResult
  func loadUser() async -> AppState {
@@ -192,7 +190,4 @@ struct Session  {
      }
      return .app
  }
-
-
- 
  */
