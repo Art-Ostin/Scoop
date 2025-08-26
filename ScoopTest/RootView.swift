@@ -11,7 +11,7 @@ enum AppState {
 }
 
 struct RootView : View {
-
+    
     @Environment(\.appState) private var state
     @Environment(\.appDependencies) private var dep
     
@@ -30,11 +30,12 @@ struct RootView : View {
                 LimitedAccessView()
                 
             case .app:
-                if dep.sessionManager.session != nil {
+                if let s = dep.sessionManager.session {
                     AppContainer()
-                    .id(dep.sessionManager.user.id)
+                        .id(s.user.id)
                 }
             }
         }
     }
 }
+

@@ -261,13 +261,6 @@ struct ImageSlot: Equatable {
     
     var draftProfile: DraftProfile? { defaults.fetch() }
     
-    func createUserProfile(draft: DraftProfile) async throws -> UserProfile {
-        return try await userManager.createUser(draft: draft)
-    }
-    
-    func startSession(user: UserProfile) {
-        s.startSession(user: user)
-    }
     
     func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
         defaults.update(kp, to: value)

@@ -34,17 +34,11 @@ struct AddImageView: View {
                     }
                 }
             }
+            
             ActionButton(isValid: vm.isValid, text: "Complete") {
-                if let draftUser = vm.draftProfile {
-                    Task {
-                        do {
-                            let user = try await vm.createUserProfile(draft: draftUser)
-                            vm.startSession(user: user)
-                            appState.wrappedValue = .app
-                            vm.s.showProfiles = false
-                        } catch {
-                            print(error)
-                        }
+                Task {
+                    if let draftUser = vm.draftProfile {
+                        try await vm.userManager.createUser(draft: draftUser)
                     }
                 }
             }

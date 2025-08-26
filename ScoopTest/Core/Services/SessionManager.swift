@@ -18,7 +18,7 @@ struct Session  {
 
 @MainActor
 @Observable class SessionManager {
-
+    
     private let eventManager: EventManager
     private let cacheManager: CacheManaging
     private let userManager: UserManager
@@ -27,12 +27,13 @@ struct Session  {
     private let defaultManager: DefaultsManager
     
     private(set) var session: Session?
+        
     private var userStreamTask: Task<Void, Never>?
     private var authStreamTask: Task<Void, Never>?
-
+    
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
-   
+    
     init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
@@ -41,7 +42,7 @@ struct Session  {
         self.authManager = authManager
         self.defaultManager = defaultManager
     }
-
+    
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
     var events: [UserEvent] = []
@@ -52,8 +53,6 @@ struct Session  {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
-    
-    
     
     
     func AuthUserListener(appState: Binding<AppState>) {
@@ -74,37 +73,40 @@ struct Session  {
                     session = nil
                     return
                 }
-                
-                if session == nil { startSession(user: user)}
+                await startSession(user: user)
                 appState.wrappedValue = .app
             }
         }
     }
     
-    // I want to start the app Listeners and call all the PreFetch Functions upon Launch 
-    func startSession(user: UserProfile) {
+    
+    func startSession(user: UserProfile) async {
         session = Session(user: user)
         userStreamTask?.cancel()
         
-        Task {
-            async let events: ()  = loadEvents()
-            async let invites: ()  = loadInvites()
-            async let profiles: () = loadProfiles()
-            _ = await (events, invites, profiles)
-            await cacheManager.loadProfileImages([user])
-        }
+        async let events: ()  = loadEvents()
+        async let invites: ()  = loadInvites()
+        async let profiles: () = loadProfiles()
+        _ = await (events, invites, profiles)
+        Task { await cacheManager.loadProfileImages([user]) }
         
+        startUserStream(for: user.id)
+    }
+    
+    private func startUserStream(for userId: String) {
         userStreamTask = Task { @MainActor in
-                do {
-                    for try await profile in userManager.userListener(userId: user.id) {
-                        if let profile { self.session?.user = profile }
-                        else { break }
-                    }
-                } catch {
-                    print(error)
+            do {
+                for try await profile in userManager.userListener(userId: userId) {
+                    if let profile { self.session?.user = profile }
+                    else { break }
                 }
+            } catch {
+                print (error)
+            }
         }
     }
+    
+    
     
     
     func loadInvites() async {
@@ -114,7 +116,7 @@ struct Session  {
         self.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
-
+    
     
     
     func loadProfiles() async {
