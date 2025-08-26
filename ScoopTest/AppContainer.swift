@@ -35,11 +35,16 @@ struct AppContainer: View {
             }
             
             Tab("", image: "MessageIcon", value: 2) {
-                ZStack {
-                    Color.background.ignoresSafeArea()
-                    MatchesView(vm: MatchesViewModel(userManager: dep.userManager, cacheManager: dep.cacheManager, authManager: dep.authManager, storageManager: dep.storageManager, s: dep.sessionManager, defaultsManager: dep.defaultsManager))
-                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                        .toolbarBackground(Color.background, for: .tabBar)
+                if let user = dep.sessionManager.user2 {
+                    ZStack {
+                        Color.background.ignoresSafeArea()
+                        MatchesView(vm: MatchesViewModel(user: user, userManager: dep.userManager, cacheManager: dep.cacheManager, authManager: dep.authManager, storageManager: dep.storageManager, s: dep.sessionManager, defaultsManager: dep.defaultsManager))
+                            .id(user.id)
+                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                            .toolbarBackground(Color.background, for: .tabBar)
+                    }
+                } else {
+                    EmptyView()
                 }
             }
         }

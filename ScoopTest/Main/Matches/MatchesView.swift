@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Combine
+
 
 struct MatchesView: View {
     
@@ -31,9 +31,7 @@ struct MatchesView: View {
                 Text("View your past Meet Ups Here")
                     .font(.body(20))
                 
-                ActionButton(text: "Sign Out") {
-                    try? vm.authManager.signOutAuthUser()
-                }
+                ActionButton(text: "Sign Out") {vm.signOut()}
                 
                 .navigationTitle("Matches")
                 .toolbar {
@@ -42,6 +40,7 @@ struct MatchesView: View {
                             Image("GearIcon")
                         }
                     }
+                    
                     ToolbarItem(placement: .topBarTrailing) {
                         VStack {
                             CirclePhoto(image: image ?? UIImage())
@@ -51,10 +50,11 @@ struct MatchesView: View {
                 }
             }
         }
+        
         .fullScreenCover(isPresented: $showProfileView, content: {
             EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: dep.defaultsManager))
         })
-        .task {
+        .task(id: vm.user) {
             do {
                 image = try await vm.fetchFirstImage()
             } catch {

@@ -52,6 +52,7 @@ struct Session  {
     var user: UserProfile { session!.user }
     var activeCycle: CycleModel? { session?.activeCycle }
     
+    var user2: UserProfile? {session?.user}
     
     func watchAuthState(appState: Binding<AppState>) {
         authStreamTask?.cancel()
@@ -67,16 +68,15 @@ struct Session  {
                         appState.wrappedValue = .createAccount
                     }
                 } else {
+                    print("listener cancelled")
                     userStreamTask?.cancel()
+                    appState.wrappedValue = .login
                     session = nil
                     defaultManager.deleteDefaults()
-                    appState.wrappedValue = .login
                 }
             }
         }
     }
-    
-    
     
     func startSession(user: UserProfile) {
         session = Session(user: user)

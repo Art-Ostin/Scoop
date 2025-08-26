@@ -13,6 +13,7 @@ enum AppState {
 struct RootView : View {
 
     @Environment(\.appState) private var state
+    @Environment(\.appDependencies) private var dep
     
     var body: some View {
         
@@ -30,6 +31,7 @@ struct RootView : View {
                 
             case .app:
                 AppContainer()
+                    .id(dep.sessionManager.session?.user.id ?? "signed-out")
             }
         }
     }
