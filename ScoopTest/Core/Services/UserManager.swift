@@ -19,13 +19,12 @@ class UserManager {
     private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
-    
-    @discardableResult
     func createUser (draft: DraftProfile) async throws -> UserProfile {
         let profileUser = UserProfile(draft: draft)
         try userDocument(userId: profileUser.id).setData(from: profileUser)
         return profileUser
     }
+    
     
     func updateUser(values: [UserProfile.Field : Any]) async throws {
         guard let uid = await auth.fetchAuthUser() else {return}

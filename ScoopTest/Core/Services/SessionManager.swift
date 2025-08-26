@@ -56,10 +56,11 @@ struct Session  {
     
     
     func AuthUserListener(appState: Binding<AppState>) {
+        print("Call to start session")
         authStreamTask?.cancel()
         authStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
-                
+                print("auth State called")
                 guard let uid else {
                     appState.wrappedValue = .login // Logsin User
                     userStreamTask?.cancel()

@@ -24,9 +24,8 @@ struct ScoopTestApp: App {
         WindowGroup {
             RootView()
                 .appDependencies(dep)
-                .task {
-                    dep.sessionManager.AuthUserListener(appState: $appState)
-            }
+                .task { dep.sessionManager.AuthUserListener(appState: $appState) }
+                .environment(\.appState, $appState)
         }
     }
 }
