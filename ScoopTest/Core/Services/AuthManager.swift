@@ -39,6 +39,7 @@ class AuthManager: AuthManaging {
         try await user.delete()
     }
     
+    
     func authStateStream() -> AsyncStream<String?> {
         AsyncStream { continuation in
             let handle = Auth.auth().addStateDidChangeListener { _, user in

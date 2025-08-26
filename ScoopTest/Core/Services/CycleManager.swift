@@ -127,6 +127,7 @@ final class CycleManager {
         ])
     }
     
+    
     func deleteCycle(userId: String, cycleId: String) async throws {
         updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.closed.rawValue])
         try await userManager.updateUser(values: [UserProfile.Field.activeCycleId: FieldValue.delete()])
