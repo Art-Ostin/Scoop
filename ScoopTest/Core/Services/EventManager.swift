@@ -103,6 +103,7 @@ class EventManager {
         batch.setData(edgeB, forDocument: recipientEdgeRef)
         
         try await batch.commit()
+        print("Event Created")
     }
     
     private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {

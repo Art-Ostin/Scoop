@@ -28,6 +28,7 @@ struct Session  {
     
     private(set) var session: Session?
     private var userStreamTask: Task<Void, Never>?
+    private var authStreamTask: Task<Void, Never>?
 
         
     var showProfiles: Bool = true
@@ -51,6 +52,30 @@ struct Session  {
     
     
     
+    func watchAuthState(appState: Binding<AppState>) {
+        authStreamTask?.cancel()
+        authStreamTask = Task { @MainActor in
+            for await uid in authManager.authStateStream() {
+                if let uid {
+                    if let user = try? await userManager.fetchUser(userId: uid) {
+                        if session == nil { startSession(user: user)}
+                        appState.wrappedValue = .app
+                    } else {
+                        session = nil
+                        appState.wrappedValue = .createAccount
+                    }
+                } else {
+                    userStreamTask?.cancel()
+                    session = nil
+                    defaultManager.deleteDefaults()
+                    appState.wrappedValue = .login
+                }
+            }
+        }
+    }
+    
+    
+    
     func startSession(user: UserProfile) {
         session = Session(user: user)
         userStreamTask?.cancel()
@@ -65,8 +90,6 @@ struct Session  {
                 }
         }
     }
-    
-    
     
     @discardableResult
     func loadUser() async -> AppState {
@@ -145,5 +168,10 @@ struct Session  {
             }
         }
     }
+}
+
+extension SessionManager {
+    
+    
 }
 

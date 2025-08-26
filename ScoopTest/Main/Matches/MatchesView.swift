@@ -32,9 +32,13 @@ struct MatchesView: View {
                     .font(.body(20))
                 
                 ActionButton(text: "Sign Out") {
-                    try? vm.authManager.signOutAuthUser()
-                    vm.defaultsManager.deleteDefaults()
-                    appState.wrappedValue = .login
+                    do {
+                        try vm.authManager.signOutAuthUser()
+                        vm.defaultsManager.deleteDefaults()
+                        appState.wrappedValue = .login
+                    } catch {
+                        print(error)
+                    }
                 }
                 .navigationTitle("Matches")
                 .toolbar {

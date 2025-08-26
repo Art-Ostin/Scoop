@@ -18,6 +18,7 @@ protocol AuthManaging {
     func fetchAuthUser () async -> String?
     func signOutAuthUser() throws
     func deleteAuthUser() async throws
+    func authStateStream() -> AsyncStream<String?>
 }
 
 protocol StorageManaging {

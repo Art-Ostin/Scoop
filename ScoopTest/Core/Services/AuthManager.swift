@@ -38,4 +38,15 @@ class AuthManager: AuthManaging {
         guard let user = Auth.auth().currentUser else { return }
         try await user.delete()
     }
+    
+    func authStateStream() -> AsyncStream<String?> {
+        AsyncStream { continuation in
+            let handle = Auth.auth().addStateDidChangeListener { _, user in
+                continuation.yield(user?.uid)
+            }
+            continuation.onTermination = { _ in
+                Auth.auth().removeStateDidChangeListener(handle)
+            }
+        }
+    }
 }
