@@ -17,22 +17,21 @@ import UIKit
     var storageManager: StorageManaging
     var s: SessionManager
     var defaultsManager: DefaultsManager
-    let user: UserProfile
     
-    init(user: UserProfile, userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, defaultsManager: DefaultsManager) {
+    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, defaultsManager: DefaultsManager) {
         self.userManager = userManager
         self.cacheManager = cacheManager
         self.authManager = authManager
         self.storageManager = storageManager
         self.s = s
         self.defaultsManager = defaultsManager
-        self.user = user
     }
     
     func fetchFirstImage() async throws -> UIImage {
         try await cacheManager.fetchFirstImage(profile: user) ?? UIImage()
     }
     
+    var user: UserProfile {s.user}
     
     func signOut() {
         try? authManager.signOutAuthUser()

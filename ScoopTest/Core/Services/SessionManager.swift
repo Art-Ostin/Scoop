@@ -46,10 +46,12 @@ struct Session  {
     var invites: [ProfileModel] = []
     var events: [UserEvent] = []
     
-    var user: UserProfile { session!.user }
     var activeCycle: CycleModel? { session?.activeCycle }
     
-    var user2: UserProfile? {session?.user}
+    var user: UserProfile {
+        guard let session else { fatalError("Session not started") }
+        return session.user
+    }
     
     func watchAuthState(appState: Binding<AppState>) {
         authStreamTask?.cancel()
@@ -112,6 +114,7 @@ struct Session  {
         }
         return .app
     }
+    
     
     func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }

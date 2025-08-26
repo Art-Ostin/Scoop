@@ -12,16 +12,14 @@ struct MatchesView: View {
     
     @Environment(\.appState) private var appState
     
-    @State var vm: MatchesViewModel?
+    @State var vm: MatchesViewModel
     @State var showProfileView = false
     @State var image: UIImage?
     
     init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
 
     var body: some View {
-        
-        guard let vm = vm else { return EmptyView()}
-        
+                
         NavigationStack {
             VStack(spacing: 32) {
                 Image("DancingCats")

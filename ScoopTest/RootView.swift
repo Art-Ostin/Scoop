@@ -30,8 +30,15 @@ struct RootView : View {
                 LimitedAccessView()
                 
             case .app:
-                AppContainer()
-                    .id(dep.sessionManager.session?.user.id ?? "signed-out")
+                if dep.sessionManager.session == nil {
+                    
+                }
+                
+                
+                if dep.sessionManager.session != nil {
+                    AppContainer()
+                    .id(dep.sessionManager.user.id)
+                }
             }
         }
     }
