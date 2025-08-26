@@ -16,8 +16,6 @@ struct Session  {
     var activeCycle: CycleModel?
 }
 
-
-
 @MainActor
 @Observable class SessionManager {
 
@@ -32,7 +30,6 @@ struct Session  {
     private var userStreamTask: Task<Void, Never>?
     private var authStreamTask: Task<Void, Never>?
 
-        
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
    
@@ -68,19 +65,21 @@ struct Session  {
                         appState.wrappedValue = .createAccount
                     }
                 } else {
+                    appState.wrappedValue = .login
                     print("listener cancelled")
                     userStreamTask?.cancel()
-                    appState.wrappedValue = .login
-                    session = nil
                     defaultManager.deleteDefaults()
+                    session = nil
                 }
             }
         }
     }
     
+    
     func startSession(user: UserProfile) {
         session = Session(user: user)
         userStreamTask?.cancel()
+        
         userStreamTask = Task { @MainActor in
                 do {
                     for try await profile in userManager.userListener(userId: user.id) {
@@ -105,7 +104,6 @@ struct Session  {
             print("User not found")
             return .createAccount
         }
-        
         startSession(user: user)
         Task {
             await cacheManager.loadProfileImages([user])
@@ -122,6 +120,8 @@ struct Session  {
         self.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
+
+    
     
     func loadProfiles() async {
         await loadCycle() // IF not will always return closed
@@ -155,6 +155,7 @@ struct Session  {
         let cycle = try? await cycleManager.fetchCycle(userId: userId, cycleId: cycleId)
         session?.activeCycle = cycle
     }
+    
     
     func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in

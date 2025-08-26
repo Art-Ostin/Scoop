@@ -11,17 +11,17 @@ import SwiftUI
 struct MatchesView: View {
     
     @Environment(\.appState) private var appState
-    @Environment(\.appDependencies) private var dep
     
-    @State var vm: MatchesViewModel
+    @State var vm: MatchesViewModel?
     @State var showProfileView = false
     @State var image: UIImage?
     
-    init(vm: MatchesViewModel) {
-        _vm = State(initialValue: vm)
-    }
+    init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
 
     var body: some View {
+        
+        guard let vm = vm else { return EmptyView()}
+        
         NavigationStack {
             VStack(spacing: 32) {
                 Image("DancingCats")
@@ -50,9 +50,8 @@ struct MatchesView: View {
                 }
             }
         }
-        
         .fullScreenCover(isPresented: $showProfileView, content: {
-            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: dep.defaultsManager))
+            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: vm.defaultsManager))
         })
         .task(id: vm.user) {
             do {
