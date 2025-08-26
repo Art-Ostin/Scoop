@@ -55,11 +55,11 @@ struct Session  {
     }
     
     func AuthUserListener(appState: Binding<AppState>) {
-        print("Call to start session")
         authStreamTask?.cancel()
         authStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
                 print("auth State called")
+                
                 guard let uid else {
                     appState.wrappedValue = .login // Logsin User
                     userStreamTask?.cancel()
@@ -105,6 +105,8 @@ struct Session  {
         }
     }
     
+    
+    
     func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
         let input = events.map { (id: $0.otherUserId, event: $0) }
@@ -112,8 +114,7 @@ struct Session  {
         self.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
-    
-    
+
     
     func loadProfiles() async {
         await loadCycle() // IF not will always return closed

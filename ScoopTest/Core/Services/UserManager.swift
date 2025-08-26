@@ -25,7 +25,6 @@ class UserManager {
         return profileUser
     }
     
-
     func updateUser(values: [UserProfile.Field : Any]) async throws {
         guard let uid = await auth.fetchAuthUser() else {return}
         var data: [String: Any] = [:]
@@ -44,7 +43,6 @@ class UserManager {
     func fetchUser(userId: String) async throws -> UserProfile {
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
-
     
     func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error> {
         AsyncThrowingStream { continuation in

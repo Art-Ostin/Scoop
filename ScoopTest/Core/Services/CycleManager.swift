@@ -51,8 +51,20 @@ final class CycleManager {
             .getDocuments(as: RecommendationItem.self)
             .map(\.id)
     }
+
     
-    
+    func userRecsStream(userId: String, cycleId: String) -> AsyncThrowingStream<CycleModel?, Error> {
+        AsyncThrowingStream { continuation in
+            cycleDocument(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
+                if let error = error {continuation.finish(throwing: error) ; return }
+                guard let snap = snapshot else { return }
+                guard snap.exists else { continuation.yield(nil); return }
+                do{ continuation.yield(try snap.data(as: CycleModel.self))}
+                catch{continuation.finish(throwing: error) ; return }
+            }
+        }
+    }
+        
     
     @discardableResult
     func createCycle(userId: String) async throws -> String {

@@ -37,8 +37,7 @@ struct ImageSlot: Equatable {
         self.draftUser = draftUser
         self.defaults = defaults
     }
-    
-    
+
     var user: UserProfile { s.user }
     
     var updatedFields: [UserProfile.Field : Any] = [:]
@@ -153,6 +152,7 @@ struct ImageSlot: Equatable {
         try await userManager.updateUser(values: [.imagePath: paths, .imagePathURL: urls])
     }
     
+    
     func changeImage(at index: Int, onboarding: Bool = false) async throws {
         guard
             let selection = slots[index].pickerItem,
@@ -187,6 +187,7 @@ struct ImageSlot: Equatable {
             }
         }
     }
+    
     
     private func setDraftImage(at index: Int, path: String, url: URL) {
         var p = draftProfile?.imagePath ?? []
