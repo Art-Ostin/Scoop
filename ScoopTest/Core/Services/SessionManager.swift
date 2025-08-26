@@ -28,6 +28,8 @@ struct Session  {
     
     private(set) var session: Session?
     
+    private var userStreamTask: Task<Void, Never>?
+    
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
 
@@ -49,6 +51,13 @@ struct Session  {
     
     func startSession(user: UserProfile) {
         session = Session(user: user)
+        userStreamTask?.cancel()
+        userStreamTask = Task { [weak self] in
+            do {
+                for try await profile in userManager.userListener(userId: id) {
+                    await MainActor.run { self?.session?.user = profile }
+                }
+            }
     }
     
     @discardableResult
