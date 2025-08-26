@@ -39,7 +39,6 @@ struct EditProfileView: View {
                                 try await vm.saveUser()
                                 try await vm.saveUserArray()
                                 try await vm.saveUpdatedImages()
-                                await vm.loadUser()
                                 print("completed")
                             }
                         }

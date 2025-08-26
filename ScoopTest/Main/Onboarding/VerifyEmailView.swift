@@ -102,7 +102,6 @@ struct VerifyEmailView: View {
             try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
             do {
                 try await vm.signInUser(email: vm.email, password: vm.password)
-                await vm.sessionManager.loadUser()
                 return appState.wrappedValue = .app
             } catch {
                 guard let _ = try? await vm.createAuthUser(email: vm.email, password: vm.password) else {return}

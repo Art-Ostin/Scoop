@@ -40,7 +40,6 @@ import UIKit
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle(userId: s.user.id)
-        await s.loadUser()
         await s.loadCycle()
         await s.loadProfiles()
         s.showProfiles = true

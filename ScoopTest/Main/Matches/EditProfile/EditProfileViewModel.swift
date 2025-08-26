@@ -80,7 +80,6 @@ struct ImageSlot: Equatable {
         for (field, value, add) in updatedFieldsArray {
             try await userManager.updateUserArray(field: field, value: value, add: add)
         }
-        await s.loadUser()
     }
     
     //Images
@@ -116,10 +115,6 @@ struct ImageSlot: Equatable {
     
     var updatedImages: [(index: Int, data: Data)] = []
     
-    func loadUser() async {
-        await s.loadUser()
-        print("Load User Called")
-    }
     
     func saveUpdatedImages() async throws {
         let updates = updatedImages

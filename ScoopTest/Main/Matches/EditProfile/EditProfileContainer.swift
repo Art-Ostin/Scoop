@@ -27,7 +27,6 @@ struct EditProfileContainer: View {
         }
         .id(vm.updatedImages.count)
         .task {
-            await vm.loadUser()
             await vm.assignSlots()
         }
         .overlay(alignment: .bottom) {
