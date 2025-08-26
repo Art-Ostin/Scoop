@@ -51,23 +51,13 @@ struct Session  {
     
     var user: UserProfile { session!.user }
     var activeCycle: CycleModel? { session?.activeCycle }
-
-
-        func stopAllStreams() {
-            authStreamTask?.cancel()
-            userStreamTask?.cancel()
-            authStreamTask = nil
-            userStreamTask = nil
-        }
-    
-        deinit { stopAllStreams() }
-    
     
     
     func watchAuthState(appState: Binding<AppState>) {
         authStreamTask?.cancel()
         authStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
+                print("stream called")
                 if let uid {
                     if let user = try? await userManager.fetchUser(userId: uid) {
                         if session == nil { startSession(user: user)}

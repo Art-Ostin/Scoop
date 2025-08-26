@@ -16,10 +16,11 @@ struct Bootstrapper {
     
     func start () async {
         
+        s.watchAuthState(appState: $appState)
+        
         let state = await s.loadUser()
+        
         if state == .app {
-            
-            s.watchAuthState(appState: $appState)
             
             async let events: ()  = s.loadEvents()
             async let invites: ()  = s.loadInvites()
