@@ -10,7 +10,9 @@ import FirebaseFirestore
 import SwiftUI
 
 enum InviteUpdate {
-    case accepted, pastAccepted, declined, declinedTime
+    case removePending(id: String)
+    case addAccepted(id: String)
+    case addPastAccepted(id: String)
 }
 
 
@@ -182,15 +184,23 @@ class EventManager {
                         
                     case .modified:
                         
-                        if let item = try? change.document.data(as: UserEvent.self), item.status != .pending {
+                        if let item = try? change.document.data(as: UserEvent.self), let id = item.id {
                             
+                            if item.status != .pending {
+                                continuation.yield(InviteUpdate.removePending(id: id))
+                            }
+                            
+                            if item.status == .accepted {
+                                continuation.yield(InviteUpdate.addAccepted(id: id))
+                            }
+                            
+                            if item.status == .pastAccepted {
+                                continuation.yield(InviteUpdate.addPastAccepted(id: id))
+                            }
                         }
-                    
-                    
+                        
                     case .removed:
-                        
-                        
-                        
+                          
                     }
                 }
             }
