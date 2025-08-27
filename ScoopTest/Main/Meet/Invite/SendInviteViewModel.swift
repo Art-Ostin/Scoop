@@ -21,8 +21,9 @@ import Foundation
         self.cycleManager = cycleManager
         self.profileModel = profileModel
         self.sessionManager = sessionManager
-        self.event = Event(recipientId: profileModel.profile.id)
+        self.event = Event()
     }
+    
     
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
@@ -36,7 +37,7 @@ import Foundation
         guard let profileId = event.recipientId else {return}
         cycleManager.inviteSent(userId: user.id, cycle: cycle, profileId: profileId)
         await sessionManager.loadProfiles()
-        Task { try await eventManager.createEvent(event: event, currentUser: user) ; print("Finished task") }
+        Task { try await eventManager.createEvent(event: event, user: user, profile: profileModel.profile) ; print("Finished task") }
         print("Finished function ")
     }
     

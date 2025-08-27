@@ -33,8 +33,6 @@ struct UserEvent: Identifiable, Codable {
 
 
 
-
-
 /*
  = "id"
  case otherUserId = "other_user_id"
