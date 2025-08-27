@@ -13,11 +13,13 @@ import UIKit
     let cycleManager: CycleManager
     let cacheManager: CacheManaging
     let s: SessionManager
+    let eventManager: EventManager
     
-    init(cycleManager: CycleManager, s: SessionManager, cacheManager: CacheManaging) {
+    init(cycleManager: CycleManager, s: SessionManager, cacheManager: CacheManaging, eventManager: EventManager) {
         self.cycleManager = cycleManager
         self.s = s
         self.cacheManager = cacheManager
+        self.eventManager = eventManager
     }
     
     var activeCycle: CycleModel? { s.activeCycle }
@@ -47,5 +49,9 @@ import UIKit
     
     func fetchImage(url: URL) async throws -> UIImage {
         try await cacheManager.fetchImage(for: url)
+    }
+    
+    func updateEventStatus(eventId: String, status: EventStatus) async {
+        try await eventManager.updateStatus(eventId: eventId, to: status)
     }
 }

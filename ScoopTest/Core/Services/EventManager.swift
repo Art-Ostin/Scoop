@@ -42,7 +42,6 @@ class EventManager {
         try await userEventDocument(userId: userId, userEventId: userEventId).getDocument(as: UserEvent.self)
     }
     
-    
     func createEvent(event: Event, user: UserProfile, profile: UserProfile) async throws {
         var e = event
         
@@ -62,9 +61,9 @@ class EventManager {
     }
     
     func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-        UserEvent(otherUserId: profile.id, role: .sent, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first, updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
+        UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first, updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
     }
-        
+    
     func getEventExpiryTime(event: Event) -> Date? {
         guard let eventTime = event.time else {return nil}
         
@@ -74,9 +73,9 @@ class EventManager {
         let hour: TimeInterval = 3600
         
         if  timeUntilEvent > TimeInterval(2*day + 8*hour) {
-            return eventTime.addingTimeInterval(2 * day)
+            return Date().addingTimeInterval(2 * day)
         } else if  timeUntilEvent > TimeInterval(day + 8*hour) {
-            return eventTime.addingTimeInterval(day)
+            return Date().addingTimeInterval(day)
         } else if timeUntilEvent > TimeInterval(14*hour)  {
             return Calendar.current.date(byAdding: .hour, value: -6, to: eventTime)
         } else if timeUntilEvent > TimeInterval(8*hour) {
@@ -85,7 +84,6 @@ class EventManager {
             return eventTime
         }
     }
-    
     
     private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {
         
@@ -109,7 +107,6 @@ class EventManager {
                 .whereField(UserEvent.Field.time.rawValue, isLessThan: Timestamp(date: plus3h))
         }
     }
-
     
     private func getEvents(_ scope: EventScope, now: Date = .init(), userId: String) async throws -> [UserEvent] {
         let query = try eventsQuery(scope, now: now, userId: userId)

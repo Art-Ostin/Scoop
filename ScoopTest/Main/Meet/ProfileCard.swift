@@ -15,12 +15,20 @@ struct ProfileCard : View {
     
     var body: some View {
         ZStack {
-            if let image = profileInvite.image {
-                firstImage(image: image)
-                    .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            selectedProfile = profileInvite
+            VStack {
+                if let image = profileInvite.image {
+                    firstImage(image: image)
+                        .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                selectedProfile = profileInvite
+                            }
                         }
+                    }
+                }
+                if let expiryTime = profileInvite.event?.inviteExpiryTime {
+                    SimpleClockView(targetTime: expiryTime) {
+                        
+                        
                     }
                 }
             }

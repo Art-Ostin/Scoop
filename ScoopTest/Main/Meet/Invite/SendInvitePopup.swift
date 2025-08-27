@@ -39,7 +39,7 @@ struct SendInvitePopup: View {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
                 Task {
-                    try? await vm.sendInvite()
+                    try await vm.sendInvite(profileId: vm.profileModel.profile.id)
                     onDismiss()
                 }
             }

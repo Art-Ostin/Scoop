@@ -20,9 +20,8 @@ struct MeetView: View {
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
-                
                 tabView
-                
+
                 if vm.showProfiles && !vm.showRefresh {
                     clockView
                 } else if vm.showRefresh {
@@ -43,9 +42,11 @@ extension MeetView {
     
     private var tabView: some View {
         TabView {
+            
             ForEach(vm.invites, id: \.id) {profileInvite in
                 ProfileCard(vm: vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
+
             if vm.showProfiles {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
                     VStack {
