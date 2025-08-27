@@ -9,12 +9,12 @@ import Foundation
 import FirebaseFirestore
 import SwiftUI
 
-enum InviteUpdate {
-    case accepted, pastAccepted, declined
-}
+//enum InviteUpdate {
+//    case accepted, pastAccepted, declined, declinedTime
+//}
 
 class EventManager {
-    
+
     private let userManager: UserManager
     
     init(userManager: UserManager) { self.userManager = userManager }
@@ -109,7 +109,7 @@ class EventManager {
                 .whereField(UserEvent.Field.time.rawValue, isLessThan: Timestamp(date: plus3h))
         }
     }
-    
+
     
     private func getEvents(_ scope: EventScope, now: Date = .init(), userId: String) async throws -> [UserEvent] {
         let query = try eventsQuery(scope, now: now, userId: userId)
@@ -169,21 +169,8 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
     }
-    
-    
-    
-    func invitesStream(userId: String) -> AsyncThrowingStream<Event, Error> {
-        
-        let q = userEventCollection(userId: userId)
-            .whereField(UserEvent.Field.time.rawValue, is)
-                
-        AsyncThrowingStream { continuation in
-            userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
-                if let error = error { continuation.finish(throwing: error) ; return }
-            }
-        }
-    }
 }
+
 
 extension Query {
     func getDocuments<T>(as: T.Type) async throws -> [T] where T: Decodable {
@@ -191,7 +178,6 @@ extension Query {
         return try snapshot.documents.map { try $0.data(as: T.self)}
     }
 }
-
 
 /*
  func createEvent(event: Event, currentUser: UserProfile) async throws {
