@@ -8,6 +8,11 @@
 import Foundation
 import FirebaseFirestore
 
+enum PendingRecEvent {
+    case addedPending(id: String)
+    case movedToInvite(id: String)
+}
+
 
 final class CycleManager {
     
@@ -51,20 +56,34 @@ final class CycleManager {
             .getDocuments(as: RecommendationItem.self)
             .map(\.id)
     }
-
     
-    func userRecsStream(userId: String, cycleId: String) -> AsyncThrowingStream<CycleModel?, Error> {
+    
+    func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<PendingRecEvent, Error> {
         AsyncThrowingStream { continuation in
-            cycleDocument(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
-                if let error = error {continuation.finish(throwing: error) ; return }
-                guard let snap = snapshot else { return }
-                guard snap.exists else { continuation.yield(nil); return }
-                do{ continuation.yield(try snap.data(as: CycleModel.self))}
-                catch{continuation.finish(throwing: error) ; return }
+            
+            let reg = profilesCollection(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
+                if let error { continuation.finish(throwing: error); return }
+                guard let snap = snapshot else {return}
+                
+                for change in snap.documentChanges {
+                    switch change.type {
+                    case .added:
+                        if let item = try? change.document.data(as: RecommendationItem.self), item.recommendationStatus == .pending {
+                            continuation.yield(.addedPending(id: item.id))
+                        }
+                    case .modified:
+                        if let item = try? change.document.data(as: RecommendationItem.self), item.recommendationStatus == .invited {
+                            continuation.yield(.movedToInvite(id: item.id))
+                        }
+                    case .removed:
+                    }
+                }
             }
+            continuation.onTermination = { _ in reg.remove() }
         }
     }
-        
+
+    
     
     @discardableResult
     func createCycle(userId: String) async throws -> String {
@@ -97,6 +116,7 @@ final class CycleManager {
             try profileDocument(userId: userId, cycleId: cycleId, profileId: id).setData(from: newItem)
         }
     }
+    
 
     func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
         cycleDocument(userId: userId, cycleId: cycleId).updateData(data)
@@ -106,6 +126,7 @@ final class CycleManager {
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
     }
+    
     
     func checkCycleStatus (userId: String, cycle: CycleModel?) async -> CycleStatus {
         guard let cycle, let id = cycle.id else  {return .closed }
@@ -145,3 +166,20 @@ final class CycleManager {
         try await userManager.updateUser(values: [UserProfile.Field.activeCycleId: FieldValue.delete()])
     }
 }
+
+
+
+//A listener set up for the CycleModel
+/*
+ func userRecsStream(userId: String, cycleId: String) -> AsyncThrowingStream<CycleModel?, Error> {
+     AsyncThrowingStream { continuation in
+         cycleDocument(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
+             if let error = error {continuation.finish(throwing: error) ; return }
+             guard let snap = snapshot else { return }
+             guard snap.exists else { continuation.yield(nil); return }
+             do{ continuation.yield(try snap.data(as: CycleModel.self))}
+             catch{continuation.finish(throwing: error) ; return }
+         }
+     }
+ }
+ */

@@ -16,8 +16,9 @@ struct EventArray : Codable {
 }
 
 enum EventStatus: String, Codable {
-    case pending, accepted, declined, cancelled
+    case pending, accepted, declined, cancelled, pastAccepted
 }
+
 enum EventScope {
     case upcomingInvited, upcomingAccepted, pastAccepted
 }

@@ -34,6 +34,11 @@ class EventManager {
         try await eventDocument(id: eventId).getDocument(as: Event.self)
     }
     
+    private func fetchUserEvent(userId: String, userEventId: String) async throws -> UserEvent {
+       try await userEventDocument(userId: userId, userEventId: userEventId).getDocument(as: UserEvent.self)
+    }
+    
+    
     func createEvent(event: Event, currentUser: UserProfile) async throws {
         let db = Firestore.firestore()
         let batch = db.batch()
@@ -189,6 +194,21 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: aEdgeRef)
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
+    }
+    
+    
+    
+    func invitesStream(userId: String) -> AsyncThrowingStream<Event, Error> {
+        AsyncThrowingStream { continuation in
+            userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
+                if let error = error { continuation.finish(throwing: error) ; return }
+                
+                
+                
+                
+                
+            }
+        }
     }
 }
 
