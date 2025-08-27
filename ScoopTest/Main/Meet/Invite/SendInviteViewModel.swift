@@ -33,7 +33,6 @@ import Foundation
         let user = await sessionManager.user
         let cycle = await sessionManager.activeCycle
         cycleManager.inviteSent(userId: user.id, cycle: cycle, profileId: profileId)
-        await sessionManager.loadProfiles()
         Task { try await eventManager.createEvent(event: event, user: user, profile: profileModel.profile) ; print("Finished task") }
     }
     

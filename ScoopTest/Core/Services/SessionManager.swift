@@ -31,6 +31,7 @@ struct Session  {
     private var userStreamTask: Task<Void, Never>?
     private var authStreamTask: Task<Void, Never>?
     private var cycleStreamTask: Task<Void, Never>?
+    private var eventStreamTask: Task<Void, Never>?
     
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
@@ -91,7 +92,7 @@ struct Session  {
         Task { await cacheManager.loadProfileImages([user]) }
         
         startUserStream(for: user.id)
-//        startCycleListener()
+        profilesListener()
     }
     
     private func startUserStream(for userId: String) {
@@ -131,7 +132,7 @@ struct Session  {
         }
     }
     
-    func loadProfile(id: String) async throws {
+    private func loadProfile(id: String) async throws {
         let profile = try await userManager.fetchUser(userId: id)
         Task { await cacheManager.loadProfileImages([profile]) }
         let profileModel = ProfileModel(profile: profile)
@@ -151,10 +152,39 @@ struct Session  {
     }
     
     
+    func eventsListener() {
+        
+        let eventStreamTask = Task { @MainActor in
+            for try await event in eventManager.eventStream(userId: user.id) {
+                switch event {
+                    
+                case .removePending(let id):
+                    invites.removeAll { $0.profile.id == id }
+                    
+                case .addAccepted(let userEvent):
+                    await loadEvent(event: userEvent)
+                    
+                case .addPastAccepted(let id):
+                    print("Waiting to fill in here")
+                    
+                case .newInvite(let userEvent):
+                    await loadInvite(userEvent: userEvent)
+                    
+                }
+            }
+        }
+    }
+
     // determines which invites to show
     
-    
-    
+    func loadInvite(userEvent: UserEvent) async {
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModel = await profileLoader(data: input)
+        for profile in profileModel { //It has to return a [ProfileModels] even though it will be one
+            invites.append(profile)
+        }
+        await cacheManager.loadProfileImages(profileModel.map(\.profile))
+    }
     
     func loadInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
@@ -164,11 +194,12 @@ struct Session  {
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
     
-    
-    
-    
-    
-    
+    func loadEvent(event: UserEvent) async {
+        self.events.append(event)
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModels = await profileLoader(data: input)
+        await cacheManager.loadProfileImages(profileModels.map(\.profile))
+    }
     
     func loadEvents() async {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.id) else {return}

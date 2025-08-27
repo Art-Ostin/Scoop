@@ -15,6 +15,7 @@ struct MatchesView: View {
     @State var vm: MatchesViewModel
     @State var showProfileView = false
     @State var image: UIImage?
+    @State var showSettingsView = false
     
     init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
 
@@ -29,16 +30,21 @@ struct MatchesView: View {
                 Text("View your past Meet Ups Here")
                     .font(.body(20))
                 
-                ActionButton(text: "Sign Out") {vm.signOut()}
+
+                
+                
+                
                 
                 .navigationTitle("Matches")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         HStack(spacing: 32) {
                             Image("GearIcon")
+                                .onTapGesture {
+                                    showSettingsView.toggle()
+                            }
                         }
                     }
-                    
                     ToolbarItem(placement: .topBarTrailing) {
                         VStack {
                             CirclePhoto(image: image ?? UIImage())
@@ -48,9 +54,16 @@ struct MatchesView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $showProfileView, content: {
+        .fullScreenCover(isPresented: $showProfileView){
             EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: vm.defaultsManager))
-        })
+        }
+        .sheet(isPresented: $showSettingsView) {
+            SettingsContainer(vm: SettingsViewModel(authManager: vm.authManager))
+        }        
+        
+        
+        
+        
         .task(id: vm.user) {
             do {
                 image = try await vm.fetchFirstImage()
