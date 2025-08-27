@@ -9,6 +9,10 @@ import Foundation
 import FirebaseFirestore
 import SwiftUI
 
+enum InviteUpdate {
+    case accepted, pastAccepted, declined
+}
+
 class EventManager {
     
     private let userManager: UserManager
@@ -38,7 +42,6 @@ class EventManager {
        try await userEventDocument(userId: userId, userEventId: userEventId).getDocument(as: UserEvent.self)
     }
     
-    
     func createEvent(event: Event, currentUser: UserProfile) async throws {
         let db = Firestore.firestore()
         let batch = db.batch()
@@ -57,40 +60,40 @@ class EventManager {
         let inviterImageString = currentUser.imagePathURL.first ?? ""
         
         var eventData: [String: Any] = [
-            Event.CodingKeys.id.stringValue: eventId,
-            Event.CodingKeys.initiatorId.stringValue: currentUser.id,
-            Event.CodingKeys.recipientId.stringValue: recipientId,
-            Event.CodingKeys.type.stringValue: e.type ?? "",
-            Event.CodingKeys.message.stringValue: e.message ?? "",
-            Event.CodingKeys.status.stringValue: e.status.rawValue,
-            Event.CodingKeys.date_created.stringValue: FieldValue.serverTimestamp()
+            Event.Field.id.rawValue: eventId,
+            Event.Field.initiatorId.rawValue: currentUser.id,
+            Event.Field.recipientId.rawValue: recipientId,
+            Event.Field.type.rawValue: e.type ?? "",
+            Event.Field.message.rawValue: e.message ?? "",
+            Event.Field.status.rawValue: e.status.rawValue,
+            Event.Field.date_created.rawValue: FieldValue.serverTimestamp()
         ]
         
-        if let t = e.time { eventData[Event.CodingKeys.time.stringValue] = t }
+        if let t = e.time { eventData[Event.Field.time.rawValue] = t }
         if let loc = e.location {
             let place = try Firestore.Encoder().encode(loc)
-            eventData[Event.CodingKeys.location.stringValue] = place
+            eventData[Event.Field.location.rawValue] = place
         }
         
         func edgeData(otherUserId: String, role: EdgeRole, otherName: String, otherPhoto: String?) throws -> [String: Any] {
             var data: [String: Any] = [
-                UserEvent.CodingKeys.id.rawValue: eventId,
-                UserEvent.CodingKeys.otherUserId.rawValue: otherUserId,
-                UserEvent.CodingKeys.role.rawValue: role.rawValue,
-                UserEvent.CodingKeys.status.rawValue: e.status.rawValue,
-                UserEvent.CodingKeys.type.rawValue: e.type ?? "",
-                UserEvent.CodingKeys.message.rawValue: e.message ?? "",
-                UserEvent.CodingKeys.otherUserName.rawValue: otherName,
-                UserEvent.CodingKeys.otherUserPhoto.rawValue: otherPhoto ?? "",
-                UserEvent.CodingKeys.updatedAt.rawValue: FieldValue.serverTimestamp()
+                UserEvent.Field.id.rawValue: eventId,
+                UserEvent.Field.otherUserId.rawValue: otherUserId,
+                UserEvent.Field.role.rawValue: role.rawValue,
+                UserEvent.Field.status.rawValue: e.status.rawValue,
+                UserEvent.Field.type.rawValue: e.type ?? "",
+                UserEvent.Field.message.rawValue: e.message ?? "",
+                UserEvent.Field.otherUserName.rawValue: otherName,
+                UserEvent.Field.otherUserPhoto.rawValue: otherPhoto ?? "",
+                UserEvent.Field.updatedAt.rawValue: FieldValue.serverTimestamp()
             ]
-            if let t = e.time { data[UserEvent.CodingKeys.time.rawValue] = t }
+            if let t = e.time { data[UserEvent.Field.time.rawValue] = t }
             if let p = e.location {
                 let place = try Firestore.Encoder().encode(p)
-                data[UserEvent.CodingKeys.place.rawValue] = place
+                data[UserEvent.Field.place.rawValue] = place
             }
             if let photo = otherPhoto {
-                data[UserEvent.CodingKeys.otherUserPhoto.rawValue] = photo
+                data[UserEvent.Field.otherUserPhoto.rawValue] = photo
             }
             return data
         }
@@ -110,6 +113,10 @@ class EventManager {
         try await batch.commit()
         print("Event Created")
     }
+        
+    
+    
+    
     
     private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {
     
@@ -117,20 +124,20 @@ class EventManager {
     switch scope {
     case .upcomingInvited:
         return userEventCollection(userId: userId)
-            .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: Date()))
-            .whereField(UserEvent.CodingKeys.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
-            .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
-            .order(by: Event.CodingKeys.time.stringValue)
+            .whereField(UserEvent.Field.time.rawValue, isGreaterThan: Timestamp(date: Date()))
+            .whereField(UserEvent.Field.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
+            .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
+            .order(by: Event.Field.time.rawValue)
     case .upcomingAccepted:
         return userEventCollection(userId: userId)
-            .whereField(UserEvent.CodingKeys.time.stringValue, isGreaterThan: Timestamp(date: plus3h))
-            .whereField(UserEvent.CodingKeys.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
-            .order(by: Event.CodingKeys.time.stringValue)
+            .whereField(UserEvent.Field.time.rawValue, isGreaterThan: Timestamp(date: plus3h))
+            .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
+            .order(by: Event.Field.time.rawValue)
         
     case .pastAccepted:
         return userEventCollection(userId: userId)
-            .whereField(UserEvent.CodingKeys.status.stringValue, isEqualTo: EventStatus.accepted.rawValue)
-            .whereField(UserEvent.CodingKeys.time.stringValue, isLessThan: Timestamp(date: plus3h))
+            .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
+            .whereField(UserEvent.Field.time.rawValue, isLessThan: Timestamp(date: plus3h))
     }
 }
     
@@ -163,10 +170,10 @@ class EventManager {
         let bEdgeRef = userEventDocument(userId: b, userEventId: eventId)
         
         
-        batch.updateData([Event.CodingKeys.time.stringValue : newTime], forDocument: eventRef)
+        batch.updateData([Event.Field.time.rawValue : newTime], forDocument: eventRef)
         let edgeTimeUpdate: [String: Any] = ([
-            UserEvent.CodingKeys.time.rawValue : newTime,
-            UserEvent.CodingKeys.updatedAt.rawValue : FieldValue.serverTimestamp()])
+            UserEvent.Field.time.rawValue : newTime,
+            UserEvent.Field.updatedAt.rawValue : FieldValue.serverTimestamp()])
         
         batch.updateData(edgeTimeUpdate, forDocument: aEdgeRef)
         batch.updateData(edgeTimeUpdate, forDocument: bEdgeRef)
@@ -185,11 +192,11 @@ class EventManager {
         let aEdgeRef = userEventDocument(userId: a, userEventId: eventId)
         let bEdgeRef = userEventDocument(userId: b, userEventId: eventId)
         
-        batch.updateData([Event.CodingKeys.status.stringValue: newStatus.rawValue], forDocument: eventRef)
+        batch.updateData([Event.Field.status.rawValue: newStatus.rawValue], forDocument: eventRef)
         
         let statusUpdate: [String : Any] =  ([
-            UserEvent.CodingKeys.status.rawValue : newStatus.rawValue,
-            UserEvent.CodingKeys.updatedAt.rawValue : FieldValue.serverTimestamp()])
+            UserEvent.Field.status.rawValue : newStatus.rawValue,
+            UserEvent.Field.updatedAt.rawValue : FieldValue.serverTimestamp()])
         
         batch.updateData(statusUpdate, forDocument: aEdgeRef)
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
@@ -198,18 +205,30 @@ class EventManager {
     
     
     
-    func invitesStream(userId: String) -> AsyncThrowingStream<Event, Error> {
-        AsyncThrowingStream { continuation in
-            userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
-                if let error = error { continuation.finish(throwing: error) ; return }
-                
-                
-                
-                
-                
-            }
-        }
-    }
+    
+    
+    
+    
+    
+//    func invitesStream(userId: String) -> AsyncThrowingStream<Event, Error> {
+//        
+//        let q = userEventCollection(userId: userId)
+//            .whereField(UserEvent.Field.time.rawValue, is)
+//
+//        
+//        
+//        AsyncThrowingStream { continuation in
+//            userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
+//                if let error = error { continuation.finish(throwing: error) ; return }
+//                
+//                
+//                
+//                
+//                
+//                
+//            }
+//        }
+//    }
 }
 
 

@@ -91,7 +91,7 @@ struct Session  {
         Task { await cacheManager.loadProfileImages([user]) }
         
         startUserStream(for: user.id)
-        startCycleListener()
+//        startCycleListener()
     }
     
     private func startUserStream(for userId: String) {
@@ -130,7 +130,7 @@ struct Session  {
             }
         }
     }
-        
+    
     func loadProfile(id: String) async throws {
         let profile = try await userManager.fetchUser(userId: id)
         Task { await cacheManager.loadProfileImages([profile]) }
@@ -169,7 +169,7 @@ struct Session  {
     
     
     
- 
+    
     func loadEvents() async {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.id) else {return}
         self.events = events
@@ -183,41 +183,40 @@ struct Session  {
     
     
     
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        func loadCycle() async {
-            guard
-                let userId = session?.user.id,
-                let cycleId = session?.user.activeCycleId
-            else { return }
-            let cycle = try? await cycleManager.fetchCycle(userId: userId, cycleId: cycleId)
-            session?.activeCycle = cycle
-        }
-        
-        func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
-            return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
-                for item in data {
-                    group.addTask {
-                        guard let profile = try? await self.userManager.fetchUser(userId: item.id) else {return nil}
-                        let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
-                        return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
-                    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func loadCycle() async {
+        guard
+            let userId = session?.user.id,
+            let cycleId = session?.user.activeCycleId
+        else { return }
+        let cycle = try? await cycleManager.fetchCycle(userId: userId, cycleId: cycleId)
+        session?.activeCycle = cycle
+    }
+    
+    func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
+        return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
+            for item in data {
+                group.addTask {
+                    guard let profile = try? await self.userManager.fetchUser(userId: item.id) else {return nil}
+                    let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
+                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
                 }
-                return await group.reduce(into: []) {result, element  in
-                    if let element {result.append(element)}
-                }
+            }
+            return await group.reduce(into: []) {result, element  in
+                if let element {result.append(element)}
             }
         }
     }

@@ -33,17 +33,10 @@ struct Event: Identifiable, Codable {
     var time: Date?
     var location: EventLocation?
     var status: EventStatus = .pending 
+    var inviteExpiryTime: Date?
     
-    enum CodingKeys: CodingKey {
-        case id
-        case initiatorId
-        case recipientId
-        case type
-        case message
-        case date_created
-        case time
-        case location
-        case status
+    enum Field: String {
+        case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time
     }
 }
 
@@ -54,9 +47,8 @@ enum EventType: CaseIterable, Codable {
     case doubleDate
     case samePlace
     case writeAMessage
-}
-
-extension EventType {
+    
+    
     var description: (emoji: String?, label: String) {
         switch self {
         case .grabFood:
@@ -74,3 +66,4 @@ extension EventType {
         }
     }
 }
+
