@@ -9,9 +9,10 @@ import Foundation
 import FirebaseFirestore
 import SwiftUI
 
-//enum InviteUpdate {
-//    case accepted, pastAccepted, declined, declinedTime
-//}
+enum InviteUpdate {
+    case accepted, pastAccepted, declined, declinedTime
+}
+
 
 class EventManager {
 
@@ -166,6 +167,38 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
     }
+    
+    func eventStream(userId: String) -> AsyncThrowingStream<InviteUpdate, Error> {
+        
+        AsyncThrowingStream { continuation in
+            userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
+                if let error = error { continuation.finish(throwing: error) ; return }
+                guard let snap = snapshot else { return }
+                
+                for change in snap.documentChanges {
+                    switch change.type {
+                        
+                    case .added:
+                        
+                    case .modified:
+                        
+                        if let item = try? change.document.data(as: UserEvent.self), item.status != .pending {
+                            
+                        }
+                    
+                    
+                    case .removed:
+                        
+                        
+                        
+                    }
+                }
+            }
+        }
+        
+        
+    }
+    
 }
 
 
@@ -175,79 +208,3 @@ extension Query {
         return try snapshot.documents.map { try $0.data(as: T.self)}
     }
 }
-
-/*
- func createEvent(event: Event, currentUser: UserProfile) async throws {
-     let db = Firestore.firestore()
-     let batch = db.batch()
-     let eventRef = db.collection("events").document()
-     let eventId = eventRef.documentID
-     guard let recipientId = event.recipientId else { return }
-     var e = event
-     e.id = eventId
-     e.initiatorId = currentUser.id
-     let recipientProfile = try await userManager.fetchUser(userId: recipientId)
-     let recipientName = recipientProfile.name
-     let recipientImageString = recipientProfile.imagePathURL.first ?? ""
-     let inviterName = currentUser.name
-     let inviterImageString = currentUser.imagePathURL.first ?? ""
-     
-
-     
-     var eventData: [String: Any] = [
-         Event.Field.id.rawValue: eventId,
-         Event.Field.initiatorId.rawValue: currentUser.id,
-         Event.Field.recipientId.rawValue: recipientId,
-         Event.Field.type.rawValue: e.type ?? "",
-         Event.Field.message.rawValue: e.message ?? "",
-         Event.Field.status.rawValue: e.status.rawValue,
-         Event.Field.date_created.rawValue: FieldValue.serverTimestamp()
-     ]
-     
-     if let t = e.time { eventData[Event.Field.time.rawValue] = t }
-     if let loc = e.location {
-         let place = try Firestore.Encoder().encode(loc)
-         eventData[Event.Field.location.rawValue] = place
-     }
-     
-     func edgeData(otherUserId: String, role: EdgeRole, otherName: String, otherPhoto: String?) throws -> [String: Any] {
-         var data: [String: Any] = [
-             UserEvent.Field.id.rawValue: eventId,
-             UserEvent.Field.otherUserId.rawValue: otherUserId,
-             UserEvent.Field.role.rawValue: role.rawValue,
-             UserEvent.Field.status.rawValue: e.status.rawValue,
-             UserEvent.Field.type.rawValue: e.type ?? "",
-             UserEvent.Field.message.rawValue: e.message ?? "",
-             UserEvent.Field.otherUserName.rawValue: otherName,
-             UserEvent.Field.otherUserPhoto.rawValue: otherPhoto ?? "",
-             UserEvent.Field.updatedAt.rawValue: FieldValue.serverTimestamp()
-         ]
-         
-         if let t = e.time { data[UserEvent.Field.time.rawValue] = t }
-         if let p = e.location {
-             let place = try Firestore.Encoder().encode(p)
-             data[UserEvent.Field.place.rawValue] = place
-         }
-         if let photo = otherPhoto {
-             data[UserEvent.Field.otherUserPhoto.rawValue] = photo
-         }
-         return data
-     }
-     
-     let initiatorEdgeRef = db.collection("users").document(currentUser.id)
-         .collection("user_events").document(eventId)
-     let recipientEdgeRef = db.collection("users").document(recipientId)
-         .collection("user_events").document(eventId)
-     
-     let edgeA = try edgeData(otherUserId: recipientId, role: .sent, otherName: recipientName, otherPhoto: recipientImageString)
-     let edgeB = try edgeData(otherUserId: currentUser.id, role: .received, otherName: inviterName, otherPhoto: inviterImageString)
-     
-     batch.setData(eventData, forDocument: eventRef)
-     batch.setData(edgeA, forDocument: initiatorEdgeRef)
-     batch.setData(edgeB, forDocument: recipientEdgeRef)
-     
-     try await batch.commit()
-     print("Event Created")
- }
- 
- */

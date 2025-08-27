@@ -57,7 +57,6 @@ final class CycleManager {
             .map(\.id)
     }
     
-    
     func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<PendingRecEvent, Error> {
         AsyncThrowingStream { continuation in
             

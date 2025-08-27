@@ -24,12 +24,10 @@ import Foundation
         self.event = Event()
     }
     
-    
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false
     var showMapView: Bool = false
-    
     
     func sendInvite(profileId: String) async throws {
         let user = await sessionManager.user

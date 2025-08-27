@@ -51,7 +51,7 @@ import UIKit
         try await cacheManager.fetchImage(for: url)
     }
     
-    func updateEventStatus(eventId: String, status: EventStatus) async {
+    func updateEventStatus(eventId: String, status: EventStatus) async throws {
         try await eventManager.updateStatus(eventId: eventId, to: status)
     }
 }

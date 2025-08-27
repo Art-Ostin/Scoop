@@ -27,8 +27,8 @@ struct ProfileCard : View {
                 }
                 if let expiryTime = profileInvite.event?.inviteExpiryTime {
                     SimpleClockView(targetTime: expiryTime) {
-                        
-                        
+                        guard let eventId = profileInvite.event?.id else {return}
+                        Task { try await vm.updateEventStatus(eventId: eventId, status: .declinedTimePassed) }
                     }
                 }
             }

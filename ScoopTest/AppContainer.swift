@@ -19,7 +19,7 @@ struct AppContainer: View {
             
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
-                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: EventManager))
+                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
