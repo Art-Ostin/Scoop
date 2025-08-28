@@ -81,7 +81,6 @@ struct Session  {
         }
     }
     
-    
     func startSession(user: UserProfile) async {
         session = Session(user: user)
         userStreamTask?.cancel()
@@ -95,6 +94,7 @@ struct Session  {
         
         startUserStream(for: user.id)
         profilesListener()
+        eventsListener()
     }
     
     private func startUserStream(for userId: String) {
@@ -109,7 +109,6 @@ struct Session  {
             }
         }
     }
-    
     
     //determines which profiles Recs to show
     func profilesListener() {
@@ -152,14 +151,13 @@ struct Session  {
         profiles = await profileLoader(data: data)
         Task { await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }
-    
-    
+
     func eventsListener() {
         eventStreamTask?.cancel()
         let eventStreamTask = Task { @MainActor in
             for try await event in eventManager.eventStream(userId: user.id) {
                 switch event {
-                    
+
                 case .removePending(let id):
                     invites.removeAll { $0.profile.id == id }
                     
@@ -171,7 +169,6 @@ struct Session  {
                     
                 case .newInvite(let userEvent):
                     await loadInvite(userEvent: userEvent)
-                    
                 }
             }
         }
@@ -229,7 +226,7 @@ struct Session  {
         self.pastEvents = profileModels
     }
     
-    
+    //Need to set up weekly cycle and cycle Listener (for the cycle Document -- remove it, change its status etc.) 
     
     
     

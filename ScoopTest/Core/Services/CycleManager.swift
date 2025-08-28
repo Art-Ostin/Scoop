@@ -126,7 +126,6 @@ final class CycleManager {
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
     }
-        
     
     func checkCycleStatus (userId: String, cycle: CycleModel?) async -> CycleStatus {
         guard let cycle, let id = cycle.id else  {return .closed }
