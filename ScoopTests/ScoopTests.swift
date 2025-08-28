@@ -6,9 +6,9 @@
 //
 
 import Testing
-@testable import ScoopTest
+@testable import Scoop
 
-struct ScoopTestTests {
+struct ScoopTests {
 
     @Test func example() async throws {
         // Write your test here and use APIs like `#expect(...)` to check expected conditions.

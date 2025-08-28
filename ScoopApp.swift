@@ -10,7 +10,7 @@ import Firebase
 import UIKit
 
 @main
-struct ScoopTestApp: App {
+struct ScoopApp: App {
     
     private let dep: AppDependencies
     @State var appState: AppState = .booting
