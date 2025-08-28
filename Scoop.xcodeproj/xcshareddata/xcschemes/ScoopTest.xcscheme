@@ -18,7 +18,7 @@
                BlueprintIdentifier = "6578382B2DE773CC00770B49"
                BuildableName = "ScoopTest.app"
                BlueprintName = "ScoopTest"
-               ReferencedContainer = "container:ScoopTest.xcodeproj">
+               ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -38,7 +38,7 @@
                BlueprintIdentifier = "657838382DE773CE00770B49"
                BuildableName = "ScoopTestTests.xctest"
                BlueprintName = "ScoopTestTests"
-               ReferencedContainer = "container:ScoopTest.xcodeproj">
+               ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -49,7 +49,7 @@
                BlueprintIdentifier = "657838422DE773CE00770B49"
                BuildableName = "ScoopTestUITests.xctest"
                BlueprintName = "ScoopTestUITests"
-               ReferencedContainer = "container:ScoopTest.xcodeproj">
+               ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,7 +71,7 @@
             BlueprintIdentifier = "6578382B2DE773CC00770B49"
             BuildableName = "ScoopTest.app"
             BlueprintName = "ScoopTest"
-            ReferencedContainer = "container:ScoopTest.xcodeproj">
+            ReferencedContainer = "container:Scoop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -88,7 +88,7 @@
             BlueprintIdentifier = "6578382B2DE773CC00770B49"
             BuildableName = "ScoopTest.app"
             BlueprintName = "ScoopTest"
-            ReferencedContainer = "container:ScoopTest.xcodeproj">
+            ReferencedContainer = "container:Scoop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

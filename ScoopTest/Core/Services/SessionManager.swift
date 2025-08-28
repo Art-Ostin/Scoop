@@ -242,6 +242,8 @@ struct Session  {
     
     
     //This should only be updating the variables in this file here
+    
+    
     func cycleListener() async {
         cycleStreamTask?.cancel()
         
