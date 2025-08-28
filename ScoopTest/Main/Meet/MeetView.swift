@@ -80,6 +80,7 @@ extension MeetView {
         .zIndex(1)
     }
     
+    
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
             SimpleClockView(targetTime: time) {

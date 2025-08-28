@@ -32,6 +32,7 @@ struct Session  {
     private var authStreamTask: Task<Void, Never>?
     private var cycleStreamTask: Task<Void, Never>?
     private var eventStreamTask: Task<Void, Never>?
+    private var cycleStreamTask: Task<Void, Never>?
     
     var showProfiles: Bool = true
     var respondToRefresh: Bool = false
@@ -135,6 +136,7 @@ struct Session  {
         }
     }
     
+    
     private func loadProfile(id: String) async throws {
         let profile = try await userManager.fetchUser(userId: id)
         Task { await cacheManager.loadProfileImages([profile]) }
@@ -142,7 +144,7 @@ struct Session  {
         profiles.append(profileModel)
     }
     
-    func loadProfiles() async throws {
+    func loadProfiles() async {
         guard
             let cycleId = session?.activeCycle?.id,
             let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
@@ -198,7 +200,6 @@ struct Session  {
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
     
-    
     func loadEvent(event: UserEvent) async {
         self.events.append(event)
         let input = events.map { (id: $0.otherUserId, event: $0) }
@@ -239,8 +240,29 @@ struct Session  {
         if status == .active { session?.activeCycle = cycleModel }
     }
     
+    
+    //This should only be updating the variables in this file here
     func cycleListener() async {
+        cycleStreamTask?.cancel()
         
+        cycleStreamTask = Task { @MainActor in
+            
+            for try await cycle in cycleManager.weeklyCycleStream(userId: user.id) {
+                switch cycle {
+                case .added(let cycleModel):
+                    session?.activeCycle = cycleModel
+                    loadProfiles()
+                case .closed(let newId):
+                    guard let cycleId = session?.activeCycle.id else {return}
+                    if cycleId = newId {
+                        cycleManager.deleteCycle(userId: user.id, cycleId: cycleId)
+                    }
+                    
+                case .pending(let id):
+                    session.activeCycle == .pending
+                }
+            }
+        }
     }
     
     

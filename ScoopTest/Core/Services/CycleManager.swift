@@ -13,6 +13,11 @@ enum PendingRecEvent {
     case movedToInvite(id: String)
 }
 
+enum WeeklyCycleUpdate {
+    case added(cycleModel: CycleModel)
+    case closed(id: String)
+    case pending(id: String)
+}
 
 final class CycleManager {
     
@@ -23,7 +28,7 @@ final class CycleManager {
         self.cacheManager = cacheManager
         self.userManager = userManager
     }
-
+    
     private let users = Firestore.firestore().collection("users")
     
     private func cycleCollection(userId: String) -> CollectionReference {
@@ -33,7 +38,7 @@ final class CycleManager {
     private func cycleDocument(userId: String, cycleId: String) -> DocumentReference {
         cycleCollection(userId: userId).document(cycleId)
     }
-
+    
     private func profilesCollection (userId: String, cycleId: String) -> CollectionReference {
         cycleDocument(userId: userId, cycleId: cycleId).collection("recommendations")
     }
@@ -56,7 +61,6 @@ final class CycleManager {
             .getDocuments(as: RecommendationItem.self)
             .map(\.id)
     }
-    
     
     
     func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<PendingRecEvent, Error> {
@@ -84,7 +88,7 @@ final class CycleManager {
             continuation.onTermination = { _ in reg.remove() }
         }
     }
-
+    
     
     
     @discardableResult
@@ -112,14 +116,14 @@ final class CycleManager {
         let snap = try await users.getDocuments()
         let ids = snap.documents.map( \.documentID ).filter { $0 != userId}
         let selectdIds = Array(ids.shuffled().prefix(4))
-                
+        
         for id in selectdIds {
             let newItem = RecommendationItem(id: id, profileViews: 0, recommendationStatus: .pending)
             try profileDocument(userId: userId, cycleId: cycleId, profileId: id).setData(from: newItem)
         }
     }
     
-
+    
     func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
         cycleDocument(userId: userId, cycleId: cycleId).updateData(data)
     }
@@ -142,7 +146,7 @@ final class CycleManager {
             }
         } else {
             if cycle.cycleStatus != .respond {
-                updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.respond.rawValue])
+                updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.Field.cycleStatus.rawValue : CycleStatus.respond.rawValue])
                 cycle.cycleStatus = .respond
             }
             return (.respond, cycle)
@@ -150,26 +154,69 @@ final class CycleManager {
         print("cycle active")
         return (.active, cycle)
     }
-
+    
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
         guard let id = cycle?.id else { return }
         updateProfileItem(userId: userId, cycleId: id, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
-
-        let statsKey   = CycleModel.CodingKeys.cycleStats.stringValue
+        
+        let statsKey   = CycleModel.Field.cycleStats.rawValue
         let invitedKey = "\(statsKey).\(CycleStats.CodingKeys.invited.stringValue)"
         let pendingKey = "\(statsKey).\(CycleStats.CodingKeys.pending.stringValue)"
-    
+        
         cycleDocument(userId: userId, cycleId: id).updateData([
             invitedKey: FieldValue.increment(Int64(1)),
             pendingKey: FieldValue.increment(Int64(-1))
         ])
     }
     
-    
     func deleteCycle(userId: String, cycleId: String) async throws {
-        updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.closed.rawValue])
+//        updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.Field.cycleStatus.rawValue : CycleStatus.closed.rawValue])
         try await userManager.updateUser(values: [UserProfile.Field.activeCycleId: FieldValue.delete()])
+    }
+    
+    
+    // Have this dealing with updating its status
+    func weeklyCycleStream(userId: String) -> AsyncThrowingStream<WeeklyCycleUpdate, Error> {
+        AsyncThrowingStream { continuation in
+            print("Function called")
+            let reg = cycleCollection(userId: userId).addSnapshotListener { snapshot, error in
+                if let error = error { continuation.finish(throwing: error)}
+                guard let snap = snapshot else {return}
+                
+                for change in snap.documentChanges {
+                    
+                    if let model = try? change.document.data(as: CycleModel.self), let id = model.id {
+                        
+                        switch change.type {
+
+                        case .added:
+
+                            if model.cycleStatus == .active {
+                                continuation.yield(.added(cycleModel: model))
+                            }
+                            
+                        case .modified:
+                            
+                            if model.cycleStatus == .closed {
+                                Task {
+                                    try await self.deleteCycle(userId: userId, cycleId: id)
+                                    continuation.yield(.closed(id: id))
+                                }
+                            }
+                            
+                            if model.cycleStatus == .respond {
+                                continuation.yield(.pending(id: id))
+                            }
+                            
+                        case .removed:
+                            print("removed unexepectedly")
+                        }
+                    }
+                }
+            }
+            
+        }
     }
 }
 

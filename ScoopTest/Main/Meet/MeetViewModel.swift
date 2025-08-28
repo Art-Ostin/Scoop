@@ -46,6 +46,7 @@ import UIKit
         await s.loadProfiles()
         s.showProfiles = true
     }
+
     
     func fetchImage(url: URL) async throws -> UIImage {
         try await cacheManager.fetchImage(for: url)

@@ -35,16 +35,11 @@ struct CycleModel: Identifiable, Codable, Sendable{
     var endsAt: Timestamp 
     var autoRemoveAt: Timestamp
     
-    enum CodingKeys: CodingKey {
-        case id
-        case startedAt
-        case cycleStatus
-        case cycleStats
-        case profilesAdded
-        case endsAt
-        case autoRemoveAt
+    enum Field: String {
+        case id, startedAt, cycleStatus, cycleStats, profilesAdded, endsAt, autoRemoveAt
     }
 }
+
 
 struct RecommendationItem: Identifiable, Codable, Sendable{
     var id: String // = profileId

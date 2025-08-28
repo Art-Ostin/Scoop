@@ -29,6 +29,7 @@ struct EventSlot: View {
                         }
                     }
             }
+            
             Text(event.otherUserName ?? "no name")
             
             if let time = event.time {
