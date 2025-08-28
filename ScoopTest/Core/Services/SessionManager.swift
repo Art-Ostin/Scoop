@@ -51,11 +51,11 @@ struct Session  {
     var pastEvents: [ProfileModel] = []
     
     var activeCycle: CycleModel? { session?.activeCycle }
-    
     var user: UserProfile {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
+    
     
     func AuthUserListener(appState: Binding<AppState>) {
         authStreamTask?.cancel()
@@ -75,21 +75,23 @@ struct Session  {
                     session = nil
                     continue
                 }
-                await startSession(user: user)
+                try? await startSession(user: user)
                 appState.wrappedValue = .app
             }
         }
     }
     
-    func startSession(user: UserProfile) async {
+    func startSession(user: UserProfile) async throws {
         session = Session(user: user)
         userStreamTask?.cancel()
+        
+        try await loadCycle()
         
         async let events: ()  = loadEvents()
         async let invites: ()  = loadInvites()
         async let profiles: () = loadProfiles()
         async let pastEvents: () = loadPastEvents()
-        _ = await (events, invites, profiles, pastEvents)
+        _ = try await (events, invites, profiles, pastEvents)
         Task { await cacheManager.loadProfileImages([user]) }
         
         startUserStream(for: user.id)
@@ -110,7 +112,7 @@ struct Session  {
         }
     }
     
-    //determines which profiles Recs to show
+    //Load Profile
     func profilesListener() {
         guard
             let userId = session?.user.id,
@@ -140,42 +142,45 @@ struct Session  {
         profiles.append(profileModel)
     }
     
-    func loadProfiles() async {
-        await loadCycle()
-        let status = await cycleManager.checkCycleStatus(userId: user.id, cycle: activeCycle)
-        if status == .closed { showProfiles = false ; return }
-        if status == .respond { respondToRefresh = true }
-        guard let cycleId = session?.activeCycle?.id,
-              let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId) else { return }
+    func loadProfiles() async throws {
+        guard
+            let cycleId = session?.activeCycle?.id,
+            let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
+        else {return}
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
         profiles = await profileLoader(data: data)
-        Task { await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
+        
+        Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }
-
+        
+        
     func eventsListener() {
         eventStreamTask?.cancel()
-        let eventStreamTask = Task { @MainActor in
-            for try await event in eventManager.eventStream(userId: user.id) {
-                switch event {
-
-                case .removePending(let id):
-                    invites.removeAll { $0.profile.id == id }
-                    
-                case .addAccepted(let userEvent):
-                    await loadEvent(event: userEvent)
-                    
-                case .addPastAccepted(let pastAccepted):
-                    await loadPastEvent(event: pastAccepted)
-                    
-                case .newInvite(let userEvent):
-                    await loadInvite(userEvent: userEvent)
+        eventStreamTask = Task { @MainActor in
+            do{
+                for try await event in eventManager.eventStream(userId: user.id) {
+                    switch event {
+                        
+                    case .removePending(let id):
+                        invites.removeAll { $0.profile.id == id }
+                        
+                    case .addAccepted(let userEvent):
+                        await loadEvent(event: userEvent)
+                        
+                    case .addPastAccepted(let pastAccepted):
+                        await loadPastEvent(event: pastAccepted)
+                        
+                    case .newInvite(let userEvent):
+                        await loadInvite(userEvent: userEvent)
+                    }
                 }
+            }catch {
+                print (error)
             }
         }
     }
     
-    // determines which invites to show
-    
+
     func loadInvite(userEvent: UserEvent) async {
         let input = events.map { (id: $0.otherUserId, event: $0) }
         let profileModel = await profileLoader(data: input)
@@ -192,6 +197,7 @@ struct Session  {
         self.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
+    
     
     func loadEvent(event: UserEvent) async {
         self.events.append(event)
@@ -226,30 +232,19 @@ struct Session  {
         self.pastEvents = profileModels
     }
     
-    //Need to set up weekly cycle and cycle Listener (for the cycle Document -- remove it, change its status etc.) 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    func loadCycle() async {
-        guard
-            let userId = session?.user.id,
-            let cycleId = session?.user.activeCycleId
-        else { return }
-        let cycle = try? await cycleManager.fetchCycle(userId: userId, cycleId: cycleId)
-        session?.activeCycle = cycle
+    func loadCycle() async throws {
+        let (status, cycleModel) = try await cycleManager.checkCycleStatus(userId: user.id)
+        if status == .closed { showProfiles = false ; respondToRefresh = false ; return }
+        if status == .respond { showProfiles = true ; respondToRefresh = true ; return }
+        if status == .active { session?.activeCycle = cycleModel }
     }
+    
+    func cycleListener() async {
+        
+    }
+    
+    
+    
     
     func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
@@ -269,44 +264,3 @@ struct Session  {
 
 
 
-
-/*
- @discardableResult
- func loadUser() async -> AppState {
-     guard
-         let uid = await authManager.fetchAuthUser()
-     else {
-         defaultManager.deleteDefaults()
-         return .login
-     }
-     guard let user = try? await userManager.fetchUser(userId: uid) else {
-         print("User not found")
-         return .createAccount
-     }
-     startSession(user: user)
-     Task {
-         await cacheManager.loadProfileImages([user])
-         print("images added to Cache")
-         print(user.imagePathURL)
-     }
-     return .app
- }
- */
-
-/*
-        let oldIds = profiles.map { $0.id }
-        for id in newIds {
-            if !oldIds.contains(id) {
-                try await loadProfile(id: id)
-            }
-        }
-        for id in oldIds {
-            if !newIds.contains(id) {
-                self.profiles.removeAll { $0.id == id }
-            }
-        }
-    }
-} catch {
-    print(error)
-}
-        */

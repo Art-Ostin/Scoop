@@ -57,6 +57,8 @@ final class CycleManager {
             .map(\.id)
     }
     
+    
+    
     func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<PendingRecEvent, Error> {
         AsyncThrowingStream { continuation in
             
@@ -121,29 +123,34 @@ final class CycleManager {
     func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
         cycleDocument(userId: userId, cycleId: cycleId).updateData(data)
     }
-
+    
     
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
     }
     
-    func checkCycleStatus (userId: String, cycle: CycleModel?) async -> CycleStatus {
-        guard let cycle, let id = cycle.id else  {return .closed }
+    func checkCycleStatus (userId: String) async throws -> (CycleStatus, CycleModel?) {
+        let profile = try await userManager.fetchUser(userId: userId)
+        guard let cycleId = profile.activeCycleId else { return (.closed, nil) }
+        var cycle = try await fetchCycle(userId: userId, cycleId: cycleId)
+        
         if Date() > cycle.endsAt.dateValue() {
             if cycle.cycleStats.pending == 0 || Date() > cycle.autoRemoveAt.dateValue() {
-                try? await deleteCycle(userId: userId, cycleId: id)
-                print("closed")
-                return .closed
-            } else {
-                updateCycle(userId: userId, cycleId: id, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.respond.rawValue])
-                print("respond")
-                return .respond
+                try? await deleteCycle(userId: userId, cycleId: cycleId)
+                print("cycle deleted")
+                return (.closed, nil)
             }
         } else {
-            print("active")
-            return .active
+            if cycle.cycleStatus != .respond {
+                updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.CodingKeys.cycleStatus.stringValue : CycleStatus.respond.rawValue])
+                cycle.cycleStatus = .respond
+            }
+            return (.respond, cycle)
         }
+        print("cycle active")
+        return (.active, cycle)
     }
+
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
         guard let id = cycle?.id else { return }
@@ -166,19 +173,3 @@ final class CycleManager {
     }
 }
 
-
-
-//A listener set up for the CycleModel
-/*
- func userRecsStream(userId: String, cycleId: String) -> AsyncThrowingStream<CycleModel?, Error> {
-     AsyncThrowingStream { continuation in
-         cycleDocument(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
-             if let error = error {continuation.finish(throwing: error) ; return }
-             guard let snap = snapshot else { return }
-             guard snap.exists else { continuation.yield(nil); return }
-             do{ continuation.yield(try snap.data(as: CycleModel.self))}
-             catch{continuation.finish(throwing: error) ; return }
-         }
-     }
- }
- */
