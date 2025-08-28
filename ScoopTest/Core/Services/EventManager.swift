@@ -13,7 +13,7 @@ enum InviteUpdate {
     case newInvite(userEvent: UserEvent)
     case removePending(id: String)
     case addAccepted(userEvent: UserEvent)
-    case addPastAccepted(id: String)
+    case addPastAccepted(userEvent: UserEvent)
 }
 
 
@@ -187,7 +187,7 @@ class EventManager {
                         
                     case .modified:
                         
-                        if let userEvent = try? change.document.data(as: UserEvent.self), let id = userEvent.id {
+                        if let userEvent = try? change.document.data(as: UserEvent.self) {
                             
                             if userEvent.status != .pending {
                                 continuation.yield(InviteUpdate.removePending(id: userEvent.otherUserId))
@@ -196,9 +196,9 @@ class EventManager {
                             if userEvent.status == .accepted {
                                 continuation.yield(InviteUpdate.addAccepted(userEvent: userEvent))
                             }
-                            
+
                             if userEvent.status == .pastAccepted {
-                                continuation.yield(InviteUpdate.addPastAccepted(id: id))
+                                continuation.yield(InviteUpdate.addPastAccepted(userEvent: userEvent))
                             }
                         }
                         
@@ -208,8 +208,6 @@ class EventManager {
                 }
             }
         }
-        
-        
     }
     
 }

@@ -48,6 +48,7 @@ struct Session  {
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
     var events: [UserEvent] = []
+    var pastEvents: [ProfileModel] = []
     
     var activeCycle: CycleModel? { session?.activeCycle }
     
@@ -88,7 +89,8 @@ struct Session  {
         async let events: ()  = loadEvents()
         async let invites: ()  = loadInvites()
         async let profiles: () = loadProfiles()
-        _ = await (events, invites, profiles)
+        async let pastEvents: () = loadPastEvents()
+        _ = await (events, invites, profiles, pastEvents)
         Task { await cacheManager.loadProfileImages([user]) }
         
         startUserStream(for: user.id)
@@ -153,7 +155,7 @@ struct Session  {
     
     
     func eventsListener() {
-        
+        eventStreamTask?.cancel()
         let eventStreamTask = Task { @MainActor in
             for try await event in eventManager.eventStream(userId: user.id) {
                 switch event {
@@ -164,8 +166,8 @@ struct Session  {
                 case .addAccepted(let userEvent):
                     await loadEvent(event: userEvent)
                     
-                case .addPastAccepted(let id):
-                    print("Waiting to fill in here")
+                case .addPastAccepted(let pastAccepted):
+                    await loadPastEvent(event: pastAccepted)
                     
                 case .newInvite(let userEvent):
                     await loadInvite(userEvent: userEvent)
@@ -174,7 +176,7 @@ struct Session  {
             }
         }
     }
-
+    
     // determines which invites to show
     
     func loadInvite(userEvent: UserEvent) async {
@@ -211,6 +213,21 @@ struct Session  {
         }
     }
     
+    func loadPastEvent(event: UserEvent) async {
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModels = await profileLoader(data: input)
+        if let profile = profileModels.first {
+            self.pastEvents.append(profile)
+
+        }
+    }
+    
+    func loadPastEvents() async {
+        guard let events = try? await eventManager.getPastAcceptedEvents(userId: user.id) else {return}
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModels = await profileLoader(data: input)
+        self.pastEvents = profileModels
+    }
     
     
     

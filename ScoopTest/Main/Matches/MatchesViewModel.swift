@@ -33,7 +33,12 @@ import UIKit
     
     var user: UserProfile {s.user}
     
+    var events: [ProfileModel] { s.pastEvents }
+    
     func signOut() {
         try? authManager.signOutAuthUser()
     }
+    
+    
+    
 }

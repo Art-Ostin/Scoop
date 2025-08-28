@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct ProfileModel {
+struct ProfileModel: Identifiable {
     var event: UserEvent?
     var profile: UserProfile
     var image: UIImage?
