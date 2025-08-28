@@ -54,7 +54,11 @@ struct AcceptInvitePopup: View {
             Button ("I Understand") {
                 Task {
                     if let id = vm.event.id {
-                        try? await vm.acceptInvite(eventId: id)
+                        do {
+                            try await vm.acceptInvite(eventId: id)
+                        } catch {
+                            print(error)
+                        }
                     }
                     tabSelection.wrappedValue = 1
                     onDismiss()

@@ -20,28 +20,34 @@ struct MatchesView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 32) {
-                ForEach(vm.events) {profileModel in
-                    Text(profileModel.event?.otherUserName ?? "There was no name")
+            Group {
+                if vm.events.isEmpty {
+                    noMatchesView
+                } else {
+                    VStack(spacing: 32) {
+                        
+                        Text("HEllo World")
+                        ForEach(vm.events) {profileModel in
+                            Text(profileModel.event?.otherUserName ?? "There was no name")
+                        }
+                    }
                 }
             }
-        }
-        .navigationTitle("Matches")
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                HStack(spacing: 32) {
-                    Image("GearIcon")
-                        .onTapGesture { showSettingsView.toggle() }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    HStack(spacing: 32) {
+                        Image("GearIcon")
+                            .onTapGesture { showSettingsView.toggle() }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    VStack {
+                        CirclePhoto(image: image ?? UIImage())
+                    }
+                    .onTapGesture {showProfileView = true }
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                VStack {
-                    CirclePhoto(image: image ?? UIImage())
-                }
-                .onTapGesture {showProfileView = true }
-            }
-            
-            
+            .navigationTitle("Matches")
         }
         .fullScreenCover(isPresented: $showProfileView){
             EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: vm.defaultsManager))
@@ -53,7 +59,6 @@ struct MatchesView: View {
     }
 }
 
-
 extension MatchesView {
 
     private var noMatchesView: some View {
@@ -63,6 +68,6 @@ extension MatchesView {
             Text("View your past Meet Ups Here")
                 .font(.body(20))
         }
+        .frame(maxHeight: .infinity)
     }
-    
 }

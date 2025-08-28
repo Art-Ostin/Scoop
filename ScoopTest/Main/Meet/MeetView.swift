@@ -47,6 +47,7 @@ extension MeetView {
                 ProfileCard(vm: vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
 
+            
             if vm.showProfiles {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
                     VStack {

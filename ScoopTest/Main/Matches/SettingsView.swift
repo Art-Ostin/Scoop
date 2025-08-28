@@ -14,82 +14,46 @@ struct SettingsView: View {
     @State var vm: SettingsViewModel
     
     init(vm: SettingsViewModel) { self.vm = vm }
-
+    
     
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                
-                VStack (alignment: .leading) {
-                    
-                    Text (verbatim: "Arthur.ostin@mail.mcgill.ca")
-                        .font(.body(16))
-                        .foregroundStyle(Color.grayText)
-                        .padding(.top, 24)
-                        .offset(x: 44)
-                        .offset(y: 12)
-                    
-                    
-                    
-                    CustomList(title: vm.user.email) {
-                        
-                        Text("Sign Out")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 40, alignment: .center)
-                        softDivider
-                            .padding(.trailing)
-                        
-                        Text("Delete Account")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 40, alignment: .center)
-                            .foregroundStyle(.accent)
-                    }
+        
+        signOutSection
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle("Settings")
+    }
+}
 
-                    
-                    
-                    
-  
+extension SettingsView {
+    
+    private var signOutSection: some View {
+        
+        CustomList(title: vm.user.email) {
+            Text("Sign Out")
+                .frame(maxWidth: .infinity)
+                .frame(height: 40, alignment: .center)
+                .onTapGesture {
+                    vm.signOut()
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationTitle("Settings")
-            .background(Color(red: 0.97, green: 0.98, blue: 0.98))
+            softDivider
+                .padding(.trailing)
+            
+            Text("Delete Account")
+                .frame(maxWidth: .infinity)
+                .frame(height: 40, alignment: .center)
+                .foregroundStyle(.accent)
         }
     }
     
     private var softDivider: some View {
-        
         Rectangle()
             .frame(height: 1)
             .frame(maxWidth:.infinity)
             .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
-            .padding(.leading, 24)
+            .padding(.horizontal, 24)
     }
-    
-//    func customList<Content: View>(title: String?, @ViewBuilder content: () -> Content) -> some View {
-//        
-//        VStack(alignment: .leading, spacing: 8) {
-//            if let title = title {
-//                Text(title)
-//                    .font(.body(12, .bold))
-//                    .foregroundStyle(Color.grayText)
-//                    .padding(.horizontal, 24)
-//            }
-//            
-//            VStack(spacing: 6) {
-//                content()
-//            }
-//            .background(Color.white)
-//            .padding([.top, .bottom], 12)
-//            .background(Color.white, in: RoundedRectangle(cornerRadius: 20))
-//            .padding(.horizontal)
-//            .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
-//        }
-//        .padding()
-//    }
 }
 
-//#Preview {
-//    SettingsView()
-//}
+
+
