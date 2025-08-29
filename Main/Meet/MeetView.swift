@@ -72,7 +72,7 @@ extension MeetView {
             ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager)) {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     selectedProfile = nil
-                    Task { await vm.reloadWeeklyCycle() }
+                    Task { try? await vm.reloadWeeklyCycle() }
                 }
             }
         }
@@ -84,7 +84,7 @@ extension MeetView {
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
             SimpleClockView(targetTime: time) {
-                Task { await vm.reloadWeeklyCycle() ; print("reloaded cycle")}
+                Task { try? await vm.reloadWeeklyCycle() ; print("reloaded cycle")}
             }
         }
     }

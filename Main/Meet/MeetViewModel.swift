@@ -34,19 +34,18 @@ import UIKit
     
     var endTime: Date? { activeCycle?.endsAt.dateValue()}
     
-    func reloadWeeklyCycle() async {
-        let status = await cycleManager.checkCycleStatus(userId: s.user.id , cycle: activeCycle)
+    func reloadWeeklyCycle() async throws {
+        let (status, _) = try await cycleManager.checkCycleStatus(userId: s.user.id)
         if status == .respond { s.respondToRefresh = true }
         if status == .closed { s.showProfiles = false ; s.respondToRefresh = false }
     }
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle(userId: s.user.id)
-        await s.loadCycle()
+//        await s.loadCycle()
         await s.loadProfiles()
         s.showProfiles = true
     }
-
     
     func fetchImage(url: URL) async throws -> UIImage {
         try await cacheManager.fetchImage(for: url)
