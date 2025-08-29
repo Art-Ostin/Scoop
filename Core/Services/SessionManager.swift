@@ -144,6 +144,7 @@ struct Session  {
     }
     
     func loadProfiles() async {
+        print("loading Profiles")
         guard
             let cycleId = session?.activeCycle?.id,
             let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)

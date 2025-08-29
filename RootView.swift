@@ -35,8 +35,6 @@ struct RootView : View {
                         .id(s.user.id)
                 }
             }
-        }.onAppear {
-            print("testing Terminal")
         }
     }
 }
