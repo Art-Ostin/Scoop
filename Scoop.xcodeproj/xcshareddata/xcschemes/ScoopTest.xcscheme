@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6578382B2DE773CC00770B49"
-               BuildableName = "ScoopTest.app"
-               BlueprintName = "ScoopTest"
+               BuildableName = "Scoop.app"
+               BlueprintName = "Scoop"
                ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -36,8 +36,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "657838382DE773CE00770B49"
-               BuildableName = "ScoopTestTests.xctest"
-               BlueprintName = "ScoopTestTests"
+               BuildableName = "ScoopTests.xctest"
+               BlueprintName = "ScoopTests"
                ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -47,8 +47,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "657838422DE773CE00770B49"
-               BuildableName = "ScoopTestUITests.xctest"
-               BlueprintName = "ScoopTestUITests"
+               BuildableName = "ScoopUITests.xctest"
+               BlueprintName = "ScoopUITests"
                ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -69,8 +69,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6578382B2DE773CC00770B49"
-            BuildableName = "ScoopTest.app"
-            BlueprintName = "ScoopTest"
+            BuildableName = "Scoop.app"
+            BlueprintName = "Scoop"
             ReferencedContainer = "container:Scoop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -86,8 +86,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6578382B2DE773CC00770B49"
-            BuildableName = "ScoopTest.app"
-            BlueprintName = "ScoopTest"
+            BuildableName = "Scoop.app"
+            BlueprintName = "Scoop"
             ReferencedContainer = "container:Scoop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
