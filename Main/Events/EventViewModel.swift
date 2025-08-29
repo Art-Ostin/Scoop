@@ -48,4 +48,8 @@ import SwiftUI
         print("saved Images to Cache")
     }
     
+    func testingCloudFunctions() async throws {
+        
+    }
+    
 }

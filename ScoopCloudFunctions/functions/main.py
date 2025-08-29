@@ -5,7 +5,7 @@
 from firebase_functions import firestore_fn, https_fn
 
 # The Firebase Admin SDK to access Cloud Firestore.
-from firebase_admin import initialize_app, firestore
+from firebase_admin import initialize_app, firestore, db
 import google.cloud.firestore
 
 app = initialize_app()
@@ -48,3 +48,8 @@ def makeuppercase(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None
     print(f"Uppercasing {event.params['pushId']}: {original}")
     upper = original.upper()
     event.data.reference.update({"uppercase": upper})
+
+
+@https_fn.on_call()
+def addmessage(req: https_fn.CallableRequest) -> Str: 
+    return https_fn.Response("Call was successful", status=200)

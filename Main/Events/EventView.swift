@@ -5,6 +5,8 @@
 //  Created by Art Ostin on 04/08/2025.
 
 import SwiftUI
+import FirebaseFunctions
+
 
 struct EventView: View {
         
@@ -30,6 +32,18 @@ struct EventView: View {
                         .onTapGesture {
                             showEventDetails.toggle()
                         }
+                }
+                
+                ActionButton(text: "Test Functions") {
+                    Task {
+                        do{
+                           let result = try await Functions.functions().httpsCallable("addmessage").call()
+                            
+                            let string = result.data as? String ?? "No data"
+                            
+                            print(string)
+                        }
+                    }
                 }
 
                 TabView(selection: $selection) {

@@ -80,6 +80,7 @@
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
+		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
 		65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */; };
@@ -272,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				653BAF8A2E0B860800C1AB9E /* FirebaseAnalytics in Frameworks */,
+				65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */,
 				653BAF8E2E0B860800C1AB9E /* FirebaseStorage in Frameworks */,
 				653BAF8C2E0B860800C1AB9E /* FirebaseAuth in Frameworks */,
 				65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */,
@@ -599,6 +601,7 @@
 				653BAF8D2E0B860800C1AB9E /* FirebaseStorage */,
 				65058E8D2E1C4080009AD7FD /* FirebaseFirestore */,
 				650135682E4A41F400630CF3 /* AsyncAlgorithms */,
+				65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */,
 			);
 			productName = ScoopTest;
 			productReference = 6578382C2DE773CC00770B49 /* ScoopTest.app */;
@@ -1222,6 +1225,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
