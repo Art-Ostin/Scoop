@@ -19,6 +19,9 @@ struct Session  {
 @MainActor
 @Observable class SessionManager {
     
+    private let eventManager: EventManager
+    private let cacheManager: CacheManaging
+    private let userManager: UserManager
     private let cycleManager: CycleManager
     private let authManager: AuthManaging
     private let defaultManager: DefaultsManager
@@ -88,7 +91,7 @@ struct Session  {
         async let invites: ()  = loadInvites()
         async let profiles: () = loadProfiles()
         async let pastEvents: () = loadPastEvents()
-        _ = try await (events, invites, profiles, pastEvents)
+        _ =  await (events, invites, profiles, pastEvents)
         Task { await cacheManager.loadProfileImages([user]) }
         
         startUserStream(for: user.id)
