@@ -33,18 +33,6 @@ struct EventView: View {
                             showEventDetails.toggle()
                         }
                 }
-                
-                ActionButton(text: "Test Functions") {
-                    Task {
-                        do{
-                           let result = try await Functions.functions().httpsCallable("addmessage").call()
-                            
-                            let string = result.data as? String ?? "No data"
-                            
-                            print(string)
-                        }
-                    }
-                }
 
                 TabView(selection: $selection) {
                     ForEach(vm.userEvents) { event in

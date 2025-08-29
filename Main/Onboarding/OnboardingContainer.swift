@@ -36,7 +36,6 @@ struct OnboardingContainer: View {
                 }
                 .environment(\.flowMode, .onboarding(step: current) {
                     withAnimation { defaults.advanceOnboarding() }
-                    print(defaults.fetch())
                     print(String(defaults.onboardingStep))
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFunctions
 
 
 struct MatchesView: View {
@@ -63,6 +64,19 @@ extension MatchesView {
 
     private var noMatchesView: some View {
         VStack(spacing: 32) {
+            
+            ActionButton(text: "Test Functions") {
+                Task {
+                    do{
+                       let result = try await Functions.functions().httpsCallable("addmessage").call()
+                        
+                        let string = result.data as? String ?? "No data"
+                        
+                        print(string)
+                    }
+                }
+            }
+            
             Image("DancingCats")
             
             Text("View your past Meet Ups Here")
