@@ -101,11 +101,13 @@ struct Session  {
     }
     
     func profilesListener() {
+        profileStreamTask?.cancel()
         guard
             let userId = session?.user.id,
             let cycleId = session?.activeCycle?.id
-        else { return }
-        profileStreamTask?.cancel()
+        else {
+            print("unsuccessfull")
+            return }
         profileStreamTask = Task { @MainActor in
             do {
                 for try await event in cycleManager.pendingProfilesStream(userId: userId, cycleId: cycleId){
@@ -240,7 +242,6 @@ struct Session  {
     }
     
     func cycleListener() {
-        cycleStreamTask?.cancel()
         cycleStreamTask = Task {@MainActor in
             do{
                 for try await update in cycleManager.cycleStream(userId: user.id) {
@@ -272,9 +273,8 @@ struct Session  {
     
     // Session starter and loading to ProfileModels
     func startSession(user: UserProfile) async throws {
-        session = Session(user: user)
         userStreamTask?.cancel()
-        
+        session = Session(user: user)
         try await loadCycle()
         
         async let events: ()  = loadAcceptedEvents()
