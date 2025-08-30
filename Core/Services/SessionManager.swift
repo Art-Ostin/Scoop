@@ -120,15 +120,13 @@ struct Session  {
                     case .removeInvite(let id):
                         invites.removeAll { $0.profile.id == id }
                         
-                    case .newInvite(let userEvent):
+                    case .eventInvite(let userEvent):
                         await loadEventInvite(userEvent: userEvent)
                         
                     case .eventAccepted(let userEvent):
-                        removeInvite(userEvent: userEvent)
                         await loadAcceptedEvent(event: userEvent)
                         
-                    case .addPastAccepted(let userEvent):
-                        removeAccepted(userEvent: userEvent)
+                    case .pastEventAccepted(let userEvent):
                         await loadPastAcceptedEvent(event: userEvent)
                     }
                 }
@@ -169,14 +167,6 @@ struct Session  {
             }
         }
     }
-
-    
-    
-    
-    
-    
-    
-    
     
     private func loadProfile(id: String) async throws {
         guard profiles.contains(where: { $0.id == id }) == false else { return }
@@ -196,39 +186,28 @@ struct Session  {
     }
     
     func loadAcceptedEvent(event: UserEvent) async {
+        let ids = invites.map { $0.event?.id }
+        if ids.contains(event.id) { invites.removeAll { $0.event?.id == event.id }}
+        
         guard self.events.contains(where: { $0.id == event.id }) == false else { return }
         self.events.append(event)
         let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
         await cacheManager.loadProfileImages(profileModels.map(\.profile))
     }
-
+    
     func loadPastAcceptedEvent(event: UserEvent) async {
+        let ids = events.map { $0.id }
+        if ids.contains(event.id) { events.removeAll { $0.id == event.id}}
+        
         let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
         if let profile = profileModels.first {
             self.pastEvents.append(profile)
+        }
+    }
+    
 
-        }
-    }
-
-    
-    
-    
-    func removeInvite(userEvent: UserEvent) {
-        let ids = invites.map { $0.event?.id }
-        if ids.contains(userEvent.id) {
-            invites.removeAll { $0.event?.id == userEvent.id }
-        }
-    }
-    
-    func removeAccepted(userEvent: UserEvent) {
-        let ids = events.map { $0.id }
-        if ids.contains(userEvent.id) {
-            events.removeAll { $0.id == userEvent.id}
-        }
-    }
-        
     // Session starter and loading to ProfileModels
     
     func stopSession() {
