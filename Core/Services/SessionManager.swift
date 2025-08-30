@@ -95,7 +95,10 @@ struct Session  {
             let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
         else {return}
         let data = ids.map { (id: $0, event: nil as UserEvent?)}
-        profiles = await profileLoader(data: data)
+        let newProfiles = await profileLoader(data: data)
+        
+        
+//        profiles = await profileLoader(data: data)
         
         Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }

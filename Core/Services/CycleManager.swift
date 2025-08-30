@@ -68,8 +68,7 @@ final class CycleManager {
             print("listener called")
             let reg = profilesCollection(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
                 if let error { continuation.finish(throwing: error); return }
-                guard let snap = snapshot else {return}
-
+                guard let snap = snapshot else { return }
                 for change in snap.documentChanges {
                     guard let item = try? change.document.data(as: RecommendationItem.self) else { continue }
                     let isPending: Bool = item.recommendationStatus == .pending

@@ -48,11 +48,7 @@ struct RecommendationItem: Identifiable, Codable, Sendable{
     @ServerTimestamp var addedDay: Timestamp?
     var actedAt: Timestamp?
     
-    enum CodingKeys: CodingKey {
-        case id
-        case profileViews
-        case recommendationStatus
-        case addedDay
-        case actedAt
+    enum Field  {
+        case id, profileViews, status, addedDay
     }
 }
