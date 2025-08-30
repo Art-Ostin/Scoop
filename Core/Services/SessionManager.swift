@@ -33,9 +33,9 @@ struct Session  {
     private(set) var session: Session?
     
     private var userStreamTask: Task<Void, Never>?
-    private var authStreamTask: Task<Void, Never>?
-    private var cycleStreamTask: Task<Void, Never>?
+    private var profileStreamTask: Task<Void, Never>?
     private var eventStreamTask: Task<Void, Never>?
+    private var cycleStreamTask: Task<Void, Never>?
     
     var showProfilesState: showProfilesState = .closed
     
@@ -63,8 +63,8 @@ struct Session  {
     
     //Loads user & listener to update the App State if user signs out, creates account, creates profile etc.
     func loadUserAndUserListener (appState: Binding<AppState>) {
-        authStreamTask?.cancel()
-        authStreamTask = Task { @MainActor in
+        userStreamTask?.cancel()
+        userStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
                 
                 guard let uid else {
@@ -105,9 +105,8 @@ struct Session  {
             let userId = session?.user.id,
             let cycleId = session?.activeCycle?.id
         else { return }
-        cycleStreamTask?.cancel()
-        cycleStreamTask = Task { @MainActor in
-            print("profile Listener triggered")
+        profileStreamTask?.cancel()
+        profileStreamTask = Task { @MainActor in
             do {
                 for try await event in cycleManager.pendingProfilesStream(userId: userId, cycleId: cycleId){
                     switch event {
@@ -242,7 +241,7 @@ struct Session  {
     
     func cycleListener() {
         cycleStreamTask?.cancel()
-        eventStreamTask = Task {@MainActor in
+        cycleStreamTask = Task {@MainActor in
             do{
                 for try await update in cycleManager.cycleStream(userId: user.id) {
                     switch update {
