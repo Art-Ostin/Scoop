@@ -42,11 +42,11 @@ struct ProfileView: View {
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvitePopup = false }
                     if (vm.profileModel.event != nil) {
-                        AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager)) {
+                        AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager, userManager: dep.userManager)) {
                             onDismiss()
                         }
                     } else {
-                        SendInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager)) {
+                        SendInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager, userManager: dep.userManager)) {
                             onDismiss()
                         }
                     }

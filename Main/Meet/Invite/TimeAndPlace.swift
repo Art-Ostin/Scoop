@@ -13,15 +13,17 @@ import Foundation
     let cycleManager: CycleManager
     let profileModel: ProfileModel
     let sessionManager: SessionManager
-
+    let userManager: UserManager
+    
     var event: EventDraft
     
     var receivedEvent: Event?
     
-    init(eventManager: EventManager, cycleManager: CycleManager, profileModel: ProfileModel, sessionManager: SessionManager) {
+    init(eventManager: EventManager, cycleManager: CycleManager, profileModel: ProfileModel, sessionManager: SessionManager, userManager: UserManager) {
         self.eventManager = eventManager
         self.cycleManager = cycleManager
         self.profileModel = profileModel
+        self.userManager = userManager
         self.sessionManager = sessionManager
         self.event = EventDraft()
     }
@@ -41,5 +43,19 @@ import Foundation
     
     func acceptInvite(eventId: String) async throws {
         try await eventManager.updateStatus(eventId: eventId, to: .accepted)
+    }
+    
+    
+    
+    func saveIdealMeetUp(event: EventDraft) async throws {
+        guard
+            let time = event.time,
+            let place = event.location,
+            let type = event.type,
+            let message = event.message
+        else { return }
+        
+        let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: message)
+        try await userManager.updateUser(values: [UserProfile.Field.idealMeetUp : idealMeetUp])
     }
 }

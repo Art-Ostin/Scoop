@@ -8,22 +8,26 @@ struct SendInvitePopup: View {
     @State var vm: InviteViewModel
     @State var showAlert: Bool = false
     @FocusState var isFocused: Bool
+    var forUser: Bool
     
     let onDismiss: () -> Void
 
-    init(vm: InviteViewModel, onDismiss: @escaping () -> Void) {
+    init(vm: InviteViewModel, forUser: Bool = false, onDismiss: @escaping () -> Void) {
         _vm = State(initialValue: vm)
         self.onDismiss = onDismiss
+        self.forUser = forUser
     }
         
     var body: some View {
         ZStack {
+
             sendInviteScreen
             
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
                     .offset(y: 96)
             }
+            
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
                     .offset(y: 164)
@@ -56,19 +60,29 @@ extension SendInvitePopup {
 
     private var sendInviteScreen: some View {
         VStack(spacing: 32) {
-            HStack {
-                CirclePhoto(image: vm.profileModel.image ?? UIImage())
-                
-                Text("Meet \(vm.profileModel.profile.name)")
+            if forUser {
+                Text ("Your Time & Place")
                     .font(.title(24))
+            } else {
+                HStack {
+                    
+                    CirclePhoto(image: vm.profileModel.image ?? UIImage())
+                    
+                    Text("Meet \(vm.profileModel.profile.name)")
+                        .font(.title(24))
+                }
             }
             InviteTypeRow
             Divider()
             InviteTimeRow
             Divider()
             InvitePlaceRow
-            ActionButton(isValid: InviteIsValid, text: "Confirm & Send") {
-                showAlert.toggle()
+            ActionButton(isValid: InviteIsValid, text: forUser ? "View Profiles" : "Confirm & Send") {
+                if forUser {
+                    onDismiss()
+                } else {
+                    showAlert.toggle()
+                }
             }
         }
         .frame(alignment: .top)

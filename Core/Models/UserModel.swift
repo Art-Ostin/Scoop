@@ -57,6 +57,8 @@ struct UserProfile: Codable, Equatable, Identifiable {
     var drugs: String
     var languages: String = ""
     
+    
+    var idealMeetUp: IdealMeetUp?
     var prompt1: PromptResponse?
     var prompt2: PromptResponse?
     var prompt3: PromptResponse?
@@ -89,14 +91,14 @@ extension UserProfile {
             drinking: draft.drinking,
             smoking: draft.smoking,
             marijuana: draft.marijuana,
-            drugs: draft.drugs
+            drugs: draft.drugs,
         )
     }
     enum Field: String {
       case name, sex, attractedTo, year, height, interests, degree, hometown,
            nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
            marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
-           favouriteMovie, favouriteSong, favouriteBook, activeCycleId
+           favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp
     }
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {

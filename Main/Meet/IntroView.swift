@@ -8,23 +8,37 @@
 import SwiftUI
 
 struct IntroView: View {
-    
+    @Bindable var timeVm: InviteViewModel
     @Bindable var vm: MeetViewModel
+    @State var showIdealTime: Bool = false
+    
+    
+    
     let quote = quotes.shared.allQuotes.randomElement()!
     var body: some View {
-        
-        VStack(spacing: 72) {
-            VStack(spacing: 36) {
-                Text(quote.quoteText)
-                    .font(.body(.italic))
-                    .lineSpacing(8)
-                    .multilineTextAlignment(.center)
-                
-                Text("- \(quote.name)")
-                    .font(.body(14, .bold))
+        ZStack {
+            VStack(spacing: 72) {
+                VStack(spacing: 36) {
+                    Text(quote.quoteText)
+                        .font(.body(.italic))
+                        .lineSpacing(8)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("- \(quote.name)")
+                        .font(.body(14, .bold))
+                }
+                ActionButton(text: "View Profiles") {
+                    showIdealTime.toggle()
+                }
             }
-            ActionButton(text: "View Profiles") {
-                Task { try? await vm.createWeeklyCycle() }
+            
+            if showIdealTime {
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { showIdealTime = false }
+                SendInvitePopup(vm: InviteViewModel(eventManager: vm.eventManager, cycleManager: vm.cycleManager, profileModel: vm.profileModel, sessionManager: vm.sessionManager, userManager: vm.userManager)) {
             }
         }
     }
