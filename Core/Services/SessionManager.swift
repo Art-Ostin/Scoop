@@ -115,6 +115,7 @@ struct Session  {
                         try await loadProfile(id: id)
                     case .movedToInvite(let id):
                         profiles.removeAll { $0.id == id }
+                        print("removed profile)")
                     }
                 }
             } catch {

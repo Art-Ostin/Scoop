@@ -69,7 +69,7 @@ final class CycleManager {
             let reg = profilesCollection(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
                 if let error { continuation.finish(throwing: error); return }
                 guard let snap = snapshot else {return}
-                
+                print("pending Stream called")
                 for change in snap.documentChanges {
                     switch change.type {
                     case .added:
