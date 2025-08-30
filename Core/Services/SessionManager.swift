@@ -88,18 +88,19 @@ struct Session  {
     
     
     // Loads the profiles, and updates profiles if invited or not
-    func loadProfiles() async {
-        guard
-            let cycleId = session?.activeCycle?.id,
-            let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
-        else {return}
-        let uniqueIds = Set(Array(ids))
-        let data = uniqueIds.map { (profileId: $0, event: nil as UserEvent?)}
-        self.profiles = await profileLoader(data: data)
-        Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
-    }
+//    func loadProfiles() async {
+//        guard
+//            let cycleId = session?.activeCycle?.id,
+//            let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
+//        else {return}
+//        let uniqueIds = Set(Array(ids))
+//        let data = uniqueIds.map { (profileId: $0, event: nil as UserEvent?)}
+//        self.profiles = await profileLoader(data: data)
+//        Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
+//    }
     
     func profilesListener() {
+        print("profileListener Called")
         profileStreamTask?.cancel()
         guard
             let userId = session?.user.id,
@@ -122,6 +123,7 @@ struct Session  {
     }
     
     private func loadProfile(id: String) async throws {
+        guard profiles.contains(where: { $0.id == id }) == false else { return }
         let profile = try await userManager.fetchUser(userId: id)
         Task { await cacheManager.loadProfileImages([profile]) }
         let profileModel = ProfileModel(profile: profile)
@@ -131,6 +133,7 @@ struct Session  {
     
     // Load the events, Invites and Past Accepted and the listener to change their respective field
     func loadEventInvites() async {
+        
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
         let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let invites = await profileLoader(data: input)
@@ -155,6 +158,7 @@ struct Session  {
             await cacheManager.loadProfileImages(profileModels.map(\.profile))
         }
     }
+    
     func loadAcceptedEvent(event: UserEvent) async {
         guard self.events.contains(where: { $0.id == event.id }) == false else { return }
         self.events.append(event)
@@ -272,9 +276,9 @@ struct Session  {
         
         async let events: ()  = loadAcceptedEvents()
         async let invites: ()  = loadEventInvites()
-        async let profiles: () = loadProfiles()
+//        async let profiles: () = loadProfiles()
         async let pastEvents: () = loadAcceptedEvents()
-        _ =  await (events, invites, profiles, pastEvents)
+        _ =  await (events, invites, /*profiles*/ pastEvents)
         
         userEventsListener()
         profilesListener()

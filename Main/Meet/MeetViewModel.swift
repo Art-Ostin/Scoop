@@ -36,7 +36,7 @@ import UIKit
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle(userId: s.user.id)
         try await s.loadCycle()
-        await s.loadProfiles()
+//        await s.loadProfiles()
     }
     
     func fetchImage(url: URL) async throws -> UIImage {
