@@ -1,0 +1,28 @@
+[debug] [2025-08-29T18:56:07.867Z] ----------------------------------------------------------------------
+[debug] [2025-08-29T18:56:07.875Z] Command:       /usr/local/bin/firebase /Users/napoleon/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase init functions
+[debug] [2025-08-29T18:56:07.875Z] CLI Version:   14.9.0
+[debug] [2025-08-29T18:56:07.876Z] Platform:      darwin
+[debug] [2025-08-29T18:56:07.876Z] Node Version:  v20.18.2
+[debug] [2025-08-29T18:56:07.876Z] Time:          Fri Aug 29 2025 14:56:07 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-08-29T18:56:07.877Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-29T18:56:07.887Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-29T18:56:07.888Z] > authorizing via signed-in user (artostin@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/napoleon/Documents/Scoop
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 

@@ -215,7 +215,6 @@ final class CycleManager {
                     }
                 }
             }
-            
         }
     }
 }

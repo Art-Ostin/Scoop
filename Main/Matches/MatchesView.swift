@@ -26,7 +26,6 @@ struct MatchesView: View {
                     noMatchesView
                 } else {
                     VStack(spacing: 32) {
-                        
                         Text("HEllo World")
                         ForEach(vm.events) {profileModel in
                             Text(profileModel.event?.otherUserName ?? "There was no name")
@@ -68,17 +67,19 @@ extension MatchesView {
             ActionButton(text: "Test Functions") {
                 Task {
                     do{
-                       let result = try await Functions.functions().httpsCallable("addmessage").call()
-                        
+                       let result = try await Functions.functions().httpsCallable("ping").call()
                         let string = result.data as? String ?? "No data"
-                        
                         print(string)
+                        print("function triggerd")
+                    } catch {
+                        print(error)
                     }
                 }
             }
             
+
             Image("DancingCats")
-            
+
             Text("View your past Meet Ups Here")
                 .font(.body(20))
         }

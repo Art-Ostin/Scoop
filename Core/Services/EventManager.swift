@@ -53,8 +53,9 @@ class EventManager {
         e.recipientId = profile.id
         
         e.inviteExpiryTime = getEventExpiryTime(event: e)
+        let canMessagage = Calendar.current.date(byAdding: .hour, value: -3, to: e.time)
         
-        let ref = try eventCollection.addDocument(from: event)
+        let ref = try eventCollection.addDocument(from: e)
         let id = ref.documentID
         
         let initiatorUserEvent = makeUserEvent(profile: profile, role: .sent, event: e)
@@ -88,6 +89,16 @@ class EventManager {
             return eventTime
         }
     }
+    
+    func getCanMessageTime(eventTime: Event) -> Date? {
+        guard let eventTime = event.time else {return}
+
+        let canMessagage = Calendar.current.date(byAdding: .hour, value: -3, to: eventTime)
+        
+    }
+    
+    
+    
     
     
     private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {
@@ -171,6 +182,9 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
     }
+    
+    
+    
     
     func eventStream(userId: String) -> AsyncThrowingStream<InviteUpdate, Error> {
         AsyncThrowingStream { continuation in

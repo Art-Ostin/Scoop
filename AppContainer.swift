@@ -3,7 +3,6 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 11/06/2025.
-//
 
 import SwiftUI
 
@@ -11,7 +10,6 @@ struct AppContainer: View {
     
     @State var selection: Int = 0
     @Environment(\.appDependencies) private var dep
-    
     
     var body: some View {
                 
@@ -41,7 +39,6 @@ struct AppContainer: View {
                         .id(dep.sessionManager.user.id)
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
-
                 }
             }
         }
