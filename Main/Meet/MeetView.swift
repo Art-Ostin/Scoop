@@ -20,14 +20,11 @@ struct MeetView: View {
             VStack(spacing: 36) {
                 Text("Meet")
                     .font(.body(32, .bold))
+                
                 tabView
 
-                
-                if vm.showProfilesState == .active {
-                    clockView
-                } else if vm.showProfilesState == .respond {
-                    Text("Respond to Refresh")
-                }
+                clockView
+
             }
             .padding(.top, 36)
             
@@ -36,8 +33,8 @@ struct MeetView: View {
             }
         }
         .onAppear {
-            let ids = vm.profiles.map(\.profile.id)
-            print (ids) 
+            let imagePathStrings = vm.profiles.map(\.profile.imagePathURL)
+            print (imagePathStrings)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -48,15 +45,15 @@ extension MeetView {
     private var tabView: some View {
         TabView {
             
-            ForEach(vm.invites) {profileInvite in
-                ProfileCard(vm: vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
+            ForEach(vm.invites, id: \.id) { profileInvite in
+                ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
             }
             
             if vm.showProfilesState != .closed {
-                ForEach(vm.profiles) {profileInvite in
+                ForEach(vm.profiles, id: \.id) { profileInvite in
                     VStack {
                         Text(profileInvite.profile.name)
-                        ProfileCard(vm: vm, profileInvite: profileInvite,  selectedProfile: $selectedProfile)
+                        ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
                     }
                 }
             } else {
@@ -82,8 +79,10 @@ extension MeetView {
     }
     
     @ViewBuilder private var clockView: some View {
-        if let time = vm.endTime {
+        if let time = vm.endTime, vm.showProfilesState == .active {
             SimpleClockView(targetTime: time) {}
+        } else if vm.showProfilesState == .respond {
+            Text("Respond to Refresh")
         }
     }
 }

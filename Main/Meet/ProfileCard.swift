@@ -3,35 +3,23 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 09/08/2025.
-//
+
 
 import SwiftUI
 
 struct ProfileCard : View {
     
     @Bindable var vm: MeetViewModel
-    let profileInvite: ProfileModel
+    let profile: ProfileModel
     @Binding var selectedProfile: ProfileModel?
     
     var body: some View {
-        ZStack {
-            VStack {
-                if let image = profileInvite.image {
-                    firstImage(image: image)
-                        .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) {
-                            withAnimation(.easeInOut(duration: 0.15)) {
-                                selectedProfile = profileInvite
-                            }
-                        }
-                    }
-                }
-                if let expiryTime = profileInvite.event?.inviteExpiryTime {
-                    SimpleClockView(targetTime: expiryTime) {
-                        guard let eventId = profileInvite.event?.id else {return}
-                        Task { try await vm.updateEventStatus(eventId: eventId, status: .declinedTimePassed) }
-                    }
-                }
+        VStack {
+            if let image = profile.image {
+                firstImage(image: image)
+                    .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) { selectedProfile = profile } }
             }
+            if let event = profile.event { SimpleClockView(targetTime: event.inviteExpiryTime) {} }
         }
     }
     private func firstImage(image: UIImage) -> some View {
