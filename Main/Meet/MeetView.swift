@@ -32,9 +32,6 @@ struct MeetView: View {
                 profileRecView(profileModel: profileModel)
             }
         }
-        .onAppear {
-            print(vm.profiles)
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

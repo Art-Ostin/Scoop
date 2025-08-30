@@ -28,7 +28,7 @@ import UIKit
     
     var profiles: [ProfileModel] { s.profiles }
     
-    var showProfilesState: showProfilesState { s.showProfilesState }
+    var showProfilesState: showProfilesState? { s.showProfilesState }
     
     var endTime: Date? { activeCycle?.endsAt.dateValue()}
     

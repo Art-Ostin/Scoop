@@ -47,7 +47,7 @@ struct Session  {
         self.defaultManager = defaultManager
     }
     
-    var showProfilesState: showProfilesState = .closed
+    var showProfilesState: showProfilesState?
 
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
@@ -171,10 +171,14 @@ struct Session  {
     private func loadProfile(id: String) async throws {
         guard profiles.contains(where: { $0.id == id }) == false else { return }
         let profile = try await userManager.fetchUser(userId: id)
-        Task { await cacheManager.loadProfileImages([profile]) }
-        let profileModel = ProfileModel(profile: profile)
+        let image = try await cacheManager.fetchFirstImage(profile: profile)
+        let profileModel = ProfileModel(profile: profile, image: image)
         profiles.append(profileModel)
-        print("profile Loaded")
+        Task {
+            print("Load images called")
+            await cacheManager.loadProfileImages([profile])
+            print("load Images complete")
+        }
     }
     
     func loadEventInvite(userEvent: UserEvent) async {
@@ -207,7 +211,7 @@ struct Session  {
             self.pastEvents.append(profile)
         }
     }
-
+    
     // Session starter and loading to ProfileModels
     
     func stopSession() {
