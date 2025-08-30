@@ -56,11 +56,10 @@ final class CycleManager {
     }
     
     func fetchCycleProfiles (userId: String, cycleId: String) async throws -> [String] {
-        let docs = try await profilesCollection(userId: userId, cycleId: cycleId)
+        let snap = try await profilesCollection(userId: userId, cycleId: cycleId)
             .whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRecStatus.pending.rawValue)
-            .getDocuments(as: ProfileRec.self)
-        guard let ids = docs.map(\.id) as? [String] else { return [] }
-        return ids
+            .getDocuments()
+        return snap.documents.map(\.documentID)
     }
     
     

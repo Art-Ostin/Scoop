@@ -94,7 +94,7 @@ struct Session  {
             let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
         else {return}
         let uniqueIds = Set(Array(ids))
-        let data = uniqueIds.map { (id: $0, event: nil as UserEvent?)}
+        let data = uniqueIds.map { (profileId: $0, event: nil as UserEvent?)}
         self.profiles = await profileLoader(data: data)
         Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }
@@ -132,13 +132,13 @@ struct Session  {
     // Load the events, Invites and Past Accepted and the listener to change their respective field
     func loadEventInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
-        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let invites = await profileLoader(data: input)
         self.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
     func loadEventInvite(userEvent: UserEvent) async {
-        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModel = await profileLoader(data: input)
         for profile in profileModel { //It has to return a [ProfileModels] even though it will be one
             invites.append(profile)
@@ -150,7 +150,7 @@ struct Session  {
         guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.id) else {return}
         self.events = events
         Task {
-            let input = events.map { (id: $0.otherUserId, event: $0) }
+            let input = events.map { (profileId: $0.otherUserId, event: $0) }
             let profileModels = await profileLoader(data: input)
             await cacheManager.loadProfileImages(profileModels.map(\.profile))
         }
@@ -158,19 +158,19 @@ struct Session  {
     func loadAcceptedEvent(event: UserEvent) async {
         guard self.events.contains(where: { $0.id == event.id }) == false else { return }
         self.events.append(event)
-        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
         await cacheManager.loadProfileImages(profileModels.map(\.profile))
     }
     
     func loadPastAcceptedEvents() async {
         guard let events = try? await eventManager.getPastAcceptedEvents(userId: user.id) else {return}
-        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
         self.pastEvents = profileModels
     }
     func loadPastAcceptedEvent(event: UserEvent) async {
-        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
         if let profile = profileModels.first {
             self.pastEvents.append(profile)
@@ -283,11 +283,11 @@ struct Session  {
         Task { await cacheManager.loadProfileImages([user]) }
     }
     
-    func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
+    func profileLoader(data: [(profileId: String, event: UserEvent?)]) async -> [ProfileModel] {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
             for item in data {
                 group.addTask {
-                    guard let profile = try? await self.userManager.fetchUser(userId: item.id) else {return nil}
+                    guard let profile = try? await self.userManager.fetchUser(userId: item.profileId) else {return nil}
                     let image = try? await self.cacheManager.fetchFirstImage(profile: profile)
                     return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
                 }
