@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AcceptInvitePopup: View {
-
+    
     @Environment(\.tabSelection) private var tabSelection
     @State var showAlert: Bool = false
     let vm: InviteViewModel
@@ -53,18 +53,13 @@ struct AcceptInvitePopup: View {
             Button("Cancel", role: .cancel) {}
             Button ("I Understand") {
                 Task {
-                    if let id = vm.event.id {
-                        do {
-                            try await vm.acceptInvite(eventId: id)
-                        } catch {
-                            print(error)
-                        }
+                    if let event = vm.receivedEvent {
+                        try? await vm.acceptInvite(eventId: event.id) }
                     }
                     tabSelection.wrappedValue = 1
                     onDismiss()
                 }
-            }
-        } message: {
+            } message: {
             Text("If you dont show, you'll be blocked from Scoop")
         }.tint(.blue)
     }

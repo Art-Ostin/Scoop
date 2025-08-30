@@ -46,31 +46,34 @@ class EventManager {
         try await userEventDocument(userId: userId, userEventId: userEventId).getDocument(as: UserEvent.self)
     }
     
-    func createEvent(event: Event, user: UserProfile, profile: UserProfile) async throws {
-        var e = event
+    func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
+        var draft = draft
         
-        e.initiatorId = user.id
-        e.recipientId = profile.id
+        draft.initiatorId = user.id
+        draft.recipientId = profile.id
+        draft.inviteExpiryTime = getEventExpiryTime(draft: draft)
         
-        e.inviteExpiryTime = getEventExpiryTime(event: e)
-        let canMessagage = Calendar.current.date(byAdding: .hour, value: -3, to: e.time)
+        let event = Event(draft: draft)
         
-        let ref = try eventCollection.addDocument(from: e)
+        let ref = try eventCollection.addDocument(from: event)
         let id = ref.documentID
         
-        let initiatorUserEvent = makeUserEvent(profile: profile, role: .sent, event: e)
-        let recipientUserEvent = makeUserEvent(profile: user, role: .received, event: e)
+        let initiatorUserEvent = makeUserEvent(profile: profile, role: .sent, event: event)
+        let recipientUserEvent = makeUserEvent(profile: user, role: .received, event: event)
         
         try userEventCollection(userId: user.id).document(id).setData(from: initiatorUserEvent)
         try userEventCollection(userId: profile.id).document(id).setData(from: recipientUserEvent)
+
     }
     
     func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
         UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first, updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
     }
     
-    func getEventExpiryTime(event: Event) -> Date? {
-        guard let eventTime = event.time else {return nil}
+    
+    
+    func getEventExpiryTime(draft: EventDraft) -> Date? {
+        guard let eventTime = draft.time else {return nil}
         
         let timeUntilEvent = eventTime.timeIntervalSince(Date())
         
@@ -88,13 +91,6 @@ class EventManager {
         } else {
             return eventTime
         }
-    }
-    
-    func getCanMessageTime(eventTime: Event) -> Date? {
-        guard let eventTime = event.time else {return}
-
-        let canMessagage = Calendar.current.date(byAdding: .hour, value: -3, to: eventTime)
-        
     }
     
     
@@ -146,10 +142,9 @@ class EventManager {
         let batch = Firestore.firestore().batch()
         
         let ev = try await fetchEvent(eventId: eventId)
-        guard let a = ev.initiatorId, let b = ev.recipientId else { return }
         let eventRef = eventDocument(eventId: eventId)
-        let aEdgeRef = userEventDocument(userId: a, userEventId: eventId)
-        let bEdgeRef = userEventDocument(userId: b, userEventId: eventId)
+        let aEdgeRef = userEventDocument(userId: ev.initiatorId, userEventId: eventId)
+        let bEdgeRef = userEventDocument(userId: ev.recipientId, userEventId: eventId)
         
         
         batch.updateData([Event.Field.time.rawValue : newTime], forDocument: eventRef)
@@ -168,9 +163,8 @@ class EventManager {
         let ev = try await fetchEvent(eventId: eventId)
         
         let eventRef = eventDocument(eventId: eventId)
-        guard let a = ev.initiatorId, let b = ev.recipientId else { return }
-        let aEdgeRef = userEventDocument(userId: a, userEventId: eventId)
-        let bEdgeRef = userEventDocument(userId: b, userEventId: eventId)
+        let aEdgeRef = userEventDocument(userId: ev.initiatorId, userEventId: eventId)
+        let bEdgeRef = userEventDocument(userId: ev.recipientId, userEventId: eventId)
         
         batch.updateData([Event.Field.status.rawValue: newStatus.rawValue], forDocument: eventRef)
         

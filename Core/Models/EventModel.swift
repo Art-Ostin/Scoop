@@ -9,26 +9,22 @@ import MapKit
 import FirebaseFirestore
 
 struct EventDraft {
-    
-    var initiatorId: String = ""
-    var recipientId: String = ""
-    var type: String = ""
+    var initiatorId: String?
+    var recipientId: String?
+    var type: String?
     var message: String?
-    var time: Date = Date()
-    var location: EventLocation = EventLocation(mapItem: MKMapItem())
+    var time: Date?
+    var location: EventLocation?
     var status: EventStatus = .pending
-    var inviteExpiryTime: Date = Date().addingTimeInterval(60 * 60 * 24)
+    var inviteExpiryTime: Date?
     var canText: Bool = false
-    
-    enum Field: String {
-        case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time
-    }
 }
 
 
 struct Event: Identifiable, Codable {
     @DocumentID var _id: String?
     var id: String { _id! }
+    
     var initiatorId: String
     var recipientId: String
     var type: String
@@ -38,20 +34,25 @@ struct Event: Identifiable, Codable {
     var inviteExpiryTime: Date
     var canText: Bool = false
     
-    @ServerTimestamp var date_created: Date?
     var message: String?
+    @ServerTimestamp var date_created: Date?
+    
+    enum Field: String {
+        case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time
+    }
 }
+
 
 extension Event {
     init(draft: EventDraft) {
         self.init(
-            initiatorId: draft.initiatorId,
-            recipientId: draft.recipientId,
-            type: draft.type,
-            time: draft.time,
-            location: draft.location,
+            initiatorId: draft.initiatorId ?? "",
+            recipientId: draft.recipientId ?? "",
+            type: draft.type ?? "",
+            time: draft.time ?? Date(),
+            location: draft.location ?? EventLocation(mapItem: MKMapItem()),
             status: draft.status,
-            inviteExpiryTime: draft.inviteExpiryTime,
+            inviteExpiryTime: draft.inviteExpiryTime ?? Date().addingTimeInterval(60 * 60 * 24),
             canText: draft.canText
         )
     }

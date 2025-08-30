@@ -14,14 +14,16 @@ import Foundation
     let profileModel: ProfileModel
     let sessionManager: SessionManager
 
-    var event: Event
+    var event: EventDraft
+    
+    var receivedEvent: Event?
     
     init(eventManager: EventManager, cycleManager: CycleManager, profileModel: ProfileModel, sessionManager: SessionManager) {
         self.eventManager = eventManager
         self.cycleManager = cycleManager
         self.profileModel = profileModel
         self.sessionManager = sessionManager
-        self.event = Event()
+        self.event = EventDraft()
     }
     
     var showTypePopup: Bool = false
@@ -33,7 +35,7 @@ import Foundation
         let user = await sessionManager.user
         let cycle = await sessionManager.activeCycle
         cycleManager.inviteSent(userId: user.id, cycle: cycle, profileId: profileId)
-        Task { try await eventManager.createEvent(event: event, user: user, profile: profileModel.profile) ; print("Finished task") }
+        Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
     }
     
     func acceptInvite(eventId: String) async throws {

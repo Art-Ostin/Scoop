@@ -39,10 +39,11 @@ enum EventDisplay: String {
         }
     }
     
+    
     func description(event: Event, user: UserProfile) -> String {
         switch self {
         case .grabFood:
-            let location = event.location?.name ?? "the place"
+            let location = event.location.name ?? "the place"
             let name = user.name
             return "Go to \(location) for \(EventDetailsViewModel.formatTime(date: event.time)) and meet \(name) there. Can text 1 hour before."
             
@@ -52,13 +53,13 @@ enum EventDisplay: String {
         case .houseParty:
             return "Head to the house party and meet there. You can text 1 hour before"
         case .doubleDate:
-            let location = event.location?.name ?? "the place"
+            let location = event.location.name ?? "the place"
             return "Bring a friend and head to \(location) for \(EventDetailsViewModel.formatTime(date: event.time)). You can text 30 mins before."
         case .samePlace:
-            let location = event.location?.name ?? "the venue"
+            let location = event.location.name ?? "the venue"
             return "Head to \(location) with your mates & meet them & their friends there. Can text 1 hour before"
         case .writeMessage:
-            let location = event.location?.name ?? "the venue"
+            let location = event.location.name ?? "the venue"
             let name = user.name
             return "Just head to \(location) and meet \(name) there for \(EventDetailsViewModel.formatTime(date: event.time))"
         }
@@ -130,7 +131,7 @@ struct EventDetailsView: View {
         VStack(spacing: 72) {
             
             let time = Text(vm.eventTimeString(date: vm.event.time))
-            let location = Text(vm.event.location?.name ?? "").foregroundStyle(.accent).font(.body(20, .bold))
+            let location = Text(vm.event.location.name ?? "").foregroundStyle(.accent).font(.body(20, .bold))
             
             
             VStack(alignment: .leading, spacing: 16) {
