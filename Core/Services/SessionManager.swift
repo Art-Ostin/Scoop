@@ -112,11 +112,10 @@ struct Session  {
             do {
                 for try await event in cycleManager.pendingProfilesStream(userId: userId, cycleId: cycleId){
                     switch event {
-                    case .addedPending(let id):
+                    case .addProfile(let id):
                         try await loadProfile(id: id)
-                    case .movedToInvite(let id):
+                    case .removeProfile(let id):
                         profiles.removeAll { $0.id == id }
-                        print("removed profile)")
                     }
                 }
             } catch {

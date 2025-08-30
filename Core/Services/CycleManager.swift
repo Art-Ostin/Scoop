@@ -8,9 +8,9 @@
 import Foundation
 import FirebaseFirestore
 
-enum PendingRecEvent {
-    case addedPending(id: String)
-    case movedToInvite(id: String)
+enum UpdateShownProfiles {
+    case addProfile(id: String)
+    case removeProfile(id: String)
 }
 
 enum CycleUpdate {
@@ -63,25 +63,21 @@ final class CycleManager {
     }
     
     
-    func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<PendingRecEvent, Error> {
+    func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<UpdateShownProfiles, Error> {
         AsyncThrowingStream { continuation in
-            
+            print("listener called")
             let reg = profilesCollection(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
                 if let error { continuation.finish(throwing: error); return }
                 guard let snap = snapshot else {return}
-                print("pending Stream called")
+
                 for change in snap.documentChanges {
+                    guard let item = try? change.document.data(as: RecommendationItem.self) else { continue }
+                    let isPending: Bool = item.recommendationStatus == .pending
                     switch change.type {
-                    case .added:
-                        if let item = try? change.document.data(as: RecommendationItem.self), item.recommendationStatus == .pending {
-                            continuation.yield(.addedPending(id: item.id))
-                        }
-                    case .modified:
-                        if let item = try? change.document.data(as: RecommendationItem.self), item.recommendationStatus == .invited {
-                            continuation.yield(.movedToInvite(id: item.id))
-                        }
+                    case .added, .modified:
+                        continuation.yield( isPending ? .addProfile(id: item.id) : .removeProfile(id: item.id))
                     case .removed:
-                        print("removed")
+                        break
                     }
                 }
             }
