@@ -33,8 +33,7 @@ struct MeetView: View {
             }
         }
         .onAppear {
-            let imagePathStrings = vm.profiles.map(\.profile.imagePathURL)
-            print (imagePathStrings)
+            print(vm.profiles)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -45,12 +44,12 @@ extension MeetView {
     private var tabView: some View {
         TabView {
             
-            ForEach(vm.invites, id: \.id) { profileInvite in
+            ForEach(vm.invites) { profileInvite in
                 ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
             }
             
             if vm.showProfilesState != .closed {
-                ForEach(vm.profiles, id: \.id) { profileInvite in
+                ForEach(vm.profiles) { profileInvite in
                     VStack {
                         Text(profileInvite.profile.name)
                         ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)

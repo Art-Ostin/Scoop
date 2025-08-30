@@ -70,7 +70,7 @@ struct Session  {
             for await uid in authManager.authStateStream() {
                 
                 guard let uid else {
-                    appState.wrappedValue = .login //  User
+                    appState.wrappedValue = .login
                     userStreamTask?.cancel()
                     defaultManager.deleteDefaults()
                     continue
@@ -82,7 +82,7 @@ struct Session  {
                     continue
                 }
                 
-                try? await startSession(user: user)
+                startSession(user: user)
                 appState.wrappedValue = .app
                 Task { await cacheManager.loadProfileImages([user]) }
             }
@@ -174,6 +174,7 @@ struct Session  {
         Task { await cacheManager.loadProfileImages([profile]) }
         let profileModel = ProfileModel(profile: profile)
         profiles.append(profileModel)
+        print("profile Loaded")
     }
     
     func loadEventInvite(userEvent: UserEvent) async {
@@ -206,7 +207,6 @@ struct Session  {
             self.pastEvents.append(profile)
         }
     }
-    
 
     // Session starter and loading to ProfileModels
     
@@ -222,9 +222,8 @@ struct Session  {
         session = nil
     }
 
-    func startSession(user: UserProfile) async throws {
+    func startSession(user: UserProfile) {
         stopSession()
-        
         session = Session(user: user)
 
         cycleStream()
