@@ -56,10 +56,16 @@ final class CycleManager {
     }
     
     func fetchCycleProfiles (userId: String, cycleId: String) async throws -> [String] {
-        return try await profilesCollection(userId: userId, cycleId: cycleId)
-            .whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRecStatus.pending.rawValue)
-            .getDocuments(as: ProfileRec.self)
-            .map(\.id)
+        print("Fetch cycle called ")
+        do {
+            return try await profilesCollection(userId: userId, cycleId: cycleId)
+                .whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRecStatus.pending.rawValue)
+                .getDocuments(as: ProfileRec.self)
+                .map(\.id)
+        } catch {
+            print(error)
+        }
+        return []
     }
     
     

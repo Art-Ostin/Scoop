@@ -95,7 +95,6 @@ struct Session  {
             let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
         else {return}
         let uniqueIds = Set(Array(ids))
-        print(uniqueIds)
         let data = uniqueIds.map { (id: $0, event: nil as UserEvent?)}
         self.profiles = await profileLoader(data: data)
         Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
@@ -106,9 +105,7 @@ struct Session  {
         guard
             let userId = session?.user.id,
             let cycleId = session?.activeCycle?.id
-        else {
-            print("unsuccessfull")
-            return }
+        else { return }
         profileStreamTask = Task { @MainActor in
             do {
                 for try await event in cycleManager.pendingProfilesStream(userId: userId, cycleId: cycleId){
@@ -268,8 +265,6 @@ struct Session  {
             }
         }
     }
-    
-    
     
     // Session starter and loading to ProfileModels
     func startSession(user: UserProfile) async throws {
