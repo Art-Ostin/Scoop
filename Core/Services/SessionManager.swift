@@ -55,7 +55,7 @@ struct Session  {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
-    
+
     
     func AuthUserListener(appState: Binding<AppState>) {
         authStreamTask?.cancel()
@@ -81,6 +81,7 @@ struct Session  {
         }
     }
     
+    
     func startSession(user: UserProfile) async throws {
         session = Session(user: user)
         userStreamTask?.cancel()
@@ -94,12 +95,42 @@ struct Session  {
         _ =  await (events, invites, profiles, pastEvents)
         Task { await cacheManager.loadProfileImages([user]) }
         
-        startUserStream(for: user.id)
+        authUserListener(for: user.id)
         profilesListener()
         eventsListener()
     }
     
-    private func startUserStream(for userId: String) {
+    
+        
+    //Load the AuthUser and a listener in case the user changes
+    
+    func AuthUserListener(appState: Binding<AppState>) {
+        authStreamTask?.cancel()
+        authStreamTask = Task { @MainActor in
+            for await uid in authManager.authStateStream() {
+                print("auth State called")
+                
+                guard let uid else {
+                    appState.wrappedValue = .login // Logsin User
+                    userStreamTask?.cancel()
+                    defaultManager.deleteDefaults()
+                    continue
+                }
+                
+                guard let user = try? await userManager.fetchUser(userId: uid) else {
+                    appState.wrappedValue = .createAccount
+                    session = nil
+                    continue
+                }
+                try? await startSession(user: user)
+                appState.wrappedValue = .app
+            }
+        }
+    }
+    
+    
+    
+    private func authUserListener(for userId: String) {
         userStreamTask = Task { @MainActor in
             do {
                 for try await profile in userManager.userListener(userId: userId) {
@@ -111,8 +142,25 @@ struct Session  {
             }
         }
     }
+
     
-    //Load Profile
+    
+    
+    
+    
+    
+    // Loads the profiles, and updates profiles if invited or not
+    func loadProfiles() async {
+        guard
+            let cycleId = session?.activeCycle?.id,
+            let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
+        else {return}
+        let data = ids.map { (id: $0, event: nil as UserEvent?)}
+        profiles = await profileLoader(data: data)
+        
+        Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
+    }
+    
     func profilesListener() {
         guard
             let userId = session?.user.id,
@@ -135,7 +183,6 @@ struct Session  {
         }
     }
     
-    
     private func loadProfile(id: String) async throws {
         let profile = try await userManager.fetchUser(userId: id)
         Task { await cacheManager.loadProfileImages([profile]) }
@@ -143,20 +190,60 @@ struct Session  {
         profiles.append(profileModel)
     }
     
-    func loadProfiles() async {
-        print("loading Profiles")
-        guard
-            let cycleId = session?.activeCycle?.id,
-            let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
-        else {return}
-        let data = ids.map { (id: $0, event: nil as UserEvent?)}
-        profiles = await profileLoader(data: data)
-        
-        Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
+    
+
+    // Load the events, Invites and Past Accepted and the listener to change their respective field
+    func loadEventInvites() async {
+        guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let invites = await profileLoader(data: input)
+        self.invites = invites
+        Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
-        
-        
-    func eventsListener() {
+    
+    func loadEventInvite(userEvent: UserEvent) async {
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModel = await profileLoader(data: input)
+        for profile in profileModel { //It has to return a [ProfileModels] even though it will be one
+            invites.append(profile)
+        }
+        await cacheManager.loadProfileImages(profileModel.map(\.profile))
+    }
+    
+    func loadAcceptedEvents() async {
+        guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.id) else {return}
+        self.events = events
+        Task {
+            let input = events.map { (id: $0.otherUserId, event: $0) }
+            let profileModels = await profileLoader(data: input)
+            await cacheManager.loadProfileImages(profileModels.map(\.profile))
+        }
+    }
+    
+    func loadAcceptedEvent(event: UserEvent) async {
+        self.events.append(event)
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModels = await profileLoader(data: input)
+        await cacheManager.loadProfileImages(profileModels.map(\.profile))
+    }
+    
+    func loadPastAcceptedEvents() async {
+        guard let events = try? await eventManager.getPastAcceptedEvents(userId: user.id) else {return}
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModels = await profileLoader(data: input)
+        self.pastEvents = profileModels
+    }
+    
+    func loadPastAcceptedEvent(event: UserEvent) async {
+        let input = events.map { (id: $0.otherUserId, event: $0) }
+        let profileModels = await profileLoader(data: input)
+        if let profile = profileModels.first {
+            self.pastEvents.append(profile)
+
+        }
+    }
+
+    func userEventsListener() {
         eventStreamTask?.cancel()
         eventStreamTask = Task { @MainActor in
             do{
@@ -182,63 +269,30 @@ struct Session  {
         }
     }
     
-
-    func loadInvite(userEvent: UserEvent) async {
-        let input = events.map { (id: $0.otherUserId, event: $0) }
-        let profileModel = await profileLoader(data: input)
-        for profile in profileModel { //It has to return a [ProfileModels] even though it will be one
-            invites.append(profile)
-        }
-        await cacheManager.loadProfileImages(profileModel.map(\.profile))
-    }
     
-    func loadInvites() async {
-        guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
-        let input = events.map { (id: $0.otherUserId, event: $0) }
-        let invites = await profileLoader(data: input)
-        self.invites = invites
-        Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
-    }
     
-    func loadEvent(event: UserEvent) async {
-        self.events.append(event)
-        let input = events.map { (id: $0.otherUserId, event: $0) }
-        let profileModels = await profileLoader(data: input)
-        await cacheManager.loadProfileImages(profileModels.map(\.profile))
-    }
-    
-    func loadEvents() async {
-        guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.id) else {return}
-        self.events = events
-        Task {
-            let input = events.map { (id: $0.otherUserId, event: $0) }
-            let profileModels = await profileLoader(data: input)
-            await cacheManager.loadProfileImages(profileModels.map(\.profile))
-        }
-    }
-    
-    func loadPastEvent(event: UserEvent) async {
-        let input = events.map { (id: $0.otherUserId, event: $0) }
-        let profileModels = await profileLoader(data: input)
-        if let profile = profileModels.first {
-            self.pastEvents.append(profile)
-
-        }
-    }
-    
-    func loadPastEvents() async {
-        guard let events = try? await eventManager.getPastAcceptedEvents(userId: user.id) else {return}
-        let input = events.map { (id: $0.otherUserId, event: $0) }
-        let profileModels = await profileLoader(data: input)
-        self.pastEvents = profileModels
-    }
-    
+    // Load the user's Cycle, and a Listener to check if it changes
     func loadCycle() async throws {
         let (status, cycleModel) = try await cycleManager.checkCycleStatus(userId: user.id)
         if status == .closed { showProfiles = false ; respondToRefresh = false ; return }
         if status == .respond { showProfiles = true ; respondToRefresh = true ; return }
         if status == .active { session?.activeCycle = cycleModel }
     }
+    
+    func cycleListener() async throws {
+        
+    }
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+
     
     
     //This should only be updating the variables in this file here
