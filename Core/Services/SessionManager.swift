@@ -94,12 +94,10 @@ struct Session  {
             let cycleId = session?.activeCycle?.id,
             let ids = try? await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
         else {return}
-        let data = ids.map { (id: $0, event: nil as UserEvent?)}
-        let newProfiles = await profileLoader(data: data)
-        
-        
-//        profiles = await profileLoader(data: data)
-        
+        let uniqueIds = Set(Array(ids))
+        print(uniqueIds)
+        let data = uniqueIds.map { (id: $0, event: nil as UserEvent?)}
+        self.profiles = await profileLoader(data: data)
         Task {await cacheManager.loadProfileImages( self.profiles.map{$0.profile})}
     }
     

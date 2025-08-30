@@ -11,7 +11,7 @@ import Foundation
 
 enum CycleStatus: String, Codable, Sendable { case active, closed, respond}
 
-enum RecommendationStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
+enum ProfileRecStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
 
 struct CycleStats: Codable, Sendable {
     var total: Int
@@ -41,14 +41,14 @@ struct CycleModel: Identifiable, Codable, Sendable{
 }
 
 
-struct RecommendationItem: Identifiable, Codable, Sendable{
+struct ProfileRec: Identifiable, Codable, Sendable{
     var id: String // = profileId
     var profileViews: Int
-    var recommendationStatus: RecommendationStatus
+    var status: ProfileRecStatus
     @ServerTimestamp var addedDay: Timestamp?
     var actedAt: Timestamp?
     
-    enum Field  {
+    enum Field: String {
         case id, profileViews, status, addedDay
     }
 }

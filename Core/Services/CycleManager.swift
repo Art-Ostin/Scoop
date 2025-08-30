@@ -51,14 +51,14 @@ final class CycleManager {
         return try await cycleDocument(userId: userId, cycleId: cycleId).getDocument(as: CycleModel.self)
     }
     
-    func fetchProfileItem(userId: String, cycleId: String, profileId: String) async throws -> RecommendationItem {
-        return try await profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).getDocument(as: RecommendationItem.self)
+    func fetchProfileItem(userId: String, cycleId: String, profileId: String) async throws -> ProfileRec {
+        return try await profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).getDocument(as: ProfileRec.self)
     }
     
     func fetchCycleProfiles (userId: String, cycleId: String) async throws -> [String] {
         return try await profilesCollection(userId: userId, cycleId: cycleId)
-            .whereField(RecommendationItem.CodingKeys.recommendationStatus.stringValue, isEqualTo: RecommendationStatus.pending.rawValue)
-            .getDocuments(as: RecommendationItem.self)
+            .whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRecStatus.pending.rawValue)
+            .getDocuments(as: ProfileRec.self)
             .map(\.id)
     }
     
@@ -70,8 +70,8 @@ final class CycleManager {
                 if let error { continuation.finish(throwing: error); return }
                 guard let snap = snapshot else { return }
                 for change in snap.documentChanges {
-                    guard let item = try? change.document.data(as: RecommendationItem.self) else { continue }
-                    let isPending: Bool = item.recommendationStatus == .pending
+                    guard let item = try? change.document.data(as: ProfileRec.self) else { continue }
+                    let isPending: Bool = item.status == .pending
                     switch change.type {
                     case .added, .modified:
                         continuation.yield( isPending ? .addProfile(id: item.id) : .removeProfile(id: item.id))
@@ -112,7 +112,7 @@ final class CycleManager {
         let selectdIds = Array(ids.shuffled().prefix(4))
         
         for id in selectdIds {
-            let newItem = RecommendationItem(id: id, profileViews: 0, recommendationStatus: .pending)
+            let newItem = ProfileRec(id: id, profileViews: 0, status: .pending)
             try profileDocument(userId: userId, cycleId: cycleId, profileId: id).setData(from: newItem)
         }
     } // Remove this function once cloud functions does this
@@ -130,7 +130,7 @@ final class CycleManager {
     
     func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
         guard let id = cycle?.id else { return }
-        updateProfileItem(userId: userId, cycleId: id, profileId: profileId, key: RecommendationItem.CodingKeys.recommendationStatus.stringValue, field: RecommendationStatus.invited.rawValue)
+        updateProfileItem(userId: userId, cycleId: id, profileId: profileId, key: ProfileRec.Field.status.rawValue, field: ProfileRecStatus.invited.rawValue)
         
         let statsKey   = CycleModel.Field.cycleStats.rawValue
         let invitedKey = "\(statsKey).\(CycleStats.CodingKeys.invited.stringValue)"
