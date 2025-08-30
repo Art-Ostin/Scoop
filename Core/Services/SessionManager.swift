@@ -59,6 +59,8 @@ struct Session  {
         return session.user
     }
 
+    
+    
     //Loads user & listener to update the App State if user signs out, creates account, creates profile etc.
     func loadUserAndUserListener (appState: Binding<AppState>) {
         authStreamTask?.cancel()
@@ -84,6 +86,8 @@ struct Session  {
         }
     }
     
+    
+    
     // Loads the profiles, and updates profiles if invited or not
     func loadProfiles() async {
         guard
@@ -103,6 +107,7 @@ struct Session  {
         else { return }
         cycleStreamTask?.cancel()
         cycleStreamTask = Task { @MainActor in
+            print("profile Listener triggered")
             do {
                 for try await event in cycleManager.pendingProfilesStream(userId: userId, cycleId: cycleId){
                     switch event {
@@ -125,6 +130,8 @@ struct Session  {
         profiles.append(profileModel)
     }
 
+    
+    
     // Load the events, Invites and Past Accepted and the listener to change their respective field
     func loadEventInvites() async {
         guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
@@ -133,7 +140,6 @@ struct Session  {
         self.invites = invites
         Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
     }
-    
     func loadEventInvite(userEvent: UserEvent) async {
         let input = events.map { (id: $0.otherUserId, event: $0) }
         let profileModel = await profileLoader(data: input)
@@ -152,7 +158,6 @@ struct Session  {
             await cacheManager.loadProfileImages(profileModels.map(\.profile))
         }
     }
-    
     func loadAcceptedEvent(event: UserEvent) async {
         guard self.events.contains(where: { $0.id == event.id }) == false else { return }
         self.events.append(event)
@@ -167,7 +172,6 @@ struct Session  {
         let profileModels = await profileLoader(data: input)
         self.pastEvents = profileModels
     }
-    
     func loadPastAcceptedEvent(event: UserEvent) async {
         let input = events.map { (id: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
@@ -217,6 +221,8 @@ struct Session  {
         }
     }
     
+    
+    
     // Load the user's Cycle, and updates UI if there is change during user session
     func loadCycle() async throws {
         let (status, cycle) = try await cycleManager.fetchCycleStatus(userId: user.id)
@@ -261,6 +267,8 @@ struct Session  {
             }
         }
     }
+    
+    
     
     // Session starter and loading to ProfileModels
     func startSession(user: UserProfile) async throws {
