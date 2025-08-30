@@ -67,7 +67,7 @@ class EventManager {
     }
     
     func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-        UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first, updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
+        UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first ?? "", updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
     }
     
     

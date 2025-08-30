@@ -84,7 +84,6 @@ struct Session  {
         }
     }
     
-    
     // Loads the profiles, and updates profiles if invited or not
     func loadProfiles() async {
         guard
@@ -217,7 +216,6 @@ struct Session  {
             events.removeAll { $0.id == userEvent.id}
         }
     }
-    
     
     // Load the user's Cycle, and updates UI if there is change during user session
     func loadCycle() async throws {

@@ -19,7 +19,7 @@ struct EventSlot: View {
     var body: some View {
         
         VStack(spacing: 36) {
-            if let url = URL(string: event.otherUserPhoto ?? "") {
+            if let url = URL(string: event.otherUserPhoto) {
                 imageContainer(size: 150, url: url)
                     .onTapGesture {
                         if let profileHolder {
@@ -30,11 +30,10 @@ struct EventSlot: View {
                     }
             }
             
-            Text(event.otherUserName ?? "no name")
+            Text(event.otherUserName)
             
-            if let time = event.time {
-                LargeClockView(targetTime: time) {}
-            }
+            LargeClockView(targetTime: event.time) {}
+            
             EventFormatter(event: event, isInvite: false)
                 .padding(.horizontal, 32)
         }

@@ -23,8 +23,8 @@ struct EventFormatter: View {
 
         var isMessage: Bool { event.message?.isEmpty == false }
         let time = formatTime(date: event.time)
-        let type = event.type ?? ""
-        let place = event.place?.name  ?? ""
+        let type = event.type
+        let place = event.place.name  ?? ""
         let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
         
         return VStack(alignment: isMessage ? .leading: .center, spacing: isMessage ? 16 : 0) {

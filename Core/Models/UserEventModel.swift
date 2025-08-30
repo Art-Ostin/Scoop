@@ -16,14 +16,14 @@ struct UserEvent: Identifiable, Codable {
     let otherUserId: String
     let role: EdgeRole
     let status: EventStatus
-    let time: Date?
-    let type: String?
+    let time: Date
+    let type: String
     let message: String?
-    let place: EventLocation?
-    let otherUserName: String?
-    let otherUserPhoto: String?
+    let place: EventLocation
+    let otherUserName: String
+    let otherUserPhoto: String
     let updatedAt: Date?
-    let inviteExpiryTime: Date?
+    let inviteExpiryTime: Date
     var canMessage: Bool = false
     
     enum Field: String, Codable {
