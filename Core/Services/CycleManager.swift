@@ -56,16 +56,11 @@ final class CycleManager {
     }
     
     func fetchCycleProfiles (userId: String, cycleId: String) async throws -> [String] {
-        print("Fetch cycle called ")
-        do {
-            return try await profilesCollection(userId: userId, cycleId: cycleId)
-                .whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRecStatus.pending.rawValue)
-                .getDocuments(as: ProfileRec.self)
-                .map(\.id)
-        } catch {
-            print(error)
-        }
-        return []
+        let docs = try await profilesCollection(userId: userId, cycleId: cycleId)
+            .whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRecStatus.pending.rawValue)
+            .getDocuments(as: ProfileRec.self)
+        guard let ids = docs.map(\.id) as? [String] else { return [] }
+        return ids
     }
     
     
@@ -76,11 +71,11 @@ final class CycleManager {
                 if let error { continuation.finish(throwing: error); return }
                 guard let snap = snapshot else { return }
                 for change in snap.documentChanges {
-                    guard let item = try? change.document.data(as: ProfileRec.self) else { continue }
+                    guard let item = try? change.document.data(as: ProfileRec.self), let id = item.id else { continue }
                     let isPending: Bool = item.status == .pending
                     switch change.type {
                     case .added, .modified:
-                        continuation.yield( isPending ? .addProfile(id: item.id) : .removeProfile(id: item.id))
+                        continuation.yield( isPending ? .addProfile(id: id) : .removeProfile(id: id))
                     case .removed:
                         break
                     }

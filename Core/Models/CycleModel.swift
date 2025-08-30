@@ -42,7 +42,7 @@ struct CycleModel: Identifiable, Codable, Sendable{
 
 
 struct ProfileRec: Identifiable, Codable, Sendable{
-    var id: String // = profileId
+    @DocumentID var id: String?
     var profileViews: Int
     var status: ProfileRecStatus
     @ServerTimestamp var addedDay: Timestamp?

@@ -87,7 +87,6 @@ struct Session  {
     }
     
     
-    
     // Loads the profiles, and updates profiles if invited or not
     func loadProfiles() async {
         guard
@@ -128,7 +127,6 @@ struct Session  {
         let profileModel = ProfileModel(profile: profile)
         profiles.append(profileModel)
     }
-
     
     
     // Load the events, Invites and Past Accepted and the listener to change their respective field
