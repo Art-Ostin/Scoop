@@ -179,10 +179,9 @@ class EventManager {
     
     
     
-    
     func eventStream(userId: String) -> AsyncThrowingStream<UserEventUpdate, Error> {
         AsyncThrowingStream { continuation in
-            userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
+            let reg = userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
                 if let error = error { continuation.finish(throwing: error) ; return }
                 guard let snap = snapshot else { return }
                 
@@ -206,10 +205,11 @@ class EventManager {
                             }
                         }
                     case .removed:
-                          print("Item removed")
+                          break
                     }
                 }
             }
+            continuation.onTermination = { _ in reg.remove() }
         }
     }
 }

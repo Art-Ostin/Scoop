@@ -62,29 +62,6 @@ final class CycleManager {
         return snap.documents.map(\.documentID)
     }
     
-    
-    func pendingProfilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<UpdateShownProfiles, Error> {
-        AsyncThrowingStream { continuation in
-            print("listener called")
-            let reg = profilesCollection(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
-                if let error { continuation.finish(throwing: error); return }
-                guard let snap = snapshot else { return }
-                for change in snap.documentChanges {
-                    guard let item = try? change.document.data(as: ProfileRec.self), let id = item.id else { continue }
-                    let isPending: Bool = item.status == .pending
-                    switch change.type {
-                    case .added, .modified:
-                        continuation.yield( isPending ? .addProfile(id: id) : .removeProfile(id: id))
-                    case .removed:
-                        break
-                    }
-                }
-            }
-            continuation.onTermination = { _ in reg.remove() }
-        }
-    }
-    
-    
     @discardableResult
     func createCycle(userId: String) async throws -> String {
         let addedCount = 4
@@ -148,6 +125,29 @@ final class CycleManager {
         let cycle = try await cycleDocument(userId: userId, cycleId: cycleId).getDocument(as: CycleModel.self)
         let status = cycle.cycleStatus
         return (status, cycle)
+    }
+    
+    func profilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<UpdateShownProfiles, Error> {
+        AsyncThrowingStream { continuation in
+            
+            let reg = profilesCollection(userId: userId, cycleId: cycleId).addSnapshotListener { snapshot, error in
+                
+                if let error { continuation.finish(throwing: error); return }
+                guard let snap = snapshot else { return }
+                
+                for change in snap.documentChanges {
+                    guard let item = try? change.document.data(as: ProfileRec.self), let id = item.id else { continue }
+                    let isPending: Bool = item.status == .pending
+                    switch change.type {
+                    case .added, .modified:
+                        continuation.yield( isPending ? .addProfile(id: id) : .removeProfile(id: id))
+                    case .removed:
+                        break
+                    }
+                }
+            }
+            continuation.onTermination = { _ in reg.remove() }
+        }
     }
     
     func cycleStream(userId: String) -> AsyncThrowingStream<CycleUpdate, Error> {

@@ -24,7 +24,7 @@ struct ScoopApp: App {
         WindowGroup {
             RootView()
                 .appDependencies(dep)
-                .task { dep.sessionManager.loadUserAndUserListener(appState: $appState) }
+                .task { dep.sessionManager.userStream(appState: $appState) }
                 .environment(\.appState, $appState)
         }
     }
