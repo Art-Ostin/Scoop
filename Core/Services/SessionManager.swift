@@ -8,6 +8,10 @@
 import Foundation
 import SwiftUI
 
+enum showProfilesState {
+    case active, closed, respond
+}
+
 struct Session  {
     var user: UserProfile
     var invites: [ProfileModel] = []
@@ -33,8 +37,7 @@ struct Session  {
     private var cycleStreamTask: Task<Void, Never>?
     private var eventStreamTask: Task<Void, Never>?
     
-    var showProfiles: Bool = true
-    var respondToRefresh: Bool = false
+    var showProfilesState: showProfilesState = .closed
     
     init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
         self.eventManager = eventManager
@@ -56,15 +59,14 @@ struct Session  {
         return session.user
     }
 
-    
-    func AuthUserListener(appState: Binding<AppState>) {
+    //Loads user & listener to update the App State if user signs out, creates account, creates profile etc.
+    func loadUserAndUserListener (appState: Binding<AppState>) {
         authStreamTask?.cancel()
         authStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
-                print("auth State called")
                 
                 guard let uid else {
-                    appState.wrappedValue = .login // Logsin User
+                    appState.wrappedValue = .login //  User
                     userStreamTask?.cancel()
                     defaultManager.deleteDefaults()
                     continue
@@ -75,78 +77,12 @@ struct Session  {
                     session = nil
                     continue
                 }
+                
                 try? await startSession(user: user)
                 appState.wrappedValue = .app
             }
         }
     }
-    
-    
-    func startSession(user: UserProfile) async throws {
-        session = Session(user: user)
-        userStreamTask?.cancel()
-        
-        try await loadCycle()
-        
-        async let events: ()  = loadEvents()
-        async let invites: ()  = loadInvites()
-        async let profiles: () = loadProfiles()
-        async let pastEvents: () = loadPastEvents()
-        _ =  await (events, invites, profiles, pastEvents)
-        Task { await cacheManager.loadProfileImages([user]) }
-        
-        authUserListener(for: user.id)
-        profilesListener()
-        eventsListener()
-    }
-    
-    
-        
-    //Load the AuthUser and a listener in case the user changes
-    
-    func AuthUserListener(appState: Binding<AppState>) {
-        authStreamTask?.cancel()
-        authStreamTask = Task { @MainActor in
-            for await uid in authManager.authStateStream() {
-                print("auth State called")
-                
-                guard let uid else {
-                    appState.wrappedValue = .login // Logsin User
-                    userStreamTask?.cancel()
-                    defaultManager.deleteDefaults()
-                    continue
-                }
-                
-                guard let user = try? await userManager.fetchUser(userId: uid) else {
-                    appState.wrappedValue = .createAccount
-                    session = nil
-                    continue
-                }
-                try? await startSession(user: user)
-                appState.wrappedValue = .app
-            }
-        }
-    }
-    
-    
-    
-    private func authUserListener(for userId: String) {
-        userStreamTask = Task { @MainActor in
-            do {
-                for try await profile in userManager.userListener(userId: userId) {
-                    if let profile { self.session?.user = profile }
-                    else { break }
-                }
-            } catch {
-                print (error)
-            }
-        }
-    }
-
-    
-    
-    
-    
     
     
     // Loads the profiles, and updates profiles if invited or not
@@ -189,8 +125,6 @@ struct Session  {
         let profileModel = ProfileModel(profile: profile)
         profiles.append(profileModel)
     }
-    
-    
 
     // Load the events, Invites and Past Accepted and the listener to change their respective field
     func loadEventInvites() async {
@@ -221,6 +155,7 @@ struct Session  {
     }
     
     func loadAcceptedEvent(event: UserEvent) async {
+        guard self.events.contains(where: { $0.id == event.id }) == false else { return }
         self.events.append(event)
         let input = events.map { (id: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
@@ -249,81 +184,105 @@ struct Session  {
             do{
                 for try await event in eventManager.eventStream(userId: user.id) {
                     switch event {
-                        
-                    case .removePending(let id):
+                    case .removeInvite(let id):
                         invites.removeAll { $0.profile.id == id }
                         
-                    case .addAccepted(let userEvent):
-                        await loadEvent(event: userEvent)
-                        
-                    case .addPastAccepted(let pastAccepted):
-                        await loadPastEvent(event: pastAccepted)
-                        
                     case .newInvite(let userEvent):
-                        await loadInvite(userEvent: userEvent)
+                        await loadEventInvite(userEvent: userEvent)
+                        
+                    case .eventAccepted(let userEvent):
+                        removeInvite(userEvent: userEvent)
+                        await loadAcceptedEvent(event: userEvent)
+                        
+                    case .addPastAccepted(let userEvent):
+                        removeAccepted(userEvent: userEvent)
+                        await loadPastAcceptedEvent(event: userEvent)
                     }
                 }
-            }catch {
+            } catch {
                 print (error)
             }
         }
     }
     
+    func removeInvite(userEvent: UserEvent) {
+        let ids = invites.map { $0.event?.id }
+        if ids.contains(userEvent.id) {
+            invites.removeAll { $0.event?.id == userEvent.id }
+        }
+    }
+    func removeAccepted(userEvent: UserEvent) {
+        let ids = events.map { $0.id }
+        if ids.contains(userEvent.id) {
+            events.removeAll { $0.id == userEvent.id}
+        }
+    }
     
     
-    // Load the user's Cycle, and a Listener to check if it changes
+    // Load the user's Cycle, and updates UI if there is change during user session
     func loadCycle() async throws {
-        let (status, cycleModel) = try await cycleManager.checkCycleStatus(userId: user.id)
-        if status == .closed { showProfiles = false ; respondToRefresh = false ; return }
-        if status == .respond { showProfiles = true ; respondToRefresh = true ; return }
-        if status == .active { session?.activeCycle = cycleModel }
+        let (status, cycle) = try await cycleManager.fetchCycleStatus(userId: user.id)
+        switch status {
+        case .closed:
+            showProfilesState = .closed
+            session?.activeCycle = nil
+        case .respond:
+            showProfilesState = .respond
+            session?.activeCycle = cycle
+        case .active:
+            showProfilesState = .active
+            session?.activeCycle = cycle
+        }
     }
     
-    func cycleListener() async throws {
+    func cycleListener() {
+        cycleStreamTask?.cancel()
+        eventStreamTask = Task {@MainActor in
+            do{
+                for try await update in cycleManager.cycleStream(userId: user.id) {
+                    switch update {
+                        
+                    case .added(let cycle):
+                        showProfilesState = .active
+                        session?.activeCycle = cycle
+                        
+                    case .respond(let id):
+                        if session?.activeCycle?.id == id {
+                            showProfilesState = .respond
+                        }
+                        
+                    case .closed(let id):
+                        if session?.activeCycle?.id == id {
+                            showProfilesState = .closed
+                            session?.activeCycle = nil
+                        }
+                    }
+                }
+            } catch {
+                print (error)
+            }
+        }
+    }
+    
+    // Session starter and loading to ProfileModels
+    func startSession(user: UserProfile) async throws {
+        session = Session(user: user)
+        userStreamTask?.cancel()
         
+        try await loadCycle()
+        
+        async let events: ()  = loadAcceptedEvents()
+        async let invites: ()  = loadEventInvites()
+        async let profiles: () = loadProfiles()
+        async let pastEvents: () = loadAcceptedEvents()
+        _ =  await (events, invites, profiles, pastEvents)
+        
+        userEventsListener()
+        profilesListener()
+        cycleListener()
+        
+        Task { await cacheManager.loadProfileImages([user]) }
     }
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-
-    
-    
-    //This should only be updating the variables in this file here
-    
-    /*
-     func cycleListener() async {
-         cycleStreamTask?.cancel()
-         
-         cycleStreamTask = Task { @MainActor in
-             
-             for try await cycle in cycleManager.weeklyCycleStream(userId: user.id) {
-                 switch cycle {
-                 case .added(let cycleModel):
-                     session?.activeCycle = cycleModel
-                     loadProfiles()
-                 case .closed(let newId):
-                     guard let cycleId = session?.activeCycle.id else {return}
-                     if cycleId = newId {
-                         cycleManager.deleteCycle(userId: user.id, cycleId: cycleId)
-                     }
-                     
-                 case .pending(let id):
-                     session.activeCycle == .pending
-                 }
-             }
-         }
-     }
-     */
-    
-    
-    
     
     func profileLoader(data: [(id: String, event: UserEvent?)]) async -> [ProfileModel] {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
@@ -340,6 +299,3 @@ struct Session  {
         }
     }
 }
-
-
-

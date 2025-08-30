@@ -22,9 +22,10 @@ struct MeetView: View {
                     .font(.body(32, .bold))
                 tabView
 
-                if vm.showProfiles && !vm.showRefresh {
+                
+                if vm.showProfilesState == .active {
                     clockView
-                } else if vm.showRefresh {
+                } else if vm.showProfilesState == .respond {
                     Text("Respond to Refresh")
                 }
             }
@@ -46,9 +47,8 @@ extension MeetView {
             ForEach(vm.invites, id: \.id) {profileInvite in
                 ProfileCard(vm: vm, profileInvite: profileInvite, selectedProfile: $selectedProfile)
             }
-
             
-            if vm.showProfiles {
+            if vm.showProfilesState != .closed {
                 ForEach(vm.profiles, id: \.id) {profileInvite in
                     VStack {
                         Text(profileInvite.profile.name)
@@ -70,22 +70,16 @@ extension MeetView {
                 .onTapGesture { }
             
             ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager)) {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedProfile = nil
-                    Task { try? await vm.reloadWeeklyCycle() }
-                }
+                withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
             }
         }
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
     
-    
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime {
-            SimpleClockView(targetTime: time) {
-                Task { try? await vm.reloadWeeklyCycle() ; print("reloaded cycle")}
-            }
+            SimpleClockView(targetTime: time) {}
         }
     }
 }

@@ -73,7 +73,7 @@ enum EventDisplay: String {
     let user: UserProfile
     
     private var eventType: EventDisplay? {
-        EventDisplay(rawValue: event.type ?? "")
+        EventDisplay(rawValue: event.type)
     }
     
     init (event: Event, user: UserProfile) {

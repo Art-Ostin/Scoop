@@ -13,10 +13,10 @@ enum PendingRecEvent {
     case movedToInvite(id: String)
 }
 
-enum WeeklyCycleUpdate {
+enum CycleUpdate {
     case added(cycleModel: CycleModel)
     case closed(id: String)
-    case pending(id: String)
+    case respond(id: String)
 }
 
 final class CycleManager {
@@ -90,7 +90,6 @@ final class CycleManager {
     }
     
     
-    
     @discardableResult
     func createCycle(userId: String) async throws -> String {
         let addedCount = 4
@@ -121,7 +120,7 @@ final class CycleManager {
             let newItem = RecommendationItem(id: id, profileViews: 0, recommendationStatus: .pending)
             try profileDocument(userId: userId, cycleId: cycleId, profileId: id).setData(from: newItem)
         }
-    }
+    } // Remove this function once cloud functions does this
     
     
     func updateCycle(userId: String, cycleId: String, data: [String : Any]) {
@@ -131,28 +130,6 @@ final class CycleManager {
     
     func updateProfileItem(userId: String, cycleId: String, profileId: String, key: String, field: Any) {
         profileDocument(userId: userId, cycleId: cycleId, profileId: profileId).updateData([key: field])
-    }
-    
-    func checkCycleStatus (userId: String) async throws -> (CycleStatus, CycleModel?) {
-        let profile = try await userManager.fetchUser(userId: userId)
-        guard let cycleId = profile.activeCycleId else { return (.closed, nil) }
-        var cycle = try await fetchCycle(userId: userId, cycleId: cycleId)
-        
-        if Date() > cycle.endsAt.dateValue() {
-            if cycle.cycleStats.pending == 0 || Date() > cycle.autoRemoveAt.dateValue() {
-                try? await deleteCycle(userId: userId, cycleId: cycleId)
-                print("cycle deleted")
-                return (.closed, nil)
-            }
-        } else {
-            if cycle.cycleStatus != .respond {
-                updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.Field.cycleStatus.rawValue : CycleStatus.respond.rawValue])
-                cycle.cycleStatus = .respond
-            }
-            return (.respond, cycle)
-        }
-        print("cycle active")
-        return (.active, cycle)
     }
     
     
@@ -170,44 +147,30 @@ final class CycleManager {
         ])
     }
     
-    func deleteCycle(userId: String, cycleId: String) async throws {
-//        updateCycle(userId: userId, cycleId: cycleId, data: [CycleModel.Field.cycleStatus.rawValue : CycleStatus.closed.rawValue])
-        try await userManager.updateUser(values: [UserProfile.Field.activeCycleId: FieldValue.delete()])
+    func fetchCycleStatus(userId: String) async throws  -> (CycleStatus, CycleModel?) {
+        let profile = try await userManager.fetchUser(userId: userId)
+        guard let cycleId = profile.activeCycleId else { return (.closed, nil) }
+        let cycle = try await cycleDocument(userId: userId, cycleId: cycleId).getDocument(as: CycleModel.self)
+        let status = cycle.cycleStatus
+        return (status, cycle)
     }
     
-    
-    // Have this dealing with updating its status
-    func weeklyCycleStream(userId: String) -> AsyncThrowingStream<WeeklyCycleUpdate, Error> {
+    func cycleStream(userId: String) -> AsyncThrowingStream<CycleUpdate, Error> {
         AsyncThrowingStream { continuation in
-            print("Function called")
             let reg = cycleCollection(userId: userId).addSnapshotListener { snapshot, error in
                 if let error = error { continuation.finish(throwing: error)}
                 guard let snap = snapshot else {return}
-                
                 for change in snap.documentChanges {
-                    
                     if let model = try? change.document.data(as: CycleModel.self), let id = model.id {
-                        
                         switch change.type {
-
                         case .added:
-
-                            if model.cycleStatus == .active {
-                                continuation.yield(.added(cycleModel: model))
-                            }
-                            
+                            if model.cycleStatus == .active { continuation.yield(.added(cycleModel: model)) }
                         case .modified:
-                            
                             if model.cycleStatus == .closed {
-                                Task {
-                                    try await self.deleteCycle(userId: userId, cycleId: id)
-                                    continuation.yield(.closed(id: id))
-                                }
-                            }
-                            
-                            if model.cycleStatus == .respond {
-                                continuation.yield(.pending(id: id))
-                            }
+                                continuation.yield(.closed(id: id))
+                            } else if model.cycleStatus == .respond {
+                                continuation.yield(.respond(id: id))
+                            } else { continue }
                             
                         case .removed:
                             print("removed unexepectedly")
@@ -215,6 +178,7 @@ final class CycleManager {
                     }
                 }
             }
+            continuation.onTermination = { _ in reg.remove()}
         }
     }
 }

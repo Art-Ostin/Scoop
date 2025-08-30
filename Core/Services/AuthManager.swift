@@ -26,12 +26,7 @@ class AuthManager: AuthManaging {
     
     @discardableResult func fetchAuthUser () async -> String? {
         guard let user = Auth.auth().currentUser else { return nil }
-        do {
-            try await user.reload()
-        } catch {
-            return nil
-        }
-        print(user.uid)
+        try? await user.reload()
         return Auth.auth().currentUser?.uid
     }
 

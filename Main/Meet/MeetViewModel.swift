@@ -28,23 +28,15 @@ import UIKit
     
     var profiles: [ProfileModel] { s.profiles }
     
-    var showProfiles: Bool { s.showProfiles }
-    
-    var showRefresh: Bool { s.respondToRefresh }
+    var showProfilesState: showProfilesState { s.showProfilesState }
     
     var endTime: Date? { activeCycle?.endsAt.dateValue()}
     
-    func reloadWeeklyCycle() async throws {
-        let (status, _) = try await cycleManager.checkCycleStatus(userId: s.user.id)
-        if status == .respond { s.respondToRefresh = true }
-        if status == .closed { s.showProfiles = false ; s.respondToRefresh = false }
-    }
     
     func createWeeklyCycle() async throws {
         try await cycleManager.createCycle(userId: s.user.id)
-//        await s.loadCycle()
+        try await s.loadCycle()
         await s.loadProfiles()
-        s.showProfiles = true
     }
     
     func fetchImage(url: URL) async throws -> UIImage {

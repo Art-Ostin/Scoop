@@ -9,10 +9,10 @@ import Foundation
 import FirebaseFirestore
 import SwiftUI
 
-enum InviteUpdate {
+enum UserEventUpdate {
     case newInvite(userEvent: UserEvent)
-    case removePending(id: String)
-    case addAccepted(userEvent: UserEvent)
+    case removeInvite(id: String)
+    case eventAccepted(userEvent: UserEvent)
     case addPastAccepted(userEvent: UserEvent)
 }
 
@@ -180,7 +180,7 @@ class EventManager {
     
     
     
-    func eventStream(userId: String) -> AsyncThrowingStream<InviteUpdate, Error> {
+    func eventStream(userId: String) -> AsyncThrowingStream<UserEventUpdate, Error> {
         AsyncThrowingStream { continuation in
             userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
                 if let error = error { continuation.finish(throwing: error) ; return }
@@ -188,29 +188,23 @@ class EventManager {
                 
                 for change in snap.documentChanges {
                     switch change.type {
-                        
                     case .added:
-                        if let userEvent = try? change.document.data(as: UserEvent.self) {
-                            continuation.yield(InviteUpdate.newInvite(userEvent: userEvent))
+                        if let userEvent = try? change.document.data(as: UserEvent.self), userEvent.status == .pending {
+                            continuation.yield(UserEventUpdate.newInvite(userEvent: userEvent))
                         }
                         
                     case .modified:
-                        
                         if let userEvent = try? change.document.data(as: UserEvent.self) {
+                            let status = userEvent.status
                             
-                            if userEvent.status != .pending {
-                                continuation.yield(InviteUpdate.removePending(id: userEvent.otherUserId))
-                            }
-                            
-                            if userEvent.status == .accepted {
-                                continuation.yield(InviteUpdate.addAccepted(userEvent: userEvent))
-                            }
-
-                            if userEvent.status == .pastAccepted {
-                                continuation.yield(InviteUpdate.addPastAccepted(userEvent: userEvent))
+                            if status == .pastAccepted {
+                                continuation.yield(UserEventUpdate.addPastAccepted(userEvent: userEvent))
+                            } else if status == .accepted {
+                                continuation.yield(UserEventUpdate.eventAccepted(userEvent: userEvent))
+                            } else {
+                                continuation.yield(UserEventUpdate.removeInvite(id: userEvent.otherUserId))
                             }
                         }
-                        
                     case .removed:
                           print("Item removed")
                     }
@@ -218,7 +212,6 @@ class EventManager {
             }
         }
     }
-    
 }
 
 
