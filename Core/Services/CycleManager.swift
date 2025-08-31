@@ -127,6 +127,8 @@ final class CycleManager {
         return (status, cycle)
     }
     
+    
+    
     func profilesStream(userId: String, cycleId: String) -> AsyncThrowingStream<UpdateShownProfiles, Error> {
         AsyncThrowingStream { continuation in
             
@@ -174,6 +176,26 @@ final class CycleManager {
                 }
             }
             continuation.onTermination = { _ in reg.remove()}
+        }
+    }
+    
+    
+    
+    func profileLoader(data: [(profileId: String, event: UserEvent?)]) async -> [ProfileModel] {
+        let userManager  = self.userManager
+        let cacheManager = self.cacheManager
+        
+        return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
+            for item in data {
+                group.addTask {
+                    guard let profile = try? await userManager.fetchUser(userId: item.profileId) else {return nil}
+                    let image = try? await cacheManager.fetchFirstImage(profile: profile)
+                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
+                }
+            }
+            return await group.reduce(into: []) {result, element  in
+                if let element {result.append(element)}
+            }
         }
     }
 }

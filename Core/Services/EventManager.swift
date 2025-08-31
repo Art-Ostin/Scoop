@@ -186,12 +186,11 @@ class EventManager {
                     case .modified, .added:
                         guard let ue = try? change.document.data(as: UserEvent.self) else { continue }
                         switch ue.status {
-                        case .pending: continuation.yield(.eventInvite(userEvent: ue))
+                        case .pending: if ue.role == .received { continuation.yield(.eventInvite(userEvent: ue))}
                         case .accepted: continuation.yield(.eventAccepted(userEvent: ue))
                         case .pastAccepted: continuation.yield(.pastEventAccepted(userEvent: ue))
                         default : continuation.yield(.removeInvite(id: ue.otherUserId))
                         }
-                        
                     case .removed:
                         break
                     }

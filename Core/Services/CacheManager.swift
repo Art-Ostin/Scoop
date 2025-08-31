@@ -71,6 +71,7 @@ class CacheManager: CacheManaging  {
             for await img in group {
                 if let img { images.append(img) }
             }
+            print("Images saved to cache")
         }
         return images
     }    

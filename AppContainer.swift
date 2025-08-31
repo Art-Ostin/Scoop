@@ -12,7 +12,7 @@ struct AppContainer: View {
     @Environment(\.appDependencies) private var dep
     
     var body: some View {
-                
+
         TabView (selection: $selection) {
             
             Tab("", image: "LetterIcon", value: 0) {
