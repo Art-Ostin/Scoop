@@ -11,29 +11,24 @@ struct AcceptInvitePopup: View {
     
     @Environment(\.tabSelection) private var tabSelection
     @State var showAlert: Bool = false
-    let vm: InviteViewModel
-    var onDismiss : () -> Void
-    
-    init(vm: InviteViewModel, onDismiss: @escaping () -> Void = {}) {
-        self.vm = vm
-        self.onDismiss = onDismiss
-    }
-    
+    var profileModel: ProfileModel
+    var onSubmit : () -> Void
+
     var body: some View {
         
         VStack(spacing: 32) {
             
             HStack() {
-                CirclePhoto(image: vm.profileModel.image ?? UIImage())
+                CirclePhoto(image: profileModel.image ?? UIImage())
                 
-                Text("Meet \(vm.profileModel.event?.otherUserName ?? "")")
+                Text("Meet \(profileModel.profile.name)")
                     .font(.title(24, .bold))
                 
-                if vm.profileModel.event?.message != nil {
+                if profileModel.event?.message != nil {
                     Spacer()
                 }
             }
-            if let event = vm.profileModel.event {EventFormatter(event: event) }
+            if let event = profileModel.event {EventFormatter(event: event) }
             ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle() }
                 .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -52,14 +47,9 @@ struct AcceptInvitePopup: View {
         .alert("Event Commitment", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button ("I Understand") {
-                Task {
-                    if let event = vm.receivedEvent {
-                        try? await vm.acceptInvite(eventId: event.id) }
-                    }
-                    tabSelection.wrappedValue = 1
-                    onDismiss()
-                }
-            } message: {
+                onSubmit()
+            }
+        } message: {
             Text("If you dont show, you'll be blocked from Scoop")
         }.tint(.blue)
     }

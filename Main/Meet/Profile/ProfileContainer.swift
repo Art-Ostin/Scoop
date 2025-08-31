@@ -4,6 +4,7 @@ import SwiftUI
 
 struct ProfileView: View {
     
+    @Environment(\.tabSelection) private var tabSelection
     @Environment(\.appDependencies) private var dep
     @State private var vm: ProfileViewModel
     let preloadedImages: [UIImage]?
@@ -42,13 +43,19 @@ struct ProfileView: View {
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvitePopup = false }
                     if (vm.profileModel.event != nil) {
-                        AcceptInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager, userManager: dep.userManager)) {
-                            onDismiss()
+                        AcceptInvitePopup(profileModel: vm.profileModel) {
+                            Task {
+                                try await vm.acceptInvite()
+                                tabSelection.wrappedValue = 1
+                            }
                         }
                     } else {
-                        SendInvitePopup(vm: InviteViewModel(eventManager: dep.eventManager, cycleManager: dep.cycleManager, profileModel: vm.profileModel, sessionManager: dep.sessionManager, userManager: dep.userManager)) {
-                            onDismiss()
-                        }
+                        SelectTimeAndPlace(vm: TimeAndPlaceViewModel(event: vm.event, profile: vm.profileModel) {
+                            Task {
+                                try await vm.sendInvite()
+                                onDismiss()
+                            }
+                        })
                     }
                 }
             }

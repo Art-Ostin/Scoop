@@ -8,11 +8,8 @@
 import SwiftUI
 
 struct IntroView: View {
-    @Bindable var timeVm: InviteViewModel
     @Bindable var vm: MeetViewModel
     @State var showIdealTime: Bool = false
-    
-    
     
     let quote = quotes.shared.allQuotes.randomElement()!
     var body: some View {
@@ -31,14 +28,15 @@ struct IntroView: View {
                     showIdealTime.toggle()
                 }
             }
-            
             if showIdealTime {
                 Rectangle()
                     .fill(.thinMaterial)
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { showIdealTime = false }
-                SendInvitePopup(vm: InviteViewModel(eventManager: vm.eventManager, cycleManager: vm.cycleManager, profileModel: vm.profileModel, sessionManager: vm.sessionManager, userManager: vm.userManager)) {
+                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles", event: vm.userEvent) {
+                    Task { try await vm.saveIdealMeetUp(event: vm.userEvent) }
+                })
             }
         }
     }

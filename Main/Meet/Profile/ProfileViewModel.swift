@@ -12,14 +12,21 @@ enum ProfileViewType {
     case invite, accept, view
 }
 
-
+@MainActor
 @Observable class ProfileViewModel {
     
     let cacheManager: CacheManaging
+    let sessionManager: SessionManager
+    let cycleManager: CycleManager
+    let eventManager: EventManager
+    
+    
     let profileModel: ProfileModel
     
-    
     var showInvitePopup: Bool = false
+    var receivedEvent: UserEvent? { profileModel.event}
+    
+    var event: EventDraft
     
     var viewProfileType: ProfileViewType {
         if profileModel.event?.status == .accepted {
@@ -40,23 +47,14 @@ enum ProfileViewType {
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
     
-    
-    
-    
-    func sendInvite(profileId: String) async throws {
-        let user = await sessionManager.user
-        let cycle = await sessionManager.activeCycle
-        cycleManager.inviteSent(userId: user.id, cycle: cycle, profileId: profileId)
-        print("invite sent")
+    func sendInvite() async throws {
+        let user = sessionManager.user
+        cycleManager.inviteSent(userId: user.id, cycle: sessionManager.activeCycle, profileId: profileModel.profile.id)
         Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
     }
     
-    
-    func acceptInvite(eventId: String) async throws {
-        try await eventManager.updateStatus(eventId: eventId, to: .accepted)
+    func acceptInvite() async throws {
+        guard let event = profileModel.event, let id = event.id else { return }
+        try await eventManager.updateStatus(eventId: id, to: .accepted)
     }
-    
-    var event: EventDraft
-    
-    var receivedEvent: Event?
 }

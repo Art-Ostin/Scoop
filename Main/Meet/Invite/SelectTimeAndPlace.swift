@@ -6,7 +6,7 @@ import MapKit
     
     let text: String
     var event: EventDraft
-    let profile: ProfileModel
+    var profile: ProfileModel?
     
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
@@ -17,13 +17,14 @@ import MapKit
     let onSubmit: () -> Void
     
     
-    init(text: String = "Confirm & Send", event: EventDraft, onSubmit: @escaping () -> (), profile: ProfileModel) {
+    init(text: String = "Confirm & Send", event: EventDraft, profile: ProfileModel? = nil, onSubmit: @escaping () -> ()) {
         self.text = text
         self.event = event
-        self.onSubmit = onSubmit
         self.profile = profile
+        self.onSubmit = onSubmit
     }
 }
+
 
 struct SelectTimeAndPlace: View {
         

@@ -94,9 +94,6 @@ class EventManager {
     }
     
     
-    
-    
-    
     private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {
 
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
@@ -176,7 +173,6 @@ class EventManager {
         batch.updateData(statusUpdate, forDocument: bEdgeRef)
         try await batch.commit()
     }
-    
     
     func eventStream(userId: String) -> AsyncThrowingStream<UserEventUpdate, Error> {
         AsyncThrowingStream { continuation in
