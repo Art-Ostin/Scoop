@@ -60,18 +60,17 @@ struct Session  {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
-    
+
     
     //Loads user & listener to update the App State if user signs out, creates account, creates profile etc.
     
     func userStream (appState: Binding<AppState>) {
-        userStreamTask?.cancel()
         userStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
                 
                 guard let uid else {
+                    stopSession()
                     appState.wrappedValue = .login
-                    userStreamTask?.cancel()
                     defaultManager.deleteDefaults()
                     continue
                 }
@@ -81,9 +80,10 @@ struct Session  {
                     session = nil
                     continue
                 }
-                
                 startSession(user: user)
+                print("called to appstate")
                 appState.wrappedValue = .app
+                print("now in appState")
                 Task { await cacheManager.loadProfileImages([user]) }
             }
         }
@@ -147,9 +147,11 @@ struct Session  {
                         session?.activeCycle = cycle
                         profiles.removeAll()
                         profilesStream()
+                        print("added)")
                         
                     case .respond(let id):
                         if session?.activeCycle?.id == id {
+                            print("Respond state")
                             showProfilesState = .respond
                         }
                         
@@ -159,6 +161,7 @@ struct Session  {
                             session?.activeCycle = nil
                             profiles.removeAll()
                             profileStreamTask?.cancel()
+                            print("closed")
                         }
                     }
                 }
@@ -194,7 +197,7 @@ struct Session  {
         let ids = invites.map { $0.event?.id }
         if ids.contains(event.id) { invites.removeAll { $0.event?.id == event.id }}
         
-        guard self.events.contains(where: { $0.id == event.id }) == false else { return }
+        guard !events.contains(where: { $0.id == event.id }) else {return }
         self.events.append(event)
         let input = events.map { (profileId: $0.otherUserId, event: $0) }
         let profileModels = await profileLoader(data: input)
@@ -212,7 +215,6 @@ struct Session  {
         }
     }
     
-    // Session starter and loading to ProfileModels
     
     func stopSession() {
         profileStreamTask?.cancel()
@@ -227,12 +229,13 @@ struct Session  {
     }
 
     func startSession(user: UserProfile) {
+        print("session started")
         stopSession()
         session = Session(user: user)
-
         cycleStream()
         userEventsStream()
         profilesStream()
+        print("Session done")
     }
     
     func profileLoader(data: [(profileId: String, event: UserEvent?)]) async -> [ProfileModel] {

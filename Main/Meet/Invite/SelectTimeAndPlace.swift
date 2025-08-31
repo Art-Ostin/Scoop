@@ -77,8 +77,10 @@ extension SelectTimeAndPlace {
                 HStack {
                     CirclePhoto(image: vm.profile?.image ?? UIImage())
                     
-                    Text("Meet \(String(describing: vm.profile?.profile.name))")
-                        .font(.title(24))
+                    if let name = vm.profile?.profile.name {
+                        Text("Meet \(name)")
+                            .font(.title(24))
+                    }
                 }
             } else {
                 Text ("Your Time & Place")
@@ -91,7 +93,7 @@ extension SelectTimeAndPlace {
             InvitePlaceRow
             ActionButton(isValid: InviteIsValid, text: vm.text) {
                 if vm.text == "Confirm & Send" {
-                    vm.showTypePopup.toggle()
+                    vm.showAlert.toggle()
                 } else {
                     vm.onSubmit(vm.event)
                 }
@@ -112,9 +114,7 @@ extension SelectTimeAndPlace {
     }
     
     private var InviteTypeRow: some View {
-        
         let event = vm.event
-        
         return HStack {
             
             if let type = event.type, let message = event.message {

@@ -34,8 +34,12 @@ struct IntroView: View {
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { showIdealTime = false }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
-                    Task { try await vm.saveIdealMeetUp(event: event) }
+                    Task {
+                        try await vm.saveIdealMeetUp(event: event)
+                        try await vm.createWeeklyCycle()
+                    }
                 })
             }
         }

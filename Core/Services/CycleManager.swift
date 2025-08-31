@@ -156,6 +156,7 @@ final class CycleManager {
                 if let error = error { continuation.finish(throwing: error)}
                 guard let snap = snapshot else {return}
                 for change in snap.documentChanges {
+                    print("loading on launch")
                     if let model = try? change.document.data(as: CycleModel.self), let id = model.id {
                         switch change.type {
                         case .added:
@@ -166,7 +167,6 @@ final class CycleManager {
                             } else if model.cycleStatus == .respond {
                                 continuation.yield(.respond(id: id))
                             } else { continue }
-                            
                         case .removed:
                             print("removed unexepectedly")
                         }
