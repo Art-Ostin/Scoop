@@ -14,14 +14,13 @@ import MapKit
     var showMapView: Bool = false
     var showAlert: Bool = false
     
-    let onSubmit: () -> Void
-    
-    
-    init(text: String = "Confirm & Send", event: EventDraft, profile: ProfileModel? = nil, onSubmit: @escaping () -> ()) {
+    let onSubmit: (EventDraft) -> Void
+
+    init(text: String = "Confirm & Send", profile: ProfileModel? = nil, onSubmit: @escaping (EventDraft) -> ()) {
         self.text = text
-        self.event = event
         self.profile = profile
         self.onSubmit = onSubmit
+        self.event = EventDraft()
     }
 }
 
@@ -76,9 +75,9 @@ extension SelectTimeAndPlace {
         VStack(spacing: 32) {
             if vm.text == "Confirm & Send" {
                 HStack {
-                    CirclePhoto(image: vm.profile.image ?? UIImage())
+                    CirclePhoto(image: vm.profile?.image ?? UIImage())
                     
-                    Text("Meet \(vm.profile.profile.name)")
+                    Text("Meet \(String(describing: vm.profile?.profile.name))")
                         .font(.title(24))
                 }
             } else {

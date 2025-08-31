@@ -50,11 +50,8 @@ struct ProfileView: View {
                             }
                         }
                     } else {
-                        SelectTimeAndPlace(vm: TimeAndPlaceViewModel(event: vm.event, profile: vm.profileModel) {
-                            Task {
-                                try await vm.sendInvite()
-                                onDismiss()
-                            }
+                        SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: vm.profileModel) { event in
+                            Task { try await vm.sendInvite(event: event) ;  onDismiss() }
                         })
                     }
                 }
