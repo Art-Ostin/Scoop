@@ -17,7 +17,7 @@ struct AppContainer: View {
             
             Tab("", image: "LetterIcon", value: 0) {
                 ZStack{
-                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager))
+                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager, userManager: dep.userManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -26,7 +26,7 @@ struct AppContainer: View {
             Tab("", image: "LogoIcon", value: 1) {
                 ZStack{
                     Color.background.ignoresSafeArea()
-                    EventContainer(vm: EventViewModel(cacheManager: dep.cacheManager, userManager: dep.userManager, eventManager: dep.eventManager))
+                    EventContainer(vm: EventViewModel(cacheManager: dep.cacheManager, userManager: dep.userManager, eventManager: dep.eventManager, cycleManager: dep.cycleManager, sessionManager: dep.sessionManager))
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                 }
@@ -35,7 +35,7 @@ struct AppContainer: View {
             Tab("", image: "MessageIcon", value: 2) {
                 ZStack {
                     Color.background.ignoresSafeArea()
-                    MatchesView(vm: MatchesViewModel(userManager: dep.userManager, cacheManager: dep.cacheManager, authManager: dep.authManager, storageManager: dep.storageManager, s: dep.sessionManager, defaultsManager: dep.defaultsManager))
+                    MatchesView(vm: MatchesViewModel(userManager: dep.userManager, cacheManager: dep.cacheManager, authManager: dep.authManager, storageManager: dep.storageManager, s: dep.sessionManager, eventManager: dep.eventManager, cycleManager: dep.cycleManager, defaultsManager: dep.defaultsManager))
                         .id(dep.sessionManager.user.id)
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)

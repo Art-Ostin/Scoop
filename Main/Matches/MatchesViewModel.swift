@@ -17,14 +17,18 @@ import UIKit
     var storageManager: StorageManaging
     var s: SessionManager
     var defaultsManager: DefaultsManager
+    let eventManager: EventManager
+    let cycleManager: CycleManager
     
-    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, defaultsManager: DefaultsManager) {
+    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, eventManager: EventManager, cycleManager: CycleManager, defaultsManager: DefaultsManager) {
         self.userManager = userManager
         self.cacheManager = cacheManager
         self.authManager = authManager
         self.storageManager = storageManager
         self.s = s
         self.defaultsManager = defaultsManager
+        self.eventManager = eventManager
+        self.cycleManager = cycleManager
     }
     
     func fetchFirstImage() async throws -> UIImage {

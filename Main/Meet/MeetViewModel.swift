@@ -18,8 +18,8 @@ import UIKit
     
     init(cycleManager: CycleManager, s: SessionManager, cacheManager: CacheManaging, eventManager: EventManager, userManager: UserManager) {
         self.cycleManager = cycleManager
-        self.s = s
         self.cacheManager = cacheManager
+        self.s = s
         self.eventManager = eventManager
         self.userManager = userManager
     }
@@ -57,6 +57,4 @@ import UIKit
         let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: message)
         try await userManager.updateUser(values: [UserProfile.Field.idealMeetUp : idealMeetUp])
     }
-    
-    var userEvent: EventDraft
 }

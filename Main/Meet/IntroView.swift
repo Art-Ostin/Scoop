@@ -34,8 +34,8 @@ struct IntroView: View {
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { showIdealTime = false }
-                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles", event: vm.userEvent) {
-                    Task { try await vm.saveIdealMeetUp(event: vm.userEvent) }
+                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
+                    Task { try await vm.saveIdealMeetUp(event: event) }
                 })
             }
         }

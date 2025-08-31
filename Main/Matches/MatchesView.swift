@@ -50,7 +50,7 @@ struct MatchesView: View {
             .navigationTitle("Matches")
         }
         .fullScreenCover(isPresented: $showProfileView){
-            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, draftUser: vm.user, defaults: vm.defaultsManager))
+            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, draftUser: vm.user, defaults: vm.defaultsManager))
         }
         .sheet(isPresented: $showSettingsView) {
             SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.s))

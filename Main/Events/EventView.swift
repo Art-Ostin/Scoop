@@ -48,7 +48,7 @@ struct EventView: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager)) {
+                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, sesionManager: vm.sessionManager )) {
                         selectedProfile = nil
                     }
                 }

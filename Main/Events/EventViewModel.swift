@@ -12,16 +12,19 @@ import SwiftUI
 
 @Observable class EventViewModel {
     
-    
     var cacheManager: CacheManaging
     var userManager: UserManager
     var eventManager: EventManager
+    var cycleManager: CycleManager
+    var sessionManager: SessionManager
     
     
-    init(cacheManager: CacheManaging, userManager: UserManager, eventManager: EventManager) {
+    init(cacheManager: CacheManaging, userManager: UserManager, eventManager: EventManager, cycleManager: CycleManager, sessionManager: SessionManager) {
         self.cacheManager = cacheManager
         self.userManager = userManager
         self.eventManager = eventManager
+        self.cycleManager = cycleManager
+        self.sessionManager = sessionManager
     }
     
     var userEvents: [UserEvent] = []

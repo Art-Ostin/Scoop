@@ -26,16 +26,20 @@ struct ImageSlot: Equatable {
     var userManager: UserManager
     var s: SessionManager
     var storageManager: StorageManaging
+    var cycleManager: CycleManager
+    var eventManager: EventManager
     
     var draftUser: UserProfile?
     
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
+    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
         self.cacheManager = cacheManager
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
         self.draftUser = draftUser
         self.defaults = defaults
+        self.cycleManager = cycleManager
+        self.eventManager = eventManager
     }
 
     var user: UserProfile { s.user }

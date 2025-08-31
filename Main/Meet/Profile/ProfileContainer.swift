@@ -11,7 +11,7 @@ struct ProfileView: View {
     
     let onDismiss: () -> Void
     
-    init(vm: ProfileViewModel,preloadedImages: [UIImage]? = nil, onDismiss: @escaping () -> Void = {}) {
+    init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, onDismiss: @escaping () -> Void = {}) {
         _vm = State(initialValue: vm)
         self.onDismiss = onDismiss
         self.preloadedImages = preloadedImages

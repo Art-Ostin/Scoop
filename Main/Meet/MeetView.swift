@@ -66,14 +66,11 @@ extension MeetView {
                 .ignoresSafeArea()
                 .onTapGesture { }
             
-            ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager)) {
-                withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil }
-            }
+            ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, sesionManager: vm.s)) { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } }
         }
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)
     }
-    
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime, vm.showProfilesState == .active {
             SimpleClockView(targetTime: time) {}

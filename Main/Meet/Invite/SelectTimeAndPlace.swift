@@ -58,7 +58,7 @@ struct SelectTimeAndPlace: View {
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
-                vm.onSubmit()
+                vm.onSubmit(vm.event)
             }
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")
@@ -93,7 +93,7 @@ extension SelectTimeAndPlace {
                 if vm.text == "Confirm & Send" {
                     vm.showTypePopup.toggle()
                 } else {
-                    vm.onSubmit()
+                    vm.onSubmit(vm.event)
                 }
             }
         }
