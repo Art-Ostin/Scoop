@@ -51,10 +51,10 @@ import UIKit
         guard
             let time = event.time,
             let place = event.location,
-            let type = event.type,
-            let message = event.message
+            let type = event.type
         else { return }
-        let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: message)
+        let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
+        print(idealMeetUp)
         try await userManager.updateUser(values: [UserProfile.Field.idealMeetUp : idealMeetUp])
     }
 }
