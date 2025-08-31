@@ -18,6 +18,7 @@ enum ProfileViewType {
     let cacheManager: CacheManaging
     let profileModel: ProfileModel
     
+    
     var showInvitePopup: Bool = false
     
     var viewProfileType: ProfileViewType {
@@ -38,4 +39,24 @@ enum ProfileViewType {
     func loadImages() async -> [UIImage] {
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
+    
+    
+    
+    
+    func sendInvite(profileId: String) async throws {
+        let user = await sessionManager.user
+        let cycle = await sessionManager.activeCycle
+        cycleManager.inviteSent(userId: user.id, cycle: cycle, profileId: profileId)
+        print("invite sent")
+        Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
+    }
+    
+    
+    func acceptInvite(eventId: String) async throws {
+        try await eventManager.updateStatus(eventId: eventId, to: .accepted)
+    }
+    
+    var event: EventDraft
+    
+    var receivedEvent: Event?
 }

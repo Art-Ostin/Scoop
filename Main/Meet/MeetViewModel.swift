@@ -44,4 +44,16 @@ import UIKit
     func updateEventStatus(eventId: String, status: EventStatus) async throws {
         try await eventManager.updateStatus(eventId: eventId, to: status)
     }
+    
+    func saveIdealMeetUp(event: EventDraft) async throws {
+        guard
+            let time = event.time,
+            let place = event.location,
+            let type = event.type,
+            let message = event.message
+        else { return }
+        
+        let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: message)
+        try await userManager.updateUser(values: [UserProfile.Field.idealMeetUp : idealMeetUp])
+    }
 }

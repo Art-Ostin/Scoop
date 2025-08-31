@@ -1,24 +1,40 @@
 import SwiftUI
 import MapKit
 
-
-
-struct SendInvitePopup: View {
+@MainActor
+@Observable class TimeAndPlaceViewModel {
     
-    @State var vm: InviteViewModel
-    @State var showAlert: Bool = false
-    @FocusState var isFocused: Bool
-    var forUser: Bool
+    let text: String
+    var event: EventDraft
+    let profile: ProfileModel
     
-    let onDismiss: () -> Void
-
-    init(vm: InviteViewModel, forUser: Bool = false, onDismiss: @escaping () -> Void) {
-        _vm = State(initialValue: vm)
-        self.onDismiss = onDismiss
-        self.forUser = forUser
+    var showTypePopup: Bool = false
+    var showMessageScreen: Bool = false
+    var showTimePopup: Bool = false
+    var showMapView: Bool = false
+    var showAlert: Bool = false
+    
+    let onSubmit: () -> Void
+    
+    
+    init(text: String = "Confirm & Send", event: EventDraft, onSubmit: @escaping () -> (), profile: ProfileModel) {
+        self.text = text
+        self.event = event
+        self.onSubmit = onSubmit
+        self.profile = profile
     }
+}
+
+struct SelectTimeAndPlace: View {
         
+    @FocusState var isFocused: Bool
+    @State var vm: TimeAndPlaceViewModel
+
+    init(vm: TimeAndPlaceViewModel) { self.vm = vm }
+
+    
     var body: some View {
+        
         ZStack {
 
             sendInviteScreen
@@ -39,13 +55,10 @@ struct SendInvitePopup: View {
         .fullScreenCover(isPresented: $vm.showMapView) {
             MapView(vm2: $vm)
         }
-        .alert("Event Commitment", isPresented: $showAlert) {
+        .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
-                Task {
-                    try await vm.sendInvite(profileId: vm.profileModel.profile.id)
-                    onDismiss()
-                }
+                vm.onSubmit()
             }
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")
@@ -56,32 +69,31 @@ struct SendInvitePopup: View {
     }
 }
 
-extension SendInvitePopup {
+extension SelectTimeAndPlace {
 
     private var sendInviteScreen: some View {
         VStack(spacing: 32) {
-            if forUser {
-                Text ("Your Time & Place")
-                    .font(.title(24))
-            } else {
+            if vm.text == "Confirm & Send" {
                 HStack {
+                    CirclePhoto(image: vm.profile.image ?? UIImage())
                     
-                    CirclePhoto(image: vm.profileModel.image ?? UIImage())
-                    
-                    Text("Meet \(vm.profileModel.profile.name)")
+                    Text("Meet \(vm.profile.profile.name)")
                         .font(.title(24))
                 }
+            } else {
+                Text ("Your Time & Place")
+                    .font(.title(24))
             }
             InviteTypeRow
             Divider()
             InviteTimeRow
             Divider()
             InvitePlaceRow
-            ActionButton(isValid: InviteIsValid, text: forUser ? "View Profiles" : "Confirm & Send") {
-                if forUser {
-                    onDismiss()
+            ActionButton(isValid: InviteIsValid, text: vm.text) {
+                if vm.text == "Confirm & Send" {
+                    vm.showTypePopup.toggle()
                 } else {
-                    showAlert.toggle()
+                    vm.onSubmit()
                 }
             }
         }

@@ -10,7 +10,7 @@
 
 struct InviteAddMessageView: View {
     
-    @Binding var vm: InviteViewModel
+    @Binding var vm: TimeAndPlaceViewModel
     
     @FocusState var isFocused: Bool
     var body: some View {

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SelectTimeView: View {
     
-    @Binding var vm: InviteViewModel
+    @Binding var vm: TimeAndPlaceViewModel
     
     @State private var hour: Int = 22
     @State private var minute: Int = 30
