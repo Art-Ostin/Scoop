@@ -103,19 +103,18 @@ enum showProfilesState {
             let cycleId = session?.activeCycle?.id
         else { return }
         profileStreamTask = Task { @MainActor in
-            do {
-                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
-                    switch event {
-                    case .addProfile(let id):
-                        try await loadProfile(id: id)
-                        print("load profile called")
-                    case .removeProfile(let id):
-                        profiles.removeAll { $0.id == id }
-                    }
-                }
-            } catch {
-                print(error)
-            }
+//            do {
+//                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
+//                    switch event {
+//                    case .addProfile(let id):
+//                        try await loadProfile(id: id)
+//                    case .removeProfile(let id):
+//                        profiles.removeAll { $0.id == id }
+//                    }
+//                }
+//            } catch {
+//                print(error)
+//            }
         }
     }
     
@@ -214,7 +213,7 @@ enum showProfilesState {
         let image = try await cacheManager.fetchFirstImage(profile: profile)
         let profileModel = ProfileModel(profile: profile, image: image)
         profiles.append(profileModel)
-        print("profiles added")
+        print("PROFILE ADDDDDDDDEEDDDDDDDDD")
         
         Task { await cacheManager.loadProfileImages([profile])}
     }
@@ -270,13 +269,14 @@ enum showProfilesState {
                 group.addTask {
                     guard let ids = try? await cyc.fetchCycleProfiles(userId: user.id, cycleId: cycleId), !ids.isEmpty else {return}
                     let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
+                    print(data)
                     let profileModels = await cyc.profileLoader(data: data)
+                    print(profileModels)
                     await MainActor.run { self.profiles = profileModels }
                     Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
                 }
             }
         }
-        
         cycleStream()
         userEventsStream()
         if cycleId != nil { profilesStream() }
