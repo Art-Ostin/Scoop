@@ -42,6 +42,7 @@ class UserManager {
         try await userDocument(userId: userId).getDocument(as: UserProfile.self)
     }
     
+    
     func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error> {
         AsyncThrowingStream { continuation in
             let reg = userDocument(userId: userId).addSnapshotListener { snapshot, error in
