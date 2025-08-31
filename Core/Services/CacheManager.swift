@@ -46,7 +46,6 @@ class CacheManager: CacheManaging  {
             let urlString = profile.imagePathURL.first,
             let url = URL(string: urlString)
         else {return nil}
-        print("returning image")
         return try await fetchImage(for: url)
     }
     

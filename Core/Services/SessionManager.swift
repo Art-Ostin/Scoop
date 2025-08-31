@@ -271,7 +271,6 @@ enum showProfilesState {
                     let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
                     print(data)
                     let profileModels = await cyc.profileLoader(data: data)
-                    print(profileModels)
                     await MainActor.run { self.profiles = profileModels }
                     Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
                 }
@@ -279,7 +278,7 @@ enum showProfilesState {
         }
         cycleStream()
         userEventsStream()
-        if cycleId != nil { profilesStream() }
+//        if cycleId != nil { profilesStream() }
     }
 }
 

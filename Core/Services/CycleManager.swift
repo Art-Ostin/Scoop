@@ -188,9 +188,14 @@ final class CycleManager {
         return await withTaskGroup(of: ProfileModel?.self, returning: [ProfileModel].self) { group in
             for item in data {
                 group.addTask {
+                    var image: UIImage?
                     guard let profile = try? await userManager.fetchUser(userId: item.profileId) else {return nil}
-                    let image = try? await cacheManager.fetchFirstImage(profile: profile)
-                    return ProfileModel(event: item.event, profile: profile, image: image ?? UIImage())
+                    do {
+                        image = try await cacheManager.fetchFirstImage(profile: profile)
+                    } catch {
+                        print(error)
+                    }
+                    return ProfileModel(event: item.event, profile: profile, image: image)
                 }
             }
             return await group.reduce(into: []) {result, element  in
