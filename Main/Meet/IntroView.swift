@@ -28,6 +28,7 @@ struct IntroView: View {
                     showIdealTime.toggle()
                 }
             }
+            
             if showIdealTime {
                 Rectangle()
                     .fill(.thinMaterial)

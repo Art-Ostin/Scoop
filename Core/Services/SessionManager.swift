@@ -103,18 +103,18 @@ enum showProfilesState {
             let cycleId = session?.activeCycle?.id
         else { return }
         profileStreamTask = Task { @MainActor in
-//            do {
-//                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
-//                    switch event {
-//                    case .addProfile(let id):
-//                        try await loadProfile(id: id)
-//                    case .removeProfile(let id):
-//                        profiles.removeAll { $0.id == id }
-//                    }
-//                }
-//            } catch {
-//                print(error)
-//            }
+            do {
+                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
+                    switch event {
+                    case .addProfile(let id):
+                        try await loadProfile(id: id)
+                    case .removeProfile(let id):
+                        profiles.removeAll { $0.id == id }
+                    }
+                }
+            } catch {
+                print(error)
+            }
         }
     }
     
@@ -220,7 +220,6 @@ enum showProfilesState {
 
     func stopSession() {
         profileStreamTask?.cancel()
-        userStreamTask?.cancel()
         eventStreamTask?.cancel()
         cycleStreamTask?.cancel()
         userProfileStreamTask?.cancel()
@@ -232,7 +231,8 @@ enum showProfilesState {
     }
 
     func startSession(user: UserProfile) async {
-        stopSession() ; session = Session(user: user)
+        stopSession() ;
+        session = Session(user: user)
         
         do {try await loadCycle()} catch { print(error)}
         let userId = user.id
@@ -278,7 +278,7 @@ enum showProfilesState {
         }
         cycleStream()
         userEventsStream()
-//        if cycleId != nil { profilesStream() }
+        if cycleId != nil { profilesStream() }
     }
 }
 

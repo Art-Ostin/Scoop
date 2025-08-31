@@ -12,7 +12,7 @@ struct ProfileCard : View {
     @Bindable var vm: MeetViewModel
     let profile: ProfileModel
     @Binding var selectedProfile: ProfileModel?
-    
+
     var body: some View {
         VStack {
             if let image = profile.image {
