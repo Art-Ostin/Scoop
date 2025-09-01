@@ -12,23 +12,76 @@ struct ProfileCard : View {
     @Bindable var vm: MeetViewModel
     let profile: ProfileModel
     @Binding var selectedProfile: ProfileModel?
+    
+    var isInvite: Bool { profile.event != nil }
 
     var body: some View {
-        VStack {
-            if let image = profile.image {
-                firstImage(image: image)
-                    .onTapGesture { withAnimation(.easeInOut(duration: 0.15)) { selectedProfile = profile } }
+        
+        VStack (spacing: 4) {
+            HStack(spacing: 0) {
+                if let image = profile.image { imageContainer(image: image, size: 170, shadow: 0) {}}
+                
+                profileInfo(profile: profile.profile)
             }
-            if let event = profile.event { SimpleClockView(targetTime: event.inviteExpiryTime) {} }
+            .padding(6)
+            .frame(width: 350, height: 175)
+            .padding(6)
+            .background (
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.white)
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                .inset(by: 0.5)
+                .stroke(Color(red: 0.93, green: 0.93, blue: 0.93), lineWidth: 1)
+            )
+            
+            .onTapGesture { selectedProfile = profile }
+            
+            
+            if let time = profile.event?.time {
+                SimpleClockView(targetTime: time) {}
+                    .frame(width: 350, alignment: .topTrailing)
+            }
         }
     }
-    private func firstImage(image: UIImage) -> some View {
-        Image(uiImage: image)
-            .resizable()
-            .scaledToFill()
-            .frame(width: 320, height: 422)
-            .clipped()
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+}
+
+extension ProfileCard {
+    
+    @ViewBuilder
+    private func profileInfo (profile: UserProfile) -> some View {
+        VStack (alignment: .leading, spacing: 20) {
+            
+            Text(profile.name)
+                .font(.body(24, .bold))
+            
+            Group {
+                if let meet = profile.idealMeetUp {
+                                        
+                    let place = meet.place.name ?? " "
+                    let weekDay = meet.time.formatted(.dateTime.weekday(.wide))
+                    let hour = meet.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
+                    
+                    Text("\(weekDay), \(hour)  \(meet.type), ") +
+                    Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accentColor)
+                    
+                    if let message = meet.message {
+                        
+                    }
+                    
+                } else {
+                    Text(profile.degree)
+                }
+            }
+            .font(.body(16, .medium))
+        }
+        .padding(6)
+        .lineSpacing(12)
+        .frame(width: 170, height: 170, alignment: .topLeading)
+        .padding(6)
     }
 }
+
+

@@ -34,7 +34,7 @@ struct EventSlot: View {
             
             LargeClockView(targetTime: event.time) {}
             
-            EventFormatter(event: event, isInvite: false)
+            EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: false, place: event.place)
                 .padding(.horizontal, 32)
         }
         .task {

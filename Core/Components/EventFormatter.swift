@@ -8,32 +8,39 @@
 import SwiftUI
 
 struct EventFormatter: View {
-    
-    let event: UserEvent
+
+    let time: Date
+    let type: String
+    let message: String?
+    let place: EventLocation
+
     let isInvite: Bool
     let size: CGFloat
     
-    init (event: UserEvent, isInvite: Bool = true, size: CGFloat = 22) {
-        self.event = event
+    
+    init(time: Date, type: String, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
+        self.time = time
+        self.type = type
+        self.message = message
+        self.place = place
         self.isInvite = isInvite
         self.size = size
     }
     
     var body: some View {
-
-        var isMessage: Bool { event.message?.isEmpty == false }
-        let time = formatTime(date: event.time)
-        let type = event.type
-        let place = event.place.name  ?? ""
+        let hasMessage = (message?.isEmpty == false)
+        let time = formatTime(date: time)
+        let place = place.name ?? ""
         let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
         
-        return VStack(alignment: isMessage ? .leading: .center, spacing: isMessage ? 16 : 0) {
+        
+        return VStack(alignment: (hasMessage || !isInvite) ? .leading : .center, spacing: hasMessage ? 16 : 0) {
             header
                 .font(.body(size))
-                .multilineTextAlignment(isMessage ? .leading : .center)
-                .lineSpacing(isMessage ? 4 : 12)
-
-            if let message = event.message {
+                .multilineTextAlignment((hasMessage || !isInvite) ? .leading : .center)
+                .lineSpacing(hasMessage ? 4 : 12)
+            
+            if let message {
                 Text (message)
                     .font(.body(.italic))
                     .foregroundStyle(Color.grayText)

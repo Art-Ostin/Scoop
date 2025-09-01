@@ -9,13 +9,22 @@ import SwiftUI
 
 struct IntroView: View {
     @Bindable var vm: MeetViewModel
-    @State var showIdealTime: Bool = false
+    @Binding var showIdealTime: Bool
+    
+    
+    
     
     let quote = quotes.shared.allQuotes.randomElement()!
+    
     var body: some View {
         ZStack {
-            VStack(spacing: 72) {
-                VStack(spacing: 36) {
+            VStack(spacing: 60) {
+                if vm.invites.isEmpty {
+                    Image("Monkey")
+                        .frame(width: 236, height: 255)
+                }
+                
+                VStack(spacing: 36)  {
                     Text(quote.quoteText)
                         .font(.body(.italic))
                         .lineSpacing(8)
@@ -27,21 +36,6 @@ struct IntroView: View {
                 ActionButton(text: "View Profiles") {
                     showIdealTime.toggle()
                 }
-            }
-            
-            if showIdealTime {
-                Rectangle()
-                    .fill(.thinMaterial)
-                    .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .onTapGesture { showIdealTime = false }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
-                    Task {
-                        try await vm.saveIdealMeetUp(event: event)
-                        try await vm.createWeeklyCycle()
-                    }
-                })
             }
         }
     }

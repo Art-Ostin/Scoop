@@ -54,7 +54,6 @@ import UIKit
             let type = event.type
         else { return }
         let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
-        print(idealMeetUp)
-        try await userManager.updateUser(values: [UserProfile.Field.idealMeetUp : idealMeetUp])
+        try await userManager.updateIdealMeet(idealMeetUp)
     }
 }

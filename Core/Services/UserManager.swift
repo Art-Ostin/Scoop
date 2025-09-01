@@ -8,7 +8,6 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-
 class UserManager {
     
     private let auth: AuthManaging
@@ -28,6 +27,11 @@ class UserManager {
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value }
         try await userDocument(userId: uid).updateData(data)
+    }
+    
+    func updateIdealMeet(_ idealMeet: IdealMeetUp) async throws{
+        let encodedMeetUp = try Firestore.Encoder().encode(idealMeet)
+        try await updateUser(values: [UserProfile.Field.idealMeetUp : encodedMeetUp])
     }
     
     func updateUserArray(field: UserProfile.Field, value: String, add: Bool) async throws {

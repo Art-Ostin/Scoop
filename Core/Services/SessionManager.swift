@@ -282,9 +282,6 @@ enum showProfilesState {
     }
 }
 
-
-
-
 struct Session {
     var user: UserProfile
     var invites: [ProfileModel] = []

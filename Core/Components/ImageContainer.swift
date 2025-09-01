@@ -42,7 +42,7 @@ struct imageContainer<Overlay: View>: View {
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 12)
-            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: shadow)
+            .shadow(color: shadow != 0 ?.black.opacity(0.2) : .clear, radius: 4, x: 0, y: shadow)
             .overlay(alignment: .bottomTrailing) {
                 overlay()
                     .padding(24)

@@ -12,27 +12,48 @@ struct MeetView: View {
     @State var vm: MeetViewModel
     @State var selectedProfile: ProfileModel?
     @State var endTime: Date?
+    @State var showIdealTime: Bool = false
     
     init(vm: MeetViewModel) { _vm = State(initialValue: vm) }
     
     var body: some View {
         ZStack {
-            VStack(spacing: 36) {
-                Text("Meet")
-                    .font(.body(32, .bold))
-  
-                
-                
-                
-                tabView
-
-                clockView
-
+            NavigationStack {
+                ScrollView {
+                    VStack(spacing: 36) {
+                        
+                        profileScroller
+                            .padding(.top, 36)
+                        
+                        clockView
+                        
+                    }
+                }
+                .navigationTitle("Meet")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Image(systemName: "info.circle")
+                            .font(.body(17, .bold))
+                    }
+                }
             }
-            .padding(.top, 36)
             
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
+            }
+            if showIdealTime {
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { showIdealTime = false }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
+                    Task {
+                        try await vm.saveIdealMeetUp(event: event)
+                        try await vm.createWeeklyCycle()
+                    }
+                })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -41,25 +62,27 @@ struct MeetView: View {
 
 extension MeetView {
     
-    private var tabView: some View {
-        TabView {
-            
+    @ViewBuilder
+    private var profileScroller: some View {
+
+        ScrollView {
             ForEach(vm.invites) { profileInvite in
                 ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
             }
             
+            if !vm.invites.isEmpty {SoftDivider()}
+            
             if vm.showProfilesState != .closed {
-                ForEach(vm.profiles) { profileInvite in
-                    VStack {
-                        Text(profileInvite.profile.name)
-                        ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
+                VStack(spacing: 48) {
+                    ForEach(vm.profiles) { profileInvite in
+                            ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
                     }
                 }
             } else {
-                IntroView(vm: vm)
+                IntroView(vm: vm, showIdealTime: $showIdealTime)
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        
     }
     
     private func profileRecView(profileModel: ProfileModel) -> some View {
@@ -82,3 +105,11 @@ extension MeetView {
         }
     }
 }
+
+//HStack {
+//    Text("Meet")
+//        .font(.body(28, .bold))
+//    Spacer()
+//    Image(systemName: "info.circle")
+//        .font(.body(17, .bold))
+//}
