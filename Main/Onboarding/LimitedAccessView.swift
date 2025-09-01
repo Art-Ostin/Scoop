@@ -16,7 +16,7 @@ struct LimitedAccessView: View {
                 Tab("", image: "LetterIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: false, title: "eet", imageName: "CoolGuys", description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting."){}
+                        LimitedAccessPage(logOut: false, title: "Meet", imageName: "CoolGuys", description: "2 Profiles a Day. Send a Time & Place to Meet. No Texting."){}
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -25,7 +25,7 @@ struct LimitedAccessView: View {
                 Tab("", image: "LogoIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: false, title: "eeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here."){}
+                        LimitedAccessPage(logOut: false, title: "Meeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here."){}
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -34,10 +34,8 @@ struct LimitedAccessView: View {
                 Tab("", image: "MessageIcon") {
                     ZStack {
                         Color.background.ignoresSafeArea()
-                        LimitedAccessPage(logOut: true, title: "atches", imageName: "DancingCats", description: "View your previous matches here")
-                        {
-                            showAlert = true
-                        }
+                        LimitedAccessPage(logOut: true, title: "Matches", imageName: "DancingCats", description: "View your previous matches here")
+                        {showAlert = true}
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
                     }
@@ -84,17 +82,11 @@ struct LimitedAccessPage: View {
     let onTap: () -> Void
     
     var body: some View {
-        
         VStack(spacing: 72) {
             VStack(spacing: 48) {
-                HStack(spacing: 3) {
-                    Image("MIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 28, height: 28)
                     Text(title)
                         .font(.title())
-                }
+                
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 32)
                 

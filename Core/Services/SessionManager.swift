@@ -231,6 +231,7 @@ enum showProfilesState {
     }
 
     func startSession(user: UserProfile) async {
+        print("session Called")
         stopSession() ;
         session = Session(user: user)
         
@@ -240,7 +241,6 @@ enum showProfilesState {
         let em = eventManager, cm = cacheManager, cyc = cycleManager
 
         await withTaskGroup(of: Void.self) {group in
-
             group.addTask {
                 guard let events = try? await em.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
                 let input = events.map { (profileId: $0.otherUserId, event: $0) }
