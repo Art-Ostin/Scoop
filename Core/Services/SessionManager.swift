@@ -78,7 +78,6 @@ enum showProfilesState {
         }
     }
     
-    
     func loadCycle() async throws {
         let (status, cycle) = try await cycleManager.fetchCycleStatus(userId: user.id)
         switch status {
@@ -234,12 +233,12 @@ enum showProfilesState {
         print("session Called")
         stopSession() ;
         session = Session(user: user)
-        
         do {try await loadCycle()} catch { print(error)}
-        let userId = user.id
         let cycleId = session?.activeCycle?.id
+        if cycleId != nil { profilesStream() }
+        
         let em = eventManager, cm = cacheManager, cyc = cycleManager
-
+        
         await withTaskGroup(of: Void.self) {group in
             group.addTask {
                 guard let events = try? await em.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
@@ -248,7 +247,6 @@ enum showProfilesState {
                 await MainActor.run { self.invites = invites }
                 Task.detached { await cm.loadProfileImages(invites.map(\.profile)) }
             }
-            
             group.addTask {
                 guard let events = try? await em.getUpcomingAcceptedEvents(userId: user.id) else {return}
                 let input = events.map { (profileId: $0.otherUserId, event: $0) }
@@ -264,21 +262,13 @@ enum showProfilesState {
                 await MainActor.run { self.pastEvents = profileModels }
                 Task.detached { await MainActor.run { self.pastEvents = profileModels } }
             }
-            
-            if let cycleId {
-                group.addTask {
-                    guard let ids = try? await cyc.fetchCycleProfiles(userId: user.id, cycleId: cycleId), !ids.isEmpty else {return}
-                    let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
-                    print(data)
-                    let profileModels = await cyc.profileLoader(data: data)
-                    await MainActor.run { self.profiles = profileModels }
-                    Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
-                }
-            }
         }
         cycleStream()
         userEventsStream()
-        if cycleId != nil { profilesStream() }
+    }
+    
+    func deleteSessionDefaults() {
+        defaultManager.deleteDefaults()
     }
 }
 
@@ -345,3 +335,15 @@ struct Session {
      Task { await cacheManager.loadProfileImages(profileModels.map(\.profile)) }
  }
  */
+
+// Loading profiles straight away
+//            if let cycleId {
+//                group.addTask {
+//                    guard let ids = try? await cyc.fetchCycleProfiles(userId: user.id, cycleId: cycleId), !ids.isEmpty else {return}
+//                    let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
+//                    print(data)
+//                    let profileModels = await cyc.profileLoader(data: data)
+//                    await MainActor.run { self.profiles = profileModels }
+//                    Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
+//                }
+//            }

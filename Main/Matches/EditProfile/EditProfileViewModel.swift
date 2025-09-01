@@ -29,6 +29,9 @@ struct ImageSlot: Equatable {
     var cycleManager: CycleManager
     var eventManager: EventManager
     
+    
+    
+    
     var draftUser: UserProfile?
     
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
@@ -263,7 +266,6 @@ struct ImageSlot: Equatable {
     }
     
     //Onboarding Functions
-    
     var draftProfile: DraftProfile? { defaults.fetch() }
     
     

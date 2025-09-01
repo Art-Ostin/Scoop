@@ -67,9 +67,6 @@ extension ProfileCard {
                     Text("\(weekDay), \(hour)  \(meet.type), ") +
                     Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accentColor)
                     
-                    if let message = meet.message {
-                        
-                    }
                     
                 } else {
                     Text(profile.degree)

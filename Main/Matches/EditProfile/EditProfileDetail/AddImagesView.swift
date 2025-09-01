@@ -36,6 +36,7 @@ struct AddImageView: View {
             }
             
             ActionButton(isValid: vm.isValid, text: "Complete") {
+                print(vm.draftUser ?? "No draft")
                 Task {
                     if let draftUser = vm.draftProfile {
                         do{

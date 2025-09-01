@@ -14,15 +14,18 @@ import Foundation
     var authManager: AuthManaging
     var sessionManager: SessionManager
     
+    let user: UserProfile
+    
     init(authManager: AuthManaging, sessionManager: SessionManager) {
         self.authManager = authManager
         self.sessionManager = sessionManager
+        self.user = sessionManager.user
     }
-    
-    var user: UserProfile  {sessionManager.user}
     
     func signOut() {
         try? authManager.signOutAuthUser()
+        sessionManager.stopSession()
+        sessionManager.deleteSessionDefaults()
     }
 
 }

@@ -17,7 +17,7 @@ struct RootView : View {
     
     var body: some View {
         
-        Group {
+//        Group {
             switch state.wrappedValue {
                 
             case .booting:
@@ -27,14 +27,14 @@ struct RootView : View {
                 SignUpView()
                 
             case .createAccount:
-                LimitedAccessView()
+                OnboardingHomeView()
                 
             case .app:
                 if let s = dep.sessionManager.session {
                     AppContainer()
                         .id(s.user.id)
                 }
-            }
+//            }
         }
     }
 }

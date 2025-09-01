@@ -34,8 +34,10 @@ extension SettingsView {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40, alignment: .center)
                 .onTapGesture {
-                    vm.signOut()
-                    appState.wrappedValue = .login
+                    withAnimation { appState.wrappedValue = .login }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                        vm.signOut()
+                    }) //gives time for the session to close (and not cause fatal error) 
                 }
             softDivider
                 .padding(.trailing)

@@ -1,13 +1,18 @@
 import SwiftUI
 
-struct LimitedAccessView: View {
+struct OnboardingHomeView: View {
+    
+    @State var vm: OnboardingViewModel
     
     @Environment(\.appDependencies) private var dep
     @Environment(\.appState) private var appState
     @State var showOnboarding = false
     @State var current: Int = 0
-    
     @State var showAlert: Bool = false
+    
+    init() {
+       _vm = State(initialValue: OnboardingViewModel(authManager: dep.authManager, defaultsManager: dep.defaultsManager))
+    }
     
     var body: some View {
         
@@ -42,11 +47,7 @@ struct LimitedAccessView: View {
                     .alert("Sign Out", isPresented: $showAlert) {
                         Button("Cancel", role: .cancel) {}
                         Button("Sign Out") {
-                            Task {
-                                appState.wrappedValue = .login
-                                try? await dep.authManager.deleteAuthUser()
-                                dep.defaultsManager.deleteDefaults()
-                            }
+                            Task { try? await vm.signOut() }
                         }
                     } message: {
                         if dep.defaultsManager.onboardingStep == 0 {
@@ -60,7 +61,6 @@ struct LimitedAccessView: View {
             ActionButton(text: (dep.defaultsManager.onboardingStep == 0) ? "Create Profile" : "Complete \(dep.defaultsManager.onboardingStep)/10") {
                 showOnboarding = true
             }
-            
             .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
@@ -69,9 +69,6 @@ struct LimitedAccessView: View {
     }
 }
 
-#Preview {
-    LimitedAccessView()
-}
 
 struct LimitedAccessPage: View {
     
