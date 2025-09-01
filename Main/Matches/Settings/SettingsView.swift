@@ -35,6 +35,7 @@ extension SettingsView {
                 .frame(height: 40, alignment: .center)
                 .onTapGesture {
                     vm.signOut()
+                    appState.wrappedValue = .login
                 }
             softDivider
                 .padding(.trailing)

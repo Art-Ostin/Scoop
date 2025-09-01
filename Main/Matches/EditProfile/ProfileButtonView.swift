@@ -23,7 +23,6 @@ struct EditProfileButton: View {
                         Image(systemName: "chevron.right")
                             .font(.body(12, .bold))
                             .offset(y: -1)
-
                     }
                 }
             } else {

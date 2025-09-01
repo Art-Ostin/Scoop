@@ -21,7 +21,7 @@ struct LimitedAccessView: View {
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
                 }
-
+                
                 Tab("", image: "LogoIcon") {
                     ZStack{
                         Color.background.ignoresSafeArea()
@@ -36,8 +36,8 @@ struct LimitedAccessView: View {
                         Color.background.ignoresSafeArea()
                         LimitedAccessPage(logOut: true, title: "Matches", imageName: "DancingCats", description: "View your previous matches here")
                         {showAlert = true}
-                        .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                        .toolbarBackground(Color.background, for: .tabBar)
+                            .toolbarBackgroundVisibility(.visible, for: .tabBar)
+                            .toolbarBackground(Color.background, for: .tabBar)
                     }
                     .alert("Sign Out", isPresented: $showAlert) {
                         Button("Cancel", role: .cancel) {}
@@ -60,12 +60,12 @@ struct LimitedAccessView: View {
             ActionButton(text: (dep.defaultsManager.onboardingStep == 0) ? "Create Profile" : "Complete \(dep.defaultsManager.onboardingStep)/10") {
                 showOnboarding = true
             }
+            
             .padding(.top, 420)
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, cycleManager: dep.cycleManager, eventManager: dep.eventManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)
         }
-
     }
 }
 
