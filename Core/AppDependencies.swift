@@ -70,4 +70,3 @@ extension View {
         environment(\.appDependencies, dependencies)
     }
 }
-

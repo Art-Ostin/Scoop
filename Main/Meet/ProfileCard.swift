@@ -55,7 +55,7 @@ extension ProfileCard {
         VStack (alignment: .leading, spacing: 20) {
             
             Text(profile.name)
-                .font(.body(24, .bold))
+                .font(.body(24, .medium))
             
             Group {
                 if let meet = profile.idealMeetUp {

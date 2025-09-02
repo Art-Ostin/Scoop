@@ -16,6 +16,7 @@ struct AddImageView: View {
     @State var images: [UIImage] = Array(repeating: UIImage(named: "ImagePlaceholder") ?? UIImage(), count: 6)
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
+    
     init(vm: EditProfileViewModel) { self._vm = State(initialValue: vm) }
     
     var body: some View {
@@ -39,7 +40,7 @@ struct AddImageView: View {
                 print(vm.draftUser ?? "No draft")
                 Task {
                     if let draftUser = vm.draftProfile {
-                        do{
+                        do {
                             let profile = try await vm.userManager.createUser(draft: draftUser)
                              await vm.s.startSession(user: profile)
                              appState.wrappedValue = .app

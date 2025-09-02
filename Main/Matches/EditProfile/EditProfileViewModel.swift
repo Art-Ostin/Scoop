@@ -28,10 +28,7 @@ struct ImageSlot: Equatable {
     var storageManager: StorageManaging
     var cycleManager: CycleManager
     var eventManager: EventManager
-    
-    
-    
-    
+
     var draftUser: UserProfile?
     
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
@@ -267,7 +264,6 @@ struct ImageSlot: Equatable {
     
     //Onboarding Functions
     var draftProfile: DraftProfile? { defaults.fetch() }
-    
     
     func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
         defaults.update(kp, to: value)

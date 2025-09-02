@@ -12,8 +12,10 @@ struct EventPlaceholder: View {
     var body: some View {
         
             VStack (spacing: 72) {
-                
-                TitleSection()
+
+                Text("Meeting")
+                    .font(.tabTitle())
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Image("CoolGuys")
                     .resizable()
@@ -26,7 +28,7 @@ struct EventPlaceholder: View {
                     .font(.body(18, .medium))
             }
             .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 72)
+            .padding(.top, 60)
             .padding(.horizontal, 32)
     }
 }

@@ -13,11 +13,9 @@ enum AppState {
 struct RootView : View {
     
     @Environment(\.appState) private var state
-    @Environment(\.appDependencies) private var dep
     
     var body: some View {
-        
-//        Group {
+        Group {
             switch state.wrappedValue {
                 
             case .booting:
@@ -30,11 +28,8 @@ struct RootView : View {
                 OnboardingHomeView()
                 
             case .app:
-                if let s = dep.sessionManager.session {
-                    AppContainer()
-                        .id(s.user.id)
-                }
-//            }
+                AppContainer()
+            }
         }
     }
 }

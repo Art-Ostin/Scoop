@@ -56,6 +56,8 @@
 		6561C8CD2E0444EC006A72DF /* NewYorkMedium-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8C42E0444EC006A72DF /* NewYorkMedium-Medium.otf */; };
 		6561C8CE2E0444EC006A72DF /* NewYorkMedium-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8C52E0444EC006A72DF /* NewYorkMedium-Semibold.otf */; };
 		6565AB6F2E660E1500AAE306 /* OnboadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */; };
+		6565FF792E6732AA0075C8CF /* SFProRounded-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */; };
+		6565FF7C2E6738100075C8CF /* GeometryPreferenceKeyBootcamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6565FF7B2E6738100075C8CF /* GeometryPreferenceKeyBootcamp.swift */; };
 		6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */; };
 		6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7DC2E20424300FFCF82 /* EditHeight.swift */; };
 		6577D7E52E20454200FFCF82 /* OptionPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7E42E20454200FFCF82 /* OptionPill.swift */; };
@@ -183,6 +185,8 @@
 		6561C8C42E0444EC006A72DF /* NewYorkMedium-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewYorkMedium-Medium.otf"; sourceTree = "<group>"; };
 		6561C8C52E0444EC006A72DF /* NewYorkMedium-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewYorkMedium-Semibold.otf"; sourceTree = "<group>"; };
 		6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboadingViewModel.swift; sourceTree = "<group>"; };
+		6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Bold.otf"; sourceTree = "<group>"; };
+		6565FF7B2E6738100075C8CF /* GeometryPreferenceKeyBootcamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryPreferenceKeyBootcamp.swift; sourceTree = "<group>"; };
 		6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		6577D7DC2E20424300FFCF82 /* EditHeight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditHeight.swift; sourceTree = "<group>"; };
 		6577D7E42E20454200FFCF82 /* OptionPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPill.swift; sourceTree = "<group>"; };
@@ -375,6 +379,7 @@
 		6561C8C62E0444EC006A72DF /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */,
 				6561C8BF2E0444EC006A72DF /* ModernEra-Bold.ttf */,
 				6561C8C02E0444EC006A72DF /* ModernEra-Medium.ttf */,
 				6561C8C12E0444EC006A72DF /* ModernEra-MediumItalic.ttf */,
@@ -440,6 +445,14 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		6565FF7A2E6737E40075C8CF /* PreferenceKeyCustomTitle */ = {
+			isa = PBXGroup;
+			children = (
+				6565FF7B2E6738100075C8CF /* GeometryPreferenceKeyBootcamp.swift */,
+			);
+			path = PreferenceKeyCustomTitle;
+			sourceTree = "<group>";
+		};
 		6577D7C92E201A2600FFCF82 /* EditProfileDetail */ = {
 			isa = PBXGroup;
 			children = (
@@ -473,6 +486,7 @@
 				65E5C8F12E4E79550093410B /* TabSelectionKey.swift */,
 				65F450BE2E45567900AE3503 /* ImageContainer.swift */,
 				654982DD2E315B1B00CA335F /* EditPhotoCell.swift */,
+				6565FF7A2E6737E40075C8CF /* PreferenceKeyCustomTitle */,
 				65FAF99C2E42BAC30015E231 /* ClockComponents */,
 			);
 			path = Components;
@@ -713,6 +727,7 @@
 				6561C8CC2E0444EC006A72DF /* NewYorkLarge-Bold.otf in Resources */,
 				6561C8CD2E0444EC006A72DF /* NewYorkMedium-Medium.otf in Resources */,
 				653BAFBC2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf in Resources */,
+				6565FF792E6732AA0075C8CF /* SFProRounded-Bold.otf in Resources */,
 				6561C8CE2E0444EC006A72DF /* NewYorkMedium-Semibold.otf in Resources */,
 				659497332E01DD4000880921 /* Assets.xcassets in Resources */,
 			);
@@ -770,6 +785,7 @@
 				6591092C2E19B0810065696F /* Countries.swift in Sources */,
 				6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */,
 				6591092D2E19B0810065696F /* Prompts.swift in Sources */,
+				6565FF7C2E6738100075C8CF /* GeometryPreferenceKeyBootcamp.swift in Sources */,
 				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */,
 				6591092E2E19B0810065696F /* Quotes.swift in Sources */,

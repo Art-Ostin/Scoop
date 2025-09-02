@@ -50,6 +50,10 @@ extension Font {
         case medium = "NewYorkMedium-Medium"
     }
     
+    enum tabTitleType: String {
+        case title = "SFProRounded-Bold"
+    }
+    
     static func body(_ size: CGFloat = 16, _ weight: bodyFontWeight = .medium) -> Font {
         .custom(weight.rawValue, size: size)
     }
@@ -64,5 +68,9 @@ extension Font {
     
     static func title(_ weight: titleFontWeight) -> Font {
         .custom(weight.rawValue, size: 32)
+    }
+    
+    static func tabTitle(_ size: CGFloat = 32, weight: tabTitleType = .title) -> Font {
+        .custom(weight.rawValue, size: size)
     }
 }

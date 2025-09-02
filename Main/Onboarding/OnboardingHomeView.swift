@@ -2,17 +2,12 @@ import SwiftUI
 
 struct OnboardingHomeView: View {
     
-    @State var vm: OnboardingViewModel
     
     @Environment(\.appDependencies) private var dep
     @Environment(\.appState) private var appState
     @State var showOnboarding = false
     @State var current: Int = 0
     @State var showAlert: Bool = false
-    
-    init() {
-       _vm = State(initialValue: OnboardingViewModel(authManager: dep.authManager, defaultsManager: dep.defaultsManager))
-    }
     
     var body: some View {
         
@@ -47,7 +42,15 @@ struct OnboardingHomeView: View {
                     .alert("Sign Out", isPresented: $showAlert) {
                         Button("Cancel", role: .cancel) {}
                         Button("Sign Out") {
-                            Task { try? await vm.signOut() }
+                            Task {
+                                do {
+                                    try await dep.authManager.deleteAuthUser()
+                                } catch {
+                                    print (error)
+                                }
+                                dep.defaultsManager.deleteDefaults()
+                                appState.wrappedValue = .login
+                            }
                         }
                     } message: {
                         if dep.defaultsManager.onboardingStep == 0 {
@@ -62,6 +65,13 @@ struct OnboardingHomeView: View {
                 showOnboarding = true
             }
             .padding(.top, 420)
+        } .onAppear {
+            let draft = dep.defaultsManager.fetch()
+            print(draft ?? "No draft")
+        }
+        .task {
+            let user = await dep.authManager.fetchAuthUser() ?? "NO current user"
+            print ( await dep.authManager.fetchAuthUser() ?? "NO current user")
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, cycleManager: dep.cycleManager, eventManager: dep.eventManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)

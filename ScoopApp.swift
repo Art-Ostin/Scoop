@@ -9,6 +9,8 @@ import SwiftUI
 import Firebase
 import UIKit
 
+import CoreText
+
 @main
 struct ScoopApp: App {
     
@@ -29,3 +31,5 @@ struct ScoopApp: App {
         }
     }
 }
+
+
