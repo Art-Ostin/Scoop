@@ -8,22 +8,26 @@
 import SwiftUI
 
 struct MeetView: View {
-    
     @State private var scrollViewOffset: CGFloat = 0
-    
-    
     @State private var title: String  = "Meet"
     @State var vm: MeetViewModel
     @State var selectedProfile: ProfileModel?
     @State var endTime: Date?
     @State var showIdealTime: Bool = false
-    
     init(vm: MeetViewModel) { _vm = State(initialValue: vm) }
-    
+
     var body: some View {
+        @Bindable var s = vm.s
+        
         ZStack {
             ScrollView {
                 VStack {
+                    
+                    ForEach(s.profiles) { profile in
+                        Text(profile.profile.name)
+                    }
+//
+                    
                       tabTitle
                         .background(
                             GeometryReader { proxy in
@@ -31,18 +35,15 @@ struct MeetView: View {
                                     .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .global).maxY)
                              }
                         )
-                    profileScroller
+                    
+//                    profileScroller
        
                     clockView
                     
-                    
-                    ForEach(vm.profiles) { profile in
-                        Text(profile.profile.name)
-                    }
-                    
-                    
                 }
             }
+            .id(vm.s.profiles.count)
+            
             .overlay(Text("\(scrollViewOffset)"))
             .onAppear {
                 for profile in vm.profiles {
@@ -70,7 +71,6 @@ struct MeetView: View {
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
             scrollViewOffset = value
         }
-
     }
 }
 

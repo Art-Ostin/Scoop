@@ -22,6 +22,8 @@ struct EventView: View {
         
         ZStack {
             VStack {
+                
+                
                 HStack {
                     TitleSection()
                         .padding(.top, 72)
@@ -56,6 +58,7 @@ struct EventView: View {
                 .zIndex(1)
             }
         }
+
         .sheet(isPresented: $showEventDetails) {
             if let newEvent = vm.currentEvent, let newUser = vm.currentUser {
                 EventDetailsView(event: newEvent, user: newUser)

@@ -71,7 +71,12 @@ enum showProfilesState {
                     session = nil
                     continue
                 }
+                print("session Started")
                 await startSession(user: user)
+                print("session Completed")
+                for profile in profiles {
+                    print(profile.profile.name)
+                }
                 appState.wrappedValue = .app
                 Task { await cacheManager.loadProfileImages([user]) }
             }

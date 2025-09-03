@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 
-
+@MainActor
 @Observable class EventViewModel {
     
     var cacheManager: CacheManaging
@@ -36,7 +36,7 @@ import SwiftUI
     func fetchUserEvents() async throws {
     }
     
-    
+    var profiles: [ProfileModel] { sessionManager.profiles }
     
     func saveUserImagesToCache() async throws {
         let ids = Set(userEvents.map(\.otherUserId))
