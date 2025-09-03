@@ -16,12 +16,11 @@ struct AppContainer: View {
         TabView (selection: $selection) {
             
             Tab("", image: "LetterIcon", value: 0) {
-//                ZStack{
-                NewMeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager, userManager: dep.userManager))
-//                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager, userManager: dep.userManager))
+                ZStack{
+                    MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager, userManager: dep.userManager))
                         .toolbarBackgroundVisibility(.visible, for: .tabBar)
                         .toolbarBackground(Color.background, for: .tabBar)
-//                }
+                }
             }
             
             Tab("", image: "LogoIcon", value: 1) {

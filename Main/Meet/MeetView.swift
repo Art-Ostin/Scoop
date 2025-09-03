@@ -28,17 +28,27 @@ struct MeetView: View {
                         .background(
                             GeometryReader { proxy in
                                 Color.clear
-                                    .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .named("scrollView")).maxY)
+                                    .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .global).maxY)
                              }
                         )
                     profileScroller
        
                     clockView
+                    
+                    
+                    ForEach(vm.profiles) { profile in
+                        Text(profile.profile.name)
+                    }
+                    
+                    
                 }
             }
-            .coordinateSpace(name: "scrollView")
             .overlay(Text("\(scrollViewOffset)"))
-//          .overlay(navBarLayer, alignment: .top)
+            .onAppear {
+                for profile in vm.profiles {
+                    print(profile.profile.name)
+                }
+            }
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
             }

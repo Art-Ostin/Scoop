@@ -90,7 +90,6 @@ enum showProfilesState {
         case .active:
             showProfilesState = .active
             session?.activeCycle = cycle
-            print("cycle Active")
         }
     }
     
@@ -102,18 +101,18 @@ enum showProfilesState {
             let cycleId = session?.activeCycle?.id
         else { return }
         profileStreamTask = Task { @MainActor in
-            do {
-                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
-                    switch event {
-                    case .addProfile(let id):
-                        try await loadProfile(id: id)
-                    case .removeProfile(let id):
-                        profiles.removeAll { $0.id == id }
-                    }
-                }
-            } catch {
-                print(error)
-            }
+//            do {
+//                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
+//                    switch event {
+//                    case .addProfile(let id):
+//                        try await loadProfile(id: id)
+//                    case .removeProfile(let id):
+//                        profiles.removeAll { $0.id == id }
+//                    }
+//                }
+//            } catch {
+//                print(error)
+//            }
         }
     }
     
@@ -212,7 +211,6 @@ enum showProfilesState {
         let image = try await cacheManager.fetchFirstImage(profile: profile)
         let profileModel = ProfileModel(profile: profile, image: image)
         profiles.append(profileModel)
-        print("PROFILE ADDDDDDDDEEDDDDDDDDD")
         
         Task { await cacheManager.loadProfileImages([profile])}
     }
@@ -230,7 +228,6 @@ enum showProfilesState {
     }
 
     func startSession(user: UserProfile) async {
-        print("session Called")
         stopSession() ;
         session = Session(user: user)
         do {try await loadCycle()} catch { print(error)}
@@ -254,7 +251,7 @@ enum showProfilesState {
                 await MainActor.run { self.events = profileModels }
                 Task.detached {await cm.loadProfileImages(profileModels.map(\.profile))}
             }
-
+            
             group.addTask {
                 guard let events = try? await em.getPastAcceptedEvents(userId: user.id) else {return}
                 let input = events.map { (profileId: $0.otherUserId, event: $0) }
@@ -262,10 +259,21 @@ enum showProfilesState {
                 await MainActor.run { self.pastEvents = profileModels }
                 Task.detached { await MainActor.run { self.pastEvents = profileModels } }
             }
-            
-            
-            
-            
+            if let cycleId {
+                print("There is a cycleId")
+                group.addTask {
+                    guard let ids = try? await cyc.fetchCycleProfiles(userId: user.id, cycleId: cycleId), !ids.isEmpty else {return}
+                    let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
+                    let profileModels = await cyc.profileLoader(data: data)
+                    await MainActor.run {
+                        self.profiles = profileModels
+                        for profile in self.profiles {
+                            print(profile.profile.name)
+                        }
+                    }
+                    Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
+                }
+            }
         }
         cycleStream()
         userEventsStream()

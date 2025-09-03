@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+struct MeetHeaderOffsetKey: PreferenceKey {
+    static let defaultValue: CGFloat = 34
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue()}
+}
+
 struct NewMeetView: View {
     
     @State var vm: MeetViewModel
@@ -20,20 +25,28 @@ struct NewMeetView: View {
     var body: some View {
         ScrollView {
             VStack {
-                tabTitle
-                    .background (
-                        GeometryReader { proxy  in
-                            Color.clear
-                                .preference(key: MeetHeaderOffsetKey.self, value: proxy.frame(in: .global).minY)
-                        })
+                
+                VStack(spacing: 0) {
+                    GeometryReader { geo in
+                        Color.clear
+                            .preference(key: MeetHeaderOffsetKey.self,
+                                        value: geo.frame(in: .global).minY)
+                            .id(vm.profiles.count)
+                    }
+                    tabTitle
+                }
+                
+                Text(vm.profiles.first?.profile.email ?? "No Name")
+                
                 profileScroller
             }
         }
         .onPreferenceChange(MeetHeaderOffsetKey.self) { scrollViewOffset = $0 }
-        .overlay(
-            Text("\(scrollViewOffset)")
-        )
+        .overlay(Text(String(format: "%.1f", scrollViewOffset)))
         .padding()
+        .onAppear {
+            print(vm.profiles)
+        }
     }
 }
 
@@ -49,17 +62,11 @@ extension NewMeetView {
     
     
     private var profileScroller: some View {
+        VStack {
             ForEach(vm.profiles) { profileInvite in
+                Text(profileInvite.profile.name)
                 ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
         }
-    }
-}
-
-struct MeetHeaderOffsetKey: PreferenceKey {
-    
-    static let defaultValue: CGFloat = 0
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        }
     }
 }
