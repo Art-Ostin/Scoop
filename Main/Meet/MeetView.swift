@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-
 struct MeetView: View {
     
-    @State var scrollViewOffset: CGFloat = 0
+    @State private var scrollViewOffset: CGFloat = 0
+    
+    
     @State private var title: String  = "Meet"
     @State var vm: MeetViewModel
     @State var selectedProfile: ProfileModel?
@@ -27,7 +28,7 @@ struct MeetView: View {
                         .background(
                             GeometryReader { proxy in
                                 Color.clear
-                                    .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .global).minY)
+                                    .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .named("scrollView")).maxY)
                              }
                         )
                     profileScroller
@@ -35,13 +36,9 @@ struct MeetView: View {
                     clockView
                 }
             }
-            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-                scrollViewOffset = value
-            }
+            .coordinateSpace(name: "scrollView")
             .overlay(Text("\(scrollViewOffset)"))
-          .overlay(navBarLayer, alignment: .top)
-
-            
+//          .overlay(navBarLayer, alignment: .top)
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
             }
@@ -60,6 +57,10 @@ struct MeetView: View {
                 })
             }
         }
+        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+            scrollViewOffset = value
+        }
+
     }
 }
 

@@ -254,7 +254,7 @@ enum showProfilesState {
                 await MainActor.run { self.events = profileModels }
                 Task.detached {await cm.loadProfileImages(profileModels.map(\.profile))}
             }
-            
+
             group.addTask {
                 guard let events = try? await em.getPastAcceptedEvents(userId: user.id) else {return}
                 let input = events.map { (profileId: $0.otherUserId, event: $0) }
@@ -262,6 +262,10 @@ enum showProfilesState {
                 await MainActor.run { self.pastEvents = profileModels }
                 Task.detached { await MainActor.run { self.pastEvents = profileModels } }
             }
+            
+            
+            
+            
         }
         cycleStream()
         userEventsStream()
@@ -336,14 +340,3 @@ struct Session {
  }
  */
 
-// Loading profiles straight away
-//            if let cycleId {
-//                group.addTask {
-//                    guard let ids = try? await cyc.fetchCycleProfiles(userId: user.id, cycleId: cycleId), !ids.isEmpty else {return}
-//                    let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
-//                    print(data)
-//                    let profileModels = await cyc.profileLoader(data: data)
-//                    await MainActor.run { self.profiles = profileModels }
-//                    Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
-//                }
-//            }
