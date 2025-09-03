@@ -31,6 +31,10 @@ class EventManager {
         return "users/\(userId)/user_events/\(userEventId)"
     }
     
+    private func userEvents(userId: String) -> String {
+        return "users/\(userId)/user_events/"
+    }
+    
     private func fetchEvent(eventId: String) async throws -> Event {
         try await fs.get(EventPath(eventId: eventId))
     }
@@ -86,6 +90,8 @@ class EventManager {
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
         case .upcomingInvited:
+            fs.get(userEvents(userId: userId, value)) -> [UserEvent]            
+            
             return userEventCollection(userId: userId)
                 .whereField(UserEvent.Field.time.rawValue, isGreaterThan: Timestamp(date: Date()))
                 .whereField(UserEvent.Field.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
