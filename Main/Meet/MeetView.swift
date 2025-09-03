@@ -11,7 +11,6 @@ struct MeetView: View {
     @State private var scrollViewOffset: CGFloat = 0
     @State private var title: String  = "Meet"
     @Bindable var vm: MeetViewModel
-    
     @State var selectedProfile: ProfileModel?
     @State var endTime: Date?
     @State var showIdealTime: Bool = false
