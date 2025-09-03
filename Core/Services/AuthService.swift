@@ -23,7 +23,6 @@ class AuthManager: AuthManaging {
         try Auth.auth().signOut()
     }
     
-    
     @discardableResult func fetchAuthUser () async -> String? {
         guard let user = Auth.auth().currentUser else { return nil }
         try? await user.reload()
@@ -34,8 +33,7 @@ class AuthManager: AuthManaging {
         guard let user = Auth.auth().currentUser else { return }
         try await user.delete()
     }
-    
-    
+
     func authStateStream() -> AsyncStream<String?> {
         AsyncStream { continuation in
             let handle = Auth.auth().addStateDidChangeListener { _, user in

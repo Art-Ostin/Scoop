@@ -5,18 +5,40 @@
 
 
 import Foundation
-import FirebaseAuth
-import FirebaseFirestore
+
+
+
 
 class UserManager {
     
     private let auth: AuthManaging
+    let fs = LiveFirestoreService()
+    
     init(auth: AuthManaging) { self.auth = auth }
     
-    private var userCollection: CollectionReference { Firestore.firestore().collection("users") }
+    private func userPath(_ id: String) -> String { "users/\(id)" }
+    
+    func createUser(draft: DraftProfile) throws -> String {
+        let profileUser = UserProfile(draft: draft)
+        _ = try fs.set(userPath(profileUser.id), value: profileUser)
+    }
+    
+    
+    private func fetchProfile(userId: String) async throws -> UserProfile {
+        try await firestore.get(userPath(userId))
+    }
+    
+    
+    
+    
+    
+    
+
+    
+    
     private func userDocument(userId: String) -> DocumentReference { userCollection.document(userId)}
     
-    func createUser (draft: DraftProfile) async throws -> UserProfile {
+    func createUser (draft: DraftProfile) throws -> UserProfile {
         let profileUser = UserProfile(draft: draft)
         try userDocument(userId: profileUser.id).setData(from: profileUser)
         return profileUser

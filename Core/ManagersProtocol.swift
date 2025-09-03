@@ -12,6 +12,16 @@ import FirebaseStorage
 import UIKit
 
 
+protocol FirestoreService {
+    func set<T: Encodable> (_ path: String, value: T) async throws
+    func update(_ path: String, fields: [String : Any]) async throws
+    func get<T: Decodable>(_ path: String) async throws -> T
+    func listen<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
+}
+
+
+
+
 protocol AuthManaging {
     func createAuthUser(email: String, password: String) async throws -> AuthDataResult
     func signInAuthUser(email: String, password: String) async throws

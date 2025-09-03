@@ -19,6 +19,8 @@ enum UserEventUpdate {
 
 class EventManager {
 
+    
+    
     private let userManager: UserManager
     
     init(userManager: UserManager) { self.userManager = userManager }
@@ -63,7 +65,6 @@ class EventManager {
         
         try userEventCollection(userId: user.id).document(id).setData(from: initiatorUserEvent)
         try userEventCollection(userId: profile.id).document(id).setData(from: recipientUserEvent)
-
     }
     
     func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
@@ -180,7 +181,7 @@ class EventManager {
                 
                 for change in snap.documentChanges {
                     switch change.type {
-                        
+
                     case .modified, .added:
                         guard let ue = try? change.document.data(as: UserEvent.self) else { continue }
                         switch ue.status {

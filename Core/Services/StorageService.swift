@@ -9,6 +9,7 @@ import Foundation
 import FirebaseStorage
 import SwiftUI
 
+
 class StorageManager: StorageManaging {
 
     private let storage = Storage.storage().reference()
