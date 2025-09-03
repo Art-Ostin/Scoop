@@ -13,19 +13,18 @@ enum FSChange<T> {
     case modified(id: String?, data: T)
 }
 
-final class LiveFirestoreService {
+final class LiveFirestoreService: FirestoreService {
+    
     
     let db = Firestore.firestore()
     
-    @discardableResult
-    func set<T: Encodable> (_ path: String, value: T) throws -> String{
-        let ref = db.document(path)
-        try ref.setData(from: value)
-        return ref.documentID
+    func set<T: Encodable> (_ path: String, value: T) throws {
+        try db.document(path).setData(from: value)
     }
     
-    func add<T: Encodable> (_ path: String, value: T) throws {
-        try db.collection(path).addDocument(from: value)
+    func add<T: Encodable> (_ path: String, value: T) throws -> String {
+        let ref = try db.collection(path).addDocument(from: value)
+        return ref.documentID
     }
     
     func get<T: Decodable>(_ path: String) async throws -> T {
@@ -54,20 +53,13 @@ final class LiveFirestoreService {
             let reg = query.addSnapshotListener { snapshot, error in
                 if let error { continuation.finish(throwing: error) ; return }
                 guard let snap = snapshot else { return }
-                
                 for change in snap.documentChanges {
                     switch change.type {
                     case .added, .modified:
                         do {
                             let model = try change.document.data(as: T.self), id = change.document.documentID
-                            if change.type == .added {
-                                continuation.yield(.added(id: id, data: model))
-                            } else {
-                                continuation.yield(.modified(id: id, data: model))
-                            }
-                        } catch {
-                            print(error)
-                        }
+                            continuation.yield(change.type == .added ? .added(id: id, data: model) : .modified(id: id, data: model))
+                        } catch { print(error) }
                     case .removed:
                         continue
                     }

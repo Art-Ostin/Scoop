@@ -34,13 +34,15 @@ final class AppDependencies {
     init(
         authManager: AuthManaging? = nil,
         cacheManager: CacheManaging? = nil,
-        userManager: UserManager? = nil
+        userManager: UserManager? = nil,
+        firestore: FirestoreService? = nil
     ) {
         let auth = authManager ?? AuthManager()
         let cache = cacheManager ?? CacheManager()
-        let userManager = userManager ?? UserManager(auth: auth)
+        let fs = firestore ?? LiveFirestoreService()
+        let userManager = userManager ?? UserManager(auth: auth, fs: fs)
         let storage = StorageManager()
-        let event = EventManager(userManager: userManager)
+        let event = EventManager(userManager: userManager, fs: fs)
         let cycle = CycleManager(cacheManager: cache, userManager: userManager)
         let defaults = DefaultsManager(defaults: .standard)
         

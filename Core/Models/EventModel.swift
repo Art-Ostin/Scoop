@@ -28,10 +28,10 @@ struct Event: Identifiable, Codable {
     var initiatorId: String
     var recipientId: String
     var type: String
-    var time: Date
+    var time: Timestamp
     var location: EventLocation
     var status: EventStatus = .pending
-    var inviteExpiryTime: Date
+    var inviteExpiryTime: Timestamp
     var canText: Bool = false
     
     var message: String?
@@ -49,10 +49,10 @@ extension Event {
             initiatorId: draft.initiatorId ?? "",
             recipientId: draft.recipientId ?? "",
             type: draft.type ?? "",
-            time: draft.time ?? Date(),
+            time: draft.time.map(Timestamp.init(date:)) ?? Timestamp(date: Date()),
             location: draft.location ?? EventLocation(mapItem: MKMapItem()),
             status: draft.status,
-            inviteExpiryTime: draft.inviteExpiryTime ?? Date().addingTimeInterval(60 * 60 * 24),
+            inviteExpiryTime:  draft.inviteExpiryTime.map(Timestamp.init(date:)) ?? Timestamp(date: Date().addingTimeInterval(24 * 60 * 60)),
             canText: draft.canText
         )
     }

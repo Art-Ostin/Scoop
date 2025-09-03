@@ -6,8 +6,7 @@
 //
 
 import Foundation
-import FirebaseFirestore
-import SwiftUI
+
 
 enum UserEventUpdate {
     case eventInvite(userEvent: UserEvent)
@@ -18,34 +17,26 @@ enum UserEventUpdate {
 
 
 class EventManager {
-
-    
     
     private let userManager: UserManager
+    private let fs: FirestoreService
     
-    init(userManager: UserManager) { self.userManager = userManager }
+    init(userManager: UserManager, fs: FirestoreService) { self.userManager = userManager ; self.fs = fs }
     
-    private let eventCollection = Firestore.firestore().collection("events")
-    private let userCollection = Firestore.firestore().collection("users")
-    
-    private func userEventCollection (userId: String) -> CollectionReference {
-        userCollection.document(userId).collection("user_events")
+    private func EventPath(eventId: String) -> String {
+        "events/\(eventId)"
     }
     
-    private func userEventDocument (userId: String, userEventId: String) -> DocumentReference {
-        userEventCollection(userId: userId).document(userEventId)
-    }
-    
-    private func eventDocument(eventId: String) -> DocumentReference {
-        eventCollection.document(eventId)
+    private func userEventPath(userId: String, userEventId: String) -> String {
+        return "users/\(userId)/user_events/\(userEventId)"
     }
     
     private func fetchEvent(eventId: String) async throws -> Event {
-        try await eventDocument(eventId: eventId).getDocument(as: Event.self)
+        try await fs.get(EventPath(eventId: eventId))
     }
     
     private func fetchUserEvent(userId: String, userEventId: String) async throws -> UserEvent {
-        try await userEventDocument(userId: userId, userEventId: userEventId).getDocument(as: UserEvent.self)
+        try await fs.get(userEventPath(userId: userId, userEventId: userEventId))
     }
     
     func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
@@ -56,22 +47,18 @@ class EventManager {
         draft.inviteExpiryTime = getEventExpiryTime(draft: draft)
         
         let event = Event(draft: draft)
-        
-        let ref = try eventCollection.addDocument(from: event)
-        let id = ref.documentID
-        
+        let id = try fs.add("events", value: event)
+
         let initiatorUserEvent = makeUserEvent(profile: profile, role: .sent, event: event)
         let recipientUserEvent = makeUserEvent(profile: user, role: .received, event: event)
         
-        try userEventCollection(userId: user.id).document(id).setData(from: initiatorUserEvent)
-        try userEventCollection(userId: profile.id).document(id).setData(from: recipientUserEvent)
+        try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent)
+        try fs.set(userEventPath(userId: profile.id, userEventId: id), value: initiatorUserEvent)
+        
+        func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
+            UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first ?? "", updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
+        }
     }
-    
-    func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-        UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first ?? "", updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
-    }
-    
-    
     
     func getEventExpiryTime(draft: EventDraft) -> Date? {
         guard let eventTime = draft.time else {return nil}
@@ -94,6 +81,7 @@ class EventManager {
         }
     }
     
+
     private func eventsQuery(_ scope: EventScope, now: Date = .init(), userId: String) throws -> Query {
         let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
         switch scope {
@@ -114,7 +102,7 @@ class EventManager {
                 .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
                 .whereField(UserEvent.Field.time.rawValue, isLessThan: Timestamp(date: plus3h))
         }
-    }
+    }    
     
     private func getEvents(_ scope: EventScope, now: Date = .init(), userId: String) async throws -> [UserEvent] {
         let query = try eventsQuery(scope, now: now, userId: userId)
@@ -173,6 +161,11 @@ class EventManager {
         try await batch.commit()
     }
     
+    
+    
+    
+    
+    
     func eventStream(userId: String) -> AsyncThrowingStream<UserEventUpdate, Error> {
         AsyncThrowingStream { continuation in
             let reg = userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
@@ -207,3 +200,10 @@ extension Query {
         return try snapshot.documents.map { try $0.data(as: T.self)}
     }
 }
+
+
+
+//
+//private func userEventCollection (userId: String) -> CollectionReference {
+//    userCollection.document(userId).collection("user_events")
+//}

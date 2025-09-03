@@ -16,27 +16,19 @@ struct UserEvent: Identifiable, Codable {
     let otherUserId: String
     let role: EdgeRole
     let status: EventStatus
-    let time: Date
+    let time: Timestamp
     let type: String
     let message: String?
     let place: EventLocation
     let otherUserName: String
     let otherUserPhoto: String
     let updatedAt: Date?
-    let inviteExpiryTime: Date
+    let inviteExpiryTime: Timestamp
     var canMessage: Bool = false
     
     enum Field: String, Codable {
         case id, otherUserId, role, status, time, type, message, place, otherUserName, otherUserPhoto, updatedAt, invite_expiry_time, canMessage
     }
-}
-
-
-struct IdealMeetUp: Codable {
-    let time: Date
-    let place: EventLocation
-    let type: String
-    let message: String?
 }
 
 

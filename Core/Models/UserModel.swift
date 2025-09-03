@@ -106,3 +106,10 @@ extension UserProfile {
     }
 }
 
+
+struct IdealMeetUp: Codable {
+    let time: Date
+    let place: EventLocation
+    let type: String
+    let message: String?
+}

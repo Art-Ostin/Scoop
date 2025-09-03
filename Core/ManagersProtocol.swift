@@ -13,10 +13,12 @@ import UIKit
 
 
 protocol FirestoreService {
-    func set<T: Encodable> (_ path: String, value: T) async throws
-    func update(_ path: String, fields: [String : Any]) async throws
+    func set<T: Encodable> (_ path: String, value: T) throws
+    func add<T: Encodable> (_ path: String, value: T) throws -> String
     func get<T: Decodable>(_ path: String) async throws -> T
-    func listen<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
+    func update(_ path: String, fields: [String : Any])
+    func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
+    func listenC<T: Decodable>(query: Query) -> AsyncThrowingStream<FSChange<T>, Error>
 }
 
 
