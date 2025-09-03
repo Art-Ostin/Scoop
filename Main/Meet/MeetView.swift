@@ -10,21 +10,25 @@ import SwiftUI
 struct MeetView: View {
     @State private var scrollViewOffset: CGFloat = 0
     @State private var title: String  = "Meet"
-    @State var vm: MeetViewModel
+    @Bindable var vm: MeetViewModel
+    
     @State var selectedProfile: ProfileModel?
     @State var endTime: Date?
     @State var showIdealTime: Bool = false
-    init(vm: MeetViewModel) { _vm = State(initialValue: vm) }
+    init(vm: MeetViewModel) { self.vm = vm }
 
     var body: some View {
-        @Bindable var s = vm.s
         
         ZStack {
             ScrollView {
                 VStack {
                     
-                    ForEach(s.profiles) { profile in
+                    Text("Hello World")
+                    
+                    
+                    ForEach(vm.profiles) { profile in
                         Text(profile.profile.name)
+                            .foregroundStyle(Color.black)
                     }
 //
                     
@@ -42,8 +46,8 @@ struct MeetView: View {
                     
                 }
             }
-            .id(vm.s.profiles.count)
-            
+            .id(vm.profiles.count)
+
             .overlay(Text("\(scrollViewOffset)"))
             .onAppear {
                 for profile in vm.profiles {
