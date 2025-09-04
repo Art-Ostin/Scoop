@@ -8,7 +8,6 @@
 import Foundation
 @preconcurrency import FirebaseFirestore
 
-
 enum CycleStatus: String, Codable, Sendable { case active, closed, respond}
 
 enum ProfileRecStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
@@ -25,15 +24,14 @@ struct CycleStats: Codable, Sendable {
     }
 }
 
-
 struct CycleModel: Identifiable, Codable, Sendable{
     @DocumentID var id: String?
     @ServerTimestamp var startedAt: Timestamp?
     var cycleStatus: CycleStatus = .active
     var cycleStats: CycleStats
     var profilesAdded: Int
-    var endsAt: Timestamp 
-    var autoRemoveAt: Timestamp
+    var endsAt: Date
+    var autoRemoveAt: Date
     
     enum Field: String {
         case id, startedAt, cycleStatus, cycleStats, profilesAdded, endsAt, autoRemoveAt

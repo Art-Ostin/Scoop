@@ -16,12 +16,12 @@ protocol FirestoreService {
     func set<T: Encodable> (_ path: String, value: T) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
     func get<T: Decodable>(_ path: String) async throws -> T
+    func increment(_ path: String, by deltas: [String: Int64])
     func update(_ path: String, fields: [String : Any])
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
     func fetchFromCollection<T: Decodable>( _ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) async throws -> [T]
     func streamCollection<T: Decodable>(_ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) -> AsyncThrowingStream<FSCollectionEvent<T>, Error>
 }
-
 
 
 

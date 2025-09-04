@@ -40,6 +40,12 @@ final class LiveFirestoreService: FirestoreService {
         return ref.documentID
     }
     
+    func increment(_ path: String, by deltas: [String: Int64]) {
+        var payload: [String: Any] = [:]
+        for (k, v) in deltas { payload[k] = FieldValue.increment(v) }
+        db.document(path).updateData(payload)
+    }
+    
     func get<T: Decodable>(_ path: String) async throws -> T {
         return try await db.document(path).getDocument(as: T.self)
     }

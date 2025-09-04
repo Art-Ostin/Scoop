@@ -45,6 +45,7 @@ final class AppDependencies {
         let event = EventManager(userManager: userManager, fs: fs)
         let cycle = CycleManager(cacheManager: cache, userManager: userManager)
         let defaults = DefaultsManager(defaults: .standard)
+
         
         self.authManager = auth
         self.cacheManager = cache

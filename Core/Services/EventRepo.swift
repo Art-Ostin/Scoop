@@ -7,12 +7,8 @@
 
 import Foundation
 
-enum UserEventUpdate {
-    case eventInvite(userEvent: UserEvent)
-    case removeInvite(userEvent: UserEvent)
-    case eventAccepted(userEvent: UserEvent)
-    case pastEventAccepted(userEvent: UserEvent)
-}
+enum UserEventKind { case invite, accepted, pastAccepted, remove }
+typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
 
 class EventManager {
@@ -109,9 +105,9 @@ class EventManager {
         let (inv, upc, pas) = try await (invited, upcoming, past)
         
         let initial: [UserEventUpdate] =
-        inv.map { .eventInvite(userEvent: $0) }
-        + upc.map { .eventAccepted(userEvent: $0) }
-        + pas.map { .pastEventAccepted(userEvent: $0) }
+            inv.map { (event: $0, kind: .invite) }
+          + upc.map { (event: $0, kind: .accepted) }
+          + pas.map { (event: $0, kind: .pastAccepted) }
         
         let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
         
@@ -125,15 +121,15 @@ class EventManager {
                         case .added(let it), .modified(let it):
                             let e = it.model
                             if e.status == .pending, e.role == .received, now < e.inviteExpiryTime {
-                                continuation.yield(.eventInvite(userEvent: e))
+                                continuation.yield((event: e, kind: .invite))
                             } else if e.status == .accepted {
                                 if e.time >= plus6h {
-                                    continuation.yield(.eventAccepted(userEvent: e))
+                                    continuation.yield((event: e, kind: .accepted))
                                 } else {
-                                    continuation.yield(.pastEventAccepted(userEvent: e))
+                                    continuation.yield((event: e, kind: .pastAccepted))
                                 }
                             } else {
-                                continuation.yield(.removeInvite(userEvent: e))
+                                continuation.yield((event: e, kind: .remove))
                             }
                         case .removed:
                             break
@@ -151,10 +147,9 @@ class EventManager {
         fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         fs.update(EventPath(eventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
-    }
+    }    
+    
 }
-
-
 
 
 
