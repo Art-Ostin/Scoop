@@ -39,7 +39,7 @@ struct EventSlot: View {
         }
         .task {
             guard
-                let profile = try? await vm.userManager.fetchUser(userId: event.otherUserId),
+                let profile = try? await vm.userManager.fetchProfile(userId: event.otherUserId),
                 let firstImage = try? await vm.cacheManager.fetchFirstImage(profile: profile)
             else {return}
             profileHolder = ProfileModel(event: event, profile: profile, image: firstImage)

@@ -62,26 +62,28 @@ struct ImageSlot: Equatable {
     
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
-        try await userManager.updateUser(values: updatedFields)
+        try await userManager.updateUser(userId: user.id, values: updatedFields)
     }
     
-    var updatedFieldsArray: [(field: UserProfile.Field, value: String, add: Bool)] = []
+    var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     
-    func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to element: String, add: Bool) {
+    func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
         guard var draftUser else {return}
         if add == true {
-            draftUser[keyPath: kp].append(element)
+            draftUser[keyPath: kp].append(contentsOf: elements)
         } else {
-            draftUser[keyPath: kp].removeAll(where: {$0 == element})
+            let removeSet = Set(elements)
+            draftUser[keyPath: kp].removeAll { removeSet.contains($0) }
         }
-        updatedFieldsArray.append((field: key, value: element, add: add))
-        print(updatedFieldsArray)        
+        updatedFieldsArray.append((field: key, value: elements, add: add))
+        print(updatedFieldsArray)
     }
     
     func saveUserArray() async throws {
         guard !updatedFieldsArray.isEmpty else { return }
         for (field, value, add) in updatedFieldsArray {
-            try await userManager.updateUserArray(field: field, value: value, add: add)
+            let data: [UserProfile.Field : [String]] = [field: value]
+            try await userManager.updateUserArray(userId: user.id, values: data, add: add )
         }
     }
     
@@ -153,7 +155,7 @@ struct ImageSlot: Equatable {
             paths[r.index] = r.path
             urls[r.index]  = r.url.absoluteString
         }
-        try await userManager.updateUser(values: [.imagePath: paths, .imagePathURL: urls])
+        try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
     }
     
     
@@ -221,12 +223,11 @@ struct ImageSlot: Equatable {
     }
     
     func updateUser(values: [UserProfile.Field : Any]) async throws  {
-        try await userManager.updateUser(values: values)
+        try await userManager.updateUser(userId: user.id, values: values)
     }
     
-    func updateUserArray(field: UserProfile.Field, value: String, add: Bool) async throws {
-        try await userManager.updateUserArray(field: field, value: value, add: add)
-    }
+    
+    
     
     //Nationality Functionality
     var selectedCountries: [String] = []
@@ -250,10 +251,10 @@ struct ImageSlot: Equatable {
     func toggleCountry(_ country: String) {
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})
-            setArray(.nationality, \.nationality, to: country, add: false)
+            setArray(.nationality, \.nationality, to: [country], add: false)
         } else if selectedCountries.count < 3 {
             selectedCountries.append(country)
-            setArray(.nationality, \.nationality, to: country, add: true)
+            setArray(.nationality, \.nationality, to: [country], add: true)
         }
     }
     

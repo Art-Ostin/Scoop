@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Firebase
+import FirebaseFirestore
 
 enum UpdateShownProfiles {
     case addProfile(id: String)
@@ -54,8 +56,7 @@ final class CycleManager {
     func fetchCycleProfile(userId: String, cycleId: String, profileId: String) async throws -> ProfileRec {
         try await fs.get(profileDocument(userId: userId, cycleId: cycleId, profileId: profileId))
     }
-        
-    @discardableResult
+    
     func createCycle(userId: String) async throws -> String {
         let addedCount = 4
         let now = Date()
@@ -63,35 +64,40 @@ final class CycleManager {
         let autoRemoveAt = Calendar.current.date(byAdding: .day, value: 21, to: now)!
         
         let cycle = CycleModel(cycleStats: CycleStats(total: addedCount, invited: 0, accepted: 0, dismissed: 0, pending: addedCount),profilesAdded: addedCount,endsAt: endsAt,autoRemoveAt: autoRemoveAt)
-        
         let id = try fs.add(cyclePath(userId: userId), value: cycle)
-        
-        //Have a function to get the profiles when they appear
-        /*
-         let snap = try await users.getDocuments()
+        try await createRecommendations(cycleId: id, userId: userId)
+        return id
+    }
+    
+    func createRecommendations(cycleId: String, userId: String) async throws {
+        let snap = try await Firestore.firestore().collection("users").getDocuments()
          let ids = snap.documents.map( \.documentID ).filter { $0 != userId }
          let selectdIds = Array(ids.shuffled().prefix(4))
-         var newProfiles: [ProfileRec] = []
-         for id in selectedIds {
-         newProfiles.append(ProfileRec(id: id, profileViews: 0, status: .pending))
-         fs.set(cyclePath(userId: userId), value: newProfiles)
+         for id in selectdIds {
+             let profileRec = (ProfileRec(id: id, profileViews: 0, status: .pending))
+             try fs.set(profileDocument(userId: userId, cycleId: cycleId, profileId: id), value: profileRec)
          }
-         */
+    }
+
+    
+    func fetchCycleModel(userId: String, cycleId: String) async throws -> CycleModel {
+        try await fs.get(cycleDocPath(userId: userId, cycleId: cycleId))
     }
     
-    func updateCycle(userId: String, cycleId: String, values: [String: Any]) {
-        fs.update(cycleDocPath(userId: userId, cycleId: cycleId), fields: values)
+    
+    func updateCycle(userId: String, cycleId: String, values: [String: Any]) async throws  {
+        try await fs.update(cycleDocPath(userId: userId, cycleId: cycleId), fields: values)
     }
     
-    func updateCycleProfile(userId: String, cycleId: String, profileId: String, values: [ProfileRec.Field : Any]) {
+    func updateCycleProfile(userId: String, cycleId: String, profileId: String, values: [ProfileRec.Field : Any]) async throws  {
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value}
-        fs.update(profileDocument(userId: userId, cycleId: cycleId, profileId: profileId), fields: data)
+        try await fs.update(profileDocument(userId: userId, cycleId: cycleId, profileId: profileId), fields: data)
     }
     
-    func inviteSent(userId: String, cycle: CycleModel?, profileId: String) {
+    func inviteSent(userId: String, cycle: CycleModel?, profileId: String) async throws {
         guard let id = cycle?.id else { return }
-        updateCycleProfile(userId: userId, cycleId: id, profileId: profileId, values: [.status : ProfileRecStatus.invited.rawValue])
+        try await updateCycleProfile(userId: userId, cycleId: id, profileId: profileId, values: [.status : ProfileRecStatus.invited.rawValue])
             fs.increment(cycleDocPath(userId: userId, cycleId: id), by: [ "cycleStats.invited":  1, "cycleStats.pending": -1])
     }
     
@@ -108,7 +114,6 @@ final class CycleManager {
         let initial: [ProfileRec] = try await fs.fetchFromCollection(path, filters: filters, orderBy: nil, limit: nil)
         
         let base: AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
-        
         let updates = AsyncThrowingStream<UpdateShownProfiles, Error> { continuation in
             Task {
                 do {
@@ -122,8 +127,7 @@ final class CycleManager {
                             } else {
                                 continuation.yield(.addProfile(id: it.id))
                             }
-                            
-                        case .removed(let id):
+                        case .removed(_):
                             break
                         }
                     }
@@ -134,40 +138,14 @@ final class CycleManager {
         return (initial, updates)
     }
     
-    func cycleTracker(userId: String) async throws -> (initial: CycleModel, updates: AsyncThrowingStream<CycleUpdate, Error>) {
-        let path = cyclePath(userId: userId)
-        let filters: [FSWhere] = [FSWhere(field: CycleModel.Field.cycleStatus.rawValue, op: .eq, value: CycleStatus.active)]
-        let initial: CycleModel = try await fs.get(path)
-        
-        let base: AsyncThrowingStream<FSCollectionEvent<CycleModel>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
-        let updates = AsyncThrowingStream<CycleUpdate, Error> { continuation in
-            Task {
-                do {
-                    for try await cycle in base {
-                        switch cycle {
-                        case .initial:
-                            continue
-                            
-                        case .added(let it):
-                            if it.model.cycleStatus.rawValue == CycleStatus.active.rawValue {
-                                continuation.yield(CycleUpdate.added(cycleModel: it.model))
-                            }
-                        case .modified(let it):
-                            if it.model.cycleStatus.rawValue == CycleStatus.respond.rawValue {
-                                continuation.yield(CycleUpdate.respond(id: it.id))
-                            } else if it.model.cycleStatus.rawValue == CycleStatus.closed.rawValue {
-                                continuation.yield(CycleUpdate.closed(id: it.id))
-                            }
-                        case .removed(let it):
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        
+    func cycleListener(userId: String, cycleId: String) -> AsyncThrowingStream<CycleModel?, Error> {
+        fs.listenD(cycleDocPath(userId: userId, cycleId: cycleId))
     }
 }
+
+
+
+
 
 /*
  func fetchCycleProfiles (userId: String, cycleId: String) async throws -> [String] {
@@ -226,4 +204,54 @@ final class CycleManager {
      }
  }
 
+ */
+
+/*
+ func cycleTracker(userId: String) async throws -> (initial: CycleModel, updates: AsyncThrowingStream<CycleUpdate, Error>) {
+     let path = cyclePath(userId: userId)
+     let filters: [FSWhere] = [
+         FSWhere(field: CycleModel.Field.cycleStatus.rawValue, op: .eq, value: CycleStatus.active),
+         FSWhere(field: CycleModel.Field.cycleStatus.rawValue, op: .eq, value: CycleStatus.respond)
+     ]
+     let initial: CycleModel = try await fs.get(path)
+     
+     let base: AsyncThrowingStream<FSCollectionEvent<CycleModel>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
+     let updates = AsyncThrowingStream<CycleUpdate, Error> { continuation in
+         Task {
+             do {
+                 for try await cycle in base {
+                     switch cycle {
+                     case .initial:
+                         continue
+                         
+                     case .added(let it):
+                         if it.model.cycleStatus.rawValue == CycleStatus.active.rawValue {
+                             continuation.yield(CycleUpdate.added(cycleModel: it.model))
+                         }
+                     case .modified(let it):
+                         if it.model.cycleStatus.rawValue == CycleStatus.respond.rawValue {
+                             continuation.yield(CycleUpdate.respond(id: it.id))
+                         } else if it.model.cycleStatus.rawValue == CycleStatus.closed.rawValue {
+                             continuation.yield(CycleUpdate.closed(id: it.id))
+                         }
+                     case .removed(let it):
+                         break
+                     }
+                 }
+             }
+         }
+     }
+ }
+ */
+
+
+//Have a function to get the profiles when they appear
+/* let snap = try await users.getDocuments()
+ let ids = snap.documents.map( \.documentID ).filter { $0 != userId }
+ let selectdIds = Array(ids.shuffled().prefix(4))
+ var newProfiles: [ProfileRec] = []
+ for id in selectedIds {
+ newProfiles.append(ProfileRec(id: id, profileViews: 0, status: .pending))
+ fs.set(cyclePath(userId: userId), value: newProfiles)
+ }
  */

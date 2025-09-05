@@ -32,11 +32,11 @@ import UIKit
     
     var showProfilesState: showProfilesState? { s.showProfilesState }
     
-    var endTime: Date? { activeCycle?.endsAt.dateValue()}
-    
+    var endTime: Date? { activeCycle?.endsAt}
     
     func createWeeklyCycle() async throws {
-        try await cycleManager.createCycle(userId: s.user.id)
+        let id = try await cycleManager.createCycle(userId: s.user.id)
+        try await s.beginCycle(withId: id)
     }
     
     func fetchImage(url: URL) async throws -> UIImage {
@@ -54,6 +54,6 @@ import UIKit
             let type = event.type
         else { return }
         let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
-        try await userManager.updateIdealMeet(idealMeetUp)
+        try await userManager.updateUser(userId: s.user.id, values: [UserProfile.Field.idealMeetUp : idealMeetUp])
     }
 }

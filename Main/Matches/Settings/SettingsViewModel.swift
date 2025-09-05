@@ -25,7 +25,6 @@ import Foundation
     func signOut() {
         try? authManager.signOutAuthUser()
         sessionManager.stopSession()
-        sessionManager.deleteSessionDefaults()
     }
 
 }

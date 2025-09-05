@@ -43,9 +43,8 @@ final class AppDependencies {
         let userManager = userManager ?? UserManager(auth: auth, fs: fs)
         let storage = StorageManager()
         let event = EventManager(userManager: userManager, fs: fs)
-        let cycle = CycleManager(cacheManager: cache, userManager: userManager)
+        let cycle = CycleManager(cacheManager: cache, userManager: userManager, fs: fs)
         let defaults = DefaultsManager(defaults: .standard)
-
         
         self.authManager = auth
         self.cacheManager = cache

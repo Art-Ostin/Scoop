@@ -121,7 +121,7 @@ struct InterestSection: View {
                             ? selected.removeAll(where: { $0 == text })
                             : (selected.count < 10 ? selected.append(text) : nil)
                     if vm.draftUser != nil {
-                        vm.setArray(.interests, \.interests, to: text, add: vm.interestIsSelected(text: text) ? false : true)
+                        vm.setArray(.interests, \.interests, to: [text], add: vm.interestIsSelected(text: text) ? false : true)
                     }
                 }
             }

@@ -53,7 +53,7 @@ enum ProfileViewType {
     
     func sendInvite(event: EventDraft) async throws {
         let user = sessionManager.user
-        cycleManager.inviteSent(userId: user.id, cycle: sessionManager.activeCycle, profileId: profileModel.profile.id)
+        try await cycleManager.inviteSent(userId: user.id, cycle: sessionManager.activeCycle, profileId: profileModel.profile.id)
         Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
     }
     

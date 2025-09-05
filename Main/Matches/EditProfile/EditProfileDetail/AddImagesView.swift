@@ -41,7 +41,7 @@ struct AddImageView: View {
                 Task {
                     if let draftUser = vm.draftProfile {
                         do {
-                            let profile = try await vm.userManager.createUser(draft: draftUser)
+                            let profile = try vm.userManager.createUser(draft: draftUser)
                              await vm.s.startSession(user: profile)
                              appState.wrappedValue = .app
                         } catch {

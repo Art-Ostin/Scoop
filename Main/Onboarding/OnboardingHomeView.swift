@@ -70,7 +70,6 @@ struct OnboardingHomeView: View {
             print(draft ?? "No draft")
         }
         .task {
-            let user = await dep.authManager.fetchAuthUser() ?? "NO current user"
             print ( await dep.authManager.fetchAuthUser() ?? "NO current user")
         }
         .fullScreenCover(isPresented: $showOnboarding) {

@@ -20,7 +20,6 @@ struct InterestsHolder<Content: View, Destination: View>: View {
     }
     
     var body: some View {
-        
         CustomList {
             NavigationLink {
                 destination
@@ -58,12 +57,10 @@ struct InterestsLayout: View {
         }
     }
     var body: some View {
-        
         VStack(spacing: 16) {
             ForEach(rows.indices, id: \.self) { index in
                 let row = rows[index]
                 HStack {
-                    
                     Text(row[safe: 0] ?? "")
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
@@ -96,7 +93,6 @@ struct InterestsLayout: View {
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
         
     }
-    
 }
 
 extension Array {

@@ -50,9 +50,22 @@ final class LiveFirestoreService: FirestoreService {
         return try await db.document(path).getDocument(as: T.self)
     }
     
-    func update(_ path: String, fields: [String : Any])  {
-        db.document(path).updateData(fields)
+    func update(_ path: String, fields: [String: Any]) async throws {
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            db.document(path).updateData(fields) { error in
+                if let error { cont.resume(throwing: error) }
+                else { cont.resume() }
+            }
+        }
     }
+    
+    func updateArray(_ path: String, append: [String: [Any]] = [:], remove: [String: [Any]] = [:]) async throws {
+        var payload: [String: Any] = [:]
+        for (k, v) in append where !v.isEmpty { payload[k] = FieldValue.arrayUnion(v) }
+        for (k, v) in remove where !v.isEmpty { payload[k] = FieldValue.arrayRemove(v) }
+        try await update(path, fields: payload)
+    }
+    
     
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
         AsyncThrowingStream { continuation in
