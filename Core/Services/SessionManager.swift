@@ -70,7 +70,9 @@ enum showProfilesState {
                     continue
                 }
                 await startSession(user: user)
-                appState.wrappedValue = .app
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    appState.wrappedValue = .app
+                }
                 Task { await cacheManager.loadProfileImages([user]) }
             }
         }
@@ -139,7 +141,6 @@ enum showProfilesState {
                 let (initial, updates) = try await cycleManager.profilesTracker(userId: user.id, cycleId: cycleId)
                 let ids = initial.compactMap(\.id)
                 self.profiles = try await profileBuilder.fromIds(ids)
-
                 for try await update in updates {
                     switch update {
                     case .addProfile(id: let id):
@@ -260,161 +261,3 @@ func buildEvents(_ b: ProfileModelBuilder, invites: [UserEvent], accepted: [User
     async let past = b.fromEvents(past)
     return try await (inv, acc, past)
 }
-
-
-
-
-/*
-    private func loadProfile(id: String) async throws {
-        guard !self.profiles.contains(where: { $0.profile.id == id }) else {
-            print("didn't add")
-            return
-        }
-        let profile = try await userManager.fetchUser(userId: id)
-        let image = try await cacheManager.fetchFirstImage(profile: profile)
-        let profileModel = ProfileModel(profile: profile, image: image)
-        profiles.append(profileModel)
-        
-        Task { await cacheManager.loadProfileImages([profile])}
-    }
-    */
-
-/*
- func loadAcceptedEvent(event: UserEvent) async throws {
-     guard !events.contains(where: { $0.id == event.id }) else {return }
-     let profile = try await userManager.fetchUser(userId: event.otherUserId)
-     let firstImage = try? await cacheManager.fetchFirstImage(profile: profile)
-     let profileModel = ProfileModel(event: event, profile: profile, image: firstImage)
-     events.append(profileModel)
-     Task  {await cacheManager.loadProfileImages([profile])}
- }
- 
- func loadPastAcceptedEvent(event: UserEvent) async throws {
-     guard !pastEvents.contains(where: { $0.id == event.id }) else {return }
-     let profile = try await userManager.fetchUser(userId: event.otherUserId)
-     let firstImage = try? await cacheManager.fetchFirstImage(profile: profile)
-     let profileModel = ProfileModel(event: event, profile: profile, image: firstImage)
-     pastEvents.append(profileModel)
-     Task {await cacheManager.loadProfileImages([profile])}
- }
- */
-
-/*
- func loadEventInvites() async {
-     guard let events = try? await eventManager.getUpcomingInvitedEvents(userId: user.id), !events.isEmpty else { return }
-     let input = events.map { (profileId: $0.otherUserId, event: $0) }
-     let invites = await cycleManager.profileLoader(data: input)
-     self.invites = invites
-     Task { await cacheManager.loadProfileImages(invites.map(\.profile)) }
- }
-
- func loadPastAcceptedEvents() async {
-     guard let events = try? await eventManager.getPastAcceptedEvents(userId: user.id) else {return}
-     let input = events.map { (profileId: $0.otherUserId, event: $0) }
-     let profileModels = await profileLoader(data: input)
-     self.pastEvents = profileModels
- }
-     
- func loadAcceptedEvents() async {
-     guard let events = try? await eventManager.getUpcomingAcceptedEvents(userId: user.id) else {return}
-     let input = events.map { (profileId: $0.otherUserId, event: $0) }
-     let profileModels = await cycleManager.profileLoader(data: input)
-     self.events = profileModels
-     Task {await cacheManager.loadProfileImages(profileModels.map(\.profile))}
- }
- 
- func loadProfiles(cycleId: String) async throws {
-     let ids = try await cycleManager.fetchCycleProfiles(userId: user.id, cycleId: cycleId)
-     let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
-     let profileModels = await cycleManager.profileLoader(data: data)
-     self.profiles = profileModels
-     Task { await cacheManager.loadProfileImages(profileModels.map(\.profile)) }
- }
- */
-
-/*
- func profilesStream() {
-     profileStreamTask?.cancel()
-     guard
-         let userId = session?.user.id,
-         let cycleId = session?.activeCycle?.id
-     else { return }
-     profileStreamTask = Task { @MainActor in
-         //            do {
-         //                for try await event in cycleManager.profilesStream(userId: userId, cycleId: cycleId){
-         //                    switch event {
-         //                    case .addProfile(let id):
-         //                        try await loadProfile(id: id)
-         //                    case .removeProfile(let id):
-         //                        profiles.removeAll { $0.id == id }
-         //                    }
-         //                }
-         //            } catch {
-         //                print(error)
-         //            }
-     }
- }
- */
-
-/*
- do {try await loadCycle()} catch { print(error)}
- let cycleId = session?.activeCycle?.id
- if cycleId != nil { profilesStream() }
- let em = eventManager, cm = cacheManager, cyc = cycleManager
- 
- await withTaskGroup(of: Void.self) {group in
-     
-     if let cycleId {
-         print("There is a cycleId")
-         group.addTask {
-             guard let ids = try? await cyc.fetchCycleProfiles(userId: user.id, cycleId: cycleId), !ids.isEmpty else {return}
-             let data = ids.map { (profileId: $0, event: nil as UserEvent?) }
-             let profileModels = await cyc.profileLoader(data: data)
-             await MainActor.run {
-                 self.profiles = profileModels
-                 for profile in self.profiles {
-                     print(profile.profile.name)
-                 }
-             }
-             Task.detached { await cm.loadProfileImages(profileModels.map(\.profile)) }
-         }
-     }
- }
- cycleStream()
- userEventsStream()
-
- */
-
-/*
- func cycleStream() {
-     cycleStreamTask = Task {@MainActor in
-         do{
-             for try await update in cycleManager.cycleStream(userId: user.id) {
-                 switch update {
-                     
-                 case .added(let cycle):
-                     showProfilesState = .active
-                     session?.activeCycle = cycle
-                     profiles.removeAll()
-                     profilesStream()
-                     
-                 case .respond(let id):
-                     if session?.activeCycle?.id == id {
-                         showProfilesState = .respond
-                     }
-                     
-                 case .closed(let id):
-                     if session?.activeCycle?.id == id {
-                         showProfilesState = .closed
-                         session?.activeCycle = nil
-                         profiles.removeAll()
-                         profileStreamTask?.cancel()
-                     }
-                 }
-             }
-         } catch {
-             print (error)
-         }
-     }
- }
- */

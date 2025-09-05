@@ -22,15 +22,6 @@ struct MeetView: View {
             ScrollView {
                 VStack {
                     
-                    Text("Hello World")
-                    
-                    
-                    ForEach(vm.profiles) { profile in
-                        Text(profile.profile.name)
-                            .foregroundStyle(Color.black)
-                    }
-//
-                    
                       tabTitle
                         .background(
                             GeometryReader { proxy in
@@ -38,8 +29,7 @@ struct MeetView: View {
                                     .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .global).maxY)
                              }
                         )
-                    
-//                    profileScroller
+                    profileScroller
        
                     clockView
                     
