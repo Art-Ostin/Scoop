@@ -11,9 +11,6 @@ struct IntroView: View {
     @Bindable var vm: MeetViewModel
     @Binding var showIdealTime: Bool
     
-    
-    
-    
     let quote = quotes.shared.allQuotes.randomElement()!
     
     var body: some View {

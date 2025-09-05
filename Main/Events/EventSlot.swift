@@ -10,41 +10,30 @@ import SwiftUI
 struct EventSlot: View {
 
     let vm: EventViewModel
-    
-    let event: UserEvent
-    
     @Binding var selectedProfile: ProfileModel?
-    @State var profileHolder: ProfileModel?
+    @State var profileModel: ProfileModel
     
     var body: some View {
         
-        VStack(spacing: 36) {
-            if let url = URL(string: event.otherUserPhoto) {
-                imageContainer(size: 150, url: url)
-                    .onTapGesture {
-                        if let profileHolder {
-                            withAnimation(.easeInOut(duration: 0.27)) {
-                                selectedProfile = profileHolder
-                            }
-                        }
-                    }
+        VStack(spacing: 60) {
+            
+            Text("You're Meeting\(profileModel.profile.name)")
+                .font(.custom("SFProRounded-Medium", size: 24))
+            
+            imageContainer(image: profileModel.image, size: 300)
+                .onTapGesture {
+                    selectedProfile = profileModel
+                }
+            
+            VStack(spacing: 48) {
+                if let event = profileModel.event {
+                    EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: false, place: event.place)
+                        .padding(.horizontal, 32)
+                    
+                    LargeClockView(targetTime: event.time) {}
+                }
             }
-            
-            Text(event.otherUserName)
-            
-            LargeClockView(targetTime: event.time) {}
-            
-            EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: false, place: event.place)
-                .padding(.horizontal, 32)
         }
-        .task {
-            guard
-                let profile = try? await vm.userManager.fetchProfile(userId: event.otherUserId),
-                let firstImage = try? await vm.cacheManager.fetchFirstImage(profile: profile)
-            else {return}
-            profileHolder = ProfileModel(event: event, profile: profile, image: firstImage)
-        }
-        .tag(event.id)
         .frame(maxHeight: .infinity)
     }
 }

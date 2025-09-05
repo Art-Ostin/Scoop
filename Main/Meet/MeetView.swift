@@ -29,7 +29,7 @@ struct MeetView: View {
                                     .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .global).maxY)
                              }
                         )
-                    profileScroller
+//                    profileScroller
        
                     clockView
                     

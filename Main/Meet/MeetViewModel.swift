@@ -6,6 +6,7 @@
 
 import Foundation
 import UIKit
+import FirebaseFirestore
 
 @MainActor
 @Observable final class MeetViewModel {
@@ -54,6 +55,7 @@ import UIKit
             let type = event.type
         else { return }
         let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
-        try await userManager.updateUser(userId: s.user.id, values: [UserProfile.Field.idealMeetUp : idealMeetUp])
+        let encodedMeetUp = try Firestore.Encoder().encode(idealMeetUp)
+        try await userManager.updateUser(userId: s.user.id, values: [.idealMeetUp: encodedMeetUp])
     }
 }

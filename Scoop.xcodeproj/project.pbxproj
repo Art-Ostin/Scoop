@@ -69,6 +69,7 @@
 		6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */; };
 		6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
+		658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */; };
 		659109242E19AEC00065696F /* NextButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109232E19AEC00065696F /* NextButton.swift */; };
 		6591092C2E19B0810065696F /* Countries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109252E19B0810065696F /* Countries.swift */; };
 		6591092D2E19B0810065696F /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109262E19B0810065696F /* Prompts.swift */; };
@@ -204,6 +205,7 @@
 		657838392DE773CE00770B49 /* ScoopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838432DE773CE00770B49 /* ScoopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
+		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
 		659109232E19AEC00065696F /* NextButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButton.swift; sourceTree = "<group>"; };
 		659109252E19B0810065696F /* Countries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countries.swift; sourceTree = "<group>"; };
 		659109262E19B0810065696F /* Prompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompts.swift; sourceTree = "<group>"; };
@@ -387,6 +389,7 @@
 		6561C8C62E0444EC006A72DF /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */,
 				6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */,
 				6561C8BF2E0444EC006A72DF /* ModernEra-Bold.ttf */,
 				6561C8C02E0444EC006A72DF /* ModernEra-Medium.ttf */,
@@ -730,6 +733,7 @@
 				6561C8C82E0444EC006A72DF /* ModernEra-Bold.ttf in Resources */,
 				653BAFC02E0D930900C1AB9E /* SFCompactRounded-Regular.otf in Resources */,
 				6561C8C92E0444EC006A72DF /* ModernEra-Medium.ttf in Resources */,
+				658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */,
 				6561C8CA2E0444EC006A72DF /* ModernEra-MediumItalic.ttf in Resources */,
 				6561C8CB2E0444EC006A72DF /* ModernEra-Regular.ttf in Resources */,
 				653BAF872E0B846600C1AB9E /* GoogleService-Info.plist in Resources */,

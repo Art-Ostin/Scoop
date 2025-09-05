@@ -69,10 +69,7 @@ enum showProfilesState {
                     session = nil
                     continue
                 }
-                await startSession(user: user)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    appState.wrappedValue = .app
-                }
+                await startSession(user: user) { appState.wrappedValue = .app }
                 Task { await cacheManager.loadProfileImages([user]) }
             }
         }
@@ -106,6 +103,7 @@ enum showProfilesState {
             let model = try await cycleManager.fetchCycleModel(userId: user.id, cycleId: id)
             session?.activeCycle = model
             await profilesStream(cycleId: id)
+            try await userManager.updateUser(userId: user.id, values: [UserProfile.Field.activeCycleId: id])
         } catch {
             print(error)
         }
@@ -134,13 +132,14 @@ enum showProfilesState {
         }
     }
     
-    func profilesStream(cycleId: String) async {
+    func profilesStream(cycleId: String, onInitialLoad: (() -> Void)? = nil) async {
         profileStreamTask?.cancel()
         profileStreamTask = Task { @MainActor in
             do {
                 let (initial, updates) = try await cycleManager.profilesTracker(userId: user.id, cycleId: cycleId)
                 let ids = initial.compactMap(\.id)
                 self.profiles = try await profileBuilder.fromIds(ids)
+                onInitialLoad?()
                 for try await update in updates {
                     switch update {
                     case .addProfile(id: let id):
@@ -158,7 +157,7 @@ enum showProfilesState {
         }
     }
     
-    func userEventsStream() async {
+    func userEventsStream(onInitialLoad: (() -> Void)? = nil) async {
         eventStreamTask?.cancel()
         eventStreamTask = Task { @MainActor in
             
@@ -177,6 +176,7 @@ enum showProfilesState {
                 } catch {
                     print(error)
                 }
+                onInitialLoad?()
                 
                 for try await (event, kind) in updates {
                     switch kind {
@@ -235,12 +235,26 @@ enum showProfilesState {
         session = nil
     }
     
-    func startSession(user: UserProfile) async {
+    func startSession(user: UserProfile, onReady: (() -> Void)? = nil) async {
         stopSession() ;
         session = Session(user: user)
-        if let id = await loadCycle(userId: user.id) { await profilesStream(cycleId: id) }
-        await userEventsStream()
+        
+        async let eventsLoaded: Void = withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            Task { await userEventsStream { cont.resume() } }
+        }
+
+        async let profilesLoaded: Void = {
+            if let id = await loadCycle(userId: user.id) {
+                return await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+                    Task { await profilesStream(cycleId: id) { cont.resume() } }
+                }
+            } else {
+                return ()
+            }
+        }()
+        _ = await (eventsLoaded, profilesLoaded)
         userProfileStream()
+        onReady?()
     }
 }
 

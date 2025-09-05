@@ -17,15 +17,11 @@ struct EventContainer: View {
     
     var body: some View {
         ZStack {
-            if vm.hasEvents {
+            if !vm.events.isEmpty {
                 EventView(vm: vm)
             } else {
                 EventPlaceholder()
             }
-        }
-        .task {
-            try? await vm.fetchUserEvents()
-            try? await vm.saveUserImagesToCache()
         }
     }
 }
