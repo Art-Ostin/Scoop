@@ -14,10 +14,14 @@ struct MeetView: View {
     @State var selectedProfile: ProfileModel?
     @State var endTime: Date?
     @State var showIdealTime: Bool = false
+    @State var quickInvite: ProfileModel?
+    
+    
     init(vm: MeetViewModel) { self.vm = vm }
 
     var body: some View {
         ZStack {
+            Color.background
             ScrollView {
                 VStack(spacing: 32) {
                       tabTitle
@@ -44,11 +48,24 @@ struct MeetView: View {
                 scrollViewOffset = y
             }
             .id(vm.profiles.count)
-            .overlay(Text("\(scrollViewOffset)"))
             
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
             }
+            
+            if let currentProfile = quickInvite {
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { showIdealTime = false }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: currentProfile, onSubmit: { event in
+                    Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
+                }))
+            }
+            
             if showIdealTime {
                 Rectangle()
                     .fill(.thinMaterial)
@@ -94,8 +111,7 @@ extension MeetView {
                 .contentShape(Rectangle())
                 .ignoresSafeArea()
                 .onTapGesture { }
-            
-            ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, sesionManager: vm.s)) { withAnimation(.easeInOut(duration: 0.2)) { selectedProfile = nil } }
+            ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm) { selectedProfile = nil}
         }
         .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
         .zIndex(1)

@@ -13,17 +13,19 @@ struct CustomTabBarView: View {
     @Binding var selection: TabBarItem
     @Namespace private var namespace
     @State var localSelection: TabBarItem
+    
+    @State private var bump = false
+
 
     var body: some View {
-        tabBarVersion2
+        tabBarVersion
             .onChange(of: selection) { oldValue, newValue in
-                withAnimation(.snappy(duration: 0.12, extraBounce: 0)) {
+                withAnimation(.snappy(duration: 0.2)) {
                     localSelection = newValue
             }
         }
     }
 }
-
 
 #Preview {
     let tabs: [TabBarItem] = [ .meet, .events, .matches]
@@ -39,16 +41,14 @@ extension CustomTabBarView {
         selection = tab
     }
     
-    private func tabBar2(tab: TabBarItem) -> some View {
+    private func tabBar(tab: TabBarItem) -> some View {
         VStack {
-            if localSelection == tab {
-                tab.image
-            } else {
-                tab.imageBlack
-            }
+            if localSelection == tab { tab.image } else { tab.imageBlack }
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
+        .scaleEffect(localSelection == tab && bump ? 1.18 : 1.0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.6), value: bump)
         .background(
             ZStack {
                 if localSelection == tab {
@@ -61,10 +61,10 @@ extension CustomTabBarView {
         )
     }
     
-    private var tabBarVersion2: some View {
+    private var tabBarVersion: some View {
         HStack {
             ForEach(tabs, id: \.self) { tab in
-                tabBar2(tab: tab)
+                tabBar(tab: tab)
                     .onTapGesture {
                         switchToTab(tab: tab)
                     }
@@ -80,51 +80,3 @@ extension CustomTabBarView {
         .padding(.bottom, 12)
     }
 }
-
-
-
-
-
-
-
-/*
- extension CustomTabBarView {
- 
- private func tabBar(tab: TabBarItem) -> some View {
-     VStack {
-         Image(systemName: tab.iconName)
-             .font(.subheadline)
-         Text(tab.title)
-             .font(.system(size: 10, weight: .semibold, design: .rounded))
-     }
-     .foregroundStyle(selection == tab ? tab.color : Color.gray)
-     .padding(.vertical, 8)
-     .frame(maxWidth: .infinity)
-     .background(selection == tab ? tab.color.opacity(0.2) : Color.clear)
-     .cornerRadius(10)
- }
- 
- 
- private var tabBarVersion1: some View {
-     HStack {
-         ForEach(tabs, id: \.self) { tab in
-             tabBar(tab: tab)
-                 .onTapGesture {
-                     switchToTab(tab: tab)
-                 }
-         }
-     }
-     .padding(6)
-     .background(Color.white)
- }
-}
- 
-// */
-//
-//Image(systemName: tab.iconName)
-////                .font(.subheadline)
-///*
-// Image(systemName: tab.iconName)
-// //                .font(.subheadline)
-//
-// */

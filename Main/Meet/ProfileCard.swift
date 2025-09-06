@@ -19,7 +19,7 @@ struct ProfileCard : View {
             VStack (spacing: 4) {
                 HStack(spacing: 0) {
                     if let image = profile.image { imageContainer(image: image, size: 170, shadow: 0) {}}
-                    
+
                     profileInfo(profile: profile.profile)
                 }
                 .padding(6)

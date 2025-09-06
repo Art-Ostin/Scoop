@@ -58,4 +58,15 @@ import FirebaseFirestore
         let encodedMeetUp = try Firestore.Encoder().encode(idealMeetUp)
         try await userManager.updateUser(userId: s.user.id, values: [.idealMeetUp: encodedMeetUp])
     }
+    
+    func sendInvite(event: EventDraft, profileModel: ProfileModel) async throws {
+        let user = s.user
+        try await cycleManager.inviteSent(userId: user.id, cycle: s.activeCycle, profileId: profileModel.profile.id)
+        Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
+    }
+    
+    func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
+        guard let event = profileModel.event, let id = event.id else { return }
+        try await eventManager.updateStatus(eventId: id, to: .accepted)
+    }
 }

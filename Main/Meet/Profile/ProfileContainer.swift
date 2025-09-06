@@ -7,14 +7,16 @@ struct ProfileView: View {
     @Environment(\.tabSelection) private var tabSelection
     @Environment(\.appDependencies) private var dep
     @State private var vm: ProfileViewModel
-    let preloadedImages: [UIImage]?
+    let meetVM: MeetViewModel?
     
+    let preloadedImages: [UIImage]?
     let onDismiss: () -> Void
     
-    init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, onDismiss: @escaping () -> Void = {}) {
+    init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, onDismiss: @escaping () -> Void) {
         _vm = State(initialValue: vm)
-        self.onDismiss = onDismiss
         self.preloadedImages = preloadedImages
+        self.onDismiss = onDismiss
+        self.meetVM = meetVM
     }
     
     var body: some View {
@@ -27,7 +29,7 @@ struct ProfileView: View {
                         VStack {
                             heading
                                 .padding()
-
+                            
                             ProfileImageView(vm: $vm, preloaded: preloadedImages)
                                 .frame(height: 420)
                         }
@@ -36,28 +38,37 @@ struct ProfileView: View {
                     }
                 }
                 
+                
                 if vm.showInvitePopup {
                     Rectangle()
                         .fill(.thinMaterial)
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
                         .onTapGesture { vm.showInvitePopup = false }
-                    if (vm.profileModel.event != nil) {
-                        AcceptInvitePopup(profileModel: vm.profileModel) {
-                            Task {
-                                try await vm.acceptInvite()
+                    
+                        if let event = vm.profileModel.event {
+                            AcceptInvitePopup(profileModel: vm.profileModel) {
+                                if let meetVM {
+                                    @Bindable var meetVM = meetVM
+
+                                Task { try? await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event) }
                                 tabSelection.wrappedValue = 1
                             }
                         }
                     } else {
                         SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: vm.profileModel) { event in
-                            Task { try await vm.sendInvite(event: event) ;  onDismiss() }
+                            if let meetVM {
+                                @Bindable var meetVM = meetVM
+                                
+                                Task { try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel) }
+                                onDismiss()
+                            }
                         })
                     }
                 }
             }
-            .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
         }
+        .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
     }
 }
 

@@ -7,6 +7,7 @@ import MapKit
     let text: String
     var event: EventDraft
     var profile: ProfileModel?
+
     
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
@@ -23,7 +24,6 @@ import MapKit
         self.event = EventDraft()
     }
 }
-
 
 struct SelectTimeAndPlace: View {
         

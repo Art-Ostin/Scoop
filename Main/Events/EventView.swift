@@ -21,6 +21,7 @@ struct EventView: View {
     var body: some View {
         
         ZStack {
+            Color.background
             TabView(selection: $selection) {
                 ForEach(vm.events) { profile in
                     EventSlot(vm: vm, selectedProfile: $selectedProfile, profileModel: profile)
@@ -34,7 +35,7 @@ struct EventView: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, sesionManager: vm.sessionManager )) {
+                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager)) {
                         withAnimation { selectedProfile = nil }
                     }
                 }
