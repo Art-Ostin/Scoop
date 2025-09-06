@@ -16,35 +16,33 @@ struct ProfileCard : View {
     var isInvite: Bool { profile.event != nil }
 
     var body: some View {
-        
-        VStack (spacing: 4) {
-            HStack(spacing: 0) {
-                if let image = profile.image { imageContainer(image: image, size: 170, shadow: 0) {}}
+            VStack (spacing: 4) {
+                HStack(spacing: 0) {
+                    if let image = profile.image { imageContainer(image: image, size: 170, shadow: 0) {}}
+                    
+                    profileInfo(profile: profile.profile)
+                }
+                .padding(6)
+                .frame(width: 350, height: 175)
+                .padding(6)
+                .background (
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                    .inset(by: 0.5)
+                    .stroke(Color(red: 0.93, green: 0.93, blue: 0.93), lineWidth: 1)
+                )
                 
-                profileInfo(profile: profile.profile)
+                .onTapGesture { selectedProfile = profile }
+                
+                if let time = profile.event?.time {
+                    SimpleClockView(targetTime: time) {}
+                        .frame(width: 350, alignment: .topTrailing)
+                }
             }
-            .padding(6)
-            .frame(width: 350, height: 175)
-            .padding(6)
-            .background (
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 18)
-                .inset(by: 0.5)
-                .stroke(Color(red: 0.93, green: 0.93, blue: 0.93), lineWidth: 1)
-            )
-            
-            .onTapGesture { selectedProfile = profile }
-            
-            
-            if let time = profile.event?.time {
-                SimpleClockView(targetTime: time) {}
-                    .frame(width: 350, alignment: .topTrailing)
-            }
-        }
     }
 }
 

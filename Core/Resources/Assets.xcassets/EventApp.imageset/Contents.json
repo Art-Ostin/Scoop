@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Image4A.png",
+      "filename" : "EventApp.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Image4B.png",
+      "filename" : "EventApp2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Image4C.png",
+      "filename" : "EventApp3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

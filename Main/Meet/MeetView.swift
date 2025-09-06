@@ -17,32 +17,35 @@ struct MeetView: View {
     init(vm: MeetViewModel) { self.vm = vm }
 
     var body: some View {
-        
         ZStack {
             ScrollView {
-                VStack {
-                    
+                VStack(spacing: 32) {
                       tabTitle
+                        .opacity(Double(scrollViewOffset) / 70)
                         .background(
                             GeometryReader { proxy in
-                                Color.clear
-                                    .preference(key: ScrollViewOffsetPreferenceKey.self, value: proxy.frame(in: .global).maxY)
+                                Color.clear.preference(
+                                    key: TitleOffsetKey.self,
+                                    value: proxy.frame(in: .global).maxY
+                                )
                              }
                         )
-//                    profileScroller
-       
+                    profileScroller
                     clockView
-                    
                 }
+            }
+            .overlay(alignment: .top) {
+                ScrollNavBar(title: "Meet")
+                    .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
+                    .ignoresSafeArea(edges: .all)
+            }
+            
+            .onPreferenceChange(TitleOffsetKey.self) { y in
+                scrollViewOffset = y
             }
             .id(vm.profiles.count)
-
             .overlay(Text("\(scrollViewOffset)"))
-            .onAppear {
-                for profile in vm.profiles {
-                    print(profile.profile.name)
-                }
-            }
+            
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
             }
@@ -61,9 +64,6 @@ struct MeetView: View {
                 })
             }
         }
-        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-            scrollViewOffset = value
-        }
     }
 }
 
@@ -72,21 +72,21 @@ extension MeetView {
     
     @ViewBuilder
     private var profileScroller: some View {
-        ForEach(vm.invites) { profileInvite in
-            ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
-        }
-        if !vm.invites.isEmpty {SoftDivider()}
-        
-        if vm.showProfilesState != .closed {
-            VStack(spacing: 48) {
-                ForEach(vm.profiles) { profileInvite in
-                    ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
-                }
+            ForEach(vm.invites) { profileInvite in
+                ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
             }
-        } else {
-            IntroView(vm: vm, showIdealTime: $showIdealTime)
+            if !vm.invites.isEmpty {SoftDivider()}
+            
+            if vm.showProfilesState != .closed {
+                VStack(spacing: 48) {
+                    ForEach(vm.profiles) { profileInvite in
+                        ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
+                    }
+                }
+            } else {
+                IntroView(vm: vm, showIdealTime: $showIdealTime)
+            }
         }
-    }
     
     private func profileRecView(profileModel: ProfileModel) -> some View {
         ZStack {
@@ -110,27 +110,25 @@ extension MeetView {
     }
     
     private var tabTitle: some View {
-        Text(title)
-            .font(.tabTitle())
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 32)
-    }
-    
-    private var navBarLayer: some View {
-        Text(title)
-            .font(.headline)
-            .frame(maxWidth: .infinity)
-            .frame(height: 55)
-            .background(Color.blue)
+        HStack {
+            Text(title)
+                .font(.tabTitle())
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Spacer()
+            
+            Image(systemName: "info.circle")
+                .font(.body(17))
+        }
+        .padding(.horizontal, 32)
+        .padding(.top, 60)
     }
 }
 
-
-
-struct ScrollViewOffsetPreferenceKey: PreferenceKey {
+struct TitleOffsetKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value += nextValue()
     }
 }

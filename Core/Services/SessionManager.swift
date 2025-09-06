@@ -258,7 +258,6 @@ enum showProfilesState {
     }
 }
 
-
 struct Session {
     var user: UserProfile
     var invites: [ProfileModel] = []
@@ -266,7 +265,6 @@ struct Session {
     var events: [UserEvent] = []
     var activeCycle: CycleModel?
 }
-
 
 //Important that this is done of the main Thread, so function not in session Manager
 func buildEvents(_ b: ProfileModelBuilder, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {
