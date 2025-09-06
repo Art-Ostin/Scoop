@@ -23,7 +23,9 @@ struct ProfileView: View {
         
         NavigationStack {
             ZStack {
+                
                 Color.background.edgesIgnoringSafeArea(.all)
+                
                 ScrollView {
                     VStack {
                         VStack {
@@ -38,33 +40,8 @@ struct ProfileView: View {
                     }
                 }
                 
-                
                 if vm.showInvitePopup {
-                    Rectangle()
-                        .fill(.thinMaterial)
-                        .ignoresSafeArea()
-                        .contentShape(Rectangle())
-                        .onTapGesture { vm.showInvitePopup = false }
-                    
-                        if let event = vm.profileModel.event {
-                            AcceptInvitePopup(profileModel: vm.profileModel) {
-                                if let meetVM {
-                                    @Bindable var meetVM = meetVM
-
-                                Task { try? await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event) }
-                                tabSelection.wrappedValue = 1
-                            }
-                        }
-                    } else {
-                        SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: vm.profileModel) { event in
-                            if let meetVM {
-                                @Bindable var meetVM = meetVM
-                                
-                                Task { try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel) }
-                                onDismiss()
-                            }
-                        })
-                    }
+                    invitePopup
                 }
             }
         }
@@ -73,7 +50,6 @@ struct ProfileView: View {
 }
 
 extension ProfileView {
-
     private var heading: some View {
         let p = vm.profileModel.profile
         return HStack {
@@ -89,6 +65,33 @@ extension ProfileView {
                 .onTapGesture {
                     onDismiss()
                 }
+        }
+    }
+    
+    @ViewBuilder
+    private var invitePopup: some View {
+        Rectangle()
+            .fill(.thinMaterial)
+            .ignoresSafeArea()
+            .contentShape(Rectangle())
+            .onTapGesture { vm.showInvitePopup = false }
+        
+            if let event = vm.profileModel.event {
+                AcceptInvitePopup(profileModel: vm.profileModel) {
+                    if let meetVM {
+                        @Bindable var meetVM = meetVM
+                    Task { try? await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event) }
+                    tabSelection.wrappedValue = 1
+                }
+            }
+        } else {
+            if let meetVM {
+            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: vm.profileModel) { event in
+                    @Bindable var meetVM = meetVM
+                    Task { try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel) }
+                    onDismiss()
+                })
+            }
         }
     }
 }

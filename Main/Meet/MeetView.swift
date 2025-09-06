@@ -48,11 +48,9 @@ struct MeetView: View {
                 scrollViewOffset = y
             }
             .id(vm.profiles.count)
-            
             if let profileModel = selectedProfile {
                 profileRecView(profileModel: profileModel)
             }
-            
             if let currentProfile = quickInvite {
                 Rectangle()
                     .fill(.thinMaterial)
@@ -65,7 +63,6 @@ struct MeetView: View {
                     Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
                 }))
             }
-            
             if showIdealTime {
                 Rectangle()
                     .fill(.thinMaterial)
