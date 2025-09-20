@@ -11,7 +11,7 @@ struct imageContainer<Overlay: View>: View {
     
     let image: UIImage?
     let size: CGFloat
-    let shadow: CGFloat
+    @State var shadow: CGFloat
     let url: URL?
     @ViewBuilder var overlay: () -> Overlay
     
@@ -42,7 +42,7 @@ struct imageContainer<Overlay: View>: View {
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 12)
-            .shadow(color: shadow != 0 ?.black.opacity(0.2) : .clear, radius: 4, x: 0, y: shadow)
+            .shadow(color: shadow != 0 ?.black.opacity(0.2) : .clear, radius: shadow, x: 0, y: shadow)
             .overlay(alignment: .bottomTrailing) {
                 overlay()
                     .padding(24)

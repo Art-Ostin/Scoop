@@ -27,22 +27,15 @@ struct ProfileView: View {
                 Color.background.edgesIgnoringSafeArea(.all)
                 
                 ScrollView {
-                    VStack {
-                        VStack {
-                            heading
-                                .padding()
-                            
-                            ProfileImageView(vm: $vm, preloaded: preloadedImages)
-                                .frame(height: 420)
-                        }
-                        .frame(maxHeight: .infinity, alignment: .top)
+                    VStack(spacing: 36) {
+                        heading
+                            .padding(.horizontal)
+                            .padding(.top, 32)
+                        ProfileImageView(vm: $vm, preloaded: preloadedImages)
                         ProfileDetailsView(vm: $vm)
                     }
                 }
-                
-                if vm.showInvitePopup {
-                    invitePopup
-                }
+                if vm.showInvitePopup { invitePopup }
             }
         }
         .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
