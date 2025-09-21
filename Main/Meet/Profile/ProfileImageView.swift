@@ -9,19 +9,43 @@ import SwiftUI
 
 struct ProfileImageView: View {
     
+    let size: CGSize
+    
     @Binding var vm: ProfileViewModel
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
-
+    
+    @Binding var imageZoom: CGFloat
+    
+    
     var body: some View {
-        VStack(spacing: 36) {
-            mainImages
+        let width = size.width - 8
+        
+        VStack(spacing: 12) {
+            TabView(selection: $selection) {
+                ForEach(images.indices, id: \.self) { index in
+                    Image(uiImage: images[index])
+                        .resizable()
+                        .defaultImage(width, 16)
+                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                        .scaleEffect(imageZoom)
+                        .tag(index)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { imageZoom = $0 }
+                                .onEnded {_ in withAnimation(.spring) {imageZoom = 1} }
+                        )
+                }
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .frame(height: imageZoom <= 1 ? width + 12 : size.height, alignment: .top)
+            
             imageScroller
         }
         .task {
             if let pre = preloaded {
-            images = pre
+                images = pre
             } else {
                 images = await vm.loadImages()
             }
@@ -29,25 +53,10 @@ struct ProfileImageView: View {
     }
 }
 
-extension ProfileImageView {
-    
-    private var mainImages: some View {
-        GeometryReader { geo in
-            let size = geo.size.width - 12
-                TabView(selection: $selection) {
-                ForEach(images.indices, id: \.self) {index in
-                    let image = images[index]
-                    imageContainer(image: image, size: size) {
-                        if !(vm.viewProfileType == .view) {InviteButton(vm: $vm) }
-                    }.tag(index)
-                }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(width: geo.size.width, height: size)
-        }
-        .frame(height: UIScreen.main.bounds.width - 12)
-    }
 
+
+extension ProfileImageView {
+        
     private var imageScroller : some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -56,21 +65,17 @@ extension ProfileImageView {
                         let image = images[index]
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFill()
-                            .frame(width: 60, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(color: selection == index ? .black.opacity(0.4) : .clear, radius: 2, x: 0, y: 5)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(.accent, lineWidth: self.selection == index ? 1 : 0)
-                            )
-                            .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.9)) { self.selection = index}
-                            }
+                            .defaultImage(60, 10)
+                            .shadow(color: .black.opacity(selection == index ? 0.25 : 0.15),
+                                    radius: selection == index ? 2 : 1, y: selection == index ? 4 : 2)
+                            .onTapGesture { withAnimation(.easeInOut(duration: 0.8)) { self.selection = index} }
+                            .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
                     }
-                    .padding(.horizontal)
                 }
-            } .onChange(of: selection) {oldIndex, newIndex in
+                .frame(height: 60 + 12)
+                .padding([.horizontal, .top], 6)
+            }
+            .onChange(of: selection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
                     withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }
                 }

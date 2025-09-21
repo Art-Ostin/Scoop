@@ -7,7 +7,37 @@
 
 import SwiftUI
 
+
+
+
+struct ImageModifier: ViewModifier {
+    
+    let size: CGFloat
+    let radius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: radius))
+    }
+}
+
+extension View {
+    func defaultImage(_ size: CGFloat, _ radius: CGFloat = 18) -> some View { modifier(ImageModifier(size: size, radius: radius)) }
+}
+
+
+
+
+
+// Try and get rid of Image Container 
+
+
+
 struct imageContainer<Overlay: View>: View {
+    
+    @State var currentAmount: CGFloat = 0
     
     let image: UIImage?
     let size: CGFloat
@@ -42,10 +72,17 @@ struct imageContainer<Overlay: View>: View {
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 12)
-            .shadow(color: shadow != 0 ?.black.opacity(0.2) : .clear, radius: shadow, x: 0, y: shadow)
+            .scaleEffect(1 + currentAmount)
+            .gesture (
+                MagnificationGesture()
+                    .onChanged{ value in
+                        currentAmount = value - 1
+                    }
+            )
             .overlay(alignment: .bottomTrailing) {
                 overlay()
-                    .padding(24)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 16)
             }
     }
 }

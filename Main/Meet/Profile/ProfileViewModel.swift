@@ -22,6 +22,7 @@ enum ProfileViewType {
     var showInvitePopup: Bool = false
 
     var receivedEvent: UserEvent? { profileModel.event}
+    
     var viewProfileType: ProfileViewType {
         if profileModel.event?.status == .accepted {
             return .view

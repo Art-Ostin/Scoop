@@ -9,8 +9,11 @@ struct ProfileView: View {
     @State private var vm: ProfileViewModel
     let meetVM: MeetViewModel?
     
+    @State var imageZoom: CGFloat = 1
+    
     let preloadedImages: [UIImage]?
     let onDismiss: () -> Void
+    
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, onDismiss: @escaping () -> Void) {
         _vm = State(initialValue: vm)
@@ -20,29 +23,30 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        
-        NavigationStack {
+        GeometryReader { proxy in
+            let size = proxy.size
             ZStack {
-                
                 Color.background.edgesIgnoringSafeArea(.all)
-                
-                ScrollView {
-                    VStack(spacing: 36) {
-                        heading
-                            .padding(.horizontal)
-                            .padding(.top, 32)
-                        ProfileImageView(vm: $vm, preloaded: preloadedImages)
-                        ProfileDetailsView(vm: $vm)
-                    }
+                ScrollView(showsIndicators: false) {
+
+                    VStack(spacing: 24) {
+                            heading
+                            ProfileImageView(size: size, vm: $vm, preloaded: preloadedImages, imageZoom: $imageZoom)
+                        }
+                    
+                    ProfileDetailsView()
+                    
                 }
+                .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
                 if vm.showInvitePopup { invitePopup }
             }
         }
-        .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
     }
 }
 
+
 extension ProfileView {
+    
     private var heading: some View {
         let p = vm.profileModel.profile
         return HStack {
@@ -59,6 +63,9 @@ extension ProfileView {
                     onDismiss()
                 }
         }
+        .padding(.horizontal)
+        .padding(.top, 72)
+        
     }
     
     @ViewBuilder

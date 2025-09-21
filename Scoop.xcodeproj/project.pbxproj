@@ -379,7 +379,6 @@
 				659496FF2E01DD4000880921 /* ProfileContainer.swift */,
 				653BAFAA2E0C944600C1AB9E /* ProfileImageView.swift */,
 				653770512E0A1E190058D225 /* ProfileDetailsView.swift */,
-				6537704D2E0A10DC0058D225 /* PromptResponseView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -475,6 +474,7 @@
 				659497092E01DD4000880921 /* OnboardingHomeView.swift */,
 				6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */,
 				65E820982E37C2720098CC36 /* OnboardingContainer.swift */,
+				658313182E7F7D380021D12B /* Storage */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -542,6 +542,14 @@
 				657838432DE773CE00770B49 /* ScoopUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		658313182E7F7D380021D12B /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				6537704D2E0A10DC0058D225 /* PromptResponseView.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		659497012E01DD4000880921 /* Main */ = {

@@ -45,17 +45,15 @@ struct InterestsHolder<Content: View, Destination: View>: View {
 
 struct InterestsLayout: View {
     
-    @Bindable var vm: EditProfileViewModel
-    
-    
-    @State var passions: [String] = []
-    
-    
+    var passions: [String]
+
+        
     private var rows: [[String]] {
         stride(from: 0, to: passions.count, by: 2).map {
             Array(passions[$0..<min($0+2, passions.count)])
         }
     }
+    
     var body: some View {
         VStack(spacing: 16) {
             ForEach(rows.indices, id: \.self) { index in
@@ -75,13 +73,6 @@ struct InterestsLayout: View {
                 }
             }
         }
-        .onAppear {
-            guard let user = vm.draftUser else {
-                print("No passions here")
-                return
-            }
-            self.passions = user.interests
-        }
         .padding()
         .font(.body())
         .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
@@ -91,7 +82,6 @@ struct InterestsLayout: View {
                 .shadow(color: Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
         )
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
-        
     }
 }
 
@@ -104,11 +94,17 @@ extension Array {
 
 struct InterestsView: View {
     @Bindable var vm: EditProfileViewModel
+    
+    @State var interests: [String]?
+    
     var body: some View {
         InterestsHolder(title: "Interests") {
-            InterestsLayout(vm: vm)
+            InterestsLayout(passions: interests ?? [])
         } destination: {
             EditInterests(vm: vm)
+        }
+        .onAppear {
+            interests = vm.user.interests
         }
     }
 }

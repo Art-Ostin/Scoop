@@ -12,6 +12,24 @@
 import SwiftUI
 
 
+
+extension View {
+    
+    func defaultShadow() -> some View {
+        shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
+    }
+    
+    func stroke(_ cornerRadius: CGFloat, lineWidth: CGFloat, color: Color) -> some View {
+        overlay (
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .strokeBorder(color, lineWidth: lineWidth)
+        )
+    }
+}
+
+
+
+
 extension Color {
     
     static let appBackground = Color(red: 0.42, green: 0.40, blue: 0.30)
@@ -28,6 +46,7 @@ extension Color {
     
     static let appGreen =  Color(red: 0, green: 0.6, blue: 0.52)
 }
+
 
 
 extension UIColor {

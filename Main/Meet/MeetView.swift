@@ -23,7 +23,7 @@ struct MeetView: View {
         ZStack {
             Color.background
             ScrollView {
-                VStack(spacing: 32) {
+                VStack(spacing: 60) {
                       tabTitle
                         .opacity(Double(scrollViewOffset) / 70)
                         .background(
@@ -56,7 +56,7 @@ struct MeetView: View {
                     .fill(.thinMaterial)
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
-                    .onTapGesture { showIdealTime = false }
+                    .onTapGesture { quickInvite = nil }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: currentProfile, onSubmit: { event in
@@ -87,14 +87,14 @@ extension MeetView {
     @ViewBuilder
     private var profileScroller: some View {
             ForEach(vm.invites) { profileInvite in
-                ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
+                ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile, quickInvite: $quickInvite)
             }
             if !vm.invites.isEmpty {SoftDivider()}
             
             if vm.showProfilesState != .closed {
-                VStack(spacing: 48) {
+                VStack(spacing: 96) {
                     ForEach(vm.profiles) { profileInvite in
-                        ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile)
+                        ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile, quickInvite: $quickInvite)
                     }
                 }
             } else {
@@ -134,7 +134,7 @@ extension MeetView {
                 .font(.body(17))
         }
         .padding(.horizontal, 32)
-        .padding(.top, 60)
+        .padding(.top, 96)
     }
 }
 

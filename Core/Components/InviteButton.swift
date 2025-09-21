@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct InviteButton: View {
-    
     @Binding var vm: ProfileViewModel
     var body: some View {
         Button {
@@ -25,11 +24,11 @@ struct InviteButton: View {
                 }
             }
             .foregroundStyle(.white)
-            .frame(width: 53, height: 53)
+            .frame(width: 50, height: 50)
             .background(
                 Circle()
                     .fill(vm.viewProfileType == .accept ? Color.appGreen : Color.accent)
-                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 5)
+                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 5)
             )
         }
     }
