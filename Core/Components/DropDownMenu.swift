@@ -27,7 +27,7 @@ struct DropDownMenu<Content: View> : View {
         .cornerRadius(12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
+                .fill(Color.background)
                 .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
         )
         .font(.body(18))

@@ -17,9 +17,7 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if let user = vm.draftUser, isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: user), cacheManager: vm.cacheManager), selectedProfile: $selectedProfile) {
-                    dismiss()
-                }
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: user), cacheManager: vm.cacheManager), selectedProfile: $selectedProfile)
                 .transition(.move(edge: .leading))
             } else {
                 EditProfileView(vm: vm)

@@ -8,7 +8,6 @@ import MapKit
     var event: EventDraft
     var profile: ProfileModel?
 
-    
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false

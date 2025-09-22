@@ -9,34 +9,27 @@ import SwiftUI
 
 struct ProfileImageView: View {
     
-    let size: CGSize
-    
+    let proxy: GeometryProxy
     @Binding var vm: ProfileViewModel
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
     
+    
     @Binding var currentOffset: CGFloat
     @Binding var endingOffset: CGFloat
     
-    
+    var  width: CGFloat { proxy.size.width - 8 }
+
     var body: some View {
-        let width = size.width - 8
         
-        VStack(spacing: 12) {
-            TabView(selection: $selection) {
-                ForEach(images.indices, id: \.self) { index in
-                    Image(uiImage: images[index])
-                        .resizable()
-                        .defaultImage(width, 16)
-                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-                        .tag(index)
-                }
-            }
-            .frame(height: width + 6)
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        VStack(spacing: 24) {
             
-            imageScroller
+            profileImages
+                .frame(height: width + 6)
+            
+//            imageScroller
+//            .padding(.horizontal, 4)
         }
         .task {
             if let pre = preloaded {
@@ -51,6 +44,23 @@ struct ProfileImageView: View {
 
 
 extension ProfileImageView {
+    
+    private var profileImages : some View {
+        TabView(selection: $selection) {
+            ForEach(images.indices, id: \.self) { index in
+                Image(uiImage: images[index])
+                    .resizable()
+                    .defaultImage(width, 16)
+                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                    .tag(index)
+                    .overlay(alignment: .bottomTrailing) {
+                        InviteButton(vm: $vm)
+                            .padding(16)
+                    }
+            }
+        }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+    }
         
     private var imageScroller : some View {
         ScrollViewReader { proxy in
@@ -67,8 +77,6 @@ extension ProfileImageView {
                             .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
                     }
                 }
-                .frame(height: 60 + 12)
-                .padding([.horizontal, .top], 6)
             }
             .onChange(of: selection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {

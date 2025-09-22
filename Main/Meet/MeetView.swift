@@ -50,7 +50,7 @@ struct MeetView: View {
             }
             .id(vm.profiles.count)
             if let profileModel = selectedProfile {
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile) { }
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
                     .zIndex(1)
                     .id(profileModel.id)
                     .transition(.move(edge: .bottom).combined(with: .opacity))

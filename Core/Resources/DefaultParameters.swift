@@ -13,6 +13,19 @@ import SwiftUI
 
 
 
+
+struct BackgroundFill: ViewModifier {
+    let color: Color
+    
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)        
+            .background(color)
+    }    
+}
+
+
+
 extension View {
     
     func defaultShadow() -> some View {
@@ -25,9 +38,11 @@ extension View {
                 .strokeBorder(color, lineWidth: lineWidth)
         )
     }
+    
+    func colorBackground(_ color: Color) -> some View {
+        modifier(BackgroundFill(color: color))
+    }
 }
-
-
 
 
 extension Color {
