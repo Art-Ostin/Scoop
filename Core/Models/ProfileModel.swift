@@ -8,9 +8,15 @@
 import Foundation
 import UIKit
 
-struct ProfileModel: Identifiable {
+struct ProfileModel: Identifiable, Equatable {
     var event: UserEvent?
     var profile: UserProfile
     var image: UIImage?
     var id: String { profile.id}
+    
+    static func == (lhs: ProfileModel, rhs: ProfileModel) -> Bool {
+        lhs.id == rhs.id
+    }
 }
+
+

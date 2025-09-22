@@ -18,6 +18,7 @@ struct EventView: View {
     
     @State var selectedProfile: ProfileModel?
     
+    
     var body: some View {
         
         ZStack {
@@ -35,7 +36,8 @@ struct EventView: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager)) {
+                    
+                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), selectedProfile: $selectedProfile) {
                         withAnimation { selectedProfile = nil }
                     }
                 }

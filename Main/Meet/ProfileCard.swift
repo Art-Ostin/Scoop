@@ -11,7 +11,6 @@ struct ProfileCard : View {
     
     @Bindable var vm: MeetViewModel
     let profile: ProfileModel
-    @Binding var selectedProfile: ProfileModel?
     @Binding var quickInvite: ProfileModel?
     
     
@@ -53,7 +52,6 @@ struct ProfileCard : View {
                     .frame(width: 350, alignment: .topTrailing)
             }
         }
-        .onTapGesture { selectedProfile = profile }
     }
 }
 
@@ -64,11 +62,6 @@ extension ProfileCard {
             HStack(spacing: 12) {
                 Text(profile.profile.name)
                     .font(.body(24, .bold))
-                
-                ForEach (profile.profile.nationality.prefix(2), id: \.self) {flag in
-                    Text(flag)
-                        .font(.body(16))
-                }
             }
             
             
@@ -198,6 +191,10 @@ VStack (alignment: .leading, spacing: 20) {
 .padding(6)
 }
 }
+ //                ForEach (profile.profile.nationality.prefix(2), id: \.self) {flag in
+ //                    Text(flag)
+ //                        .font(.body(16))
+ //                }
 
 
  */

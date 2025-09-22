@@ -12,11 +12,12 @@ struct EditProfileContainer: View {
     @Environment(\.dismiss) private var dismiss
     @State var isView: Bool = true
     @State var vm: EditProfileViewModel
+    @State var selectedProfile: ProfileModel?
     
     var body: some View {
         Group {
             if let user = vm.draftUser, isView {
-                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: user), cacheManager: vm.cacheManager)) {
+                ProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: user), cacheManager: vm.cacheManager), selectedProfile: $selectedProfile) {
                     dismiss()
                 }
                 .transition(.move(edge: .leading))

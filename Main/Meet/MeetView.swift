@@ -17,6 +17,7 @@ struct MeetView: View {
     @State var quickInvite: ProfileModel?
     
     
+    
     init(vm: MeetViewModel) { self.vm = vm }
 
     var body: some View {
@@ -49,7 +50,10 @@ struct MeetView: View {
             }
             .id(vm.profiles.count)
             if let profileModel = selectedProfile {
-                profileRecView(profileModel: profileModel)
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile) { }
+                    .zIndex(1)
+                    .id(profileModel.id)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
             if let currentProfile = quickInvite {
                 Rectangle()
@@ -81,38 +85,26 @@ struct MeetView: View {
     }
 }
 
-
 extension MeetView {
-    
     @ViewBuilder
     private var profileScroller: some View {
             ForEach(vm.invites) { profileInvite in
-                ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile, quickInvite: $quickInvite)
+                ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
+                    .onTapGesture { selectedProfile = profileInvite }
             }
             if !vm.invites.isEmpty {SoftDivider()}
             
             if vm.showProfilesState != .closed {
                 VStack(spacing: 96) {
                     ForEach(vm.profiles) { profileInvite in
-                        ProfileCard(vm: vm, profile: profileInvite, selectedProfile: $selectedProfile, quickInvite: $quickInvite)
+                        ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
+                            .onTapGesture { selectedProfile = profileInvite }
                     }
                 }
             } else {
                 IntroView(vm: vm, showIdealTime: $showIdealTime)
             }
         }
-    
-    private func profileRecView(profileModel: ProfileModel) -> some View {
-        ZStack {
-            Color.clear
-                .contentShape(Rectangle())
-                .ignoresSafeArea()
-                .onTapGesture { }
-            ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm) { selectedProfile = nil}
-        }
-        .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
-        .zIndex(1)
-    }
     
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime, vm.showProfilesState == .active {
@@ -145,3 +137,13 @@ struct TitleOffsetKey: PreferenceKey {
         value += nextValue()
     }
 }
+
+
+/*
+ ZStack {
+ Color.background.ignoresSafeArea(edges: .bottom)
+     .contentShape(Rectangle())
+     .cornerRadius(36)
+     .ignoresSafeArea()
+     .onTapGesture { }
+ */

@@ -16,7 +16,8 @@ struct ProfileImageView: View {
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
     
-    @Binding var imageZoom: CGFloat
+    @Binding var currentOffset: CGFloat
+    @Binding var endingOffset: CGFloat
     
     
     var body: some View {
@@ -29,17 +30,11 @@ struct ProfileImageView: View {
                         .resizable()
                         .defaultImage(width, 16)
                         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-                        .scaleEffect(imageZoom)
                         .tag(index)
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { imageZoom = $0 }
-                                .onEnded {_ in withAnimation(.spring) {imageZoom = 1} }
-                        )
                 }
             }
+            .frame(height: width + 6)
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(height: imageZoom <= 1 ? width + 12 : size.height, alignment: .top)
             
             imageScroller
         }
@@ -86,3 +81,14 @@ extension ProfileImageView {
         }
     }
 }
+
+/*
+ .gesture(
+     MagnificationGesture()
+         .onChanged { imageZoom = $0 }
+         .onEnded {_ in withAnimation(.spring) {imageZoom = 1} }
+ )
+ .frame(height: imageZoom <= 1 ? width + 12 : size.height, alignment: .top)
+ .scaleEffect(imageZoom)
+
+ */
