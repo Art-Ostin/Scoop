@@ -28,8 +28,8 @@ struct ProfileImageView: View {
             profileImages
                 .frame(height: width + 6)
             
-//            imageScroller
-//            .padding(.horizontal, 4)
+            imageScroller
+            .padding(.horizontal, 4)
         }
         .task {
             if let pre = preloaded {

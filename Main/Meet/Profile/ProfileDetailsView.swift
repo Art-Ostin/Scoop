@@ -15,21 +15,20 @@ struct ProfileDetailsView: View {
         
             VStack(spacing: 32) {
 
-//                Text("About")
-//                    .font(.body(12))
-//                    .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
-//                
-//                keyInfo
-//                
-//                homeAndDegree
-//                
-//                Rectangle()
-//                .foregroundColor(.clear)
-//                .frame(width: 222, height: 0.5)
-//                .background(Color(red: 0.82, green: 0.82, blue: 0.82))
-//                
-//                PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
-//                
+                Text("About")
+                    .font(.body(12))
+                    .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
+                
+                keyInfo
+                
+                homeAndDegree
+                
+                RoundedRectangle(cornerRadius: 5)
+                .foregroundColor(.clear)
+                .frame(width: 222, height: 0.5)
+                .background(Color(red: 0.82, green: 0.82, blue: 0.82))
+
+                PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
             }
             .frame(maxHeight: .infinity, alignment: .top)
             .frame(maxWidth: .infinity)
@@ -44,10 +43,10 @@ struct ProfileDetailsView: View {
         }
     }
 
-#Preview {
-    ProfileDetailsView()
-}
-
+//#Preview {
+//    ProfileDetailsView()
+//}
+//
 
 extension ProfileDetailsView {
     

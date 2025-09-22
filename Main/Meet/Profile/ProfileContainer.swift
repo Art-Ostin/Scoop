@@ -56,31 +56,27 @@ struct ProfileView: View {
                             withAnimation(.spring(duration: 0.2)) { endingOffset = 0 }
                         }
                     }
-                    .gesture (
-                     DragGesture()
-                         .onChanged { v in
-                             currentOffset = v.translation.height
-                             
-                             if endingOffset != 0 {
-                                 currentOffset = max(currentOffset, -100)
-                             }
-                             
-                             if endingOffset == 0 {
-                                 currentOffset = min(currentOffset, 50)
-                             }
-                         }
-                         .onEnded { value in
-                             let predicted = value.predictedEndTranslation.height
-                             withAnimation(.spring(duration: 0.2)) {
-                                 if currentOffset < -10 {
-                                    endingOffset = endingValue
-                                 } else {
-                                     endingOffset = 0
-                                 }
-                                 currentOffset = 0
-                             }
-                         }
-                 )
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                withAnimation(.spring(duration: 0.2)){
+                                    currentOffset = value.translation.height
+                                }
+                            }
+                            .onEnded {  value in
+                                withAnimation(.spring(duration: 0.2)) {
+                                    if currentOffset < -40 {
+                                        endingOffset = endingValue
+                                    } else if endingOffset != 0 && currentOffset > 60 {
+                                        endingOffset = 0
+                                    }
+                                    currentOffset = 0
+                                }
+                            }
+                    )
+                    
+                
+                
                  
                 
                 VStack {
@@ -222,4 +218,31 @@ extension ProfileView {
 
 
 
+/*
+ .gesture (
+  DragGesture()
+      .onChanged { v in
+          currentOffset = v.translation.height
+          
+          if endingOffset != 0 {
+              currentOffset = max(currentOffset, -100)
+          }
+          
+          if endingOffset == 0 {
+              currentOffset = min(currentOffset, 50)
+          }
+      }
+      .onEnded { value in
+          let predicted = value.predictedEndTranslation.height
+          withAnimation(.spring(duration: 0.2)) {
+              if currentOffset < -10 {
+                 endingOffset = endingValue
+              } else {
+                  endingOffset = 0
+              }
+              currentOffset = 0
+          }
+      }
+)
 
+ */
