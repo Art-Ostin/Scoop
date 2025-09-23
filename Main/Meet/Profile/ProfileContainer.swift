@@ -20,6 +20,8 @@ struct ProfileView: View {
     @State var endingOffset: CGFloat = 0
     var endingValue: CGFloat = -300
     
+    @State var bottomImageValue: CGFloat = 0
+    
     
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -42,7 +44,7 @@ struct ProfileView: View {
                         .padding(.top, topPadding(currentOffset: currentOffset, endingOffset: endingOffset))
 
 
-                    ProfileImageView(proxy: proxy, vm: $vm, preloaded: preloadedImages, currentOffset: $currentOffset, endingOffset: $endingOffset)
+                    ProfileImageView(proxy: proxy, vm: $vm, preloaded: preloadedImages, selectedProfile: $selectedProfile, currentOffset: $currentOffset, endingOffset: $endingOffset)
                 }
                 
                 
@@ -64,8 +66,10 @@ struct ProfileView: View {
                                 }
                             }
                             .onEnded {  value in
+                                let predicted = value.predictedEndTranslation.height
+
                                 withAnimation(.spring(duration: 0.2)) {
-                                    if currentOffset < -40 {
+                                    if currentOffset < -50 || predicted < -50 {
                                         endingOffset = endingValue
                                     } else if endingOffset != 0 && currentOffset > 60 {
                                         endingOffset = 0
@@ -74,22 +78,28 @@ struct ProfileView: View {
                                 }
                             }
                     )
-                    
                 
+            InviteButton(vm: $vm)
+                    .frame(maxWidth: .infinity, alignment: .trailing) // stick to the right
+                    .padding(.trailing, (24 + 4)) // there is 4px padding on the images, then adding padding inside of 24
+                    .padding(.top, bottomImageValue - (50 + 24)) //Taking away the Invite button height then adding padding of 24
                 
-                 
-                
-                VStack {
+            
+
+                VStack(spacing: 24) {
                     HStack {
-                        Text("profile Offset: \(profileOffset)")
-                        Text("current Offset: \(currentOffset)")
+                          Text("profile Offset: \(profileOffset)")
+                          Text("current Offset: \(currentOffset)")
                     }
-                    
+
                     HStack {
                         Text("ending Offset: \(endingOffset)")
-                        Text("starting Offset: \(startingOffset)")
+                         Text("starting Offset: \(startingOffset)")
+                        Text("bottomValue: \(bottomImageValue)")
                     }
                 }
+
+                
                 .padding(.top, 250)
                 
                 if vm.showInvitePopup { invitePopup }
@@ -106,22 +116,23 @@ struct ProfileView: View {
                         }
                     }
                     .onEnded { value in
-                        if (selectedProfile != nil) && profileOffset > 150 {
+                        let predicted = value.predictedEndTranslation.height
+                        
+                        if profileOffset > 150 || predicted > 150 {
                             withAnimation(.spring()) { selectedProfile = nil }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                 profileOffset = 0
                             }
-                        } else if currentOffset < -64 {
-                            
-                            
-                            
-                            
-                            withAnimation(.spring(duration: 0.2)) { currentOffset = endingValue }
                         } else {
                             withAnimation(.spring(duration: 0.2)) { profileOffset = 0 }
                         }
                     }
             )
+            .onPreferenceChange(MainImageBottomValue.self) { bottom in
+                if bottom < 750 {
+                    bottomImageValue = bottom
+                }
+            }
         }
     }
     
@@ -152,24 +163,18 @@ struct ProfileView: View {
             
     
     
-    
-    func adaptiveTopPadding(currentOffset: CGFloat, endingOffset: CGFloat) -> CGFloat {
-        if endingOffset == 0 && currentOffset > -68 {
-            return 84 + currentOffset
-        } else if endingOffset != 0 && currentOffset <= 68 {
-            return 16 + currentOffset
-        } else if (endingOffset != 0 && currentOffset > 68) || endingOffset == 0 {
-            return 84
-        } else {
-            return 16
-        }
-    }
-    
-    
-    
-    
-    
+
 }
+
+struct MainImageBottomValue: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+         value += nextValue()
+    }
+}
+
+
 
 extension ProfileView {
     
@@ -218,6 +223,12 @@ extension ProfileView {
 
 
 
+
+
+
+
+
+
 /*
  .gesture (
   DragGesture()
@@ -245,4 +256,33 @@ extension ProfileView {
       }
 )
 
+ */
+
+/*
+ HStack {
+                         Text("profile Offset: \(profileOffset)")
+                         Text("current Offset: \(currentOffset)")
+ }
+
+ HStack {
+                         Text("ending Offset: \(endingOffset)")
+                         Text("starting Offset: \(startingOffset)")
+     Text("bottomValue: \(bottomImageValue)")
+ }
+
+ */
+
+/*
+ 
+ func adaptiveTopPadding(currentOffset: CGFloat, endingOffset: CGFloat) -> CGFloat {
+     if endingOffset == 0 && currentOffset > -68 {
+         return 84 + currentOffset
+     } else if endingOffset != 0 && currentOffset <= 68 {
+         return 16 + currentOffset
+     } else if (endingOffset != 0 && currentOffset > 68) || endingOffset == 0 {
+         return 84
+     } else {
+         return 16
+     }
+ }
  */

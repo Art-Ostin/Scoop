@@ -15,7 +15,7 @@ struct ProfileImageView: View {
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
     
-    
+    @Binding var selectedProfile: ProfileModel?
     @Binding var currentOffset: CGFloat
     @Binding var endingOffset: CGFloat
     
@@ -53,11 +53,39 @@ extension ProfileImageView {
                     .defaultImage(width, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
-                    .overlay(alignment: .bottomTrailing) {
-                        InviteButton(vm: $vm)
-                            .padding(16)
-                    }
+                    .background (
+                        GeometryReader { proxy  in
+                            Color.clear
+                                .preference(key: MainImageBottomValue.self, value: proxy.frame(in: .global).maxY)
+                        }
+                    )
             }
+        }
+        .overlay(alignment: .topLeading) {
+            HStack {
+                Text(vm.profileModel.profile.name)
+
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44, alignment: .center)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if endingOffset != 0 {
+                            withAnimation(.spring(duration: 0.2)) {
+                                selectedProfile = nil
+                            }
+                        }
+                    }
+                    .font(.body(20, .bold))
+            }
+            .font(.body(24, .bold))
+            .foregroundStyle(.white)
+            .padding()
+            .opacity(
+                titleOpacity(currentOffset: currentOffset, endingOffset: endingOffset)
+            )
+
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
@@ -88,6 +116,29 @@ extension ProfileImageView {
             }
         }
     }
+    
+    func titleOpacity(currentOffset: CGFloat, endingOffset: CGFloat) -> Double {
+        if endingOffset != 0 {
+            return (1 - (abs(currentOffset) / 100))
+        } else if currentOffset < -200  {
+            return (0  + (abs(currentOffset + 200) / 100))
+        } else {
+            return 0
+        }
+    }
+    
+    /*
+     if endingOffset == 0 {
+         let d = min(abs(currentOffset), 300)
+         return max(84.0 - (84.0 * d / 300.0), 0)
+     } else {
+         let d = min(abs(currentOffset), 300)
+         return min(0 + (84.0 * d / 300.0), 84.0)
+     }
+     */
+
+    
+    
 }
 
 /*
@@ -100,3 +151,13 @@ extension ProfileImageView {
  .scaleEffect(imageZoom)
 
  */
+
+
+/*
+ .overlay(alignment: .bottomTrailing) {
+     InviteButton(vm: $vm)
+         .padding(16)
+         .zIndex(30)
+ }
+ */
+
