@@ -7,22 +7,27 @@ struct ProfileView: View {
     @Environment(\.appDependencies) private var dep
     
     
-    @Binding var selectedProfile: ProfileModel?
     @State private var vm: ProfileViewModel
     let meetVM: MeetViewModel?
     
     let preloadedImages: [UIImage]?
     
     
-    @State var profileOffset: CGFloat = 0
+    @State private var profileOffset: CGFloat = 0
+    @Binding var selectedProfile: ProfileModel?
+
+    private var cornerRadius: CGFloat {
+        (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
+    }
+    
+    
+    
     @State var startingOffset: CGFloat = UIScreen.main.bounds.height * 0.8
     @State var currentOffset: CGFloat = 0
     @State var endingOffset: CGFloat = 0
     var endingValue: CGFloat = -300
     
     @State var bottomImageValue: CGFloat = 0
-    
-    
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
@@ -41,12 +46,11 @@ struct ProfileView: View {
                     
                     profileTitle
                         .opacity(topOpacity(currentOffset: currentOffset, endingOffset: endingOffset))
+                    
                         .padding(.top, topPadding(currentOffset: currentOffset, endingOffset: endingOffset))
-
 
                     ProfileImageView(proxy: proxy, vm: $vm, preloaded: preloadedImages, selectedProfile: $selectedProfile, currentOffset: $currentOffset, endingOffset: $endingOffset)
                 }
-                
                 
                 ProfileDetailsView()
                     .offset(y: startingOffset + currentOffset + endingOffset)
@@ -67,7 +71,6 @@ struct ProfileView: View {
                             }
                             .onEnded {  value in
                                 let predicted = value.predictedEndTranslation.height
-
                                 withAnimation(.spring(duration: 0.2)) {
                                     if currentOffset < -50 || predicted < -50 {
                                         endingOffset = endingValue
@@ -78,14 +81,15 @@ struct ProfileView: View {
                                 }
                             }
                     )
-                
-            InviteButton(vm: $vm)
-                    .frame(maxWidth: .infinity, alignment: .trailing) // stick to the right
-                    .padding(.trailing, (24 + 4)) // there is 4px padding on the images, then adding padding inside of 24
-                    .padding(.top, bottomImageValue - (50 + 24)) //Taking away the Invite button height then adding padding of 24
-                
-            
 
+                    InviteButton(vm: $vm)
+                            .frame(maxWidth: .infinity, alignment: .trailing) // stick to the right
+                            .padding(.trailing, (24 + 4)) // there is 4px padding on the images, then adding padding inside of 24
+                            .padding(.top, (bottomImageValue - (50 + 24)) - profileOffset) //Taking away the Invite button height then adding padding of 24
+                            .ignoresSafeArea()
+                
+                
+                
                 VStack(spacing: 24) {
                     HStack {
                           Text("profile Offset: \(profileOffset)")
@@ -98,40 +102,39 @@ struct ProfileView: View {
                         Text("bottomValue: \(bottomImageValue)")
                     }
                 }
-
-                
                 .padding(.top, 250)
-                
+
                 if vm.showInvitePopup { invitePopup }
-                
             }
-            .colorBackground(.background)
-            .ignoresSafeArea(edges: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.background)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .shadow(radius: cornerRadius > 0 ? 10 : 0)
+            .contentShape(Rectangle())
             .offset(y: profileOffset)
             .gesture (
                 DragGesture()
                     .onChanged { v in
-                        if v.translation.height > 0 {
-                            profileOffset =  v.translation.height
+                        withAnimation(.spring()){
+                            profileOffset = max(v.translation.height, -10) * 1.5
                         }
                     }
-                    .onEnded { value in
-                        let predicted = value.predictedEndTranslation.height
-                        
-                        if profileOffset > 150 || predicted > 150 {
-                            withAnimation(.spring()) { selectedProfile = nil }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    .onEnded {  value in
+                        withAnimation(.spring()) {
+                            if profileOffset > 180 {
+                                withAnimation(.easeOut(duration: 0.4)) { selectedProfile = nil }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    profileOffset = 0
+                                }
+                            } else {
                                 profileOffset = 0
                             }
-                        } else {
-                            withAnimation(.spring(duration: 0.2)) { profileOffset = 0 }
                         }
                     }
             )
             .onPreferenceChange(MainImageBottomValue.self) { bottom in
-                if bottom < 750 {
-                    bottomImageValue = bottom
-                }
+                
+                bottomImageValue = bottom
             }
         }
     }
@@ -145,7 +148,10 @@ struct ProfileView: View {
     }
     
     func topPadding(currentOffset: CGFloat, endingOffset: CGFloat) -> CGFloat {
-        if endingOffset == 0 {
+        
+        if profileOffset > 0 {
+            return ( selectedProfile == nil ? 16 :  max(84 - profileOffset, 16) )
+        } else if endingOffset == 0 {
             let d = min(abs(currentOffset), 300)
             return max(84.0 - (84.0 * d / 300.0), 0)
         } else {
@@ -170,7 +176,7 @@ struct MainImageBottomValue: PreferenceKey {
     static let defaultValue: CGFloat = 0
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-         value += nextValue()
+        value = max(value, nextValue())
     }
 }
 

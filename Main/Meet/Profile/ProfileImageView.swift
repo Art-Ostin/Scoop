@@ -29,8 +29,11 @@ struct ProfileImageView: View {
                 .frame(height: width + 6)
             
             imageScroller
+                .frame(height: 66)
+
             .padding(.horizontal, 4)
         }
+        
         .task {
             if let pre = preloaded {
                 images = pre
@@ -40,7 +43,6 @@ struct ProfileImageView: View {
         }
     }
 }
-
 
 
 extension ProfileImageView {
@@ -126,38 +128,4 @@ extension ProfileImageView {
             return 0
         }
     }
-    
-    /*
-     if endingOffset == 0 {
-         let d = min(abs(currentOffset), 300)
-         return max(84.0 - (84.0 * d / 300.0), 0)
-     } else {
-         let d = min(abs(currentOffset), 300)
-         return min(0 + (84.0 * d / 300.0), 84.0)
-     }
-     */
-
-    
-    
 }
-
-/*
- .gesture(
-     MagnificationGesture()
-         .onChanged { imageZoom = $0 }
-         .onEnded {_ in withAnimation(.spring) {imageZoom = 1} }
- )
- .frame(height: imageZoom <= 1 ? width + 12 : size.height, alignment: .top)
- .scaleEffect(imageZoom)
-
- */
-
-
-/*
- .overlay(alignment: .bottomTrailing) {
-     InviteButton(vm: $vm)
-         .padding(16)
-         .zIndex(30)
- }
- */
-
