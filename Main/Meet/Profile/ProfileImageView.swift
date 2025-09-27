@@ -116,6 +116,12 @@ extension ProfileImageView {
                     withAnimation(.easeInOut(duration: 0.3)) { proxy.scrollTo(newIndex, anchor: .trailing)}
                 }
             }
+            .background (
+                GeometryReader { proxy  in
+                    Color.clear
+                        .preference(key: ScrollImageBottomValue.self, value: proxy.frame(in: .global).maxY)
+                }
+            )
         }
     }
     

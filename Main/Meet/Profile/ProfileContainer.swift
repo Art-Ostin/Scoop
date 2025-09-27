@@ -20,14 +20,18 @@ struct ProfileView: View {
         (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
     }
     
-    
-    
     @State var startingOffset: CGFloat = UIScreen.main.bounds.height * 0.8
     @State var currentOffset: CGFloat = 0
     @State var endingOffset: CGFloat = 0
-    var endingValue: CGFloat = -300
-    
+    var endingValue: CGFloat = -170
+    var detailsViewHeight: CGFloat = 170
     @State var bottomImageValue: CGFloat = 0
+    
+    @State private var scrollBottomImageValue: CGFloat = 0
+    
+    @State var mainOffset: CGFloat = 0
+    
+    
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
@@ -53,8 +57,8 @@ struct ProfileView: View {
                 }
                 
                 ProfileDetailsView()
-                    .offset(y: startingOffset + currentOffset + endingOffset)
-                    .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
+                    .offset(y: (scrollBottomImageValue + 36) - profileOffset)
+                    .offset(y:currentOffset + endingOffset)
                     .onTapGesture {
                         if endingOffset == 0 {
                             withAnimation(.spring(duration: 0.2)) { endingOffset = endingValue }
@@ -81,28 +85,29 @@ struct ProfileView: View {
                                 }
                             }
                     )
+                
+                InviteButton(vm: $vm)
+                        .frame(maxWidth: .infinity, alignment: .trailing) // stick to the right
+                        .padding(.trailing, (24 + 4)) // there is 4px padding on the images, then adding padding inside of 24
+                        .padding(.top, (bottomImageValue - 74))
+                        .padding(.top, profileOffset > 48 ? -profileOffset : 0) //Taking away the Invite button height (50) then adding padding of 24
+                        .ignoresSafeArea()
+                
+                
+                 VStack(spacing: 24) {
+                     HStack {
+                           Text("profile Offset: \(profileOffset)")
+                         Text("scoll image bottom: \(scrollBottomImageValue)")
+                           Text("current Offset: \(currentOffset)")
+                     }
 
-                    InviteButton(vm: $vm)
-                            .frame(maxWidth: .infinity, alignment: .trailing) // stick to the right
-                            .padding(.trailing, (24 + 4)) // there is 4px padding on the images, then adding padding inside of 24
-                            .padding(.top, (bottomImageValue - (50 + 24)) - profileOffset) //Taking away the Invite button height then adding padding of 24
-                            .ignoresSafeArea()
-                
-                
-                
-                VStack(spacing: 24) {
-                    HStack {
-                          Text("profile Offset: \(profileOffset)")
-                          Text("current Offset: \(currentOffset)")
-                    }
-
-                    HStack {
-                        Text("ending Offset: \(endingOffset)")
-                         Text("starting Offset: \(startingOffset)")
-                        Text("bottomValue: \(bottomImageValue)")
-                    }
-                }
-                .padding(.top, 250)
+                     HStack {
+                         Text("ending Offset: \(endingOffset)")
+                          Text("starting Offset: \(startingOffset)")
+                         Text("bottomValue: \(bottomImageValue)")
+                     }
+                 }
+                 .padding(.top, 250)
 
                 if vm.showInvitePopup { invitePopup }
             }
@@ -115,8 +120,15 @@ struct ProfileView: View {
             .gesture (
                 DragGesture()
                     .onChanged { v in
-                        withAnimation(.spring()){
-                            profileOffset = max(v.translation.height, -10) * 1.5
+                        
+                        if v.translation.height > 0 {
+                            withAnimation(.spring()){
+                                profileOffset = v.translation.height * 1.5
+                            }
+                        } else {
+                            if endingOffset == 0 {
+                                currentOffset = v.translation.height
+                            }
                         }
                     }
                     .onEnded {  value in
@@ -126,24 +138,37 @@ struct ProfileView: View {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                     profileOffset = 0
                                 }
+                            } else if currentOffset < -50 {
+                                let predicted = value.predictedEndTranslation.height
+                                withAnimation(.spring(duration: 0.2)) {
+                                    if currentOffset < -50 || predicted < -50 {
+                                        endingOffset = endingValue
+                                    } else if endingOffset != 0 && currentOffset > 60 {
+                                        endingOffset = 0
+                                    }
+                                    currentOffset = 0
+                                }
                             } else {
                                 profileOffset = 0
                             }
                         }
                     }
             )
+            .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
             .onPreferenceChange(MainImageBottomValue.self) { bottom in
-                
                 bottomImageValue = bottom
+            }
+            .onPreferenceChange(ScrollImageBottomValue.self) { bottom in
+                scrollBottomImageValue = bottom
             }
         }
     }
     
     func topOpacity(currentOffset: CGFloat, endingOffset: CGFloat) -> Double {
         if endingOffset != 0 {
-            return (0  + (abs(currentOffset) / 300))
+            return (0  + (abs(currentOffset) / detailsViewHeight))
         } else {
-            return (1 - (abs(currentOffset) / 300))
+            return (1 - (abs(currentOffset) / detailsViewHeight))
         }
     }
     
@@ -152,27 +177,32 @@ struct ProfileView: View {
         if profileOffset > 0 {
             return ( selectedProfile == nil ? 16 :  max(84 - profileOffset, 16) )
         } else if endingOffset == 0 {
-            let d = min(abs(currentOffset), 300)
-            return max(84.0 - (84.0 * d / 300.0), 0)
+            let d = min(abs(currentOffset), detailsViewHeight)
+            return max(84.0 - (84.0 * d / detailsViewHeight), 0)
         } else {
-            let d = min(abs(currentOffset), 300)
-            return min(0 + (84.0 * d / 300.0), 84.0)
+            let d = min(abs(currentOffset), detailsViewHeight)
+            return min(0 + (84.0 * d / detailsViewHeight), 84.0)
         }
     }
     
     func topSpacing(currentOffset: CGFloat, endingOffset: CGFloat) -> CGFloat {
-        let t = min(max(abs(currentOffset) / 300.0, 0), 1)
+        let t = min(max(abs(currentOffset) / detailsViewHeight, 0), 1)
         return endingOffset != 0
             ? 36.0 * t
             : 36.0 * (1.0 - t)
     }
-            
-    
-    
-
 }
 
+
 struct MainImageBottomValue: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+struct ScrollImageBottomValue: PreferenceKey {
     static let defaultValue: CGFloat = 0
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
@@ -194,8 +224,14 @@ extension ProfileView {
                     .font(.body(24))
             }
             Spacer()
-            NavButton(.down, 20) .onTapGesture {selectedProfile = nil}
-        }
+            
+            Image(systemName: "chevron.down")
+                .font(.body(18, .medium))
+                .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
+                .contentShape(Rectangle())
+                .onTapGesture {selectedProfile = nil}
+                
+            }
         .padding(.horizontal)
     }
     
@@ -226,69 +262,3 @@ extension ProfileView {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-/*
- .gesture (
-  DragGesture()
-      .onChanged { v in
-          currentOffset = v.translation.height
-          
-          if endingOffset != 0 {
-              currentOffset = max(currentOffset, -100)
-          }
-          
-          if endingOffset == 0 {
-              currentOffset = min(currentOffset, 50)
-          }
-      }
-      .onEnded { value in
-          let predicted = value.predictedEndTranslation.height
-          withAnimation(.spring(duration: 0.2)) {
-              if currentOffset < -10 {
-                 endingOffset = endingValue
-              } else {
-                  endingOffset = 0
-              }
-              currentOffset = 0
-          }
-      }
-)
-
- */
-
-/*
- HStack {
-                         Text("profile Offset: \(profileOffset)")
-                         Text("current Offset: \(currentOffset)")
- }
-
- HStack {
-                         Text("ending Offset: \(endingOffset)")
-                         Text("starting Offset: \(startingOffset)")
-     Text("bottomValue: \(bottomImageValue)")
- }
-
- */
-
-/*
- 
- func adaptiveTopPadding(currentOffset: CGFloat, endingOffset: CGFloat) -> CGFloat {
-     if endingOffset == 0 && currentOffset > -68 {
-         return 84 + currentOffset
-     } else if endingOffset != 0 && currentOffset <= 68 {
-         return 16 + currentOffset
-     } else if (endingOffset != 0 && currentOffset > 68) || endingOffset == 0 {
-         return 84
-     } else {
-         return 16
-     }
- }
- */
