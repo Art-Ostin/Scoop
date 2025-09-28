@@ -23,12 +23,11 @@ struct ProfileDetailsView: View {
     
     var startingOffset: CGFloat {scrollImageBottomY + 36}
         
-        
     var body: some View {
 
         VStack(spacing: 32) {
 
-                Text("About")
+            Text("About")
                     .font(.body(12))
                     .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
                 
@@ -56,7 +55,10 @@ struct ProfileDetailsView: View {
             .onTapGesture { withAnimation(.spring(duration: 0.2)) {detailsOpen.toggle()} }
             .gesture (
                 DragGesture()
-                    .onChanged { dragOffset = $0.translation.height }
+                    .onChanged {
+                        
+                        dragOffset = $0.translation.height
+                    }
                     .onEnded {
                         let predicted = $0.predictedEndTranslation.height
 
@@ -70,10 +72,9 @@ struct ProfileDetailsView: View {
                         }
                     }
             )
-            .offset(y: startingOffset + (detailsOpen ? detailsOpenYOffset : 0))
+            .offset(y: startingOffset + (detailsOpen ? detailsOpenYOffset : 0) + dragOffset)
         }
     }
-
 
 extension ProfileDetailsView {
     

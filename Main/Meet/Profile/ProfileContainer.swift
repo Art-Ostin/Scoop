@@ -41,12 +41,36 @@ struct ProfileView: View {
                         .padding(.top, topPadding())
                     ProfileImageView(preloaded: preloadedImages, vm: $vm, selectedProfile: $selectedProfile, detailsOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, imageSize: imageSize)
                 }
+                
+                VStack {
+                    HStack {
+                        if detailsOpen { Text("Details Open")} else {Text("Details closed")}
+                        
+                        Text("topPadding: \(topPadding())")
+                        
+                        Text("topSpacing: \(topSpacing())")
+                    }
+                    
+                    HStack {
+                        Text("ProfileOffset: \(profileOffset)")
+                        
+                        Text("DragOffset: \(detailsOffset)")
+                    }
+                }
+                .padding(.top, 320)
+                
+                
+                
                 ProfileDetailsView(dragOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, scrollImageBottomY: $scrollImageBottomY)
+                
+                
                 InviteButton(vm: $vm)
                     .offset (
-                        x: imageSize - inviteButtonSize - inviteButtonPadding,
+                        x: (imageSize/2) - inviteButtonSize - inviteButtonPadding,
                         y: topPadding() + topSpacing() + imageSize - (inviteButtonSize)
                     )
+                
+                
                 if vm.showInvitePopup { invitePopup }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -83,12 +107,12 @@ struct ProfileView: View {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { profileOffset = 0 }
                             return
                         }
-                                    
+                        
                         if openDetails {
-                            withAnimation(.spring(duration: 0.2)) { detailsOpen = true }
+                            withAnimation(.spring(duration: 0.2)) { detailsOpen = false }
                         }
                         if closeDetails {
-                            withAnimation(.spring(duration: 0.2)) {detailsOpen = false}
+                            withAnimation(.spring(duration: 0.2)) {detailsOpen = true}
                         }
                     }
             )
@@ -160,37 +184,34 @@ extension ProfileView {
     
     func topOpacity() -> Double {
         if detailsOpen {
-            return (0  + (abs(detailsOffset) / detailsOpenYOffset))
+            return (0  + (abs(detailsOffset) / abs(detailsOpenYOffset)))
         } else {
-            return (1 - (abs(detailsOffset) / detailsOpenYOffset))
+            return (1 - (abs(detailsOffset) / abs(detailsOpenYOffset)))
         }
     }
     
+    
     func topPadding() -> CGFloat {
+        let initial: CGFloat = 84
+        let dismiss: CGFloat = 16
         
-        let dismissingProfile = profileOffset > 0
-        let profileDismissed = selectedProfile == nil
+        let t = min(max(abs(detailsOffset) / abs(detailsOpenYOffset), 0), 1)
         
-        let initialPadding: CGFloat = 84
-        let dismissPadding: CGFloat = 16
-        let currentPadding: CGFloat = initialPadding * abs(detailsOffset) / detailsOpenYOffset
-        
-        if dismissingProfile {
-            return profileDismissed ? dismissPadding : max(initialPadding - profileOffset, dismissPadding)
+        if profileOffset > 0 {
+            return (selectedProfile == nil) ? dismiss : max(initial - profileOffset, dismiss)
         }
-        else if detailsOpen {
-            return  0 + min(currentPadding, initialPadding)
-        } else {
-            return initialPadding - max(currentPadding, initialPadding)
-        }
+        
+        return detailsOpen ? initial * t : initial * (1 - t)
     }
+
+    
     
     func topSpacing() -> CGFloat {
         
         let maxSpacing: CGFloat = 36
         let minSpacing: CGFloat = 0
         
-        let currentSpacing: CGFloat = maxSpacing * abs(detailsOffset) / detailsOpenYOffset
+        let currentSpacing: CGFloat = maxSpacing * abs(detailsOffset) / abs(detailsOpenYOffset)
         
         if detailsOpen {
             return minSpacing + min(currentSpacing, maxSpacing)
