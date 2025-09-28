@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct ProfileDetailsView: View {
+    
     @Binding var dragOffset: CGFloat
     
-    @Binding var endingOffset: CGFloat
+    @Binding var detailsOpen: Bool
     
-    let endingValue: CGFloat
+    let detailsOpenYOffset: CGFloat
     
     let toggleDetailsThresh: CGFloat = -50
     
@@ -56,7 +57,6 @@ struct ProfileDetailsView: View {
                     withAnimation(.spring(duration: 0.2)) { endingOffset = 0 }
                 }
             }
-        
             .gesture(
                 DragGesture()
                     .onChanged {

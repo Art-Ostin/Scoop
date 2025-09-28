@@ -9,17 +9,20 @@ import SwiftUI
 
 struct ProfileImageView: View {
     
-    let proxy: GeometryProxy
-    @Binding var vm: ProfileViewModel
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
     
-    @Binding var selectedProfile: ProfileModel?
-    @Binding var currentOffset: CGFloat
-    @Binding var endingOffset: CGFloat
     
-    var  width: CGFloat { proxy.size.width - 8 }
+    @Binding var vm: ProfileViewModel
+    @Binding var selectedProfile: ProfileModel?
+    @Binding var detailsOffset: CGFloat
+    @Binding var detailsOpen: Bool
+    
+    let detailsOpenYOffset: CGFloat
+    let imageSize: CGFloat
+    
+    
 
     var body: some View {
         
@@ -52,7 +55,7 @@ extension ProfileImageView {
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
                     .resizable()
-                    .defaultImage(width, 16)
+                    .defaultImage(imageSize, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
                     .reportBottom(in: "profile", as: MainImageBottomValue.self)
@@ -61,15 +64,14 @@ extension ProfileImageView {
         .overlay(alignment: .topLeading) {
             HStack {
                 Text(vm.profileModel.profile.name)
-
                 Spacer()
-                
+
                 Image(systemName: "chevron.down")
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44, alignment: .center)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if endingOffset != 0 {
+                        if detailsOpen {
                             withAnimation(.spring(duration: 0.2)) { selectedProfile = nil}
                         }
                     }
@@ -78,9 +80,7 @@ extension ProfileImageView {
             .font(.body(24, .bold))
             .foregroundStyle(.white)
             .padding()
-            .opacity(
-                titleOpacity(currentOffset: currentOffset, endingOffset: endingOffset)
-            )
+            .opacity(titleOpacity())
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
@@ -112,23 +112,17 @@ extension ProfileImageView {
             .reportBottom(in: "profile", as: ScrollImageBottomValue.self)
         }
     }
-    
-    func titleOpacity(currentOffset: CGFloat, endingOffset: CGFloat) -> Double {
-        if endingOffset != 0 {
-            return (1 - (abs(currentOffset) / 100))
-        } else if currentOffset < -200  {
-            return (0  + (abs(currentOffset + 200) / 100))
+
+    func titleOpacity() -> Double {
+        let beginTitleFade: CGFloat = -200
+        if detailsOpen {
+            return 1 - (abs(detailsOffset) / 100)
+        } else if detailsOffset < beginTitleFade {
+            
+            return 0 + (abs(detailsOffset + 200) / 100)
+            
         } else {
             return 0
         }
     }
 }
-
-/*
- .background (
-     GeometryReader { proxy  in
-         Color.clear
-             .preference(key: MainImageBottomValue.self, value: proxy.frame(in: .global).maxY)
-     }
- )
- */
