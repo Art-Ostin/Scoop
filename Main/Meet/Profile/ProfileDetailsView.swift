@@ -5,6 +5,8 @@
 //  Created by Art Ostin on 23/06/2025.
 //
 
+//    @Binding var vm: ProfileViewModel
+
 import SwiftUI
 
 struct ProfileDetailsView: View {
@@ -17,13 +19,14 @@ struct ProfileDetailsView: View {
     
     let toggleDetailsThresh: CGFloat = -50
     
+    @Binding var scrollImageBottomY: CGFloat
     
-    
-//    @Binding var vm: ProfileViewModel
-    
-    var body: some View {
+    var startingOffset: CGFloat {scrollImageBottomY + 36}
         
-            VStack(spacing: 32) {
+        
+    var body: some View {
+
+        VStack(spacing: 32) {
 
                 Text("About")
                     .font(.body(12))
@@ -50,38 +53,27 @@ struct ProfileDetailsView: View {
                     .fill(.white)
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
             )
-            .onTapGesture {
-                if endingOffset == 0 {
-                    withAnimation(.spring(duration: 0.2)) { endingOffset = dragOffset }
-                } else {
-                    withAnimation(.spring(duration: 0.2)) { endingOffset = 0 }
-                }
-            }
-            .gesture(
+            .onTapGesture { withAnimation(.spring(duration: 0.2)) {detailsOpen.toggle()} }
+            .gesture (
                 DragGesture()
-                    .onChanged {
-                        dragOffset = $0.translation.height
-                    }
+                    .onChanged { dragOffset = $0.translation.height }
                     .onEnded {
                         let predicted = $0.predictedEndTranslation.height
 
                         withAnimation(.spring(duration: 0.2)) {
-                            if dragOffset < toggleDetailsThresh || predicted < toggleDetailsThresh {
-                                endingOffset = endingValue
-                            } else if endingOffset != 0 && dragOffset > 60 {
-                                endingOffset = 0
+                            if dragOffset < toggleDetailsThresh || predicted <  toggleDetailsThresh {
+                                detailsOpen = true
+                            } else if detailsOpen && dragOffset > 60 {
+                                detailsOpen = false
                             }
                             dragOffset = 0
                         }
                     }
             )
+            .offset(y: startingOffset + (detailsOpen ? detailsOpenYOffset : 0))
         }
     }
 
-//#Preview {
-//    ProfileDetailsView()
-//}
-//
 
 extension ProfileDetailsView {
     

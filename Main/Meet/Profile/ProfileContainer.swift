@@ -30,44 +30,25 @@ struct ProfileView: View {
         self.meetVM = meetVM
         self._selectedProfile = selectedProfile
     }
-    
-        
-    
-    
+
     var body: some View {
-                
         
         GeometryReader { proxy in
-            
             let imageSize: CGFloat = proxy.size.width - 8
-
-            
             ZStack(alignment: .top) {
-                
                 VStack(spacing: topSpacing()) {
-                    
                     profileTitle
                         .padding(.top, topPadding())
-                    
                     ProfileImageView(preloaded: preloadedImages, vm: $vm, selectedProfile: $selectedProfile, detailsOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, imageSize: imageSize)
                 }
-                
-                
-                ProfileDetailsView(dragOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset)
-                
-                
+                ProfileDetailsView(dragOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, scrollImageBottomY: $scrollImageBottomY)
                 InviteButton(vm: $vm)
                     .offset (
                         x: imageSize - inviteButtonSize - inviteButtonPadding,
                         y: topPadding() + topSpacing() + imageSize - (inviteButtonSize)
                     )
-                
-                
-                
-                
                 if vm.showInvitePopup { invitePopup }
             }
-            
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background)
             .clipShape(RoundedRectangle(cornerRadius: (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30, style: .continuous))
@@ -97,28 +78,20 @@ struct ProfileView: View {
                         let openDetails = detailsOffset < -50 || predicted < -50
                         let closeDetails = detailsOpen && detailsOffset > 60
                         
-                        
                         if closeProfile {
                             withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { profileOffset = 0 }
                             return
                         }
-                        
+                                    
                         if openDetails {
-                            withAnimation(.spring(duration: 0.2)) {detailsOpenYOffset}
-                            detailsOpen = true
+                            withAnimation(.spring(duration: 0.2)) { detailsOpen = true }
                         }
-                        
-                        if openDetails || closeDetails {
-                            withAnimation(.spring(duration: 0.2)) {
-                                detailsOpen ? detailsOpenYOffset : 0
-                                detailsOffset = 0
-                            }
+                        if closeDetails {
+                            withAnimation(.spring(duration: 0.2)) {detailsOpen = false}
                         }
                     }
             )
-
-            
             .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
             .onPreferenceChange(MainImageBottomValue.self) { bottom in
                 imageBottomY = bottom
@@ -129,7 +102,6 @@ struct ProfileView: View {
             }
         }
 }
-
 
 extension ProfileView {
     

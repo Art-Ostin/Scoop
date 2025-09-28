@@ -29,7 +29,7 @@ struct ProfileImageView: View {
         VStack(spacing: 24) {
             
             profileImages
-                .frame(height: width + 6)
+                .frame(height: imageSize + 6)
             
             imageScroller
                 .frame(height: 66)
