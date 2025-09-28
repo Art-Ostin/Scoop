@@ -8,6 +8,15 @@
 import SwiftUI
 
 struct ProfileDetailsView: View {
+    @Binding var dragOffset: CGFloat
+    
+    @Binding var endingOffset: CGFloat
+    
+    let endingValue: CGFloat
+    
+    let toggleDetailsThresh: CGFloat = -50
+    
+    
     
 //    @Binding var vm: ProfileViewModel
     
@@ -39,6 +48,32 @@ struct ProfileDetailsView: View {
                 RoundedRectangle(cornerRadius: 30)
                     .fill(.white)
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+            )
+            .onTapGesture {
+                if endingOffset == 0 {
+                    withAnimation(.spring(duration: 0.2)) { endingOffset = dragOffset }
+                } else {
+                    withAnimation(.spring(duration: 0.2)) { endingOffset = 0 }
+                }
+            }
+        
+            .gesture(
+                DragGesture()
+                    .onChanged {
+                        dragOffset = $0.translation.height
+                    }
+                    .onEnded {
+                        let predicted = $0.predictedEndTranslation.height
+
+                        withAnimation(.spring(duration: 0.2)) {
+                            if dragOffset < toggleDetailsThresh || predicted < toggleDetailsThresh {
+                                endingOffset = endingValue
+                            } else if endingOffset != 0 && dragOffset > 60 {
+                                endingOffset = 0
+                            }
+                            dragOffset = 0
+                        }
+                    }
             )
         }
     }
