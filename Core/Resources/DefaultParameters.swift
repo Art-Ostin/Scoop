@@ -19,12 +19,10 @@ struct BackgroundFill: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)        
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(color)
     }    
 }
-
-
 
 extension View {
     

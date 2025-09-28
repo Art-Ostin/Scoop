@@ -15,10 +15,6 @@ struct ProfileView: View {
     @Binding var selectedProfile: ProfileModel?
     
     @State private var profileOffset: CGFloat = 0
-
-    private var cornerRadius: CGFloat {
-        (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
-    }
     
     
     
@@ -98,10 +94,9 @@ struct ProfileView: View {
                 
                 if vm.showInvitePopup { invitePopup }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background)
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .shadow(radius: cornerRadius > 0 ? 10 : 0)
+            .colorBackground(.background)
+            .clipShape(RoundedRectangle(cornerRadius: (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30, style: .continuous))
+            .shadow(radius: 10)
             .contentShape(Rectangle())
             .offset(y: profileOffset)
             .coordinateSpace(name: "profile")
@@ -116,7 +111,6 @@ struct ProfileView: View {
                             detailsOffset = v.translation.height
                         }
                     }
-                
                     .onEnded {  value in
                         if profileOffset > 180 {
                             withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
@@ -152,24 +146,6 @@ struct ProfileView: View {
 }
 
 
-struct MainImageBottomValue: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
-struct ScrollImageBottomValue: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
-
-
 extension ProfileView {
     
     private var profileTitle: some View {
@@ -191,7 +167,6 @@ extension ProfileView {
             }
         .padding(.horizontal)
     }
-    
     
     @ViewBuilder
     private var invitePopup: some View {
@@ -224,6 +199,7 @@ extension ProfileView {
 
 // All the functionality for animation when scrolling up and down
 extension ProfileView {
+    
     func topOpacity(currentOffset: CGFloat, detailsEndingOffset: CGFloat) -> Double {
         if detailsEndingOffset != 0 {
             return (0  + (abs(currentOffset) / detailsViewHeight))
@@ -250,24 +226,5 @@ extension ProfileView {
         return detailsEndingOffset != 0
             ? 36.0 * t
             : 36.0 * (1.0 - t)
-    }
-}
-
-
-private struct ImageBottomKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
-}
-
-
-extension View {
-    
-    func reportBottom<Key: PreferenceKey>(in space: String, as key: Key.Type) -> some View where Key.Value == CGFloat {
-        background (
-            GeometryReader { g in
-                Color.clear
-                    .preference(key: key, value: g.frame(in: .named(space)).maxY)
-            }
-        )
     }
 }

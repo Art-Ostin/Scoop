@@ -55,12 +55,7 @@ extension ProfileImageView {
                     .defaultImage(width, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
-                    .background (
-                        GeometryReader { proxy  in
-                            Color.clear
-                                .preference(key: MainImageBottomValue.self, value: proxy.frame(in: .global).maxY)
-                        }
-                    )
+                    .reportBottom(in: "profile", as: MainImageBottomValue.self)
             }
         }
         .overlay(alignment: .topLeading) {
@@ -68,15 +63,14 @@ extension ProfileImageView {
                 Text(vm.profileModel.profile.name)
 
                 Spacer()
+                
                 Image(systemName: "chevron.down")
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44, alignment: .center)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         if endingOffset != 0 {
-                            withAnimation(.spring(duration: 0.2)) {
-                                selectedProfile = nil
-                            }
+                            withAnimation(.spring(duration: 0.2)) { selectedProfile = nil}
                         }
                     }
                     .font(.body(20, .bold))
@@ -87,7 +81,6 @@ extension ProfileImageView {
             .opacity(
                 titleOpacity(currentOffset: currentOffset, endingOffset: endingOffset)
             )
-
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
@@ -130,3 +123,12 @@ extension ProfileImageView {
         }
     }
 }
+
+/*
+ .background (
+     GeometryReader { proxy  in
+         Color.clear
+             .preference(key: MainImageBottomValue.self, value: proxy.frame(in: .global).maxY)
+     }
+ )
+ */
