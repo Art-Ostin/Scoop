@@ -24,6 +24,14 @@ struct BackgroundFill: ViewModifier {
     }    
 }
 
+
+extension Comparable {
+    func clamped(to r: ClosedRange<Self>) -> Self {
+        min(max(self, r.lowerBound), r.upperBound)
+    }
+}
+
+
 extension View {
     
     func defaultShadow() -> some View {

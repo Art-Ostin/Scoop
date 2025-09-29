@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct ProfileView: View {
-    
+    ///MARK:
     @Environment(\.tabSelection) private var tabSelection
     @Environment(\.appDependencies) private var dep
     
@@ -13,8 +13,9 @@ struct ProfileView: View {
     @Binding var selectedProfile: ProfileModel?
     
     @State var profileOffset: CGFloat = 0
-    @State var detailsOffset: CGFloat = 0
     
+    var detailsStartingOffset: CGFloat { scrollImageBottomY + 36 }
+    @State var detailsOffset: CGFloat = 0
     @State var detailsOpen: Bool = false
     let detailsOpenYOffset: CGFloat = -170
     
@@ -23,6 +24,11 @@ struct ProfileView: View {
     
     let inviteButtonPadding: CGFloat = 24
     let inviteButtonSize: CGFloat = 50
+    
+    let toggleDetailsThresh: CGFloat = -50
+    
+    @State private var detailsDismissOffset: CGFloat = 0
+
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
@@ -35,12 +41,16 @@ struct ProfileView: View {
         
         GeometryReader { proxy in
             let imageSize: CGFloat = proxy.size.width - 8
-            ZStack(alignment: .top) {
+            ZStack(alignment: .topLeading) {
+                
+                
                 VStack(spacing: topSpacing()) {
                     profileTitle
                         .padding(.top, topPadding())
                     ProfileImageView(preloaded: preloadedImages, vm: $vm, selectedProfile: $selectedProfile, detailsOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, imageSize: imageSize)
                 }
+                
+                
                 
                 VStack {
                     HStack {
@@ -57,16 +67,55 @@ struct ProfileView: View {
                         Text("DragOffset: \(detailsOffset)")
                     }
                 }
-                .padding(.top, 320)
-                
+                .padding(.top, 250)
                 
                 
                 ProfileDetailsView(dragOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, scrollImageBottomY: $scrollImageBottomY)
+                    .offset(y: detailsStartingOffset + detailsOffset)
+                    .offset(y: detailsOpen ? detailsOpenYOffset : 0)
+                    .offset(y: detailsDismissOffset)
+                
+                    .onTapGesture {detailsOpen.toggle() }
+                    .gesture (
+                        DragGesture()
+                            .onChanged {
+                                
+                                let range: ClosedRange<CGFloat> = detailsOpen ? (-35...220) : (-220...35)
+                                
+                                detailsOffset = $0.translation.height.clamped(to: range)
+                                
+                                
+                                /*
+                                 if detailsOpen  {
+                                     if detailsOffset > -35 {
+                                         detailsOffset = $0.translation.height
+                                     }
+                                 } else {
+                                     if detailsOffset < 35 {
+                                         detailsOffset = $0.translation.height
+                                     }
+                                 }
+                                 */
+                                
+                                
+                            }
+
+                            .onEnded {
+                                let predicted = $0.predictedEndTranslation.height
+
+                                    if detailsOffset < toggleDetailsThresh || predicted <  toggleDetailsThresh {
+                                        detailsOpen = true
+                                    } else if detailsOpen && detailsOffset > 60 {
+                                        detailsOpen = false
+                                    }
+                                    detailsOffset = 0
+                            }
+                    )
                 
                 
                 InviteButton(vm: $vm)
                     .offset (
-                        x: (imageSize/2) - inviteButtonSize - inviteButtonPadding,
+                        x: imageSize - inviteButtonSize - inviteButtonPadding,
                         y: topPadding() + topSpacing() + imageSize - (inviteButtonSize)
                     )
                 
@@ -89,39 +138,52 @@ struct ProfileView: View {
                         
                         if dragDown {
                             profileOffset = dragAmount * 1.5
+                            
+                            detailsDismissOffset = min(max(-dragAmount * 1.5, -68), 0)
+                            
                         } else if !detailsOpen {
-                            detailsOffset = dragAmount
+                            
+                            let range: ClosedRange<CGFloat> = detailsOpen ? (-35...220) : (-220...35)
+                            
+                            detailsOffset = $0.translation.height.clamped(to: range)
+                            
                         }
                     }
-                
-                
+
                     .onEnded {
+                        
                         let predicted = $0.predictedEndTranslation.height
+
                         let closeProfile = profileOffset > 180
                         
                         let openDetails = detailsOffset < -50 || predicted < -50
                         let closeDetails = detailsOpen && detailsOffset > 60
                         
-                        if closeProfile {
+                        if closeProfile  || predicted > 180 {
                             withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { profileOffset = 0 }
                             return
                         }
                         
-                        if openDetails {
-                            withAnimation(.spring(duration: 0.2)) { detailsOpen = false }
-                        }
-                        if closeDetails {
-                            withAnimation(.spring(duration: 0.2)) {detailsOpen = true}
-                        }
+                        if openDetails || closeDetails { detailsOpen.toggle()
+}
+                        detailsDismissOffset = 0
+                        detailsOffset = 0
+                        profileOffset = 0
                     }
             )
             .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
-            .onPreferenceChange(MainImageBottomValue.self) { bottom in
-                imageBottomY = bottom
-            }
+            .animation(.spring(duration: 0.2), value: detailsOffset)
+            .animation(.spring(duration: 0.2), value: detailsOpen)
+
+
+            
             .onPreferenceChange(ScrollImageBottomValue.self) { y in
-                scrollImageBottomY = y
+                if profileOffset != 0 {
+                    print("Tried to updated but didn't")
+                } else {
+                    scrollImageBottomY  = y
+                }
                 }
             }
         }
@@ -138,6 +200,7 @@ extension ProfileView {
                 Text(flag)
                     .font(.body(24))
             }
+            
             Spacer()
             
             Image(systemName: "chevron.down")
@@ -192,6 +255,7 @@ extension ProfileView {
     
     
     func topPadding() -> CGFloat {
+        
         let initial: CGFloat = 84
         let dismiss: CGFloat = 16
         
@@ -203,8 +267,6 @@ extension ProfileView {
         
         return detailsOpen ? initial * t : initial * (1 - t)
     }
-
-    
     
     func topSpacing() -> CGFloat {
         
@@ -220,6 +282,9 @@ extension ProfileView {
         }
     }
 }
+
+
+
 
 
 
@@ -297,4 +362,11 @@ extension ProfileView {
      .padding(.top, (imageBottomY - 74))
      .padding(.top, profileOffset > 55 ? -profileOffset : 0) //Taking away the Invite button height (50) then adding padding of 24
      .ignoresSafeArea()
+ */
+
+/*
+ .onPreferenceChange(MainImageBottomValue.self) { bottom in
+     imageBottomY = bottom
+ }
+
  */

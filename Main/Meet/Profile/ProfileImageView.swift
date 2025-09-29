@@ -58,7 +58,6 @@ extension ProfileImageView {
                     .defaultImage(imageSize, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
-                    .reportBottom(in: "profile", as: MainImageBottomValue.self)
             }
         }
         .overlay(alignment: .topLeading) {
@@ -114,13 +113,11 @@ extension ProfileImageView {
     }
 
     func titleOpacity() -> Double {
-        let beginTitleFade: CGFloat = -200
+        let beginTitleFade: CGFloat = -100
         if detailsOpen {
             return 1 - (abs(detailsOffset) / 100)
         } else if detailsOffset < beginTitleFade {
-            
             return 0 + (abs(detailsOffset + 200) / 100)
-            
         } else {
             return 0
         }

@@ -22,59 +22,37 @@ struct ProfileDetailsView: View {
     @Binding var scrollImageBottomY: CGFloat
     
     var startingOffset: CGFloat {scrollImageBottomY + 36}
-        
+    
+    
     var body: some View {
-
+        
         VStack(spacing: 32) {
 
             Text("About")
-                    .font(.body(12))
-                    .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
-                
-                keyInfo
-                
-                homeAndDegree
-                
-                RoundedRectangle(cornerRadius: 5)
-                .foregroundColor(.clear)
-                .frame(width: 222, height: 0.5)
-                .background(Color(red: 0.82, green: 0.82, blue: 0.82))
-
-                PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
-            }
-            .frame(maxHeight: .infinity, alignment: .top)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 12)
-            .padding(.horizontal, 32)
-            .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-            .background (
-                RoundedRectangle(cornerRadius: 30)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-            )
-            .onTapGesture { withAnimation(.spring(duration: 0.2)) {detailsOpen.toggle()} }
-            .gesture (
-                DragGesture()
-                    .onChanged {
-                        
-                        dragOffset = $0.translation.height
-                    }
-                    .onEnded {
-                        let predicted = $0.predictedEndTranslation.height
-
-                        withAnimation(.spring(duration: 0.2)) {
-                            if dragOffset < toggleDetailsThresh || predicted <  toggleDetailsThresh {
-                                detailsOpen = true
-                            } else if detailsOpen && dragOffset > 60 {
-                                detailsOpen = false
-                            }
-                            dragOffset = 0
-                        }
-                    }
-            )
-            .offset(y: startingOffset + (detailsOpen ? detailsOpenYOffset : 0) + dragOffset)
+                .font(.body(12))
+                .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
+            
+            keyInfo
+            
+            homeAndDegree
+            
+            SoftDivider()
+            
+            PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
         }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 12)
+        .padding(.horizontal, 32)
+        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+        .background (
+            RoundedRectangle(cornerRadius: 30)
+                .fill(.white)
+                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+        )
+        .padding(5)
     }
+}
 
 extension ProfileDetailsView {
     
@@ -109,23 +87,16 @@ extension ProfileDetailsView {
     private var vicesView: some View {
         HStack(spacing: 0) {
             InfoItem(image: "DrinkingIcon", info: "Yes")
-            
             Spacer()
-            
             InfoItem(image: "SmokingIcon", info: "Yes")
-            
             Spacer()
-            
             InfoItem(image: "WeedIcon", info: "Yes")
-            
             Spacer()
-            
             InfoItem(image: "DrugsIcon", info: "Yes")
-            
         }
     }
 }
-    
+
 
 struct PromptView: View {
     
