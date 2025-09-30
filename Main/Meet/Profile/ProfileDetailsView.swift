@@ -37,13 +37,14 @@ struct ProfileDetailsView: View {
             homeAndDegree
             
             SoftDivider()
+                .padding(.horizontal, 32)
             
             PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .frame(maxWidth: .infinity)
         .padding(.top, 12)
-        .padding(.horizontal, 32)
+        .padding(.horizontal, 24)
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .background (
             RoundedRectangle(cornerRadius: 30)
