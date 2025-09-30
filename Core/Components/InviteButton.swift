@@ -12,8 +12,8 @@ import SwiftUI
 struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.3 : 1)
-            .brightness(configuration.isPressed ? 1.1 : 1)
+            .scaleEffect(configuration.isPressed ? 0.9 : 1)
+            .brightness(configuration.isPressed ? 0.1 : 0)
     }
 }
 
@@ -47,8 +47,8 @@ struct InviteButton: View {
                     .fill(vm.viewProfileType == .accept ? Color.appGreen : Color.accent)
                     .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
             )
-            .customButtonStyle()
         }
+        .customButtonStyle()
     }
 }
 
