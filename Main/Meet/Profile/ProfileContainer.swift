@@ -49,6 +49,15 @@ struct ProfileView: View {
                         .padding(.top, isOverExtended ? top2Padding() : topPadding())
                     ProfileImageView(preloaded: preloadedImages, vm: $vm, selectedProfile: $selectedProfile, detailsOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, imageSize: imageSize)
                 }
+                
+                
+                VStack(spacing: 12) {
+                    Text("ProfileOffset \(profileOffset)")
+                    
+                    Text("DetailsOffset \(detailsOffset)")
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 250)
                                 
                 
                 ProfileDetailsView(dragOffset: $detailsOffset, detailsOpen: $detailsOpen, detailsOpenYOffset: detailsOpenYOffset, scrollImageBottomY: $scrollImageBottomY)
@@ -60,10 +69,8 @@ struct ProfileView: View {
                     .gesture (
                         DragGesture()
                             .onChanged {
-                                
-                                let range: ClosedRange<CGFloat> = detailsOpen ? (-35...220) : (-220...35)
+                                let range: ClosedRange<CGFloat> = detailsOpen ? (-60...220) : (-220...60)
                                 detailsOffset = $0.translation.height.clamped(to: range)
-                                
                             }
 
                             .onEnded {
@@ -73,15 +80,17 @@ struct ProfileView: View {
                                     } else if detailsOpen && detailsOffset > 60 {
                                         detailsOpen = false
                                     }
-                                
                                     detailsOffset = 0
                             }
                     )
                 
                 InviteButton(vm: $vm)
                     .offset (
-                        x: imageSize - inviteButtonSize - inviteButtonPadding,
-                        y: (isOverExtended ? (top2Padding() + top2Spacing()) : (topPadding() + topSpacing())) + imageSize - (inviteButtonSize)
+                        x: imageSize - inviteButtonSize - inviteButtonPadding + 8,
+                        y: (isOverExtended ? (top2Padding() + top2Spacing()) : (topPadding() + topSpacing())) + imageSize - (inviteButtonSize - 12)
+                    )
+                    .gesture( //Removes bug where if I dragged from Invite Button, broke code
+                        DragGesture()
                     )
                 
                 if vm.showInvitePopup { invitePopup }
@@ -105,16 +114,15 @@ struct ProfileView: View {
                             
                             detailsDismissOffset = min(max(-dragAmount * 1.5, -68), 0)
                             
-                        } else if !detailsOpen {
-                            let range: ClosedRange<CGFloat> = detailsOpen ? (-35...220) : (-220...35)
+                        }
+                        else if !detailsOpen && profileOffset == 0 {
+                            let range: ClosedRange<CGFloat> = detailsOpen ? (-60...220) : (-220...60)
                             detailsOffset = $0.translation.height.clamped(to: range)
                         }
                     }
 
                     .onEnded {
-                        
                         let predicted = $0.predictedEndTranslation.height
-
                         let closeProfile = profileOffset > 180
                         
                         let openDetails = detailsOffset < -50 || predicted < -50
@@ -126,7 +134,7 @@ struct ProfileView: View {
                             return
                         }
                         
-                        if openDetails || closeDetails { detailsOpen.toggle()}
+                        if (openDetails || closeDetails) && profileOffset == 0.00 { detailsOpen.toggle()} //Profile Offset must be 0, otherwise it opens up and down when trying to dismiss the profile
                         detailsDismissOffset = 0
                         detailsOffset = 0
                         profileOffset = 0
@@ -262,77 +270,3 @@ extension ProfileView {
          }
      }
 }
-
-/*
- VStack {
-     HStack {
-         if detailsOpen { Text("Details Open")} else {Text("Details closed")}
-         
- //                        Text("topPadding: \(topPadding())")
-         
- //                        Text("topSpacing: \(topSpacing())")
-     }
-     
-     HStack {
-         Text("ProfileOffset: \(profileOffset)")
-         
-         Text("DragOffset: \(detailsOffset)")
-     }
- }
- .padding(.top, 250)
-
- */
-
-
-
-
-/*
- VStack(spacing: 24) {
-     HStack {
-         Text("profile Offset: \(profileOffset)")
-         Text("scoll image bottom: \(scrollBottomImageValue)")
-         Text("current Offset: \(detailsOffset)")
-     }
-     
-     HStack {
-         Text("ending Offset: \(detailsEndingOffset)")
-         Text("bottomValue: \(bottomImageValue)")
-     }
- }
- .padding(.top, 250)
-
- */
-
-/*
- */
-
-
-/*
- .onEnded {
-     if profileOffset > 180 {
-         withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
-         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-             profileOffset = 0
-         }
-         
-     } else if detailsOffset < -50 {
-         let predicted = $0.predictedEndTranslation.height
-         withAnimation(.spring(duration: 0.2)) {
-             if detailsOffset < -50 || predicted < -50 {
-                 detailsEndingOffset = endingValue
-             } else if detailsEndingOffset != 0 && detailsOffset > 60 {
-                 detailsEndingOffset = 0
-             }
-             detailsOffset = 0
-         }
-     } else {
-         withAnimation(.easeInOut(duration: 0.25)) { profileOffset = 0 }
-         detailsOffset = 0
-     }
- }
- */
-
-
-
-/*
- */

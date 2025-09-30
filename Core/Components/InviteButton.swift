@@ -7,6 +7,23 @@
 
 import SwiftUI
 
+
+
+struct PressableButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.3 : 1)
+            .brightness(configuration.isPressed ? 1.1 : 1)
+    }
+}
+
+extension View {
+    
+    func customButtonStyle() -> some View {
+        buttonStyle(PressableButtonStyle())
+    }
+}
+
 struct InviteButton: View {
     @Binding var vm: ProfileViewModel
     var body: some View {
@@ -28,8 +45,9 @@ struct InviteButton: View {
             .background(
                 Circle()
                     .fill(vm.viewProfileType == .accept ? Color.appGreen : Color.accent)
-                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 5)
+                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
             )
+            .customButtonStyle()
         }
     }
 }
