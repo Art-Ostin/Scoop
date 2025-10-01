@@ -31,7 +31,7 @@ struct ProfileView: View {
     
     
     
-    @State var imageSize: CGFloat = 10
+    @State var imageSize: CGFloat = 300
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
@@ -44,8 +44,9 @@ struct ProfileView: View {
         
         ZStack(alignment: .topLeading) {
             
-            VStack(spacing: OE ? top2Spacing() : topSpacing()) {
+            VStack(spacing: isOverExtended ? top2Spacing() : topSpacing() ) {
                 profileTitle
+                    .padding(.top, isOverExtended ? top2Padding() : topPadding() )
                 ProfileImageView(vm: $vm)
                     .overlay(alignment: .topLeading) { secondHeader}
             }
@@ -69,10 +70,12 @@ struct ProfileView: View {
                 )
                 .onTapGesture {detailsOpen.toggle() }
             
+            detailsInfo
+            
             InviteButton(vm: $vm)
-                .offset (
-                    x: imageSize - inviteButtonSize - inviteButtonPadding,
-                    y: (topPadding() + topSpacing() + imageSize - inviteButtonSize)
+                .offset(
+                    x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
+                    y: ((isOverExtended ? top2Padding() + top2Spacing() : topPadding() + topSpacing()) + imageSize - inviteButtonSize + 12)
                 )
                 .gesture(DragGesture())
             
@@ -124,9 +127,14 @@ struct ProfileView: View {
                 scrollImageBottomY  = y
             }
         }
-        .onPreferenceChange(ImageWidthKey.self) { imageSize = $0 }
+        .onPreferenceChange(ImageWidthKey.self) {value in
+            imageSize = value
+            print("newValue = \(value)")
+            
+        }
     }
 }
+
 
 // All the functionality for title and Popup
 extension ProfileView {
@@ -140,8 +148,7 @@ extension ProfileView {
         }
         .font(.body(24, .bold))
         .padding(.horizontal)
-        .padding(.top, OE ? top2Padding() : topPadding())
-        .opacity(OE ? top2Opacity() : topOpacity())
+        .opacity(isOverExtended ? top2Opacity() : topOpacity())
     }
     
     @ViewBuilder
@@ -188,11 +195,9 @@ extension ProfileView {
 // All the functionality for animation when scrolling up and down
 extension ProfileView {
     
-    var OE: Bool {
+    var isOverExtended: Bool {
         (detailsOpen && detailsOffset < 0) || (!detailsOpen && detailsOffset > 0)
     }
-    
-    
     
     private var t: CGFloat {
         let denom = max(1, abs(detailsOpenYOffset))
@@ -216,18 +221,28 @@ extension ProfileView {
     }
     
     func top2Spacing() -> CGFloat {
-        return detailsOpen ? 0 : 36
+        if detailsOpen {
+            return 0
+        } else {
+            return 36
+        }
     }
     
     func top2Padding() -> CGFloat {
-        return detailsOpen ? 16 : 84
+        if detailsOpen {
+            return 16
+        } else {
+            return 84
+        }
     }
     
     func top2Opacity() -> Double {
-        return detailsOpen ? 0 : 1
+        if detailsOpen {
+            return 0
+        } else {
+            return 1
+        }
     }
-    
-    
     var secondHeader: some View {
         HStack {
             Text(vm.profileModel.profile.name)
@@ -250,5 +265,19 @@ extension ProfileView {
         } else {
             return 0
         }
+    }
+    
+    private var detailsInfo: some View {
+        VStack(spacing: 12) {
+            Text("ProfileOffset \(profileOffset)")
+            
+            Text("DetailsOffset \(detailsOffset)")
+            
+            Text("detailsOpen \(detailsOpen == true ? "true" : "false")")
+            
+            Text("IsOverExtended \(isOverExtended == true ? "true" : "false")")
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 250)
     }
 }

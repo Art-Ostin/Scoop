@@ -5,7 +5,6 @@
 //  Created by Art Ostin on 23/06/2025.
 //
 
-//    @Binding var vm: ProfileViewModel
 
 import SwiftUI
 
@@ -14,7 +13,7 @@ struct ProfileDetailsView: View {
     var body: some View {
         
         VStack(spacing: 32) {
-
+            
             Text("About")
                 .font(.body(12))
                 .padding(.top, 12)
@@ -123,15 +122,8 @@ struct InfoItem: View {
 
 /*
  
- .colorBackground(.background)
- .padding(.horizontal, 24)
- .stroke(30, lineWidth: 1, color: .grayPlaceholder)
- .contentShape(Rectangle())
- .defaultShadow()
-//        .background (
-//            RoundedRectangle(cornerRadius: 30)
-//                .fill(.white)
-//                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-//        )
- .padding(.horizontal, 5)
- */
+ .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+ .background(.thinMaterial,
+                 in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+
+*/

@@ -16,7 +16,7 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     
     let imagePadding: CGFloat = 8
-
+    
     var body: some View {
         
         
@@ -26,14 +26,17 @@ struct ProfileImageView: View {
                 
                 profileImages(imageSize)
                     .frame(height: imageSize + 6)
-                
+                    .background (
+                        GeometryReader { g in
+                            Color.clear
+                                .preference(key: ImageWidthKey.self, value: g.size.height - 6)
+                        }
+                    )
                 imageScroller
                     .frame(height: 66)
                     .padding(.horizontal, 4)
             }
-            .preference(key: ImageWidthKey.self, value: imageSize)
         }
-        
         .task {
             if let pre = preloaded {
                 images = pre
@@ -55,11 +58,12 @@ extension ProfileImageView {
                     .defaultImage(size, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
+
             }
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
-        
+    
     private var imageScroller : some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -92,11 +96,11 @@ extension ProfileImageView {
 
 /*
  Image(systemName: "chevron.down")
-     .foregroundStyle(.white)
-     .frame(width: 44, height: 44, alignment: .center)
-     .contentShape(Rectangle())
-     .onTapGesture {
-         if detailsOpen {selectedProfile = nil}
-     }
-     .font(.body(20, .bold))
+ .foregroundStyle(.white)
+ .frame(width: 44, height: 44, alignment: .center)
+ .contentShape(Rectangle())
+ .onTapGesture {
+ if detailsOpen {selectedProfile = nil}
+ }
+ .font(.body(20, .bold))
  */
