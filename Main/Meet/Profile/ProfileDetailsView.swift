@@ -29,20 +29,12 @@ struct ProfileDetailsView: View {
             
             PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
         }
-        .padding(.top, 12)
         .padding(.horizontal, 24)
-        .background(
-          RoundedRectangle(cornerRadius: 30)
-            .fill(.white)
-            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-        )        
-        .overlay(                           // use overlay instead of a custom .stroke(...)
-          RoundedRectangle(cornerRadius: 30)
-            .stroke(Color.grayPlaceholder, lineWidth: 1)
-        )
-        .padding(5)
-        .frame(maxWidth: .infinity, alignment: .top)
-        .contentShape(RoundedRectangle(cornerRadius: 30))
+        .colorBackground(.background, top: true)
+        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        .contentShape(Rectangle())
+        .padding(.horizontal, 4)
     }
 }
 

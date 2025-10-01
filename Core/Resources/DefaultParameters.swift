@@ -16,10 +16,10 @@ import SwiftUI
 
 struct BackgroundFill: ViewModifier {
     let color: Color
-    
+    let top: Bool
     func body(content: Content) -> some View {
         content
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: top ? .top : .center )
             .background(color)
     }    
 }
@@ -45,8 +45,8 @@ extension View {
         )
     }
     
-    func colorBackground(_ color: Color) -> some View {
-        modifier(BackgroundFill(color: color))
+    func colorBackground(_ color: Color, top: Bool = false) -> some View {
+        modifier(BackgroundFill(color: color, top: top))
     }
 }
 

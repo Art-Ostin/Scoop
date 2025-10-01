@@ -44,7 +44,7 @@ struct ProfileView: View {
         
         ZStack(alignment: .topLeading) {
             
-            VStack(spacing: topSpacing()) {
+            VStack(spacing: OE ? top2Spacing() : topSpacing()) {
                 profileTitle
                 ProfileImageView(vm: $vm)
                     .overlay(alignment: .topLeading) { secondHeader}
@@ -52,7 +52,6 @@ struct ProfileView: View {
             
             ProfileDetailsView()
                 .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset + (detailsOpen ? detailsOpenYOffset : 0))
-                .contentShape(Rectangle())
                 .gesture (
                     DragGesture()
                         .onChanged {
@@ -141,8 +140,8 @@ extension ProfileView {
         }
         .font(.body(24, .bold))
         .padding(.horizontal)
-        .padding(.top, topPadding())
-        .opacity(topOpacity())
+        .padding(.top, OE ? top2Padding() : topPadding())
+        .opacity(OE ? top2Opacity() : topOpacity())
     }
     
     @ViewBuilder
@@ -189,9 +188,11 @@ extension ProfileView {
 // All the functionality for animation when scrolling up and down
 extension ProfileView {
     
-    var isOverExtended: Bool {
+    var OE: Bool {
         (detailsOpen && detailsOffset < 0) || (!detailsOpen && detailsOffset > 0)
     }
+    
+    
     
     private var t: CGFloat {
         let denom = max(1, abs(detailsOpenYOffset))
@@ -200,22 +201,33 @@ extension ProfileView {
     @inline(__always) private func lerp(_ a: CGFloat,_ b: CGFloat,_ t: CGFloat) -> CGFloat { a + (b - a) * t }
     
     func topOpacity() -> Double {
-        if isOverExtended { return detailsOpen ? 0 : 1 }
         return Double(detailsOpen ? t : (1 - t))
     }
     
     func topPadding() -> CGFloat {
         let initial: CGFloat = 84, dismiss: CGFloat = 16
-        if isOverExtended { return detailsOpen ? dismiss : initial }
         if profileOffset > 0 { return selectedProfile == nil ? dismiss : max(initial - profileOffset, dismiss) }
         return detailsOpen ? lerp(0, initial, t) : lerp(initial, 0, t)
     }
     
     func topSpacing() -> CGFloat {
         let maxS: CGFloat = 0, minS: CGFloat = 36
-        if isOverExtended { return detailsOpen ? minS : maxS }
         return detailsOpen ? lerp(maxS, minS, t) : lerp(minS, maxS, t)
     }
+    
+    func top2Spacing() -> CGFloat {
+        return detailsOpen ? 0 : 36
+    }
+    
+    func top2Padding() -> CGFloat {
+        return detailsOpen ? 16 : 84
+    }
+    
+    func top2Opacity() -> Double {
+        return detailsOpen ? 0 : 1
+    }
+    
+    
     var secondHeader: some View {
         HStack {
             Text(vm.profileModel.profile.name)
@@ -224,10 +236,12 @@ extension ProfileView {
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)
-        .padding()
-        .opacity(title2Opacity())
+        .padding(.top, 36)
+        .padding(.horizontal, 16)
+        .opacity(title3Opacity())
     }
-    func title2Opacity() -> Double {
+    
+    func title3Opacity() -> Double {
         let beginTitleFade: CGFloat = -100
         if detailsOpen {
             return 1 - (abs(detailsOffset) / 100)

@@ -29,8 +29,7 @@ struct ProfileImageView: View {
                 
                 imageScroller
                     .frame(height: 66)
-
-                .padding(.horizontal, 4)
+                    .padding(.horizontal, 4)
             }
             .preference(key: ImageWidthKey.self, value: imageSize)
         }
