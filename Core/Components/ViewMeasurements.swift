@@ -23,6 +23,13 @@ struct ScrollImageBottomValue: PreferenceKey {
     }
 }
 
+struct ImageWidthKey: PreferenceKey {
+  static var defaultValue: CGFloat = 0
+  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+
+
 extension View {
     
     func reportBottom<Key: PreferenceKey>(in space: String, as key: Key.Type) -> some View where Key.Value == CGFloat {

@@ -32,6 +32,7 @@ struct ProfileImageView: View {
 
                 .padding(.horizontal, 4)
             }
+            .preference(key: ImageWidthKey.self, value: imageSize)
         }
         
         .task {

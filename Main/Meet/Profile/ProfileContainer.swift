@@ -1,9 +1,8 @@
 import SwiftUI
 
 struct ProfileView: View {
-
+    
     @Environment(\.tabSelection) private var tabSelection
-    @Environment(\.appDependencies) private var dep
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
@@ -23,37 +22,36 @@ struct ProfileView: View {
     @State var detailsOpen: Bool = false
     
     @State var scrollImageBottomY: CGFloat = 0
-
+    
     @State var profileOffset: CGFloat = 0
     @State private var detailsDismissOffset: CGFloat = 0
     
-    @State var imageSize: CGFloat = 300
-
+    @State var imageSize: CGFloat = 10
+    
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
         self.preloadedImages = preloadedImages
         self.meetVM = meetVM
         self._selectedProfile = selectedProfile
     }
-
+    
     var body: some View {
-
+        
         ZStack(alignment: .topLeading) {
+            
             VStack(spacing: topSpacing()) {
                 profileTitle
                 ProfileImageView(vm: $vm)
                     .overlay(alignment: .topLeading) { secondHeader}
             }
-
             
             ProfileDetailsView()
                 .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset + (detailsOpen ? detailsOpenYOffset : 0))
                 .onTapGesture {detailsOpen.toggle() }
                 .gesture (
                     DragGesture()
-                        .onChanged {value in
-                            let range: ClosedRange<CGFloat> = detailsOpen ? (-60...220) : (-220...60)
-                            detailsOffset = value.translation.height.clamped(to: range)
+                        .onChanged {
+                            detailsOffset = $0.translation.height.clamped(to: detailsDragRange)
                         }
                         .onEnded {
                             let predicted = $0.predictedEndTranslation.height
@@ -66,80 +64,92 @@ struct ProfileView: View {
                         }
                 )
             
-            
             InviteButton(vm: $vm)
                 .offset (
                     x: imageSize - inviteButtonSize - inviteButtonPadding,
                     y: (topPadding() + topSpacing() + imageSize - inviteButtonSize)
                 )
-                .gesture( //Removes bug where if I dragged from Invite Button, broke code
-                    DragGesture()
-                )
+                .gesture(DragGesture())
             
             if vm.showInvitePopup { invitePopup }
         }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background)
-            .clipShape(RoundedRectangle(cornerRadius: (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30, style: .continuous))
-            .shadow(radius: 10)
-            .contentShape(Rectangle())
-            .coordinateSpace(name: "profile")
-            .gesture(
-                DragGesture()
-                    .onChanged {
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
+        .clipShape(RoundedRectangle(cornerRadius: (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30, style: .continuous))
+        .shadow(radius: 10)
+        .contentShape(Rectangle())
+        .coordinateSpace(name: "profile")
+        .gesture(
+            DragGesture()
+                .onChanged {
+                    
+                    let dragAmount = $0.translation.height
+                    let dragDown = dragAmount > 0
+                    
+                    
+                    if dragDown {
+                        profileOffset = dragAmount * 1.5
+                        
+                        detailsDismissOffset = (-dragAmount * 1.5).clamped(to: -68...0)
 
-                        let dragAmount = $0.translation.height
-                        let dragDown = dragAmount > 0
-                        
-                        
-                        if dragDown {
-                            profileOffset = dragAmount * 1.5
-                            
-                            detailsDismissOffset = min(max(-dragAmount * 1.5, -68), 0)
-                        }
-                        else if !detailsOpen && profileOffset == 0 {
-                            let range: ClosedRange<CGFloat> = detailsOpen ? (-60...220) : (-220...60)
-                            detailsOffset = $0.translation.height.clamped(to: range)
-                        }
                     }
-
-                    .onEnded {
-                        let predicted = $0.predictedEndTranslation.height
-                        let closeProfile = profileOffset > 180
-                        
-                        let openDetails = detailsOffset < -50 || predicted < -50
-                        let closeDetails = detailsOpen && detailsOffset > 60
-                        
-                        if closeProfile  || predicted > 180 {
-                            withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { profileOffset = 0 }
-                            return
-                        }
-                        
-                        if (openDetails || closeDetails) && profileOffset == 0.00 { detailsOpen.toggle()} //Profile Offset must be 0, otherwise it opens up and down when trying to dismiss the profile
-                        detailsDismissOffset = 0
-                        detailsOffset = 0
-                        profileOffset = 0
+                    else if !detailsOpen && profileOffset == 0 {
+                        detailsOffset = $0.translation.height.clamped(to: detailsDragRange)
                     }
-            )
-            .offset(y: profileOffset)
-            .animation(.spring(duration: 0.2), value: detailsOffset)
-            .animation(.spring(duration: 0.2), value: detailsOpen)
-            .animation(.spring(duration: 0.2), value: profileOffset)
-            .animation(.spring(duration: 0.2), value: selectedProfile?.id)
-            .onPreferenceChange(ScrollImageBottomValue.self) { y in
-                if profileOffset != 0 {
-                    print("Tried to updated but didn't")
-                } else {
-                    scrollImageBottomY  = y
                 }
+            
+                .onEnded {
+                    let predicted = $0.predictedEndTranslation.height
+                    let closeProfile = profileOffset > 180
+                    
+                    let openDetails = detailsOffset < -50 || predicted < -50
+                    let closeDetails = detailsOpen && detailsOffset > 60
+                    
+                    if closeProfile  || predicted > 180 {
+                        withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { profileOffset = 0 }
+                        return
+                    }
+                    
+                    if (openDetails || closeDetails) && profileOffset == 0.00 { detailsOpen.toggle()} //Profile Offset must be 0, otherwise it opens up and down when trying to dismiss the profile
+                    detailsDismissOffset = 0
+                    detailsOffset = 0
+                    profileOffset = 0
+                }
+        )
+        .offset(y: profileOffset)
+        .animation(.spring(duration: 0.2), value: animKey)
+        .onPreferenceChange(ScrollImageBottomValue.self) { y in
+            if profileOffset != 0 {
+                print("Tried to updated but didn't")
+            } else {
+                scrollImageBottomY  = y
             }
+        }
+        .onPreferenceChange(ImageWidthKey.self) { imageSize = $0 }
     }
+    
+    private struct AnimKey: Equatable {
+      var detailsOffset: CGFloat
+      var detailsOpen: Bool
+      var profileOffset: CGFloat
+      var selectedID: String?
+    }
+    private var animKey: AnimKey {
+      .init(detailsOffset: detailsOffset,
+            detailsOpen: detailsOpen,
+            profileOffset: profileOffset,
+            selectedID: selectedProfile?.id)
+    }
+    
+    private var detailsDragRange: ClosedRange<CGFloat> {
+      detailsOpen ? (-60...220) : (-220...60)
+    }
+
 }
 
 // All the functionality for title and Popup
 extension ProfileView {
-    
     private var profileTitle: some View {
         HStack {
             let p = vm.profileModel.profile
@@ -185,43 +195,30 @@ extension ProfileView {
         (detailsOpen && detailsOffset < 0) || (!detailsOpen && detailsOffset > 0)
     }
     
-    func topOpacity() -> Double {
-        if isOverExtended {
-            return detailsOpen ? 0 : 1
-        } else if detailsOpen {
-            return (0  + (abs(detailsOffset) / abs(detailsOpenYOffset)))
-        } else {
-            return (1 - (abs(detailsOffset) / abs(detailsOpenYOffset)))
-        }
+    private var t: CGFloat {
+        let denom = max(1, abs(detailsOpenYOffset))
+        return min(1, max(0, abs(detailsOffset) / denom))
     }
-     
-     func topPadding() -> CGFloat {
-         let initial: CGFloat = 84
-         let dismiss: CGFloat = 16
-         let currentSpacing = min(max(abs(detailsOffset) / abs(detailsOpenYOffset), 0), 1)
-         
-         if isOverExtended {
-             return detailsOpen ? dismiss : initial
-         } else if profileOffset > 0 {
-             return selectedProfile == nil ? dismiss : max(initial - profileOffset, dismiss)
-         } else {
-             return detailsOpen ? initial * currentSpacing : initial * (1 - currentSpacing)
-         }
-     }
+    @inline(__always) private func lerp(_ a: CGFloat,_ b: CGFloat,_ t: CGFloat) -> CGFloat { a + (b - a) * t }
+    
+    func topOpacity() -> Double {
+        if isOverExtended { return detailsOpen ? 0 : 1 }
+        return Double(detailsOpen ? t : (1 - t))
+    }
+    
+    func topPadding() -> CGFloat {
+        let initial: CGFloat = 84, dismiss: CGFloat = 16
+        if isOverExtended { return detailsOpen ? dismiss : initial }
+        if profileOffset > 0 { return selectedProfile == nil ? dismiss : max(initial - profileOffset, dismiss) }
+        return detailsOpen ? lerp(0, initial, t) : lerp(initial, 0, t)
+    }
     
     func topSpacing() -> CGFloat {
-         let maxSpacing: CGFloat = 36
-         let minSpacing: CGFloat = 0
-         let currentSpacing: CGFloat = maxSpacing * abs(detailsOffset) / abs(detailsOpenYOffset)
-        
-        if isOverExtended {
-            return detailsOpen ? 0 : 36
-        } else if detailsOpen {
-            return minSpacing + min(currentSpacing, maxSpacing)
-        } else {
-            return maxSpacing - max(currentSpacing, minSpacing)
-        }
-     }
+        let minS: CGFloat = 0, maxS: CGFloat = 36
+        if isOverExtended { return detailsOpen ? minS : maxS }
+        return detailsOpen ? lerp(maxS, minS, t) : lerp(minS, maxS, t)
+    }
+    
     
     var secondHeader: some View {
         HStack {
@@ -247,29 +244,3 @@ extension ProfileView {
         }
     }
 }
-
-//All the functionality for the details and profile View Modifiers
-
-
-
-/*
- Geometry Reader needed: (1) Image is width of screen + its padding (2) Needed to swip
- GeometryReader { proxy in
-     let imageSize: CGFloat = proxy.size.width - imagePadding
- */
-
-
-/*
- VStack(spacing: 12) {
-     Text("ProfileOffset \(profileOffset)")
-     
-     Text("DetailsOffset \(detailsOffset)")
- }
- .frame(maxWidth: .infinity, alignment: .center)
- .padding(.top, 250)
- */
-
-/*
- .toolbar(vm.showInvitePopup ? .hidden : .visible, for: .tabBar)
- */
-

@@ -10,8 +10,6 @@
 import SwiftUI
 
 struct ProfileDetailsView: View {
-        
-    let toggleDetailsThresh: CGFloat = -50
     
     var body: some View {
         
