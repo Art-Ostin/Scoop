@@ -184,3 +184,13 @@ extension SelectTimeAndPlace {
         }
     }
 }
+
+struct InviteBackground: View {
+    
+    var body: some View {
+        Rectangle()
+            .fill(.thinMaterial)
+            .ignoresSafeArea()
+            .contentShape(Rectangle())
+    }
+}

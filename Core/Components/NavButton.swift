@@ -17,7 +17,6 @@ struct NavButton: View {
     let type: ViewType
     let size: CGFloat
     
-    
     private var imageName: String {
         switch type {
         case .cross: return "xmark"
@@ -43,4 +42,18 @@ struct NavButton: View {
 }
 #Preview(traits: .sizeThatFitsLayout) {
     NavButton(.back)
+}
+
+struct profileDismissButton : View {
+    
+    @Binding var selectedProfile: ProfileModel?
+    let color: Color
+    
+    var body: some View {
+        Image(systemName: "chevron.down")
+            .font(.body(18, .medium))
+            .foregroundStyle(color)
+            .contentShape(Rectangle())
+            .onTapGesture {selectedProfile = nil}
+    }
 }

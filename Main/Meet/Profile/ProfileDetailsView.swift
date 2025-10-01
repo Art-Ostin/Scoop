@@ -10,19 +10,8 @@
 import SwiftUI
 
 struct ProfileDetailsView: View {
-    
-    @Binding var dragOffset: CGFloat
-    
-    @Binding var detailsOpen: Bool
-    
-    let detailsOpenYOffset: CGFloat
-    
+        
     let toggleDetailsThresh: CGFloat = -50
-    
-    @Binding var scrollImageBottomY: CGFloat
-    
-    var startingOffset: CGFloat {scrollImageBottomY + 36}
-    
     
     var body: some View {
         

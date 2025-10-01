@@ -13,28 +13,25 @@ struct ProfileImageView: View {
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
     
-    
     @Binding var vm: ProfileViewModel
-    @Binding var selectedProfile: ProfileModel?
-    @Binding var detailsOffset: CGFloat
-    @Binding var detailsOpen: Bool
     
-    let detailsOpenYOffset: CGFloat
-    let imageSize: CGFloat
-    
-    
+    let imagePadding: CGFloat = 8
 
     var body: some View {
         
-        VStack(spacing: 24) {
-            
-            profileImages
-                .frame(height: imageSize + 6)
-            
-            imageScroller
-                .frame(height: 66)
+        
+        GeometryReader { proxy in
+            let imageSize = proxy.size.width - imagePadding
+            VStack(spacing: 24) {
+                
+                profileImages(imageSize)
+                    .frame(height: imageSize + 6)
+                
+                imageScroller
+                    .frame(height: 66)
 
-            .padding(.horizontal, 4)
+                .padding(.horizontal, 4)
+            }
         }
         
         .task {
@@ -50,36 +47,15 @@ struct ProfileImageView: View {
 
 extension ProfileImageView {
     
-    private var profileImages : some View {
+    private func profileImages(_ size: CGFloat) -> some View {
         TabView(selection: $selection) {
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
                     .resizable()
-                    .defaultImage(imageSize, 16)
+                    .defaultImage(size, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
             }
-        }
-        .overlay(alignment: .topLeading) {
-            HStack {
-                Text(vm.profileModel.profile.name)
-                Spacer()
-
-                Image(systemName: "chevron.down")
-                    .foregroundStyle(.white)
-                    .frame(width: 44, height: 44, alignment: .center)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        if detailsOpen {
-                            withAnimation(.spring(duration: 0.2)) { selectedProfile = nil}
-                        }
-                    }
-                    .font(.body(20, .bold))
-            }
-            .font(.body(24, .bold))
-            .foregroundStyle(.white)
-            .padding()
-            .opacity(titleOpacity())
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
@@ -111,15 +87,16 @@ extension ProfileImageView {
             .reportBottom(in: "profile", as: ScrollImageBottomValue.self)
         }
     }
-
-    func titleOpacity() -> Double {
-        let beginTitleFade: CGFloat = -100
-        if detailsOpen {
-            return 1 - (abs(detailsOffset) / 100)
-        } else if detailsOffset < beginTitleFade {
-            return 0 + (abs(detailsOffset + 200) / 100)
-        } else {
-            return 0
-        }
-    }
 }
+
+
+/*
+ Image(systemName: "chevron.down")
+     .foregroundStyle(.white)
+     .frame(width: 44, height: 44, alignment: .center)
+     .contentShape(Rectangle())
+     .onTapGesture {
+         if detailsOpen {selectedProfile = nil}
+     }
+     .font(.body(20, .bold))
+ */

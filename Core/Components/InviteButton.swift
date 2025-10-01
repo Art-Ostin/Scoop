@@ -12,7 +12,7 @@ import SwiftUI
 struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.9 : 1)
+            .scaleEffect(withAnimation(.easeInOut) { configuration.isPressed ? 0.9 : 1 })
             .brightness(configuration.isPressed ? 0.1 : 0)
     }
 }
