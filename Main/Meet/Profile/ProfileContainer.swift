@@ -22,9 +22,14 @@ struct ProfileView: View {
     @State var detailsOpen: Bool = false
     
     @State var scrollImageBottomY: CGFloat = 0
-    
     @State var profileOffset: CGFloat = 0
     @State private var detailsDismissOffset: CGFloat = 0
+    
+    private var cornerRadius: CGFloat {
+        (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
+    }
+    
+    
     
     @State var imageSize: CGFloat = 10
     
@@ -73,40 +78,33 @@ struct ProfileView: View {
             
             if vm.showInvitePopup { invitePopup }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
-        .clipShape(RoundedRectangle(cornerRadius: (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30, style: .continuous))
+        .colorBackground(.background)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .shadow(radius: 10)
+        .offset(y: profileOffset)
         .contentShape(Rectangle())
-        .coordinateSpace(name: "profile")
         .gesture(
             DragGesture()
                 .onChanged {
-                    
                     let dragAmount = $0.translation.height
                     let dragDown = dragAmount > 0
-                    
-                    
+                    let openDetails = !detailsOpen && profileOffset == 0
+
                     if dragDown {
                         profileOffset = dragAmount * 1.5
-                        
                         detailsDismissOffset = (-dragAmount * 1.5).clamped(to: -68...0)
-
-                    }
-                    else if !detailsOpen && profileOffset == 0 {
+                    } else if openDetails {
                         detailsOffset = $0.translation.height.clamped(to: detailsDragRange)
                     }
                 }
-            
                 .onEnded {
                     let predicted = $0.predictedEndTranslation.height
                     let closeProfile = profileOffset > 180
-                    
                     let openDetails = detailsOffset < -50 || predicted < -50
                     let closeDetails = detailsOpen && detailsOffset > 60
                     
                     if closeProfile  || predicted > 180 {
-                        withAnimation(.easeInOut(duration: 0.25)) { selectedProfile = nil }
+                        selectedProfile = nil
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { profileOffset = 0 }
                         return
                     }
@@ -117,8 +115,8 @@ struct ProfileView: View {
                     profileOffset = 0
                 }
         )
-        .offset(y: profileOffset)
         .animation(.spring(duration: 0.2), value: animKey)
+        .coordinateSpace(name: "profile")
         .onPreferenceChange(ScrollImageBottomValue.self) { y in
             if profileOffset != 0 {
                 print("Tried to updated but didn't")
@@ -128,24 +126,6 @@ struct ProfileView: View {
         }
         .onPreferenceChange(ImageWidthKey.self) { imageSize = $0 }
     }
-    
-    private struct AnimKey: Equatable {
-      var detailsOffset: CGFloat
-      var detailsOpen: Bool
-      var profileOffset: CGFloat
-      var selectedID: String?
-    }
-    private var animKey: AnimKey {
-      .init(detailsOffset: detailsOffset,
-            detailsOpen: detailsOpen,
-            profileOffset: profileOffset,
-            selectedID: selectedProfile?.id)
-    }
-    
-    private var detailsDragRange: ClosedRange<CGFloat> {
-      detailsOpen ? (-60...220) : (-220...60)
-    }
-
 }
 
 // All the functionality for title and Popup
@@ -186,6 +166,23 @@ extension ProfileView {
             }
         }
     }
+    
+    private struct AnimKey: Equatable {
+      var detailsOffset: CGFloat
+      var detailsOpen: Bool
+      var profileOffset: CGFloat
+      var selectedID: String?
+    }
+    private var animKey: AnimKey {
+      .init(detailsOffset: detailsOffset,
+            detailsOpen: detailsOpen,
+            profileOffset: profileOffset,
+            selectedID: selectedProfile?.id)
+    }
+    
+    private var detailsDragRange: ClosedRange<CGFloat> {
+      detailsOpen ? (-60...220) : (-220...60)
+    }
 }
 
 // All the functionality for animation when scrolling up and down
@@ -214,12 +211,10 @@ extension ProfileView {
     }
     
     func topSpacing() -> CGFloat {
-        let minS: CGFloat = 0, maxS: CGFloat = 36
+        let maxS: CGFloat = 0, minS: CGFloat = 36
         if isOverExtended { return detailsOpen ? minS : maxS }
         return detailsOpen ? lerp(maxS, minS, t) : lerp(minS, maxS, t)
     }
-    
-    
     var secondHeader: some View {
         HStack {
             Text(vm.profileModel.profile.name)
@@ -231,8 +226,6 @@ extension ProfileView {
         .padding()
         .opacity(title2Opacity())
     }
-    
-    
     func title2Opacity() -> Double {
         let beginTitleFade: CGFloat = -100
         if detailsOpen {
