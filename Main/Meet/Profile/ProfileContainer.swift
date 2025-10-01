@@ -52,7 +52,7 @@ struct ProfileView: View {
             
             ProfileDetailsView()
                 .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset + (detailsOpen ? detailsOpenYOffset : 0))
-                .onTapGesture {detailsOpen.toggle() }
+                .contentShape(Rectangle())
                 .gesture (
                     DragGesture()
                         .onChanged {
@@ -68,6 +68,7 @@ struct ProfileView: View {
                             detailsOffset = 0
                         }
                 )
+                .onTapGesture {detailsOpen.toggle() }
             
             InviteButton(vm: $vm)
                 .offset (
@@ -140,8 +141,8 @@ extension ProfileView {
         }
         .font(.body(24, .bold))
         .padding(.horizontal)
-        .opacity(topOpacity())
         .padding(.top, topPadding())
+        .opacity(topOpacity())
     }
     
     @ViewBuilder

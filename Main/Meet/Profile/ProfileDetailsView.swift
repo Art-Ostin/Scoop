@@ -17,6 +17,7 @@ struct ProfileDetailsView: View {
 
             Text("About")
                 .font(.body(12))
+                .padding(.top, 12)
                 .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
             
             keyInfo
@@ -28,17 +29,20 @@ struct ProfileDetailsView: View {
             
             PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
         }
-        .frame(maxHeight: .infinity, alignment: .top)
-        .frame(maxWidth: .infinity)
         .padding(.top, 12)
         .padding(.horizontal, 24)
-        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .background (
-            RoundedRectangle(cornerRadius: 30)
-                .fill(.white)
-                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+        .background(
+          RoundedRectangle(cornerRadius: 30)
+            .fill(.white)
+            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+        )        
+        .overlay(                           // use overlay instead of a custom .stroke(...)
+          RoundedRectangle(cornerRadius: 30)
+            .stroke(Color.grayPlaceholder, lineWidth: 1)
         )
         .padding(5)
+        .frame(maxWidth: .infinity, alignment: .top)
+        .contentShape(RoundedRectangle(cornerRadius: 30))
     }
 }
 
@@ -125,3 +129,17 @@ struct InfoItem: View {
 }
 
 
+/*
+ 
+ .colorBackground(.background)
+ .padding(.horizontal, 24)
+ .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+ .contentShape(Rectangle())
+ .defaultShadow()
+//        .background (
+//            RoundedRectangle(cornerRadius: 30)
+//                .fill(.white)
+//                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+//        )
+ .padding(.horizontal, 5)
+ */
