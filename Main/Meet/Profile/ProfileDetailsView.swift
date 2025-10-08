@@ -26,6 +26,8 @@ struct ProfileDetailsView: View {
             SoftDivider()
                 .padding(.horizontal, 32)
             
+            Image("DeclineIcon")
+            
             PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
         }
         .padding(.horizontal, 24)

@@ -22,7 +22,7 @@ struct ProfileImageView: View {
         
         GeometryReader { proxy in
             let imageSize = proxy.size.width - imagePadding
-            VStack(spacing: 24) {
+            VStack(spacing: 12) {
                 
                 profileImages(imageSize)
                     .frame(height: imageSize + 6)
@@ -33,7 +33,6 @@ struct ProfileImageView: View {
                         }
                     )
                 imageScroller
-                    .frame(height: 66)
                     .padding(.horizontal, 4)
             }
         }
@@ -47,21 +46,20 @@ struct ProfileImageView: View {
     }
 }
 
-
 extension ProfileImageView {
-    
     private func profileImages(_ size: CGFloat) -> some View {
-        TabView(selection: $selection) {
-            ForEach(images.indices, id: \.self) { index in
-                Image(uiImage: images[index])
-                    .resizable()
-                    .defaultImage(size, 16)
-                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-                    .tag(index)
+        
+            TabView(selection: $selection) {
+                ForEach(images.indices, id: \.self) { index in
+                    Image(uiImage: images[index])
+                        .resizable()
+                        .defaultImage(size, 16)
+                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                        .tag(index)
 
+                }
             }
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
     
     private var imageScroller : some View {
@@ -73,10 +71,11 @@ extension ProfileImageView {
                         Image(uiImage: image)
                             .resizable()
                             .defaultImage(60, 10)
-                            .shadow(color: .black.opacity(selection == index ? 0.25 : 0.15),
-                                    radius: selection == index ? 2 : 1, y: selection == index ? 4 : 2)
+                            .shadow(color: .black.opacity(selection == index ? 0.2 : 0.15),
+                                    radius: selection == index ? 3 : 1, y: selection == index ? 8 : 2)
                             .onTapGesture { withAnimation(.easeInOut(duration: 0.8)) { self.selection = index} }
-                            .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
+                            .stroke(10, lineWidth: selection == index ? 1.5 : 0, color: .accent)
+                            .frame(height: 84)
                     }
                 }
             }
