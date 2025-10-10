@@ -10,48 +10,73 @@ import SwiftUI
 
 struct ProfileDetailsView: View {
     
+    @State var vSpacing: CGFloat = 0
+    @Binding var detailsPad: CGFloat
+    
+    var smallvSpacing: Bool { vSpacing <= 24 }
+    
+    @State private var initialDetailsWidth: CGFloat?
+
+    
+    let response = "The Organizational Development Journal (Summer 2006) reported on and just"
+    let prompt = "What's the best date"
+    
     var body: some View {
         
-        VStack(spacing: 32) {
+        VStack(spacing: 48) {
             
-            Text("About")
-                .font(.body(12))
-                .padding(.top, 12)
-                .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
-            
-            keyInfo
-            
-            homeAndDegree
-            
-            SoftDivider()
-                .padding(.horizontal, 32)
-            
-            Image("DeclineIcon")
-            
-            PromptView(prompt: PromptResponse(prompt: "What is the best date", response: "A girl who I never saw again.. in the same light"))
+            VStack(spacing: vSpacing) {
+                sectionTitle
+                keyInfo
+                homeAndDegree
+            }
+
+            VStack(spacing: 24) {
+                PromptView(prompt: PromptResponse(prompt: prompt, response: response), vSpacing: (vSpacing * 2/3), count: response.count)
+                    .onPreferenceChange(Text.LayoutKey.self) {layouts in
+                        let responseLines = layouts.last?.layout.count ?? 0
+                        vSpacing = (responseLines >= 4) ? 24 : 32
+                    }
+                declineButton
+            }
+
         }
-        .padding(.horizontal, 24)
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: DetailsWidthKey.self, value: proxy.size.width)
+            }
+        )
+        .onPreferenceChange(DetailsWidthKey.self) { w in
+            if initialDetailsWidth == nil { initialDetailsWidth = w }
+        }
+        .frame(width: initialDetailsWidth.map { $0 - 32 })
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         .contentShape(Rectangle())
-        .padding(.horizontal, 4)
     }
 }
 
 extension ProfileDetailsView {
     
+    
+    private var sectionTitle: some View {
+        Text("About")
+            .font(.body(12))
+            .padding(.top, 12)
+            .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
+    }
+    
+    
     private var keyInfo: some View {
         HStack (spacing: 0)  {
             InfoItem(image: "magnifyingglass", info: "Casual")
-            
-            Spacer()
-            
+                .frame(maxWidth: .infinity, alignment: .leading)
             InfoItem(image: "Year", info: "U3")
-            
-            Spacer()
-            
+                .frame(maxWidth: .infinity, alignment: .center)
             InfoItem(image: "Height", info: "193" + "cm")
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
     
@@ -59,16 +84,15 @@ extension ProfileDetailsView {
     private var homeAndDegree: some View {
         
         HStack(spacing: 0) {
-            
+
             InfoItem(image: "House", info: "London")
             
             Spacer()
             
             InfoItem(image: "ScholarStyle", info: "Politics")
-            
         }
     }
-    
+
     private var vicesView: some View {
         HStack(spacing: 0) {
             InfoItem(image: "DrinkingIcon", info: "Yes")
@@ -79,27 +103,45 @@ extension ProfileDetailsView {
             Spacer()
             InfoItem(image: "DrugsIcon", info: "Yes")
         }
+        .frame(maxWidth: .infinity)
     }
+    
+    private var declineButton: some View {
+        Image("DeclineIcon")
+            .frame(width: 45, height: 45)
+            .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                
+            }
+    }
+    
+    
 }
 
 
 struct PromptView: View {
     
     let prompt: PromptResponse
+    let vSpacing: CGFloat
+    let count: Int
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: vSpacing) {
             Text(prompt.prompt)
                 .font(.body(14, .italic))
             
             Text(prompt.response)
                 .font(.title(28))
+                .lineLimit( count > 90 ? 4 : 3)
+                .minimumScaleFactor(0.6)
                 .lineSpacing(8)
                 .multilineTextAlignment(.center)
         }
-        .padding(.horizontal, -1)
-    }
+        .frame(maxWidth: .infinity)
+     }
 }
 
 struct InfoItem: View {
@@ -121,11 +163,15 @@ struct InfoItem: View {
     }
 }
 
+private struct DetailsWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
 
-/*
- 
- .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
- .background(.thinMaterial,
-                 in: RoundedRectangle(cornerRadius: 30, style: .continuous))
 
-*/
+//Rectangle()
+//.foregroundColor(.clear)
+//.frame(maxWidth: .infinity)
+//.frame(height: 0.5)
+//.background(Color(red: 0.72, green: 0.72, blue: 0.72))
+//.padding(.horizontal, 48)

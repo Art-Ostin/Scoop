@@ -51,7 +51,7 @@ struct profileDismissButton : View {
     
     var body: some View {
         Image(systemName: "chevron.down")
-            .font(.body(18, .medium))
+            .font(.body(18, .bold))
             .foregroundStyle(color)
             .contentShape(Rectangle())
             .onTapGesture {selectedProfile = nil}

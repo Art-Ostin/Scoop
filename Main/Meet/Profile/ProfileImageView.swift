@@ -18,12 +18,9 @@ struct ProfileImageView: View {
     let imagePadding: CGFloat = 8
     
     var body: some View {
-        
-        
         GeometryReader { proxy in
             let imageSize = proxy.size.width - imagePadding
             VStack(spacing: 12) {
-                
                 profileImages(imageSize)
                     .frame(height: imageSize + 6)
                     .background (
@@ -59,6 +56,8 @@ extension ProfileImageView {
 
                 }
             }
+            .disabled(true)
+        
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
     
@@ -72,7 +71,7 @@ extension ProfileImageView {
                             .resizable()
                             .defaultImage(60, 10)
                             .shadow(color: .black.opacity(selection == index ? 0.2 : 0.15),
-                                    radius: selection == index ? 3 : 1, y: selection == index ? 8 : 2)
+                                    radius: selection == index ? 3 : 1, y: selection == index ? 5 : 2)
                             .onTapGesture { withAnimation(.easeInOut(duration: 0.8)) { self.selection = index} }
                             .stroke(10, lineWidth: selection == index ? 1.5 : 0, color: .accent)
                             .frame(height: 84)

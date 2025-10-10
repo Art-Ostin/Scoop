@@ -17,7 +17,7 @@ struct ProfileView: View {
     let toggleDetailsThresh: CGFloat = -50
     
     var detailsStartingOffset: CGFloat {scrollImageBottomY + detailsTopPadding}
-    let detailsOpenYOffset: CGFloat = -150
+    let detailsOpenYOffset: CGFloat = -200
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
@@ -32,9 +32,10 @@ struct ProfileView: View {
     @State private var dragAxis: Axis? = nil
     @State var draggingDetails: Bool = false
     
+    @State var detailsPad: CGFloat = 0
     
-    @State var dismissMultiplier: CGFloat = 2
-    
+    @State var inviteYOffset: CGFloat = -64
+    @State var dismissMultiplier: CGFloat = 1
     @State var imageSize: CGFloat = 300
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -82,11 +83,9 @@ struct ProfileView: View {
                     detailsOpen = true
                 }
             },
-        
-        including: .gesture
+                including: .gesture
         )
-            
-            ProfileDetailsView()
+            ProfileDetailsView(detailsPad: $detailsPad)
                 .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                 .offset(y: detailsOpen ? detailsOpenYOffset : 0)
                 .highPriorityGesture(
@@ -108,24 +107,31 @@ struct ProfileView: View {
                             draggingDetails = false
                         }
                 )
-                .onTapGesture {detailsOpen.toggle() }
-            detailsInfo
-            
+                .onTapGesture {detailsOpen.toggle()}
+                .padding(.horizontal, detailsPadding())
+
             InviteButton(vm: $vm)
                 .offset(
                     x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
                     y: ((isOverExtended ? top2Padding() + top2Spacing() : topPadding() + topSpacing()) + imageSize - inviteButtonSize + 12)
                 )
+                .offset(y: isOverExtended ? (detailsOpen ? inviteYOffset : 0) : inviteOffset())
                 .gesture(DragGesture())
             
             if vm.showInvitePopup { invitePopup }
         }
+        .onChange(of: detailsPadding()) { oldValue, newValue in
+            detailsPad = newValue
+            print("detailsPad: \(detailsPad)")
+        }        
         .colorBackground(.background)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .shadow(radius: 10)
         .offset(y: profileOffset)
         .contentShape(Rectangle())
-        .animation(.spring(duration: 0.2), value: animKey)
+        .animation(.easeInOut(duration: 0.2), value: profileOffset)
+        .animation(.easeInOut(duration: 0.2), value: detailsDismissOffset)
+        .animation(.spring(duration: 0.2), value: detailsOffset)
         .animation(.easeInOut(duration: 0.2), value: selectedProfile)
         .coordinateSpace(name: "profile")
         .onPreferenceChange(ScrollImageBottomValue.self) { y in
@@ -142,7 +148,6 @@ struct ProfileView: View {
 }
 }
 
-
 // All the functionality for title and Popup
 extension ProfileView {
     private var profileTitle: some View {
@@ -151,7 +156,7 @@ extension ProfileView {
             Text(p.name)
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
-            profileDismissButton(selectedProfile: $selectedProfile, color: Color.gray.opacity(0.6))
+            profileDismissButton(selectedProfile: $selectedProfile, color: .black)
         }
         .font(.body(24, .bold))
         .padding(.horizontal)
@@ -306,27 +311,28 @@ extension ProfileView {
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, 250)
     }
+    
+    func detailsPadding() -> CGFloat {
+        let initial: CGFloat = 4, opened: CGFloat = 0
+        
+        
+        
+        
+        
+        return detailsOpen ? lerp(opened, initial, t)
+                            : lerp(initial, opened, t)
+    }
+    
+    func inviteOffset() -> CGFloat {
+        let initial: CGFloat = 0
+        let opened:  CGFloat = -65
+
+        if detailsOpen {
+            let p = (t / 0.25).clamped(to: 0...1)
+            return lerp(opened, initial, p)
+        } else {
+            let p = ((t - 0.75) / 0.25).clamped(to: 0...1)
+            return lerp(initial, opened, p)
+        }
+    }
 }
-
-
-
-//                    guard
-//                        checkVerticalDrag(v: value),
-//                        detailsOpen == false,
-//                        profileOffset == 0
-//                    else {return}
-//
-//                    state = value.translation.height
-
-
-//
-
-
-//                    guard checkVerticalDrag(v: value)
-//                    else {return}
-
-//                    guard checkVerticalDrag(v: value)
-
-//                    defer { dragAxis = nil }
-// guard dragAxis == .vertical else { return }
-
