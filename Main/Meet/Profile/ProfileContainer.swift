@@ -30,14 +30,14 @@ struct ProfileView: View {
     }
     
     @State private var dragAxis: Axis? = nil
-    @State var draggingDetails: Bool = false
+    @State var blockTabView: Bool = false
     
     @State var detailsPad: CGFloat = 0
     
     @State var inviteYOffset: CGFloat = -64
     @State var dismissMultiplier: CGFloat = 1
     @State var imageSize: CGFloat = 300
-    
+        
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
         self.preloadedImages = preloadedImages
@@ -50,27 +50,32 @@ struct ProfileView: View {
             VStack(spacing: isOverExtended ? (detailsOpen ? 0 : 36) : topSpacing() ) {
                 profileTitle
                     .padding(.top, isOverExtended ? (detailsOpen ? -8 : 84) : topPadding())
-                ProfileImageView(vm: $vm)
+                ProfileImageView(vm: $vm, blockTabView: $blockTabView)
                     .overlay(alignment: .topLeading) { secondHeader}
             }
             .simultaneousGesture (
                 DragGesture()
                     .updating($profileOffset) { v, state, transaction in
-                        guard !draggingDetails, isVertical(v: v), v.translation.height > 0 else { return }
+                        guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
+                        blockTabView = true
                         state = v.translation.height * dismissMultiplier
                     }
                     .updating($detailsOffset) { v, state, transaction in
-                        guard !draggingDetails, isVertical(v: v) else { return }
-                        let drag = v.translation.height
-                        if !detailsOpen && drag < 0 { state = drag }
+                        guard  isVertical(v: v), profileOffset == 0 else { return }
+                        blockTabView = true
+                        if !detailsOpen && v.translation.height < 0 {
+                            state = v.translation.height.clamped(to: detailsDragRange)
+                        }
             }
             .updating($detailsDismissOffset) { value, state, transaction in
-                guard !draggingDetails, isVertical(v: value) else { return }
+                guard isVertical(v: value) else { return }
+                blockTabView = true
                 state = (-value.translation.height * dismissMultiplier).clamped(to: -68...0)
             }
             .onEnded { v in
                 defer { dragAxis = nil }
-                guard !draggingDetails, dragAxis == .vertical else { return }
+                guard dragAxis == .vertical else { return }
+                blockTabView = false
                 let predicted = v.predictedEndTranslation.height
                 let openDetails = predicted < -50 && !detailsOpen && profileOffset == 0
                 let distance = v.translation.height
@@ -85,26 +90,27 @@ struct ProfileView: View {
             },
                 including: .gesture
         )
-            ProfileDetailsView(detailsPad: $detailsPad)
+            ProfileDetailsView()
                 .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                 .offset(y: detailsOpen ? detailsOpenYOffset : 0)
                 .highPriorityGesture(
                     DragGesture()
                         .updating($detailsOffset) { v, state, _ in
                             guard isVertical(v: v) else { return }
-                            draggingDetails = true
+                            blockTabView = true
                             state = v.translation.height.clamped(to: detailsDragRange)
                         }
                         .onEnded {
                             defer { dragAxis = nil }
                             guard dragAxis == .vertical else { return }
+                            blockTabView = false
+
                             let predicted = $0.predictedEndTranslation.height
                             if predicted < toggleDetailsThresh {
                                 detailsOpen = true
                             } else if detailsOpen && predicted > 60 {
                                 detailsOpen = false
                             }
-                            draggingDetails = false
                         }
                 )
                 .onTapGesture {detailsOpen.toggle()}
@@ -123,15 +129,33 @@ struct ProfileView: View {
         .onChange(of: detailsPadding()) { oldValue, newValue in
             detailsPad = newValue
             print("detailsPad: \(detailsPad)")
-        }        
+        }
+        .onChange(of: profileOffset) {
+            if profileOffset != 0 {
+                blockTabView = true
+                print("TabView is blocked")
+            } else {
+                blockTabView = false
+            }
+        }
+        .onChange(of: detailsOffset){
+            if detailsOffset != 0 {
+                blockTabView = true
+                print("TabView Is blocked")
+            } else {
+                blockTabView = false
+                print("Updated B")
+            }
+        }
         .colorBackground(.background)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .shadow(radius: 10)
         .offset(y: profileOffset)
         .contentShape(Rectangle())
+        .animation(.spring(duration: 0.2), value: detailsOpen)
         .animation(.easeInOut(duration: 0.2), value: profileOffset)
         .animation(.easeInOut(duration: 0.2), value: detailsDismissOffset)
-        .animation(.spring(duration: 0.2), value: detailsOffset)
+        .animation(.easeInOut(duration: 0.2), value: detailsOffset)
         .animation(.easeInOut(duration: 0.2), value: selectedProfile)
         .coordinateSpace(name: "profile")
         .onPreferenceChange(ScrollImageBottomValue.self) { y in
@@ -314,11 +338,6 @@ extension ProfileView {
     
     func detailsPadding() -> CGFloat {
         let initial: CGFloat = 4, opened: CGFloat = 0
-        
-        
-        
-        
-        
         return detailsOpen ? lerp(opened, initial, t)
                             : lerp(initial, opened, t)
     }

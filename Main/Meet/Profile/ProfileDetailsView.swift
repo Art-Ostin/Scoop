@@ -11,7 +11,6 @@ import SwiftUI
 struct ProfileDetailsView: View {
     
     @State var vSpacing: CGFloat = 0
-    @Binding var detailsPad: CGFloat
     
     var smallvSpacing: Bool { vSpacing <= 24 }
     

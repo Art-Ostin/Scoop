@@ -41,7 +41,7 @@ struct InviteButton: View {
                 }
             }
             .foregroundStyle(.white)
-            .frame(width: 50, height: 50)
+            .frame(width: 40, height: 40)
             .background(
                 Circle()
                     .fill(vm.viewProfileType == .accept ? Color.appGreen : Color.accent)

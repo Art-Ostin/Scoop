@@ -12,15 +12,16 @@ struct ProfileImageView: View {
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
-    
     @Binding var vm: ProfileViewModel
+    @Binding var blockTabView: Bool
+
     
     let imagePadding: CGFloat = 8
-    
     var body: some View {
         GeometryReader { proxy in
             let imageSize = proxy.size.width - imagePadding
             VStack(spacing: 12) {
+                
                 profileImages(imageSize)
                     .frame(height: imageSize + 6)
                     .background (
@@ -53,14 +54,11 @@ extension ProfileImageView {
                         .defaultImage(size, 16)
                         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                         .tag(index)
-
                 }
             }
-            .disabled(true)
-        
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .allowsHitTesting(!blockTabView)
     }
-    
     private var imageScroller : some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -78,6 +76,7 @@ extension ProfileImageView {
                     }
                 }
             }
+            .allowsHitTesting(!blockTabView)
             .onChange(of: selection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
                     withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }

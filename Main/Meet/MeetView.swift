@@ -120,16 +120,16 @@ extension MeetView {
     }
     
     private var tabTitle: some View {
-        HStack {
+        HStack (spacing: 12) {
             Text(title)
                 .font(.tabTitle())
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Spacer()
             
             Image(systemName: "info.circle")
-                .font(.body(17))
+                .font(.body(15))
+                .foregroundStyle(Color.gray)
+                .padding(.bottom, 4)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 32)
         .padding(.top, 96)
     }
