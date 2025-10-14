@@ -1,3 +1,9 @@
+
+
+
+
+
+
 import SwiftUI
 
 struct ProfileView: View {
@@ -210,27 +216,21 @@ extension ProfileView {
         }
     }
     
-    private struct AnimKey: Equatable {
-        var detailsOffset: CGFloat
-        var detailsOpen: Bool
-        var profileOffset: CGFloat
-    }
-    
-    private var animKey: AnimKey {
-        .init(detailsOffset: detailsOffset,
-              detailsOpen: detailsOpen,
-              profileOffset: profileOffset,
-              )
-    }
-    
     private var detailsDragRange: ClosedRange<CGFloat> {
         detailsOpen ? (-60...220) : (-220...60)
     }
     private func isVertical(v: DragGesture.Value) -> Bool {
         if dragAxis == nil {
-            let dx = abs(v.translation.width), dy = abs(v.translation.height)
-            if max(dx, dy) >= 5 { dragAxis = dx > dy ? .horizontal : .vertical }
-            else { return false }
+            let dx = abs(v.translation.width)
+            let dy = abs(v.translation.height)
+            let dragThresh: CGFloat = 5
+            
+            
+            if max(dx, dy) >= dragThresh {
+                dragAxis = dx > dy ? .horizontal : .vertical
+            } else {
+                return false
+            }
         }
         return dragAxis == .vertical
     }

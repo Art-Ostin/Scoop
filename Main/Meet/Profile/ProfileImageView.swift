@@ -56,7 +56,7 @@ extension ProfileImageView {
                         .tag(index)
                 }
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .tabViewStyle(.page)
             .allowsHitTesting(!blockTabView)
     }
     private var imageScroller : some View {
