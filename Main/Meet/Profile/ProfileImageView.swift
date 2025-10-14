@@ -54,10 +54,11 @@ extension ProfileImageView {
                         .defaultImage(size, 16)
                         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                         .tag(index)
+                        .indexViewStyle(.page(backgroundDisplayMode: .never))
+
                 }
             }
-            .tabViewStyle(.page)
-            .allowsHitTesting(!blockTabView)
+            .tabViewStyle(.page(indexDisplayMode: .never))
     }
     private var imageScroller : some View {
         ScrollViewReader { proxy in

@@ -12,10 +12,11 @@ struct ProfileDetailsView: View {
     
     @State var vSpacing: CGFloat = 0
     
+    
+    
     var smallvSpacing: Bool { vSpacing <= 24 }
     
     @State private var initialDetailsWidth: CGFloat?
-
     
     let response = "The Organizational Development Journal (Summer 2006) reported on and just"
     let prompt = "What's the best date"
@@ -23,13 +24,12 @@ struct ProfileDetailsView: View {
     var body: some View {
         
         VStack(spacing: 48) {
-            
             VStack(spacing: vSpacing) {
                 sectionTitle
                 keyInfo
                 homeAndDegree
             }
-
+            
             VStack(spacing: 24) {
                 PromptView(prompt: PromptResponse(prompt: prompt, response: response), vSpacing: (vSpacing * 2/3), count: response.count)
                     .onPreferenceChange(Text.LayoutKey.self) {layouts in
@@ -115,8 +115,6 @@ extension ProfileDetailsView {
                 
             }
     }
-    
-    
 }
 
 
@@ -166,11 +164,3 @@ private struct DetailsWidthKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
-
-
-//Rectangle()
-//.foregroundColor(.clear)
-//.frame(maxWidth: .infinity)
-//.frame(height: 0.5)
-//.background(Color(red: 0.72, green: 0.72, blue: 0.72))
-//.padding(.horizontal, 48)

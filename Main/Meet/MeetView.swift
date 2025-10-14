@@ -53,9 +53,9 @@ struct MeetView: View {
                 ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
                     .id(profileModel.id)
                     .transition(.asymmetric(
-                        insertion: .identity,
-                        removal: .offset(y: UIScreen.main.bounds.height)
-                    ))
+                        insertion: .move(edge: .bottom),
+                        removal: .move(edge: .bottom))
+                    )
                     .zIndex(1)
                     .ignoresSafeArea()
             }
@@ -95,15 +95,24 @@ extension MeetView {
     private var profileScroller: some View {
             ForEach(vm.invites) { profileInvite in
                 ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
-                    .onTapGesture { selectedProfile = profileInvite }
+                    .onTapGesture {
+                        withAnimation(.smooth(duration: 0.2)) {
+                            selectedProfile = profileInvite
+                        }
+                    }
             }
+        
             if !vm.invites.isEmpty {SoftDivider()}
             
             if vm.showProfilesState != .closed {
                 VStack(spacing: 96) {
                     ForEach(vm.profiles) { profileInvite in
                         ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
-                            .onTapGesture { selectedProfile = profileInvite }
+                            .onTapGesture {
+                                withAnimation(.smooth(duration: 0.2)) {
+                                    selectedProfile = profileInvite
+                                }
+                            }
                     }
                 }
             } else {

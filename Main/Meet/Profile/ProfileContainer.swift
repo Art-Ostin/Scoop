@@ -27,7 +27,9 @@ struct ProfileView: View {
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
-    @GestureState var detailsDismissOffset = CGFloat.zero
+    
+    @State var profileOpened = false
+    
     
     @State var detailsOpen: Bool = false
     @State var scrollImageBottomY: CGFloat = 0
@@ -35,13 +37,14 @@ struct ProfileView: View {
         (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
     }
     
+    @GestureState var detailsDismissOffset: CGFloat = 0
+        
     @State private var dragAxis: Axis? = nil
     @State var blockTabView: Bool = false
     
     @State var detailsPad: CGFloat = 0
     
     @State var inviteYOffset: CGFloat = -64
-    @State var dismissMultiplier: CGFloat = 1
     @State var imageSize: CGFloat = 300
         
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -61,37 +64,45 @@ struct ProfileView: View {
             }
             .simultaneousGesture (
                 DragGesture()
+                    .updating ($detailsDismissOffset) { v, state, transaction in
+                        guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
+                        
+                        
+                        profileOpened = true
+                        
+                        state = (-64 - v.translation.height).clamped(to: -68...0)
+                    }
                     .updating($profileOffset) { v, state, transaction in
                         guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
-                        blockTabView = true
-                        state = v.translation.height * dismissMultiplier
+                        state = v.translation.height + 64
                     }
                     .updating($detailsOffset) { v, state, transaction in
                         guard  isVertical(v: v), profileOffset == 0 else { return }
                         blockTabView = true
                         if !detailsOpen && v.translation.height < 0 {
                             state = v.translation.height.clamped(to: detailsDragRange)
-                        }
+                    }
             }
-            .updating($detailsDismissOffset) { value, state, transaction in
-                guard isVertical(v: value) else { return }
-                blockTabView = true
-                state = (-value.translation.height * dismissMultiplier).clamped(to: -68...0)
-            }
+                
+                
             .onEnded { v in
                 defer { dragAxis = nil }
                 guard dragAxis == .vertical else { return }
                 blockTabView = false
                 let predicted = v.predictedEndTranslation.height
-                let openDetails = predicted < -50 && !detailsOpen && profileOffset == 0
+                let openDetails = predicted < -50 && !detailsOpen && profileOffset == 0 && !profileOpened
+                
                 let distance = v.translation.height
                 let dismissThreshold: CGFloat = 50
                 print("distance \(distance)")
                 if distance > dismissThreshold || predicted > dismissThreshold  {
                     selectedProfile = nil
                 } else if openDetails {
-                    print("Open details called")
                     detailsOpen = true
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    profileOpened = false
                 }
             },
                 including: .gesture
@@ -103,16 +114,16 @@ struct ProfileView: View {
                     DragGesture()
                         .updating($detailsOffset) { v, state, _ in
                             guard isVertical(v: v) else { return }
-                            blockTabView = true
                             state = v.translation.height.clamped(to: detailsDragRange)
                         }
+                    
                         .onEnded {
                             defer { dragAxis = nil }
                             guard dragAxis == .vertical else { return }
-                            blockTabView = false
 
                             let predicted = $0.predictedEndTranslation.height
-                            if predicted < toggleDetailsThresh {
+                            
+                            if predicted < toggleDetailsThresh && profileOffset == 0 {
                                 detailsOpen = true
                             } else if detailsOpen && predicted > 60 {
                                 detailsOpen = false
@@ -136,33 +147,15 @@ struct ProfileView: View {
             detailsPad = newValue
             print("detailsPad: \(detailsPad)")
         }
-        .onChange(of: profileOffset) {
-            if profileOffset != 0 {
-                blockTabView = true
-                print("TabView is blocked")
-            } else {
-                blockTabView = false
-            }
-        }
-        .onChange(of: detailsOffset){
-            if detailsOffset != 0 {
-                blockTabView = true
-                print("TabView Is blocked")
-            } else {
-                blockTabView = false
-                print("Updated B")
-            }
-        }
         .colorBackground(.background)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .shadow(radius: 10)
         .offset(y: profileOffset)
         .contentShape(Rectangle())
         .animation(.spring(duration: 0.2), value: detailsOpen)
-        .animation(.easeInOut(duration: 0.2), value: profileOffset)
+        .animation(.easeOut(duration: 0.25), value: profileOffset)
         .animation(.easeInOut(duration: 0.2), value: detailsDismissOffset)
         .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-        .animation(.easeInOut(duration: 0.2), value: selectedProfile)
         .coordinateSpace(name: "profile")
         .onPreferenceChange(ScrollImageBottomValue.self) { y in
             if profileOffset != 0 {
@@ -255,8 +248,15 @@ extension ProfileView {
     
     func topPadding() -> CGFloat {
         let initial: CGFloat = 84, dismiss: CGFloat = 16
-        if profileOffset > 0 { return selectedProfile == nil ? dismiss : max(initial - profileOffset, dismiss) }
-        return detailsOpen ? lerp(0, initial, t) : lerp(initial, 0, t)
+        
+        if selectedProfile == nil {
+            return 16
+        } else if profileOffset > 0 {
+            return max(initial - profileOffset, dismiss)
+        } else {
+           return detailsOpen ? lerp(0, initial, t) : lerp(initial, 0, t)
+        }
+        
     }
     
     func topSpacing() -> CGFloat {
