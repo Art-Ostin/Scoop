@@ -1,5 +1,5 @@
 //
-//  profileDetailsView.swift
+//  pDetailsView.swift
 //  ScoopTest
 //
 //  Created by Art Ostin on 23/06/2025.
@@ -9,47 +9,24 @@
 import SwiftUI
 
 struct ProfileDetailsView: View {
-    
-    @State var vSpacing: CGFloat = 0
-    
-    
-    
-    var smallvSpacing: Bool { vSpacing <= 24 }
-    
-    @State private var initialDetailsWidth: CGFloat?
-    
-    let response = "The Organizational Development Journal (Summer 2006) reported on and just"
-    let prompt = "What's the best date"
+    @State var spacing: CGFloat = 24
+    let screenWidth: CGFloat
+    let p: UserProfile
     
     var body: some View {
-        
-        VStack(spacing: 48) {
-            VStack(spacing: vSpacing) {
-                sectionTitle
-                keyInfo
-                homeAndDegree
-            }
-            
-            VStack(spacing: 24) {
-                PromptView(prompt: PromptResponse(prompt: prompt, response: response), vSpacing: (vSpacing * 2/3), count: response.count)
+        VStack(spacing: spacing) {
+            sectionTitle
+            keyInfo
+            homeAndDegree
+            divider
+            PromptView(prompt: p.prompt1, spacing: spacing)
                     .onPreferenceChange(Text.LayoutKey.self) {layouts in
                         let responseLines = layouts.last?.layout.count ?? 0
-                        vSpacing = (responseLines >= 4) ? 24 : 32
+                        spacing = (responseLines >= 4) ? 24 : 32
                     }
-                declineButton
-            }
-
+            declineButton
         }
-        .background(
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(key: DetailsWidthKey.self, value: proxy.size.width)
-            }
-        )
-        .onPreferenceChange(DetailsWidthKey.self) { w in
-            if initialDetailsWidth == nil { initialDetailsWidth = w }
-        }
-        .frame(width: initialDetailsWidth.map { $0 - 32 })
+        .frame(width: screenWidth - 8 - 32)
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
@@ -67,42 +44,43 @@ extension ProfileDetailsView {
             .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
     }
     
-    
     private var keyInfo: some View {
         HStack (spacing: 0)  {
-            InfoItem(image: "magnifyingglass", info: "Casual")
-                .frame(maxWidth: .infinity, alignment: .leading)
-            InfoItem(image: "Year", info: "U3")
-                .frame(maxWidth: .infinity, alignment: .center)
-            InfoItem(image: "Height", info: "193" + "cm")
-                .frame(maxWidth: .infinity, alignment: .trailing)
+            InfoItem(image: "magnifyingglass", info: p.lookingFor)
+            Spacer()
+            InfoItem(image: "Year", info: p.year)
+            Spacer()
+            InfoItem(image: "Height", info: p.height + "cm")
         }
+        .frame(maxWidth: .infinity)
     }
     
-    
     private var homeAndDegree: some View {
-        
         HStack(spacing: 0) {
-
-            InfoItem(image: "House", info: "London")
-            
+            InfoItem(image: "House", info: p.hometown)
             Spacer()
-            
-            InfoItem(image: "ScholarStyle", info: "Politics")
+            InfoItem(image: "ScholarStyle", info: p.degree)
         }
     }
 
     private var vicesView: some View {
         HStack(spacing: 0) {
-            InfoItem(image: "DrinkingIcon", info: "Yes")
+            InfoItem(image: "DrinkingIcon", info: p.drinking)
             Spacer()
-            InfoItem(image: "SmokingIcon", info: "Yes")
+            InfoItem(image: "SmokingIcon", info: p.smoking)
             Spacer()
-            InfoItem(image: "WeedIcon", info: "Yes")
+            InfoItem(image: "WeedIcon", info: p.marijuana)
             Spacer()
-            InfoItem(image: "DrugsIcon", info: "Yes")
+            InfoItem(image: "DrugsIcon", info: p.drugs)
         }
         .frame(maxWidth: .infinity)
+    }
+    
+    private var divider: some View {
+        RoundedRectangle(cornerRadius: 10)
+        .foregroundColor(.clear)
+        .frame(width: 225, height: 0.5)
+        .background(Color(red: 0.75, green: 0.75, blue: 0.75))
     }
     
     private var declineButton: some View {
@@ -117,22 +95,20 @@ extension ProfileDetailsView {
     }
 }
 
-
 struct PromptView: View {
-    
-    let prompt: PromptResponse
-    let vSpacing: CGFloat
-    let count: Int
+    let prompt: PromptResponse?
+    let spacing: CGFloat
+    var count: Int? { prompt?.response.count}
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: vSpacing) {
-            Text(prompt.prompt)
+        VStack(alignment: .leading, spacing: spacing) {
+            Text(prompt?.prompt ?? "No user Prompts")
                 .font(.body(14, .italic))
             
-            Text(prompt.response)
+            Text(prompt?.response ?? "No user Response")
                 .font(.title(28))
-                .lineLimit( count > 90 ? 4 : 3)
+                .lineLimit( count ?? 0 > 90 ? 4 : 3)
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
                 .multilineTextAlignment(.center)
@@ -160,7 +136,7 @@ struct InfoItem: View {
     }
 }
 
-private struct DetailsWidthKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
+
+
+
+

@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import SwiftUI
 
 struct ProfileView: View {
@@ -55,118 +49,122 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: isOverExtended ? (detailsOpen ? 0 : 36) : topSpacing() ) {
-                profileTitle
-                    .padding(.top, isOverExtended ? (detailsOpen ? -8 : 84) : topPadding())
-                ProfileImageView(vm: $vm, blockTabView: $blockTabView)
-                    .overlay(alignment: .topLeading) { secondHeader}
-            }
-            .simultaneousGesture (
-                DragGesture()
-                    .updating ($detailsDismissOffset) { v, state, transaction in
-                        guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
-                        
-                        
-                        profileOpened = true
-                        
-                        state = (-64 - v.translation.height).clamped(to: -68...0)
-                    }
-                    .updating($profileOffset) { v, state, transaction in
-                        guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
-                        state = v.translation.height + 64
-                    }
-                    .updating($detailsOffset) { v, state, transaction in
-                        guard  isVertical(v: v), profileOffset == 0 else { return }
-                        blockTabView = true
-                        if !detailsOpen && v.translation.height < 0 {
-                            state = v.translation.height.clamped(to: detailsDragRange)
-                    }
-            }
-                
-                
-            .onEnded { v in
-                defer { dragAxis = nil }
-                guard dragAxis == .vertical else { return }
-                blockTabView = false
-                let predicted = v.predictedEndTranslation.height
-                let openDetails = predicted < -50 && !detailsOpen && profileOffset == 0 && !profileOpened
-                
-                let distance = v.translation.height
-                let dismissThreshold: CGFloat = 50
-                print("distance \(distance)")
-                if distance > dismissThreshold || predicted > dismissThreshold  {
-                    selectedProfile = nil
-                } else if openDetails {
-                    detailsOpen = true
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    profileOpened = false
-                }
-            },
-                including: .gesture
-        )
-            ProfileDetailsView()
-                .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
-                .offset(y: detailsOpen ? detailsOpenYOffset : 0)
-                .highPriorityGesture(
-                    DragGesture()
-                        .updating($detailsOffset) { v, state, _ in
-                            guard isVertical(v: v) else { return }
-                            state = v.translation.height.clamped(to: detailsDragRange)
-                        }
-                    
-                        .onEnded {
-                            defer { dragAxis = nil }
-                            guard dragAxis == .vertical else { return }
-
-                            let predicted = $0.predictedEndTranslation.height
-                            
-                            if predicted < toggleDetailsThresh && profileOffset == 0 {
-                                detailsOpen = true
-                            } else if detailsOpen && predicted > 60 {
-                                detailsOpen = false
-                            }
-                        }
-                )
-                .onTapGesture {detailsOpen.toggle()}
-                .padding(.horizontal, detailsPadding())
-
-            InviteButton(vm: $vm)
-                .offset(
-                    x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
-                    y: ((isOverExtended ? top2Padding() + top2Spacing() : topPadding() + topSpacing()) + imageSize - inviteButtonSize + 12)
-                )
-                .offset(y: isOverExtended ? (detailsOpen ? inviteYOffset : 0) : inviteOffset())
-                .gesture(DragGesture())
+        
+        GeometryReader { proxy in
+            let screenWidth = proxy.size.width
             
-            if vm.showInvitePopup { invitePopup }
-        }
-        .onChange(of: detailsPadding()) { oldValue, newValue in
-            detailsPad = newValue
-            print("detailsPad: \(detailsPad)")
-        }
-        .colorBackground(.background)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        .shadow(radius: 10)
-        .offset(y: profileOffset)
-        .contentShape(Rectangle())
-        .animation(.spring(duration: 0.2), value: detailsOpen)
-        .animation(.easeOut(duration: 0.25), value: profileOffset)
-        .animation(.easeInOut(duration: 0.2), value: detailsDismissOffset)
-        .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-        .coordinateSpace(name: "profile")
-        .onPreferenceChange(ScrollImageBottomValue.self) { y in
-            if profileOffset != 0 {
-                print("Tried to updated but didn't")
-            } else {
-                scrollImageBottomY  = y
+            
+            ZStack(alignment: .topLeading) {
+                VStack(spacing: isOverExtended ? (detailsOpen ? 0 : 36) : topSpacing() ) {
+                    profileTitle
+                        .padding(.top, isOverExtended ? (detailsOpen ? -8 : 84) : topPadding())
+                    ProfileImageView(vm: $vm, screenWidth: screenWidth)
+                        .overlay(alignment: .topLeading) { secondHeader}
+                }
+                .simultaneousGesture (
+                    DragGesture()
+                        .updating ($detailsDismissOffset) { v, state, transaction in
+                            guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
+                            profileOpened = true
+                            state = (-64 - v.translation.height).clamped(to: -68...0)
+                        }
+                        .updating($profileOffset) { v, state, transaction in
+                            guard isVertical(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
+                            state = v.translation.height + 64
+                        }
+                        .updating($detailsOffset) { v, state, transaction in
+                            guard  isVertical(v: v), profileOffset == 0 else { return }
+                            blockTabView = true
+                            if !detailsOpen && v.translation.height < 0 {
+                                state = v.translation.height.clamped(to: detailsDragRange)
+                        }
+                }
+                .onEnded { v in
+                    defer { dragAxis = nil }
+                    guard dragAxis == .vertical else { return }
+                    blockTabView = false
+                    let predicted = v.predictedEndTranslation.height
+                    let openDetails = predicted < -50 && !detailsOpen && profileOffset == 0 && !profileOpened
+                    
+                    let distance = v.translation.height
+                    let dismissThreshold: CGFloat = 50
+                    print("distance \(distance)")
+                    if distance > dismissThreshold || predicted > dismissThreshold  {
+                        selectedProfile = nil
+                    } else if openDetails {
+                        detailsOpen = true
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        profileOpened = false
+                    }
+                },
+                    including: .gesture
+            )
+                ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile)
+                    .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
+                    .offset(y: detailsOpen ? detailsOpenYOffset : 0)
+                    .highPriorityGesture(
+                        DragGesture()
+                            .updating($detailsOffset) { v, state, _ in
+                                guard isVertical(v: v) else { return }
+                                state = v.translation.height.clamped(to: detailsDragRange)
+                            }
+                        
+                            .onEnded {
+                                defer { dragAxis = nil }
+                                guard dragAxis == .vertical else { return }
+
+                                let predicted = $0.predictedEndTranslation.height
+                                
+                                if predicted < toggleDetailsThresh && profileOffset == 0 {
+                                    detailsOpen = true
+                                } else if detailsOpen && predicted > 60 {
+                                    detailsOpen = false
+                                }
+                            }
+                    )
+                    .onTapGesture {detailsOpen.toggle()}
+                    .padding(Edge.Set.horizontal, detailsPadding())
+                    .transition(AnyTransition.move(edge: Edge.bottom))
+
+                InviteButton(vm: $vm)
+                    .offset(
+                        x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
+                        y: ((isOverExtended ? top2Padding() + top2Spacing() : topPadding() + topSpacing()) + imageSize - inviteButtonSize + 12)
+                    )
+                    .offset(y: isOverExtended ? (detailsOpen ? inviteYOffset : 0) : inviteOffset())
+                    .gesture(DragGesture())
+                
+                if vm.showInvitePopup { invitePopup }
             }
-        }
-        .onPreferenceChange(ImageWidthKey.self) {value in
-            imageSize = value
-            print("newValue = \(value)")
+            .onChange(of: detailsPadding()) { oldValue, newValue in
+                detailsPad = newValue
+                print("detailsPad: \(detailsPad)")
+            }
+            .colorBackground(.background)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .shadow(radius: 10)
+            .offset(y: profileOffset)
+            .contentShape(Rectangle())
+            .animation(.spring(duration: 0.2), value: detailsOpen)
+            .animation(.easeOut(duration: 0.25), value: profileOffset)
+            .animation(.easeInOut(duration: 0.2), value: detailsDismissOffset)
+            .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+            .coordinateSpace(name: "profile")
+            .onPreferenceChange(ScrollImageBottomValue.self) { y in
+                if profileOffset != 0 {
+                    print("Tried to updated but didn't")
+                } else {
+                    scrollImageBottomY  = y
+                }
+            }
+            .onPreferenceChange(ImageWidthKey.self) {value in
+                imageSize = value
+                print("newValue = \(value)")
+            }
+            
+            
         }
 }
 }

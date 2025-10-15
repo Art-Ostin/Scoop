@@ -13,15 +13,13 @@ struct ProfileImageView: View {
     var preloaded: [UIImage]? = nil
     @State var selection: Int = 0
     @Binding var vm: ProfileViewModel
-    @Binding var blockTabView: Bool
+    let screenWidth: CGFloat
 
     
     let imagePadding: CGFloat = 8
     var body: some View {
-        GeometryReader { proxy in
-            let imageSize = proxy.size.width - imagePadding
+            let imageSize = screenWidth - imagePadding
             VStack(spacing: 12) {
-                
                 profileImages(imageSize)
                     .frame(height: imageSize + 6)
                     .background (
@@ -33,8 +31,7 @@ struct ProfileImageView: View {
                 imageScroller
                     .padding(.horizontal, 4)
             }
-        }
-        .task {
+            .task {
             if let pre = preloaded {
                 images = pre
             } else {
@@ -77,7 +74,6 @@ extension ProfileImageView {
                     }
                 }
             }
-            .allowsHitTesting(!blockTabView)
             .onChange(of: selection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
                     withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }
@@ -91,14 +87,3 @@ extension ProfileImageView {
     }
 }
 
-
-/*
- Image(systemName: "chevron.down")
- .foregroundStyle(.white)
- .frame(width: 44, height: 44, alignment: .center)
- .contentShape(Rectangle())
- .onTapGesture {
- if detailsOpen {selectedProfile = nil}
- }
- .font(.body(20, .bold))
- */
