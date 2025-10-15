@@ -36,8 +36,8 @@ struct EditInterests: View {
             VStack(spacing: 12) {
                 
                 SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
-                selectedInterestsView
                 
+                selectedInterestsView
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
                         ForEach(sections.indices, id: \.self) { idx in

@@ -104,7 +104,7 @@ struct ProfileView: View {
                 ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile)
                     .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                     .offset(y: detailsOpen ? detailsOpenYOffset : 0)
-                    .highPriorityGesture(
+                    .gesture(
                         DragGesture()
                             .updating($detailsOffset) { v, state, _ in
                                 guard isVertical(v: v) else { return }
@@ -163,8 +163,6 @@ struct ProfileView: View {
                 imageSize = value
                 print("newValue = \(value)")
             }
-            
-            
         }
 }
 }

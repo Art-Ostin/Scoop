@@ -18,10 +18,12 @@ struct ProfileImageView: View {
     
     let imagePadding: CGFloat = 8
     var body: some View {
-            let imageSize = screenWidth - imagePadding
+            let safeScreenWidth = screenWidth.isFinite ? max(screenWidth, 0) : 0
+            let imageSizeRaw = safeScreenWidth - imagePadding
+            let imageSize = max(0, imageSizeRaw)
             VStack(spacing: 12) {
                 profileImages(imageSize)
-                    .frame(height: imageSize + 6)
+                    .frame(height: max(0, imageSize + 6))
                     .background (
                         GeometryReader { g in
                             Color.clear
@@ -52,7 +54,6 @@ extension ProfileImageView {
                         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                         .tag(index)
                         .indexViewStyle(.page(backgroundDisplayMode: .never))
-
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))

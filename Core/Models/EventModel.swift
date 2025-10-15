@@ -24,7 +24,6 @@ struct EventDraft {
 struct Event: Identifiable, Codable {
     @DocumentID var _id: String?
     var id: String { _id! }
-    
     var initiatorId: String
     var recipientId: String
     var type: String

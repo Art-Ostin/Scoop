@@ -46,8 +46,10 @@ struct InterestsHolder<Content: View, Destination: View>: View {
 struct InterestsLayout: View {
     
     var passions: [String]
+    
+    let forProfile: Bool
 
-        
+    
     private var rows: [[String]] {
         stride(from: 0, to: passions.count, by: 2).map {
             Array(passions[$0..<min($0+2, passions.count)])
@@ -55,7 +57,7 @@ struct InterestsLayout: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: forProfile ? 12 : 16) {
             ForEach(rows.indices, id: \.self) { index in
                 let row = rows[index]
                 HStack {
@@ -78,8 +80,8 @@ struct InterestsLayout: View {
         .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
+                .fill(forProfile ? Color.background : Color.white)
+                .shadow(color: forProfile ? Color.clear : Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
         )
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
     }
@@ -99,7 +101,7 @@ struct InterestsView: View {
     
     var body: some View {
         InterestsHolder(title: "Interests") {
-            InterestsLayout(passions: interests ?? [])
+            InterestsLayout(passions: interests ?? [], forProfile: false)
         } destination: {
             EditInterests(vm: vm)
         }
