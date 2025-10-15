@@ -101,7 +101,7 @@ struct ProfileView: View {
                 },
                     including: .gesture
             )
-                ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile)
+                ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile, proxy: proxy)
                     .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                     .offset(y: detailsOpen ? detailsOpenYOffset : 0)
                     .gesture(

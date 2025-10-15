@@ -14,14 +14,11 @@ struct ProfileDetailsView: View {
     @State var p: UserProfile
     @State var responseLines = 3
     @State var event: UserEvent?
+    @State var noInitialPrompt = false
     
-
-    
-    
-    
+    let proxy: GeometryProxy
     
     var body: some View {
-        
         
         TabView {
             VStack(spacing: spacing) {
@@ -30,27 +27,23 @@ struct ProfileDetailsView: View {
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.top, 36)
             
-            VStack(spacing: spacing) {
+            VStack(spacing: 24) {
                 detailsSection2
             }
             .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 16)
+            .padding(.top, 12)
+
             
             VStack(spacing: spacing) {
-                ScrollView {
-                    vicesView
-
-                    if (p.sex != "Male" || p.sex !=  "Female") {
-                        Text(p.sex)
-                    }
-                    
-                    if let thirdPrompt = p.prompt3 {
-                        PromptView(prompt: thirdPrompt, spacing: spacing)
-                    }
-                }
+                vicesView
+                extraInfo
+                finalPagePrompt
             }
             .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 16)
+            .padding(.top, 12)
+            .overlay(alignment: .bottomLeading) {
+                declineButton
+            }
         }
         .tabViewStyle(.page)
         .frame(width: screenWidth - 8 - 32)
@@ -73,41 +66,48 @@ extension ProfileDetailsView {
         divider
         
         if let event = event {
-            
+            EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
+                .onAppear {
+                    print("No initial Prompt")
+                    noInitialPrompt = true
+                }
+        } else if let idealMeet =  p.idealMeetUp {
+            EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
+                .onAppear { noInitialPrompt = true}
+        } else {
+            PromptView(prompt: p.prompt1)
+                .onPreferenceChange(Text.LayoutKey.self) {layouts in
+                    responseLines = layouts.last?.layout.count ?? 0
+                }
         }
-        
-        
-        
-        
-        
-        
-        
-        PromptView(prompt: p.prompt1, spacing: spacing)
-            .onPreferenceChange(Text.LayoutKey.self) {layouts in
-                responseLines = layouts.last?.layout.count ?? 0
-            }
         declineButton
             .offset(y: responseLines == 4 ? -12 : 0)
     }
+    
 
     @ViewBuilder
     private var detailsSection2: some View {
-        Text("Interests")
-            .font(.body(12, .bold))
-            .foregroundStyle(Color.grayText)
-            .frame(maxWidth: .infinity, alignment: .center)
         
-        InterestsLayout(passions: p.interests, forProfile: true)
-            .frame(maxWidth: .infinity)
-        
-        PromptView(prompt: p.prompt1, spacing: spacing)
+        VStack(spacing: 6) {
+            Text("Interests")
+                .font(.body(12, .bold))
+                .foregroundStyle(Color.grayText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+            
+            
+            InterestsLayout(passions: p.interests, forProfile: true)
+                .frame(maxWidth: .infinity)
+        }
+
+        if noInitialPrompt {
+            PromptView(prompt: p.prompt1)
+        } else {
+            PromptView(prompt: p.prompt2)
+        }
     }
-    
-    private var sectionTitle: some View {
-        Text("About")
-            .font(.body(12))
-            .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
-    }
+
+
     
     private var keyInfo: some View {
         HStack (spacing: 0)  {
@@ -128,19 +128,46 @@ extension ProfileDetailsView {
         }
     }
 
-    private var vicesView: some View {
-        let interests: [(image: String, info: String)] = [
-            ("AlcoholIcon", "Sometimes"), //p.drinking
-            ("CigaretteIcon",  "Sometimes"), // p.smoking
-            ("WeedIcon",     p.marijuana),
-            ("DrugsIcon",    p.drugs)
-        ]
-        .filter { !$0.info.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.info.lowercased() != "none" }
 
-        return FlowLayout(mode: .vstack, items: interests, itemSpacing: 12) { item in
-            InfoItem(image: item.image, info: item.info)
+    private var vicesView: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 0) {
+                InfoItem(image: "AlcoholIcon", info: p.drinking)
+                Spacer()
+                InfoItem(image: "CigaretteIcon", info: p.smoking)
+            }
+            HStack(spacing: 0) {
+                InfoItem(image: "WeedIcon", info: p.marijuana)
+                Spacer()
+                InfoItem(image: "DrugsIcon", info: p.drugs)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    
+    @ViewBuilder
+    private var extraInfo: some View {
+        let specifySex: Bool = p.sex != "Man" || p.sex != "Women"
+        let specifyLanguages: Bool = !p.languages.isEmpty
+        
+        if specifyLanguages && specifySex {
+            InfoItem(image: "GenderIcon", info: p.sex)
+            Spacer()
+            InfoItem(image: "Languages", info: p.languages)
+        } else if specifyLanguages || specifySex {
+            if specifyLanguages {
+                InfoItem(image: "Languages", info: p.languages)
+            } else if specifySex {
+                InfoItem(image: "GenderIcon", info: p.sex)
+            }
+        }
+    }
+    
+    @ViewBuilder private var finalPagePrompt: some View {
+        VStack(spacing: 36) {
+            if noInitialPrompt { PromptView(prompt: p.prompt2) }
+            if p.prompt3 != nil { PromptView(prompt: p.prompt3) }
+        }
     }
     
     
@@ -185,19 +212,18 @@ extension ProfileDetailsView {
 
 struct PromptView: View {
     let prompt: PromptResponse?
-    let spacing: CGFloat
     var count: Int? { prompt?.response.count}
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: spacing - 8) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(prompt?.prompt ?? "No user Prompts")
                 .font(.body(14, .italic))
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            Text(prompt?.response ?? "No user Response But we are going to simulate a longer response to see how the program responds and it is not responding very well")
+            Text(prompt?.response ?? "")
                 .font(.title(28))
-                .lineLimit(4) // max response is 30 characters .lineLimit( count ?? 0 > 90 ? 4 : 3)
+                .lineLimit( count ?? 0 > 90 ? 4 : 3)
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
                 .multilineTextAlignment(.center)
@@ -231,4 +257,31 @@ struct InfoItem: View {
  .onPreferenceChange(Text.LayoutKey.self) {layouts in
      responseLines = layouts.last?.layout.count ?? 0
 
+ */
+
+
+/*
+ 
+ private var sectionTitle: some View {
+     Text("About")
+         .font(.body(12))
+         .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
+ }
+ */
+
+/*
+ private var vicesView: some View {
+ let interests: [(image: String, info: String)] = [
+         ("AlcoholIcon", "Sometimes"), //p.drinking
+         ("CigaretteIcon",  "Sometimes"), // p.smoking
+         ("WeedIcon",     p.marijuana),
+         ("DrugsIcon",    p.drugs)
+     ]
+     .filter { !$0.info.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.info.lowercased() != "none" }
+
+     return FlowLayout(mode: .vstack, items: interests, itemSpacing: 12) { item in
+         InfoItem(image: item.image, info: item.info)
+     }
+     .frame(maxWidth: .infinity, alignment: .leading)
+ }
  */

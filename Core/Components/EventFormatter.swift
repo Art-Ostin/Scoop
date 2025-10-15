@@ -33,11 +33,10 @@ struct EventFormatter: View {
         let place = place.name ?? ""
         let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
         
-        
         return VStack(alignment: (hasMessage || !isInvite) ? .leading : .center, spacing: hasMessage ? 16 : 0) {
             header
                 .font(.body(size))
-                .multilineTextAlignment((hasMessage || !isInvite) ? .leading : .center)
+                .multilineTextAlignment((hasMessage || !isInvite) ? .center : .center)
                 .lineSpacing(hasMessage ? 4 : 12)
             
             if let message {
