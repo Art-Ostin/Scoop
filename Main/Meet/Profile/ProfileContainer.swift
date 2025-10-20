@@ -17,7 +17,7 @@ struct ProfileView: View {
     let toggleDetailsThresh: CGFloat = -50
     
     var detailsStartingOffset: CGFloat {scrollImageBottomY + detailsTopPadding}
-    let detailsOpenYOffset: CGFloat = -200
+    let detailsOpenYOffset: CGFloat = -240
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
@@ -52,7 +52,6 @@ struct ProfileView: View {
         
         GeometryReader { proxy in
             let screenWidth = proxy.size.width
-            
             
             ZStack(alignment: .topLeading) {
                 VStack(spacing: isOverExtended ? (detailsOpen ? 0 : 36) : topSpacing() ) {
@@ -101,16 +100,15 @@ struct ProfileView: View {
                 },
                     including: .gesture
             )
-                ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile, proxy: proxy)
+                ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile, event: vm.profileModel.event, proxy: proxy)
                     .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                     .offset(y: detailsOpen ? detailsOpenYOffset : 0)
-                    .gesture(
+                    .simultaneousGesture(
                         DragGesture()
                             .updating($detailsOffset) { v, state, _ in
                                 guard isVertical(v: v) else { return }
                                 state = v.translation.height.clamped(to: detailsDragRange)
                             }
-                        
                             .onEnded {
                                 defer { dragAxis = nil }
                                 guard dragAxis == .vertical else { return }
@@ -206,8 +204,9 @@ extension ProfileView {
     }
     
     private var detailsDragRange: ClosedRange<CGFloat> {
-        detailsOpen ? (-60...220) : (-220...60)
+        detailsOpen ? (-85...220) : (-220...85)
     }
+    
     private func isVertical(v: DragGesture.Value) -> Bool {
         if dragAxis == nil {
             let dx = abs(v.translation.width)

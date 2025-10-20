@@ -13,18 +13,19 @@ struct EventFormatter: View {
     let type: String
     let message: String?
     let place: EventLocation
-
     let isInvite: Bool
     let size: CGFloat
+    let isProfile: Bool
     
     
-    init(time: Date, type: String, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
+    init(time: Date, type: String, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22, isProfile: Bool = false) {
         self.time = time
         self.type = type
         self.message = message
         self.place = place
         self.isInvite = isInvite
         self.size = size
+        self.isProfile = isProfile
     }
     
     var body: some View {
@@ -36,8 +37,9 @@ struct EventFormatter: View {
         return VStack(alignment: (hasMessage || !isInvite) ? .leading : .center, spacing: hasMessage ? 16 : 0) {
             header
                 .font(.body(size))
-                .multilineTextAlignment((hasMessage || !isInvite) ? .center : .center)
+                .multilineTextAlignment((hasMessage || !isInvite) ? .leading : .center)
                 .lineSpacing(hasMessage ? 4 : 12)
+                .lineLimit(2)
             
             if let message {
                 Text (message)

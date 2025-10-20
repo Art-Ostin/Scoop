@@ -12,12 +12,13 @@ struct ProfileDetailsView: View {
     @State var spacing: CGFloat = 36
     let screenWidth: CGFloat
     @State var p: UserProfile
-    @State var responseLines = 3
     @State var event: UserEvent?
     @State var noInitialPrompt = false
     
+    @State var responseLines1 = 3
+    @State var responseLines2 = 3
+
     let proxy: GeometryProxy
-    
     var body: some View {
         
         TabView {
@@ -31,19 +32,17 @@ struct ProfileDetailsView: View {
                 detailsSection2
             }
             .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 12)
+            .padding(.top, 24)
 
-            
             VStack(spacing: spacing) {
                 vicesView
                 extraInfo
+                divider
                 finalPagePrompt
-            }
-            .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 12)
-            .overlay(alignment: .bottomLeading) {
                 declineButton
             }
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.top, 24)
         }
         .tabViewStyle(.page)
         .frame(width: screenWidth - 8 - 32)
@@ -56,7 +55,6 @@ struct ProfileDetailsView: View {
 }
 
 extension ProfileDetailsView {
-    
     
     @ViewBuilder
     private var detailsSection1: some View {
@@ -73,17 +71,19 @@ extension ProfileDetailsView {
                 }
         } else if let idealMeet =  p.idealMeetUp {
             EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
-                .onAppear { noInitialPrompt = true}
+                .onAppear {
+                    print ("This is the ideal Meet Up")
+                    noInitialPrompt = true
+                }
         } else {
             PromptView(prompt: p.prompt1)
                 .onPreferenceChange(Text.LayoutKey.self) {layouts in
-                    responseLines = layouts.last?.layout.count ?? 0
+                    responseLines1 = layouts.last?.layout.count ?? 0
                 }
         }
         declineButton
-            .offset(y: responseLines == 4 ? -12 : 0)
+            .offset(y: responseLines1 == 4 ? -12 : 0)
     }
-    
 
     @ViewBuilder
     private var detailsSection2: some View {
@@ -93,21 +93,29 @@ extension ProfileDetailsView {
                 .font(.body(12, .bold))
                 .foregroundStyle(Color.grayText)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
-            
             
             InterestsLayout(passions: p.interests, forProfile: true)
                 .frame(maxWidth: .infinity)
+
         }
 
-        if noInitialPrompt {
-            PromptView(prompt: p.prompt1)
-        } else {
-            PromptView(prompt: p.prompt2)
+        Group {
+            if noInitialPrompt {
+                PromptView(prompt: p.prompt1)
+            } else {
+                PromptView(prompt: p.prompt2)
+                
+            }
         }
+        .onPreferenceChange(Text.LayoutKey.self) {layouts in
+            responseLines2 = layouts.last?.layout.count ?? 0
+        }
+        declineButton
+            .offset(y: responseLines2 == 4 ? -12 : 0)
     }
-
-
+    
+    
+    
     
     private var keyInfo: some View {
         HStack (spacing: 0)  {
@@ -129,36 +137,40 @@ extension ProfileDetailsView {
     }
 
 
+    @ViewBuilder
     private var vicesView: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 0) {
-                InfoItem(image: "AlcoholIcon", info: p.drinking)
-                Spacer()
-                InfoItem(image: "CigaretteIcon", info: p.smoking)
-            }
-            HStack(spacing: 0) {
-                InfoItem(image: "WeedIcon", info: p.marijuana)
-                Spacer()
-                InfoItem(image: "DrugsIcon", info: p.drugs)
-            }
-        }
+        
+        let sep = Text("          ")
+        
+        let line =
+            Text(Image("AlcoholIcon")) + Text(p.drinking) + sep +
+            Text(Image("CigaretteIcon")) + Text(p.smoking) + sep +
+            Text(Image("WeedIcon")) + Text(p.marijuana) + sep +
+            Text(Image("DrugsIcon")) + Text(p.drugs)
+
+        line
+            .font(.body(17, .medium))
     }
     
     
     @ViewBuilder
     private var extraInfo: some View {
-        let specifySex: Bool = p.sex != "Man" || p.sex != "Women"
+        let specifySex: Bool = (p.sex != "man" || p.sex != "women")
         let specifyLanguages: Bool = !p.languages.isEmpty
         
-        if specifyLanguages && specifySex {
-            InfoItem(image: "GenderIcon", info: p.sex)
-            Spacer()
-            InfoItem(image: "Languages", info: p.languages)
-        } else if specifyLanguages || specifySex {
-            if specifyLanguages {
-                InfoItem(image: "Languages", info: p.languages)
-            } else if specifySex {
+        HStack {
+            if specifyLanguages && specifySex {
                 InfoItem(image: "GenderIcon", info: p.sex)
+                Spacer()
+                InfoItem(image: "Languages", info: p.languages)
+            } else if specifyLanguages || specifySex {
+                if specifyLanguages {
+                    InfoItem(image: "Languages", info: p.languages)
+                    Spacer()
+                } else if specifySex {
+                    InfoItem(image: "GenderIcon", info: p.sex)
+                    Spacer()
+                }
             }
         }
     }
@@ -253,35 +265,40 @@ struct InfoItem: View {
 }
 
 
+
 /*
- .onPreferenceChange(Text.LayoutKey.self) {layouts in
-     responseLines = layouts.last?.layout.count ?? 0
+ Text(\(Image("AlcoholIcon")) + \(p.drinking))
 
  */
 
 
-/*
- 
- private var sectionTitle: some View {
-     Text("About")
-         .font(.body(12))
-         .foregroundStyle(Color(red: 0.39, green: 0.39, blue: 0.39))
- }
- */
+
+//        VStack(spacing: 12) {
+//            HStack(spacing: 0) {
+//                String(InfoItem(image: "AlcoholIcon", info: p.drinking))
+//                Spacer()
+//                InfoItem(image: "CigaretteIcon", info: p.smoking)
+//            }
+//            HStack(spacing: 0) {
+//                InfoItem(image: "WeedIcon", info: p.marijuana)
+//                Spacer()
+//                InfoItem(image: "DrugsIcon", info: p.drugs)
+//            }
+//        }
 
 /*
+ @ViewBuilder
  private var vicesView: some View {
- let interests: [(image: String, info: String)] = [
-         ("AlcoholIcon", "Sometimes"), //p.drinking
-         ("CigaretteIcon",  "Sometimes"), // p.smoking
-         ("WeedIcon",     p.marijuana),
-         ("DrugsIcon",    p.drugs)
-     ]
-     .filter { !$0.info.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.info.lowercased() != "none" }
+     
+     let line =
+         Text(Image("AlcoholIcon")) + Text(p.drinking) + "          " +
+         Text(Image("CigaretteIcon")) + Text(p.smoking) + "          " +
+         Text(Image("WeedIcon")) + Text(p.marijuana) + "          " +
+         Text(Image("DrugsIcon")) + Text(p.drugs) + "          "
 
-     return FlowLayout(mode: .vstack, items: interests, itemSpacing: 12) { item in
-         InfoItem(image: item.image, info: item.info)
-     }
-     .frame(maxWidth: .infinity, alignment: .leading)
- }
+//        line
+//            .font(.body)
+//
+//
+
  */
