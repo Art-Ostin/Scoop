@@ -30,15 +30,11 @@ struct ProfileView: View {
     private var cornerRadius: CGFloat {
         (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
     }
-    
     @GestureState var detailsDismissOffset: CGFloat = 0
-        
     @State private var dragAxis: Axis? = nil
     @State var blockTabView: Bool = false
-    
     @State var detailsPad: CGFloat = 0
-    
-    @State var inviteYOffset: CGFloat = -64
+    @State var inviteYOffset: CGFloat = -108
     @State var imageSize: CGFloat = 300
         
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -339,7 +335,7 @@ extension ProfileView {
     
     func inviteOffset() -> CGFloat {
         let initial: CGFloat = 0
-        let opened:  CGFloat = -65
+        let opened:  CGFloat = inviteYOffset
 
         if detailsOpen {
             let p = (t / 0.25).clamped(to: 0...1)

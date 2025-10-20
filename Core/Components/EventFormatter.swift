@@ -39,7 +39,7 @@ struct EventFormatter: View {
                 .font(.body(size))
                 .multilineTextAlignment((hasMessage || !isInvite) ? .leading : .center)
                 .lineSpacing(hasMessage ? 4 : 12)
-                .lineLimit(2)
+                .lineLimit(hasMessage ? 2 : 3)
             
             if let message {
                 Text (message)

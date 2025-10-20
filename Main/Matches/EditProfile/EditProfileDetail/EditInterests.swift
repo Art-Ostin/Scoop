@@ -115,6 +115,7 @@ struct InterestSection: View {
             }
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
+            
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 OptionCell(text: input, selection: $selected) { text in
                         selected.contains(text)
@@ -134,6 +135,7 @@ struct InterestSection: View {
 struct OptionCell: View {
     
     let text: String
+    
     @Binding var selection: [String]
     
     let onTap: (String) -> Void
@@ -157,3 +159,25 @@ struct OptionCell: View {
             }
     }
 }
+
+struct OptionCellProfile: View {
+    
+    let text: String
+    
+        var body: some View {
+        Text(text)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 10)
+            .font(.body(14))
+            .foregroundStyle(Color.black)
+            .background (
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.background)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
+                    )
+            )
+        }
+}
+

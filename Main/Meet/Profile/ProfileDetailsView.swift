@@ -24,14 +24,14 @@ struct ProfileDetailsView: View {
             VStack(spacing: spacing) {
                 detailsSection1
             }
-            .frame(maxHeight: .infinity, alignment: .top)
             .padding(.top, 36)
+            .frame(maxHeight: .infinity, alignment: .top)
             
             VStack(spacing: 24) {
                 detailsSection2
             }
+            .padding(.top, 36)
             .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 24)
 
             VStack(spacing: spacing) {
                 vicesView
@@ -59,44 +59,75 @@ extension ProfileDetailsView {
     private var detailsSection1: some View {
         keyInfo
         homeAndDegree
-        movieAndSong
-        divider
         
-        if let event = event {
-            EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
-                .onAppear {
-                    print("No initial Prompt")
-                    noInitialPrompt = true
+        VStack(spacing: 24) {
+            
+            VStack (spacing: 16) {
+                movieAndSong
+                divider
+            }
+            
+            if let event = event {
+            
+                let hasMessage = event.message != nil
+                
+                VStack(alignment: .center, spacing: hasMessage ? 16 : 24) {
+                    Text("\(event.otherUserName)'s Invite")
+                        .font(.body(14, .italic))
+                        .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        
+                    EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
+                        .onAppear {
+                            print("No initial Prompt")
+                            noInitialPrompt = true
+                        }
+                        .frame(maxWidth: .infinity, alignment: hasMessage ? .leading : .center)
                 }
-        } else if let idealMeet =  p.idealMeetUp {
-            EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
-                .onAppear {
-                    print ("This is the ideal Meet Up")
-                    noInitialPrompt = true
+                .padding(.top, hasMessage ? -24 : 0)
+                
+                
+            } else if let idealMeet =  p.idealMeetUp {
+                VStack(alignment: .center, spacing: 24) {
+                    Text("\(p.name)'s Preferred Meet")
+                        .font(.body(14, .italic))
+                        .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
+                        .onAppear {
+                            print ("This is the ideal Meet Up")
+                            noInitialPrompt = true
+                        }
                 }
-        } else {
-            PromptView(prompt: p.prompt1)
-                .onPreferenceChange(Text.LayoutKey.self) {layouts in
-                    responseLines1 = layouts.last?.layout.count ?? 0
-                }
+            } else {
+                PromptView(prompt: p.prompt1)
+                    .onPreferenceChange(Text.LayoutKey.self) {layouts in
+                        responseLines1 = layouts.last?.layout.count ?? 0
+                    }
+            }
+            declineButton
+                .offset(y: responseLines1 == 4 ? -12 : 0)
         }
-        declineButton
-            .offset(y: responseLines1 == 4 ? -12 : 0)
     }
 
     @ViewBuilder
     private var detailsSection2: some View {
         
-        VStack(spacing: 6) {
+        let options = p.interests
+        
+        VStack {
             Text("Interests")
                 .font(.body(12, .bold))
                 .foregroundStyle(Color.grayText)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            InterestsLayout(passions: p.interests, forProfile: true)
-                .frame(maxWidth: .infinity)
-
+            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
+                OptionCellProfile(text: input)
+            }
         }
+        
+        divider
 
         Group {
             if noInitialPrompt {
@@ -138,17 +169,13 @@ extension ProfileDetailsView {
 
     @ViewBuilder
     private var vicesView: some View {
-        
-        let sep = Text("          ")
-        
-        let line =
-            Text(Image("AlcoholIcon")) + Text(p.drinking) + sep +
-            Text(Image("CigaretteIcon")) + Text(p.smoking) + sep +
-            Text(Image("WeedIcon")) + Text(p.marijuana) + sep +
-            Text(Image("DrugsIcon")) + Text(p.drugs)
-
-        line
-            .font(.body(17, .medium))
+        FlowLayout(mode: .vstack,
+                   items:[("AlcoholIcon", p.drinking), ("CigaretteIcon", p.smoking),
+                          ("WeedIcon", p.marijuana), ("DrugsIcon", p.drugs), 
+                         ],
+                   itemSpacing: 12) { img, txt in
+            InfoItem(image: img, info: txt)
+        }
     }
     
     
@@ -184,14 +211,17 @@ extension ProfileDetailsView {
     
     
     private var movieAndSong: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .top, spacing: 0) {
             InfoItem(image: "MovieIcon", info: p.favouriteMovie ?? "Fight Club")
             Spacer()
-            HStack(alignment: .center, spacing: 16) {
+            
+            HStack(alignment: .top, spacing: 16) {
                 Image("MusicIcon")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 17)
+                    .offset(y: 1)
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text(p.favouriteSong ?? "Overmono")
                         .font(.body(17, .medium))
@@ -209,6 +239,7 @@ extension ProfileDetailsView {
         .frame(width: 225, height: 0.5)
         .background(Color(red: 0.75, green: 0.75, blue: 0.75))
     }
+    
     private var declineButton: some View {
         Image("DeclineIcon")
             .frame(width: 45, height: 45)
@@ -218,6 +249,8 @@ extension ProfileDetailsView {
             .onTapGesture {
                 
             }
+            .shadow(color: .black.opacity(0.1), radius: 0.5, x: 0, y: 1)
+
     }
 }
 
@@ -265,39 +298,15 @@ struct InfoItem: View {
 
 
 
-/*
- Text(\(Image("AlcoholIcon")) + \(p.drinking))
 
- */
-
-
-
-//        VStack(spacing: 12) {
-//            HStack(spacing: 0) {
-//                String(InfoItem(image: "AlcoholIcon", info: p.drinking))
-//                Spacer()
-//                InfoItem(image: "CigaretteIcon", info: p.smoking)
-//            }
-//            HStack(spacing: 0) {
-//                InfoItem(image: "WeedIcon", info: p.marijuana)
-//                Spacer()
-//                InfoItem(image: "DrugsIcon", info: p.drugs)
-//            }
-//        }
-
-/*
- @ViewBuilder
- private var vicesView: some View {
-     
-     let line =
-         Text(Image("AlcoholIcon")) + Text(p.drinking) + "          " +
-         Text(Image("CigaretteIcon")) + Text(p.smoking) + "          " +
-         Text(Image("WeedIcon")) + Text(p.marijuana) + "          " +
-         Text(Image("DrugsIcon")) + Text(p.drugs) + "          "
-
-//        line
-//            .font(.body)
 //
+//VStack(spacing: 6) {
+//    Text("Interests")
+//        .font(.body(12, .bold))
+//        .foregroundStyle(Color.grayText)
+//        .frame(maxWidth: .infinity, alignment: .leading)
+//    
+//    InterestsLayout(passions: p.interests, forProfile: true)
+//        .frame(maxWidth: .infinity)
 //
-
- */
+//}
