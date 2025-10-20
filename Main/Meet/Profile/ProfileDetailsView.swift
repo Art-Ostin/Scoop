@@ -11,14 +11,13 @@ import SwiftUIFlowLayout
 struct ProfileDetailsView: View {
     @State var spacing: CGFloat = 36
     let screenWidth: CGFloat
-    @State var p: UserProfile
-    @State var event: UserEvent?
+    let p: UserProfile
+    let event: UserEvent?
     @State var noInitialPrompt = false
     
     @State var responseLines1 = 3
     @State var responseLines2 = 3
 
-    let proxy: GeometryProxy
     var body: some View {
         
         TabView {
@@ -155,7 +154,7 @@ extension ProfileDetailsView {
     
     @ViewBuilder
     private var extraInfo: some View {
-        let specifySex: Bool = (p.sex != "man" || p.sex != "women")
+        let specifySex: Bool = (p.sex != "man" && p.sex != "women")
         let specifyLanguages: Bool = !p.languages.isEmpty
         
         HStack {
