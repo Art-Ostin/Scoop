@@ -129,7 +129,10 @@ struct ProfileView: View {
                     .offset(y: isOverExtended ? (detailsOpen ? inviteYOffset : 0) : inviteOffset())
                     .gesture(DragGesture())
                 
-                if vm.showInvitePopup { invitePopup }
+                if vm.showInvitePopup {
+                    invitePopup
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
             }
             .onChange(of: detailsPadding()) { oldValue, newValue in
                 detailsPad = newValue

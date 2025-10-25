@@ -15,8 +15,12 @@ struct MeetView: View {
     @State var endTime: Date?
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
-    
     @State var imageWidth: CGFloat = 0
+    @State var showPreviousMeets = false
+    @State var showInvitedProfile: ProfileModel?
+    
+    
+    
     
     init(vm: MeetViewModel) { self.vm = vm }
     
@@ -40,17 +44,16 @@ struct MeetView: View {
                         profileScroller
                         
                         Rectangle()
-                        .foregroundColor(.clear)
-                        .frame(width: 250, height: 0.5)
-                        .background(Color(red: 0.86, green: 0.86, blue: 0.86))
+                            .foregroundColor(.clear)
+                            .frame(width: 250, height: 0.5)
+                            .background(Color(red: 0.86, green: 0.86, blue: 0.86))
                         
+                        MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
                         
-                        
-
-                        
-                        
-                        
+                        pastInvites
+                            .offset(y: -12)
                     }
+                    .padding(.bottom, 240)
                 }
                 .overlay(alignment: .top) {
                     ScrollNavBar(title: "Meet")
@@ -103,6 +106,19 @@ struct MeetView: View {
             .onAppear {
                 imageWidth = (proxy.size.width - 48)
             }
+            .sheet(isPresented: $showPreviousMeets) {
+                NavigationStack {
+                    
+                        .navigationTitle("Your Pending Invites")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {  }
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+            }
+            .fullScreenCover(item: $showInvitedProfile) { profile in
+                ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $showInvitedProfile)
+            }
         }
     }
 }
@@ -110,7 +126,7 @@ struct MeetView: View {
 extension MeetView {
     @ViewBuilder
     private var profileScroller: some View {
-    
+        
         VStack(spacing: 60) {
             VStack(spacing: 84) {
                 ForEach(vm.invites) { profileInvite in
@@ -122,7 +138,7 @@ extension MeetView {
                         }
                 }
             }
-                    
+            
             if vm.showProfilesState != .closed {
                 VStack(spacing: 84) {
                     ForEach(vm.profiles) { profileInvite in
@@ -164,6 +180,38 @@ extension MeetView {
         .padding(.horizontal, 24)
         .padding(.top, 96)
     }
+    
+    private var pastInvites: some View {
+        HStack(alignment: .center) {
+            Image("PastInvites")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .padding(6)
+                .background(
+                    Circle().fill(Color.background)
+                )
+                .overlay(
+                    Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4)
+                )
+                .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
+                .contentShape(Circle())
+                .onTapGesture { showPreviousMeets = true }
+            
+            
+            
+            Spacer()
+            
+            HStack(spacing: 4) {
+                Text("New Profiles in: ")
+                SimpleClockView(targetTime: Calendar.current.date(byAdding: .day, value: 3, to: .now)!) {}
+            }
+            .font(.body(10, .regular))
+            .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 36)
+    }
 }
 
 struct TitleOffsetKey: PreferenceKey {
@@ -199,4 +247,5 @@ struct TitleOffsetKey: PreferenceKey {
  .onTapGesture { }
  
  */
+
 

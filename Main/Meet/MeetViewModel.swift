@@ -31,6 +31,10 @@ import FirebaseFirestore
     
     var profiles: [ProfileModel] { s.profiles }
     
+    var pendingInvites: [ProfileModel] { s.profiles} // Change later
+    
+    var user: UserProfile {s.user}
+    
     var showProfilesState: showProfilesState? { s.showProfilesState }
     
     var endTime: Date? { activeCycle?.endsAt}

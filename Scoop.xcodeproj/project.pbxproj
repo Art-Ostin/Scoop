@@ -14,6 +14,8 @@
 		650383E32E6B89C90053DDB2 /* CustomTabBarContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */; };
 		65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 65058E8D2E1C4080009AD7FD /* FirebaseFirestore */; };
 		650884102EAD23B800776620 /* MeetSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6508840F2EAD23B800776620 /* MeetSuggestionView.swift */; };
+		650884122EAD475E00776620 /* PendingInvitesCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650884112EAD475E00776620 /* PendingInvitesCard.swift */; };
+		650884162EAD4EA000776620 /* PendingInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650884152EAD4EA000776620 /* PendingInviteView.swift */; };
 		6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 6508A0B92DF209B600312AFD /* SwiftUIFlowLayout */; };
 		6509DDC32E36F6EE0042917B /* OptionEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6509DDC22E36F6EE0042917B /* OptionEdit.swift */; };
 		6509DDC72E37A1CC0042917B /* EditTextfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6509DDC62E37A1CC0042917B /* EditTextfield.swift */; };
@@ -65,7 +67,6 @@
 		6561C8CE2E0444EC006A72DF /* NewYorkMedium-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8C52E0444EC006A72DF /* NewYorkMedium-Semibold.otf */; };
 		6565AB6F2E660E1500AAE306 /* OnboadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */; };
 		6565FF792E6732AA0075C8CF /* SFProRounded-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */; };
-		6576B77E2E67B88A004217A4 /* TestMeetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B77D2E67B88A004217A4 /* TestMeetView.swift */; };
 		6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7ED2E687FB3004217A4 /* FirestoreService.swift */; };
 		6576B7F22E69082F004217A4 /* ProfileModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7F12E69082F004217A4 /* ProfileModelBuilder.swift */; };
 		6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */; };
@@ -159,6 +160,8 @@
 		650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarView.swift; sourceTree = "<group>"; };
 		650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarContainerView.swift; sourceTree = "<group>"; };
 		6508840F2EAD23B800776620 /* MeetSuggestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetSuggestionView.swift; sourceTree = "<group>"; };
+		650884112EAD475E00776620 /* PendingInvitesCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInvitesCard.swift; sourceTree = "<group>"; };
+		650884152EAD4EA000776620 /* PendingInviteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInviteView.swift; sourceTree = "<group>"; };
 		6509DDC22E36F6EE0042917B /* OptionEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEdit.swift; sourceTree = "<group>"; };
 		6509DDC62E37A1CC0042917B /* EditTextfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTextfield.swift; sourceTree = "<group>"; };
 		6509DDC82E37A87B0042917B /* FlowNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowNavigation.swift; sourceTree = "<group>"; };
@@ -206,7 +209,6 @@
 		6561C8C52E0444EC006A72DF /* NewYorkMedium-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewYorkMedium-Semibold.otf"; sourceTree = "<group>"; };
 		6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboadingViewModel.swift; sourceTree = "<group>"; };
 		6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Bold.otf"; sourceTree = "<group>"; };
-		6576B77D2E67B88A004217A4 /* TestMeetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMeetView.swift; sourceTree = "<group>"; };
 		6576B7ED2E687FB3004217A4 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
 		6576B7F12E69082F004217A4 /* ProfileModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModelBuilder.swift; sourceTree = "<group>"; };
 		6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -439,7 +441,8 @@
 				65E5C8EE2E4E5CC90093410B /* IntroView.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				6508840F2EAD23B800776620 /* MeetSuggestionView.swift */,
-				6576B77D2E67B88A004217A4 /* TestMeetView.swift */,
+				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
+				650884152EAD4EA000776620 /* PendingInviteView.swift */,
 				655FADC82E89F0FC00AFAD5F /* Profile */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
@@ -820,10 +823,10 @@
 				65E5C8FA2E4EAAE70093410B /* SelectTimeAndPlace.swift in Sources */,
 				65E1BF382E897DF900C10C0F /* ViewMeasurements.swift in Sources */,
 				654982D82E3152C000CA335F /* ImagesView.swift in Sources */,
-				6576B77E2E67B88A004217A4 /* TestMeetView.swift in Sources */,
 				65E5C9202E510BBA0093410B /* CycleRepo.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
+				650884162EAD4EA000776620 /* PendingInviteView.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MatchesViewModel.swift in Sources */,
 				659497202E01DD4000880921 /* EnterEmailView.swift in Sources */,
 				6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */,
@@ -904,6 +907,7 @@
 				65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */,
 				658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */,
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,
+				650884122EAD475E00776620 /* PendingInvitesCard.swift in Sources */,
 				652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */,
 				6594972C2E01DD4000880921 /* ScoopApp.swift in Sources */,
 			);
