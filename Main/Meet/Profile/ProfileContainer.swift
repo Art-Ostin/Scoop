@@ -24,7 +24,6 @@ struct ProfileView: View {
     
     @State var profileOpened = false
     
-    
     @State var detailsOpen: Bool = false
     @State var scrollImageBottomY: CGFloat = 0
     private var cornerRadius: CGFloat {

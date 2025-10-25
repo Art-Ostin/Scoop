@@ -16,75 +16,92 @@ struct MeetView: View {
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
     
-    
+    @State var imageWidth: CGFloat = 0
     
     init(vm: MeetViewModel) { self.vm = vm }
-
+    
     var body: some View {
-        ZStack {
-            Color.background
-            ScrollView {
-                VStack(spacing: 60) {
-                      tabTitle
-                        .opacity(Double(scrollViewOffset) / 70)
-                        .background(
-                            GeometryReader { proxy in
-                                Color.clear.preference(
-                                    key: TitleOffsetKey.self,
-                                    value: proxy.frame(in: .global).maxY
-                                )
-                             }
+        GeometryReader { proxy in
+            ZStack {
+                Color.background
+                ScrollView {
+                    
+                    VStack(spacing: 36) {
+                        tabTitle
+                            .opacity(Double(scrollViewOffset) / 70)
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear.preference(
+                                        key: TitleOffsetKey.self,
+                                        value: proxy.frame(in: .global).maxY
+                                    )
+                                }
+                            )
+                        profileScroller
+                        
+                        Rectangle()
+                        .foregroundColor(.clear)
+                        .frame(width: 250, height: 0.5)
+                        .background(Color(red: 0.86, green: 0.86, blue: 0.86))
+                        
+                        
+                        
+
+                        
+                        
+                        
+                    }
+                }
+                .overlay(alignment: .top) {
+                    ScrollNavBar(title: "Meet")
+                        .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
+                        .ignoresSafeArea(edges: .all)
+                }
+                
+                .onPreferenceChange(TitleOffsetKey.self) { y in
+                    scrollViewOffset = y
+                }
+                .id(vm.profiles.count)
+                if let profileModel = selectedProfile {
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
+                        .id(profileModel.id)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .bottom),
+                            removal: .move(edge: .bottom))
                         )
-                    profileScroller
-                    clockView
+                        .zIndex(1)
+                        .ignoresSafeArea()
+                }
+                
+                if let currentProfile = quickInvite {
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture { quickInvite = nil }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: currentProfile, onSubmit: { event in
+                        Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
+                    }))
+                }
+                if showIdealTime {
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture { showIdealTime = false }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
+                        Task {
+                            try await vm.saveIdealMeetUp(event: event)
+                            try await vm.createWeeklyCycle()
+                        }
+                    })
                 }
             }
-            .overlay(alignment: .top) {
-                ScrollNavBar(title: "Meet")
-                    .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
-                    .ignoresSafeArea(edges: .all)
-            }
-            
-            .onPreferenceChange(TitleOffsetKey.self) { y in
-                scrollViewOffset = y
-            }
-            .id(vm.profiles.count)
-            if let profileModel = selectedProfile {
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
-                    .id(profileModel.id)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .bottom),
-                        removal: .move(edge: .bottom))
-                    )
-                    .zIndex(1)
-                    .ignoresSafeArea()
-            }
-            
-            if let currentProfile = quickInvite {
-                Rectangle()
-                    .fill(.thinMaterial)
-                    .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .onTapGesture { quickInvite = nil }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: currentProfile, onSubmit: { event in
-                    Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
-                }))
-            }
-            if showIdealTime {
-                Rectangle()
-                    .fill(.thinMaterial)
-                    .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .onTapGesture { showIdealTime = false }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
-                    Task {
-                        try await vm.saveIdealMeetUp(event: event)
-                        try await vm.createWeeklyCycle()
-                    }
-                })
+            .onAppear {
+                imageWidth = (proxy.size.width - 48)
             }
         }
     }
@@ -93,21 +110,23 @@ struct MeetView: View {
 extension MeetView {
     @ViewBuilder
     private var profileScroller: some View {
-            ForEach(vm.invites) { profileInvite in
-                ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
-                    .onTapGesture {
-                        withAnimation(.smooth(duration: 0.2)) {
-                            selectedProfile = profileInvite
+    
+        VStack(spacing: 60) {
+            VStack(spacing: 84) {
+                ForEach(vm.invites) { profileInvite in
+                    ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite, imageWidth: imageWidth)
+                        .onTapGesture {
+                            withAnimation(.smooth(duration: 0.2)) {
+                                selectedProfile = profileInvite
+                            }
                         }
-                    }
+                }
             }
-        
-            if !vm.invites.isEmpty {SoftDivider()}
-            
+                    
             if vm.showProfilesState != .closed {
-                VStack(spacing: 96) {
+                VStack(spacing: 84) {
                     ForEach(vm.profiles) { profileInvite in
-                        ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
+                        ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite, imageWidth: imageWidth)
                             .onTapGesture {
                                 withAnimation(.smooth(duration: 0.2)) {
                                     selectedProfile = profileInvite
@@ -119,6 +138,7 @@ extension MeetView {
                 IntroView(vm: vm, showIdealTime: $showIdealTime)
             }
         }
+    }
     
     @ViewBuilder private var clockView: some View {
         if let time = vm.endTime, vm.showProfilesState == .active {
@@ -133,13 +153,15 @@ extension MeetView {
             Text(title)
                 .font(.tabTitle())
             
+            Spacer()
+            
             Image(systemName: "info.circle")
                 .font(.body(15))
-                .foregroundStyle(Color.gray)
+                .foregroundStyle(Color.black)
                 .padding(.bottom, 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 32)
+        .padding(.horizontal, 24)
         .padding(.top, 96)
     }
 }
@@ -154,10 +176,27 @@ struct TitleOffsetKey: PreferenceKey {
 
 
 /*
+ private var tabTitle: some View {
+ HStack (spacing: 12) {
+ Text(title)
+ .font(.tabTitle())
+ 
+ Image(systemName: "info.circle")
+ .font(.body(15))
+ .foregroundStyle(Color.gray)
+ .padding(.bottom, 4)
+ }
+ .frame(maxWidth: .infinity, alignment: .leading)
+ .padding(.horizontal, 32)
+ .padding(.top, 96)
+ }
+ 
  ZStack {
  Color.background.ignoresSafeArea(edges: .bottom)
-     .contentShape(Rectangle())
-     .cornerRadius(36)
-     .ignoresSafeArea()
-     .onTapGesture { }
+ .contentShape(Rectangle())
+ .cornerRadius(36)
+ .ignoresSafeArea()
+ .onTapGesture { }
+ 
  */
+

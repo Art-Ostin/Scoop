@@ -181,3 +181,29 @@ struct OptionCellProfile: View {
         }
 }
 
+struct OptionCellProfile2: View {
+    let infoItem: InfoItemStruct
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(infoItem.image)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 17)
+            
+            Text(infoItem.info)
+                .font(.body(14))
+
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 10)
+        .foregroundStyle(Color.black)
+        .background (
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.background)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
+                )
+        )
+    }
+}

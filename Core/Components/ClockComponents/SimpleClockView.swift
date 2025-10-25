@@ -19,7 +19,6 @@ struct SimpleClockView: View {
             let s = timeRemaining.second ?? 0
             let timeString = String(format: "%02d:%02d:%02d", h, m, s)
             Text(timeString)
-                .font(.body(16))
         }
     }
 }

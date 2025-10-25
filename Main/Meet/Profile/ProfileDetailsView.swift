@@ -14,9 +14,11 @@ struct ProfileDetailsView: View {
     let p: UserProfile
     let event: UserEvent?
     @State var noInitialPrompt = false
+    var isThreePrompts: Bool { p.prompt3 != nil }
     
     @State var responseLines1 = 3
     @State var responseLines2 = 3
+    
 
     var body: some View {
         
@@ -30,21 +32,28 @@ struct ProfileDetailsView: View {
             VStack(spacing: 24) {
                 detailsSection2
             }
-            .padding(.top, 36)
+            .padding(.top, 24)
             .frame(maxHeight: .infinity, alignment: .top)
 
-            VStack(spacing: spacing) {
-                vicesView
-                extraInfo
-                divider
-                finalPagePrompt
-                declineButton
+            VStack(spacing: 24) {
+                detailsSection3
             }
-            .frame(maxHeight: .infinity, alignment: .top)
             .padding(.top, 24)
+            .frame(maxHeight: .infinity, alignment: .top)
+            
+            if noInitialPrompt && isThreePrompts {
+                VStack(spacing: 72) {
+                    PromptView(prompt: p.prompt3)
+                    declineButton
+                }
+                .padding(.top, 36)
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
         }
-        .tabViewStyle(.page)
-        .frame(width: screenWidth - 8 - 32)
+        .id(noInitialPrompt && isThreePrompts) // rebuild when the 4th page appears
+        .tabViewStyle(.page(indexDisplayMode: .always))
+        .indexViewStyle(.page(backgroundDisplayMode: .always))
+        .frame(width: screenWidth - 40)
         .frame(maxHeight: .infinity, alignment: .top).ignoresSafeArea()
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
@@ -84,7 +93,7 @@ extension ProfileDetailsView {
                         }
                         .frame(maxWidth: .infinity, alignment: hasMessage ? .leading : .center)
                 }
-                .padding(.top, hasMessage ? -24 : 0)
+                .padding(.top, hasMessage ? -8 : 0)
                 
                 
             } else if let idealMeet =  p.idealMeetUp {
@@ -113,18 +122,20 @@ extension ProfileDetailsView {
 
     @ViewBuilder
     private var detailsSection2: some View {
-        
+
         let options = p.interests
-        
-        VStack {
+
+        VStack(spacing: 12) {
             Text("Interests")
                 .font(.body(12, .bold))
                 .foregroundStyle(Color.grayText)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .offset(x: 3)
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 OptionCellProfile(text: input)
             }
+            .padding(.horizontal, -5)
         }
         
         divider
@@ -134,7 +145,6 @@ extension ProfileDetailsView {
                 PromptView(prompt: p.prompt1)
             } else {
                 PromptView(prompt: p.prompt2)
-                
             }
         }
         .onPreferenceChange(Text.LayoutKey.self) {layouts in
@@ -144,8 +154,13 @@ extension ProfileDetailsView {
             .offset(y: responseLines2 == 4 ? -12 : 0)
     }
     
-    
-    
+    @ViewBuilder
+    private var detailsSection3: some View {
+        extraInformation
+        divider
+        finalPagePrompt
+        declineButton
+    }
     
     private var keyInfo: some View {
         HStack (spacing: 0)  {
@@ -166,15 +181,36 @@ extension ProfileDetailsView {
         }
     }
 
-
     @ViewBuilder
-    private var vicesView: some View {
-        FlowLayout(mode: .vstack,
-                   items:[("AlcoholIcon", p.drinking), ("CigaretteIcon", p.smoking),
-                          ("WeedIcon", p.marijuana), ("DrugsIcon", p.drugs), 
-                         ],
-                   itemSpacing: 12) { img, txt in
-            InfoItem(image: img, info: txt)
+    private var extraInformation: some View {
+        
+        let options: [InfoItemStruct] = {
+            var a: [InfoItemStruct] = [
+                .init(image: "AlcoholIcon",  info: p.drinking),
+                .init(image: "CigaretteIcon", info: p.smoking),
+                .init(image: "WeedIcon",      info: p.marijuana),
+                .init(image: "DrugsIcon",     info: p.drugs),
+                .init(image: "GenderIcon",    info: p.sex)
+            ]
+            
+            if !p.languages.isEmpty {
+                a.append(.init(image: "Languages", info: p.languages))
+            }
+            return a
+        }()
+        
+        
+        VStack(spacing: 12) {
+            Text("Extra")
+                .font(.body(12, .bold))
+                .foregroundStyle(Color.grayText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .offset(x: 3)
+            
+            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
+                OptionCellProfile2(infoItem: input)
+            }
+            .padding(.horizontal, -5)
         }
     }
     
@@ -203,8 +239,11 @@ extension ProfileDetailsView {
     
     @ViewBuilder private var finalPagePrompt: some View {
         VStack(spacing: 36) {
-            if noInitialPrompt { PromptView(prompt: p.prompt2) }
-            if p.prompt3 != nil { PromptView(prompt: p.prompt3) }
+            if noInitialPrompt {
+                PromptView(prompt: p.prompt2)
+            } else if isThreePrompts {
+                PromptView(prompt: p.prompt3)
+            }
         }
     }
     
@@ -288,12 +327,18 @@ struct InfoItem: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 17)
+                .frame(width: 15, alignment: .leading)
             
             Text(info)
                 .font(.body(17, .medium))
             
         }
     }
+}
+
+struct InfoItemStruct {
+    let image: String
+    let info: String
 }
 
 
