@@ -16,11 +16,8 @@ struct MeetView: View {
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
     @State var imageWidth: CGFloat = 0
-    @State var showPreviousMeets = false
-    @State var showInvitedProfile: ProfileModel?
-    
-    
-    
+    @State var showPendingInvites = false
+    @State var wasInviteSelected = false
     
     init(vm: MeetViewModel) { self.vm = vm }
     
@@ -29,7 +26,6 @@ struct MeetView: View {
             ZStack {
                 Color.background
                 ScrollView {
-                    
                     VStack(spacing: 36) {
                         tabTitle
                             .opacity(Double(scrollViewOffset) / 70)
@@ -41,8 +37,8 @@ struct MeetView: View {
                                     )
                                 }
                             )
-                        profileScroller
                         
+                        profileScroller
                         Rectangle()
                             .foregroundColor(.clear)
                             .frame(width: 250, height: 0.5)
@@ -106,28 +102,29 @@ struct MeetView: View {
             .onAppear {
                 imageWidth = (proxy.size.width - 48)
             }
-            .sheet(isPresented: $showPreviousMeets) {
+            .sheet(isPresented: $showPendingInvites) {
                 NavigationStack {
-                    PendingInviteView(showInvitedProfile: $showInvitedProfile, vm: vm)
+                    PendingInviteView(showInvitedProfile: $selectedProfile, vm: vm, showPendingInvites: $showPendingInvites, wasInviteSelected: $wasInviteSelected)
                         .navigationTitle("Your Pending Invites")
                         .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {  }
                 }
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
             }
-            .fullScreenCover(item: $showInvitedProfile) { profile in
-                ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $showInvitedProfile)
+            .onChange(of: selectedProfile) { oldValue, newValue in
+                guard newValue == nil, wasInviteSelected else { return }
+                withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
+                wasInviteSelected = false
+                }
             }
         }
-    }
 }
 
 extension MeetView {
     @ViewBuilder
     private var profileScroller: some View {
         
-        VStack(spacing: 60) {
+        VStack(spacing: 0) {
             VStack(spacing: 84) {
                 ForEach(vm.invites) { profileInvite in
                     ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite, imageWidth: imageWidth)
@@ -196,9 +193,7 @@ extension MeetView {
                 )
                 .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
                 .contentShape(Circle())
-                .onTapGesture { showPreviousMeets = true }
-            
-            
+                .onTapGesture { showPendingInvites = true }
             
             Spacer()
             
@@ -221,30 +216,3 @@ struct TitleOffsetKey: PreferenceKey {
         value += nextValue()
     }
 }
-
-
-/*
- private var tabTitle: some View {
- HStack (spacing: 12) {
- Text(title)
- .font(.tabTitle())
- 
- Image(systemName: "info.circle")
- .font(.body(15))
- .foregroundStyle(Color.gray)
- .padding(.bottom, 4)
- }
- .frame(maxWidth: .infinity, alignment: .leading)
- .padding(.horizontal, 32)
- .padding(.top, 96)
- }
- 
- ZStack {
- Color.background.ignoresSafeArea(edges: .bottom)
- .contentShape(Rectangle())
- .cornerRadius(36)
- .ignoresSafeArea()
- .onTapGesture { }
- 
- */
-

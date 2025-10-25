@@ -12,17 +12,17 @@ struct PendingInviteCard: View {
     let profile: ProfileModel
     
     @Binding var showInvitedProfile: ProfileModel?
+    @Binding var showPendingInvites: Bool
+    @Binding var wasInviteSelected: Bool
     
     var body: some View {
         
         VStack {
             HStack(alignment: .top, spacing: 12) {
-                
                 if let image = profile.image {
                     Image(uiImage: image)
                         .resizable()
                         .defaultImage(132)
-                    
                 }
                 
                 VStack(alignment: .leading) {
@@ -47,7 +47,12 @@ struct PendingInviteCard: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                showInvitedProfile = profile
+                withAnimation(nil) {
+                    showPendingInvites = false
+                    showInvitedProfile = profile
+                    wasInviteSelected = true
+                    print("THE VALUE OF INVITE SELECTED IS\(wasInviteSelected)")
+                }
             }
             if let time = profile.event?.inviteExpiryTime {
                 HStack(spacing: 4) {

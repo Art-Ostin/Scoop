@@ -13,6 +13,8 @@ struct AppContainer: View {
     
         
     var body: some View {
+        
+        
         CustomTabBarContainerView(selection: $tabSelection) {
                 MeetView(vm: MeetViewModel(cycleManager: dep.cycleManager, s: dep.sessionManager, cacheManager: dep.cacheManager, eventManager: dep.eventManager, userManager: dep.userManager))
                     .tabBarItem(.meet, selection: $tabSelection)
@@ -32,6 +34,11 @@ struct AppContainer: View {
 #Preview {
     AppContainer()
 }
+
+
+
+
+
 
 /*
  TabView (selection: $selection) {
