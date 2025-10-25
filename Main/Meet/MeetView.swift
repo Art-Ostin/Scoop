@@ -108,7 +108,7 @@ struct MeetView: View {
             }
             .sheet(isPresented: $showPreviousMeets) {
                 NavigationStack {
-                    
+                    PendingInviteView(showInvitedProfile: $showInvitedProfile, vm: vm)
                         .navigationTitle("Your Pending Invites")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {  }
@@ -247,5 +247,4 @@ struct TitleOffsetKey: PreferenceKey {
  .onTapGesture { }
  
  */
-
 

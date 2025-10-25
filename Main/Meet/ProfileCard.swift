@@ -65,7 +65,6 @@ extension ProfileCard {
                 Text(profile.profile.name)
                     .font(.body(24, .bold))
             }
-            
             if let meet = profile.profile.idealMeetUp {
                 let weekDay = meet.time.formatted(.dateTime.weekday(.wide))
                 let hour = meet.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())

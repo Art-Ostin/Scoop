@@ -7,19 +7,19 @@
 
 import SwiftUI
 
-struct PendingInviteCard: View {
-    
-    @Binding var showInvitedProfile: ProfileModel
-    
+struct PendingInviteView: View {
+    @Binding var showInvitedProfile: ProfileModel?
     @Bindable var vm: MeetViewModel
     
-    
     var body: some View {
-
         ScrollView(.vertical) {
-            ForEach(vm.pendingInvites) { invite in
-                PendingInviteCard(showInvitedProfile: $showInvitedProfile, vm: vm)
+            LazyVStack(spacing: 48) {
+                ForEach(vm.pendingInvites) { invite in
+                    PendingInviteCard(profile: invite, showInvitedProfile: $showInvitedProfile)
+                }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
     }
 }
