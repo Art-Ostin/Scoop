@@ -18,8 +18,8 @@ struct MeetView: View {
     @State var imageWidth: CGFloat = 0
     @State var showPendingInvites = false
     @State var wasInviteSelected = false
-    
     init(vm: MeetViewModel) { self.vm = vm }
+    
     
     var body: some View {
         GeometryReader { proxy in
@@ -29,9 +29,9 @@ struct MeetView: View {
                     VStack(spacing: 36) {
                         tabTitle
                             .opacity(Double(scrollViewOffset) / 70)
-                            .background(
+                            .background (
                                 GeometryReader { proxy in
-                                    Color.clear.preference(
+                                    Color.clear.preference (
                                         key: TitleOffsetKey.self,
                                         value: proxy.frame(in: .global).maxY
                                     )
@@ -39,6 +39,7 @@ struct MeetView: View {
                             )
                         
                         profileScroller
+                        
                         Rectangle()
                             .foregroundColor(.clear)
                             .frame(width: 250, height: 0.5)
@@ -56,7 +57,6 @@ struct MeetView: View {
                         .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
                         .ignoresSafeArea(edges: .all)
                 }
-                
                 .onPreferenceChange(TitleOffsetKey.self) { y in
                     scrollViewOffset = y
                 }
@@ -71,7 +71,6 @@ struct MeetView: View {
                         .zIndex(1)
                         .ignoresSafeArea()
                 }
-                
                 if let currentProfile = quickInvite {
                     Rectangle()
                         .fill(.thinMaterial)
@@ -211,7 +210,6 @@ extension MeetView {
 
 struct TitleOffsetKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
-    
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value += nextValue()
     }

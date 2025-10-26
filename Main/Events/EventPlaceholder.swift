@@ -1,5 +1,5 @@
 //
-//  EventView.swift
+//  EventContainer.swift
 //  ScoopTest
 //
 //  Created by Art Ostin on 04/08/2025.
@@ -9,47 +9,140 @@ import SwiftUI
 
 struct EventPlaceholder: View {
     
-    var body: some View {
+    @State var vm: EventViewModel
+    @State private var scrollViewOffset: CGFloat = 0
+    
+    let title = "Meeting"
         
-            VStack (spacing: 72) {
-
-                Text("Meeting")
-                    .font(.tabTitle())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Image("CoolGuys")
-                    .resizable()
-                    .frame(width: 280, height: 280)
-                
-                Text("Details of your Upcoming Meet Ups appear Here")
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-                    .padding(.horizontal, 32)
-                    .font(.body(18, .medium))
+    var body: some View {
+        ZStack {
+            Color.background
+            ScrollView {
+                VStack(alignment: .leading, spacing: 48) {
+                    
+                    tabTitle
+                        .opacity(Double(scrollViewOffset) / 70)
+                        .background (
+                            GeometryReader { proxy in
+                                Color.clear.preference (
+                                    key: MeetingScrollViewOffset.self,
+                                    value: proxy.frame(in: .global).maxY
+                                )
+                            }
+                        )
+                    
+                    Text("Upcoming events appear here")
+                        .font(.body(18, .medium))
+                        .frame(maxWidth: .infinity)
+                        .offset(y: -132)
+                        .foregroundStyle(Color.grayText)
+                    
+                    
+                    
+                    
+                    Text("Reload when you don't have to so that when you reload you don't have to")
+                    
+                    
+                    
+                    
+                    
+                    VStack(spacing: 0) {
+                        ImageSection(textTitle: "Social Meet", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
+                        softDivider
+                        ImageSection(textTitle: "Double Date ", text: "Both bring a friend along...social dating is the way", image: "DancingCats")
+                        softDivider
+                        ImageSection(textTitle: "Grab a Drink ", text: "Invite them with a time and place, then meet up just the two of you", image: "CoolGuys")
+                        softDivider
+                        ImageSection(textTitle: "Custom ", text: "Send a time and place with a message and do something out the ordinary", image: "Monkey")
+                    }
+                }
+                .padding(.bottom, 240)
+                .scrollIndicators(.hidden)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 60)
-            .padding(.horizontal, 32)
+            .padding(.horizontal, 24)
+            .overlay(alignment: .top) {
+                ScrollNavBar(title: title)
+                    .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
+                    .ignoresSafeArea(edges: .all)
+            }
+            .onPreferenceChange(MeetingScrollViewOffset.self) { y in
+                scrollViewOffset = y
+                print(scrollViewOffset)
+            }
+        }
+        .ignoresSafeArea()
+        .scrollIndicators(.hidden)
+
     }
 }
 
-struct TitleSection: View {
+extension EventPlaceholder {
     
-    var isEvent: Bool = false
+    private var tabTitle: some View {
+            HStack (spacing: 12) {
+                Text(title)
+                    .font(.tabTitle())
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 96)
+    }
+    
+    private var softDivider: some View {
+        Rectangle()
+            .frame(height: 1)
+            .frame(maxWidth:.infinity)
+            .foregroundStyle(Color(red: 0.85, green: 0.85, blue: 0.85))
+            .padding(60)
+    }
+}
+
+
+struct MeetingScrollViewOffset: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { 
+        value += nextValue()
+    }
+    
+}
+
+struct ImageSection: View {
+    
+    let textTitle: String
+    let text: String
+    let image: String
     
     var body: some View {
         
-        HStack(spacing: 3) {
-            Image("MIcon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 28, height: 28)
-            Text("eeting")
-                .font(.title())
+        VStack(spacing: 36) {
             
-        }.frame(maxWidth: .infinity, alignment: .leading)
+            Text(textTitle)
+                .font(.title(24, .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            VStack(spacing: 24) {
+                Image(image)
+                    .resizable()
+                    .frame(width: 240, height: 240)
+                
+                Text(text)
+                    .font(.body(16, .medium))
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(CGFloat(12))
+            }
+        }
     }
 }
 
 
 
+
+
+/*
+ if !vm.events.isEmpty {
+     EventView(vm: vm)
+ } else {
+     EventPlaceholder()
+ }
+ */

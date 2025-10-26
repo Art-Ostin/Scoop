@@ -23,14 +23,12 @@ struct MeetSuggestionView: View {
                 .padding(.horizontal, 36)
             
             VStack {
-                
                 if let idealMeet = user.idealMeetUp {
                     EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, place: idealMeet.place, size: 18)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(24)
-            .padding(.bottom, 12)
+            .padding(.vertical, 24)
             .background(
                 RoundedRectangle(cornerRadius: 24)
                     .fill(.clear)
@@ -44,8 +42,8 @@ struct MeetSuggestionView: View {
                 Image("EditButton").padding(12)
             }
             .contentShape(RoundedRectangle(cornerRadius: 24))
+            .padding(24)
             .onTapGesture { showIdealMeet = true }
-            .padding(.horizontal, 24)
         }
     }
 }

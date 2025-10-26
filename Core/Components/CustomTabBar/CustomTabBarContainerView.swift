@@ -20,7 +20,6 @@ struct CustomTabBarContainerView<Content: View>:  View {
         self.content = content()
     }
 
-
     var body: some View {
         ZStack(alignment: .bottom) {
             content
