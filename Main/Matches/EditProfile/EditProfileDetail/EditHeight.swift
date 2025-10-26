@@ -15,30 +15,28 @@ struct EditHeight: View {
     let heightOptions = (53...84).map { inches in
         "\(inches / 12)' \(inches % 12)"
     }
+    @State var height = "5' 4"
     
-    @State var height = "5' 8"
-
     var body: some View {
         VStack {
             SignUpTitle(text: "Height")
-            ZStack {
-                Picker("Height", selection: $height) {
-                    ForEach(heightOptions, id: \.self) { option in
-                        Text(option).font(.body(20))
-                    }
+            Picker("Height", selection: $height) {
+                ForEach(heightOptions, id: \.self) { option in
+                    Text(option).font(.body(20))
                 }
-                .onChange(of: height) { vm.set(.height, \.height, to: height) }
-                .pickerStyle(.wheel)
-                if case .onboarding(_, let advance) = mode {
-                    NextButton(isEnabled: true) {
-                        advance()
-                        vm.saveDraft(_kp: \.height, to: height)
-                    }
+            }
+            .onChange(of: height) { vm.set(.height, \.height, to: height) }
+            .pickerStyle(.wheel)
+            if case .onboarding(_, let advance) = mode {
+                NextButton(isEnabled: true) {
+                    advance()
+                    vm.saveDraft(_kp: \.height, to: height)
                 }
             }
         }
+        .padding(.horizontal, 24)
         .flowNavigation()
-        .onAppear { height = vm.draftUser?.height ?? "" }
+        .onAppear { height = vm.draftUser?.height ?? height }
     }
 }
 

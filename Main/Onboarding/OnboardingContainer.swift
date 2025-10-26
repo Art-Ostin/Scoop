@@ -39,6 +39,11 @@ struct OnboardingContainer: View {
                     print(String(defaults.onboardingStep))
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                .overlay(alignment: .top) {
+                    Text("\(defaults.onboardingStep)/10")
+                        .font(.body(12, .bold))
+                        .offset(y: -36)
+                }
             }
         }
     }

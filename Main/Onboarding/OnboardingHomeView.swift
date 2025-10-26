@@ -42,14 +42,14 @@ struct OnboardingHomeView: View {
                     .alert("Sign Out", isPresented: $showAlert) {
                         Button("Cancel", role: .cancel) {}
                         Button("Sign Out") {
+                            appState.wrappedValue = .login
+                            dep.defaultsManager.deleteDefaults()
                             Task {
                                 do {
                                     try await dep.authManager.deleteAuthUser()
                                 } catch {
                                     print (error)
                                 }
-                                dep.defaultsManager.deleteDefaults()
-                                appState.wrappedValue = .login
                             }
                         }
                     } message: {

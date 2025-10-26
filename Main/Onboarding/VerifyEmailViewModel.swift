@@ -46,5 +46,4 @@ import FirebaseAuth
         try await authManager.signInAuthUser(email: email, password: password)
         print("Signed in User 1")
     }
-
 }

@@ -120,7 +120,7 @@ extension EditNationality {
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding()
-            .padding(.top, 360)
+            .padding(.top, 252)
         }
     }
     

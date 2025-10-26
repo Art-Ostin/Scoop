@@ -24,10 +24,8 @@ struct SignUpTitle: View {
             Text(subtitle)
                 .font(.title(12, .medium))
                 .alignmentGuide(.bottom) { d in d[.firstTextBaseline] }
-            
             Spacer()
-            
-            HStack(spacing: 14){
+            HStack(spacing: 14) {
                 if count > 0 {
                     ForEach(0..<count, id: \.self) {_ in
                         Circle()
@@ -42,7 +40,6 @@ struct SignUpTitle: View {
                 }
             }
         }
-        .padding(.horizontal)
     }
 }
 

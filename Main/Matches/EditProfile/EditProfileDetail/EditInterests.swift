@@ -38,6 +38,7 @@ struct EditInterests: View {
                 SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
                 
                 selectedInterestsView
+                
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
                         ForEach(sections.indices, id: \.self) { idx in
@@ -54,6 +55,7 @@ struct EditInterests: View {
                     advance()
                     vm.saveDraft(_kp: \.interests, to: selected)
                 }
+                .offset(y: 144)
             }
         }
         .flowNavigation()
@@ -78,6 +80,7 @@ extension EditInterests {
                 }
                 .frame(height: 40)
             }
+            .scrollIndicators(.never)
             .onChange(of: selected.count) {
                 withAnimation {
                     proxy.scrollTo(selected.last, anchor: .trailing)

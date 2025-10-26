@@ -10,7 +10,6 @@ import Foundation
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
-
 class EventManager {
     
     private let userManager: UserManager
@@ -44,14 +43,14 @@ class EventManager {
         let event = Event(draft: draft)
         let id = try fs.add("events", value: event)
         
-        let initiatorUserEvent = makeUserEvent(profile: user, role: .sent, event: event)
-        let recipientUserEvent = makeUserEvent(profile: profile, role: .received, event: event)
+        let initiatorUserEvent = makeUserEvent(otherProfile: profile, role: .sent, event: event)
+        let recipientUserEvent = makeUserEvent(otherProfile: user, role: .received, event: event)
         
         try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent)
         try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent)
         
-        func makeUserEvent(profile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-            UserEvent(otherUserId: profile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: profile.name , otherUserPhoto: profile.imagePathURL.first ?? "", updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
+        func makeUserEvent(otherProfile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
+            UserEvent(otherUserId: otherProfile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: otherProfile.name , otherUserPhoto: otherProfile.imagePathURL.first ?? "", updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
         }
     }
     
@@ -148,164 +147,3 @@ class EventManager {
         try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
     }    
 }
-
-
-
-
-
-
-
-/*
- private func filtersForScope(_ scope: EventScope) -> ([FSWhere], FSOrder?) {
-     let plus6h = Calendar.current.date(byAdding: .hour, value: 6, to: Date())!
-     typealias F = UserEvent.Field
-     switch scope {
-     case .upcomingInvited:
-         return ([
-             FSWhere(field: F.status.rawValue, op: .eq,  value: EventStatus.pending.rawValue),
-             FSWhere(field: F.role.rawValue,   op: .eq,  value: EdgeRole.received.rawValue),
-         ], FSOrder(field: F.time.rawValue, descending: false))
-         
-     case .upcomingAccepted:
-         return ([
-             
-             FSWhere(field: F.status.rawValue, op: .eq,  value: EventStatus.accepted.rawValue),
-             FSWhere(field: F.time.rawValue,   op: .gte, value: plus6h),
-         ], FSOrder(field: F.time.rawValue, descending: false))
-         
-     case .pastAccepted:
-         return ([
-             FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.accepted.rawValue),
-             FSWhere(field: F.time.rawValue,   op: .lt, value: plus6h),
-         ], FSOrder(field: F.time.rawValue, descending: true))
-     }
- }
-
- */
-
-/*
- func eventStream(userId: String) -> AsyncThrowingStream<UserEventUpdate, Error> {
-     AsyncThrowingStream { continuation in
-         let reg = userEventCollection(userId: userId).addSnapshotListener { snapshot, error in
-             if let error = error { continuation.finish(throwing: error) ; return }
-             guard let snap = snapshot else { return }
-             
-             for change in snap.documentChanges {
-                 switch change.type {
-
-                 case .modified, .added:
-                     guard let ue = try? change.document.data(as: UserEvent.self) else { continue }
-                     switch ue.status {
-                     case .pending: if ue.role == .received { continuation.yield(.eventInvite(userEvent: ue))}
-                     case .accepted: continuation.yield(.eventAccepted(userEvent: ue))
-                     case .pastAccepted: continuation.yield(.pastEventAccepted(userEvent: ue))
-                     default : continuation.yield(.removeInvite(id: ue.otherUserId))
-                     }
-                 case .removed:
-                     break
-                 }
-             }
-         }
-         continuation.onTermination = { _ in reg.remove() }
-     }
- }
- */
-
-
-//extension Query {
-//    func getDocuments<T>(as: T.Type) async throws -> [T] where T: Decodable {
-//        let snapshot = try await self.getDocuments()
-//        return try snapshot.documents.map { try $0.data(as: T.self)}
-//    }
-//}
-
-
-
-//
-//private func userEventCollection (userId: String) -> CollectionReference {
-//    userCollection.document(userId).collection("user_events")
-//}
-
-
-/*
- private func eventsQuery(_ scope: EventScope, userId: String) throws -> Query {
-     let plus3h = Calendar.current.date(byAdding: .hour, value: 3, to: now)!
-     switch scope {
-     case .upcomingInvited:
-         fs.get(userEvents(userId: userId, value)) -> [UserEvent]
-         
-         return userEventCollection(userId: userId)
-             .whereField(UserEvent.Field.time.rawValue, isGreaterThan: Timestamp(date: Date()))
-             .whereField(UserEvent.Field.role.rawValue, isEqualTo: EdgeRole.received.rawValue)
-             .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.pending.rawValue)
-             .order(by: Event.Field.time.rawValue)
-     case .upcomingAccepted:
-         return userEventCollection(userId: userId)
-             .whereField(UserEvent.Field.time.rawValue, isGreaterThan: Timestamp(date: plus3h))
-             .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
-             .order(by: Event.Field.time.rawValue)
-         
-     case .pastAccepted:
-         return userEventCollection(userId: userId)
-             .whereField(UserEvent.Field.status.rawValue, isEqualTo: EventStatus.accepted.rawValue)
-             .whereField(UserEvent.Field.time.rawValue, isLessThan: Timestamp(date: plus3h))
-     }
- }
- 
- private func getEvents(_ scope: EventScope, now: Date = .init(), userId: String) async throws -> [UserEvent] {
-     let query = try eventsQuery(scope, now: now, userId: userId)
-     return try await query
-         .getDocuments(as: UserEvent.self)
- }
- 
- func getUpcomingAcceptedEvents(userId: String) async throws -> [UserEvent] {
-     try await getEvents(.upcomingAccepted, userId: userId)
- }
- 
- func getUpcomingInvitedEvents(userId: String) async throws -> [UserEvent] {
-     try await getEvents(.upcomingInvited, userId: userId)
- }
- 
- func getPastAcceptedEvents(userId: String) async throws -> [UserEvent] {
-     try await getEvents(.pastAccepted, userId: userId)
- }
- */
-/*
- 
- func fetchUserEvents(_ scope: EventScope, userId: String, now: Date = .init()) async throws -> [UserEvent] {
-     let path = "users/\(userId)/user_events"
-     let F = UserEvent.Field.self
-     let plus6h = Calendar.current.date(byAdding: .hour, value: 6, to: now)!
-     
-     let (filters, order): ([FSWhere], FSOrder?) = {
-         switch scope {
-         case .upcomingInvited:
-             return (
-                 [
-                     FSWhere(field: F.time.rawValue,   op: .gt, value: now),
-                     FSWhere(field: F.role.rawValue,   op: .eq, value: EdgeRole.received.rawValue),
-                     FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.pending.rawValue)
-                 ],
-                 FSOrder(field: F.time.rawValue, descending: false)
-             )
-         case .upcomingAccepted:
-             return (
-                 [
-                     FSWhere(field: F.time.rawValue, op: .gt, value: plus6h),
-                     FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.accepted.rawValue)
-                 ],
-                 FSOrder(field: F.time.rawValue, descending: false)
-             )
-         case .pastAccepted:
-             return (
-             [
-                 FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.accepted.rawValue),
-                 FSWhere(field: F.time.rawValue, op: .lt, value: plus6h)
-             ],
-             FSOrder(field: F.time.rawValue, descending: true)
-         )
-         }
-     }()
-     return try await fs.queryCollection(path, filters: filters, orderBy: order, limit: nil)
- }
- */

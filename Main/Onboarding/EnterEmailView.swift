@@ -10,7 +10,7 @@ import SwiftUI
 struct EnterEmailView: View {
     
     @Environment(\.dismiss) private var dismiss
-
+    
     
     @State var showVerification: Bool = false
     @State var vm: VerifyEmailViewModel
@@ -25,25 +25,18 @@ struct EnterEmailView: View {
             
             VStack(spacing: 72) {
                 SignUpTitle(text: "McGill Email")
-                VStack(spacing: 96){
-                    enterEmailSection
-                    NextButton(isEnabled: vm.isValid(email: vm.username), onTap: {
-                        showVerification = true
-                    })
-                }
-                .padding(.horizontal)
+                enterEmailSection
+                NextButton(isEnabled: vm.isValid(email: vm.username)) {showVerification = true }
             }
-            .onAppear {
-                isFocused = true
-            }
+            .padding(.horizontal)
+            .onAppear {isFocused = true}
             .frame(maxHeight: .infinity, alignment:.top)
             .padding(.top, 96)
             .padding(.horizontal)
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .navigationBarBackButtonHidden(true)
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross)} }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross).onTapGesture {dismiss()}} }
         }
     }
 }

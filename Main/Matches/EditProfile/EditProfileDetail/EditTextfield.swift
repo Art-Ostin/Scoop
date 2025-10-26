@@ -56,38 +56,51 @@ struct TextFieldEdit: View {
     let field: TextFieldOptions
     
     var body: some View {
-        
-        VStack {
-            
+        VStack(spacing: 72)  {
             SignUpTitle(text: field.title)
-            VStack {
-                TextField("Type \(field.title) here", text: $text)
-                    .frame(maxWidth: .infinity)
-                    .font(.body(24))
-                    .font(.body(.medium))
-                    .focused($focused)
-                    .tint(.blue)
-                
-                RoundedRectangle(cornerRadius: 20, style: .circular)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 1)
-                    .foregroundStyle (Color.grayPlaceholder)
-                
-                if case .onboarding(_, let advance) = mode {
-                    NextButton(isEnabled: text.count > 0) {
-                        advance()
-                        vm.saveDraft(_kp: field.draftKeyPath, to: text)
-                    }
+            customTextField
+            if case .onboarding(_, let advance) = mode {
+                NextButton(isEnabled: text.count > 0) {
+                    advance()
+                    vm.saveDraft(_kp: field.draftKeyPath, to: text)
                 }
+                .padding(.top, 36)
             }
         }
+        .padding(.horizontal)
+        .onAppear {focused = true}
+        .frame(maxHeight: .infinity, alignment:.top)
+        .padding(.top, 96)
+        .padding(.horizontal)
+        .background(Color.background)
+        .ignoresSafeArea(.keyboard)
         .onAppear {
             if let user = vm.draftUser {
                 text = user[keyPath: field.keyPath]
             }
-            focused = true
         }
         .flowNavigation()
         .onChange(of: text) { vm.set(field.key, field.keyPath, to: text) }
+    }
+}
+
+extension TextFieldEdit {
+
+    private var customTextField: some View  {
+        VStack {
+            TextField("Type \(field.title) here", text: $text)
+                .frame(maxWidth: .infinity)
+                .font(.body(24))
+                .font(.body(.medium))
+                .focused($focused)
+                .tint(.blue)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            
+            RoundedRectangle(cornerRadius: 20, style: .circular)
+                .frame(maxWidth: .infinity)
+                .frame(height: 1)
+                .foregroundStyle (Color.grayPlaceholder)
+        }
     }
 }

@@ -21,9 +21,10 @@ struct AddImageView: View {
     
     var body: some View {
         VStack(spacing: 36) {
+            
             SignUpTitle(text: "Add 6 Photos")
-                .padding(.horizontal, -10)
-
+                .padding(.horizontal, 12)
+            
             Text("Ensure you're in all")
                 .font(.body())
                 .foregroundStyle(Color.grayText)
@@ -35,7 +36,6 @@ struct AddImageView: View {
                     }
                 }
             }
-            
             ActionButton(isValid: vm.isValid, text: "Complete") {
                 print(vm.draftUser ?? "No draft")
                 Task {
@@ -52,5 +52,8 @@ struct AddImageView: View {
             }
         }
         .flowNavigation()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top, 84)
+        .padding(.horizontal, 24)
     }
 }
