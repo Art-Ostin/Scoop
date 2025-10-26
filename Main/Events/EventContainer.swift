@@ -12,13 +12,11 @@ struct EventContainer: View {
     @State var vm: EventViewModel
     init(vm: EventViewModel) { _vm = State(initialValue: vm)}
 
-    
     var body: some View {
-        
-
-        
-        
+        if !vm.events.isEmpty {
+            EventView(vm: vm)
+        } else {
+            EventPlaceholder(vm: vm)
+        }
     }
 }
-
-

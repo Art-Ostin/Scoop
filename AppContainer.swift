@@ -22,6 +22,7 @@ struct AppContainer: View {
                         Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")
                     }
                     .ignoresSafeArea()
+                
                 eventsView
                     .tag(TabBarItem.events)
                     .tabItem {

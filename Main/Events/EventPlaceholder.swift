@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EventPlaceholder: View {
     
-    @State var vm: EventViewModel
+    @Bindable var vm: EventViewModel
     @State private var scrollViewOffset: CGFloat = 0
     
     let title = "Meeting"
@@ -18,8 +18,8 @@ struct EventPlaceholder: View {
         ZStack {
             Color.background
             ScrollView {
-                VStack(alignment: .leading, spacing: 48) {
-                    
+                VStack(alignment: .leading, spacing: 60) {
+                                        
                     tabTitle
                         .opacity(Double(scrollViewOffset) / 70)
                         .background (
@@ -31,22 +31,31 @@ struct EventPlaceholder: View {
                             }
                         )
                     
-                    Text("Upcoming events appear here")
-                        .font(.body(18, .medium))
+                    Text("Upcoming Events appear Here")
+                        .font(.title(16, .medium))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    Image("Plants")
+                        .resizable()
+                        .scaledToFit()
+                        .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .offset(y: -132)
-                        .foregroundStyle(Color.grayText)
+                        .padding(.horizontal, 24)
                     
+                    VStack(spacing: 24) {
+                        Text("Reload when you don't have to so that when you reload you don't have to")
+                            .font(.body(16, .italic))
+                            .lineSpacing(8)
+                            .multilineTextAlignment(.center)
+                        
+                        Text("-Oscar Wilde")
+                            .font(.body(16, .bold))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
                     
+                    softDivider
                     
-                    
-                    Text("Reload when you don't have to so that when you reload you don't have to")
-                    
-                    
-                    
-                    
-                    
-                    VStack(spacing: 0) {
+                    VStack(spacing: 60) {
                         ImageSection(textTitle: "Social Meet", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
                         softDivider
                         ImageSection(textTitle: "Double Date ", text: "Both bring a friend along...social dating is the way", image: "DancingCats")
@@ -92,7 +101,7 @@ extension EventPlaceholder {
             .frame(height: 1)
             .frame(maxWidth:.infinity)
             .foregroundStyle(Color(red: 0.85, green: 0.85, blue: 0.85))
-            .padding(60)
+            .padding(.horizontal, 60)
     }
 }
 
