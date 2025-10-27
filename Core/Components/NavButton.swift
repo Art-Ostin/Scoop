@@ -10,7 +10,7 @@ import SwiftUI
 struct NavButton: View {
     
     @Environment(\.dismiss) private var dismiss
-    
+    let action: (() -> Void)?
     enum ViewType { case cross, back, down, right}
     
     
@@ -25,9 +25,10 @@ struct NavButton: View {
         case .right: return  "chevron.right"
         }
     }
-    init(_ type: ViewType = .back, _ size: CGFloat = 17) {
+    init(_ type: ViewType = .back, _ size: CGFloat = 17, action: (() -> Void)? = nil) {
         self.type = type
         self.size = size
+        self.action = action
     }
     
     var body: some View {
@@ -37,6 +38,8 @@ struct NavButton: View {
             Image(systemName: imageName)
                 .foregroundStyle(.black)
                 .font(.body(size, .bold))
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
         }
     }
 }

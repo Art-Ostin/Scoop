@@ -248,14 +248,17 @@ struct ImageSlot: Equatable {
         selectedCountries.contains(country)
     }
     
-    func toggleCountry(_ country: String) {
+    func toggleCountry(_ country: String) -> Bool? {
         if selectedCountries.contains(country) {
             selectedCountries.removeAll(where: {$0 == country})
             setArray(.nationality, \.nationality, to: [country], add: false)
         } else if selectedCountries.count < 3 {
             selectedCountries.append(country)
             setArray(.nationality, \.nationality, to: [country], add: true)
+        } else {
+            return true
         }
+        return nil
     }
     
     func fetchNationality() {

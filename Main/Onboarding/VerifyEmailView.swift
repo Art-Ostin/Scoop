@@ -79,8 +79,8 @@ struct VerifyEmailView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            
             SignUpTitle(text: "Check Your email")
+            
             HStack(spacing: 48) {
                 Text("\(vm.email)")
                     .foregroundStyle(Color.grayText)
@@ -89,13 +89,13 @@ struct VerifyEmailView: View {
             .font(.body())
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, 72)
-            .padding(.horizontal)
             
             EnterOTP(code: $code)
         }
         .padding(.top, 48)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .top)
         .padding(.horizontal)
+        .background(Color.background)
         .flowNavigation()
         .task {
             try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))

@@ -39,6 +39,7 @@ struct OnboardingHomeView: View {
                             .toolbarBackgroundVisibility(.visible, for: .tabBar)
                             .toolbarBackground(Color.background, for: .tabBar)
                     }
+                    
                     .alert("Sign Out", isPresented: $showAlert) {
                         Button("Cancel", role: .cancel) {}
                         Button("Sign Out") {

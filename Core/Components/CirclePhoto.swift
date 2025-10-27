@@ -24,13 +24,25 @@ struct CirclePhoto: View {
 struct ChangeIcon: View {
     var body: some View {
         Image("ChangeIcon")
+        .padding(12)
+        .frame(width: 24, height: 24)
+        .background (
+            Circle()
+                .fill(Color.white)
+        )
+        .padding(6)
+    }
+}
+
+struct RemoveIcon: View {
+    var body: some View {
+        Image(systemName: "xmark")
+            .font(.body(12, .bold))
             .padding(12)
             .frame(width: 24, height: 24)
-            .background (
-                Circle()
-                    .fill(Color.white)
-            )
+            .background (Circle().fill(Color.background))
             .padding(6)
+            .scaleEffect(0.7)
     }
 }
 

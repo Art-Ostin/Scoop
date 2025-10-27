@@ -486,8 +486,8 @@
 			children = (
 				659497122E01DD4000880921 /* SignUpView.swift */,
 				658DE5162EAEAC98000EF2FA /* SignUpTabView.swift */,
-				659497072E01DD4000880921 /* EnterEmailView.swift */,
 				654982BB2E2E66A500CA335F /* VerifyEmailViewModel.swift */,
+				659497072E01DD4000880921 /* EnterEmailView.swift */,
 				659109322E19C87B0065696F /* VerifyEmailView.swift */,
 				65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */,
 				659497092E01DD4000880921 /* OnboardingHomeView.swift */,

@@ -9,13 +9,12 @@ import SwiftUI
 import SwiftUIFlowLayout
 import FirebaseFirestore
 
-
 struct EditInterests: View {
-
     @Bindable var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
-
     @State var selected: [String] = []
+    
+    var selectedMax: Bool {selected.count >= 10}
     
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
@@ -32,22 +31,10 @@ struct EditInterests: View {
     
     var body: some View {
         ZStack {
-            Color.background.ignoresSafeArea()
-            VStack(spacing: 12) {
-                
+            VStack(spacing: 4) {
                 SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
-                
                 selectedInterestsView
-                
-                ScrollView(.vertical) {
-                    LazyVStack(spacing: 0) {
-                        ForEach(sections.indices, id: \.self) { idx in
-                            let section = sections[idx]
-                            InterestSection(vm: vm, options: section.data, title: section.title, image: section.image, selected: $selected)
-                        }
-                    }
-                }
-                .padding(.horizontal)
+                interestsSections
             }
             .padding(.top, 12)
             if case .onboarding(_, let advance) = mode {
@@ -59,18 +46,30 @@ struct EditInterests: View {
             }
         }
         .flowNavigation()
-        .task {
-            selected = vm.draftUser?.interests ?? []
-        }
+        .task { selected = vm.draftUser?.interests ?? []}
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background.ignoresSafeArea())
     }
 }
 
 extension EditInterests {
     
+    private var interestsSections: some View {
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
+                ForEach(sections.indices, id: \.self) { idx in
+                    let section = sections[idx]
+                    InterestSection(vm: vm, options: section.data, title: section.title, image: section.image, selected: $selected)
+                }
+            }
+        }
+    }
+    
     private var selectedInterestsView: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
-                HStack {
+                HStack(alignment: .bottom) {
                     ForEach(selected, id: \.self) { item in
                         OptionCell(text: item, selection: $selected) {text in
                             selected.removeAll { $0 == text }
@@ -78,16 +77,16 @@ extension EditInterests {
                         .id(item)
                     }
                 }
-                .frame(height: 40)
+                .frame(height: 48)
             }
             .scrollIndicators(.never)
-            .onChange(of: selected.count) {
-                withAnimation {
-                    proxy.scrollTo(selected.last, anchor: .trailing)
+            .padding(.horizontal, -16)
+            .onChange(of: selected.count) {oldValue, newValue in
+                if oldValue < newValue {
+                    withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
                 }
             }
         }
-        .padding(.horizontal)
     }
 }
 
@@ -97,6 +96,7 @@ struct InterestSection: View {
     @State var options: [String]
     let title: String?
     let image: String?
+    @State private var shakeTicks: [String: Int] = [:]
 
     @Binding var selected: [String]
     
@@ -119,15 +119,21 @@ struct InterestSection: View {
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
             
-            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
+            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) {input in
                 OptionCell(text: input, selection: $selected) { text in
-                        selected.contains(text)
-                            ? selected.removeAll(where: { $0 == text })
-                            : (selected.count < 10 ? selected.append(text) : nil)
+                    if selected.contains(text) {
+                        selected.removeAll(where: { $0 == text})
+                    } else if selected.count < 10 {
+                        selected.append(text)
+                    } else {
+                        shakeTicks[text, default: 0] &+= 1
+                    }
                     if vm.draftUser != nil {
                         vm.setArray(.interests, \.interests, to: [text], add: vm.interestIsSelected(text: text) ? false : true)
                     }
                 }
+                .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
+                .animation(.easeInOut(duration: 0.3), value: shakeTicks[input, default: 0])
             }
             .offset(x: -5)
         }
@@ -159,6 +165,11 @@ struct OptionCell: View {
             )
             .onTapGesture {
                 onTap(text)
+            }
+            .overlay(alignment: .topTrailing) {
+                CircleIcon("xmark")
+                    .opacity(selection.contains(text) ? 1 : 0)
+                    .offset(x: 6,  y: -6)
             }
     }
 }
@@ -195,7 +206,6 @@ struct OptionCellProfile2: View {
             
             Text(infoItem.info)
                 .font(.body(14))
-
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 10)
@@ -208,5 +218,17 @@ struct OptionCellProfile2: View {
                         .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
                 )
         )
+    }
+}
+
+
+struct Shake: GeometryEffect {
+    var travel: CGFloat = 8
+    var shakes: CGFloat = 3
+    var animatableData: CGFloat
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        let x = travel * sin(animatableData * .pi * shakes)
+        return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
     }
 }

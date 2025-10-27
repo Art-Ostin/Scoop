@@ -53,6 +53,7 @@ struct AddImageView: View {
         }
         .flowNavigation()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.background)
         .padding(.top, 84)
         .padding(.horizontal, 24)
     }

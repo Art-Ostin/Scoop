@@ -27,6 +27,7 @@ struct EditHeight: View {
             }
             .onChange(of: height) { vm.set(.height, \.height, to: height) }
             .pickerStyle(.wheel)
+            .padding(.horizontal, 36)
             if case .onboarding(_, let advance) = mode {
                 NextButton(isEnabled: true) {
                     advance()
@@ -34,7 +35,9 @@ struct EditHeight: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 24)
+        .background(Color.background)
         .flowNavigation()
         .onAppear { height = vm.draftUser?.height ?? height }
     }

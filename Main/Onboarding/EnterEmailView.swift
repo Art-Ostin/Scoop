@@ -8,21 +8,15 @@ import Foundation
 import SwiftUI
 
 struct EnterEmailView: View {
-    
     @Environment(\.dismiss) private var dismiss
-    
-    
     @State var showVerification: Bool = false
     @State var vm: VerifyEmailViewModel
-    
     @FocusState private var isFocused: Bool
     
     init(vm: VerifyEmailViewModel) { self._vm = State(initialValue: vm)}
     
     var body: some View {
-        
         NavigationStack {
-            
             VStack(spacing: 72) {
                 SignUpTitle(text: "McGill Email")
                 enterEmailSection
@@ -36,7 +30,11 @@ struct EnterEmailView: View {
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { NavButton(.cross).onTapGesture {dismiss()}} }
+            .toolbar {
+              ToolbarItem(placement: .topBarTrailing) {
+                NavButton(.cross) { dismiss()}    // <-- pass the action here
+              }
+            }
         }
     }
 }
@@ -58,7 +56,7 @@ extension EnterEmailView {
                         .focused($isFocused)
                         .font(.body(20))
                         .textFieldStyle(.plain)
-                        .autocapitalization(.none)
+                        .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
                         .tint(.blue)
                         .kerning(0.5)
