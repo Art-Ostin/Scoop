@@ -15,14 +15,12 @@ struct MeetView: View {
     @State var endTime: Date?
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
-    @State var imageWidth: CGFloat = 0
     @State var showPendingInvites = false
     @State var wasInviteSelected = false
     @State var showTabAction = false
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
-        GeometryReader { proxy in
             ZStack {
                 Color.background
                 ScrollView {
@@ -39,56 +37,25 @@ struct MeetView: View {
                     }
                     .padding(.bottom, 240)
                 }
-                .overlay(alignment: .top) {
-                    ScrollNavBar(title: "Meet")
-                        .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
-                        .ignoresSafeArea(edges: .all)
-                }
-                .scrollIndicators(.never)
-                .onPreferenceChange(TitleOffsetsKey.self) { dict in
-                    scrollViewOffset = dict[.meet] ?? 0
-                }
                 .id(vm.profiles.count)
+                .tabViewModifiers(page: .meet, scrollViewOffset: $scrollViewOffset)
                 
-                
-                
-                
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        TabButton(image: Image(systemName: "info.circle"))
-                    }
-                }
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
                         .id(profileModel.id)
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .bottom),
-                            removal: .move(edge: .bottom))
-                        )
+                        .transition(.move(edge: .bottom))
                         .zIndex(1)
                         .ignoresSafeArea()
                 }
-                
                 if let currentProfile = quickInvite {
-                    Rectangle()
-                        .fill(.thinMaterial)
-                        .ignoresSafeArea()
-                        .contentShape(Rectangle())
-                        .onTapGesture { quickInvite = nil }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    CustomScreenCover { quickInvite = nil }
                     
                     SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: currentProfile, onSubmit: { event in
                         Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
                     }))
                 }
-                
                 if showIdealTime {
-                    Rectangle()
-                        .fill(.thinMaterial)
-                        .ignoresSafeArea()
-                        .contentShape(Rectangle())
-                        .onTapGesture { showIdealTime = false }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    CustomScreenCover { showIdealTime = false}
                     SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
                         Task {
                             try await vm.saveIdealMeetUp(event: event)
@@ -96,9 +63,7 @@ struct MeetView: View {
                         }
                     })
                 }
-            }
-            .onAppear {
-                imageWidth = (proxy.size.width - 48)
+                
             }
             .sheet(isPresented: $showPendingInvites) {
                 NavigationStack {
@@ -113,20 +78,17 @@ struct MeetView: View {
                 guard newValue == nil, wasInviteSelected else { return }
                 withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
                 wasInviteSelected = false
-                }
-            .coordinateSpace(name: Page.meet)
             }
-        }
+    }
 }
 
 extension MeetView {
     @ViewBuilder
     private var profileScroller: some View {
-        
         VStack(spacing: 0) {
             VStack(spacing: 84) {
                 ForEach(vm.invites) { profileInvite in
-                    ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite, imageWidth: imageWidth)
+                    ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
                                 selectedProfile = profileInvite
@@ -138,7 +100,7 @@ extension MeetView {
             if vm.showProfilesState != .closed {
                 VStack(spacing: 84) {
                     ForEach(vm.profiles) { profileInvite in
-                        ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite, imageWidth: imageWidth)
+                        ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
                             .onTapGesture {
                                 withAnimation(.smooth(duration: 0.2)) {
                                     selectedProfile = profileInvite

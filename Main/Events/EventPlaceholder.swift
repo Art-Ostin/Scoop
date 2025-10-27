@@ -26,10 +26,6 @@ struct EventPlaceholder: View {
                     .padding(.horizontal, -24)
 
                     
-                    
-//                    TabTitle(page: .meeting, offset: $scrollViewOffset)
-
-                    
                     Text("Upcoming Events appear Here")
                         .font(.title(16, .medium))
                         .frame(maxWidth: .infinity, alignment: .center)

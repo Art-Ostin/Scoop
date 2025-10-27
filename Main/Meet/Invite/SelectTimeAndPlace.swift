@@ -30,7 +30,6 @@ struct SelectTimeAndPlace: View {
     @State var vm: TimeAndPlaceViewModel
 
     init(vm: TimeAndPlaceViewModel) { self.vm = vm }
-
     
     var body: some View {
         
@@ -182,15 +181,5 @@ extension SelectTimeAndPlace {
             Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
                 .onTapGesture { vm.showMapView.toggle() }
         }
-    }
-}
-
-struct InviteBackground: View {
-    
-    var body: some View {
-        Rectangle()
-            .fill(.thinMaterial)
-            .ignoresSafeArea()
-            .contentShape(Rectangle())
     }
 }

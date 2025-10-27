@@ -180,8 +180,8 @@ extension ProfileView {
     
     @ViewBuilder
     private var invitePopup: some View {
-        InviteBackground()
-            .onTapGesture { vm.showInvitePopup = false }
+        CustomScreenCover { vm.showInvitePopup = false }
+        
         if let event = vm.profileModel.event {
             AcceptInvitePopup(profileModel: vm.profileModel) {
                 if let meetVM {

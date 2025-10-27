@@ -20,10 +20,10 @@ struct EventSlot: View {
             Text("You're Meeting\(profileModel.profile.name)")
                 .font(.custom("SFProRounded-Medium", size: 24))
             
-            imageContainer(image: profileModel.image, size: 300)
-                .onTapGesture {
-                    selectedProfile = profileModel
-                }
+//            imageContainer(image: profileModel.image, size: 300)
+//                .onTapGesture {
+//                    selectedProfile = profileModel
+//                }
             
             VStack(spacing: 48) {
                 if let event = profileModel.event {
