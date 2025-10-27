@@ -15,8 +15,8 @@ struct ProfileImageView: View {
     @Binding var vm: ProfileViewModel
     let screenWidth: CGFloat
 
-    
     let imagePadding: CGFloat = 8
+    
     var body: some View {
             let safeScreenWidth = screenWidth.isFinite ? max(screenWidth, 0) : 0
             let imageSizeRaw = safeScreenWidth - imagePadding
@@ -58,6 +58,8 @@ extension ProfileImageView {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
     }
+    
+    
     private var imageScroller : some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {

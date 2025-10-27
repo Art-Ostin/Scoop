@@ -38,9 +38,7 @@ enum ProfileViewType {
         self.cacheManager = cacheManager
     }
     
-    
     func loadImages() async -> [UIImage] {
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
-    
 }

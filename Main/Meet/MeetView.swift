@@ -18,6 +18,7 @@ struct MeetView: View {
     @State var showPendingInvites = false
     @State var wasInviteSelected = false
     @State var showTabAction = false
+    @State var showProfileTest: ProfileModel?
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
@@ -41,11 +42,16 @@ struct MeetView: View {
                 .tabViewModifiers(page: .meet, scrollViewOffset: $scrollViewOffset)
                 
                 if let profileModel = selectedProfile {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
-                        .id(profileModel.id)
-                        .transition(.move(edge: .bottom))
-                        .zIndex(1)
-                        .ignoresSafeArea()
+                    
+                    ProfileImageTest2(profile: profileModel, cacheManager: vm.cacheManager)
+                    
+                    /*
+                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
+                         .id(profileModel.id)
+                         .transition(.move(edge: .bottom))
+                         .zIndex(1)
+                         .ignoresSafeArea()
+                     */
                 }
                 if let currentProfile = quickInvite {
                     CustomScreenCover { quickInvite = nil }
@@ -63,7 +69,9 @@ struct MeetView: View {
                         }
                     })
                 }
-                
+            }
+            .fullScreenCover(item: $showProfileTest) { profile in
+                ProfileImageTest2(profile: profile, cacheManager: vm.cacheManager)
             }
             .sheet(isPresented: $showPendingInvites) {
                 NavigationStack {
@@ -91,7 +99,8 @@ extension MeetView {
                     ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
-                                selectedProfile = profileInvite
+//                                selectedProfile = profileInvite
+                                showProfileTest = profileInvite
                             }
                         }
                 }
