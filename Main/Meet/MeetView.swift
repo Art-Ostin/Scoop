@@ -18,8 +18,8 @@ struct MeetView: View {
     @State var imageWidth: CGFloat = 0
     @State var showPendingInvites = false
     @State var wasInviteSelected = false
+    @State var showTabAction = false
     init(vm: MeetViewModel) { self.vm = vm }
-    
     
     var body: some View {
         GeometryReader { proxy in
@@ -27,26 +27,13 @@ struct MeetView: View {
                 Color.background
                 ScrollView {
                     VStack(spacing: 36) {
-                        tabTitle
-                            .opacity(Double(scrollViewOffset) / 70)
-                            .background (
-                                GeometryReader { proxy in
-                                    Color.clear.preference (
-                                        key: TitleOffsetKey.self,
-                                        value: proxy.frame(in: .global).maxY
-                                    )
-                                }
-                            )
-                        
+                        VStack {
+                            TabButton(image: Image(systemName: "info.circle"))
+                            TabTitle(page: .meet, offset: $scrollViewOffset)
+                        }
                         profileScroller
-                        
-                        Rectangle()
-                            .foregroundColor(.clear)
-                            .frame(width: 250, height: 0.5)
-                            .background(Color(red: 0.86, green: 0.86, blue: 0.86))
-                        
+                        CustomDivider()
                         MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
-                        
                         pastInvites
                             .offset(y: -12)
                     }
@@ -57,10 +44,20 @@ struct MeetView: View {
                         .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
                         .ignoresSafeArea(edges: .all)
                 }
-                .onPreferenceChange(TitleOffsetKey.self) { y in
-                    scrollViewOffset = y
+                .scrollIndicators(.never)
+                .onPreferenceChange(TitleOffsetsKey.self) { dict in
+                    scrollViewOffset = dict[.meet] ?? 0
                 }
                 .id(vm.profiles.count)
+                
+                
+                
+                
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        TabButton(image: Image(systemName: "info.circle"))
+                    }
+                }
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
                         .id(profileModel.id)
@@ -71,6 +68,7 @@ struct MeetView: View {
                         .zIndex(1)
                         .ignoresSafeArea()
                 }
+                
                 if let currentProfile = quickInvite {
                     Rectangle()
                         .fill(.thinMaterial)
@@ -83,6 +81,7 @@ struct MeetView: View {
                         Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
                     }))
                 }
+                
                 if showIdealTime {
                     Rectangle()
                         .fill(.thinMaterial)
@@ -115,6 +114,7 @@ struct MeetView: View {
                 withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
                 wasInviteSelected = false
                 }
+            .coordinateSpace(name: Page.meet)
             }
         }
 }
@@ -160,22 +160,6 @@ extension MeetView {
         }
     }
     
-    private var tabTitle: some View {
-        HStack (spacing: 12) {
-            Text(title)
-                .font(.tabTitle())
-            
-            Spacer()
-            
-            Image(systemName: "info.circle")
-                .font(.body(15))
-                .foregroundStyle(Color.black)
-                .padding(.bottom, 4)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
-        .padding(.top, 96)
-    }
     
     private var pastInvites: some View {
         HStack(alignment: .center) {
@@ -205,12 +189,5 @@ extension MeetView {
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, 36)
-    }
-}
-
-struct TitleOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
     }
 }

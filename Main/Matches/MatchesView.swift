@@ -12,7 +12,7 @@ import FirebaseFunctions
 struct MatchesView: View {
     
     @Environment(\.appState) private var appState
-    
+    @State var scrollViewOffset: CGFloat = 0
     @State var vm: MatchesViewModel
     @State var showProfileView = false
     @State var image: UIImage?
@@ -20,38 +20,26 @@ struct MatchesView: View {
     init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
     
     var body: some View {
-        NavigationStack {
-            Group {
-                if vm.events.isEmpty {
-                    noMatchesView
-                } else {
-                    VStack(spacing: 32) {
-                        Text("HEllo World")
-                        ForEach(vm.events) {profileModel in
-                            Text(profileModel.event?.otherUserName ?? "There was no name")
+        GeometryReader { proxy in
+            ZStack {
+                Color.background
+                ScrollView {
+                    VStack(spacing: 36) {
+                        VStack(spacing: 0) {
+                            tabSection
+                            TabTitle(page: .matches, offset: $scrollViewOffset)
                         }
                     }
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    HStack(spacing: 32) {
-                        Image("GearIcon")
-                            .onTapGesture { showSettingsView.toggle() }
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    VStack {
-                        CirclePhoto(image: image ?? UIImage())
-                    }
-                    .onTapGesture {showProfileView = true }
-                }
+            .onPreferenceChange(TitleOffsetsKey.self) {value in
+                scrollViewOffset = value[.matches] ?? 0
             }
-            .navigationTitle("Matches")
+            .coordinateSpace(name: Page.matches)
+            .ignoresSafeArea()
         }
-        .fullScreenCover(isPresented: $showProfileView){
-            EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, draftUser: vm.user, defaults: vm.defaultsManager))
-        }
+        
+        
         .sheet(isPresented: $showSettingsView) {
             SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.s))
         }
@@ -60,24 +48,34 @@ struct MatchesView: View {
 }
 
 extension MatchesView {
-
+    
+    
+    private var tabSection: some View {
+        HStack(alignment: .top) {
+            Image(systemName: "gear")
+                .font(.body(20))
+                .padding(6)
+                .foregroundStyle(.black)
+                .glassIfAvailable()
+            
+            Spacer()
+            
+            Image(uiImage: image ?? UIImage())
+                .resizable()
+                .scaledToFill()
+                .frame(width: 35, height: 35)
+                .clipShape(Circle())
+                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 15)
+            }
+        .padding(.top, 48)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
+    }
+    
+    
+    
     private var noMatchesView: some View {
         VStack(spacing: 32) {
-            
-            ActionButton(text: "Test Functions") {
-                Task {
-                    do{
-                       let result = try await Functions.functions().httpsCallable("ping").call()
-                        let string = result.data as? String ?? "No data"
-                        print(string)
-                        print("function triggerd")
-                    } catch {
-                        print(error)
-                    }
-                }
-            }
-            
-
             Image("DancingCats")
 
             Text("View your past Meet Ups Here")
@@ -86,3 +84,20 @@ extension MatchesView {
         .frame(maxHeight: .infinity)
     }
 }
+
+
+
+/*
+ 
+    if vm.events.isEmpty {
+         noMatchesView
+     } else {
+         VStack(spacing: 32) {
+             Text("HEllo World")
+             ForEach(vm.events) {profileModel in
+                 Text(profileModel.event?.otherUserName ?? "There was no name")
+             }
+         }
+     }
+ 
+ */

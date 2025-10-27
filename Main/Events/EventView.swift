@@ -20,7 +20,6 @@ struct EventView: View {
     
     
     var body: some View {
-        
         ZStack {
             Color.background
             TabView(selection: $selection) {
