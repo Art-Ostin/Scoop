@@ -14,37 +14,30 @@ struct MeetSuggestionView: View {
     @Binding var showIdealMeet: Bool
     
     var body: some View {
-        VStack {
-            
+        
+        VStack(spacing: 24) {
             Text("My Meet suggestion")
-                .font(.body(12, .medium))
-                .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+                .font(.body(12, .italic))
+                .foregroundStyle(Color.grayText)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 36)
-            
-            VStack {
-                if let idealMeet = user.idealMeetUp {
-                    EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, place: idealMeet.place, size: 18)
-                }
+            if let idealMeet = user.idealMeetUp {
+                EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, place: idealMeet.place, size: 18)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(.clear)
-                    .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(Color.grayBackground, lineWidth: 1)
-            )
-            .overlay(alignment: .bottomTrailing) {            // edit button
-                Image("EditButton").padding(12)
-            }
-            .contentShape(RoundedRectangle(cornerRadius: 24))
-            .padding(24)
-            .onTapGesture { showIdealMeet = true }
+            Image("EditButton")
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .stroke(24, color: .grayBackground)
+        .containerShadow(color: .black.opacity(0.1), radius: 2, y: 3)
+//        .overlay(alignment: .bottomTrailing) {
+//            Image("EditButton").padding(16)
+//        }
+        .contentShape(RoundedRectangle(cornerRadius: 24))
+        .padding(.horizontal, 24)
+        .onTapGesture { showIdealMeet = true }
     }
 }
+
+//    .containerShadow(color: .black.opacity(1), radius: 30, y: 100)
 

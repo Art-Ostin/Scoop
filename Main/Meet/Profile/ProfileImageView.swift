@@ -11,7 +11,7 @@ struct ProfileImageView: View {
     
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
-    @State var selection: Int = 0
+    @State var selection = 0
     @Binding var vm: ProfileViewModel
     let screenWidth: CGFloat
 

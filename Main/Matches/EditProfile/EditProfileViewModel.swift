@@ -17,7 +17,6 @@ struct ImageSlot: Equatable {
     var url: URL?
 }
 
-
 @MainActor
 @Observable class EditProfileViewModel {
     
@@ -28,8 +27,11 @@ struct ImageSlot: Equatable {
     var storageManager: StorageManaging
     var cycleManager: CycleManager
     var eventManager: EventManager
-
     var draftUser: UserProfile?
+    
+    var showSaveButton: Bool {
+        !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty
+    }
     
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
         self.cacheManager = cacheManager
@@ -41,7 +43,7 @@ struct ImageSlot: Equatable {
         self.cycleManager = cycleManager
         self.eventManager = eventManager
     }
-
+    
     var user: UserProfile { s.user }
     
     var updatedFields: [UserProfile.Field : Any] = [:]
@@ -115,11 +117,13 @@ struct ImageSlot: Equatable {
         images = newImages
     }
     
-    
-    
+    func saveProfileChanges() async throws {
+        try await saveUser()
+        try await saveUserArray()
+        try await saveUpdatedImages()
+    }
     
     var updatedImages: [(index: Int, data: Data)] = []
-    
     
     func saveUpdatedImages() async throws {
         let updates = updatedImages

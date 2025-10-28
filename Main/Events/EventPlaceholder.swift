@@ -11,6 +11,7 @@ struct EventPlaceholder: View {
     
     @Bindable var vm: EventViewModel
     @State private var scrollViewOffset: CGFloat = 0
+    @State var showInfo: Bool = false
     
     let title = "Meeting"
         
@@ -20,11 +21,10 @@ struct EventPlaceholder: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 60) {
                     VStack {
-                        TabButton(image: Image(systemName: "info.circle"))
+                        TabButton(image: Image(systemName: "info.circle"), isPresented: $showInfo)
                         TabTitle(page: .meeting, offset: $scrollViewOffset)
                     }
                     .padding(.horizontal, -24)
-
                     
                     Text("Upcoming Events appear Here")
                         .font(.title(16, .medium))

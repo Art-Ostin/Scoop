@@ -12,44 +12,47 @@ struct ProfileCard : View {
     @Bindable var vm: MeetViewModel
     let profile: ProfileModel
     @Binding var quickInvite: ProfileModel?
+    @Binding var selectedProfile: ProfileModel?
+    let imageWidth: CGFloat
+    
     var isInvite: Bool { profile.event != nil }
     
     var body: some View {
-            VStack {
-                ZStack {
-                    if let image = profile.image {
-                        Image(uiImage: image)
-                            .containerStyle(padding: 24)
-                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                            .overlay(alignment: .bottomLeading) {
-                                HStack(alignment: .bottom) {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text(profile.profile.name)
-                                            .font(.body(22, .bold))
-                                        Text("\(profile.profile.year) | \(profile.profile.degree) | \(profile.profile.hometown)")
-                                            .font(.body(14, .medium))
-                                    }
-                                    .foregroundStyle(.white)
-                                    
-                                    Spacer()
-                                    inviteButton
-                                }
-                                .padding(.vertical, 16)
-                                .padding(.horizontal)
+        VStack {
+            if let image = profile.image {
+                Image(uiImage: image)
+                    .resizable()
+                    .defaultImage(imageWidth)
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    .overlay(alignment: .bottomLeading) {
+                        HStack(alignment: .bottom) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(profile.profile.name)
+                                    .font(.body(22, .bold))
+                                Text("\(profile.profile.year) | \(profile.profile.degree) | \(profile.profile.hometown)")
+                                    .font(.body(14, .medium))
                             }
+                            .foregroundStyle(.white)
+                            
+                            Spacer()
+                            inviteButton
+                        }
+                        .padding(.vertical, 16)
+                        .padding(.horizontal)
                     }
-                }
-                if let time = profile.event?.time {
-                    HStack(spacing: 4) {
-                        Text("Expires in:")
-                        SimpleClockView(targetTime: time) {}
-                    }
-                    .font(.body(10, .regular))
-                    .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.horizontal, 24)
-                }
+                    .onTapGesture {selectedProfile = profile}
             }
+            if let time = profile.event?.time {
+                HStack(spacing: 4) {
+                    Text("Expires in:")
+                    SimpleClockView(targetTime: time) {}
+                }
+                .font(.body(10, .regular))
+                .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.horizontal, 24)
+            }
+        }
     }
 }
 

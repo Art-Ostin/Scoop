@@ -21,9 +21,7 @@ struct ProfileView: View {
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
-    
     @State var profileOpened = false
-    
     @State var detailsOpen: Bool = false
     @State var scrollImageBottomY: CGFloat = 0
     private var cornerRadius: CGFloat {
@@ -95,7 +93,8 @@ struct ProfileView: View {
                 },
                     including: .gesture
             )
-                ProfileDetailsView(screenWidth: proxy.size.width, p: vm.profileModel.profile, event: vm.profileModel.event)
+                
+                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event)
                     .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                     .offset(y: detailsOpen ? detailsOpenYOffset : 0)
                     .simultaneousGesture(
@@ -164,7 +163,11 @@ struct ProfileView: View {
 }
 
 // All the functionality for title and Popup
+
+
+
 extension ProfileView {
+    
     private var profileTitle: some View {
         HStack {
             let p = vm.profileModel.profile
@@ -222,6 +225,7 @@ extension ProfileView {
 }
 
 // All the functionality for animation when scrolling up and down
+
 extension ProfileView {
     
     var isOverExtended: Bool {

@@ -25,7 +25,6 @@ extension EnvironmentValues {
 }
 
 struct FlowNavigation: ViewModifier {
-    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.flowMode) private var mode
     
@@ -37,11 +36,10 @@ struct FlowNavigation: ViewModifier {
                 case .onboarding(_, _):
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("SAVE") { dismiss() }
-                            .font(.body(12))
-                            .foregroundStyle(Color.grayText)
+                            .font(.body(12, .bold))
                     }
                 case .profile:
-                    ToolbarItem(placement: .topBarLeading) { NavButton() }
+                    CloseToolBar(imageString: "chevron.left")
                 }
             }
     }

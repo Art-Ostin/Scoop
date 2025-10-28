@@ -38,7 +38,18 @@ extension View {
         shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
     }
     
-    func stroke(_ cornerRadius: CGFloat, lineWidth: CGFloat, color: Color) -> some View {
+    func containerShadow(
+        _ cornerRadius: CGFloat = 24, fill: Color = .background, color: Color = Color.black.opacity(0.22), radius: CGFloat = 6, y: CGFloat = 4) -> some View {
+        background(
+            RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(fill)
+            .shadow(color: color, radius: radius, y: y)
+        )
+    }
+    
+    
+    
+    func stroke(_ cornerRadius: CGFloat, lineWidth: CGFloat = 1, color: Color) -> some View {
         overlay (
             RoundedRectangle(cornerRadius: cornerRadius)
                 .strokeBorder(color, lineWidth: lineWidth)

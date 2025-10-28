@@ -21,7 +21,6 @@ struct TabTitle: View {
         Text(page.rawValue)
             .font(.custom("SFProRounded-Bold", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 12)
             .padding(.horizontal, 24)
             .opacity(Double(offset) / 70)
             .background (

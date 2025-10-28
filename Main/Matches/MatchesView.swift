@@ -20,15 +20,13 @@ struct MatchesView: View {
     init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
     
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                Color.background
-                ScrollView {
-                    VStack(spacing: 36) {
-                        VStack(spacing: 0) {
-                            tabSection
-                            TabTitle(page: .matches, offset: $scrollViewOffset)
-                        }
+        ZStack {
+            Color.background
+            ScrollView {
+                VStack(spacing: 36) {
+                    VStack(spacing: 14) {
+                        tabSection
+                        TabTitle(page: .matches, offset: $scrollViewOffset)
                     }
                 }
             }
@@ -36,37 +34,37 @@ struct MatchesView: View {
                 scrollViewOffset = value[.matches] ?? 0
             }
             .coordinateSpace(name: Page.matches)
-            .ignoresSafeArea()
         }
-        
-        
-        .sheet(isPresented: $showSettingsView) {
-            SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.s))
+        .fullScreenCover(isPresented: $showSettingsView) {
+            NavigationStack { SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.s))}
+        }
+        .fullScreenCover(isPresented: $showProfileView) {
+            NavigationStack {
+                EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, defaults: vm.defaultsManager))
+            }
         }
         .task(id: vm.user) {  image = try? await vm.fetchFirstImage()}
+        .ignoresSafeArea()
     }
 }
 
 extension MatchesView {
     
-    
     private var tabSection: some View {
         HStack(alignment: .top) {
-            Image(systemName: "gear")
-                .font(.body(20))
-                .padding(6)
-                .foregroundStyle(.black)
-                .glassIfAvailable()
-            
+            TabButton(image: Image(systemName: "gear"), isPresented: $showSettingsView, size: 20)
             Spacer()
-            
-            Image(uiImage: image ?? UIImage())
-                .resizable()
-                .scaledToFill()
-                .frame(width: 35, height: 35)
-                .clipShape(Circle())
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 15)
+            Button {
+                showProfileView = true
+            } label: {
+                Image(uiImage: image ?? UIImage())
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 35, height: 35)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
             }
+        }
         .padding(.top, 48)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 24)
@@ -77,27 +75,10 @@ extension MatchesView {
     private var noMatchesView: some View {
         VStack(spacing: 32) {
             Image("DancingCats")
-
+            
             Text("View your past Meet Ups Here")
                 .font(.body(20))
         }
         .frame(maxHeight: .infinity)
     }
 }
-
-
-
-/*
- 
-    if vm.events.isEmpty {
-         noMatchesView
-     } else {
-         VStack(spacing: 32) {
-             Text("HEllo World")
-             ForEach(vm.events) {profileModel in
-                 Text(profileModel.event?.otherUserName ?? "There was no name")
-             }
-         }
-     }
- 
- */

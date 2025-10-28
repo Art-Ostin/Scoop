@@ -8,27 +8,23 @@
 import SwiftUI
 
 struct SettingsView: View {
-    
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
-    
     @State var vm: SettingsViewModel
-    
     init(vm: SettingsViewModel) { self.vm = vm }
     
-    
-    
     var body: some View {
-        
         signOutSection
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle("Settings")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { CloseToolBar() }
     }
 }
 
 extension SettingsView {
     
     private var signOutSection: some View {
-        
         CustomList(title: vm.user.email) {
             Text("Sign Out")
                 .frame(maxWidth: .infinity)

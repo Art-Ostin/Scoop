@@ -30,11 +30,7 @@ struct EnterEmailView: View {
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .toolbar {
-              ToolbarItem(placement: .topBarTrailing) {
-                NavButton(.cross) { dismiss()}    // <-- pass the action here
-              }
-            }
+            .toolbar { CloseToolBar()}
         }
     }
 }
@@ -51,7 +47,6 @@ extension EnterEmailView {
                             .font(.body(18, .italic))
                             .kerning(0.5)
                     }
-                    
                     TextField ("", text: $vm.username)
                         .focused($isFocused)
                         .font(.body(20))
