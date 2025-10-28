@@ -192,11 +192,10 @@ extension ProfileView {
             }
         } else {
             if let meetVM {
-                SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: vm.profileModel) { event in
-                    @Bindable var meetVM = meetVM
-                    Task { try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel) }
+                SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { vm.showInvitePopup = false }) { event in
+                    try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel)
                     selectedProfile = nil
-                })
+                }
             }
         }
     }

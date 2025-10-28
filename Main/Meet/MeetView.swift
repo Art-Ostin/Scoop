@@ -22,71 +22,59 @@ struct MeetView: View {
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
-            ZStack {
-                Color.background
-                ScrollView {
-                    VStack(spacing: 36) {
-                        VStack {
-                            TabButton(image: Image(systemName: "info.circle"))
-                            TabTitle(page: .meet, offset: $scrollViewOffset)
-                        }
-                        profileScroller
-                        CustomDivider()
-                        MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
-                        pastInvites
-                            .offset(y: -12)
+        ZStack {
+            Color.background
+            ScrollView {
+                VStack(spacing: 36) {
+                    VStack {
+                        TabButton(image: Image(systemName: "info.circle"))
+                        TabTitle(page: .meet, offset: $scrollViewOffset)
                     }
-                    .padding(.bottom, 240)
+                    profileScroller
+                    CustomDivider()
+                    MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
+                    pastInvites
+                        .offset(y: -12)
                 }
-                .id(vm.profiles.count)
-                .tabViewModifiers(page: .meet, scrollViewOffset: $scrollViewOffset)
-                
-                if let profileModel = selectedProfile {
-                    
-                    ProfileImageTest2(profile: profileModel, cacheManager: vm.cacheManager)
-                    
-                    /*
-                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
-                         .id(profileModel.id)
-                         .transition(.move(edge: .bottom))
-                         .zIndex(1)
-                         .ignoresSafeArea()
-                     */
-                }
-                if let currentProfile = quickInvite {
-                    CustomScreenCover { quickInvite = nil }
-                    
-                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(profile: currentProfile, onSubmit: { event in
-                        Task { try? await vm.sendInvite(event: event, profileModel: currentProfile) }
-                    }))
-                }
-                if showIdealTime {
-                    CustomScreenCover { showIdealTime = false}
-                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(text: "Find Profiles") { event in
-                        Task {
-                            try await vm.saveIdealMeetUp(event: event)
-                            try await vm.createWeeklyCycle()
-                        }
-                    })
+                .padding(.bottom, 240)
+            }
+            .id(vm.profiles.count)
+            .tabViewModifiers(page: .meet, scrollViewOffset: $scrollViewOffset)
+            
+            if let profileModel = selectedProfile {
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
+                    .id(profileModel.id)
+                    .transition(.move(edge: .bottom))
+                    .zIndex(1)
+                    .ignoresSafeArea()
+            }
+            if let currentProfile = quickInvite {
+                SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
+                    try? await vm.sendInvite(event: event, profileModel: currentProfile)
                 }
             }
-            .fullScreenCover(item: $showProfileTest) { profile in
-                ProfileImageTest2(profile: profile, cacheManager: vm.cacheManager)
-            }
-            .sheet(isPresented: $showPendingInvites) {
-                NavigationStack {
-                    PendingInviteView(showInvitedProfile: $selectedProfile, vm: vm, showPendingInvites: $showPendingInvites, wasInviteSelected: $wasInviteSelected)
-                        .navigationTitle("Your Pending Invites")
-                        .navigationBarTitleDisplayMode(.inline)
+            
+            if showIdealTime {
+                SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
+                    try? await vm.saveIdealMeetUp(event: event)
+                    try? await vm.createWeeklyCycle()
                 }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
             }
-            .onChange(of: selectedProfile) { oldValue, newValue in
-                guard newValue == nil, wasInviteSelected else { return }
-                withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
-                wasInviteSelected = false
+        }
+        .sheet(isPresented: $showPendingInvites) {
+            NavigationStack {
+                PendingInviteView(showInvitedProfile: $selectedProfile, vm: vm, showPendingInvites: $showPendingInvites, wasInviteSelected: $wasInviteSelected)
+                    .navigationTitle("Your Pending Invites")
+                    .navigationBarTitleDisplayMode(.inline)
             }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+        .onChange(of: selectedProfile) { oldValue, newValue in
+            guard newValue == nil, wasInviteSelected else { return }
+            withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
+            wasInviteSelected = false
+        }
     }
 }
 
@@ -99,8 +87,7 @@ extension MeetView {
                     ProfileCard(vm: vm, profile: profileInvite, quickInvite: $quickInvite)
                         .onTapGesture {
                             withAnimation(.smooth(duration: 0.2)) {
-//                                selectedProfile = profileInvite
-                                showProfileTest = profileInvite
+                                selectedProfile = profileInvite
                             }
                         }
                 }
@@ -162,3 +149,4 @@ extension MeetView {
         .padding(.horizontal, 36)
     }
 }
+

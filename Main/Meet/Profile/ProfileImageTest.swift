@@ -30,18 +30,8 @@ struct ProfileImageTest2: View {
         ScrollView(.horizontal) {
           HStack(spacing: 0) {
             ForEach(images.indices, id: \.self) { i in
-              ZStack {
-                // This invisible view makes the container square based on the given width.
-                Color.clear
-                  .aspectRatio(1, contentMode: .fit)
-
                 Image(uiImage: images[i])
-                  .resizable()
-                  .scaledToFit()
-              }
-              .clipShape(RoundedRectangle(cornerRadius: 16))
-              .clipped()
-              .containerRelativeFrame(.horizontal) { length, _ in length - 16 } // width = page - padding
+                    .containerStyle(padding: 12, radius: 16)
               .id(i)
             }
           }

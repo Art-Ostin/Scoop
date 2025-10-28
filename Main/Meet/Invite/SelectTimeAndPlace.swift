@@ -14,34 +14,36 @@ import MapKit
     var showMapView: Bool = false
     var showAlert: Bool = false
     
-    let onSubmit: (EventDraft) -> Void
 
-    init(text: String = "Confirm & Send", profile: ProfileModel? = nil, onSubmit: @escaping (EventDraft) -> ()) {
+    init(text: String, profile: ProfileModel? = nil) {
         self.text = text
         self.profile = profile
-        self.onSubmit = onSubmit
         self.event = EventDraft()
     }
 }
 
 struct SelectTimeAndPlace: View {
-        
-    @FocusState var isFocused: Bool
     @State var vm: TimeAndPlaceViewModel
+    let onDismiss: () -> Void
+    let onSubmit: @Sendable (EventDraft) async -> Void
+    
+    init(profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
+        _vm = .init(initialValue: .init(text: text, profile: profile))
+        self.onDismiss = onDismiss
+        self.onSubmit = onSubmit
+    }
 
-    init(vm: TimeAndPlaceViewModel) { self.vm = vm }
     
     var body: some View {
         
         ZStack {
-
+            CustomScreenCover {onDismiss()}
             sendInviteScreen
             
             if vm.showTypePopup {
                 SelectTypeView(vm: $vm)
                     .offset(y: 96)
             }
-            
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
                     .offset(y: 164)
@@ -56,7 +58,8 @@ struct SelectTimeAndPlace: View {
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
-                vm.onSubmit(vm.event)
+                onDismiss()
+                Task { await onSubmit(vm.event)}
             }
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")
@@ -93,7 +96,7 @@ extension SelectTimeAndPlace {
                 if vm.text == "Confirm & Send" {
                     vm.showAlert.toggle()
                 } else {
-                    vm.onSubmit(vm.event)
+                    Task { await onSubmit(vm.event) }
                 }
             }
         }

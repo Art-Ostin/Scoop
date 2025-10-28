@@ -8,16 +8,34 @@
 import SwiftUI
 
 
+//extension Image {
+//    func containerStyle(padding: CGFloat, radius: CGFloat = 18) -> some View {
+//        self
+//            .resizable()
+//            .scaledToFill()
+//            .aspectRatio(1, contentMode: .fill)
+//            .containerRelativeFrame(.horizontal) { length, _ in length - (padding * 2) }
+//            .clipShape(RoundedRectangle(cornerRadius: radius))
+//    }
+//}
+
 extension Image {
-    func containerStyle(padding: CGFloat, radius: CGFloat = 18) -> some View {
-        self
-            .resizable()
-            .aspectRatio(1, contentMode: .fill)
-            .containerRelativeFrame(.horizontal) { length, _ in length - (padding * 2) }
-            .clipShape(RoundedRectangle(cornerRadius: radius))
+    func containerStyle(padding: CGFloat = 0, radius: CGFloat = 18) -> some View {
+        ZStack {
+            // sets a square layout (height equals width)
+            Color.clear.aspectRatio(1, contentMode: .fit)
+            // fills that square and gets clipped top/bottom as needed
+            self.resizable().scaledToFill()
+        }
+        .containerRelativeFrame([.horizontal, .vertical]) {
+                        
+            length, _ in length - (padding * 2)
+            
+            
+        }
+        .clipShape(RoundedRectangle(cornerRadius: radius))
     }
 }
-
 
 
 
@@ -37,7 +55,6 @@ struct ImageModifier: ViewModifier {
 
 extension View {
     func defaultImage(_ size: CGFloat, _ radius: CGFloat = 18) -> some View { modifier(ImageModifier(size: size, radius: radius)) }
-    
 }
 
 

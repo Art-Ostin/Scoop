@@ -18,7 +18,6 @@ struct ProfileDetailsView: View {
     
     @State var responseLines1 = 3
     @State var responseLines2 = 3
-    
 
     var body: some View {
         
