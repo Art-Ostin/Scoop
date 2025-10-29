@@ -12,26 +12,30 @@ struct EditHeight: View {
     @Bindable var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
     
-    let heightOptions = (53...84).map { inches in
+    let heightOptions = (45...84).map { inches in
         "\(inches / 12)' \(inches % 12)"
     }
-    @State var height = "5' 4"
+    private var selection: Binding<String> {
+        Binding(
+            get: { vm.draftUser?.height ?? "5' 4" },
+            set: { vm.set(.height, \.height, to: $0) }
+        )
+    }
     
     var body: some View {
         VStack {
             SignUpTitle(text: "Height")
-            Picker("Height", selection: $height) {
+            Picker("Height", selection: selection) {
                 ForEach(heightOptions, id: \.self) { option in
                     Text(option).font(.body(20))
                 }
             }
-            .onChange(of: height) { vm.set(.height, \.height, to: height) }
             .pickerStyle(.wheel)
             .padding(.horizontal, 36)
             if case .onboarding(_, let advance) = mode {
                 NextButton(isEnabled: true) {
+                    vm.saveDraft(_kp: \.height, to: selection.wrappedValue)
                     advance()
-                    vm.saveDraft(_kp: \.height, to: height)
                 }
             }
         }
@@ -39,7 +43,6 @@ struct EditHeight: View {
         .padding(.horizontal, 24)
         .background(Color.background)
         .flowNavigation()
-        .onAppear { height = vm.draftUser?.height ?? height }
     }
 }
 

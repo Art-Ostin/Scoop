@@ -39,7 +39,7 @@ import FirebaseAuth
     
     func createAuthUser (email: String, password: String) async throws {
         let authData = try await authManager.createAuthUser(email: email, password: password)
-        defaultsManager.setDraftProfile(authUser: authData)
+        defaultsManager.setDraftProfile(user: authData.user)
     }
     
     func signInUser(email: String, password: String) async throws {

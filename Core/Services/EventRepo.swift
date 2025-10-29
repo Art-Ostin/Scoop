@@ -140,6 +140,7 @@ class EventManager {
         }
         return (initial, updates)
     }
+    
     func updateStatus(eventId: String, to newStatus: EventStatus) async throws {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])

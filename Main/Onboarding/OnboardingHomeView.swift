@@ -31,12 +31,22 @@ struct OnboardingHomeView: View {
             }
         }
         .task {
-            guard let draft = dep.defaultsManager.fetch(), let user = await dep.authManager.fetchAuthUser() else {
+            guard
+                let user = await dep.authManager.fetchAuthUser()
+            else {
                 appState.wrappedValue = .login
                 return
             }
-            print(draft) ; print(user)
+            
+            guard let draft = dep.defaultsManager.fetch() else {
+                dep.defaultsManager.deleteDefaults()
+                dep.defaultsManager.setDraftProfile(user: user)
+                return
+            }
+            print(draft)
+            print(user)
         }
+        
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, cycleManager: dep.cycleManager, eventManager: dep.eventManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)
         }

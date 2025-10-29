@@ -27,8 +27,8 @@ import FirebaseAuth
         self.onboardingStep = defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0
     }
     
-    func setDraftProfile(authUser: AuthDataResult) {
-        let profile = DraftProfile(auth: authUser)
+    func setDraftProfile(user: User) {
+        let profile = DraftProfile(user: user)
         guard let data = try? JSONEncoder().encode(profile) else {return}
         defaults.set(data, forKey: Keys.draftProfile.rawValue)
         print("set draft Profile Called")
@@ -63,8 +63,6 @@ import FirebaseAuth
     }
     
     func advanceOnboarding() { onboardingStep += 1 }
-
-    
 
     
 }

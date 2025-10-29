@@ -29,7 +29,7 @@ protocol FirestoreService {
 protocol AuthManaging {
     func createAuthUser(email: String, password: String) async throws -> AuthDataResult
     func signInAuthUser(email: String, password: String) async throws
-    func fetchAuthUser () async -> String?
+    func fetchAuthUser () async -> User?
     func signOutAuthUser() throws
     func deleteAuthUser() async throws
     func authStateStream() -> AsyncStream<String?>

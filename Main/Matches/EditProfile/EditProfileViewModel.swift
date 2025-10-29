@@ -20,14 +20,24 @@ struct ImageSlot: Equatable {
 @MainActor
 @Observable class EditProfileViewModel {
     
-    var defaults: DefaultsManager
-    var cacheManager: CacheManaging
-    var userManager: UserManager
-    var s: SessionManager
-    var storageManager: StorageManaging
-    var cycleManager: CycleManager
-    var eventManager: EventManager
-    var draftUser: UserProfile?
+    @ObservationIgnored private let userManager: UserManager
+    @ObservationIgnored private let defaults: DefaultsManager
+    @ObservationIgnored private let cacheManager: CacheManaging
+    @ObservationIgnored private let s: SessionManager
+    @ObservationIgnored private let storageManager: StorageManaging
+    @ObservationIgnored private let cycleManager: CycleManager
+    @ObservationIgnored private let eventManager: EventManager
+    @ObservationIgnored private let draftUser: UserProfile?
+    
+    var tempProfile: UserProfile? = nil
+
+    
+    
+    
+    
+    
+    
+    
     
     var showSaveButton: Bool {
         !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty
@@ -45,8 +55,12 @@ struct ImageSlot: Equatable {
     }
     
     var user: UserProfile { s.user }
-    
+
+
+    //Stores an array of all the edited fields, and their new value
     var updatedFields: [UserProfile.Field : Any] = [:]
+
+    
     
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         guard var draftUser else {return}
@@ -230,9 +244,6 @@ struct ImageSlot: Equatable {
         try await userManager.updateUser(userId: user.id, values: values)
     }
     
-    
-    
-    
     //Nationality Functionality
     var selectedCountries: [String] = []
     let countries = CountryDataServices.shared.allCountries
@@ -270,6 +281,8 @@ struct ImageSlot: Equatable {
         selectedCountries = draftUser.nationality
     }
     
+    
+
     //Onboarding Functions
     var draftProfile: DraftProfile? { defaults.fetch() }
     

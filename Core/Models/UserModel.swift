@@ -30,9 +30,9 @@ struct DraftProfile: Codable {
     var prompt1 = PromptResponse(prompt: "", response: "")
     var prompt2 = PromptResponse(prompt: "", response: "")
     
-    init(auth: AuthDataResult) {
-        self.id = auth.user.uid
-        self.email = auth.user.email ?? ""
+    init(user: User) {
+        self.id = user.uid
+        self.email = user.email ?? ""
     }
 }
 

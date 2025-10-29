@@ -66,7 +66,6 @@ final class LiveFirestoreService: FirestoreService {
         try await update(path, fields: payload)
     }
     
-    
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
         AsyncThrowingStream { continuation in
             let reg = db.document(path).addSnapshotListener { snapshot, error in

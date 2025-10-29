@@ -9,7 +9,6 @@ import SwiftUI
 
 @Observable class OnboardingViewModel {
     
-    
     var authManager: AuthManaging
     var defaultsManager: DefaultsManager
     
@@ -21,6 +20,6 @@ import SwiftUI
     func signOut() async throws {
         try await authManager.deleteAuthUser()
         defaultsManager.deleteDefaults()
-    }
+    }    
 }
 
