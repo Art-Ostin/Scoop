@@ -17,9 +17,18 @@ struct ImageSlot: Equatable {
     var url: URL?
 }
 
+/*
+ 
+ 
+*/
+
+
+
+
 @MainActor
 @Observable class EditProfileViewModel {
     
+    //Dependency services required for updating the User's  Profile
     @ObservationIgnored private let userManager: UserManager
     @ObservationIgnored private let defaults: DefaultsManager
     @ObservationIgnored private let cacheManager: CacheManaging
@@ -27,46 +36,44 @@ struct ImageSlot: Equatable {
     @ObservationIgnored private let storageManager: StorageManaging
     @ObservationIgnored private let cycleManager: CycleManager
     @ObservationIgnored private let eventManager: EventManager
-    @ObservationIgnored private let draftUser: UserProfile?
     
-    var tempProfile: UserProfile? = nil
+    var updateProfileDraft: UserProfile
+    
+    var updatedFields: [UserProfile.Field : Any] = [:]
+    var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
+    var updatedImages: [(index: Int, data: Data)] = []
+    
 
+    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, defaults: DefaultsManager) {
+        self.cacheManager = cacheManager
+        self.s = s
+        self.userManager = userManager
+        self.storageManager = storageManager
+        self.updateProfileDraft = s.user
+        self.defaults = defaults
+        self.cycleManager = cycleManager
+        self.eventManager = eventManager
+    }
     
     
-    
-    
-    
-    
+    var user: UserProfile { s.user }    
     
     
     var showSaveButton: Bool {
         !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty
     }
     
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, draftUser: UserProfile? = nil, defaults: DefaultsManager) {
-        self.cacheManager = cacheManager
-        self.s = s
-        self.userManager = userManager
-        self.storageManager = storageManager
-        self.draftUser = draftUser
-        self.defaults = defaults
-        self.cycleManager = cycleManager
-        self.eventManager = eventManager
-    }
     
-    var user: UserProfile { s.user }
-
-
+    
     //Stores an array of all the edited fields, and their new value
-    var updatedFields: [UserProfile.Field : Any] = [:]
 
-    
     
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         guard var draftUser else {return}
         draftUser[keyPath: kp] = value
         updatedFields[key] = value
     }
+    
     
     func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse>, to value: PromptResponse) {
         guard var draftUser else {return}
@@ -81,7 +88,6 @@ struct ImageSlot: Equatable {
         try await userManager.updateUser(userId: user.id, values: updatedFields)
     }
     
-    var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     
     func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
         guard var draftUser else {return}
@@ -137,7 +143,6 @@ struct ImageSlot: Equatable {
         try await saveUpdatedImages()
     }
     
-    var updatedImages: [(index: Int, data: Data)] = []
     
     func saveUpdatedImages() async throws {
         let updates = updatedImages
@@ -280,14 +285,15 @@ struct ImageSlot: Equatable {
         guard let draftUser else {return}
         selectedCountries = draftUser.nationality
     }
-    
-    
-
-    //Onboarding Functions
-    var draftProfile: DraftProfile? { defaults.fetch() }
-    
     func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
         defaults.update(kp, to: value)
         print("saved")
     }
 }
+
+/*
+
+ //Onboarding Functions
+//    var draftProfile: DraftProfile? { defaults.fetch() }
+ 
+ */

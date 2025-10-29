@@ -8,61 +8,48 @@
 import Foundation
 import FirebaseAuth
 
-
+//Updates & stores a 'Draft Profile' during onboarding which persists between sessions. Also saves user's onboarding stage
 @Observable final class DefaultsManager {
     
     private let defaults: UserDefaults
+    private enum Keys: String { case draftProfile, onboardingStep}
     
-    private enum Keys: String {
-        case draftProfile
-        case onboardingStep
-    }
-    
+    //Using the 'didSet' everytime I update the onboardingStep or signUpDraft it saves the change to defaults
     var onboardingStep: Int {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
+    }
+    
+    //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
+    var signUpDraft: DraftProfile? {
+        didSet {
+            if let draft = signUpDraft, let data = try? JSONEncoder().encode(draft) {
+                defaults.set(data, forKey: Keys.draftProfile.rawValue)
+            } else {
+                defaults.removeObject(forKey: Keys.draftProfile.rawValue) // clear when nil
+            }
+        }
     }
     
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.onboardingStep = defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0
+        if let data = defaults.data(forKey: Keys.draftProfile.rawValue) { signUpDraft = try? JSONDecoder().decode(DraftProfile.self, from: data)}
     }
     
-    func setDraftProfile(user: User) {
-        let profile = DraftProfile(user: user)
-        guard let data = try? JSONEncoder().encode(profile) else {return}
-        defaults.set(data, forKey: Keys.draftProfile.rawValue)
-        print("set draft Profile Called")
+    func createDraftProfile(user: User) {
+        signUpDraft = DraftProfile(user: user)
     }
     
-    func fetch() -> DraftProfile? {
-        guard let data = defaults.data(forKey: Keys.draftProfile.rawValue),
-            let profile = try? JSONDecoder().decode(DraftProfile.self, from: data)
-        else { return nil }
-        return profile
+    func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T) {
+        guard var d = signUpDraft else { return }
+        d[keyPath: keyPath] = value
+        signUpDraft = d
     }
-    
-    func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T){
-        guard var draft = fetch() else { return }
-        draft[keyPath: keyPath] = value
-        save(draft)
-    }
-    
-    func save(_ draft: DraftProfile) {
-        if let data = try? JSONEncoder().encode(draft) {
-            defaults.set(data, forKey: Keys.draftProfile.rawValue)
-        }
-        if let draftProfile = fetch() {
-            print("Saved draft profile: \(draftProfile)")
-        }
-    }
-    
+        
     func deleteDefaults() {
-        defaults.removeObject(forKey: Keys.onboardingStep.rawValue)
-        defaults.removeObject(forKey: Keys.draftProfile.rawValue)
+        signUpDraft = nil
         onboardingStep = 0
     }
     
     func advanceOnboarding() { onboardingStep += 1 }
-
-    
 }
