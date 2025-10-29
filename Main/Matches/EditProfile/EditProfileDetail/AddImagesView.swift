@@ -30,23 +30,20 @@ struct AddImageView: View {
                 .foregroundStyle(Color.grayText)
             
             LazyVGrid(columns: columns, spacing: 36) {
-                ForEach(0..<6) {idx in
+                ForEach(0..<6) { idx in
                     EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
                         try await vm.changeImage(at: idx, onboarding: true)
                     }
                 }
             }
+            
             ActionButton(isValid: vm.isValid, text: "Complete") {
-                print(vm.draftUser ?? "No draft")
                 Task {
-                    if let draftUser = vm.draftProfile {
-                        do {
-                            let profile = try vm.userManager.createUser(draft: draftUser)
-                             await vm.s.startSession(user: profile)
-                             appState.wrappedValue = .app
-                        } catch {
-                            print(error)
-                        }
+                    do {
+                        try await vm.createProfile()
+                        appState.wrappedValue = .app
+                    } catch {
+                        print(error)
                     }
                 }
             }

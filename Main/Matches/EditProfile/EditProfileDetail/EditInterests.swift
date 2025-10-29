@@ -28,7 +28,6 @@ struct EditInterests: View {
         (nil,nil,i.music3)
         ]
     }
-    
     var body: some View {
         ZStack {
             VStack(spacing: 4) {
@@ -46,7 +45,7 @@ struct EditInterests: View {
             }
         }
         .flowNavigation()
-        .task { selected = vm.draftUser?.interests ?? []}
+        .task { selected = vm.draft.interests}
         .padding(.horizontal)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background.ignoresSafeArea())
@@ -128,9 +127,7 @@ struct InterestSection: View {
                     } else {
                         shakeTicks[text, default: 0] &+= 1
                     }
-                    if vm.draftUser != nil {
-                        vm.setArray(.interests, \.interests, to: [text], add: vm.interestIsSelected(text: text) ? false : true)
-                    }
+                    vm.setArray(.interests, \.interests, to: [text], add: vm.interestIsSelected(text: text) ? false : true)
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
                 .animation(.easeInOut(duration: 0.3), value: shakeTicks[input, default: 0])

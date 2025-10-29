@@ -19,6 +19,7 @@ struct EditMyLifeAs: View {
     private enum Field: Hashable { case movie, song, book }
     @State var typeSelection: [String] = ["Movie", "Song", "Book"]
     @FocusState private var focus: Field?
+
     
     var body: some View {
         
@@ -63,9 +64,9 @@ struct EditMyLifeAs: View {
         .onChange(of: selectedSong) { vm.set(.favouriteSong, \.favouriteSong, to: selectedSong)}
         .onChange(of: selectedBook) { vm.set(.favouriteBook, \.favouriteBook, to: selectedBook)}
         .onAppear {
-            selectedMovie = vm.draftUser?.favouriteMovie ?? ""
-            selectedSong = vm.draftUser?.favouriteSong ?? ""
-            selectedBook =  vm.draftUser?.favouriteBook ?? ""
+            selectedMovie = vm.draft.favouriteMovie ?? ""
+            selectedSong = vm.draft.favouriteSong ?? ""
+            selectedBook =  vm.draft.favouriteBook ?? ""
             DispatchQueue.main.async { focus = .movie }
         }
     }

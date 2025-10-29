@@ -13,9 +13,10 @@ struct EditNationality: View {
     @Bindable var vm: EditProfileViewModel
     @State private var shakeTicks: [String: Int] = [:]
     
-    
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
+    
+    
     
     var body: some View {
         VStack(spacing: 36) {

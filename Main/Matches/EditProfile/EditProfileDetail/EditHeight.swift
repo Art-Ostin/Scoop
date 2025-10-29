@@ -15,12 +15,19 @@ struct EditHeight: View {
     let heightOptions = (45...84).map { inches in
         "\(inches / 12)' \(inches % 12)"
     }
-    private var selection: Binding<String> {
-        Binding(
-            get: { vm.draftUser?.height ?? "5' 4" },
-            set: { vm.set(.height, \.height, to: $0) }
-        )
+    @State private var localHeight = ""
+    var selection: Binding<String> {
+        switch mode {
+        case .onboarding:
+            return $localHeight
+        case .profile:
+            return Binding(
+                get: { vm.draft.height },
+                set: { vm.set(.height, \.height, to: $0) }
+            )
+        }
     }
+    
     
     var body: some View {
         VStack {

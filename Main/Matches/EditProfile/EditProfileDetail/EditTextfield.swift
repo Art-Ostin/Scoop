@@ -49,20 +49,35 @@ enum TextFieldOptions: CaseIterable {
 }
 
 struct TextFieldEdit: View {
+    
     @Environment(\.flowMode) private var mode
     @Bindable var vm: EditProfileViewModel
-    @State private var text: String = ""
     @FocusState var focused: Bool
+        
     let field: TextFieldOptions
+    
+    @State private var onboardingText = ""
+    var text: Binding<String> {
+        switch mode {
+        case .onboarding:
+            return $onboardingText
+        case .profile:
+            return Binding(
+                get: { vm.draft[keyPath: field.keyPath] },
+                set: { vm.set(field.key, field.keyPath, to: $0) }
+            )
+        }
+    }
+   
     
     var body: some View {
         VStack(spacing: 72)  {
             SignUpTitle(text: field.title)
             customTextField
             if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: text.count > 0) {
+                NextButton(isEnabled: text.wrappedValue.count > 0) {
                     advance()
-                    vm.saveDraft(_kp: field.draftKeyPath, to: text)
+                    vm.saveDraft(_kp: field.draftKeyPath, to: text.wrappedValue)
                 }
                 .padding(.top, 36)
             }
@@ -74,13 +89,7 @@ struct TextFieldEdit: View {
         .padding(.horizontal)
         .background(Color.background)
         .ignoresSafeArea(.keyboard)
-        .onAppear {
-            if let user = vm.draftUser {
-                text = user[keyPath: field.keyPath]
-            }
-        }
         .flowNavigation()
-        .onChange(of: text) { vm.set(field.key, field.keyPath, to: text) }
     }
 }
 
@@ -88,7 +97,7 @@ extension TextFieldEdit {
 
     private var customTextField: some View  {
         VStack {
-            TextField("Type \(field.title) here", text: $text)
+            TextField("Type \(field.title) here", text: text)
                 .frame(maxWidth: .infinity)
                 .font(.body(24))
                 .font(.body(.medium))
@@ -104,3 +113,11 @@ extension TextFieldEdit {
         }
     }
 }
+
+/*
+ .onAppear {
+     text = vm.draft[keyPath: field.keyPath]
+ }
+ .onChange(of: text) { vm.set(field.key, field.keyPath, to: text) }
+
+ */

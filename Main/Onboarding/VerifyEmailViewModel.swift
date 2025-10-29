@@ -35,11 +35,11 @@ import FirebaseAuth
     var username: String = ""
     var email: String { "\(username)@mail.mcgill.ca" }
     var password: String = "HelloWorld"
-    
+
     
     func createAuthUser (email: String, password: String) async throws {
         let authData = try await authManager.createAuthUser(email: email, password: password)
-        defaultsManager.setDraftProfile(user: authData.user)
+        defaultsManager.createDraftProfile(user: authData.user)
     }
     
     func signInUser(email: String, password: String) async throws {

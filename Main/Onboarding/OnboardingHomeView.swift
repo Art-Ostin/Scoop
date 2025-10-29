@@ -38,9 +38,9 @@ struct OnboardingHomeView: View {
                 return
             }
             
-            guard let draft = dep.defaultsManager.fetch() else {
+            guard let draft = dep.defaultsManager.signUpDraft else {
                 dep.defaultsManager.deleteDefaults()
-                dep.defaultsManager.setDraftProfile(user: user)
+                dep.defaultsManager.signUpDraft = .init(user: user)
                 return
             }
             print(draft)

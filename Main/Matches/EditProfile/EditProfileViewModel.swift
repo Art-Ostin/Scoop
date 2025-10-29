@@ -17,13 +17,6 @@ struct ImageSlot: Equatable {
     var url: URL?
 }
 
-/*
- 
- 
-*/
-
-
-
 
 @MainActor
 @Observable class EditProfileViewModel {
@@ -31,13 +24,13 @@ struct ImageSlot: Equatable {
     //Dependency services required for updating the User's  Profile
     @ObservationIgnored private let userManager: UserManager
     @ObservationIgnored private let defaults: DefaultsManager
-    @ObservationIgnored private let cacheManager: CacheManaging
+    @ObservationIgnored let cacheManager: CacheManaging
     @ObservationIgnored private let s: SessionManager
     @ObservationIgnored private let storageManager: StorageManaging
     @ObservationIgnored private let cycleManager: CycleManager
     @ObservationIgnored private let eventManager: EventManager
     
-    var updateProfileDraft: UserProfile
+    var draft: UserProfile
     
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
@@ -49,58 +42,62 @@ struct ImageSlot: Equatable {
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
-        self.updateProfileDraft = s.user
+        self.draft = s.user
         self.defaults = defaults
         self.cycleManager = cycleManager
         self.eventManager = eventManager
     }
     
-    
-    var user: UserProfile { s.user }    
+    var user: UserProfile { s.user }
     
     
     var showSaveButton: Bool {
         !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty
     }
     
-    
-    
-    //Stores an array of all the edited fields, and their new value
-
-    
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
-        guard var draftUser else {return}
-        draftUser[keyPath: kp] = value
+        draft[keyPath: kp] = value
         updatedFields[key] = value
     }
     
-    
     func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse>, to value: PromptResponse) {
-        guard var draftUser else {return}
-        print(value)
-        print(kp)
-        draftUser[keyPath: kp] = value
+        draft[keyPath: kp] = value
         updatedFields[key] = ["prompt": value.prompt, "response": value.response]
+    }
+    
+    func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
+        if add == true {
+            draft[keyPath: kp].append(contentsOf: elements)
+        } else {
+            let removeSet = Set(elements)
+            draft[keyPath: kp].removeAll { removeSet.contains($0) }
+        }
+        updatedFieldsArray.append((field: key, value: elements, add: add))
+    }
+        
+    private func setDraftImage(at index: Int, path: String, url: URL) {
+        var p = draft.imagePath
+        var u = draft.imagePathURL
+        if p.count < 6 { p += Array(repeating: "", count: 6 - p.count) }
+        if u.count < 6 { u += Array(repeating: "", count: 6 - u.count) }
+        
+        p[index] = path
+        u[index] = url.absoluteString
+
+        saveDraft(_kp: \.imagePath, to: p)
+        saveDraft(_kp: \.imagePathURL, to: u)
+        
+        if slots.indices.contains(index) {
+            slots[index].path = path
+            slots[index].url  = url
+        }
     }
     
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(userId: user.id, values: updatedFields)
     }
-    
-    
-    func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
-        guard var draftUser else {return}
-        if add == true {
-            draftUser[keyPath: kp].append(contentsOf: elements)
-        } else {
-            let removeSet = Set(elements)
-            draftUser[keyPath: kp].removeAll { removeSet.contains($0) }
-        }
-        updatedFieldsArray.append((field: key, value: elements, add: add))
-        print(updatedFieldsArray)
-    }
-    
+        
     func saveUserArray() async throws {
         guard !updatedFieldsArray.isEmpty else { return }
         for (field, value, add) in updatedFieldsArray {
@@ -108,41 +105,6 @@ struct ImageSlot: Equatable {
             try await userManager.updateUserArray(userId: user.id, values: data, add: add )
         }
     }
-    
-    //Images
-    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
-    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
-    var images: [UIImage] = Array(repeating: placeholder, count: 6)
-    
-    var isValid: Bool {
-        images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
-    }
-    
-    @MainActor
-    func assignSlots() async {
-        let paths = user.imagePath
-        let urlStrings = user.imagePathURL
-        let urls = urlStrings.compactMap(URL.init(string:))
-        var newImages = Array(repeating: Self.placeholder, count: 6)
-        for i in 0..<min(urls.count, 6) {
-            if let img = try? await cacheManager.fetchImage(for: urls[i]) {
-                newImages[i] = img
-            }
-        }
-        for i in 0..<6 {
-            slots[i].path = i < paths.count ? paths[i] : nil
-            slots[i].url  = i < urls.count  ? urls[i]  : nil
-            slots[i].pickerItem = nil
-        }
-        images = newImages
-    }
-    
-    func saveProfileChanges() async throws {
-        try await saveUser()
-        try await saveUserArray()
-        try await saveUpdatedImages()
-    }
-    
     
     func saveUpdatedImages() async throws {
         let updates = updatedImages
@@ -182,6 +144,42 @@ struct ImageSlot: Equatable {
     }
     
     
+    
+    
+    //Images
+    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
+    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
+    var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    
+    var isValid: Bool {
+        images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
+    }
+    
+    @MainActor
+    func assignSlots() async {
+        let paths = user.imagePath
+        let urlStrings = user.imagePathURL
+        let urls = urlStrings.compactMap(URL.init(string:))
+        var newImages = Array(repeating: Self.placeholder, count: 6)
+        for i in 0..<min(urls.count, 6) {
+            if let img = try? await cacheManager.fetchImage(for: urls[i]) {
+                newImages[i] = img
+            }
+        }
+        for i in 0..<6 {
+            slots[i].path = i < paths.count ? paths[i] : nil
+            slots[i].url  = i < urls.count  ? urls[i]  : nil
+            slots[i].pickerItem = nil
+        }
+        images = newImages
+    }
+    
+    func saveProfileChanges() async throws {
+        try await saveUser()
+        try await saveUserArray()
+        try await saveUpdatedImages()
+    }
+    
     func changeImage(at index: Int, onboarding: Bool = false) async throws {
         guard
             let selection = slots[index].pickerItem,
@@ -203,8 +201,7 @@ struct ImageSlot: Equatable {
             if let oldURL = slots[index].url { cacheManager.removeImage(for: oldURL) }
             if let oldPath = slots[index].path { try? await storageManager.deleteImage(path: oldPath)}
             
-
-            if let draftProfile = defaults.fetch() {
+            if let draftProfile = defaults.signUpDraft {
                 let id = draftProfile.id
                 
                 
@@ -217,25 +214,7 @@ struct ImageSlot: Equatable {
         }
     }
     
-    
-    private func setDraftImage(at index: Int, path: String, url: URL) {
-        var p = draftProfile?.imagePath ?? []
-        var u = draftProfile?.imagePathURL ?? []
-        if p.count < 6 { p += Array(repeating: "", count: 6 - p.count) }
-        if u.count < 6 { u += Array(repeating: "", count: 6 - u.count) }
         
-        p[index] = path
-        u[index] = url.absoluteString
-        
-        saveDraft(_kp: \.imagePath, to: p)
-        saveDraft(_kp: \.imagePathURL, to: u)
-        
-        if slots.indices.contains(index) {
-            slots[index].path = path
-            slots[index].url  = url
-        }
-    }
-    
     
     func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
         user[keyPath: key]
@@ -282,12 +261,22 @@ struct ImageSlot: Equatable {
     }
     
     func fetchNationality() {
-        guard let draftUser else {return}
-        selectedCountries = draftUser.nationality
+        selectedCountries = draft.nationality
     }
+    
+    
     func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
         defaults.update(kp, to: value)
         print("saved")
+    }
+    
+    func createProfile() async throws {
+        guard let signUpDraft = defaults.signUpDraft else {
+            print("No draft")
+            return
+        }
+        let profile = try userManager.createUser(draft: signUpDraft)
+        await s.startSession(user: profile)
     }
 }
 

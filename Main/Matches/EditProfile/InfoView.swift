@@ -13,7 +13,7 @@ struct InfoView: View {
     
     
     private var coreInfo: [EditPreview] {
-        guard let u = vm.draftUser else { return [] }
+         let u = vm.draft /*else { return [] }*/
 
         return [
             EditPreview("Name", [u.name]) {
@@ -39,7 +39,7 @@ struct InfoView: View {
     
     
     private var aboutMe: [EditPreview] {
-        guard let u = vm.draftUser else { return [] }
+         let u = vm.draft /* else { return [] }*/
 
         let lifestyle =
         "Drinking: \(u.drinking.lowercased()), " +

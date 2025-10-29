@@ -60,10 +60,22 @@ struct OptionEditView: View  {
     @Environment(\.flowMode) private var mode
     
     @Bindable var vm: EditProfileViewModel
-    @State private var selection: String? = nil
 
     let field: OptionField
     let grid = [GridItem(.flexible()), GridItem(.flexible())]
+    
+    //If onboarding don't mutate draftProfile, just submit whatever user inputs
+    var selection: Binding<String?> {
+        switch mode {
+        case .onboarding:
+            return Binding(get: { nil }, set: { _ in })
+        case .profile:
+            return Binding(
+                get: { vm.draft[keyPath: field.keyPath] },
+                set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
+            )
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 48) {
@@ -72,14 +84,13 @@ struct OptionEditView: View  {
                 .padding(.horizontal, 24)
             LazyVGrid(columns: grid, spacing: 24) {
                 ForEach(field.options, id: \.self) { option in
-                    OptionPill(title: option, isSelected: $selection) {
+                    OptionPill(title: option, isSelected: selection) {
                         select(option)
                     }
                 }
             }
         }
         .flowNavigation()
-        .onAppear {selection = vm.draftUser?[keyPath: field.keyPath] ?? ""}
     }
     
     private func select(_ value: String) {
@@ -88,8 +99,7 @@ struct OptionEditView: View  {
             vm.saveDraft(_kp: field.keyPathDraft, to: value)
             advance()
         case .profile:
-            vm.set(field.key, field.keyPath, to: value)
-            break
+            selection.wrappedValue = value           
         }
     }
 }
