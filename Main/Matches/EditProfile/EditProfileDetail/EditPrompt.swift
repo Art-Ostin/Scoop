@@ -18,46 +18,43 @@ struct EditPrompt: View {
     @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
     @State var prompt = PromptResponse(prompt: "", response: "")
-    @State private var showDropdownMenu = false
+    @State private var showPrompts = false
     
-//    let prompts: [String]
     let promptIndex: Int
     
     private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
     
-    var prompts: [String] {
-        promptIndex == 0 ? Prompts.instance.prompts1 :
-        promptIndex == 1 ? Prompts.instance.prompts2 :
-        Prompts.instance.prompts3
-    }
-    
     private var keyPath: WritableKeyPath<UserProfile, PromptResponse> {
         [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
     
+    private var prompts: [String] {
+        let p = Prompts.instance
+        return [p.prompts1, p.prompts2, p.prompts3] [promptIndex]
+    }
+
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 12) {
-                selector
-                textEditor
-                
-                if case .onboarding(_, let advance) = mode {
-                    NextButton(isEnabled: prompt.response.count > 3) {
-                        isFocused = false
-                        advance()
-                        vm.setPrompt(key, keyPath, to: prompt)
-                    }
-                    .padding(24)
-                    .padding(.top, 48)
+        VStack(spacing: 12) {
+            selector
+            textEditor
+            
+            if case .onboarding(_, let advance) = mode {
+                NextButton(isEnabled: prompt.response.count > 3) {
+                    isFocused = false
+                    advance()
+                    vm.setPrompt(key, keyPath, to: prompt)
                 }
+                .padding(.top, 48)
             }
         }
         .padding(.top, 84)
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onChange(of: prompt) { vm.setPrompt(key, keyPath, to: prompt)}
-        .fullScreenCover(isPresented: $showDropdownMenu) {
+        .fullScreenCover(isPresented: $showPrompts) {
             SelectPrompt(prompts: prompts, userPrompt: $prompt)
         }
         .onAppear {
@@ -86,29 +83,11 @@ extension EditPrompt {
                 .font(.body(16, .bold))
                 .offset(x: -4)
         }
-        .frame(width: 340)
+        .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .contentShape(Rectangle())
         .onTapGesture {
-            showDropdownMenu.toggle()
-        }
-    }
-    
-    private var dropdownMenu: some View {
-        DropDownMenu(width: 350) {
-            ForEach(prompts, id: \.self) {option in
-                Group {
-                    Text(option)
-                        .font(prompt.prompt == option ? .body(17, .bold) : .body(17))
-                        .foregroundStyle(prompt.prompt == option ? Color.accent : .black)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .onTapGesture {
-                            prompt.prompt = option
-                            showDropdownMenu = false
-                        }
-                    if option != prompts.last { SoftDivider() }
-                }
-            }
+            showPrompts.toggle()
         }
     }
     
@@ -116,22 +95,11 @@ extension EditPrompt {
         TextEditor(text: $prompt.response)
             .padding()
             .scrollContentBackground(.hidden)
-            .frame(width: 350, height: 120)
+            .frame(maxWidth: .infinity)
+            .frame(height: 120)
             .lineSpacing(8)
             .font(.body(17, .medium))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.grayPlaceholder, lineWidth: 0.5)
-            )
+            .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
             .focused($isFocused)
     }
 }
-
-/*
- 
- if showDropdownMenu {
-     dropdownMenu
-         .offset(y: -48)
- }
-
- */
