@@ -27,6 +27,8 @@ struct DraftProfile: Codable {
     var smoking = ""
     var marijuana = ""
     var drugs = ""
+    var prompt1 = PromptResponse(prompt: "", response: "")
+    var prompt2 = PromptResponse(prompt: "", response: "")
     
     init(auth: AuthDataResult) {
         self.id = auth.user.uid
@@ -56,12 +58,11 @@ struct UserProfile: Codable, Equatable, Identifiable {
     var marijuana: String
     var drugs: String
     var languages: String = ""
-    
+    var prompt1: PromptResponse
+    var prompt2: PromptResponse
+    var prompt3 = PromptResponse(prompt: "The dream date", response: "")
     
     var idealMeetUp: IdealMeetUp?
-    var prompt1: PromptResponse?
-    var prompt2: PromptResponse?
-    var prompt3: PromptResponse?
     var favouriteMovie: String?
     var favouriteSong: String?
     var favouriteBook: String?
@@ -92,6 +93,8 @@ extension UserProfile {
             smoking: draft.smoking,
             marijuana: draft.marijuana,
             drugs: draft.drugs,
+            prompt1: draft.prompt1,
+            prompt2: draft.prompt2
         )
     }
     enum Field: String {
@@ -100,12 +103,10 @@ extension UserProfile {
            marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
            favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp
     }
-    
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id
     }
 }
-
 
 struct IdealMeetUp: Codable {
     let time: Date

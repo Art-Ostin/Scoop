@@ -54,7 +54,7 @@ struct ImageSlot: Equatable {
         updatedFields[key] = value
     }
     
-    func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse?>, to value: PromptResponse) {
+    func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse>, to value: PromptResponse) {
         guard var draftUser else {return}
         print(value)
         print(kp)

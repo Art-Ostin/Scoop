@@ -13,29 +13,28 @@ struct PromptsView: View {
         
     var body: some View {
         
-        
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {
-                    EditPrompt(vm: vm, prompts: Prompts.instance.prompts1, promptIndex: 0)
+                    EditPrompt(vm: vm, promptIndex: 0)
                 } label: {
-                    promptResponse(prompt: vm.draftUser?.prompt1?.prompt ?? "Add Prompt", response: vm.draftUser?.prompt1?.response ?? "")
+                    promptResponse(prompt: vm.draftUser?.prompt1.prompt ?? "Add Prompt", response: vm.draftUser?.prompt1.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(vm: vm, prompts: Prompts.instance.prompts2, promptIndex: 1)
+                    EditPrompt(vm: vm, promptIndex: 1)
                 } label: {
-                    promptResponse(prompt: vm.draftUser?.prompt2?.prompt ?? "Add Prompt", response: vm.draftUser?.prompt2?.response ?? "")
+                    promptResponse(prompt: vm.draftUser?.prompt2.prompt ?? "Add Prompt", response: vm.draftUser?.prompt2.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
                 
                 NavigationLink {
-                    EditPrompt(vm: vm, prompts: Prompts.instance.prompts3, promptIndex: 2)
+                    EditPrompt(vm: vm, promptIndex: 2)
                 } label: {
-                    promptResponse(prompt: vm.draftUser?.prompt3?.prompt ?? "Add Prompt", response: vm.draftUser?.prompt3?.response ?? "")
+                    promptResponse(prompt: vm.draftUser?.prompt3.prompt ?? "Add Prompt", response: vm.draftUser?.prompt3.response ?? "")
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -75,3 +74,4 @@ extension PromptsView {
             .lineSpacing(8)
     }
 }
+

@@ -30,7 +30,9 @@ struct OnboardingContainer: View {
                     case 7: EditNationality(vm: vm)
                     case 8: TextFieldEdit(vm: vm, field: .hometown)
                     case 9: TextFieldEdit(vm: vm, field: .degree)
-                    case 10: AddImageView(vm: vm)
+                    case 10: EditPrompt(vm: vm, promptIndex: 0)
+                    case 11: EditPrompt(vm: vm, promptIndex: 1)
+                    case 12: AddImageView(vm: vm)
                     default: EmptyView()
                     }
                 }
@@ -40,7 +42,7 @@ struct OnboardingContainer: View {
                 })
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                 .overlay(alignment: .top) {
-                    Text("\(defaults.onboardingStep)/10")
+                    Text("\(defaults.onboardingStep)/12")
                         .font(.body(12, .bold))
                         .offset(y: -36)
                 }

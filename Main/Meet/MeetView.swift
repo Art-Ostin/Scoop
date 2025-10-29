@@ -35,7 +35,8 @@ struct MeetView: View {
                             TabTitle(page: .meet, offset: $scrollViewOffset)
                         }
                         profileScroller
-                        CustomDivider()
+                            .padding(.bottom, 36)
+//                        CustomDivider()
                         VStack(spacing: 60) {
                             MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
                             newProfileTimer

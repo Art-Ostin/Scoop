@@ -99,10 +99,14 @@ extension DefaultAppButton {
 struct CloseToolBar: ToolbarContent {
     @Environment(\.dismiss) private var dismiss
     let imageString: String
-    init(imageString: String = "xmark") {self.imageString = imageString}
+    let isLeading: Bool
+    init(imageString: String = "xmark", isLeading: Bool = true) {
+        self.imageString = imageString
+        self.isLeading = isLeading
+    }
     
     var body: some ToolbarContent {
-        ToolbarItem(placement: imageString == "xmark" ? .topBarTrailing : .topBarLeading) {
+        ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
             Button(action: { dismiss() }) {
                 Image(systemName: imageString).font(.body.weight(.semibold))
             }

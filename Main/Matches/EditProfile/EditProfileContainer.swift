@@ -26,7 +26,7 @@ struct EditProfileContainer: View {
         .id(vm.updatedImages.count)
         .task {await vm.assignSlots()}
         .overlay(alignment: .bottom) {EditProfileButton(isView: $isView)}
-        .toolbar {CloseToolBar()}
+        .toolbar {CloseToolBar(isLeading: false)}
         .toolbar {ToolbarItem(placement: .topBarLeading) {Button("SAVE") { if vm.showSaveButton {Task {try await vm.saveProfileChanges()}}}}}
     }
 }

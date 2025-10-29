@@ -16,24 +16,29 @@ struct PromptResponse: Codable, Equatable  {
 struct EditPrompt: View {
     @Environment(\.flowMode) private var mode
     @Bindable var vm: EditProfileViewModel
-        
     @FocusState var isFocused: Bool
     @State var prompt = PromptResponse(prompt: "", response: "")
     @State private var showDropdownMenu = false
     
-    
-    let prompts: [String]
+//    let prompts: [String]
     let promptIndex: Int
     
     private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
-    private var keyPath: WritableKeyPath<UserProfile, PromptResponse?> {
+    
+    var prompts: [String] {
+        promptIndex == 0 ? Prompts.instance.prompts1 :
+        promptIndex == 1 ? Prompts.instance.prompts2 :
+        Prompts.instance.prompts3
+    }
+    
+    private var keyPath: WritableKeyPath<UserProfile, PromptResponse> {
         [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
     }
-
+    
+    
     var body: some View {
-        
         ZStack {
             VStack(spacing: 12) {
                 selector
@@ -43,16 +48,18 @@ struct EditPrompt: View {
                     NextButton(isEnabled: prompt.response.count > 3) {
                         isFocused = false
                         advance()
+                        vm.setPrompt(key, keyPath, to: prompt)
                     }
+                    .padding(24)
+                    .padding(.top, 48)
                 }
             }
-            if showDropdownMenu {
-                dropdownMenu
-                    .offset(y: -48)
-            }
         }
+        .padding(.top, 84)
         .onChange(of: prompt) { vm.setPrompt(key, keyPath, to: prompt)}
-        
+        .fullScreenCover(isPresented: $showDropdownMenu) {
+            SelectPrompt(prompts: prompts, userPrompt: $prompt)
+        }
         .onAppear {
             isFocused = true
             if let prompt = vm.draftUser?[keyPath: keyPath] {
@@ -72,7 +79,7 @@ extension EditPrompt {
         
         HStack {
             Text(prompt.prompt)
-                .font(.body(17, .bold))
+                .font(.body(17))
                 .lineSpacing(8)
             Spacer()
             Image("EditButtonBlack")
@@ -119,3 +126,12 @@ extension EditPrompt {
             .focused($isFocused)
     }
 }
+
+/*
+ 
+ if showDropdownMenu {
+     dropdownMenu
+         .offset(y: -48)
+ }
+
+ */
