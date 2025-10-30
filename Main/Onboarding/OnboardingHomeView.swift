@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct OnboardingHomeView: View {
     @Environment(\.appDependencies) private var dep
@@ -8,7 +9,7 @@ struct OnboardingHomeView: View {
     @State var current: Int = 0
     @State var showAlert: Bool = false
     @State private var tabSelection: TabBarItem = .meet
-    
+        
     var body: some View {
         ZStack {
             if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
@@ -18,7 +19,7 @@ struct OnboardingHomeView: View {
                 meetingView
                     .tag(TabBarItem.events)
                     .tabItem {Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")}
-
+                
                 matchesView
                     .tag(TabBarItem.matches)
                     .tabItem {Label("", image: tabSelection == .matches ? "BlackMessage" : "MessageIcon")}
@@ -31,57 +32,68 @@ struct OnboardingHomeView: View {
             }
         }
         .task {
-            guard
-                let user = await dep.authManager.fetchAuthUser()
-            else {
+            switch await bootstrap() {
+            case .needsLogin:
                 appState.wrappedValue = .login
-                return
+            case .ok:
+                break
             }
-            
-            guard let draft = dep.defaultsManager.signUpDraft else {
-                dep.defaultsManager.deleteDefaults()
-                dep.defaultsManager.signUpDraft = .init(user: user)
-                return
-            }
-            print(draft)
-            print(user)
         }
-        
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager, cycleManager: dep.cycleManager, eventManager: dep.eventManager, defaults: dep.defaultsManager), defaults: dep.defaultsManager, current: $current)
+            OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager), defaults: dep.defaultsManager, current: $current)
         }
         .alert("Sign Out", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Sign Out") {
                 appState.wrappedValue = .login
-                dep.defaultsManager.deleteDefaults()
                 Task {
-                    do {
-                        try await dep.authManager.deleteAuthUser()
-                    } catch {
-                        print (error)
-                    }
+                    do { try await signOut() } catch { print(error) }
                 }
             }
         } message: {
-            if dep.defaultsManager.onboardingStep == 0 {
-                Text("Are you sure you want to sign Out?")
-            } else {
-                Text("Are you sure you want to sign Out? Your Progress will be lost.")
-            }
+            onboardingStep == 0 ?
+            Text("Are you sure you want to sign Out?") :
+            Text("Are you sure you want to sign Out? Your Progress will be lost.")
         }
     }
 }
 
 extension OnboardingHomeView {
     private var meetView: some View {
-        LimitedAccessPage(title: "Meet", imageName: "Plants", description: "View weekly profiles here & send a Time and Place to Meet.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: dep.defaultsManager.onboardingStep)
+        LimitedAccessPage(title: "Meet", imageName: "Plants", description: "View weekly profiles here & send a Time and Place to Meet.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: onboardingStep)
     }
     private var meetingView: some View {
-        LimitedAccessPage(title: "Meeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: dep.defaultsManager.onboardingStep)
+        LimitedAccessPage(title: "Meeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: onboardingStep)
     }
     private var matchesView: some View {
-        LimitedAccessPage(title: "Message", imageName: "DancingCats", description: "View & message your previous matches here", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: dep.defaultsManager.onboardingStep)
+        LimitedAccessPage(title: "Message", imageName: "DancingCats", description: "View & message your previous matches here", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: onboardingStep)
+    }
+}
+
+extension OnboardingHomeView {
+    
+    private func signOut() async throws {
+        try await dep.authManager.deleteAuthUser()
+        dep.defaultsManager.deleteDefaults()
+    }
+    
+    private func fetchUser() async throws -> User? {
+        await dep.authManager.fetchAuthUser()
+    }
+    
+    enum BootStrap { case needsLogin, ok}
+    
+    private func bootstrap() async -> BootStrap {
+        guard let user = await dep.authManager.fetchAuthUser() else { return .needsLogin }
+        if dep.defaultsManager.signUpDraft == nil {
+            dep.defaultsManager.deleteDefaults()
+            dep.defaultsManager.signUpDraft = .init(user: user)
+        }
+        return .ok
+    }
+    
+    var onboardingStep: Int {
+        dep.defaultsManager.onboardingStep
     }
 }
 

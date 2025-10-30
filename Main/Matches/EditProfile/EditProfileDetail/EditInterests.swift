@@ -9,12 +9,50 @@ import SwiftUI
 import SwiftUIFlowLayout
 import FirebaseFirestore
 
-struct EditInterests: View {
-    @Bindable var vm: EditProfileViewModel
-    @Environment(\.flowMode) private var mode
+struct InterestsOnboarding: View {
+    let vm: OnboardingViewModel
+    
     @State var selected: [String] = []
     
+    var body: some View {
+        GenericInterests(selected: $selected) {
+            vm.saveOnboardingDraft(_kp: \.interests, to: selected)
+        } onInterestTap: {
+            selected.toggle($0, limit: 10)
+        }
+    }
+}
+
+struct EditInterests: View {
+    let vm: EditProfileViewModel
+    @State var selected: [String]
+    
+    init(vm: EditProfileViewModel) {
+        self.vm = vm
+        _selected = .init(initialValue: vm.draft.interests)
+    }
+    
+    var body: some View {
+        GenericInterests(selected: $selected) {} onInterestTap: {
+            selected.toggle($0, limit: 10)
+        }
+        .onDisappear {vm.draft.interests = selected}
+    }
+}
+
+
+
+
+
+struct GenericInterests: View {
+    
+    @Environment(\.flowMode) private var mode
+    @Binding var selected: [String]
     var selectedMax: Bool {selected.count >= 10}
+    
+    let onNextTap: () -> ()
+    
+    let onInterestTap: (String) -> ()
     
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
@@ -28,6 +66,8 @@ struct EditInterests: View {
         (nil,nil,i.music3)
         ]
     }
+    
+    
     var body: some View {
         ZStack {
             VStack(spacing: 4) {
@@ -37,29 +77,27 @@ struct EditInterests: View {
             }
             .padding(.top, 12)
             if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: selected.count > 3) {
-                    advance()
-                    vm.saveDraft(_kp: \.interests, to: selected)
-                }
+                NextButton(isEnabled: selected.count > 3) {onNextTap()}
                 .offset(y: 144)
             }
         }
         .flowNavigation()
-        .task { selected = vm.draft.interests}
         .padding(.horizontal)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background.ignoresSafeArea())
     }
 }
 
-extension EditInterests {
+extension GenericInterests {
     
     private var interestsSections: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(sections.indices, id: \.self) { idx in
                     let section = sections[idx]
-                    InterestSection(vm: vm, options: section.data, title: section.title, image: section.image, selected: $selected)
+                    InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected) { text in
+                        onInterestTap(text)
+                    }
                 }
             }
         }
@@ -91,13 +129,16 @@ extension EditInterests {
 
 struct InterestSection: View {
     
-    @Bindable var vm: EditProfileViewModel
-    @State var options: [String]
+    let options: [String]
     let title: String?
     let image: String?
     @State private var shakeTicks: [String: Int] = [:]
 
     @Binding var selected: [String]
+    
+    let onInterestTap: (String) -> ()
+
+    var selectedMax: Bool {selected.count >= 10}
     
     var body: some View {
         
@@ -119,15 +160,14 @@ struct InterestSection: View {
             .padding(.bottom, 16)
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) {input in
-                OptionCell(text: input, selection: $selected) { text in
-                    if selected.contains(text) {
-                        selected.removeAll(where: { $0 == text})
-                    } else if selected.count < 10 {
-                        selected.append(text)
+                OptionCell(text: input, selection: $selected) {
+                    if selected.contains($0) {
+                        onInterestTap($0)
+                    } else if selected.count >= 10 {
+                        shakeTicks[$0, default: 0] &+= 1
                     } else {
-                        shakeTicks[text, default: 0] &+= 1
+                        onInterestTap($0)
                     }
-                    vm.setArray(.interests, \.interests, to: [text], add: vm.interestIsSelected(text: text) ? false : true)
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
                 .animation(.easeInOut(duration: 0.3), value: shakeTicks[input, default: 0])

@@ -7,43 +7,49 @@
 
 import SwiftUI
 
-struct EditHeight: View {
+struct HeightOnboarding: View {
+    @State private var height = "5' 8"
+    @Bindable var vm: OnboardingViewModel
     
-    @Bindable var vm: EditProfileViewModel
-    @Environment(\.flowMode) private var mode
-    
-    let heightOptions = (45...84).map { inches in
-        "\(inches / 12)' \(inches % 12)"
-    }
-    @State private var localHeight = ""
-    var selection: Binding<String> {
-        switch mode {
-        case .onboarding:
-            return $localHeight
-        case .profile:
-            return Binding(
-                get: { vm.draft.height },
-                set: { vm.set(.height, \.height, to: $0) }
-            )
+    var body: some View {
+        HeightGeneric(selection: $height) {
+            vm.saveOnboardingDraft(_kp: \.height, to: height)
         }
     }
-    
+}
+
+struct EditHeight: View {
+    @Bindable var vm: EditProfileViewModel
+    var selection: Binding<String> {
+        Binding(
+            get: { vm.draft.height },
+            set: { vm.set(.height, \.height, to: $0) }
+        )
+    }
+    var body: some View {
+        HeightGeneric(selection: selection) {}
+    }
+}
+
+struct HeightGeneric: View {
+    @Environment(\.flowMode) private var mode
+    @Binding var selection: String
+    let heightOptions = (45...84).map {"\($0 / 12)' \($0 % 12)"}
+    let onTap: () -> ()
     
     var body: some View {
         VStack {
             SignUpTitle(text: "Height")
-            Picker("Height", selection: selection) {
+            Picker("Height", selection: $selection) {
                 ForEach(heightOptions, id: \.self) { option in
                     Text(option).font(.body(20))
                 }
             }
             .pickerStyle(.wheel)
             .padding(.horizontal, 36)
-            if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: true) {
-                    vm.saveDraft(_kp: \.height, to: selection.wrappedValue)
-                    advance()
-                }
+            
+            if case .onboarding(_, _) = mode {
+                NextButton(isEnabled: true) {onTap()}
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -52,4 +58,3 @@ struct EditHeight: View {
         .flowNavigation()
     }
 }
-

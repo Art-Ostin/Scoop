@@ -20,7 +20,7 @@ enum TextFieldOptions: CaseIterable {
         case .languages: return "I Speak"
         }
     }
-    
+
     var key: UserProfile.Field {
         switch self {
         case .degree: return .degree
@@ -48,42 +48,25 @@ enum TextFieldOptions: CaseIterable {
     }
 }
 
-struct TextFieldEdit: View {
+struct TextFieldGeneric: View {
     
     @Environment(\.flowMode) private var mode
-    @Bindable var vm: EditProfileViewModel
-    @FocusState var focused: Bool
-        
+    @Binding var text: String
+    @FocusState var isFocused: Bool
     let field: TextFieldOptions
-    
-    @State private var onboardingText = ""
-    var text: Binding<String> {
-        switch mode {
-        case .onboarding:
-            return $onboardingText
-        case .profile:
-            return Binding(
-                get: { vm.draft[keyPath: field.keyPath] },
-                set: { vm.set(field.key, field.keyPath, to: $0) }
-            )
-        }
-    }
-   
+    let onTap: () -> ()
     
     var body: some View {
         VStack(spacing: 72)  {
             SignUpTitle(text: field.title)
             customTextField
             if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: text.wrappedValue.count > 0) {
-                    advance()
-                    vm.saveDraft(_kp: field.draftKeyPath, to: text.wrappedValue)
-                }
+                NextButton(isEnabled: text.count > 0) {onTap()}
                 .padding(.top, 36)
             }
         }
         .padding(.horizontal)
-        .onAppear {focused = true}
+        .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
         .padding(.top, 96)
         .padding(.horizontal)
@@ -93,15 +76,15 @@ struct TextFieldEdit: View {
     }
 }
 
-extension TextFieldEdit {
-
+extension TextFieldGeneric {
+    
     private var customTextField: some View  {
         VStack {
-            TextField("Type \(field.title) here", text: text)
+            TextField("Type \(field.title) here", text: $text)
                 .frame(maxWidth: .infinity)
                 .font(.body(24))
                 .font(.body(.medium))
-                .focused($focused)
+                .focused($isFocused)
                 .tint(.blue)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
@@ -114,10 +97,40 @@ extension TextFieldEdit {
     }
 }
 
-/*
- .onAppear {
-     text = vm.draft[keyPath: field.keyPath]
- }
- .onChange(of: text) { vm.set(field.key, field.keyPath, to: text) }
+struct EditTextfield : View {
+    
+    @Bindable var vm: EditProfileViewModel
+    let field: TextFieldOptions
+    var selection: Binding<String> {
+        Binding(
+            get: { vm.draft.height },
+            set: { vm.set(.height, \.height, to: $0) }
+        )
+    }
+    
+    var body: some View {
+        TextFieldGeneric(text: selection, field: field) {}
+    }
+}
 
- */
+struct onboardingTextField {
+    @Bindable var vm: OnboardingViewModel
+    let field: TextFieldOptions
+    @State var text = ""
+
+    var body: some View {
+        TextFieldGeneric(text: $text, field: field) {
+            vm.saveOnboardingDraft(_kp: field.draftKeyPath, to: text)
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+

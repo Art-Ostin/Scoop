@@ -12,68 +12,41 @@ struct PromptResponse: Codable, Equatable  {
     var response: String
 }
 
-
-struct EditPrompt: View {
+struct PromptGeneric: View {
     @Environment(\.flowMode) private var mode
-    @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
-//    @State var prompt = PromptResponse(prompt: "", response: "")
-    @State private var showPrompts = false
-    
+    @Binding var prompt: PromptResponse
+    @State var showPrompts = false
     let promptIndex: Int
-    
-    private var key: UserProfile.Field {
-        [.prompt1, .prompt2, .prompt3] [promptIndex]
-    }
-    
-    private var keyPath: WritableKeyPath<UserProfile, PromptResponse> {
-        [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
-    }
-    
+    let onTap: () -> ()
+
     private var prompts: [String] {
         let p = Prompts.instance
         return [p.prompts1, p.prompts2, p.prompts3] [promptIndex]
     }
-    
-    var prompt: Binding<PromptResponse> {
-        Binding(
-            get: { vm.draft[keyPath: keyPath]},
-            set: { vm.setPrompt(key, keyPath, to: $0)}
-        )
-    }
-    
-    
+
     var body: some View {
         VStack(spacing: 12) {
             selector
             textEditor
-            
-            if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: prompt.wrappedValue.response.count > 3) {
-                    isFocused = false
-                    advance()
-                    vm.setPrompt(key, keyPath, to: prompt.wrappedValue)
-                }
-                .padding(.top, 48)
+            if case .onboarding(_, _) = mode {
+                NextButton(isEnabled: prompt.response.count > 3) { isFocused = false ; onTap()}
+                    .padding(.top, 48)
             }
         }
         .padding(.top, 84)
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .fullScreenCover(isPresented: $showPrompts) {
-            SelectPrompt(prompts: prompts, userPrompt: prompt)
-        }
+        .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt)}
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .flowNavigation()
     }
 }
 
-extension EditPrompt {
-    
+extension PromptGeneric {
     private var selector: some View {
-        
         HStack {
-            Text(prompt.wrappedValue.prompt)
+            Text(prompt.prompt)
                 .font(.body(17))
                 .lineSpacing(8)
             Spacer()
@@ -88,7 +61,7 @@ extension EditPrompt {
     }
     
     private var textEditor: some View {
-        TextEditor(text: prompt.response)
+        TextEditor(text: $prompt.response)
             .padding()
             .scrollContentBackground(.hidden)
             .frame(maxWidth: .infinity)
@@ -100,19 +73,49 @@ extension EditPrompt {
     }
 }
 
+struct PromptEdit: View {
+    
+    @Bindable var vm: EditProfileViewModel
+    let promptIndex: Int
+    
+    private var key: UserProfile.Field {
+        [.prompt1, .prompt2, .prompt3] [promptIndex]
+    }
+    
+    private var keyPath: WritableKeyPath<UserProfile, PromptResponse> {
+        [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
+    }
 
+    var prompt: Binding<PromptResponse> {
+        Binding(
+            get: { vm.draft[keyPath: keyPath]},
+            set: { vm.setPrompt(key, keyPath, to: $0)}
+        )
+    }
+    
+    var body: some View {
+        PromptGeneric(prompt: prompt, promptIndex: promptIndex) {}
+    }
+}
 
-/*
- .onChange(of: prompt) { vm.setPrompt(key, keyPath, to: prompt)}
- */
+struct PromptOnboarding: View {
+    
+    @Bindable var vm: OnboardingViewModel
+    let promptIndex: Int
+    
+    private var key: UserProfile.Field {
+        [.prompt1, .prompt2, .prompt3] [promptIndex]
+    }
+    
+    private var keyPath: WritableKeyPath<DraftProfile, PromptResponse> {
+        [\DraftProfile.prompt1, \DraftProfile.prompt2] [promptIndex]
+    }
+    
+    @State var prompt = PromptResponse(prompt: "", response: "")
 
-/*
- .onAppear {
-     isFocused = true
-     if let usersPrompt = vm.draft[keyPath: keyPath] {
-         prompt = usersPrompt
-     } else {
-         prompt = PromptResponse(prompt: prompts.randomElement() ?? "", response: "")
-     }
- }
- */
+    var body: some View {
+        PromptGeneric(prompt: $prompt, promptIndex: promptIndex) {
+            vm.saveOnboardingDraft(_kp: keyPath, to: prompt)
+        }
+    }
+}

@@ -56,26 +56,13 @@ enum OptionField: CaseIterable {
     }
 }
 
-struct OptionEditView: View  {
-    @Environment(\.flowMode) private var mode
+struct OptionGeneric: View {
     
-    @Bindable var vm: EditProfileViewModel
-
+    @Environment(\.flowMode) private var mode
+    @Binding var selection: String?
     let field: OptionField
     let grid = [GridItem(.flexible()), GridItem(.flexible())]
-    
-    //If onboarding don't mutate draftProfile, just submit whatever user inputs
-    var selection: Binding<String?> {
-        switch mode {
-        case .onboarding:
-            return Binding(get: { nil }, set: { _ in })
-        case .profile:
-            return Binding(
-                get: { vm.draft[keyPath: field.keyPath] },
-                set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
-            )
-        }
-    }
+    let onTap: () -> ()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 48) {
@@ -84,7 +71,7 @@ struct OptionEditView: View  {
                 .padding(.horizontal, 24)
             LazyVGrid(columns: grid, spacing: 24) {
                 ForEach(field.options, id: \.self) { option in
-                    OptionPill(title: option, isSelected: selection) {
+                    OptionPill(title: option, isSelected: $selection) {
                         select(option)
                     }
                 }
@@ -95,11 +82,93 @@ struct OptionEditView: View  {
     
     private func select(_ value: String) {
         switch mode {
-        case .onboarding(_, let advance):
-            vm.saveDraft(_kp: field.keyPathDraft, to: value)
-            advance()
+        case .onboarding(_, _):
+            onTap()
         case .profile:
-            selection.wrappedValue = value           
+            selection = value
         }
     }
 }
+
+struct OptionEdit: View {
+
+    @Bindable var vm: EditProfileViewModel
+    let field: OptionField
+    var selection: Binding<String?> {
+        Binding(
+            get: { vm.draft[keyPath: field.keyPath] },
+            set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
+        )
+    }
+    var body: some View {
+        OptionGeneric(selection: selection, field: field) {}
+    }
+}
+
+struct OnboardingEdit: View {
+    
+    @Bindable var vm: OnboardingViewModel
+    @State var selection: String?
+    let field : OptionField
+    
+    var body: some View {
+        OptionGeneric(selection: $selection, field: field) {
+            vm.saveOnboardingDraft(_kp: field.keyPathDraft, to: selection ?? "")
+        }
+    }
+}
+
+/*
+ 
+ struct OptionEditView: View  {
+     
+     @Environment(\.flowMode) private var mode
+     
+     @Bindable var vm: EditProfileViewModel
+
+     let field: OptionField
+     let grid = [GridItem(.flexible()), GridItem(.flexible())]
+     
+     //If onboarding don't mutate draftProfile, just submit whatever user inputs
+     var selection: Binding<String?> {
+         switch mode {
+         case .onboarding:
+             return Binding(get: { nil }, set: { _ in })
+         case .profile:
+             return Binding(
+                 get: { vm.draft[keyPath: field.keyPath] },
+                 set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
+             )
+         }
+     }
+
+     var body: some View {
+         VStack(alignment: .leading, spacing: 48) {
+             Text(field.title)
+                 .font(.title(32))
+                 .padding(.horizontal, 24)
+             LazyVGrid(columns: grid, spacing: 24) {
+                 ForEach(field.options, id: \.self) { option in
+                     OptionPill(title: option, isSelected: selection) {
+                         select(option)
+                     }
+                 }
+             }
+         }
+         .flowNavigation()
+     }
+     
+     private func select(_ value: String) {
+         switch mode {
+         case .onboarding(_, let advance):
+             vm.saveOnboardingDraft(_kp: field.keyPathDraft, to: value)
+             advance()
+         case .profile:
+             selection.wrappedValue = value
+         }
+     }
+ }
+
+ 
+ */
+

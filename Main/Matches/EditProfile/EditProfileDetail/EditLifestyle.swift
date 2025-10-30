@@ -7,18 +7,82 @@
 
 import SwiftUI
 
+struct LifestyleOnboarding: View {
+    
+    @Bindable var vm: OnboardingViewModel
+    @Environment(\.flowMode) private var mode
+    
+    @Binding var drinking: String?
+    @Binding var smoking: String?
+    @Binding var marijuana: String?
+    @Binding var drugs: String?
+    
+    var body: some View {
+        GenericLifestyle(drinking: $drinking, smoking: $smoking, marijuana: $marijuana, drugs: $drugs)
+            .onChange(of: drinking) {saveIfComplete()}
+            .onChange(of: smoking) { saveIfComplete()}
+            .onChange(of: marijuana) {saveIfComplete()}
+            .onChange(of: drugs) {saveIfComplete()}
+    }
+    
+    private func saveIfComplete() {
+        guard
+            let d = drinking,
+            let s = smoking,
+            let m = marijuana,
+            let g = drugs
+        else { return }
+        if case .onboarding(_, let advance) = mode {
+            advance()
+        }
+        vm.saveOnboardingDraft(_kp: \.drinking, to: d)
+        vm.saveOnboardingDraft(_kp: \.smoking, to: s)
+        vm.saveOnboardingDraft(_kp: \.marijuana, to: m)
+        vm.saveOnboardingDraft(_kp: \.drugs, to: g)
+    }
+}
+
 struct EditLifestyle: View {
     
     @Bindable var vm: EditProfileViewModel
     @Environment(\.flowMode) private var mode
     
-    @State var drinking: String?
-    @State var smoking: String?
-    @State var marijuana: String?
-    @State var drugs: String?
+    
+    var drinking: Binding<String?> {
+        Binding(get: { vm.draft.drinking }, set: { newValue in
+            vm.set(.drinking, \.drinking, to: newValue ?? "")
+        })
+    }
+
+    var smoking: Binding<String?> {
+        Binding(get: { vm.draft.smoking }, set: { newValue in
+            vm.set(.smoking, \.smoking, to: newValue ?? "")
+        })
+    }
+    var marijuana: Binding<String?> {
+        Binding(get: { vm.draft.marijuana }, set: { newValue in
+            vm.set(.marijuana, \.marijuana, to: newValue ?? "")
+        })
+    }
+    var drugs: Binding<String?> {
+        Binding(get: { vm.draft.drugs }, set: { newValue in
+            vm.set(.drugs, \.drugs, to: newValue ?? "")
+        })
+    }
+    var body: some View {
+        GenericLifestyle(drinking: drinking, smoking: smoking, marijuana: marijuana, drugs: drugs)
+    }
+}
+
+struct GenericLifestyle: View {
+    
+    @Binding var drinking: String?
+    @Binding var smoking: String?
+    @Binding var marijuana: String?
+    @Binding var drugs: String?
     
     var body: some View {
-        
+
         VStack(spacing: 48) {
             vicesOptions(title: "Drinking", isSelected: $drinking)
             vicesOptions(title: "Smoking", isSelected: $smoking)
@@ -27,29 +91,6 @@ struct EditLifestyle: View {
         }
         .flowNavigation()
         .padding(.horizontal)
-        .task {
-            let u = vm.draft
-            drinking = u.drinking
-            smoking = u.smoking
-            marijuana = u.marijuana
-            drugs = u.drugs
-        }
-        .onChange(of: drinking) {
-            vm.set(.drinking, \.drinking, to: drinking ?? "")
-            saveIfComplete()
-        }
-        .onChange(of: smoking) {
-            vm.set(.smoking, \.smoking, to: smoking ?? "")
-            saveIfComplete()
-        }
-        .onChange(of: marijuana) {
-            vm.set(.marijuana, \.marijuana, to: marijuana ?? "")
-            saveIfComplete()
-        }
-        .onChange(of: drugs) {
-            vm.set(.drugs, \.drugs, to: drugs ?? "")
-            saveIfComplete()
-        }
     }
     
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {
@@ -64,22 +105,5 @@ struct EditLifestyle: View {
                 OptionPill(title: "Occasionally", isSelected: isSelected, onTap: {})
             }
         }
-    }
-    
-    private func saveIfComplete() {
-        guard
-            let d = drinking,
-            let s = smoking,
-            let m = marijuana,
-            let g = drugs
-        else { return }
-        
-        if case .onboarding(_, let advance) = mode {
-            advance()
-        }
-        vm.saveDraft(_kp: \.drinking, to: d)
-        vm.saveDraft(_kp: \.smoking, to: s)
-        vm.saveDraft(_kp: \.marijuana, to: m)
-        vm.saveDraft(_kp: \.drugs, to: g)
     }
 }

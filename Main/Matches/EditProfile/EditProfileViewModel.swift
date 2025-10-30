@@ -21,39 +21,28 @@ struct ImageSlot: Equatable {
 @MainActor
 @Observable class EditProfileViewModel {
     
-    //Dependency services required for updating the User's  Profile
     @ObservationIgnored private let userManager: UserManager
-    @ObservationIgnored private let defaults: DefaultsManager
     @ObservationIgnored let cacheManager: CacheManaging
     @ObservationIgnored private let s: SessionManager
     @ObservationIgnored private let storageManager: StorageManaging
-    @ObservationIgnored private let cycleManager: CycleManager
-    @ObservationIgnored private let eventManager: EventManager
-    
+
     var draft: UserProfile
     
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     var updatedImages: [(index: Int, data: Data)] = []
     
-
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, cycleManager: CycleManager, eventManager: EventManager, defaults: DefaultsManager) {
+    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging) {
         self.cacheManager = cacheManager
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
         self.draft = s.user
-        self.defaults = defaults
-        self.cycleManager = cycleManager
-        self.eventManager = eventManager
     }
     
     var user: UserProfile { s.user }
     
-    
-    var showSaveButton: Bool {
-        !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty
-    }
+    var showSaveButton: Bool { !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty}
     
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draft[keyPath: kp] = value
@@ -74,24 +63,7 @@ struct ImageSlot: Equatable {
         }
         updatedFieldsArray.append((field: key, value: elements, add: add))
     }
-        
-    private func setDraftImage(at index: Int, path: String, url: URL) {
-        var p = draft.imagePath
-        var u = draft.imagePathURL
-        if p.count < 6 { p += Array(repeating: "", count: 6 - p.count) }
-        if u.count < 6 { u += Array(repeating: "", count: 6 - u.count) }
-        
-        p[index] = path
-        u[index] = url.absoluteString
 
-        saveDraft(_kp: \.imagePath, to: p)
-        saveDraft(_kp: \.imagePathURL, to: u)
-        
-        if slots.indices.contains(index) {
-            slots[index].path = path
-            slots[index].url  = url
-        }
-    }
     
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
@@ -102,9 +74,17 @@ struct ImageSlot: Equatable {
         guard !updatedFieldsArray.isEmpty else { return }
         for (field, value, add) in updatedFieldsArray {
             let data: [UserProfile.Field : [String]] = [field: value]
-            try await userManager.updateUserArray(userId: user.id, values: data, add: add )
+            try await userManager.updateUserArray(userId: user.id, values: data, add: add)
         }
     }
+    
+    func saveProfileChanges() async throws {
+        try await saveUser()
+        try await saveUserArray()
+        try await saveUpdatedImages()
+    }
+
+    
     
     func saveUpdatedImages() async throws {
         let updates = updatedImages
@@ -144,16 +124,10 @@ struct ImageSlot: Equatable {
     }
     
     
-    
-    
     //Images
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
-    
-    var isValid: Bool {
-        images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
-    }
     
     @MainActor
     func assignSlots() async {
@@ -174,19 +148,13 @@ struct ImageSlot: Equatable {
         images = newImages
     }
     
-    func saveProfileChanges() async throws {
-        try await saveUser()
-        try await saveUserArray()
-        try await saveUpdatedImages()
-    }
-    
     func changeImage(at index: Int, onboarding: Bool = false) async throws {
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
             let uiImage = UIImage(data: data)
         else { return }
-
+        
         await MainActor.run {
             if images.indices.contains(index) { images[index] = uiImage }
         }
@@ -196,29 +164,11 @@ struct ImageSlot: Equatable {
         } else {
             updatedImages.append((index: index, data: data))
         }
-        
-        if onboarding {
-            if let oldURL = slots[index].url { cacheManager.removeImage(for: oldURL) }
-            if let oldPath = slots[index].path { try? await storageManager.deleteImage(path: oldPath)}
-            
-            if let draftProfile = defaults.signUpDraft {
-                let id = draftProfile.id
-                
-                
-                let originalPath = try await storageManager.saveImage(data: data, userId: id)
-                let url = try await storageManager.getImageURL(path: originalPath)
-
-                let resizedPath = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
-                setDraftImage(at: index, path: resizedPath, url: url)
-            }
-        }
     }
     
-        
-    
-    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
-        user[keyPath: key]
-    }
+//    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
+//        user[keyPath: key]
+//    }
     
     func interestIsSelected(text: String) -> Bool {
         user.interests.contains(text) == true
@@ -228,61 +178,51 @@ struct ImageSlot: Equatable {
         try await userManager.updateUser(userId: user.id, values: values)
     }
     
-    //Nationality Functionality
-    var selectedCountries: [String] = []
-    let countries = CountryDataServices.shared.allCountries
-    var availableLetters: Set<String> {
-        Set(countries.map { String($0.name.prefix(1)) })
-    }
-    
-    var groupedCountries: [(letter: String, countries: [CountryData])] {
-        let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
-        let sortedKeys = groups.keys.sorted()
-        return sortedKeys.map { key in
-            (key, groups[key]!.sorted { $0.name < $1.name })
-        }
-    }
-    
-    func isSelected(_ country: String) -> Bool {
-        selectedCountries.contains(country)
-    }
-    
-    func toggleCountry(_ country: String) -> Bool? {
-        if selectedCountries.contains(country) {
-            selectedCountries.removeAll(where: {$0 == country})
-            setArray(.nationality, \.nationality, to: [country], add: false)
-        } else if selectedCountries.count < 3 {
-            selectedCountries.append(country)
-            setArray(.nationality, \.nationality, to: [country], add: true)
-        } else {
-            return true
-        }
-        return nil
-    }
-    
-    func fetchNationality() {
-        selectedCountries = draft.nationality
-    }
     
     
-    func saveDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
-        defaults.update(kp, to: value)
-        print("saved")
+    var isValid: Bool {
+        images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
     }
-    
-    func createProfile() async throws {
-        guard let signUpDraft = defaults.signUpDraft else {
-            print("No draft")
-            return
-        }
-        let profile = try userManager.createUser(draft: signUpDraft)
-        await s.startSession(user: profile)
-    }
+
 }
 
-/*
 
- //Onboarding Functions
-//    var draftProfile: DraftProfile? { defaults.fetch() }
+
+
+/*
+ @ObservationIgnored private let cycleManager: CycleManager
+ @ObservationIgnored private let eventManager: EventManager
+
+ 
+ self.cycleManager = cycleManager
+ self.eventManager = eventManager
+ 
+ var selectedCountries: [String] = []
+ 
+ var availableLetters: Set<String> {
+     Set(countries.map { String($0.name.prefix(1)) })
+ }
+ 
+ func fetchNationality() {
+     selectedCountries = draft.nationality
+ }
+
+ 
+     
+ func saveOnboardingDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
+     defaults.update(kp, to: value)
+     print("saved")
+ }
+ 
+ func createProfile() async throws {
+     guard let signUpDraft = defaults.signUpDraft else {
+         print("No draft")
+         return
+     }
+     let profile = try userManager.createUser(draft: signUpDraft)
+     await s.startSession(user: profile)
+ }
+ 
+
  
  */

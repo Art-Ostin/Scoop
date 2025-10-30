@@ -7,20 +7,72 @@
 import SwiftUI
 import FirebaseFirestore
 
+
+
+
+struct OnboardingNationality: View {
+    
+    @State private var countriesSelected: [String] = []
+    @Bindable var vm: OnboardingViewModel
+    
+    var body: some View {
+        
+        GenericNationality(countriesSelected: $countriesSelected) {
+            vm.saveOnboardingDraft(_kp: \.nationality, to: countriesSelected)
+        } onCountryTap: {
+            countriesSelected.toggle($0, limit: 3)
+        }
+    }
+}
+
+
+//Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
 struct EditNationality: View {
+    let vm: EditProfileViewModel
+    @State var countriesSelected: [String]
+    
+    init(vm: EditProfileViewModel) {
+        self.vm = vm
+        _countriesSelected = .init(initialValue: vm.draft.nationality)
+    }
+    
+    var body: some View {
+        GenericNationality(countriesSelected: $countriesSelected) {} onCountryTap: { countriesSelected.toggle($0, limit: 3)
+        }.onDisappear {vm.draft.nationality = countriesSelected}
+    }
+}
+
+struct GenericNationality: View {
     
     @Environment(\.flowMode) private var mode
-    @Bindable var vm: EditProfileViewModel
     @State private var shakeTicks: [String: Int] = [:]
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
     
+    @Binding var countriesSelected: [String]
     
+    let onNextTap: () -> ()
+    
+    let onCountryTap: (String) -> ()
+    
+    let countries = CountryDataServices.shared.allCountries
+    
+    var availableLetters: Set<String> {
+        Set(countries.map { String($0.name.prefix(1)) })
+    }
+    
+    var groupedCountries: [(letter: String, countries: [CountryData])] {
+        let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
+        let sortedKeys = groups.keys.sorted()
+        return sortedKeys.map { key in
+            (key, groups[key]!.sorted { $0.name < $1.name })
+        }
+    }
     
     var body: some View {
         VStack(spacing: 36) {
-            SignUpTitle(text: "Nationality", subtitle: "\(vm.selectedCountries.count)/3")
+            SignUpTitle(text: "Nationality", subtitle: "\(countriesSelected.count)/3")
                 .padding(.top, 12)
                 .padding(.horizontal, 16)
             
@@ -39,26 +91,25 @@ struct EditNationality: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
-        .onAppear { vm.fetchNationality() }
         .flowNavigation()
     }
 }
 
 
-extension EditNationality {
+
+
+extension GenericNationality {
     
     private var selectedCountries: some View {
         HStack(spacing: 36) {
-            ForEach(vm.selectedCountries, id: \.self) {country in
+            ForEach(countriesSelected, id: \.self) {country in
                 Text(country)
                     .font(.body(32))
                     .overlay(alignment: .topTrailing) {
                         CircleIcon("xmark")
                             .offset(x: 6, y: -2)
                     }
-                    .onTapGesture {
-                        withAnimation(.smooth(duration: 0.2)) { _ = vm.toggleCountry(country) }
-                    }
+                    .onTapGesture { withAnimation(.smooth(duration: 0.2)) { onCountryTap(country)}}
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -76,7 +127,7 @@ extension EditNationality {
                 } label: {
                     Text(String(char))
                         .font(.body(20, .bold))
-                        .foregroundStyle(vm.availableLetters.contains(String(char)) ? Color.black : Color.grayPlaceholder)
+                        .foregroundStyle(availableLetters.contains(String(char)) ? Color.black : Color.grayPlaceholder)
                 }
             }
         }
@@ -96,7 +147,7 @@ extension EditNationality {
                     }
                 }
                 
-                ForEach(Array(vm.groupedCountries.enumerated()), id: \.offset) { _, group in
+                ForEach(Array(groupedCountries.enumerated()), id: \.offset) { _, group in
                     VStack(spacing: 24) {
                         Text(group.letter)
                             .font(.system(size: 32))
@@ -116,14 +167,13 @@ extension EditNationality {
         }
     }
     
+    private func isSelected(_ country: String) -> Bool {
+        countriesSelected.contains(country)
+    }
+    
     @ViewBuilder private var nextButton: some View {
-        if case .onboarding(_, let advance) = mode {
-            NextButton(isEnabled: vm.selectedCountries.count > 0) {
-                withAnimation {
-                    advance()
-                    vm.saveDraft(_kp: \.nationality, to: vm.selectedCountries)
-                }
-            }
+        if case .onboarding(_, _) = mode {
+            NextButton(isEnabled: countriesSelected.count > 0) {onNextTap()}
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding()
             .padding(.top, 252)
@@ -138,10 +188,10 @@ extension EditNationality {
                 .background (
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.grayPlaceholder, lineWidth: 1)
-                        .fill(vm.isSelected(country.flag) ? Color.blue : Color.clear)
+                        .fill(isSelected(country.flag) ? Color.blue : Color.clear)
                 )
                 .overlay( alignment: .topTrailing) {
-                    CircleIcon(vm.isSelected(country.flag) ? "minus" : "plus")
+                    CircleIcon(isSelected(country.flag) ? "minus" : "plus")
                         .offset(x: 3, y: -3)
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeTicks[country.flag, default: 0])))
@@ -152,13 +202,13 @@ extension EditNationality {
                 .multilineTextAlignment(.center)
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
-        .onTapGesture {
-            withAnimation(.smooth(duration: 0.2)) {
-                if vm.toggleCountry(country.flag) == true {
-                    shakeTicks[country.flag, default: 0] &+= 1
-                }
+        .onTapGesture { withAnimation(.smooth(duration: 0.2)) {
+            if countriesSelected.count >= 3 {
+                shakeTicks[country.flag, default: 0] &+= 1
+            } else {
+                onCountryTap(country.flag)
             }
-        }
+        }}
     }
 }
 
@@ -173,3 +223,45 @@ func CircleIcon (_ image: String, _ fontSize: CGFloat = 8) -> some View {
             .foregroundStyle(.black)
     }
 }
+
+
+
+
+
+
+/*
+ .onAppear { vm.fetchNationality() }
+
+ vm.saveOnboardingDraft(_kp: \.nationality, to: vm.selectedCountries)
+
+ */
+
+
+/*
+ 
+ extension GenericNationality {
+     
+     
+     func isSelected(_ country: String) -> Bool {
+         countriesSelected.contains(country)
+     }
+     
+     func toggleCountry(_ country: String) -> Bool? {
+         if isSelected(country) {
+             selectedCountries.removeAll(where: {$0 == country})
+             setArray(.nationality, \.nationality, to: [country], add: false)
+         }
+         if selectedCountries.contains(country) {
+             selectedCountries.removeAll(where: {$0 == country})
+             setArray(.nationality, \.nationality, to: [country], add: false)
+         } else if selectedCountries.count < 3 {
+             selectedCountries.append(country)
+             setArray(.nationality, \.nationality, to: [country], add: true)
+         } else {
+             return true
+         }
+         return nil
+     }
+ }
+ */
+
