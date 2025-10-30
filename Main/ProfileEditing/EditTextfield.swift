@@ -7,46 +7,29 @@
 
 import SwiftUI
 
+struct OnboardingTextField {
+    @Bindable var vm: OnboardingViewModel
+    let field: TextFieldOptions
+    @State var text = ""
 
-enum TextFieldOptions: CaseIterable {
-    
-    case degree, hometown, name, languages
-    
-    var title: String {
-        switch self {
-        case .degree: return "Degree"
-        case .hometown: return "Hometown"
-        case .name: return "Name"
-        case .languages: return "I Speak"
-        }
-    }
-
-    var key: UserProfile.Field {
-        switch self {
-        case .degree: return .degree
-        case .hometown: return .hometown
-        case .name: return .name
-        case .languages: return .languages
-        }
-    }
-    
-    var keyPath: WritableKeyPath<UserProfile, String> {
-        switch self {
-        case .degree: return \.degree
-        case .hometown: return \.hometown
-        case .name: return \.name
-        case .languages: return \.languages
-        }
-    }
-    
-    var draftKeyPath: WritableKeyPath<DraftProfile, String> {
-        switch self {
-        case .degree: return \.degree
-        case .hometown: return \.hometown
-        default : return \.degree
+    var body: some View {
+        TextFieldGeneric(text: $text, field: field) {
+            vm.saveOnboardingDraft(_kp: field.draftKeyPath, to: text)
         }
     }
 }
+
+struct EditTextfield : View {
+    @Bindable var vm: EditProfileViewModel
+    let field: TextFieldOptions
+    var selection: Binding<String> {
+        Binding { vm.draft.height} set: { vm.set(.height, \.height, to: $0)}
+    }
+    var body: some View {
+        TextFieldGeneric(text: selection, field: field) {}
+    }
+}
+
 
 struct TextFieldGeneric: View {
     
@@ -97,35 +80,46 @@ extension TextFieldGeneric {
     }
 }
 
-struct EditTextfield : View {
+
+enum TextFieldOptions: CaseIterable {
     
-    @Bindable var vm: EditProfileViewModel
-    let field: TextFieldOptions
-    var selection: Binding<String> {
-        Binding(
-            get: { vm.draft.height },
-            set: { vm.set(.height, \.height, to: $0) }
-        )
+    case degree, hometown, name, languages
+    
+    var title: String {
+        switch self {
+        case .degree: return "Degree"
+        case .hometown: return "Hometown"
+        case .name: return "Name"
+        case .languages: return "I Speak"
+        }
+    }
+
+    var key: UserProfile.Field {
+        switch self {
+        case .degree: return .degree
+        case .hometown: return .hometown
+        case .name: return .name
+        case .languages: return .languages
+        }
     }
     
-    var body: some View {
-        TextFieldGeneric(text: selection, field: field) {}
+    var keyPath: WritableKeyPath<UserProfile, String> {
+        switch self {
+        case .degree: return \.degree
+        case .hometown: return \.hometown
+        case .name: return \.name
+        case .languages: return \.languages
+        }
     }
-}
-
-struct onboardingTextField {
-    @Bindable var vm: OnboardingViewModel
-    let field: TextFieldOptions
-    @State var text = ""
-
-    var body: some View {
-        TextFieldGeneric(text: $text, field: field) {
-            vm.saveOnboardingDraft(_kp: field.draftKeyPath, to: text)
+    
+    var draftKeyPath: WritableKeyPath<DraftProfile, String> {
+        switch self {
+        case .degree: return \.degree
+        case .hometown: return \.hometown
+        default : return \.degree
         }
     }
 }
-
-
 
 
 

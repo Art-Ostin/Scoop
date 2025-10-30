@@ -6,6 +6,69 @@
 
 import SwiftUI
 
+
+struct OnboardingEdit: View {
+    
+    @Bindable var vm: OnboardingViewModel
+    @State var selection: String?
+    let field : OptionField
+    
+    var body: some View {
+        OptionGeneric(selection: $selection, field: field) {
+            vm.saveOnboardingDraft(_kp: field.keyPathDraft, to: selection ?? "")
+        }
+    }
+}
+
+struct OptionEdit: View {
+
+    @Bindable var vm: EditProfileViewModel
+    let field: OptionField
+    var selection: Binding<String?> {
+        Binding(
+            get: { vm.draft[keyPath: field.keyPath] },
+            set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
+        )
+    }
+    var body: some View {
+        OptionGeneric(selection: selection, field: field) {}
+    }
+}
+
+struct OptionGeneric: View {
+    
+    @Environment(\.flowMode) private var mode
+    @Binding var selection: String?
+    let field: OptionField
+    let grid = [GridItem(.flexible()), GridItem(.flexible())]
+    let onTap: () -> ()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 48) {
+            Text(field.title)
+                .font(.title(32))
+                .padding(.horizontal, 24)
+            LazyVGrid(columns: grid, spacing: 24) {
+                ForEach(field.options, id: \.self) { option in
+                    OptionPill(title: option, isSelected: $selection) {
+                        select(option)
+                    }
+                }
+            }
+        }
+        .flowNavigation()
+    }
+    
+    private func select(_ value: String) {
+        switch mode {
+        case .onboarding(_, _):
+            onTap()
+        case .profile:
+            selection = value
+        }
+    }
+}
+
 enum OptionField: CaseIterable {
     
     case sex, attractedTo, lookingFor, year
@@ -56,67 +119,6 @@ enum OptionField: CaseIterable {
     }
 }
 
-struct OptionGeneric: View {
-    
-    @Environment(\.flowMode) private var mode
-    @Binding var selection: String?
-    let field: OptionField
-    let grid = [GridItem(.flexible()), GridItem(.flexible())]
-    let onTap: () -> ()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 48) {
-            Text(field.title)
-                .font(.title(32))
-                .padding(.horizontal, 24)
-            LazyVGrid(columns: grid, spacing: 24) {
-                ForEach(field.options, id: \.self) { option in
-                    OptionPill(title: option, isSelected: $selection) {
-                        select(option)
-                    }
-                }
-            }
-        }
-        .flowNavigation()
-    }
-    
-    private func select(_ value: String) {
-        switch mode {
-        case .onboarding(_, _):
-            onTap()
-        case .profile:
-            selection = value
-        }
-    }
-}
-
-struct OptionEdit: View {
-
-    @Bindable var vm: EditProfileViewModel
-    let field: OptionField
-    var selection: Binding<String?> {
-        Binding(
-            get: { vm.draft[keyPath: field.keyPath] },
-            set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
-        )
-    }
-    var body: some View {
-        OptionGeneric(selection: selection, field: field) {}
-    }
-}
-
-struct OnboardingEdit: View {
-    
-    @Bindable var vm: OnboardingViewModel
-    @State var selection: String?
-    let field : OptionField
-    
-    var body: some View {
-        OptionGeneric(selection: $selection, field: field) {
-            vm.saveOnboardingDraft(_kp: field.keyPathDraft, to: selection ?? "")
-        }
-    }
-}
 
 /*
  

@@ -23,9 +23,7 @@ struct DraftProfileView: View {
                     let p = vm.profileModel.profile
                     Text(p.name)
                 }
-                
                 ProfileImageView(vm: $vm, screenWidth: screenWidth)
-                
                 ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event)
             }
             .frame(maxWidth: .infinity)

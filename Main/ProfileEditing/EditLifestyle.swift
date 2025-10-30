@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LifestyleOnboarding: View {
+struct OnboardingLifestyle: View {
     
     @Bindable var vm: OnboardingViewModel
     @Environment(\.flowMode) private var mode

@@ -17,11 +17,18 @@ import FirebaseAuth
     @ObservationIgnored private let cacheManager: CacheManaging
     @ObservationIgnored private let storageManager: StorageManaging
     
-    init(authManager: AuthManaging, defaultsManager: DefaultsManager) {
-        self.authManager = authManager
-        self.defaultManager = defaultsManager
-    }
     
+    init(authManager: AuthManaging, defaultManager: DefaultsManager, sessionManager: SessionManager, userManager: UserManager, cacheManager: CacheManaging, storageManager: StorageManaging, slots: [ImageSlot], images: [UIImage]) {
+        self.authManager = authManager
+        self.defaultManager = defaultManager
+        self.sessionManager = sessionManager
+        self.userManager = userManager
+        self.cacheManager = cacheManager
+        self.storageManager = storageManager
+        self.slots = slots
+        self.images = images
+    }
+
     func signOut() async throws {
         try await authManager.deleteAuthUser()
         defaultManager.deleteDefaults()

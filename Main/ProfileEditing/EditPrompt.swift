@@ -98,8 +98,9 @@ struct PromptEdit: View {
     }
 }
 
+
 struct PromptOnboarding: View {
-    
+
     @Bindable var vm: OnboardingViewModel
     let promptIndex: Int
     

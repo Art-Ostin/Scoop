@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HeightOnboarding: View {
+struct OnboardingHeight: View {
     @State private var height = "5' 8"
     @Bindable var vm: OnboardingViewModel
     
