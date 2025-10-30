@@ -8,34 +8,39 @@
 import SwiftUI
 
 struct OnboardingContainer: View {
+    
+    
     @Environment(\.flowMode) private var mode
     @State var vm: OnboardingViewModel
     
     @Bindable var defaults: DefaultsManager
     @Binding var current: Int
+
+    @ViewBuilder
+    private var stepView: some View {
+        switch defaults.onboardingStep {
+        case 0: OnboardingOption(vm: vm, field: .sex)
+        case 1: OnboardingOption(vm: vm, field: .attractedTo)
+        case 2: OnboardingOption(vm: vm, field: .lookingFor)
+        case 3: OnboardingOption(vm: vm, field: .year)
+        case 4: OnboardingHeight(vm: vm)
+        case 5: OnboardingLifestyle(vm: vm)
+        case 6: OnboardingInterests(vm: vm)
+        case 7: OnboardingNationality(vm: vm)
+        case 8: OnboardingTextField(vm: vm, field: .hometown)
+        case 9: OnboardingTextField(vm: vm, field: .degree)
+        case 10: OnboardingPrompt(vm: vm, promptIndex: 0)
+        case 11: OnboardingPrompt(vm: vm, promptIndex: 1)
+        case 12: AddImageView(vm: vm)
+        default: EmptyView()
+        }
+    }
     
     var body: some View {
         
         NavigationStack {
             ZStack {
-                Group {
-                    switch defaults.onboardingStep {
-                    case 0: OnboardingEdit(vm: vm, field: .sex)
-                    case 1: OnboardingEdit(vm: vm, field: .attractedTo)
-                    case 2: OnboardingEdit(vm: vm, field: .lookingFor)
-                    case 3: OnboardingEdit(vm: vm, field: .year)
-                    case 4: OnboardingHeight(vm: vm)
-                    case 5: OnboardingLifestyle(vm: vm)
-                    case 6: EditInterests(vm: vm)
-                    case 7: EditNationality(vm: vm)
-                    case 8: TextFieldEdit(vm: vm, field: .hometown)
-                    case 9: TextFieldEdit(vm: vm, field: .degree)
-                    case 10: EditPrompt(vm: vm, promptIndex: 0)
-                    case 11: EditPrompt(vm: vm, promptIndex: 1)
-                    case 12: AddImageView(vm: vm)
-                    default: EmptyView()
-                    }
-                }
+                stepView
                 .environment(\.flowMode, .onboarding(step: current) {
                     withAnimation { defaults.advanceOnboarding() }
                     print(String(defaults.onboardingStep))

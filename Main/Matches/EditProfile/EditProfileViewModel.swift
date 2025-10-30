@@ -177,13 +177,6 @@ struct ImageSlot: Equatable {
     func updateUser(values: [UserProfile.Field : Any]) async throws  {
         try await userManager.updateUser(userId: user.id, values: values)
     }
-    
-    
-    
-    var isValid: Bool {
-        images.allSatisfy { $0 !== EditProfileViewModel.placeholder}
-    }
-
 }
 
 

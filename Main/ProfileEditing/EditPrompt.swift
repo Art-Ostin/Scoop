@@ -12,6 +12,42 @@ struct PromptResponse: Codable, Equatable  {
     var response: String
 }
 
+struct OnboardingPrompt: View {
+    @Bindable var vm: OnboardingViewModel
+    let promptIndex: Int
+    private var key: UserProfile.Field {
+        [.prompt1, .prompt2, .prompt3] [promptIndex]
+    }
+    private var keyPath: WritableKeyPath<DraftProfile, PromptResponse> {
+        [\DraftProfile.prompt1, \DraftProfile.prompt2] [promptIndex]
+    }
+    @State var prompt = PromptResponse(prompt: "", response: "")
+    var body: some View {
+        PromptGeneric(prompt: $prompt, promptIndex: promptIndex) {
+            vm.saveOnboardingDraft(_kp: keyPath, to: prompt)
+        }
+    }
+}
+
+struct PromptEdit: View {
+    @Bindable var vm: EditProfileViewModel
+    let promptIndex: Int
+    private var key: UserProfile.Field {
+        [.prompt1, .prompt2, .prompt3] [promptIndex]
+    }
+    private var keyPath: WritableKeyPath<UserProfile, PromptResponse> {
+        [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
+    }
+    var prompt: Binding<PromptResponse> {
+        Binding {vm.draft[keyPath: keyPath]} set: {
+            vm.setPrompt(key, keyPath, to: $0)
+        }
+    }
+    var body: some View {
+        PromptGeneric(prompt: prompt, promptIndex: promptIndex) {}
+    }
+}
+
 struct PromptGeneric: View {
     @Environment(\.flowMode) private var mode
     @FocusState var isFocused: Bool
@@ -70,53 +106,5 @@ extension PromptGeneric {
             .font(.body(17, .medium))
             .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
             .focused($isFocused)
-    }
-}
-
-struct PromptEdit: View {
-    
-    @Bindable var vm: EditProfileViewModel
-    let promptIndex: Int
-    
-    private var key: UserProfile.Field {
-        [.prompt1, .prompt2, .prompt3] [promptIndex]
-    }
-    
-    private var keyPath: WritableKeyPath<UserProfile, PromptResponse> {
-        [\UserProfile.prompt1, \UserProfile.prompt2, \UserProfile.prompt3] [promptIndex]
-    }
-
-    var prompt: Binding<PromptResponse> {
-        Binding(
-            get: { vm.draft[keyPath: keyPath]},
-            set: { vm.setPrompt(key, keyPath, to: $0)}
-        )
-    }
-    
-    var body: some View {
-        PromptGeneric(prompt: prompt, promptIndex: promptIndex) {}
-    }
-}
-
-
-struct PromptOnboarding: View {
-
-    @Bindable var vm: OnboardingViewModel
-    let promptIndex: Int
-    
-    private var key: UserProfile.Field {
-        [.prompt1, .prompt2, .prompt3] [promptIndex]
-    }
-    
-    private var keyPath: WritableKeyPath<DraftProfile, PromptResponse> {
-        [\DraftProfile.prompt1, \DraftProfile.prompt2] [promptIndex]
-    }
-    
-    @State var prompt = PromptResponse(prompt: "", response: "")
-
-    var body: some View {
-        PromptGeneric(prompt: $prompt, promptIndex: promptIndex) {
-            vm.saveOnboardingDraft(_kp: keyPath, to: prompt)
-        }
     }
 }

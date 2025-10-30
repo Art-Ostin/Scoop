@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct EditMyLifeAs: View {
-    
-    
     @Bindable var vm: EditProfileViewModel
     @State var selection: Int = 0
     @State var selectedMovie: String = ""

@@ -9,7 +9,10 @@ struct OnboardingHomeView: View {
     @State var current: Int = 0
     @State var showAlert: Bool = false
     @State private var tabSelection: TabBarItem = .meet
-        
+    
+    
+    
+    
     var body: some View {
         ZStack {
             if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
@@ -138,6 +141,7 @@ struct LimitedAccessPage: View {
         }
     }
 }
+
 
 struct LogOutButton : View {
     let onTap: () -> Void

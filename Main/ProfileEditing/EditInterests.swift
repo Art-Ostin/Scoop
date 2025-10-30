@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftUIFlowLayout
 import FirebaseFirestore
 
-struct InterestsOnboarding: View {
+struct OnboardingInterests: View {
     let vm: OnboardingViewModel
     
     @State var selected: [String] = []
@@ -39,9 +39,6 @@ struct EditInterests: View {
         .onDisappear {vm.draft.interests = selected}
     }
 }
-
-
-
 
 
 struct GenericInterests: View {

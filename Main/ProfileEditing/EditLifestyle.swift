@@ -12,10 +12,10 @@ struct OnboardingLifestyle: View {
     @Bindable var vm: OnboardingViewModel
     @Environment(\.flowMode) private var mode
     
-    @Binding var drinking: String?
-    @Binding var smoking: String?
-    @Binding var marijuana: String?
-    @Binding var drugs: String?
+    @State var drinking: String? = ""
+    @State var smoking: String? = ""
+    @State var marijuana: String? = ""
+    @State var drugs: String? = ""
     
     var body: some View {
         GenericLifestyle(drinking: $drinking, smoking: $smoking, marijuana: $marijuana, drugs: $drugs)

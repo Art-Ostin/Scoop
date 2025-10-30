@@ -7,8 +7,7 @@
 import SwiftUI
 
 
-struct OnboardingEdit: View {
-    
+struct OnboardingOption: View {
     @Bindable var vm: OnboardingViewModel
     @State var selection: String?
     let field : OptionField
@@ -25,11 +24,11 @@ struct OptionEdit: View {
     @Bindable var vm: EditProfileViewModel
     let field: OptionField
     var selection: Binding<String?> {
-        Binding(
-            get: { vm.draft[keyPath: field.keyPath] },
-            set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
-        )
+        Binding {vm.draft[keyPath: field.keyPath]} set: {
+            vm.set(field.key, field.keyPath, to: $0 ?? "")
+        }
     }
+    
     var body: some View {
         OptionGeneric(selection: selection, field: field) {}
     }

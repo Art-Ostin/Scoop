@@ -25,7 +25,6 @@ struct OnboardingNationality: View {
     }
 }
 
-
 //Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
 struct EditNationality: View {
     let vm: EditProfileViewModel
@@ -223,45 +222,4 @@ func CircleIcon (_ image: String, _ fontSize: CGFloat = 8) -> some View {
             .foregroundStyle(.black)
     }
 }
-
-
-
-
-
-
-/*
- .onAppear { vm.fetchNationality() }
-
- vm.saveOnboardingDraft(_kp: \.nationality, to: vm.selectedCountries)
-
- */
-
-
-/*
- 
- extension GenericNationality {
-     
-     
-     func isSelected(_ country: String) -> Bool {
-         countriesSelected.contains(country)
-     }
-     
-     func toggleCountry(_ country: String) -> Bool? {
-         if isSelected(country) {
-             selectedCountries.removeAll(where: {$0 == country})
-             setArray(.nationality, \.nationality, to: [country], add: false)
-         }
-         if selectedCountries.contains(country) {
-             selectedCountries.removeAll(where: {$0 == country})
-             setArray(.nationality, \.nationality, to: [country], add: false)
-         } else if selectedCountries.count < 3 {
-             selectedCountries.append(country)
-             setArray(.nationality, \.nationality, to: [country], add: true)
-         } else {
-             return true
-         }
-         return nil
-     }
- }
- */
 

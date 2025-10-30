@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct OnboardingTextField {
+struct OnboardingTextField: View  {
     @Bindable var vm: OnboardingViewModel
     let field: TextFieldOptions
     @State var text = ""

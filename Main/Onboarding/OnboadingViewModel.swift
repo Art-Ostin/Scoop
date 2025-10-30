@@ -67,6 +67,7 @@ import FirebaseAuth
         await sessionManager.startSession(user: profile)
     }
     
+    //I need to put the images into their own viewModel for the onboarding
     private func setDraftImage(at index: Int, path: String, url: URL) {
         guard let draft = defaultManager.signUpDraft else { return }
         var p = draft.imagePath
@@ -88,7 +89,6 @@ import FirebaseAuth
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
-
     
     func changeImage(at index: Int) async throws {
         guard
@@ -115,4 +115,3 @@ import FirebaseAuth
         }
     }
 }
-
