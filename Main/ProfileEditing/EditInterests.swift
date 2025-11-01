@@ -16,7 +16,7 @@ struct OnboardingInterests: View {
     
     var body: some View {
         GenericInterests(selected: $selected) {
-            vm.saveOnboardingDraft(_kp: \.interests, to: selected)
+            vm.saveAndNextStep(kp: \.interests, to: selected)
         } onInterestTap: {
             selected.toggle($0, limit: 10)
         }

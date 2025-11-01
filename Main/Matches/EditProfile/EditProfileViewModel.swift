@@ -10,14 +10,6 @@ import SwiftUI
 import PhotosUI
 import FirebaseFirestore
 
-
-struct ImageSlot: Equatable {
-    var pickerItem: PhotosPickerItem?
-    var path: String?
-    var url: URL?
-}
-
-
 @MainActor
 @Observable class EditProfileViewModel {
     
@@ -87,40 +79,42 @@ struct ImageSlot: Equatable {
     
     
     func saveUpdatedImages() async throws {
-        let updates = updatedImages
-        let snapshotSlots = slots
-        var paths = user.imagePath
-        var urls  = user.imagePathURL
-        if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
-        if urls.count  < 6 { urls  += Array(repeating: "", count: 6 - urls.count) }
-        let userId = user.id
-        
-        struct ImgResult { let index: Int; let path: String; let url: URL }
-        
-        let results: [ImgResult] = try await withThrowingTaskGroup(of: ImgResult.self, returning: [ImgResult].self) { group in
-            for (index, data) in updates {
-                let oldPath = snapshotSlots[index].path
-                let oldURL  = snapshotSlots[index].url
-                
-                group.addTask {
-                    if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
-                    if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
-                    let originalPath = try await self.storageManager.saveImage(data: data, userId: userId)
-                    let url = try await self.storageManager.getImageURL(path: originalPath)
-                    let resized = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
-                    return ImgResult(index: index, path: resized, url: url)
-                }
-            }
-            var tmp: [ImgResult] = []
-            for try await r in group { tmp.append(r) }
-            return tmp
-        }
-        
-        for r in results {
-            paths[r.index] = r.path
-            urls[r.index]  = r.url.absoluteString
-        }
-        try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
+        /*
+         let updates = updatedImages
+         let snapshotSlots = slots
+         var paths = user.imagePath
+         var urls  = user.imagePathURL
+         if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
+         if urls.count  < 6 { urls  += Array(repeating: "", count: 6 - urls.count) }
+         let userId = user.id
+         
+         struct ImgResult { let index: Int; let path: String; let url: URL }
+         
+         let results: [ImgResult] = try await withThrowingTaskGroup(of: ImgResult.self, returning: [ImgResult].self) { group in
+             for (index, data) in updates {
+                 let oldPath = snapshotSlots[index].path
+                 let oldURL  = snapshotSlots[index].url
+                 
+                 group.addTask {
+                     if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
+                     if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
+                     let originalPath = try await self.storageManager.saveImage(data: data, userId: userId)
+                     let url = try await self.storageManager.getImageURL(path: originalPath)
+                     let resized = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+                     return ImgResult(index: index, path: resized, url: url)
+                 }
+             }
+             var tmp: [ImgResult] = []
+             for try await r in group { tmp.append(r) }
+             return tmp
+         }
+         
+         for r in results {
+             paths[r.index] = r.path
+             urls[r.index]  = r.url.absoluteString
+         }
+         try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
+         */
     }
     
     
@@ -148,7 +142,7 @@ struct ImageSlot: Equatable {
         images = newImages
     }
     
-    func changeImage(at index: Int, onboarding: Bool = false) async throws {
+    func changeImage(at index: Int) async throws {
         guard
             let selection = slots[index].pickerItem,
             let data = try? await selection.loadTransferable(type: Data.self),
@@ -166,10 +160,6 @@ struct ImageSlot: Equatable {
         }
     }
     
-//    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
-//        user[keyPath: key]
-//    }
-    
     func interestIsSelected(text: String) -> Bool {
         user.interests.contains(text) == true
     }
@@ -179,43 +169,8 @@ struct ImageSlot: Equatable {
     }
 }
 
-
-
-
 /*
- @ObservationIgnored private let cycleManager: CycleManager
- @ObservationIgnored private let eventManager: EventManager
-
- 
- self.cycleManager = cycleManager
- self.eventManager = eventManager
- 
- var selectedCountries: [String] = []
- 
- var availableLetters: Set<String> {
-     Set(countries.map { String($0.name.prefix(1)) })
- }
- 
- func fetchNationality() {
-     selectedCountries = draft.nationality
- }
-
- 
-     
- func saveOnboardingDraft<T>(_kp kp: WritableKeyPath<DraftProfile, T>, to value: T) {
-     defaults.update(kp, to: value)
-     print("saved")
- }
- 
- func createProfile() async throws {
-     guard let signUpDraft = defaults.signUpDraft else {
-         print("No draft")
-         return
-     }
-     let profile = try userManager.createUser(draft: signUpDraft)
-     await s.startSession(user: profile)
- }
- 
-
- 
+//    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
+//        user[keyPath: key]
+//    }
  */

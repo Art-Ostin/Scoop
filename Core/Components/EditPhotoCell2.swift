@@ -1,24 +1,21 @@
 //
-//  PhotoCell2.swift
-//  ScoopTest
+//  EditPhotoCell2.swift
+//  Scoop
 //
-//  Created by Art Ostin on 23/07/2025.
+//  Created by Art Ostin on 31/10/2025.
 //
 
 import SwiftUI
 import PhotosUI
 
-struct EditPhotoCell: View {
+struct EditPhotoCell2: View {
     
-    @Binding var picker: PhotosPickerItem?
-    let image: UIImage?
-    let action: () async throws -> Void
-
+    @Binding var image: UIImage?
+    
     @State private var item: PhotosPickerItem?
-
+    
     var body: some View {
-        
-        PhotosPicker(selection: $picker, matching: .images) {
+        PhotosPicker(selection: $item, matching: .images) {
             if let image {
                 Image(uiImage: image)
                     .resizable()
@@ -32,11 +29,15 @@ struct EditPhotoCell: View {
         .frame(width: 110, height: 110)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
-        .onChange(of: picker) {_, newValue in
-            guard newValue != nil else { return }
-            Task {
-                do { try await action() }
-                catch { print("changeImage failed:", error) }
+        .task(id: item) { @MainActor in
+            guard let item = item else { return }
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    image = uiImage
+                }
+            } catch {
+                print(error)
             }
         }
     }

@@ -5,14 +5,13 @@ struct OnboardingHomeView: View {
     @Environment(\.appDependencies) private var dep
     
     @Environment(\.appState) private var appState
+    @State private var vm: OnboardingViewModel?
     @State var showOnboarding = false
     @State var current: Int = 0
     @State var showAlert: Bool = false
     @State private var tabSelection: TabBarItem = .meet
     
-    
-    
-    
+
     var body: some View {
         ZStack {
             if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
@@ -35,26 +34,39 @@ struct OnboardingHomeView: View {
             }
         }
         .task {
-            switch await bootstrap() {
-            case .needsLogin:
+            if vm == nil {
+                await MainActor.run {
+                    vm = OnboardingViewModel(
+                        authManager: dep.authManager,
+                        defaultManager: dep.defaultsManager,
+                        sessionManager: dep.sessionManager,
+                        userManager: dep.userManager,
+                    )
+                }
+            }
+            guard let vm = vm, await vm.isLoggedIn() else {
                 appState.wrappedValue = .login
-            case .ok:
-                break
+                return
             }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingContainer(vm: EditProfileViewModel(cacheManager: dep.cacheManager, s: dep.sessionManager, userManager: dep.userManager, storageManager: dep.storageManager), defaults: dep.defaultsManager, current: $current)
+            if let vm {
+                OnboardingContainer(
+                    vm: vm,
+                    imagesVM: OnboardingImageViewModel(defaults: dep.defaultsManager, storage: dep.storageManager,auth: dep.authManager)
+                )
+            }
         }
         .alert("Sign Out", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Sign Out") {
                 appState.wrappedValue = .login
                 Task {
-                    do { try await signOut() } catch { print(error) }
+                    do { try await vm?.signOut() } catch { print(error) }
                 }
             }
         } message: {
-            onboardingStep == 0 ?
+            vm?.onboardingStep == 0 ?
             Text("Are you sure you want to sign Out?") :
             Text("Are you sure you want to sign Out? Your Progress will be lost.")
         }
@@ -63,42 +75,16 @@ struct OnboardingHomeView: View {
 
 extension OnboardingHomeView {
     private var meetView: some View {
-        LimitedAccessPage(title: "Meet", imageName: "Plants", description: "View weekly profiles here & send a Time and Place to Meet.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: onboardingStep)
+        LimitedAccessPage(title: "Meet", imageName: "Plants", description: "View weekly profiles here & send a Time and Place to Meet.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
     }
     private var meetingView: some View {
-        LimitedAccessPage(title: "Meeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: onboardingStep)
+        LimitedAccessPage(title: "Meeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
     }
     private var matchesView: some View {
-        LimitedAccessPage(title: "Message", imageName: "DancingCats", description: "View & message your previous matches here", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: onboardingStep)
+        LimitedAccessPage(title: "Message", imageName: "DancingCats", description: "View & message your previous matches here", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
     }
 }
 
-extension OnboardingHomeView {
-    
-    private func signOut() async throws {
-        try await dep.authManager.deleteAuthUser()
-        dep.defaultsManager.deleteDefaults()
-    }
-    
-    private func fetchUser() async throws -> User? {
-        await dep.authManager.fetchAuthUser()
-    }
-    
-    enum BootStrap { case needsLogin, ok}
-    
-    private func bootstrap() async -> BootStrap {
-        guard let user = await dep.authManager.fetchAuthUser() else { return .needsLogin }
-        if dep.defaultsManager.signUpDraft == nil {
-            dep.defaultsManager.deleteDefaults()
-            dep.defaultsManager.signUpDraft = .init(user: user)
-        }
-        return .ok
-    }
-    
-    var onboardingStep: Int {
-        dep.defaultsManager.onboardingStep
-    }
-}
 
 struct LimitedAccessPage: View {
     

@@ -14,12 +14,12 @@ struct OnboardingOption: View {
     
     var body: some View {
         OptionGeneric(selection: $selection, field: field) {
-            vm.saveOnboardingDraft(_kp: field.keyPathDraft, to: selection ?? "")
+            vm.saveAndNextStep(kp: field.keyPathDraft, to: selection ?? "")
         }
     }
 }
 
-struct OptionEdit: View {
+struct EditOption: View {
 
     @Bindable var vm: EditProfileViewModel
     let field: OptionField
@@ -117,59 +117,3 @@ enum OptionField: CaseIterable {
         }
     }
 }
-
-
-/*
- 
- struct OptionEditView: View  {
-     
-     @Environment(\.flowMode) private var mode
-     
-     @Bindable var vm: EditProfileViewModel
-
-     let field: OptionField
-     let grid = [GridItem(.flexible()), GridItem(.flexible())]
-     
-     //If onboarding don't mutate draftProfile, just submit whatever user inputs
-     var selection: Binding<String?> {
-         switch mode {
-         case .onboarding:
-             return Binding(get: { nil }, set: { _ in })
-         case .profile:
-             return Binding(
-                 get: { vm.draft[keyPath: field.keyPath] },
-                 set: { vm.set(field.key, field.keyPath, to: $0 ?? "") }
-             )
-         }
-     }
-
-     var body: some View {
-         VStack(alignment: .leading, spacing: 48) {
-             Text(field.title)
-                 .font(.title(32))
-                 .padding(.horizontal, 24)
-             LazyVGrid(columns: grid, spacing: 24) {
-                 ForEach(field.options, id: \.self) { option in
-                     OptionPill(title: option, isSelected: selection) {
-                         select(option)
-                     }
-                 }
-             }
-         }
-         .flowNavigation()
-     }
-     
-     private func select(_ value: String) {
-         switch mode {
-         case .onboarding(_, let advance):
-             vm.saveOnboardingDraft(_kp: field.keyPathDraft, to: value)
-             advance()
-         case .profile:
-             selection.wrappedValue = value
-         }
-     }
- }
-
- 
- */
-

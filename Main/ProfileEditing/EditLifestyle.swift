@@ -32,13 +32,10 @@ struct OnboardingLifestyle: View {
             let m = marijuana,
             let g = drugs
         else { return }
-        if case .onboarding(_, let advance) = mode {
-            advance()
-        }
-        vm.saveOnboardingDraft(_kp: \.drinking, to: d)
-        vm.saveOnboardingDraft(_kp: \.smoking, to: s)
-        vm.saveOnboardingDraft(_kp: \.marijuana, to: m)
-        vm.saveOnboardingDraft(_kp: \.drugs, to: g)
+        vm.saveAndNextStep(kp: \.drinking, to: d, updateOnly: true)
+        vm.saveAndNextStep(kp: \.smoking, to: s, updateOnly: true)
+        vm.saveAndNextStep(kp: \.marijuana, to: m, updateOnly: true)
+        vm.saveAndNextStep(kp: \.drugs, to: g)
     }
 }
 

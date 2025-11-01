@@ -17,16 +17,16 @@ struct InfoView: View {
 
         return [
             EditPreview("Name", [u.name]) {
-                       TextFieldEdit(vm: vm, field: .name)
+                       EditTextfield(vm: vm, field: .name)
                    },
             EditPreview("Sex", [u.sex]) {
-                       OptionEditView(vm: vm, field: .sex)
+                       EditOption(vm: vm, field: .sex)
                    },
             EditPreview("Attracted To", [u.attractedTo]) {
-                       OptionEditView(vm: vm, field: .attractedTo)
+                    EditOption(vm: vm, field: .attractedTo)
                    },
             EditPreview("Year", [u.year]) {
-                       OptionEditView(vm: vm, field: .year)
+                    EditOption(vm: vm, field: .year)
                    },
             EditPreview("Height", [u.height]) {
                        EditHeight(vm: vm)
@@ -58,13 +58,13 @@ struct InfoView: View {
         
         return [
             EditPreview("Looking For", [u.lookingFor]) {
-                OptionEditView(vm: vm, field: .lookingFor)
+                EditOption(vm: vm, field: .lookingFor)
             },
             EditPreview("Degree", [u.degree]) {
-                TextFieldEdit(vm: vm, field: .degree)
+                EditTextfield(vm: vm, field: .degree)
             },
             EditPreview("Hometown", [u.hometown]) {
-                TextFieldEdit(vm: vm, field: .hometown)
+                EditTextfield(vm: vm, field: .hometown)
             },
             
             EditPreview("Lifestyle", [lifestyle]) {
@@ -74,7 +74,7 @@ struct InfoView: View {
                 EditMyLifeAs(vm: vm)
             },
             EditPreview("Languages", [u.languages]) {
-                TextFieldEdit(vm: vm, field: .languages)
+                EditTextfield(vm: vm, field: .languages)
             }
         ]
     }

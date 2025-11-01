@@ -18,7 +18,7 @@ struct OnboardingNationality: View {
     var body: some View {
         
         GenericNationality(countriesSelected: $countriesSelected) {
-            vm.saveOnboardingDraft(_kp: \.nationality, to: countriesSelected)
+            vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
         } onCountryTap: {
             countriesSelected.toggle($0, limit: 3)
         }

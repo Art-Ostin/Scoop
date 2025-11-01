@@ -7,20 +7,29 @@
 import SwiftUI
 import PhotosUI
 
-struct AddImageView: View {
+struct ImageSlot: Equatable {
+    var pickerItem: PhotosPickerItem?
+    var path: String?
+    var url: URL?
+}
+
+
+struct OnboardingImages: View {
     
     @Environment(\.appState) private var appState
     @Environment(\.flowMode) private var mode
     
-    @State private var vm: OnboardingViewModel
-    @State var images: [UIImage] = Array(repeating: UIImage(named: "ImagePlaceholder") ?? UIImage(), count: 6)
-    
+    let vm: OnboardingViewModel
+    let imageVm: OnboardingImageViewModel
+
+    @State var images: [UIImage?] = Array(repeating: nil, count: 6)
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     
-    init(vm: OnboardingViewModel) { self._vm = State(initialValue: vm) }
     
     
     
+    
+
     var body: some View {
         VStack(spacing: 36) {
             
@@ -32,16 +41,15 @@ struct AddImageView: View {
                 .foregroundStyle(Color.grayText)
             
             LazyVGrid(columns: columns, spacing: 36) {
-                ForEach(0..<6) { idx in
-                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
-                        try await vm.changeImage(at: idx)
-                    }
+                ForEach(images.indices, id: \.self) { index in
+                    EditPhotoCell2(image: $images[index])
                 }
             }
-            
-            ActionButton(isValid: true, text: "Complete") {
+
+            ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {
                 Task {
                     do {
+                        await imageVm.saveAll(images: images)
                         try await vm.createProfile()
                         appState.wrappedValue = .app
                     } catch {
@@ -57,3 +65,7 @@ struct AddImageView: View {
         .padding(.horizontal, 24)
     }
 }
+
+/*
+ @State var data: [Data?] = Array(repeating: nil, count: 6)
+ */

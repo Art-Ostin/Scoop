@@ -40,7 +40,7 @@ struct MatchesView: View {
         }
         .fullScreenCover(isPresented: $showProfileView) {
             NavigationStack {
-                EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, cycleManager: vm.cycleManager, eventManager: vm.eventManager, defaults: vm.defaultsManager))
+                EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager))
             }
         }
         .task(id: vm.user) {  image = try? await vm.fetchFirstImage()}

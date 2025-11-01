@@ -14,7 +14,7 @@ struct OnboardingTextField: View  {
 
     var body: some View {
         TextFieldGeneric(text: $text, field: field) {
-            vm.saveOnboardingDraft(_kp: field.draftKeyPath, to: text)
+            vm.saveAndNextStep(kp: field.draftKeyPath, to: text)
         }
     }
 }
@@ -43,7 +43,7 @@ struct TextFieldGeneric: View {
         VStack(spacing: 72)  {
             SignUpTitle(text: field.title)
             customTextField
-            if case .onboarding(_, let advance) = mode {
+            if case .onboarding(_,_) = mode {
                 NextButton(isEnabled: text.count > 0) {onTap()}
                 .padding(.top, 36)
             }

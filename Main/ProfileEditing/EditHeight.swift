@@ -13,7 +13,7 @@ struct OnboardingHeight: View {
     
     var body: some View {
         HeightGeneric(selection: $height) {
-            vm.saveOnboardingDraft(_kp: \.height, to: height)
+            vm.saveAndNextStep(kp: \.height, to: height)
         }
     }
 }

@@ -24,12 +24,12 @@ struct OnboardingPrompt: View {
     @State var prompt = PromptResponse(prompt: "", response: "")
     var body: some View {
         PromptGeneric(prompt: $prompt, promptIndex: promptIndex) {
-            vm.saveOnboardingDraft(_kp: keyPath, to: prompt)
+            vm.saveAndNextStep(kp: keyPath, to: prompt)
         }
     }
 }
 
-struct PromptEdit: View {
+struct EditPrompt: View {
     @Bindable var vm: EditProfileViewModel
     let promptIndex: Int
     private var key: UserProfile.Field {

@@ -38,9 +38,8 @@ protocol AuthManaging {
 protocol StorageManaging {
     func imagePath(_ imageId: String) -> StorageReference
     func getImageURL(path: String) async throws -> URL
-    func saveImage(data: Data, userId: String) async throws -> String
+    func saveImage(data: Data, userId: String) async throws -> (path: String, url: URL)
     func deleteImage(path: String) async throws
-    func updateImagePath(url: URL) -> URL
 }
 
 protocol CacheManaging {
@@ -50,3 +49,4 @@ protocol CacheManaging {
     func removeImage(for url: URL)
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? 
 }
+
