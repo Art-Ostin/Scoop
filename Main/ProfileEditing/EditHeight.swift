@@ -48,7 +48,7 @@ struct HeightGeneric: View {
             .pickerStyle(.wheel)
             .padding(.horizontal, 36)
             
-            if case .onboarding(_, _) = mode {
+            if case .onboarding = mode {
                 NextButton(isEnabled: true) {onTap()}
             }
         }

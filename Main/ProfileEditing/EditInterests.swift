@@ -15,11 +15,10 @@ struct OnboardingInterests: View {
     @State var selected: [String] = []
     
     var body: some View {
-        GenericInterests(selected: $selected) {
-            vm.saveAndNextStep(kp: \.interests, to: selected)
-        } onInterestTap: {
-            selected.toggle($0, limit: 10)
-        }
+        GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
+            .nextButton(isEnabled: selected.count > 3){
+                vm.saveAndNextStep(kp: \.interests, to: selected)
+            }
     }
 }
 
@@ -29,13 +28,11 @@ struct EditInterests: View {
     
     init(vm: EditProfileViewModel) {
         self.vm = vm
-        _selected = .init(initialValue: vm.draft.interests)
+        _selected = .init(wrappedValue: vm.draft.interests)
     }
     
     var body: some View {
-        GenericInterests(selected: $selected) {} onInterestTap: {
-            selected.toggle($0, limit: 10)
-        }
+        GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
         .onDisappear {vm.draft.interests = selected}
     }
 }
@@ -43,12 +40,8 @@ struct EditInterests: View {
 
 struct GenericInterests: View {
     
-    @Environment(\.flowMode) private var mode
     @Binding var selected: [String]
     var selectedMax: Bool {selected.count >= 10}
-    
-    let onNextTap: () -> ()
-    
     let onInterestTap: (String) -> ()
     
     var sections: [(title: String?, image: String?, data: [String])] {
@@ -73,12 +66,7 @@ struct GenericInterests: View {
                 interestsSections
             }
             .padding(.top, 12)
-            if case .onboarding(_, let advance) = mode {
-                NextButton(isEnabled: selected.count > 3) {onNextTap()}
-                .offset(y: 144)
-            }
         }
-        .flowNavigation()
         .padding(.horizontal)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background.ignoresSafeArea())

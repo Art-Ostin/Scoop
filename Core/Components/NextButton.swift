@@ -14,9 +14,7 @@ struct NextButton: View {
     
     @State private var didTap = false
 
-    private var actuallyEnabled: Bool {
-        isEnabled && !didTap
-    }
+    private var actuallyEnabled: Bool { isEnabled && !didTap}
     
     var body: some View {
         Image("ForwardArrow")
@@ -29,9 +27,7 @@ struct NextButton: View {
             .onTapGesture {
                 guard actuallyEnabled else {return}
                 didTap = true
-                withAnimation{
-                    onTap()
-                }
+                withAnimation{onTap()}
             }
     }
 }
@@ -59,3 +55,23 @@ struct SubmitButton: View {
     }
 }
 
+//Convenience initialiser with the bottomTrailing modifier
+private struct NextButtonOverlay: ViewModifier {
+    let isEnabled: Bool
+    let padding: CGFloat
+    let onTap: () -> ()
+    
+    func body(content: Content) -> some View {
+        content.overlay(alignment: .bottomTrailing) {
+            NextButton(isEnabled: isEnabled, onTap: onTap)
+                .padding(.horizontal)
+                .padding(.bottom, padding)
+        }
+    }
+}
+
+extension View {
+    func nextButton(isEnabled: Bool, padding: CGFloat = 144, onTap: @escaping () -> Void) -> some View {
+        modifier(NextButtonOverlay(isEnabled: isEnabled,padding: padding, onTap: onTap))
+    }
+}

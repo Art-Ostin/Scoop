@@ -16,14 +16,13 @@ struct OnboardingNationality: View {
     @Bindable var vm: OnboardingViewModel
     
     var body: some View {
-        
-        GenericNationality(countriesSelected: $countriesSelected) {
-            vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
-        } onCountryTap: {
-            countriesSelected.toggle($0, limit: 3)
-        }
+        GenericNationality(countriesSelected: $countriesSelected) {countriesSelected.toggle($0, limit: 3)}
+            .nextButton(isEnabled: countriesSelected.count > 0) {
+                vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
+            }
     }
 }
+
 
 //Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
 struct EditNationality: View {
@@ -36,25 +35,20 @@ struct EditNationality: View {
     }
     
     var body: some View {
-        GenericNationality(countriesSelected: $countriesSelected) {} onCountryTap: { countriesSelected.toggle($0, limit: 3)
+        GenericNationality(countriesSelected: $countriesSelected) { countriesSelected.toggle($0, limit: 3)
         }.onDisappear {vm.draft.nationality = countriesSelected}
     }
 }
 
 struct GenericNationality: View {
     
-    @Environment(\.flowMode) private var mode
     @State private var shakeTicks: [String: Int] = [:]
-    
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
     
     @Binding var countriesSelected: [String]
-    
-    let onNextTap: () -> ()
-    
+        
     let onCountryTap: (String) -> ()
-    
     let countries = CountryDataServices.shared.allCountries
     
     var availableLetters: Set<String> {
@@ -81,21 +75,14 @@ struct GenericNationality: View {
                 VStack(spacing: 24) {
                     alphabet(proxy: proxy)
                     SoftDivider() .padding(.horizontal)
-                    ZStack {
-                        nationalitiesView
-                        nextButton
-                    }
+                    nationalitiesView
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
-        .flowNavigation()
     }
 }
-
-
-
 
 extension GenericNationality {
     
@@ -170,14 +157,6 @@ extension GenericNationality {
         countriesSelected.contains(country)
     }
     
-    @ViewBuilder private var nextButton: some View {
-        if case .onboarding = mode {
-            NextButton(isEnabled: countriesSelected.count > 0) {onNextTap()}
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding()
-            .padding(.top, 252)
-        }
-    }
     
     private func flagItem(country: CountryData) -> some View {
         VStack(spacing: 6) {
@@ -222,4 +201,3 @@ func CircleIcon (_ image: String, _ fontSize: CGFloat = 8) -> some View {
             .foregroundStyle(.black)
     }
 }
-

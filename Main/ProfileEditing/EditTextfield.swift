@@ -13,9 +13,10 @@ struct OnboardingTextField: View  {
     @State var text = ""
 
     var body: some View {
-        TextFieldGeneric(text: $text, field: field) {
-            vm.saveAndNextStep(kp: field.draftKeyPath, to: text)
-        }
+        TextFieldGeneric(text: $text, field: field)
+            .nextButton(isEnabled: text.count > 2, padding: 36) {
+                vm.saveAndNextStep(kp: field.draftKeyPath, to: text)
+            }
     }
 }
 
@@ -26,27 +27,21 @@ struct EditTextfield : View {
         Binding { vm.draft.height} set: { vm.set(.height, \.height, to: $0)}
     }
     var body: some View {
-        TextFieldGeneric(text: selection, field: field) {}
+        TextFieldGeneric(text: selection, field: field)
     }
 }
 
 
 struct TextFieldGeneric: View {
     
-    @Environment(\.flowMode) private var mode
     @Binding var text: String
     @FocusState var isFocused: Bool
     let field: TextFieldOptions
-    let onTap: () -> ()
     
     var body: some View {
         VStack(spacing: 72)  {
             SignUpTitle(text: field.title)
             customTextField
-            if case .onboarding(_,_) = mode {
-                NextButton(isEnabled: text.count > 0) {onTap()}
-                .padding(.top, 36)
-            }
         }
         .padding(.horizontal)
         .onAppear {isFocused = true}
@@ -55,7 +50,6 @@ struct TextFieldGeneric: View {
         .padding(.horizontal)
         .background(Color.background)
         .ignoresSafeArea(.keyboard)
-        .flowNavigation()
     }
 }
 
@@ -120,11 +114,3 @@ enum TextFieldOptions: CaseIterable {
         }
     }
 }
-
-
-
-
-
-
-
-

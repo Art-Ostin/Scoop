@@ -13,9 +13,6 @@ struct DraftProfileView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            ZStack {
-                
-            }
             VStack {
                 let screenWidth = proxy.size.width
                 
