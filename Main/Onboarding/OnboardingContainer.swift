@@ -9,11 +9,8 @@ import SwiftUI
 
 struct OnboardingContainer: View {
     
-    
-    @Environment(\.flowMode) private var mode
     @Bindable var vm: OnboardingViewModel
     let storage: StorageManaging
-    
     
     @ViewBuilder
     private var stepView: some View {
@@ -39,7 +36,6 @@ struct OnboardingContainer: View {
         NavigationStack {
             ZStack {
                 stepView
-                    .environment(\.flowMode, .onboarding(step: vm.onboardingStep) {print(vm.onboardingStep)})
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     .overlay(alignment: .top) {
                         Text("\(vm.onboardingStep)/12")
@@ -50,3 +46,9 @@ struct OnboardingContainer: View {
         }
     }
 }
+
+
+/*
+ .environment(\.flowMode, .onboarding(step: vm.onboardingStep) {print(vm.onboardingStep)})
+ @Environment(\.flowMode) private var mode
+ */

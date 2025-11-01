@@ -54,12 +54,12 @@ import FirebaseAuth
         defaultManager.onboardingStep
     }
     
-    //Need to figure out how to make this so when they click "Next Button" this is all that is called
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
         if !updateOnly { defaultManager.onboardingStep += 1}
         defaultManager.update(kp, to: value)
     }
 }
+
 
 /*
  func nextStep() {
