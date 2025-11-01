@@ -22,10 +22,12 @@ struct OnboardingPrompt: View {
         [\DraftProfile.prompt1, \DraftProfile.prompt2] [promptIndex]
     }
     @State var prompt = PromptResponse(prompt: "", response: "")
+    
     var body: some View {
-        PromptGeneric(prompt: $prompt, promptIndex: promptIndex) {
-            vm.saveAndNextStep(kp: keyPath, to: prompt)
-        }
+        PromptGeneric(prompt: $prompt, promptIndex: promptIndex)
+            .nextButton(isEnabled: prompt.response.count > 3, padding: 24) {
+                vm.saveAndNextStep(kp: keyPath, to: prompt)
+            }
     }
 }
 
@@ -44,17 +46,15 @@ struct EditPrompt: View {
         }
     }
     var body: some View {
-        PromptGeneric(prompt: prompt, promptIndex: promptIndex) {}
+        PromptGeneric(prompt: prompt, promptIndex: promptIndex)
     }
 }
 
 struct PromptGeneric: View {
-    @Environment(\.flowMode) private var mode
     @FocusState var isFocused: Bool
     @Binding var prompt: PromptResponse
     @State var showPrompts = false
     let promptIndex: Int
-    let onTap: () -> ()
 
     private var prompts: [String] {
         let p = Prompts.instance
@@ -65,17 +65,16 @@ struct PromptGeneric: View {
         VStack(spacing: 12) {
             selector
             textEditor
-            if case .onboarding = mode {
-                NextButton(isEnabled: prompt.response.count > 3) { isFocused = false ; onTap()}
-                    .padding(.top, 48)
-            }
         }
-        .padding(.top, 84)
+        .onAppear {
+            isFocused = true
+            if prompt.prompt.isEmpty {prompt.prompt = prompts.randomElement() ?? "My Ideal Date"}
+        }
+        .padding(.top, 60)
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt)}
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .flowNavigation()
     }
 }
 

@@ -17,7 +17,6 @@ struct ImageSlot: Equatable {
 struct OnboardingImages: View {
     
     @Environment(\.appState) private var appState
-    @Environment(\.flowMode) private var mode
     
     let vm: OnboardingViewModel
     @State private var imageVM: OnboardingImageViewModel
@@ -27,12 +26,8 @@ struct OnboardingImages: View {
     
     init(vm: OnboardingViewModel, defaults: DefaultsManager, storage: StorageManaging, auth: AuthManaging) {
         self.vm = vm
-        _imageVM = State(wrappedValue: OnboardingImageViewModel(
-            defaults: defaults, storage: storage, auth: auth
-        ))
+        _imageVM = State(wrappedValue: OnboardingImageViewModel(defaults: defaults, storage: storage, auth: auth))
     }
-    
-    
 
     var body: some View {
         VStack(spacing: 36) {
@@ -49,7 +44,6 @@ struct OnboardingImages: View {
                     EditPhotoCell2(image: $images[index])
                 }
             }
-
             ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {
                 Task {
                     do {
@@ -62,13 +56,13 @@ struct OnboardingImages: View {
                 }
             }
         }
-        .flowNavigation()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.background)
         .padding(.top, 84)
         .padding(.horizontal, 24)
+        .background(Color.background)
     }
 }
+
 
 /*
  @State var data: [Data?] = Array(repeating: nil, count: 6)

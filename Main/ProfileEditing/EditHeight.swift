@@ -12,11 +12,13 @@ struct OnboardingHeight: View {
     @Bindable var vm: OnboardingViewModel
     
     var body: some View {
-        HeightGeneric(selection: $height) {
-            vm.saveAndNextStep(kp: \.height, to: height)
-        }
+        HeightGeneric(selection: $height)
+            .nextButton(isEnabled: true) {
+                vm.saveAndNextStep(kp: \.height, to: height)
+            }
     }
 }
+
 
 struct EditHeight: View {
     @Bindable var vm: EditProfileViewModel
@@ -27,7 +29,7 @@ struct EditHeight: View {
         )
     }
     var body: some View {
-        HeightGeneric(selection: selection) {}
+        HeightGeneric(selection: selection)
     }
 }
 
@@ -35,7 +37,6 @@ struct HeightGeneric: View {
     @Environment(\.flowMode) private var mode
     @Binding var selection: String
     let heightOptions = (45...84).map {"\($0 / 12)' \($0 % 12)"}
-    let onTap: () -> ()
     
     var body: some View {
         VStack {
@@ -48,13 +49,9 @@ struct HeightGeneric: View {
             .pickerStyle(.wheel)
             .padding(.horizontal, 36)
             
-            if case .onboarding = mode {
-                NextButton(isEnabled: true) {onTap()}
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 24)
         .background(Color.background)
-        .flowNavigation()
     }
 }

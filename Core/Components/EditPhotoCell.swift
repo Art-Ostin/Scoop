@@ -24,7 +24,7 @@ struct EditPhotoCell: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                Image("ImagePlaceholder2")
+                Image("ImagePlaceholder")
                     .resizable()
                     .scaledToFill()
             }

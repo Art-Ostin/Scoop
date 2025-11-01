@@ -11,7 +11,6 @@ import PhotosUI
 struct EditPhotoCell2: View {
     
     @Binding var image: UIImage?
-    
     @State private var item: PhotosPickerItem?
     
     var body: some View {
@@ -21,7 +20,7 @@ struct EditPhotoCell2: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                Image("ImagePlaceholder2")
+                Image("ImagePlaceholder")
                     .resizable()
                     .scaledToFill()
             }
