@@ -27,10 +27,6 @@ import FirebaseAuth
         try await authManager.deleteAuthUser()
         defaultManager.deleteDefaults()
     }
-    
-    func fetchUser() async throws -> User? {
-        await authManager.fetchAuthUser()
-    }
         
     func isLoggedIn () async -> Bool {
         guard let user = await authManager.fetchAuthUser() else { return false }
@@ -55,7 +51,7 @@ import FirebaseAuth
     }
     
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
-        if !updateOnly { defaultManager.onboardingStep += 1}
+        if !updateOnly { withAnimation(.easeInOut) {defaultManager.onboardingStep += 1 }}
         defaultManager.update(kp, to: value)
     }
 }
@@ -66,4 +62,8 @@ import FirebaseAuth
      defaultManager.onboardingStep += 1
  }
  
+ 
+ func fetchUser() async throws -> User? {
+     await authManager.fetchAuthUser()
+ }
  */

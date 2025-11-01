@@ -9,7 +9,7 @@ import SwiftUI
 
 //File Creates an environment to track for the "Edit Screens" if i am on onboarding or in the app.
 enum FlowMode {
-    case onboarding(step: Int, advance: () -> Void)
+    case onboarding
     case profile
 }
 
@@ -27,15 +27,15 @@ extension EnvironmentValues {
 struct FlowNavigation: ViewModifier {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.flowMode) private var mode
-    
+
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden()
             .toolbar {
                 switch mode {
-                case .onboarding(_, _):
+                case .onboarding:
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("SAVE") { dismiss() }
+                        Button("SAVE") { dismiss()}
                             .font(.body(12, .bold))
                     }
                 case .profile:
@@ -51,3 +51,9 @@ extension View {
     }
 }
 
+
+
+
+/*
+ (step: Int, advance: () -> Void)
+ */

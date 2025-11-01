@@ -65,7 +65,7 @@ struct PromptGeneric: View {
         VStack(spacing: 12) {
             selector
             textEditor
-            if case .onboarding(_, _) = mode {
+            if case .onboarding = mode {
                 NextButton(isEnabled: prompt.response.count > 3) { isFocused = false ; onTap()}
                     .padding(.top, 48)
             }

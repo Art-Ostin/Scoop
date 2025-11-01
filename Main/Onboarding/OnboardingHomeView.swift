@@ -106,7 +106,7 @@ struct LimitedAccessPage: View {
                 .padding(.horizontal, 32)
                 .font(.body(18, .medium))
             
-            ActionButton(text: (onboardingStep == 0) ? "Create Profile" : "Complete \(onboardingStep)/10") {
+            ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12") {
                 showOnboarding = true
             }
         }

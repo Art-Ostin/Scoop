@@ -171,7 +171,7 @@ extension GenericNationality {
     }
     
     @ViewBuilder private var nextButton: some View {
-        if case .onboarding(_, _) = mode {
+        if case .onboarding = mode {
             NextButton(isEnabled: countriesSelected.count > 0) {onNextTap()}
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding()

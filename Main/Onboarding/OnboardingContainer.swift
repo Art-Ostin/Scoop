@@ -9,7 +9,9 @@ import SwiftUI
 
 struct OnboardingContainer: View {
     
-    @Bindable var vm: OnboardingViewModel
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.flowMode) private var mode
+    let vm: OnboardingViewModel
     let storage: StorageManaging
     
     @ViewBuilder
@@ -36,6 +38,12 @@ struct OnboardingContainer: View {
         NavigationStack {
             ZStack {
                 stepView
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("SAVE") { dismiss()}
+                                .font(.body(12, .bold))
+                        }
+                    }
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     .overlay(alignment: .top) {
                         Text("\(vm.onboardingStep)/12")
@@ -46,6 +54,8 @@ struct OnboardingContainer: View {
         }
     }
 }
+
+
 
 
 /*

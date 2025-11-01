@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct NextButton: View {
-    @Environment(\.flowMode) private var mode
     
     let isEnabled: Bool
     let onTap: () -> Void
@@ -31,9 +30,6 @@ struct NextButton: View {
                 guard actuallyEnabled else {return}
                 didTap = true
                 withAnimation{
-                    if case .onboarding(_, let advance) = mode {
-                        advance()
-                    }
                     onTap()
                 }
             }

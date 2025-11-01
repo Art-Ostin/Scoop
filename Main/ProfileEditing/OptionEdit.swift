@@ -60,7 +60,7 @@ struct OptionGeneric: View {
     
     private func select(_ value: String) {
         switch mode {
-        case .onboarding(_, _):
+        case .onboarding:
             onTap()
         case .profile:
             selection = value

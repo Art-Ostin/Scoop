@@ -14,7 +14,7 @@ struct ProfileDetailsView: View {
     let p: UserProfile
     let event: UserEvent?
     @State var noInitialPrompt = false
-    var isThreePrompts: Bool { p.prompt3 != nil }
+    var isThreePrompts: Bool { p.prompt3.response.isEmpty == true }
     
     @State var responseLines1 = 3
     @State var responseLines2 = 3
