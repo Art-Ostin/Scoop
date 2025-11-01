@@ -7,9 +7,6 @@
 import SwiftUI
 import FirebaseFirestore
 
-
-
-
 struct OnboardingNationality: View {
     
     @State private var countriesSelected: [String] = []
@@ -22,7 +19,6 @@ struct OnboardingNationality: View {
             }
     }
 }
-
 
 //Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
 struct EditNationality: View {
@@ -181,6 +177,7 @@ extension GenericNationality {
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
         .onTapGesture { withAnimation(.smooth(duration: 0.2)) {
+            onCountryTap(country.flag)
             if countriesSelected.count >= 3 {
                 shakeTicks[country.flag, default: 0] &+= 1
             } else {

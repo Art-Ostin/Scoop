@@ -29,13 +29,16 @@ class AuthManager: AuthManaging {
         return Auth.auth().currentUser
     }
     
-    
-    
-    
-
+    //Need to reauthenticate then delete user
     func deleteAuthUser() async throws {
         guard let user = Auth.auth().currentUser else { return }
-        try await user.delete()
+        let cred = EmailAuthProvider.credential(withEmail: user.email!, password: "HelloWorld")
+        do {
+            try await user.reauthenticate(with: cred)
+            try await user.delete()
+        } catch {
+            print(error)
+        }
     }
 
     func authStateStream() -> AsyncStream<String?> {

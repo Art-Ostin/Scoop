@@ -52,14 +52,10 @@ struct OnboardingHomeView: View {
             if let vm {OnboardingContainer(vm: vm, storage: dep.storageManager)}
         }
         .alert("Sign Out", isPresented: $showAlert) {
-            Button("Cancel", role: .cancel) {}
+            Button("Cancel", role: .cancel){}
             Button("Sign Out") {
-                Task {
-                    do {
-                        try await vm?.signOut()
-                        appState.wrappedValue = .login
-                    } catch { print("THIS IS THE ERROR\(error)")}
-                }
+                appState.wrappedValue = .login
+                Task {try? await vm?.signOut()}
             }
         } message: {
             vm?.onboardingStep == 0 ?
@@ -121,9 +117,9 @@ struct LimitedAccessPage: View {
                     .padding(.top, 24)
             }
         }
+        .background(Color.background)
     }
 }
-
 
 struct LogOutButton : View {
     let onTap: () -> Void

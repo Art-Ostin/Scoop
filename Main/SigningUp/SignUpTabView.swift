@@ -27,7 +27,7 @@ struct SignUpTabView: View {
                     .offset(x: tabSelection == 0 ? centreOffset + 2 : 48)
                 
                 VStack(spacing: 36) {
-                    (Text("Skip small talk: ").bold() + Text("Send someone a time & place to meet. No 'likes'"))
+                    (Text("Skip small talk: ").bold() + Text("No 'likes'. Send an invite with a time & place to meet."))
                     (Text("Social Scoop: ").bold() + Text("Meet one-on-one or meet at an event/bar with each other's friends. (Or a double date!)"))
                 }
                 .font(.body(.regular))

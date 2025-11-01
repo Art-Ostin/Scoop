@@ -119,7 +119,7 @@ struct ProfileView: View {
                     .onTapGesture {detailsOpen.toggle()}
                     .padding(Edge.Set.horizontal, detailsPadding())
                     .transition(AnyTransition.move(edge: Edge.bottom))
-
+                
                 InviteButton(vm: $vm)
                     .offset(
                         x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
