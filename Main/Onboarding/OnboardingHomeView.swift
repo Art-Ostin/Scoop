@@ -54,9 +54,11 @@ struct OnboardingHomeView: View {
         .alert("Sign Out", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Sign Out") {
-                appState.wrappedValue = .login
                 Task {
-                    do { try await vm?.signOut() } catch { print(error) }
+                    do {
+                        try await vm?.signOut()
+                        appState.wrappedValue = .login
+                    } catch { print(error) }
                 }
             }
         } message: {

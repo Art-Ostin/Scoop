@@ -6,7 +6,6 @@
 
 import SwiftUI
 
-
 struct OnboardingOption: View {
     @Bindable var vm: OnboardingViewModel
     @State var selection: String?
@@ -14,8 +13,10 @@ struct OnboardingOption: View {
     
     var body: some View {
         OptionGeneric(selection: $selection, field: field) {
-            vm.saveAndNextStep(kp: field.keyPathDraft, to: selection ?? "")
+            vm.saveAndNextStep(kp: field.keyPathDraft, to: $0)
         }
+        .frame(maxHeight: .infinity)
+        .background(Color.background)
     }
 }
 
@@ -24,23 +25,19 @@ struct EditOption: View {
     @Bindable var vm: EditProfileViewModel
     let field: OptionField
     var selection: Binding<String?> {
-        Binding {vm.draft[keyPath: field.keyPath]} set: {
-            vm.set(field.key, field.keyPath, to: $0 ?? "")
-        }
+        Binding {vm.draft[keyPath: field.keyPath]} set: {vm.set(field.key, field.keyPath, to: $0 ?? "")}
     }
-    
     var body: some View {
-        OptionGeneric(selection: selection, field: field) {}
+        OptionGeneric(selection: selection, field: field) {selection.wrappedValue = $0}
     }
 }
 
 struct OptionGeneric: View {
-    
-    @Environment(\.flowMode) private var mode
+
     @Binding var selection: String?
     let field: OptionField
     let grid = [GridItem(.flexible()), GridItem(.flexible())]
-    let onTap: () -> ()
+    let onTap: (String) -> ()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 48) {
@@ -50,20 +47,10 @@ struct OptionGeneric: View {
             LazyVGrid(columns: grid, spacing: 24) {
                 ForEach(field.options, id: \.self) { option in
                     OptionPill(title: option, isSelected: $selection) {
-                        select(option)
+                        onTap(option)
                     }
                 }
             }
-        }
-        .flowNavigation()
-    }
-    
-    private func select(_ value: String) {
-        switch mode {
-        case .onboarding:
-            onTap()
-        case .profile:
-            selection = value
         }
     }
 }

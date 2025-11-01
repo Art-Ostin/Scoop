@@ -48,7 +48,7 @@ struct OnboardingContainer: View {
                     .overlay(alignment: .top) {
                         Text("\(vm.onboardingStep)/12")
                             .font(.body(12, .bold))
-                            .offset(y: -36)
+                            .offset(y: -24)
                     }
             }
         }

@@ -10,12 +10,11 @@ import SwiftUI
 struct OnboardingLifestyle: View {
     
     @Bindable var vm: OnboardingViewModel
-    @Environment(\.flowMode) private var mode
     
-    @State var drinking: String? = ""
-    @State var smoking: String? = ""
-    @State var marijuana: String? = ""
-    @State var drugs: String? = ""
+    @State var drinking: String?
+    @State var smoking: String?
+    @State var marijuana: String?
+    @State var drugs: String?
     
     var body: some View {
         GenericLifestyle(drinking: $drinking, smoking: $smoking, marijuana: $marijuana, drugs: $drugs)
@@ -23,6 +22,8 @@ struct OnboardingLifestyle: View {
             .onChange(of: smoking) { saveIfComplete()}
             .onChange(of: marijuana) {saveIfComplete()}
             .onChange(of: drugs) {saveIfComplete()}
+            .frame(maxHeight: .infinity)
+            .background(.background)
     }
     
     private func saveIfComplete() {
@@ -42,7 +43,6 @@ struct OnboardingLifestyle: View {
 struct EditLifestyle: View {
     
     @Bindable var vm: EditProfileViewModel
-    @Environment(\.flowMode) private var mode
     
     
     var drinking: Binding<String?> {
@@ -86,7 +86,6 @@ struct GenericLifestyle: View {
             vicesOptions(title: "Marijuana", isSelected: $marijuana)
             vicesOptions(title: "Drugs", isSelected: $drugs)
         }
-        .flowNavigation()
         .padding(.horizontal)
     }
     
