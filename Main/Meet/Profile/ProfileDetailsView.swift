@@ -24,6 +24,7 @@ struct ProfileDetailsView: View {
         TabView {
             VStack(spacing: spacing) {
                 detailsSection1
+                Text("Hello World")
             }
             .padding(.top, 36)
             .frame(maxHeight: .infinity, alignment: .top)
