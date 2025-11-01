@@ -58,7 +58,7 @@ struct OnboardingHomeView: View {
                     do {
                         try await vm?.signOut()
                         appState.wrappedValue = .login
-                    } catch { print(error) }
+                    } catch { print("THIS IS THE ERROR\(error)")}
                 }
             }
         } message: {
