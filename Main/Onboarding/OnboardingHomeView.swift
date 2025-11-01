@@ -11,7 +11,6 @@ struct OnboardingHomeView: View {
     @State var showAlert: Bool = false
     @State private var tabSelection: TabBarItem = .meet
     
-
     var body: some View {
         ZStack {
             if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
@@ -50,12 +49,7 @@ struct OnboardingHomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            if let vm {
-                OnboardingContainer(
-                    vm: vm,
-                    imagesVM: OnboardingImageViewModel(defaults: dep.defaultsManager, storage: dep.storageManager,auth: dep.authManager)
-                )
-            }
+            if let vm {OnboardingContainer(vm: vm, storage: dep.storageManager)}
         }
         .alert("Sign Out", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}

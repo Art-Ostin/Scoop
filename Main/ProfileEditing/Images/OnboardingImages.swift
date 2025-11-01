@@ -20,13 +20,17 @@ struct OnboardingImages: View {
     @Environment(\.flowMode) private var mode
     
     let vm: OnboardingViewModel
-    let imageVm: OnboardingImageViewModel
+    @State private var imageVM: OnboardingImageViewModel
 
     @State var images: [UIImage?] = Array(repeating: nil, count: 6)
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     
-    
-    
+    init(vm: OnboardingViewModel, defaults: DefaultsManager, storage: StorageManaging, auth: AuthManaging) {
+        self.vm = vm
+        _imageVM = State(wrappedValue: OnboardingImageViewModel(
+            defaults: defaults, storage: storage, auth: auth
+        ))
+    }
     
     
 
@@ -49,7 +53,7 @@ struct OnboardingImages: View {
             ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {
                 Task {
                     do {
-                        await imageVm.saveAll(images: images)
+                        await imageVM.saveAll(images: images)
                         try await vm.createProfile()
                         appState.wrappedValue = .app
                     } catch {

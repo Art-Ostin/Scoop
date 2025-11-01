@@ -10,8 +10,8 @@ import FirebaseAuth
 
 @Observable class OnboardingViewModel {
     
-    @ObservationIgnored private let authManager: AuthManaging
-    @ObservationIgnored private let defaultManager: DefaultsManager
+    @ObservationIgnored let authManager: AuthManaging
+    @ObservationIgnored let defaultManager: DefaultsManager
     @ObservationIgnored private let sessionManager: SessionManager
     @ObservationIgnored private let userManager: UserManager
     
