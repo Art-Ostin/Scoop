@@ -18,43 +18,23 @@ struct ProfileDetailsView: View {
     
     @State var responseLines1 = 3
     @State var responseLines2 = 3
-
+    
     var body: some View {
-        
-        TabView {
-            VStack(spacing: spacing) {
-                detailsSection1
-                Text("Hello World")
+        ScrollView {
+            HStack {
+                part1DetailsView
+                    .containerRelativeFrame(.horizontal)
+                
+                part1DetailsView
+                    .containerRelativeFrame(.horizontal)
+                
+                part1DetailsView
+                    .containerRelativeFrame(.horizontal)
             }
-            .padding(.top, 36)
-            .frame(maxHeight: .infinity, alignment: .top)
-            
-            VStack(spacing: 24) {
-                detailsSection2
-            }
-            .padding(.top, 24)
-            .frame(maxHeight: .infinity, alignment: .top)
-
-            VStack(spacing: 24) {
-                detailsSection3
-            }
-            .padding(.top, 24)
-            .frame(maxHeight: .infinity, alignment: .top)
-            
-            if noInitialPrompt && isThreePrompts {
-                VStack(spacing: 72) {
-                    PromptView(prompt: p.prompt3)
-                    declineButton
-                }
-                .padding(.top, 36)
-                .frame(maxHeight: .infinity, alignment: .top)
-            }
+            .scrollTargetLayout()
         }
-        .id(noInitialPrompt && isThreePrompts) // rebuild when the 4th page appears
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .indexViewStyle(.page(backgroundDisplayMode: .always))
-        .frame(width: screenWidth - 40)
-        .frame(maxHeight: .infinity, alignment: .top).ignoresSafeArea()
+        .scrollTargetBehavior(.paging)
+        .padding(.top, 24)
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
@@ -62,7 +42,63 @@ struct ProfileDetailsView: View {
     }
 }
 
+/*
+ declineButton
+     .padding(.top, 412)
+     .padding(.horizontal, 24)
+ */
+
+
 extension ProfileDetailsView {
+    
+    
+    private var verticalDivider: some View {
+        Rectangle()
+            .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.70))
+            .frame(width: 0.5, height: 25)
+    }
+    
+    private var horizontalDivider: some View {
+        Rectangle()
+            .foregroundStyle(Color.grayPlaceholder)
+            .frame(maxWidth: .infinity, maxHeight: 1)
+    }
+    
+    func detailsLine (_ item1: InfoItem, _ item2: InfoItem) -> some View {
+        HStack {
+            item1
+            Spacer()
+            verticalDivider
+            Spacer()
+            item2
+        }
+    }
+    
+    @ViewBuilder
+    private var part1DetailsView: some View {
+        
+        VStack(spacing: 32) {
+            DetailsInfo(title: "About") {
+                detailsLine(
+                    InfoItem(image: "magnifyingglass", info: p.lookingFor),
+                    InfoItem(image: "Year", info: p.year))
+                horizontalDivider
+                detailsLine(
+                    InfoItem(image: "ScholarStyle", info: p.degree),
+                    InfoItem(image: "Height", info: "193" + "cm"))
+                horizontalDivider
+                detailsLine(
+                    InfoItem(image: "House", info: p.hometown),
+                    InfoItem(image: "HappyFace", info: p.interests.first ?? ""))
+            }
+            PromptView(prompt: p.prompt1, spacing: 32)
+        }
+    }
+    
+}
+
+extension ProfileDetailsView {
+    
     
     @ViewBuilder
     private var detailsSection1: some View {
@@ -77,7 +113,7 @@ extension ProfileDetailsView {
             }
             
             if let event = event {
-            
+                
                 let hasMessage = event.message != nil
                 
                 VStack(alignment: .center, spacing: hasMessage ? 16 : 24) {
@@ -85,7 +121,7 @@ extension ProfileDetailsView {
                         .font(.body(14, .italic))
                         .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
                         .frame(maxWidth: .infinity, alignment: .center)
-                        
+                    
                     EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
                         .onAppear {
                             print("No initial Prompt")
@@ -119,12 +155,12 @@ extension ProfileDetailsView {
                 .offset(y: responseLines1 == 4 ? -12 : 0)
         }
     }
-
+    
     @ViewBuilder
     private var detailsSection2: some View {
-
+        
         let options = p.interests
-
+        
         VStack(spacing: 12) {
             Text("Interests")
                 .font(.body(12, .bold))
@@ -139,7 +175,7 @@ extension ProfileDetailsView {
         }
         
         divider
-
+        
         Group {
             if noInitialPrompt {
                 PromptView(prompt: p.prompt1)
@@ -180,7 +216,7 @@ extension ProfileDetailsView {
             InfoItem(image: "ScholarStyle", info: p.degree)
         }
     }
-
+    
     @ViewBuilder
     private var extraInformation: some View {
         
@@ -274,22 +310,21 @@ extension ProfileDetailsView {
     
     private var divider: some View {
         RoundedRectangle(cornerRadius: 10)
-        .foregroundColor(.clear)
-        .frame(width: 225, height: 0.5)
-        .background(Color(red: 0.75, green: 0.75, blue: 0.75))
+            .foregroundColor(.clear)
+            .frame(width: 225, height: 0.5)
+            .background(Color(red: 0.75, green: 0.75, blue: 0.75))
     }
     
     private var declineButton: some View {
         Image("DeclineIcon")
             .frame(width: 45, height: 45)
             .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
-            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
+            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
             .onTapGesture {
                 
             }
-            .shadow(color: .black.opacity(0.1), radius: 0.5, x: 0, y: 1)
-
+        
     }
 }
 
@@ -297,9 +332,16 @@ struct PromptView: View {
     let prompt: PromptResponse?
     var count: Int? { prompt?.response.count}
     
+    let spacing: CGFloat
+    
+    init(prompt: PromptResponse?, spacing: CGFloat = 16) {
+        self.prompt = prompt
+        self.spacing = spacing
+    }
+    
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: spacing) {
             Text(prompt?.prompt ?? "No user Prompts")
                 .font(.body(14, .italic))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -310,10 +352,11 @@ struct PromptView: View {
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .top)
+                .padding(.top, -12)
         }
         .frame(maxWidth: .infinity)
-     }
+    }
 }
 
 struct InfoItem: View {
@@ -327,7 +370,7 @@ struct InfoItem: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 17)
-                .frame(width: 15, alignment: .leading)
+                .frame(width: 20, alignment: .leading)
             
             Text(info)
                 .font(.body(17, .medium))
@@ -340,18 +383,80 @@ struct InfoItemStruct {
     let image: String
     let info: String
 }
-//Just for update sake
 
 
+/*
+ 
+ TabView {
+ VStack(spacing: spacing) {
+ detailsSection1
+ Text("Hello World")
+ }
+ .padding(.top, 36)
+ .frame(maxHeight: .infinity, alignment: .top)
+ 
+ VStack(spacing: 24) {
+ detailsSection2
+ }
+ .padding(.top, 24)
+ .frame(maxHeight: .infinity, alignment: .top)
+ 
+ VStack(spacing: 24) {
+ detailsSection3
+ }
+ .padding(.top, 24)
+ .frame(maxHeight: .infinity, alignment: .top)
+ 
+ if noInitialPrompt && isThreePrompts {
+ VStack(spacing: 72) {
+ PromptView(prompt: p.prompt3)
+ declineButton
+ }
+ .padding(.top, 36)
+ .frame(maxHeight: .infinity, alignment: .top)
+ }
+ */
 
-//
-//VStack(spacing: 6) {
-//    Text("Interests")
-//        .font(.body(12, .bold))
-//        .foregroundStyle(Color.grayText)
-//        .frame(maxWidth: .infinity, alignment: .leading)
-//    
-//    InterestsLayout(passions: p.interests, forProfile: true)
-//        .frame(maxWidth: .infinity)
-//
-//}
+/*
+ VStack(spacing: 12) {
+ Text("About")
+ .font(.body(13, .italic))
+ .foregroundStyle(Color.grayText)
+ .frame(maxWidth: .infinity, alignment: .leading)
+ 
+ 
+ 
+ VStack (spacing: 10) {
+ HStack {
+ InfoItem(image: "magnifyingglass", info: p.lookingFor)
+ Spacer()
+ verticalDivider
+ Spacer()
+ InfoItem(image: "Year", info: p.year)
+ }
+ 
+ horizontalDivider
+ 
+ HStack {
+ InfoItem(image: "ScholarStyle", info: p.degree)
+ Spacer()
+ verticalDivider
+ Spacer()
+ InfoItem(image: "Height", info: "193" + "cm")
+ }
+ 
+ horizontalDivider
+ 
+ HStack {
+ InfoItem(image: "House", info: p.hometown)
+ Spacer()
+ verticalDivider
+ Spacer()
+ InfoItem(image: "HappyFace", info: p.interests.first ?? "")
+ }
+ }
+ .padding(18)
+ .frame(maxWidth: .infinity)
+ .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+ }
+ */
