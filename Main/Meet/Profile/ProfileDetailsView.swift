@@ -19,26 +19,31 @@ struct ProfileDetailsView: View {
     @State var responseLines1 = 3
     @State var responseLines2 = 3
     
+    @Binding var scrollSelection: Int?
+    
+    
     var body: some View {
-        ScrollView {
-            HStack {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
                 part1DetailsView
                     .containerRelativeFrame(.horizontal)
-                
+                    .id(0)
                 part1DetailsView
                     .containerRelativeFrame(.horizontal)
-                
+                    .id(1)
                 part1DetailsView
                     .containerRelativeFrame(.horizontal)
+                    .id(2)
             }
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $scrollSelection, anchor: .center)
+        .scrollIndicators(.never)
         .padding(.top, 24)
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-        .contentShape(Rectangle())
     }
 }
 
@@ -93,6 +98,7 @@ extension ProfileDetailsView {
             }
             PromptView(prompt: p.prompt1, spacing: 32)
         }
+        .padding(.horizontal, 24)
     }
     
 }

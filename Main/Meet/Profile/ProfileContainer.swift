@@ -9,6 +9,8 @@ struct ProfileView: View {
     
     @Binding var selectedProfile: ProfileModel?
     
+    @State private var scrollSelection: Int? = nil
+    
     let preloadedImages: [UIImage]?
     
     let detailsTopPadding: CGFloat = 24
@@ -94,7 +96,7 @@ struct ProfileView: View {
                     including: .gesture
             )
                 
-                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event)
+                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
                     .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                     .offset(y: detailsOpen ? detailsOpenYOffset : 0)
                     .simultaneousGesture(
@@ -155,7 +157,9 @@ struct ProfileView: View {
                 }
             }
             .onPreferenceChange(ImageWidthKey.self) {value in
-                imageSize = value
+                if value.isFinite, !value.isNaN {
+                    imageSize = value
+                }
                 print("newValue = \(value)")
             }
         }
@@ -351,3 +355,4 @@ extension ProfileView {
         }
     }
 }
+

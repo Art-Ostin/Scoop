@@ -11,6 +11,8 @@ struct DraftProfileView: View {
     
     @State var vm: ProfileViewModel
     
+    @State var scrollSelection: Int?
+    
     var body: some View {
         GeometryReader { proxy in
             VStack {
@@ -21,7 +23,7 @@ struct DraftProfileView: View {
                     Text(p.name)
                 }
                 ProfileImageView(vm: $vm, screenWidth: screenWidth)
-                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event)
+                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
             }
             .frame(maxWidth: .infinity)
         }
