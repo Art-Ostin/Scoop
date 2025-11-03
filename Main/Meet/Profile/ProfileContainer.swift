@@ -43,6 +43,8 @@ struct ProfileView: View {
         self._selectedProfile = selectedProfile
     }
     
+    
+    
     var body: some View {
         
         GeometryReader { proxy in
@@ -119,9 +121,19 @@ struct ProfileView: View {
                             }
                     )
                     .onTapGesture {detailsOpen.toggle()}
-                    .padding(Edge.Set.horizontal, detailsPadding())
-                    .transition(AnyTransition.move(edge: Edge.bottom))
+                    .scaleEffect(detailsPadding())
                 
+                
+                
+//                    .padding(Edge.Set.horizontal, detailsPadding())
+                    .transition(AnyTransition.move(edge: Edge.bottom))
+                    .overlay(alignment: .bottomLeading) {
+                        if detailsOpen {
+                            DeclineButton(image: Image("DeclineIcon"), padding: 14) {}
+                                .padding(.horizontal)
+                                .padding(.bottom, 96)
+                        }
+                    }
                 InviteButton(vm: $vm)
                     .offset(
                         x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
@@ -172,6 +184,17 @@ struct ProfileView: View {
 
 extension ProfileView {
     
+    private var declineButton: some View {
+        Image("DeclineIcon")
+            .frame(width: 45, height: 45)
+            .glassIfAvailable()
+            .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
+            .contentShape(Rectangle())
+            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
+            .onTapGesture {
+                
+            }
+    }    
     private var profileTitle: some View {
         HStack {
             let p = vm.profileModel.profile
@@ -236,11 +259,17 @@ extension ProfileView {
         (detailsOpen && (detailsOffset < 0 || detailsOffset == 0)) || (!detailsOpen && detailsOffset > 0)
     }
     
+    
     private var t: CGFloat {
         let denom = max(1, abs(detailsOpenYOffset))
         return min(1, max(0, abs(detailsOffset) / denom))
     }
+    
     @inline(__always) private func lerp(_ a: CGFloat,_ b: CGFloat,_ t: CGFloat) -> CGFloat { a + (b - a) * t }
+    
+    
+    
+    
     
     func topOpacity() -> Double {
         return Double(detailsOpen ? t : (1 - t))
@@ -301,6 +330,8 @@ extension ProfileView {
         .opacity(isOverExtended ? (detailsOpen ? 1 : 0) : title3Opacity())
     }
     
+    
+    
     func title3Opacity() -> Double {
         let one_third = max(1, abs(detailsOpenYOffset) / 3)
         let two_third = one_third * 2
@@ -337,10 +368,11 @@ extension ProfileView {
     }
     
     func detailsPadding() -> CGFloat {
-        let initial: CGFloat = 4, opened: CGFloat = 0
-        return detailsOpen ? lerp(opened, initial, t)
-                            : lerp(initial, opened, t)
+        let initial: CGFloat = 0.97, opened: CGFloat = 1
+        return detailsOpen ? lerp(opened, initial, t) : lerp(initial, opened, t)
     }
+    
+    
     
     func inviteOffset() -> CGFloat {
         let initial: CGFloat = 0

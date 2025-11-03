@@ -36,6 +36,7 @@ struct ProfileDetailsView: View {
                     .id(2)
             }
             .scrollTargetLayout()
+            .frame(maxHeight: .infinity, alignment: .top)
         }
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
@@ -157,8 +158,6 @@ extension ProfileDetailsView {
                         responseLines1 = layouts.last?.layout.count ?? 0
                     }
             }
-            declineButton
-                .offset(y: responseLines1 == 4 ? -12 : 0)
         }
     }
     
@@ -192,8 +191,6 @@ extension ProfileDetailsView {
         .onPreferenceChange(Text.LayoutKey.self) {layouts in
             responseLines2 = layouts.last?.layout.count ?? 0
         }
-        declineButton
-            .offset(y: responseLines2 == 4 ? -12 : 0)
     }
     
     @ViewBuilder
@@ -201,7 +198,6 @@ extension ProfileDetailsView {
         extraInformation
         divider
         finalPagePrompt
-        declineButton
     }
     
     private var keyInfo: some View {
@@ -320,17 +316,6 @@ extension ProfileDetailsView {
             .background(Color(red: 0.75, green: 0.75, blue: 0.75))
     }
     
-    private var declineButton: some View {
-        Image("DeclineIcon")
-            .frame(width: 45, height: 45)
-            .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
-            .contentShape(Rectangle())
-            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
-            .onTapGesture {
-                
-            }
-        
-    }
 }
 
 struct PromptView: View {

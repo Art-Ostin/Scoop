@@ -7,18 +7,20 @@
 
 import SwiftUI
 
-
 struct TabButton: View {
     let image: Image
     @Binding var isPresented: Bool
     let size: CGFloat
     var isSettings: Bool { size == 20 }
+    let padding: CGFloat
     
-    init(image: Image, isPresented: Binding<Bool>, size: CGFloat = 17) {
+    init(image: Image, isPresented: Binding<Bool>, size: CGFloat = 17, padding: CGFloat = 6) {
         self.image = image
         _isPresented = isPresented
         self.size = size
+        self.padding = padding
     }
+    
     var body: some View {
         Group {
             if #available(iOS 26.0, *) {
@@ -41,7 +43,7 @@ extension TabButton {
     private var button: some View {
         image
             .font(.body(size))
-            .padding(6)
+            .padding(padding)
             .foregroundStyle(.black)
             .onTapGesture {
                 isPresented = true

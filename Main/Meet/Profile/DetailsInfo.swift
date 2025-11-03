@@ -29,7 +29,7 @@ struct DetailsInfo<Content: View>: View {
             }
             .padding(18)
             .frame(maxWidth: .infinity)
-            .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+            .stroke(12, lineWidth: 1, color: Color (red: 0.9, green: 0.9, blue: 0.9))
         }
     }
 }
