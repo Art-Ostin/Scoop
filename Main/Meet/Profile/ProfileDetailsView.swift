@@ -56,7 +56,6 @@ struct ProfileDetailsView: View {
 
 extension ProfileDetailsView {
     
-    
     private var verticalDivider: some View {
         Rectangle()
             .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.70))
@@ -66,7 +65,8 @@ extension ProfileDetailsView {
     private var horizontalDivider: some View {
         Rectangle()
             .foregroundStyle(Color.grayPlaceholder)
-            .frame(maxWidth: .infinity, maxHeight: 1)
+            .containerRelativeFrame(.horizontal)
+            .frame(height: 1)
     }
     
     func detailsLine (_ item1: InfoItem, _ item2: InfoItem) -> some View {
@@ -87,11 +87,11 @@ extension ProfileDetailsView {
                 detailsLine(
                     InfoItem(image: "magnifyingglass", info: p.lookingFor),
                     InfoItem(image: "Year", info: p.year))
-                horizontalDivider
+                Divider()
                 detailsLine(
                     InfoItem(image: "ScholarStyle", info: p.degree),
                     InfoItem(image: "Height", info: "193" + "cm"))
-                horizontalDivider
+                Divider()
                 detailsLine(
                     InfoItem(image: "House", info: p.hometown),
                     InfoItem(image: "HappyFace", info: p.interests.first ?? ""))
@@ -240,7 +240,6 @@ extension ProfileDetailsView {
             }
             return a
         }()
-        
         
         VStack(spacing: 12) {
             Text("Extra")
