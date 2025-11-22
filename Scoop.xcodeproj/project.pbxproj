@@ -120,6 +120,7 @@
 		65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */; };
 		65C7D6362E54EE1600B726B8 /* MatchesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
+		65D9D0DA2ED14B7B00F7E5CC /* ScrollViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */; };
 		65E1BF382E897DF900C10C0F /* ViewMeasurements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1BF372E897DF900C10C0F /* ViewMeasurements.swift */; };
 		65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8EE2E4E5CC90093410B /* IntroView.swift */; };
 		65E5C8F22E4E79550093410B /* TabSelectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8F12E4E79550093410B /* TabSelectionKey.swift */; };
@@ -279,6 +280,7 @@
 		65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesViewModel.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
+		65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewTest.swift; sourceTree = "<group>"; };
 		65E1BF372E897DF900C10C0F /* ViewMeasurements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMeasurements.swift; sourceTree = "<group>"; };
 		65E5C8EE2E4E5CC90093410B /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
 		65E5C8F12E4E79550093410B /* TabSelectionKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSelectionKey.swift; sourceTree = "<group>"; };
@@ -403,6 +405,7 @@
 				65E8209A2E37CCCE0098CC36 /* EditNationality.swift */,
 				6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */,
 				656126642E23212C00088B6D /* EditInterests.swift */,
+				65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */,
 				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
 				6514B60D2EB2FF6100551C3A /* Images */,
 			);
@@ -878,6 +881,7 @@
 				654982D82E3152C000CA335F /* EditImagesProfile.swift in Sources */,
 				65E5C9202E510BBA0093410B /* CycleRepo.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
+				65D9D0DA2ED14B7B00F7E5CC /* ScrollViewTest.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				650884162EAD4EA000776620 /* PendingInviteView.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MatchesViewModel.swift in Sources */,

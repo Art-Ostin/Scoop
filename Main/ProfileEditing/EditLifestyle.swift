@@ -87,7 +87,7 @@ struct GenericLifestyle: View {
             vicesOptions(title: "Drugs", isSelected: $drugs)
         }
         .padding(.horizontal)
-        .padding(.bottom, 36)
+        .padding(.bottom, 60)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
     }

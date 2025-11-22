@@ -63,6 +63,17 @@ extension View {
     }
 }
 
+extension View {
+    @ViewBuilder
+    func glassRectangle() -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(in: .rect(cornerRadius: 36))
+        } else {
+            self
+        }
+    }
+}
+
 extension ToolbarContent {
     @ToolbarContentBuilder
     func hideSharedBackgroundIfAvailable() -> some ToolbarContent {

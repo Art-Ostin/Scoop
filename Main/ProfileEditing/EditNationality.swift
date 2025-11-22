@@ -58,9 +58,9 @@ struct GenericNationality: View {
     var body: some View {
         ScrollViewReader { proxy in
             ZStack(alignment: .topLeading) {
-                title
+                scrollTitle(selectedCount: countriesSelected.count, totalCount: 3, title: "Nationality")
                 selectedCountries.zIndex(2)
-                scrollFader.zIndex(1)
+                scrollFader().zIndex(1)
                 nationalitiesView.zIndex(0)
                 alphabet(proxy: proxy)
             }
@@ -72,21 +72,12 @@ struct GenericNationality: View {
 
 extension GenericNationality {
     
-    private var title: some View {
-        HStack {
-            Text("Nationality")
-                .font(.title(32, .bold))
-                .offset(y: -8)
-            
-            Text("\(countriesSelected.count)/3")
-                .font(.title(12))
-        }
-        .padding(.horizontal)
-        .offset(y: -12)
-    }
-    
     private var selectedCountries: some View {
         HStack(spacing: 0) {
+            Rectangle()
+                .fill(.clear)
+                .frame(width: 32, height: 4)
+            
             ForEach(countriesSelected, id: \.self) {country in
                 Text(country)
                     .font(.body(32))
@@ -102,21 +93,11 @@ extension GenericNationality {
         .padding(.top, 12)
     }
     
-    private var scrollFader: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.background, .clear], startPoint: .top, endPoint: .bottom
-                )
-            )
-            .frame(height: 48)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 60)
-    }
+
     
-    @ViewBuilder
-    private func alphabet(proxy: ScrollViewProxy) -> some View {
-        if #available(iOS 26.0, *) {
+    
+    private func alphabet(proxy: ScrollViewProxy) -> some View  {
+        CustomScrollTab {
             LazyVGrid(columns: alphabetColumns, spacing: 24) {
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
@@ -128,17 +109,6 @@ extension GenericNationality {
                     }
                 }
             }
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity)
-            .frame(height: 60)
-            .padding(.vertical, 16)
-            .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
-            .glassEffect(in: .rect(cornerRadius: 36))
-            .contentShape(Rectangle())
-            .onTapGesture {}
-            .frame(maxHeight: .infinity, alignment: .bottom)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 12)
         }
     }
     
@@ -244,5 +214,63 @@ func CircleIcon (_ image: String, _ fontSize: CGFloat = 8) -> some View {
         Image(systemName: image)
             .font(.system(size: fontSize, weight: .bold))
             .foregroundStyle(.black)
+    }
+}
+
+
+struct scrollFader: View {
+    var body: some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.background, .clear], startPoint: .top, endPoint: .bottom
+                )
+            )
+            .frame(height: 48)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 60)
+    }
+}
+
+
+
+struct scrollTitle: View {
+    let selectedCount: Int
+    let totalCount: Int
+    let title: String
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.title(32, .bold))
+                .offset(y: -8)
+            
+            Text("\(selectedCount)/\(totalCount)")
+                .font(.title(12))
+        }
+        .padding(.horizontal)
+        .offset(y: -12)
+    }
+}
+
+struct CustomScrollTab<Content: View>: View {
+
+    private let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    var body: some View {
+        content
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity)
+            .frame(height: 60)
+            .padding(.vertical, 16)
+            .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
+            .glassRectangle()
+            .contentShape(Rectangle())
+            .onTapGesture {}
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 12)
     }
 }

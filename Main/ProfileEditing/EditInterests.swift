@@ -10,13 +10,14 @@ import SwiftUIFlowLayout
 import FirebaseFirestore
 
 struct OnboardingInterests: View {
+    
     let vm: OnboardingViewModel
     
     @State var selected: [String] = []
     
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
-            .nextButton(isEnabled: selected.count >= 6){
+            .nextButton(isEnabled: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
     }
@@ -30,26 +31,41 @@ struct EditInterests: View {
         self.vm = vm
         _selected = .init(wrappedValue: vm.draft.interests)
     }
-    
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
         .onDisappear {vm.draft.interests = selected}
     }
 }
 
-
 struct GenericInterests: View {
+    
+    
+    @State private var scrollOffset: CGFloat = 0
+    @State private var contentHeight: CGFloat = 0
+    @State private var scrollViewHeight: CGFloat = 0
+
+    
+    private var progress: CGFloat {
+        guard contentHeight > 0, scrollViewHeight > 0 else { return 0 }
+        let maxOffset = max(contentHeight - scrollViewHeight, 0)
+        if maxOffset == 0 {
+            // Content fits without scrolling – treat as 100%
+            return 1
+        }
+        let p = scrollOffset / maxOffset
+        return min(max(p, 0), 1)   // clamp to 0...1
+    }
+
     
     @Binding var selected: [String]
     var selectedMax: Bool {selected.count >= 10}
     let onInterestTap: (String) -> ()
-    
+        
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
         return [
-        ("Social","figure.socialdance",i.social),
+        ("What I do for Social","figure.socialdance",i.social),
         ("Interests", "book",i.passions),
-        ("Activities","MyCustomShoe",i.passions),
         ("Sports","tennisball",i.sports),
         ("Music","MyCustomMic",i.music1),
         (nil,nil,i.music2),
@@ -59,60 +75,62 @@ struct GenericInterests: View {
     
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 4) {
-                SignUpTitle(text: "Interests", subtitle: "\(selected.count)/10")
-                selectedInterestsView
+        ScrollViewReader { proxy in
+            ZStack(alignment: .topLeading) {
+                scrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("\(progress * 100, specifier: "%.1f") %")
+                        .font(.title)
+
+
+                }
+                .padding(72)
+                selectedInterestsView.zIndex(2)
+                scrollFader().zIndex(1)
                 interestsSections
+                scrollToSection
             }
-            .padding(.top, 12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Color.background)
+            .onPreferenceChange(ScrollOffsetKey.self) { scrollOffset = $0 }
+            .onPreferenceChange(ContentHeightKey.self) { contentHeight = $0 }
+            .onPreferenceChange(ScrollViewHeightKey.self) { scrollViewHeight = $0 }
         }
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background.ignoresSafeArea())
     }
 }
 
 extension GenericInterests {
-    
-    private var interestsSections: some View {
-        ScrollView(.vertical) {
-            LazyVStack(spacing: 0) {
-                ForEach(sections.indices, id: \.self) { idx in
-                    let section = sections[idx]
-                    InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected) { text in
-                        onInterestTap(text)
-                    }
-                }
-            }
-        }
-    }
-    
     private var selectedInterestsView: some View {
-        
         ZStack {
-            
             if selected.isEmpty {
                 Text("Choose a minimum 6")
                     .font(.body(16, .italic))
                     .foregroundStyle(Color.grayText)
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 12)
             }
-            
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
+                    
                     HStack(alignment: .bottom) {
+                        Rectangle()
+                            .fill(.clear)
+                            .frame(width: 10)
+                        
                         ForEach(selected, id: \.self) { item in
                             OptionCell(text: item, selection: $selected) {text in
                                 selected.removeAll { $0 == text }
                             }
                             .id(item)
                         }
+                        
+                        Rectangle()
+                            .fill(.clear)
+                            .frame(width: 10)
                     }
                     .frame(height: 48)
                 }
                 .scrollIndicators(.never)
-                .padding(.horizontal, -16)
                 .onChange(of: selected.count) {oldValue, newValue in
                     if oldValue < newValue {
                         withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
@@ -121,8 +139,100 @@ extension GenericInterests {
                 .frame(maxWidth: .infinity, alignment: .center)
             }
         }
+        .padding(.top, 12)
     }
+    private var interestsSections: some View {
+        ScrollView(.vertical) {
+            
+            GeometryReader { proxy in
+                 let offset = -proxy.frame(in: .named("scroll")).minY
+                 Color.clear
+                     .preference(key: ScrollOffsetKey.self, value: offset)
+             }
+            
+            
+            LazyVStack(spacing: 0) {
+                Rectangle()
+                    .fill(.clear)
+                    .frame(height: 32)
+
+                ForEach(sections.indices, id: \.self) { idx in
+                    let section = sections[idx]
+                    InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected) { text in
+                        onInterestTap(text)
+                    }
+                }
+            }
+            .background(
+                GeometryReader { proxy in
+                    Color.clear
+                        .preference(key: ContentHeightKey.self,
+                                    value: proxy.size.height)
+                }
+            )
+            .padding(.bottom, 118)
+        }
+        .coordinateSpace(name: "scroll")
+
+        .padding(.top, 60)
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: ScrollViewHeightKey.self,
+                                value: proxy.size.height)
+            }
+        )
+        .scrollIndicators(.never)
+        .padding(.horizontal)
+    }
+    
+    private var scrollToSection: some View {
+        
+                HStack {
+                    Text("Social")
+                    Spacer()
+                    Text("Interests")
+                    Spacer()
+                    Text("Sports")
+                    Spacer()
+                    Text("Music")
+                }
+                .overlay(alignment: .bottomLeading) {
+                    GeometryReader { proxy in
+                        RoundedRectangle(cornerRadius: 15)
+                            .frame(width: (proxy.size.width * progress) + 0.25, height: 3)
+                            .foregroundStyle(Color(.accent))
+                    }
+                    .frame(height: 3)
+                    .offset(y: 8)
+                }
+                .onTapGesture {}
+                .font(.body(16, .bold))
+                .padding(.horizontal)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .glassRectangle()
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, 36)
+                .padding(.horizontal)
+        
+        
+        }
+    
+    private var customInterestScroll: some View {
+        HStack {
+            Text("Social")
+            Spacer()
+            Text("Interests")
+            Spacer()
+            Text("Sports")
+            Spacer()
+            Text("Music")
+        }
+    }
+
 }
+
 
 struct InterestSection: View {
     
@@ -138,9 +248,7 @@ struct InterestSection: View {
     var selectedMax: Bool {selected.count >= 10}
     
     var body: some View {
-        
         VStack(alignment: .leading) {
-            
             HStack(alignment: .center, spacing: 24) {
                 if let image = image {
                     Image(image)
@@ -198,7 +306,9 @@ struct OptionCell: View {
                     )
             )
             .onTapGesture {
-                onTap(text)
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    onTap(text)
+                }
             }
             .overlay(alignment: .topTrailing) {
                 CircleIcon("xmark")
@@ -255,7 +365,6 @@ struct OptionCellProfile2: View {
     }
 }
 
-
 struct Shake: GeometryEffect {
     var travel: CGFloat = 8
     var shakes: CGFloat = 3
@@ -264,5 +373,27 @@ struct Shake: GeometryEffect {
     func effectValue(size: CGSize) -> ProjectionTransform {
         let x = travel * sin(animatableData * .pi * shakes)
         return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
+    }
+}
+
+
+private struct ScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct ContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct ScrollViewHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
