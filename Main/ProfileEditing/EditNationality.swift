@@ -97,11 +97,11 @@ extension GenericNationality {
     
     
     private func alphabet(proxy: ScrollViewProxy) -> some View  {
-        CustomScrollTab {
+        CustomScrollTab(height: 60) {
             LazyVGrid(columns: alphabetColumns, spacing: 24) {
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
-                        withAnimation(.easeInOut) { proxy.scrollTo(String(char), anchor: .top)}
+                        withAnimation(.easeInOut) { proxy.scrollTo(String(char), anchor: .center)}
                     } label: {
                         Text(String(char))
                             .font(.body(20, .bold))
@@ -254,17 +254,20 @@ struct scrollTitle: View {
 
 struct CustomScrollTab<Content: View>: View {
 
+    private let height: CGFloat
     private let content: Content
 
-    init(@ViewBuilder content: () -> Content) {
+    init(height: CGFloat, @ViewBuilder content: () -> Content) {
+        self.height = height
         self.content = content()
     }
     var body: some View {
         content
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
-            .frame(height: 60)
+            .frame(height: height)
             .padding(.vertical, 16)
+            .font(.body(16, .bold))
             .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
             .glassRectangle()
             .contentShape(Rectangle())

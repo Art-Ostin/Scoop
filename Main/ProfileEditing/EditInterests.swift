@@ -10,9 +10,7 @@ import SwiftUIFlowLayout
 import FirebaseFirestore
 
 struct OnboardingInterests: View {
-    
     let vm: OnboardingViewModel
-    
     @State var selected: [String] = []
     
     var body: some View {
@@ -39,32 +37,19 @@ struct EditInterests: View {
 
 struct GenericInterests: View {
     
-    
-    @State private var scrollOffset: CGFloat = 0
-    @State private var contentHeight: CGFloat = 0
-    @State private var scrollViewHeight: CGFloat = 0
-    
-    
-    private var progress: CGFloat {
-        guard contentHeight > 0, scrollViewHeight > 0 else { return 0 }
-        let maxOffset = max(contentHeight - scrollViewHeight, 0)
-        if maxOffset == 0 {
-            // Content fits without scrolling – treat as 100%
-            return 1
-        }
-        let p = scrollOffset / maxOffset
-        return min(max(p, 0), 1)   // clamp to 0...1
-    }
-    
-    
     @Binding var selected: [String]
+    @State var currentScroll: Int? = 0
+    
+    
+    @Namespace private var tabNamespace
+    
     var selectedMax: Bool {selected.count >= 10}
     let onInterestTap: (String) -> ()
     
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
         return [
-            ("What I do for Social","figure.socialdance",i.social),
+            ("Social","figure.socialdance",i.social),
             ("Interests", "book",i.passions),
             ("Sports","tennisball",i.sports),
             ("Music","MyCustomMic",i.music1),
@@ -84,9 +69,6 @@ struct GenericInterests: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.background)
-        .onPreferenceChange(ScrollOffsetKey.self) { scrollOffset = $0 }
-        .onPreferenceChange(ContentHeightKey.self) { contentHeight = $0 }
-        .onPreferenceChange(ScrollViewHeightKey.self) { scrollViewHeight = $0 }
     }
 }
 
@@ -101,6 +83,9 @@ extension GenericInterests {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, 12)
             }
+            
+            
+            
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
                     
@@ -110,12 +95,12 @@ extension GenericInterests {
                             .frame(width: 10)
                         
                         ForEach(selected, id: \.self) { item in
-                            OptionCell(text: item, selection: $selected) {text in
+                            OptionCell(text: item, selection: $selected, fillColour: false) {text in
                                 selected.removeAll { $0 == text }
                             }
+                            .offset(y: -2)
                             .id(item)
                         }
-                        
                         Rectangle()
                             .fill(.clear)
                             .frame(width: 10)
@@ -140,15 +125,7 @@ extension GenericInterests {
         
         ScrollView(.vertical) {
             
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(key: ScrollOffsetKey.self,
-                                value: -proxy.frame(in: .named("scroll")).minY)
-            }
-            .frame(height: 0)
-            
-            
-            LazyVStack(spacing: 0) {
+            VStack(spacing: 0) {
                 Rectangle()
                     .fill(.clear)
                     .frame(height: 32)
@@ -160,61 +137,47 @@ extension GenericInterests {
                     }
                 }
             }
-            .background(
-                GeometryReader { proxy in
-                    Color.clear
-                        .preference(key: ContentHeightKey.self,
-                                    value: proxy.size.height)
-                }
-            )
+            .scrollTargetLayout()
             .padding(.bottom, 118)
         }
-        .coordinateSpace(name: "scroll")
+        .scrollPosition(id: $currentScroll, anchor: .center)
         .padding(.top, topPadding)
-        .background(
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(key: ScrollViewHeightKey.self,
-                                value: proxy.size.height)
-            }
-        )
         .scrollIndicators(.never)
         .padding(.horizontal)
+        .animation(.easeInOut(duration: 0.2), value: currentScroll)
     }
     
     private var scrollToSection: some View {
-        
-        HStack {
-            Text("Social")
-            Spacer()
-            Text("Interests")
-            Spacer()
-            Text("Sports")
-            Spacer()
-            Text("Music")
-        }
-        .overlay(alignment: .bottomLeading) {
-            GeometryReader { proxy in
-                RoundedRectangle(cornerRadius: 15)
-                    .frame(width: (proxy.size.width * progress), height: 3)
-                    .foregroundStyle(Color(.accent))
+        CustomScrollTab(height: 20) {
+            HStack {
+                let scroll = min(currentScroll ?? 0, 3)
+                ForEach(0...3, id: \.self) { idx in
+                    let section = sections[idx]
+                    let isSelected = scroll == idx
+                    Text(section.title ?? "")
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                currentScroll = idx
+                            }
+                        }
+                        .foregroundStyle(isSelected ? .accent : .black)
+                        .overlay {
+                            if isSelected {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .frame(width: idx == 1 ? 65 : 50, height: 3)
+                                    .foregroundStyle(Color.accent)
+                                    .offset(y: 12)
+                                    .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
+                            }
+                        }
+                    if idx != 3 {
+                        Spacer()
+                    }
+                }
             }
-            .frame(height: 3)
-            .offset(y: 8)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentScroll)
         }
-        .onTapGesture {}
-        .font(.body(16, .bold))
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity)
-        .frame(height: 50)
-        .glassRectangle()
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        .padding(.bottom, 36)
-        .padding(.horizontal)
-        
-        
     }
-    
 }
 
 
@@ -275,18 +238,27 @@ struct OptionCell: View {
     
     let onTap: (String) -> Void
     
+    let fillColour: Bool
+    
+    init(text: String, selection: Binding<[String]>, fillColour: Bool = true, onTap: @escaping (String) -> Void) {
+        self.text = text
+        self._selection = selection
+        self.fillColour = fillColour
+        self.onTap = onTap
+    }
+    
     var body: some View {
         Text(text)
             .padding(.horizontal, 8)
             .padding(.vertical, 10)
             .font(.body(14))
-            .foregroundStyle(selection.contains(text) ? Color.white : Color.black)
+            .foregroundStyle(selection.contains(text) && fillColour ? Color.white : Color.black)
             .background (
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(selection.contains(text) ? .accent : Color.background)
+                    .fill(selection.contains(text) && fillColour ? Color.accent : Color.background)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
+                            .stroke(selection.contains(text) && !fillColour ? .accent : Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
                     )
             )
             .onTapGesture {
@@ -301,6 +273,12 @@ struct OptionCell: View {
             }
     }
 }
+
+
+
+
+
+
 
 struct OptionCellProfile: View {
     
@@ -357,27 +335,5 @@ struct Shake: GeometryEffect {
     func effectValue(size: CGSize) -> ProjectionTransform {
         let x = travel * sin(animatableData * .pi * shakes)
         return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
-    }
-}
-
-
-private struct ScrollOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
-    }
-}
-
-private struct ContentHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
-    }
-}
-
-private struct ScrollViewHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
     }
 }
