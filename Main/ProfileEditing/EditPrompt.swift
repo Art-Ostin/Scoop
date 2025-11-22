@@ -85,7 +85,7 @@ extension PromptGeneric {
                 .font(.body(17))
                 .lineSpacing(8)
             Spacer()
-            Image("EditButtonBlack")
+            Image("EditButton")
                 .font(.body(16, .bold))
                 .offset(x: -4)
         }

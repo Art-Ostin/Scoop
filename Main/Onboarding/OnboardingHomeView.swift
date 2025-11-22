@@ -112,10 +112,8 @@ struct LimitedAccessPage: View {
         .padding(.horizontal, 24)
         .padding(.top, 60)
         .overlay(alignment: .topTrailing) {
-            if title == "Message" {
                 LogOutButton { showLogout = true }
                     .padding(.top, 24)
-            }
         }
         .background(Color.background)
     }

@@ -38,13 +38,15 @@ struct OptionGeneric: View {
     let field: OptionField
     let grid = [GridItem(.flexible()), GridItem(.flexible())]
     let onTap: (String) -> ()
+    
+    @State var showCustomSex: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 48) {
+        VStack(alignment: .leading, spacing: 84) {
             Text(field.title)
                 .font(.title(32))
                 .padding(.horizontal, 24)
-            LazyVGrid(columns: grid, spacing: 24) {
+            LazyVGrid(columns: grid, spacing: 48) {
                 ForEach(field.options, id: \.self) { option in
                     OptionPill(title: option, isSelected: $selection) {
                         onTap(option)
@@ -52,6 +54,9 @@ struct OptionGeneric: View {
                 }
             }
         }
+        .padding(.bottom, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
     }
 }
 
@@ -70,7 +75,7 @@ enum OptionField: CaseIterable {
     
     var options: [String] {
         switch self {
-        case .sex: return ["Man", "Women", "Beyond Binary"]
+        case .sex: return ["Female", "Male", "Enter your Sex"]
         case .attractedTo: return ["Men", "Women", "Men & Women", "All Genders"]
         case .lookingFor: return ["Short-term", "Long-term", "Undecided"]
         case .year: return ["U0", "U1", "U2", "U3", "U4"]

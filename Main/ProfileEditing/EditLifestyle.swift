@@ -87,6 +87,9 @@ struct GenericLifestyle: View {
             vicesOptions(title: "Drugs", isSelected: $drugs)
         }
         .padding(.horizontal)
+        .padding(.bottom, 36)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
     }
     
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {

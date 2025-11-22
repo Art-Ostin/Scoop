@@ -14,4 +14,3 @@ extension Array where Element == String {
         else if limit.map({ count < $0 }) ?? true { append(s) }
     }
 }
-

@@ -8,18 +8,17 @@ import SwiftUI
 import FirebaseFirestore
 
 struct OnboardingNationality: View {
-    
     @State private var countriesSelected: [String] = []
     @Bindable var vm: OnboardingViewModel
-    
     var body: some View {
-        GenericNationality(countriesSelected: $countriesSelected) {countriesSelected.toggle($0, limit: 3)}
-            .nextButton(isEnabled: countriesSelected.count > 0) {
-                vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
-            }
+        GenericNationality(countriesSelected: $countriesSelected) {
+            countriesSelected.toggle($0, limit: 3)
+        }
+        .nextButton(isEnabled: countriesSelected.count > 0, padding: 120) {
+            vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
+        }
     }
 }
-
 //Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
 struct EditNationality: View {
     let vm: EditProfileViewModel
@@ -32,25 +31,22 @@ struct EditNationality: View {
     
     var body: some View {
         GenericNationality(countriesSelected: $countriesSelected) { countriesSelected.toggle($0, limit: 3)
-        }.onDisappear {vm.draft.nationality = countriesSelected}
+        }
+        .onDisappear {vm.draft.nationality = countriesSelected}
     }
 }
 
 struct GenericNationality: View {
-    
     @State private var shakeTicks: [String: Int] = [:]
+    @Binding var countriesSelected: [String]
+    
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
-    
-    @Binding var countriesSelected: [String]
-        
     let onCountryTap: (String) -> ()
     let countries = CountryDataServices.shared.allCountries
-    
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
     }
-    
     var groupedCountries: [(letter: String, countries: [CountryData])] {
         let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
         let sortedKeys = groups.keys.sorted()
@@ -60,30 +56,37 @@ struct GenericNationality: View {
     }
     
     var body: some View {
-        VStack(spacing: 36) {
-            SignUpTitle(text: "Nationality", subtitle: "\(countriesSelected.count)/3")
-                .padding(.top, 12)
-                .padding(.horizontal, 16)
-            
-            selectedCountries
-            
-            ScrollViewReader { proxy in
-                VStack(spacing: 24) {
-                    alphabet(proxy: proxy)
-                    SoftDivider() .padding(.horizontal)
-                    nationalitiesView
-                }
+        ScrollViewReader { proxy in
+            ZStack(alignment: .topLeading) {
+                title
+                selectedCountries.zIndex(2)
+                scrollFader.zIndex(1)
+                nationalitiesView.zIndex(0)
+                alphabet(proxy: proxy)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Color.background)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
     }
 }
 
 extension GenericNationality {
     
+    private var title: some View {
+        HStack {
+            Text("Nationality")
+                .font(.title(32, .bold))
+                .offset(y: -8)
+            
+            Text("\(countriesSelected.count)/3")
+                .font(.title(12))
+        }
+        .padding(.horizontal)
+        .offset(y: -12)
+    }
+    
     private var selectedCountries: some View {
-        HStack(spacing: 36) {
+        HStack(spacing: 0) {
             ForEach(countriesSelected, id: \.self) {country in
                 Text(country)
                     .font(.body(32))
@@ -91,38 +94,63 @@ extension GenericNationality {
                         CircleIcon("xmark")
                             .offset(x: 6, y: -2)
                     }
-                    .onTapGesture { withAnimation(.smooth(duration: 0.2)) { onCountryTap(country)}}
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture { withAnimation(.smooth(duration: 0.2)) {onCountryTap(country)}}
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal)
-        .frame(height: 0)
+        .padding(.top, 12)
     }
     
+    private var scrollFader: some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.background, .clear], startPoint: .top, endPoint: .bottom
+                )
+            )
+            .frame(height: 48)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 60)
+    }
+    
+    @ViewBuilder
     private func alphabet(proxy: ScrollViewProxy) -> some View {
-        LazyVGrid(columns: alphabetColumns, spacing: 24) {
-            ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
-                Button {
-                    withAnimation(.easeInOut) {
-                        proxy.scrollTo(String(char), anchor: .top)
+        if #available(iOS 26.0, *) {
+            LazyVGrid(columns: alphabetColumns, spacing: 24) {
+                ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
+                    Button {
+                        withAnimation(.easeInOut) { proxy.scrollTo(String(char), anchor: .top)}
+                    } label: {
+                        Text(String(char))
+                            .font(.body(20, .bold))
+                            .foregroundStyle(availableLetters.contains(String(char)) ? Color.black : Color.grayPlaceholder)
                     }
-                } label: {
-                    Text(String(char))
-                        .font(.body(20, .bold))
-                        .foregroundStyle(availableLetters.contains(String(char)) ? Color.black : Color.grayPlaceholder)
                 }
             }
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity)
+            .frame(height: 60)
+            .padding(.vertical, 16)
+            .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
+            .glassEffect(in: .rect(cornerRadius: 36))
+            .contentShape(Rectangle())
+            .onTapGesture {}
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 12)
         }
-        .padding(.horizontal)
     }
     
     private var nationalitiesView: some View {
-        
         ScrollView {
+            Rectangle()
+                .fill(.clear)
+                .frame(height: 32)
+            
             VStack(spacing: 48) {
                 
                 LazyVGrid(columns: columns, spacing: 36) {
-                    
                     ForEach(CountryDataServices.shared.popularCountries) { country in
                         flagItem(country: country)
                             .padding(.top, 3.5)
@@ -132,7 +160,7 @@ extension GenericNationality {
                 ForEach(Array(groupedCountries.enumerated()), id: \.offset) { _, group in
                     VStack(spacing: 24) {
                         Text(group.letter)
-                            .font(.system(size: 32))
+                            .font(.body(32, .medium))
                             .padding(.horizontal)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id(group.letter)
@@ -146,44 +174,64 @@ extension GenericNationality {
                     }
                 }
             }
+            .padding(.bottom, 108)
+            .frame(maxHeight: .infinity, alignment: .top)
         }
+        .padding(.top, 60)
     }
     
     private func isSelected(_ country: String) -> Bool {
         countriesSelected.contains(country)
     }
     
-    
     private func flagItem(country: CountryData) -> some View {
-        VStack(spacing: 6) {
+        
+        var shakeValue = shakeTicks[country.flag, default: 0]
+        let message = "max 3 countries"
+
+        return VStack(spacing: 6) {
             Text(country.flag)
                 .font(.system(size: 24))
                 .padding(6)
-                .background (
+                .background(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.grayPlaceholder, lineWidth: 1)
                         .fill(isSelected(country.flag) ? Color.blue : Color.clear)
                 )
-                .overlay( alignment: .topTrailing) {
+                .overlay(alignment: .topTrailing) {
                     CircleIcon(isSelected(country.flag) ? "minus" : "plus")
                         .offset(x: 3, y: -3)
                 }
-                .modifier(Shake(animatableData: CGFloat(shakeTicks[country.flag, default: 0])))
-                .animation(.easeInOut(duration: 0.3), value: shakeTicks[country.flag, default: 0])
-
-            Text(country.name)
-                .font(.system(size: 12, weight: .regular))
-                .multilineTextAlignment(.center)
+                .modifier(Shake(animatableData: CGFloat(shakeValue)))
+                .animation(.easeInOut(duration: 0.3), value: shakeValue)
+            
+            if shakeValue > 0 {
+                Text(message)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.accent)
+            } else {
+                Text(country.name)
+                    .font(.system(size: 12, weight: .regular))
+                    .multilineTextAlignment(.center)
+            }
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
-        .onTapGesture { withAnimation(.smooth(duration: 0.2)) {
-            onCountryTap(country.flag)
-            if countriesSelected.count >= 3 {
-                shakeTicks[country.flag, default: 0] &+= 1
-            } else {
-                onCountryTap(country.flag)
+        .onChange(of: shakeValue) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                shakeValue = 0
             }
-        }}
+        }
+        .onTapGesture {
+            withAnimation(.smooth(duration: 0.2)) {
+                if countriesSelected.contains(country.flag) {
+                    countriesSelected.removeAll { $0 == country.flag }
+                } else if countriesSelected.count >= 3 {
+                    shakeTicks[country.flag, default: 0] += 1
+                } else {
+                    onCountryTap(country.flag)
+                }
+            }
+        }
     }
 }
 

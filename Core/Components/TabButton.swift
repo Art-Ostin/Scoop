@@ -63,6 +63,17 @@ extension View {
     }
 }
 
+extension ToolbarContent {
+    @ToolbarContentBuilder
+    func hideSharedBackgroundIfAvailable() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            sharedBackgroundVisibility(.hidden)
+        } else {
+            self
+        }
+    }
+}
+
 struct DefaultAppButton: View {
     let image: Image
     let size: CGFloat
@@ -115,3 +126,4 @@ struct CloseToolBar: ToolbarContent {
         }
     }
 }
+

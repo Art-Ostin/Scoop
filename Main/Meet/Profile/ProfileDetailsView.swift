@@ -21,7 +21,6 @@ struct ProfileDetailsView: View {
     
     @Binding var scrollSelection: Int?
     
-    
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
@@ -102,10 +101,24 @@ extension ProfileDetailsView {
         .padding(.horizontal, 24)
     }
     
+    
+    @ViewBuilder
+    private var part2Details: some View {
+        VStack(spacing: 32) {
+            DetailsInfo(title: "Passions") {
+                ForEach(p.interests.indices, id: \.self) { index in
+                    HStack {
+                        InfoItem(image: "HappyFace", info: p.interests[index])
+                        
+                        verticalDivider
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension ProfileDetailsView {
-    
     
     @ViewBuilder
     private var detailsSection1: some View {

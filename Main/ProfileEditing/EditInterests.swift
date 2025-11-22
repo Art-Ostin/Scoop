@@ -16,7 +16,7 @@ struct OnboardingInterests: View {
     
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
-            .nextButton(isEnabled: selected.count > 3){
+            .nextButton(isEnabled: selected.count >= 6){
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
     }
@@ -89,24 +89,36 @@ extension GenericInterests {
     }
     
     private var selectedInterestsView: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal) {
-                HStack(alignment: .bottom) {
-                    ForEach(selected, id: \.self) { item in
-                        OptionCell(text: item, selection: $selected) {text in
-                            selected.removeAll { $0 == text }
+        
+        ZStack {
+            
+            if selected.isEmpty {
+                Text("Choose a minimum 6")
+                    .font(.body(16, .italic))
+                    .foregroundStyle(Color.grayText)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
+                    HStack(alignment: .bottom) {
+                        ForEach(selected, id: \.self) { item in
+                            OptionCell(text: item, selection: $selected) {text in
+                                selected.removeAll { $0 == text }
+                            }
+                            .id(item)
                         }
-                        .id(item)
+                    }
+                    .frame(height: 48)
+                }
+                .scrollIndicators(.never)
+                .padding(.horizontal, -16)
+                .onChange(of: selected.count) {oldValue, newValue in
+                    if oldValue < newValue {
+                        withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
                     }
                 }
-                .frame(height: 48)
-            }
-            .scrollIndicators(.never)
-            .padding(.horizontal, -16)
-            .onChange(of: selected.count) {oldValue, newValue in
-                if oldValue < newValue {
-                    withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
-                }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
     }

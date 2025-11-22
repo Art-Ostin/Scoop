@@ -18,6 +18,18 @@ struct SignUpView: View {
         VStack(spacing: 60){
             titleSection
             SignUpTabView(tabSelection: $tabSelection)
+                .overlay(alignment: .bottom) {
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(tabSelection == 0 ? .black : .grayPlaceholder)
+                            .frame(width: 5, height: 5)
+
+                        Circle()
+                            .fill(tabSelection == 1 ? .black : .grayPlaceholder)
+                            .frame(width: 5, height: 5)
+                    }
+                        .offset(y: 32)
+                }
             VStack(spacing: 8) {
                 ActionButton(text: "Login / Sign Up") { showCover = true}
                 termsText
@@ -59,6 +71,5 @@ extension SignUpView {
         .padding(.horizontal, 12)
         .foregroundStyle(Color.grayText)
     }
-    
-    }
+}
 

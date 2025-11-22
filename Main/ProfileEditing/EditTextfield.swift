@@ -13,7 +13,7 @@ struct OnboardingTextField: View  {
     @State var text = ""
 
     var body: some View {
-        TextFieldGeneric(text: $text, field: field)
+        TextFieldGeneric(text: $text, field: field.title)
             .nextButton(isEnabled: text.count > 2, padding: 36) {
                 vm.saveAndNextStep(kp: field.draftKeyPath, to: text)
             }
@@ -24,10 +24,10 @@ struct EditTextfield : View {
     @Bindable var vm: EditProfileViewModel
     let field: TextFieldOptions
     var selection: Binding<String> {
-        Binding { vm.draft.height} set: { vm.set(.height, \.height, to: $0)}
+        Binding {vm.draft[keyPath: field.keyPath]} set: {vm.set(field.key, field.keyPath, to: $0)}
     }
     var body: some View {
-        TextFieldGeneric(text: selection, field: field)
+        TextFieldGeneric(text: selection, field: field.title)
     }
 }
 
@@ -36,13 +36,14 @@ struct TextFieldGeneric: View {
     
     @Binding var text: String
     @FocusState var isFocused: Bool
-    let field: TextFieldOptions
+    let field: String
     
     var body: some View {
         VStack(spacing: 72)  {
-            SignUpTitle(text: field.title)
+            SignUpTitle(text: field)
             customTextField
         }
+        .focusable()
         .padding(.horizontal)
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
@@ -55,9 +56,9 @@ struct TextFieldGeneric: View {
 
 extension TextFieldGeneric {
     
-    private var customTextField: some View  {
+     var customTextField: some View  {
         VStack {
-            TextField("Type \(field.title) here", text: $text)
+            TextField("Type \(field) here", text: $text)
                 .frame(maxWidth: .infinity)
                 .font(.body(24))
                 .font(.body(.medium))

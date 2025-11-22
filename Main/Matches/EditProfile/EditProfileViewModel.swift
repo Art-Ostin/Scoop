@@ -70,14 +70,6 @@ import FirebaseFirestore
         }
     }
     
-    func saveProfileChanges() async throws {
-        try await saveUser()
-        try await saveUserArray()
-        try await saveUpdatedImages()
-    }
-
-    
-    
     func saveUpdatedImages() async throws {
         /*
          let updates = updatedImages
@@ -116,6 +108,18 @@ import FirebaseFirestore
          try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
          */
     }
+    
+    
+    
+    func saveProfileChanges() async throws {
+        try await saveUser()
+        try await saveUserArray()
+        try await saveUpdatedImages()
+    }
+
+    
+    
+
     
     
     //Images
@@ -173,4 +177,8 @@ import FirebaseFirestore
 //    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
 //        user[keyPath: key]
 //    }
+ */
+
+
+/*
  */

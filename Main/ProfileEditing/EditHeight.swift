@@ -39,7 +39,7 @@ struct HeightGeneric: View {
     let heightOptions = (45...84).map {"\($0 / 12)' \($0 % 12)"}
     
     var body: some View {
-        VStack {
+        VStack(spacing: 48) {
             SignUpTitle(text: "Height")
             Picker("Height", selection: $selection) {
                 ForEach(heightOptions, id: \.self) { option in

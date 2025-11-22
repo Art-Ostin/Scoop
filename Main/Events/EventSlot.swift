@@ -24,7 +24,7 @@ struct EventSlot: View {
 //                .onTapGesture {
 //                    selectedProfile = profileModel
 //                }
-            
+
             VStack(spacing: 48) {
                 if let event = profileModel.event {
                     EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: false, place: event.place)
