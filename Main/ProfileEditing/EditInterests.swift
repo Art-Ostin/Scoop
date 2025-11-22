@@ -81,8 +81,6 @@ struct GenericInterests: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("\(progress * 100, specifier: "%.1f") %")
                         .font(.title)
-
-
                 }
                 .padding(72)
                 selectedInterestsView.zIndex(2)
@@ -141,11 +139,15 @@ extension GenericInterests {
         }
         .padding(.top, 12)
     }
+    
+    @ViewBuilder
     private var interestsSections: some View {
+        let topPadding: CGFloat = 60
+
         ScrollView(.vertical) {
             
             GeometryReader { proxy in
-                 let offset = -proxy.frame(in: .named("scroll")).minY
+                let offset = max(topPadding - proxy.frame(in: .named("scroll")).minY, 0)
                  Color.clear
                      .preference(key: ScrollOffsetKey.self, value: offset)
              }
@@ -173,8 +175,7 @@ extension GenericInterests {
             .padding(.bottom, 118)
         }
         .coordinateSpace(name: "scroll")
-
-        .padding(.top, 60)
+        .padding(.top, topPadding)
         .background(
             GeometryReader { proxy in
                 Color.clear
@@ -200,7 +201,7 @@ extension GenericInterests {
                 .overlay(alignment: .bottomLeading) {
                     GeometryReader { proxy in
                         RoundedRectangle(cornerRadius: 15)
-                            .frame(width: (proxy.size.width * progress) + 0.25, height: 3)
+                            .frame(width: (proxy.size.width * progress), height: 3)
                             .foregroundStyle(Color(.accent))
                     }
                     .frame(height: 3)
@@ -380,20 +381,20 @@ struct Shake: GeometryEffect {
 private struct ScrollOffsetKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value += nextValue()
     }
 }
 
 private struct ContentHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value += nextValue()
     }
 }
 
 private struct ScrollViewHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value += nextValue()
     }
 }
