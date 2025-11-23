@@ -5,6 +5,8 @@
 //  Created by Art Ostin on 23/11/2025.
 //
 
+//Delete
+
 import SwiftUI
 
 struct KeyboardView: View {
@@ -21,14 +23,14 @@ struct KeyboardView: View {
                     .background(.fill, in: .rect(cornerRadius: 12))
                     .focused($isActive)
             } keyboard: {
-                CustomKeyboardView(text: $text, isActive: $isActive)
+//                CustomKeyboard2(text: $text, isActive: $isActive)
             }
             .navigationTitle("Custom Keyboard")
         }
     }
 }
 
-struct CustomKeyboardView: View {
+struct CustomKeyboardViewTester: View {
     @Binding var text: String
     @FocusState.Binding var isActive: Bool
     

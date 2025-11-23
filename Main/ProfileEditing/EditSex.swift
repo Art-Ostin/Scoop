@@ -38,13 +38,9 @@ struct GenericSex: View {
     var customisedSex: Bool {
         return !selectedOption.isEmpty && !options.contains(selectedOption)
     }
-    
-    
     @State private var keyPressToken = 0
     @State private var hasEditedThisSession = false
     @State var showSaved: Bool = false
-    
-    
     let onTap: (String) -> Void
     
     var body: some View {
@@ -94,7 +90,12 @@ struct GenericSex: View {
                     if showSaved {
                         saveIcon
                     }
+                    
+                    doneButton //96 is how much padding the text field has, then position done button 72 beneath
+                        .padding(.top, 96 + 72)
+                    
                 }
+            
                 .onAppear {
                     hasEditedThisSession = false
                     showSaved = false
@@ -144,5 +145,23 @@ extension GenericSex {
         }
         .padding(.top, 72)
         .padding(.horizontal, 36)
+    }
+    
+    private var doneButton: some View {
+        
+        Button {
+            showTypeSexField = false
+        } label: {
+            Text("Done")
+                .padding()
+                .font(.body(14, .bold))
+                .foregroundStyle(Color.accent)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.background)
+                        .defaultShadow()
+                        .stroke(12, lineWidth: 1.5, color: .black)
+                )
+        }
     }
 }
