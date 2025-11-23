@@ -39,6 +39,10 @@ struct EditNationality: View {
 
 struct GenericNationality: View {
     @State private var shakeTicks: [String: Int] = [:]
+    
+    @State private var scrollPosition: Character? = nil
+    
+    
     @Binding var countriesSelected: [String]
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
@@ -48,7 +52,6 @@ struct GenericNationality: View {
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
     }
-    
     var groupedCountries: [(letter: String, countries: [CountryData])] {
         let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
         let sortedKeys = groups.keys.sorted()
@@ -96,13 +99,14 @@ extension GenericNationality {
     private func alphabet(proxy: ScrollViewProxy) -> some View  {
         CustomScrollTab(height: 60) {
             LazyVGrid(columns: alphabetColumns, spacing: 24) {
+                
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
                         withAnimation(.easeInOut) { proxy.scrollTo(String(char), anchor: .center)}
                     } label: {
                         Text(String(char))
                             .font(.body(20, .bold))
-                            .foregroundStyle(availableLetters.contains(String(char)) ? Color.black : Color.grayPlaceholder)
+                            .foregroundStyle(availableLetters.contains(String(char)) ? scrollPosition == char ? Color.accent : Color.black : Color.grayPlaceholder)
                     }
                 }
             }
@@ -110,6 +114,8 @@ extension GenericNationality {
     }
     
     private var nationalitiesView: some View {
+        
+        
         ScrollView {
             ClearRectangle(size: 32)
             
@@ -137,11 +143,13 @@ extension GenericNationality {
                             }
                         }
                     }
+                    .scrollTargetLayout()
                 }
             }
             .padding(.bottom, 108)
             .frame(maxHeight: .infinity, alignment: .top)
         }
+        .scrollPosition(id: $scrollPosition, anchor: .top)
         .padding(.top, 60)
     }
     
@@ -152,7 +160,7 @@ extension GenericNationality {
     private func flagItem(country: CountryData) -> some View {
         
         let shakeValue = shakeTicks[country.flag, default: 0]
-        let message = "max 3 countries"
+        let message = "max 3"
 
         return VStack(spacing: 6) {
             Text(country.flag)
@@ -168,27 +176,26 @@ extension GenericNationality {
                         .offset(x: 3, y: -3)
                 }
                 .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
-                .animation(.easeInOut(duration: 0.5), value: shakeValue)
-            
+                .animation(shakeValue > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeValue)
             
             if shakeValue > 0 {
                 Text(message)
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.body(12, .bold))
                     .foregroundStyle(.accent)
             } else {
                 Text(country.name)
-                    .font(.system(size: 12, weight: .regular))
+                    .font(.body(12, .medium))
                     .multilineTextAlignment(.center)
             }
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
         .onChange(of: shakeTicks[country.flag, default: 0]) { oldValue, newValue in
             guard newValue > 0 else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            
+            Task {
+                try? await Task.sleep(for: .seconds(1))
                 if shakeTicks[country.flag, default: 0] == newValue {
-                    withAnimation(.none) {
-                        shakeTicks[country.flag] = 0
-                    }
+                    withAnimation { shakeTicks[country.flag] = 0 }
                 }
             }
         }
