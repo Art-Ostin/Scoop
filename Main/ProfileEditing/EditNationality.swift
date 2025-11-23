@@ -125,8 +125,11 @@ extension GenericNationality {
         .animation(.smooth(duration: 0.25, extraBounce: 0), value: scrollPosition)
     }
     
+    @ViewBuilder
     private var nationalitiesView: some View {
         
+        let scrollAnchor = UnitPoint(x: 0.5, y: 0.12)
+
         
         ScrollView {
             ClearRectangle(size: 32)
@@ -156,10 +159,10 @@ extension GenericNationality {
                     .scrollTargetLayout()
                 }
             }
-            .padding(.bottom, 144)
+            .padding(.bottom, 200)
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .scrollPosition(id: $scrollPosition, anchor: .top)
+        .scrollPosition(id: $scrollPosition, anchor: scrollAnchor)
         .padding(.top, 60)
     }
     
