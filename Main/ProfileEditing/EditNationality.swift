@@ -40,8 +40,8 @@ struct EditNationality: View {
 struct GenericNationality: View {
     @State private var shakeTicks: [String: Int] = [:]
     
-    @State private var scrollPosition: Character? = nil
-    
+    @State private var scrollPosition: String? = "A"
+
     
     @Binding var countriesSelected: [String]
     
@@ -102,11 +102,18 @@ extension GenericNationality {
                 
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
-                        withAnimation(.easeInOut) { proxy.scrollTo(String(char), anchor: .center)}
+                        withAnimation(.easeInOut) { scrollPosition = String(char) }
                     } label: {
                         Text(String(char))
                             .font(.body(20, .bold))
-                            .foregroundStyle(availableLetters.contains(String(char)) ? scrollPosition == char ? Color.accent : Color.black : Color.grayPlaceholder)
+                            .foregroundStyle(availableLetters.contains(String(char)) ? scrollPosition == String(char) ? Color.accent : Color.black : Color.grayPlaceholder)
+                            .overlay(alignment: .bottom) {
+                                if scrollPosition == String(char) {
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .frame(width: 16, height: 2)
+                                        .offset(y: 2)
+                                }
+                            }
                     }
                 }
             }
@@ -118,9 +125,7 @@ extension GenericNationality {
         
         ScrollView {
             ClearRectangle(size: 32)
-            
             VStack(spacing: 48) {
-                
                 LazyVGrid(columns: columns, spacing: 36) {
                     ForEach(CountryDataServices.shared.popularCountries) { country in
                         flagItem(country: country)
@@ -146,10 +151,10 @@ extension GenericNationality {
                     .scrollTargetLayout()
                 }
             }
-            .padding(.bottom, 108)
+            .padding(.bottom, 144)
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .scrollPosition(id: $scrollPosition, anchor: .top)
+        .scrollPosition(id: $scrollPosition, anchor: .center)
         .padding(.top, 60)
     }
     
