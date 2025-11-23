@@ -38,10 +38,8 @@ struct EditInterests: View {
 struct GenericInterests: View {
     
     @Binding var selected: [String]
-    
     @State var currentScroll: Int? = 0
     @State var selectedScroll: Int? = 0
-    
     @Namespace private var tabNamespace
     
     var selectedMax: Bool {selected.count >= 10}
@@ -74,8 +72,6 @@ struct GenericInterests: View {
 
 
 extension GenericInterests {
-    
-    
     private var selectedInterestsView: some View {
         ZStack {
             if selected.isEmpty {
@@ -186,12 +182,15 @@ struct InterestSection: View {
     @State private var shakeTicks: [String: Int] = [:]
     
     @Binding var selected: [String]
-
+    
     
     let onInterestTap: (String) -> ()
     
     var selectedMax: Bool {selected.count >= 10}
     
+    
+    @State private var flashMaxText: Set<String> = []
+
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -210,14 +209,21 @@ struct InterestSection: View {
             .padding(.horizontal, 5)
             .padding(.bottom, 16)
             
-            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) {input in
-                OptionCell(text: input, selection: $selected) {
-                    if selected.contains($0) {
-                        onInterestTap($0)
+            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
+                OptionCell(text: flashMaxText.contains(input) ? "max 10" : input,
+                           selection: $selected) { text in
+                    let tapped = text
+                    if selected.contains(tapped) {
+                        onInterestTap(tapped)
                     } else if selected.count >= 10 {
-                        shakeTicks[$0, default: 0] &+= 1
+                        shakeTicks[tapped, default: 0] &+= 1
+                        flashMaxText.insert(tapped)
+                        Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 1_500_000_000)
+                            flashMaxText.remove(tapped)
+                        }
                     } else {
-                        onInterestTap($0)
+                        onInterestTap(tapped)
                     }
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
@@ -234,10 +240,12 @@ struct OptionCell: View {
     @Binding var selection: [String]
     let onTap: (String) -> Void
     let fillColour: Bool
-    init(text: String, selection: Binding<[String]>, fillColour: Bool = true, onTap: @escaping (String) -> Void) {
+    let overlayText: String?
+    init(text: String, selection: Binding<[String]>, fillColour: Bool = true, overlayText: String? = nil, onTap: @escaping (String) -> Void) {
         self.text = text
         self._selection = selection
         self.fillColour = fillColour
+        self.overlayText = overlayText
         self.onTap = onTap
     }
     
@@ -255,6 +263,26 @@ struct OptionCell: View {
                             .stroke(selection.contains(text) && !fillColour ? .accent : Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
                     )
             )
+            .overlay {
+                if let overlayText {
+                    
+                    //Text so the cell doesn't shrink
+                    Text(text)
+                        .font(.body(14))
+
+                    
+                    Text(overlayText)
+                        .font(.body(14))
+                        .foregroundStyle(Color.accent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.8))
+                        )
+                        .foregroundStyle(Color.accent)
+                }
+            }
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     onTap(text)
@@ -267,3 +295,4 @@ struct OptionCell: View {
             }
     }
 }
+
