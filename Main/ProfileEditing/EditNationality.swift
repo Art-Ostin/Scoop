@@ -42,6 +42,8 @@ struct GenericNationality: View {
     
     @State private var scrollPosition: String? = "A"
 
+    @Namespace private var alphabetUnderline
+
     
     @Binding var countriesSelected: [String]
     
@@ -96,22 +98,24 @@ extension GenericNationality {
     }
     
 
-    private func alphabet(proxy: ScrollViewProxy) -> some View  {
+    private func alphabet(proxy: ScrollViewProxy) -> some View {
         CustomScrollTab(height: 60) {
             LazyVGrid(columns: alphabetColumns, spacing: 24) {
-                
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
                         withAnimation(.easeInOut) { scrollPosition = String(char) }
                     } label: {
                         Text(String(char))
                             .font(.body(20, .bold))
-                            .foregroundStyle(availableLetters.contains(String(char)) ? scrollPosition == String(char) ? Color.accent : Color.black : Color.grayPlaceholder)
+                            .foregroundStyle(availableLetters.contains(String(char)) ?
+                                             (scrollPosition == String(char) ? .accent : .black) :
+                                             .grayPlaceholder)
                             .overlay(alignment: .bottom) {
                                 if scrollPosition == String(char) {
                                     RoundedRectangle(cornerRadius: 16)
                                         .frame(width: 16, height: 2)
                                         .offset(y: 2)
+                                        .matchedGeometryEffect(id: "underline", in: alphabetUnderline)
                                 }
                             }
                     }
