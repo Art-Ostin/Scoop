@@ -84,43 +84,39 @@ extension GenericInterests {
                     .foregroundStyle(Color.grayText)
                     .offset(y: 12)
             }
-            ScrollView(.horizontal) {
-                HStack(alignment: .bottom) {
-                    
-                    ClearRectangle(size: 10)
-                    
-                    ForEach(selected, id: \.self) { selection in
-                        OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selected.removeAll { $0 == text }
+            
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
+                    HStack(alignment: .bottom) {
+                        ClearRectangle(size: 10)
+                        ForEach(selected, id: \.self) { selection in
+                            OptionCell(text: selection, selection: $selected, fillColour: false) { text in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selected.removeAll { $0 == text }
+                                }
                             }
+                            .offset(y: 5)
                         }
-                        .offset(y: 5)
+                        ClearRectangle(size: 30)
+                            .id("End Scroll")
                     }
-                    ClearRectangle(size: 30)
-                        .id(selected.count)
+                    .frame(height: 48)
                 }
-                .scrollTargetLayout()
-                .frame(height: 48)
-            }
-            .scrollIndicators(.never)
-            .scrollPosition(id: $selectedScroll, anchor: .center)
-            .onChange(of: selected.count) {oldValue, newValue in
-
-                print(oldValue)
-                print(newValue)
-                
-                if newValue > oldValue {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        selectedScroll = selected.count
+                .onChange(of: selected.count) { oldValue, newValue in
+                    if newValue > oldValue {
+                        Task {
+                            try? await Task.sleep(nanoseconds: 50_000_000)
+                            withAnimation(.easeInOut(duration: 0.4)) { proxy.scrollTo("End Scroll", anchor: .trailing) }
+                        }
                     }
                 }
+                .scrollIndicators(.never)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 12)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, 12)
     }
-    
+
     @ViewBuilder
     private var interestsSections: some View {
         let topPadding: CGFloat = 60
@@ -234,15 +230,10 @@ struct InterestSection: View {
 }
 
 struct OptionCell: View {
-    
     let text: String
-    
     @Binding var selection: [String]
-    
     let onTap: (String) -> Void
-    
     let fillColour: Bool
-    
     init(text: String, selection: Binding<[String]>, fillColour: Bool = true, onTap: @escaping (String) -> Void) {
         self.text = text
         self._selection = selection
@@ -276,125 +267,3 @@ struct OptionCell: View {
             }
     }
 }
-
-
-
-struct OptionCellProfile: View {
-    
-    let text: String
-    
-    var body: some View {
-        Text(text)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 10)
-            .font(.body(14))
-            .foregroundStyle(Color.black)
-            .background (
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.background)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
-                    )
-            )
-    }
-}
-
-struct OptionCellProfile2: View {
-    let infoItem: InfoItemStruct
-    var body: some View {
-        HStack(spacing: 16) {
-            Image(infoItem.image)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 17)
-            
-            Text(infoItem.info)
-                .font(.body(14))
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 10)
-        .foregroundStyle(Color.black)
-        .background (
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.background)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
-                )
-        )
-    }
-}
-
-
-struct Shake: GeometryEffect {
-    var travel: CGFloat = 8
-    var shakes: CGFloat = 6
-    var animatableData: CGFloat
-    
-    func effectValue(size: CGSize) -> ProjectionTransform {
-        let x = travel * sin(animatableData * .pi * shakes)
-        return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
-    }
-}
-
-
-
-
-
-
-
-
-/*
- .onChange(of: selected.count) {oldValue, newValue in
- if oldValue < newValue {
- withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
- }
- }
- */
-
-/*
- 
- 
- 
- HStack(alignment: .bottom) {
-     Rectangle()
-         .fill(.clear)
-         .frame(width: 10)
-     
-     ForEach(selected, id: \.self) { item in
-         OptionCell(text: item, selection: $selected, fillColour: false) {text in
-             selected.removeAll { $0 == text }
-         }
-         .offset(y: -2)
-         .id(item)
-     }
-     Rectangle()
-         .fill(.clear)
-         .frame(width: 10)
- }
- .frame(height: 48)
-}
-.scrollIndicators(.never)
-.frame(maxWidth: .infinity, alignment: .center)
-}
-.padding(.top, 12)
- */
-
-/*
- .overlay(alignment: .top) {
-     if showMax {
-         Text("Max 10")
-             .foregroundStyle(.accent)
-             .padding(.horizontal)
-             .padding(.vertical, 6)
-             .background(
-                 RoundedRectangle(cornerRadius: 24)
-                     .fill(Color.white)
-                     .shadow(color: .black.opacity(0.1), radius: 5, y: 5)
-                     .stroke(24, lineWidth: 1, color: .accent)
-             )
-             .padding(.top, 144)
-     }
- }
- */
