@@ -63,9 +63,19 @@ extension TextFieldGeneric {
                 .font(.body(24))
                 .font(.body(.medium))
                 .focused($isFocused)
+                .autocorrectionDisabled(true)
                 .tint(.blue)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { isFocused = false }
+                            .font(.body(.medium))
+                            .foregroundStyle(Color.accent)
+                    }
+                }
+
             
             RoundedRectangle(cornerRadius: 20, style: .circular)
                 .frame(maxWidth: .infinity)

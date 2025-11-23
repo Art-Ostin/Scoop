@@ -107,9 +107,6 @@
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
 		659568242ED26A350091163E /* ClearRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568232ED26A350091163E /* ClearRectangle.swift */; };
 		659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568252ED28BBA0091163E /* ShakeEffect.swift */; };
-		659568282ED343970091163E /* CustomKeyboardTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568272ED343970091163E /* CustomKeyboardTest.swift */; };
-		6595682A2ED347710091163E /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568292ED347710091163E /* KeyboardView.swift */; };
-		6595682D2ED352780091163E /* NewCustomKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6595682C2ED352780091163E /* NewCustomKeyboard.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
@@ -273,9 +270,6 @@
 		659497172E01DD4000880921 /* ScoopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopApp.swift; sourceTree = "<group>"; };
 		659568232ED26A350091163E /* ClearRectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearRectangle.swift; sourceTree = "<group>"; };
 		659568252ED28BBA0091163E /* ShakeEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEffect.swift; sourceTree = "<group>"; };
-		659568272ED343970091163E /* CustomKeyboardTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomKeyboardTest.swift; sourceTree = "<group>"; };
-		659568292ED347710091163E /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
-		6595682C2ED352780091163E /* NewCustomKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCustomKeyboard.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
@@ -441,7 +435,6 @@
 				659497072E01DD4000880921 /* EnterEmailView.swift */,
 				65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */,
 				659109322E19C87B0065696F /* VerifyEmailView.swift */,
-				6595682B2ED34EC10091163E /* CustomKeyboard */,
 			);
 			path = SigningUp;
 			sourceTree = "<group>";
@@ -639,16 +632,6 @@
 				6514B60E2EB3001600551C3A /* SigningUp */,
 			);
 			path = Main;
-			sourceTree = "<group>";
-		};
-		6595682B2ED34EC10091163E /* CustomKeyboard */ = {
-			isa = PBXGroup;
-			children = (
-				659568292ED347710091163E /* KeyboardView.swift */,
-				659568272ED343970091163E /* CustomKeyboardTest.swift */,
-				6595682C2ED352780091163E /* NewCustomKeyboard.swift */,
-			);
-			path = CustomKeyboard;
 			sourceTree = "<group>";
 		};
 		65A39BB22E5FBFBB0049D114 /* Settings */ = {
@@ -879,7 +862,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				658DE51D2EAFA3AA000EF2FA /* TabTitle.swift in Sources */,
-				659568282ED343970091163E /* CustomKeyboardTest.swift in Sources */,
 				65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */,
 				65C7D6252E53AB7F00B726B8 /* EventFormatter.swift in Sources */,
 				659109332E19C87B0065696F /* VerifyEmailView.swift in Sources */,
@@ -921,7 +903,6 @@
 				6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */,
 				6591092D2E19B0810065696F /* Prompts.swift in Sources */,
 				650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */,
-				6595682A2ED347710091163E /* KeyboardView.swift in Sources */,
 				6576B7F22E69082F004217A4 /* ProfileModelBuilder.swift in Sources */,
 				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */,
@@ -950,7 +931,6 @@
 				650135862E4B92F100630CF3 /* UserEventModel.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
-				6595682D2ED352780091163E /* NewCustomKeyboard.swift in Sources */,
 				653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */,
 				65E820A52E382C7F0098CC36 /* InterestsView.swift in Sources */,
 				6509DDC92E37A87B0042917B /* FlowNavigation.swift in Sources */,
