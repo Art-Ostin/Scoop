@@ -105,6 +105,7 @@
 		6594972B2E01DD4000880921 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497122E01DD4000880921 /* SignUpView.swift */; };
 		6594972C2E01DD4000880921 /* ScoopApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497172E01DD4000880921 /* ScoopApp.swift */; };
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
+		659568242ED26A350091163E /* ClearRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568232ED26A350091163E /* ClearRectangle.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
@@ -266,6 +267,7 @@
 		659497152E01DD4000880921 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		659497162E01DD4000880921 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		659497172E01DD4000880921 /* ScoopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopApp.swift; sourceTree = "<group>"; };
+		659568232ED26A350091163E /* ClearRectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearRectangle.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
@@ -582,6 +584,7 @@
 				65E1BF372E897DF900C10C0F /* ViewMeasurements.swift */,
 				651263972EAFBCF0005E6930 /* TabButton.swift */,
 				650E8E5D2EB82F6F009F5454 /* DeclineButton.swift */,
+				659568232ED26A350091163E /* ClearRectangle.swift */,
 				658DE51C2EAFA3AA000EF2FA /* TabTitle.swift */,
 				6512639F2EAFD29A005E6930 /* TabViewModifiers.swift */,
 				650383DF2E6B84A80053DDB2 /* CustomTabBar */,
@@ -881,6 +884,7 @@
 				654982D82E3152C000CA335F /* EditImagesProfile.swift in Sources */,
 				65E5C9202E510BBA0093410B /* CycleRepo.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
+				659568242ED26A350091163E /* ClearRectangle.swift in Sources */,
 				65D9D0DA2ED14B7B00F7E5CC /* ScrollViewTest.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				650884162EAD4EA000776620 /* PendingInviteView.swift in Sources */,

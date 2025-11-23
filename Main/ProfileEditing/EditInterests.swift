@@ -38,8 +38,9 @@ struct EditInterests: View {
 struct GenericInterests: View {
     
     @Binding var selected: [String]
-    @State var currentScroll: Int? = 0
     
+    @State var currentScroll: Int? = 0
+    @State var selectedScroll: Int? = 0
     
     @Namespace private var tabNamespace
     
@@ -58,7 +59,6 @@ struct GenericInterests: View {
         ]
     }
     
-    
     var body: some View {
         ZStack(alignment: .topLeading) {
             scrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
@@ -74,48 +74,46 @@ struct GenericInterests: View {
 
 
 extension GenericInterests {
+    
+    
     private var selectedInterestsView: some View {
         ZStack {
             if selected.isEmpty {
-                Text("Choose a minimum 6")
+                Text("Choose at least 6")
                     .font(.body(16, .italic))
                     .foregroundStyle(Color.grayText)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 12)
+                    .offset(y: 12)
             }
-            
-            
-            
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal) {
+            ScrollView(.horizontal) {
+                HStack(alignment: .bottom) {
                     
-                    HStack(alignment: .bottom) {
-                        Rectangle()
-                            .fill(.clear)
-                            .frame(width: 10)
-                        
-                        ForEach(selected, id: \.self) { item in
-                            OptionCell(text: item, selection: $selected, fillColour: false) {text in
+                    ClearRectangle(size: 10)
+                    
+                    ForEach(selected, id: \.self) { selection in
+                        OptionCell(text: selection, selection: $selected, fillColour: false) { text in
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 selected.removeAll { $0 == text }
                             }
-                            .offset(y: -2)
-                            .id(item)
                         }
-                        Rectangle()
-                            .fill(.clear)
-                            .frame(width: 10)
+                        .offset(y: 5)
                     }
-                    .frame(height: 48)
+                    ClearRectangle(size: 30)
+                        .id(selected.count)
                 }
-                .scrollIndicators(.never)
-                .onChange(of: selected.count) {oldValue, newValue in
-                    if oldValue < newValue {
-                        withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
+                .scrollTargetLayout()
+                .frame(height: 48)
+            }
+            .scrollIndicators(.never)
+            .scrollPosition(id: $selectedScroll, anchor: .leading)
+            .onChange(of: selected.count) {oldValue, newValue in
+                if newValue > oldValue {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedScroll = selected.count
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, 12)
     }
     
@@ -126,9 +124,7 @@ extension GenericInterests {
         ScrollView(.vertical) {
             
             VStack(spacing: 0) {
-                Rectangle()
-                    .fill(.clear)
-                    .frame(height: 32)
+                ClearRectangle(size: 32)
                 
                 ForEach(sections.indices, id: \.self) { idx in
                     let section = sections[idx]
@@ -140,11 +136,12 @@ extension GenericInterests {
             .scrollTargetLayout()
             .padding(.bottom, 118)
         }
+        .scrollContentBackground(.hidden)
         .scrollPosition(id: $currentScroll, anchor: .center)
         .padding(.top, topPadding)
         .scrollIndicators(.never)
         .padding(.horizontal)
-        .animation(.easeInOut(duration: 0.2), value: currentScroll)
+        .animation(.easeInOut(duration: 0.4), value: currentScroll)
     }
     
     private var scrollToSection: some View {
@@ -189,10 +186,12 @@ struct InterestSection: View {
     @State private var shakeTicks: [String: Int] = [:]
     
     @Binding var selected: [String]
+
     
     let onInterestTap: (String) -> ()
     
     var selectedMax: Bool {selected.count >= 10}
+    
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -222,7 +221,7 @@ struct InterestSection: View {
                     }
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
-                .animation(.easeInOut(duration: 0.3), value: shakeTicks[input, default: 0])
+                .animation(.easeInOut(duration: 0.6), value: shakeTicks[input, default: 0])
             }
             .offset(x: -5)
         }
@@ -276,10 +275,6 @@ struct OptionCell: View {
 
 
 
-
-
-
-
 struct OptionCellProfile: View {
     
     let text: String
@@ -327,9 +322,10 @@ struct OptionCellProfile2: View {
     }
 }
 
+
 struct Shake: GeometryEffect {
     var travel: CGFloat = 8
-    var shakes: CGFloat = 3
+    var shakes: CGFloat = 6
     var animatableData: CGFloat
     
     func effectValue(size: CGSize) -> ProjectionTransform {
@@ -337,3 +333,64 @@ struct Shake: GeometryEffect {
         return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
     }
 }
+
+
+
+
+
+
+
+
+/*
+ .onChange(of: selected.count) {oldValue, newValue in
+ if oldValue < newValue {
+ withAnimation {proxy.scrollTo(selected.last, anchor: .trailing)}
+ }
+ }
+ */
+
+/*
+ 
+ 
+ 
+ HStack(alignment: .bottom) {
+     Rectangle()
+         .fill(.clear)
+         .frame(width: 10)
+     
+     ForEach(selected, id: \.self) { item in
+         OptionCell(text: item, selection: $selected, fillColour: false) {text in
+             selected.removeAll { $0 == text }
+         }
+         .offset(y: -2)
+         .id(item)
+     }
+     Rectangle()
+         .fill(.clear)
+         .frame(width: 10)
+ }
+ .frame(height: 48)
+}
+.scrollIndicators(.never)
+.frame(maxWidth: .infinity, alignment: .center)
+}
+.padding(.top, 12)
+ */
+
+/*
+ .overlay(alignment: .top) {
+     if showMax {
+         Text("Max 10")
+             .foregroundStyle(.accent)
+             .padding(.horizontal)
+             .padding(.vertical, 6)
+             .background(
+                 RoundedRectangle(cornerRadius: 24)
+                     .fill(Color.white)
+                     .shadow(color: .black.opacity(0.1), radius: 5, y: 5)
+                     .stroke(24, lineWidth: 1, color: .accent)
+             )
+             .padding(.top, 144)
+     }
+ }
+ */
