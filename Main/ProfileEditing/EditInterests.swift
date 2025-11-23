@@ -210,8 +210,9 @@ struct InterestSection: View {
             .padding(.bottom, 16)
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
-                OptionCell(text: flashMaxText.contains(input) ? "max 10" : input,
-                           selection: $selected) { text in
+                OptionCell(text: input,
+                           selection: $selected,
+                           overlayText: flashMaxText.contains(input) ? "max 10" : nil) { text in
                     let tapped = text
                     if selected.contains(tapped) {
                         onInterestTap(tapped)
@@ -219,8 +220,8 @@ struct InterestSection: View {
                         shakeTicks[tapped, default: 0] &+= 1
                         flashMaxText.insert(tapped)
                         Task { @MainActor in
-                            try? await Task.sleep(nanoseconds: 1_500_000_000)
-                            flashMaxText.remove(tapped)
+                            try? await Task.sleep(nanoseconds: 1_000_000_000)
+                                flashMaxText.remove(tapped)
                         }
                     } else {
                         onInterestTap(tapped)
@@ -228,6 +229,7 @@ struct InterestSection: View {
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
                 .animation(.easeInOut(duration: 0.6), value: shakeTicks[input, default: 0])
+                .animation(.easeInOut(duration: 0.4), value: flashMaxText)
             }
             .offset(x: -5)
         }
@@ -250,37 +252,32 @@ struct OptionCell: View {
     }
     
     var body: some View {
+        
+        let isSelected = selection.contains(text)
+
         Text(text)
             .padding(.horizontal, 8)
             .padding(.vertical, 10)
             .font(.body(14))
-            .foregroundStyle(selection.contains(text) && fillColour ? Color.white : Color.black)
+            .foregroundStyle(isSelected && fillColour ? Color.white : Color.black)
             .background (
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(selection.contains(text) && fillColour ? Color.accent : Color.background)
+                    .fill(isSelected && fillColour ? Color.accent : Color.background)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(selection.contains(text) && !fillColour ? .accent : Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
+                            .stroke(isSelected && !fillColour ? .accent : Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
                     )
             )
             .overlay {
                 if let overlayText {
-                    
-                    //Text so the cell doesn't shrink
-                    Text(text)
-                        .font(.body(14))
-
-                    
-                    Text(overlayText)
-                        .font(.body(14))
-                        .foregroundStyle(Color.accent)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.8))
-                        )
-                        .foregroundStyle(Color.accent)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.background.opacity(1))
+                        Text(overlayText)
+                            .font(.body(14))
+                            .foregroundStyle(Color.accent)
+                    }
+                    .allowsHitTesting(false)
                 }
             }
             .onTapGesture {
