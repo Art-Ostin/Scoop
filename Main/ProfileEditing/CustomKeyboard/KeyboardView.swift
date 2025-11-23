@@ -31,7 +31,7 @@ struct KeyboardView: View {
 struct CustomKeyboardView: View {
     @Binding var text: String
     @FocusState.Binding var isActive: Bool
-
+    
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(spacing: 0), count: 3), spacing: 15) {
             ForEach(1...9, id: \.self) { index in
@@ -39,22 +39,20 @@ struct CustomKeyboardView: View {
             }
             ButtonView("delete.backward.fill", isImage: true)
             ButtonView("0")
-            ButtonView("delete.backward.fill", isImage: true)
+            ButtonView("checkmark.circle.fill", isImage: true)
         }
         .padding(15)
         .background(
-            .background.shadow(
-                .drop(color: .black.opacity(0.08), radius: 5, x: 0, y: -5)
-            )
+            Color(.systemBackground)
+                .shadow(color: .black.opacity(0.08), radius: 5, x: 0, y: -5)
         )
     }
-
+    
     @ViewBuilder
     func ButtonView(_ value: String, isImage: Bool = false) -> some View {
         Button {
             if isImage {
-                if value == "" && !text.isEmpty {
-                    //Delete last character
+                if value == "delete.backward.fill" && !text.isEmpty {
                     text.removeLast()
                 }
                 
@@ -67,7 +65,32 @@ struct CustomKeyboardView: View {
             }
         } label: {
             
-
-#Preview {
-    KeyboardView()
+            Group {
+                if isImage {
+                    Image(systemName: value)
+                } else {
+                    Text(value)
+                }
+            }
+            .font(.title3)
+            .fontWeight(.semibold)
+            .frame(width: 50, height: 50)
+            .background {
+                if isImage {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            .background.shadow(
+                                .drop(color: .black.opacity(0.08),
+                                      radius: 3,
+                                      x: 0,
+                                      y: 0)
+                            )
+                        )
+                }
+            }
+            .foregroundStyle(Color.primary)
+        }
+    }
 }
+    
+            

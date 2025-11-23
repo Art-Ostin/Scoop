@@ -8,13 +8,12 @@
 import SwiftUI
 
 
-struct CustomTextFieldWithKeyboard: <TextField: View, Keyboard: View> : UIViewControllerRepresentable {
+struct CustomTextFieldWithKeyboard<TextField: View, Keyboard: View>: UIViewControllerRepresentable {
     
     @ViewBuilder var textField: TextField
-    
     @ViewBuilder var keyboard: Keyboard
     
-    func makeUIViewController(context: Context) -> some UIHostingController<TextField> {
+    func makeUIViewController(context: Context) -> UIHostingController<TextField> {
         let controller = UIHostingController(rootView: textField)
         controller.view.backgroundColor = .clear
         
@@ -33,24 +32,22 @@ struct CustomTextFieldWithKeyboard: <TextField: View, Keyboard: View> : UIViewCo
         return controller
     }
     
-    func updateUIViewController(_ uiViewController: UIHostingController<TextField>, context: Context){
-        
-    }
-    
+    func updateUIViewController(_ uiViewController: UIHostingController<TextField>, context: Context) {}
+
     func sizeThatFits(_ proposal: ProposedViewSize, uiViewController: UIHostingController<TextField>, context: Context) -> CGSize? {
-        return uiViewController.view.intrinsicContentSize
+        uiViewController.view.intrinsicContentSize
     }
     
 }
 
 fileprivate extension UIView {
     var allSubviews: [UIView] {
-        return self.subviews.flatMap({ [$0] + $0.allSubviews })
+        subviews.flatMap { [$0] + $0.allSubviews }
     }
 }
 
-
-
-#Preview {
-    CustomKeyboardTest()
+struct CustomKeyboardTest: View {
+    var body: some View {
+        KeyboardView()
+    }
 }
