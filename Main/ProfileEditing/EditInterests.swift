@@ -104,10 +104,14 @@ extension GenericInterests {
                 .frame(height: 48)
             }
             .scrollIndicators(.never)
-            .scrollPosition(id: $selectedScroll, anchor: .leading)
+            .scrollPosition(id: $selectedScroll, anchor: .center)
             .onChange(of: selected.count) {oldValue, newValue in
+
+                print(oldValue)
+                print(newValue)
+                
                 if newValue > oldValue {
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
                         selectedScroll = selected.count
                     }
                 }
@@ -137,7 +141,7 @@ extension GenericInterests {
             .padding(.bottom, 118)
         }
         .scrollContentBackground(.hidden)
-        .scrollPosition(id: $currentScroll, anchor: .center)
+        .scrollPosition(id: $currentScroll, anchor: .leading)
         .padding(.top, topPadding)
         .scrollIndicators(.never)
         .padding(.horizontal)
