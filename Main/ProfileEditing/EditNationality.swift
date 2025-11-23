@@ -74,9 +74,6 @@ extension GenericNationality {
     
     private var selectedCountries: some View {
         HStack(spacing: 0) {
-            Rectangle()
-                .fill(.clear)
-                .frame(width: 32, height: 4)
             
             ForEach(countriesSelected, id: \.self) {country in
                 Text(country)
@@ -94,8 +91,6 @@ extension GenericNationality {
     }
     
 
-    
-    
     private func alphabet(proxy: ScrollViewProxy) -> some View  {
         CustomScrollTab(height: 60) {
             LazyVGrid(columns: alphabetColumns, spacing: 24) {
@@ -114,9 +109,7 @@ extension GenericNationality {
     
     private var nationalitiesView: some View {
         ScrollView {
-            Rectangle()
-                .fill(.clear)
-                .frame(height: 32)
+            ClearRectangle(size: 32)
             
             VStack(spacing: 48) {
                 
@@ -173,7 +166,7 @@ extension GenericNationality {
                         .offset(x: 3, y: -3)
                 }
                 .modifier(Shake(animatableData: CGFloat(shakeValue)))
-                .animation(.easeInOut(duration: 0.3), value: shakeValue)
+                .animation(.easeInOut(duration: 0.5), value: shakeValue)
             
             if shakeValue > 0 {
                 Text(message)
