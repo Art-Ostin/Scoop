@@ -122,6 +122,7 @@ extension GenericNationality {
                 }
             }
         }
+        .animation(.smooth(duration: 0.25, extraBounce: 0), value: scrollPosition)
     }
     
     private var nationalitiesView: some View {
@@ -158,7 +159,7 @@ extension GenericNationality {
             .padding(.bottom, 144)
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .scrollPosition(id: $scrollPosition, anchor: .center)
+        .scrollPosition(id: $scrollPosition, anchor: .top)
         .padding(.top, 60)
     }
     
