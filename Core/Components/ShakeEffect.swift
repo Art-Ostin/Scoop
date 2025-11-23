@@ -13,6 +13,8 @@ struct Shake: GeometryEffect {
     var animatableData: CGFloat
     
     func effectValue(size: CGSize) -> ProjectionTransform {
+        
+        
         let x = travel * sin(animatableData * .pi * shakes)
         return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
     }

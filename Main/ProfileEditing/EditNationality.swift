@@ -19,6 +19,7 @@ struct OnboardingNationality: View {
         }
     }
 }
+
 //Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
 struct EditNationality: View {
     let vm: EditProfileViewModel
@@ -47,6 +48,7 @@ struct GenericNationality: View {
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
     }
+    
     var groupedCountries: [(letter: String, countries: [CountryData])] {
         let groups = Dictionary(grouping: countries, by: { String($0.name.prefix(1)) })
         let sortedKeys = groups.keys.sorted()
@@ -149,7 +151,7 @@ extension GenericNationality {
     
     private func flagItem(country: CountryData) -> some View {
         
-        var shakeValue = shakeTicks[country.flag, default: 0]
+        let shakeValue = shakeTicks[country.flag, default: 0]
         let message = "max 3 countries"
 
         return VStack(spacing: 6) {
@@ -165,8 +167,9 @@ extension GenericNationality {
                     CircleIcon(isSelected(country.flag) ? "minus" : "plus")
                         .offset(x: 3, y: -3)
                 }
-                .modifier(Shake(animatableData: CGFloat(shakeValue)))
+                .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
                 .animation(.easeInOut(duration: 0.5), value: shakeValue)
+            
             
             if shakeValue > 0 {
                 Text(message)
@@ -179,11 +182,17 @@ extension GenericNationality {
             }
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
-        .onChange(of: shakeValue) {
+        .onChange(of: shakeTicks[country.flag, default: 0]) { oldValue, newValue in
+            guard newValue > 0 else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                shakeValue = 0
+                if shakeTicks[country.flag, default: 0] == newValue {
+                    withAnimation(.none) {
+                        shakeTicks[country.flag] = 0
+                    }
+                }
             }
         }
+        
         .onTapGesture {
             withAnimation(.smooth(duration: 0.2)) {
                 if countriesSelected.contains(country.flag) {

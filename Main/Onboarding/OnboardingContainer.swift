@@ -44,7 +44,7 @@ struct OnboardingContainer: View {
                             Button {
                                 dismiss()
                             } label: {
-                                Image(systemName: "xmark")
+                                Image(systemName: "chevron.down")
                                     .font(.body(16, .bold))
                             }
                         }
