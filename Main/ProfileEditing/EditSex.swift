@@ -94,7 +94,7 @@ struct GenericSex: View {
                 }
                 .overlay(alignment: .top) {
                     doneButton //96 is how much padding the text field has, then position done button 72 beneath
-                        .padding(.top, 324)
+                        .padding(.top, 396)
                 }
                 .onAppear {
                     hasEditedThisSession = false
@@ -154,15 +154,17 @@ extension GenericSex {
         } label: {
             Text("Done")
                 .padding(.horizontal)
-                .padding(.vertical, 12)
+                .padding(.vertical, 8)
                 .font(.body(14, .bold))
                 .foregroundStyle(Color.accent)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.background)
-                        .defaultShadow()
-                        .stroke(12, lineWidth: 1.5, color: .black)
+                        .shadow(color: .black.opacity(0.1), radius: 2, y: 2)
+                        .stroke(12, lineWidth: 1, color: .black)
                 )
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, 36)
         }
     }
 }

@@ -12,24 +12,19 @@ struct SignUpView: View {
     
     @Environment(\.appDependencies) private var dep
     @State var showCover: Bool = false
-    @State var tabSelection: Int? = 0
+    @State var tabSelection: Int = 0
+    
+    @State var isShowing: Bool = false
     
     var body: some View {
-        VStack(spacing: 60){
+        VStack(spacing: 48){
+            
             titleSection
-            SignUpTabView(tabSelection: $tabSelection)
-                .overlay(alignment: .bottom) {
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(tabSelection == 0 ? .black : .grayPlaceholder)
-                            .frame(width: 5, height: 5)
-
-                        Circle()
-                            .fill(tabSelection == 1 ? .black : .grayPlaceholder)
-                            .frame(width: 5, height: 5)
-                    }
-                        .offset(y: 32)
-                }
+            
+            VStack(spacing: 24) {
+                tabSection
+                pageIndicator(count: 2, selection: tabSelection)
+            }
             VStack(spacing: 8) {
                 ActionButton(text: "Login / Sign Up") { showCover = true}
                 termsText
@@ -44,6 +39,27 @@ struct SignUpView: View {
 }
 
 extension SignUpView {
+    
+    private var tabSection: some View {
+        TabView(selection: $tabSelection) {
+            Image("CoolGuys")
+                .resizable().scaledToFit()
+                .tag(0)
+            
+            VStack(spacing: 36) {
+                (Text("Skip small talk: ").bold() + Text("No 'likes'. Send an invite with a time & place to meet."))
+                (Text("Social Scoop: ").bold() + Text("Meet one-on-one or meet at an event/bar with each other's friends. (Or a double date!)"))
+            }
+            .font(.body(.regular))
+            .lineSpacing(12)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal)
+            .tag(1)
+        }
+        .indexViewStyle(.page(backgroundDisplayMode: .never))
+        .frame(height: 200)
+        .tabViewStyle(.page)
+    }
     
     private var titleSection: some View {
         VStack(spacing: 24){
@@ -72,4 +88,3 @@ extension SignUpView {
         .foregroundStyle(Color.grayText)
     }
 }
-
