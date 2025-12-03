@@ -12,6 +12,10 @@ struct InfoView: View {
     @FocusState var isFocused: Bool
     
     
+    
+    
+    
+    
     private var coreInfo: [EditPreview] {
          let u = vm.draft /*else { return [] }*/
 

@@ -22,28 +22,36 @@ struct ProfileDetailsView: View {
     @Binding var scrollSelection: Int?
     
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                part1DetailsView
-                    .containerRelativeFrame(.horizontal)
-                    .id(0)
-                part1DetailsView
-                    .containerRelativeFrame(.horizontal)
-                    .id(1)
-                part1DetailsView
-                    .containerRelativeFrame(.horizontal)
-                    .id(2)
+        VStack(spacing: 16) {
+            ScrollView(.horizontal) {
+                HStack(spacing: 0) {
+                    part1DetailsView
+                        .containerRelativeFrame(.horizontal)
+                        .id(0)
+                    part1DetailsView
+                        .containerRelativeFrame(.horizontal)
+                        .id(1)
+                    part1DetailsView
+                        .containerRelativeFrame(.horizontal)
+                        .id(2)
+                }
+                .scrollTargetLayout()
+                .frame(maxHeight: .infinity, alignment: .top)
             }
-            .scrollTargetLayout()
-            .frame(maxHeight: .infinity, alignment: .top)
+            .scrollTargetBehavior(.paging)
+            .scrollPosition(id: $scrollSelection, anchor: .center)
+            .scrollIndicators(.never)
+            .overlay {
+                Text("Hello Test")
+            }
+            
+            PageIndicator(count: 3, selection: scrollSelection ?? 0)
+                .padding(.bottom, 16)
         }
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $scrollSelection, anchor: .center)
-        .scrollIndicators(.never)
-        .padding(.top, 24)
+        .padding(.top, 16)
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
     }
 }
 
@@ -53,8 +61,23 @@ struct ProfileDetailsView: View {
      .padding(.horizontal, 24)
  */
 
-
 extension ProfileDetailsView {
+    private var part1DetailsView: some View {
+        VStack(spacing: 16) {
+            DetailsSection(color: .accent) {
+                Text("Hello World")
+            }
+            DetailsSection() {
+                PromptView(prompt: p.prompt1)
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
     
     private var verticalDivider: some View {
         Rectangle()
@@ -79,43 +102,6 @@ extension ProfileDetailsView {
         }
     }
     
-    @ViewBuilder
-    private var part1DetailsView: some View {
-        
-        VStack(spacing: 32) {
-            DetailsInfo(title: "About") {
-                detailsLine(
-                    InfoItem(image: "magnifyingglass", info: p.lookingFor),
-                    InfoItem(image: "Year", info: p.year))
-                Divider()
-                detailsLine(
-                    InfoItem(image: "ScholarStyle", info: p.degree),
-                    InfoItem(image: "Height", info: "193" + "cm"))
-                Divider()
-                detailsLine(
-                    InfoItem(image: "House", info: p.hometown),
-                    InfoItem(image: "HappyFace", info: p.interests.first ?? ""))
-            }
-            PromptView(prompt: p.prompt1, spacing: 32)
-        }
-        .padding(.horizontal, 24)
-    }
-    
-    
-    @ViewBuilder
-    private var part2Details: some View {
-        VStack(spacing: 32) {
-            DetailsInfo(title: "Passions") {
-                ForEach(p.interests.indices, id: \.self) { index in
-                    HStack {
-                        InfoItem(image: "HappyFace", info: p.interests[index])
-                        
-                        verticalDivider
-                    }
-                }
-            }
-        }
-    }
 }
 
 extension ProfileDetailsView {
@@ -331,36 +317,6 @@ extension ProfileDetailsView {
     
 }
 
-struct PromptView: View {
-    let prompt: PromptResponse?
-    var count: Int? { prompt?.response.count}
-    
-    let spacing: CGFloat
-    
-    init(prompt: PromptResponse?, spacing: CGFloat = 16) {
-        self.prompt = prompt
-        self.spacing = spacing
-    }
-    
-    var body: some View {
-        
-        VStack(alignment: .leading, spacing: spacing) {
-            Text(prompt?.prompt ?? "No user Prompts")
-                .font(.body(14, .italic))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Text(prompt?.response ?? "")
-                .font(.title(28))
-                .lineLimit( count ?? 0 > 90 ? 4 : 3)
-                .minimumScaleFactor(0.6)
-                .lineSpacing(8)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .top)
-                .padding(.top, -12)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
 
 struct InfoItem: View {
     
@@ -411,6 +367,7 @@ struct OptionCellProfile: View {
     }
 }
 
+
 struct OptionCellProfile2: View {
     let infoItem: InfoItemStruct
     var body: some View {
@@ -436,6 +393,51 @@ struct OptionCellProfile2: View {
         )
     }
 }
+
+
+
+
+
+/*
+ @ViewBuilder
+ private var part2Details: some View {
+     VStack(spacing: 32) {
+         DetailsInfo(title: "Passions") {
+             ForEach(p.interests.indices, id: \.self) { index in
+                 HStack {
+                     InfoItem(image: "HappyFace", info: p.interests[index])
+                     
+                     verticalDivider
+                 }
+             }
+         }
+     }
+ }
+
+
+ @ViewBuilder
+ private var part1DetailsView: some View {
+     
+     VStack(spacing: 32) {
+         DetailsInfo(title: "About") {
+             detailsLine(
+                 InfoItem(image: "magnifyingglass", info: p.lookingFor),
+                 InfoItem(image: "Year", info: p.year))
+             Divider()
+             detailsLine(
+                 InfoItem(image: "ScholarStyle", info: p.degree),
+                 InfoItem(image: "Height", info: "193" + "cm"))
+             Divider()
+             detailsLine(
+                 InfoItem(image: "House", info: p.hometown),
+                 InfoItem(image: "HappyFace", info: p.interests.first ?? ""))
+         }
+         PromptView(prompt: p.prompt1, spacing: 32)
+     }
+     .padding(.horizontal, 24)
+ }
+ */
+
 
 /*
  
@@ -511,4 +513,39 @@ struct OptionCellProfile2: View {
  .frame(maxWidth: .infinity)
  .stroke(12, lineWidth: 1, color: .grayPlaceholder)
  }
+ */
+
+/*
+ struct PromptView: View {
+     
+     let prompt: PromptResponse?
+     var count: Int? { prompt?.response.count}
+     
+     let spacing: CGFloat
+     
+     init(prompt: PromptResponse?, spacing: CGFloat = 16) {
+         self.prompt = prompt
+         self.spacing = spacing
+     }
+     
+     var body: some View {
+         
+         VStack(alignment: .leading, spacing: spacing) {
+             Text(prompt?.prompt ?? "No user Prompts")
+                 .font(.body(14, .italic))
+                 .frame(maxWidth: .infinity, alignment: .leading)
+             
+             Text(prompt?.response ?? "")
+                 .font(.title(28))
+                 .lineLimit( count ?? 0 > 90 ? 4 : 3)
+                 .minimumScaleFactor(0.6)
+                 .lineSpacing(8)
+                 .multilineTextAlignment(.center)
+                 .frame(maxWidth: .infinity, alignment: .top)
+                 .padding(.top, -12)
+         }
+         .frame(maxWidth: .infinity)
+     }
+ }
+
  */

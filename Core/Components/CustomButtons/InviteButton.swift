@@ -18,7 +18,6 @@ struct PressableButtonStyle: ButtonStyle {
 }
 
 extension View {
-    
     func customButtonStyle() -> some View {
         buttonStyle(PressableButtonStyle())
     }
@@ -38,17 +37,19 @@ struct InviteButton: View {
                         .font(.system(size: 25, weight: .heavy))
                 } else {
                     Image("LetterIconProfile")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
                 }
             }
             .foregroundStyle(.white)
-            .frame(width: 45, height: 45)
+            .frame(width: 40, height: 40)
             .background(
                 Circle()
                     .fill(vm.viewProfileType == .accept ? Color.appGreen : Color.accent)
-                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
+                    .shadow(color: .black.opacity(0.1), radius: 1.32, x: 0, y: 4.4)
             )
         }
         .customButtonStyle()
     }
 }
-

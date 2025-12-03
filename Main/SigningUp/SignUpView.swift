@@ -23,7 +23,7 @@ struct SignUpView: View {
             
             VStack(spacing: 24) {
                 tabSection
-                pageIndicator(count: 2, selection: tabSelection)
+                PageIndicator(count: 2, selection: tabSelection)
             }
             VStack(spacing: 8) {
                 ActionButton(text: "Login / Sign Up") { showCover = true}

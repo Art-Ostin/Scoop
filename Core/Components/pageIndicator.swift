@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct pageIndicator: View {
+struct PageIndicator: View {
     
     let count: Int
     let selection: Int
@@ -39,5 +39,5 @@ struct pageIndicator: View {
 }
 
 #Preview {
-    pageIndicator(count: 5, selection: 3)
+    PageIndicator(count: 5, selection: 3)
 }

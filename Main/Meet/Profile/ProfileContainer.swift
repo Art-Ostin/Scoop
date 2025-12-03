@@ -33,7 +33,7 @@ struct ProfileView: View {
     @State private var dragAxis: Axis? = nil
     @State var blockTabView: Bool = false
     @State var detailsPad: CGFloat = 0
-    @State var inviteYOffset: CGFloat = -108
+    @State var inviteYOffset: CGFloat = -96
     @State var imageSize: CGFloat = 300
         
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -371,7 +371,6 @@ extension ProfileView {
         let initial: CGFloat = 0.97, opened: CGFloat = 1
         return detailsOpen ? lerp(opened, initial, t) : lerp(initial, opened, t)
     }
-    
     
     
     func inviteOffset() -> CGFloat {

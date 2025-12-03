@@ -44,7 +44,7 @@ struct OnboardingContainer: View {
                             Button {
                                 dismiss()
                             } label: {
-                                Image(systemName: "chevron.down")
+                                Image(systemName: "xmark")
                                     .font(.body(16, .bold))
                             }
                         }
@@ -76,52 +76,3 @@ struct OnboardingContainer: View {
         }
     }
 }
-
-
-
-
-
-
-
-
-//extension OnboardingContainer {
-//
-//    @ViewBuilder
-//    func disableGlassEffect() -> some View {
-//        if #available(iOS 26.0, *) {
-//            self.glassEffect(isEnabled: false)
-//        } else {
-//            self
-//        }
-//    }
-//}
-
-/*
- //                    .overlay(alignment: .topLeading) {
- //                        Text("\(vm.onboardingStep)/12")
- //                            .font(.body(12, .bold))
- //                    }
- //                    .onChange(of: showOnboarding) { oldValue, newValue in
- //                        dismiss()
- //                    }
-
- .offset(y: stageOffset(stage: vm.onboardingStep))
-
-func stageOffset(stage: Int) -> CGFloat {
- switch vm.onboardingStep {
- case 0: return -144
- case 1: return -168
- case 2: return -168
- case 3: return -204
- case 4: return -168
- case 5: return  -324
- case 6: return -372
- case 7: return -396
- case 8: return -144
- case 9: return -144
- case 10: return -144
- case 11: return -144
- case 12: return -288
- default: return 48
-}
- */

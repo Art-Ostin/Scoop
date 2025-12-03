@@ -40,6 +40,10 @@ class AuthManager: AuthManaging {
             print(error)
         }
     }
+    
+    
+    
+    
 
     func authStateStream() -> AsyncStream<String?> {
         AsyncStream { continuation in
