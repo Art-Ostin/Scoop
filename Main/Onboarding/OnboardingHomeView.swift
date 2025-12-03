@@ -14,21 +14,24 @@ struct OnboardingHomeView: View {
     var body: some View {
         ZStack {
             if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
-                meetView
+                limitedAccessView(page: .meet)
                     .tag(TabBarItem.meet)
                     .tabItem { Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")}
-                meetingView
+                limitedAccessView(page: .meeting)
                     .tag(TabBarItem.events)
                     .tabItem {Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")}
                 
-                matchesView
+                limitedAccessView(page: .message)
                     .tag(TabBarItem.matches)
                     .tabItem {Label("", image: tabSelection == .matches ? "BlackMessage" : "MessageIcon")}
             }} else {
                 CustomTabBarContainerView(selection: $tabSelection) {
-                    meetView .tabBarItem(.meet, selection: $tabSelection)
-                    meetingView.tabBarItem(.events, selection: $tabSelection)
-                    matchesView.tabBarItem(.matches, selection: $tabSelection)
+                    limitedAccessView(page: .meet)
+                        .tabBarItem(.meet, selection: $tabSelection)
+                    limitedAccessView(page: .meeting)
+                        .tabBarItem(.events, selection: $tabSelection)
+                    limitedAccessView(page: .message)
+                        .tabBarItem(.events, selection: $tabSelection)
                 }
             }
         }
@@ -66,80 +69,7 @@ struct OnboardingHomeView: View {
 }
 
 extension OnboardingHomeView {
-    private var meetView: some View {
-        LimitedAccessPage(title: "Meet", imageName: "Plants", description: "View weekly profiles here & send a Time and Place to Meet.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
-    }
-    private var meetingView: some View {
-        LimitedAccessPage(title: "Meeting", imageName: "EventCups", description: "Details for upcoming meet ups appear here.", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
-    }
-    private var matchesView: some View {
-        LimitedAccessPage(title: "Message", imageName: "DancingCats", description: "View & message your previous matches here", showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
+    private func limitedAccessView(page: OnboardingPage) -> some View {
+        LimitedAccessPage(page: page, showOnboarding: $showOnboarding, showLogout: $showAlert, onboardingStep: vm?.onboardingStep ?? 0)
     }
 }
-
-
-struct LimitedAccessPage: View {
-    
-    let title, imageName, description: String
-    
-    @Binding var showOnboarding: Bool
-    @Binding var showLogout: Bool
-    let onboardingStep: Int
-    
-    var body: some View {
-        VStack(spacing: 60) {
-            Text(title)
-                .font(.tabTitle())
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Image(imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 240, height: 240)
-            
-            
-            Text(description)
-                .multilineTextAlignment(.center)
-                .lineSpacing(6)
-                .padding(.horizontal, 32)
-                .font(.body(18, .medium))
-            
-            ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12") {
-                showOnboarding = true
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 24)
-        .padding(.top, 60)
-        .overlay(alignment: .topTrailing) {
-                LogOutButton { showLogout = true }
-                    .padding(.top, 24)
-        }
-        .background(Color.background)
-    }
-}
-
-struct LogOutButton : View {
-    let onTap: () -> Void
-    var body: some View {
-        Button {
-            onTap()
-        } label : {
-            Text("Sign out")
-                .font(.body(14, .bold))
-                .padding(8)
-                .foregroundStyle(.black)
-                .background (
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.white )
-                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-                )
-                .overlay (
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(.black, lineWidth: 1)
-                )
-                .padding(.horizontal, 16)
-        }
-    }
-}
-

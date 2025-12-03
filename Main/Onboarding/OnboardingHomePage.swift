@@ -1,0 +1,65 @@
+//
+//  OnboardingHomePage.swift
+//  Scoop
+//
+//  Created by Art Ostin on 03/12/2025.
+//
+
+import SwiftUI
+
+struct LimitedAccessPage: View {
+    
+    let page: OnboardingPage
+    
+    @Binding var showOnboarding: Bool
+    @Binding var showLogout: Bool
+    let onboardingStep: Int
+    
+    var body: some View {
+        VStack(spacing: 60) {
+            Text(page.title)
+                .font(.tabTitle())
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Image(page.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 240, height: 240)
+            
+            Text(page.description)
+                .multilineTextAlignment(.center)
+                .lineSpacing(6)
+                .padding(.horizontal, 32)
+                .font(.body(18, .medium))
+            
+            ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12") {
+                showOnboarding = true
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.horizontal, 24)
+        .padding(.top, 60)
+        .overlay(alignment: .topTrailing) {
+                SignOutButton{ showLogout = true }
+                    .padding(.top, 24)
+        }
+        .background(Color.background)
+    }
+}
+
+enum OnboardingPage: CaseIterable {
+    
+    case meet, meeting, message
+    
+    var title: String { data.title }
+    var imageName: String {data.imageName}
+    var description: String {data.description}
+    
+    private var data: (title: String, imageName: String, description: String) {
+        switch self {
+        case .meet: return ("Meet", "Plants", "View weekly profiles here & send a Time and Place to Meet.")
+        case .meeting: return ("Meeting", "EventCups", "Details for upcoming meet ups appear here.")
+        case .message: return ("Message", "DancingCats", "View & message your previous matches here")
+        }
+    }
+}
