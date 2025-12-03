@@ -21,13 +21,18 @@ struct ProfileDetailsView: View {
     
     @Binding var scrollSelection: Int?
     
+    @State private var contentBottom: CGFloat = 0
+
+    
     var body: some View {
-        VStack(spacing: 16) {
+        ZStack(alignment: .topLeading) {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
                     part1DetailsView
                         .containerRelativeFrame(.horizontal)
                         .id(0)
+                        .reportBottom(in: .local)
+                    
                     part1DetailsView
                         .containerRelativeFrame(.horizontal)
                         .id(1)
@@ -41,17 +46,18 @@ struct ProfileDetailsView: View {
             .scrollTargetBehavior(.paging)
             .scrollPosition(id: $scrollSelection, anchor: .center)
             .scrollIndicators(.never)
-            .overlay {
-                Text("Hello Test")
-            }
             
-            PageIndicator(count: 3, selection: scrollSelection ?? 0)
-                .padding(.bottom, 16)
+            Text("Hello Test")
+                .position(y: contentBottom)
         }
         .padding(.top, 16)
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+        .onPreferenceChange(ViewBottomPreferenceKey.self) { newBottom in
+            contentBottom = newBottom
+            print("Bottom is: \(contentBottom)")
+        }
     }
 }
 
@@ -72,12 +78,6 @@ extension ProfileDetailsView {
             }
         }
     }
-    
-    
-    
-    
-    
-    
     
     private var verticalDivider: some View {
         Rectangle()
