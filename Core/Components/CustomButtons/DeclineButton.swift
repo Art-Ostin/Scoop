@@ -8,35 +8,20 @@
 import SwiftUI
 
 struct DeclineButton: View {
-    let image: Image
-    let padding: CGFloat
+    let image: String = "DeclineIcon"
     let onTap: () -> ()
     
     var body: some View {
-        
-        Group {
-            if #available(iOS 26.0, *) {
-                image
-                    .padding(padding)
-                    .onTapGesture {
-                        onTap()
-                    }
-                    .glassEffect()
-            } else {
-                image
+                Image(image)
                 .frame(width: 45, height: 45)
                 .glassIfAvailable()
                 .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
                 .contentShape(Rectangle())
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
                 .onTapGesture {onTap()}
-            }
+            
         }
-    }
 }
-
-
-
 
 /*
  struct TabButton: View {
@@ -80,6 +65,28 @@ struct DeclineButton: View {
              .onTapGesture {
                  isPresented = true
              }
+     }
+ }
+ 
+ 
+ 
+ 
+ Group {
+     if #available(iOS 26.0, *) {
+         image
+             .padding(padding)
+             .onTapGesture {
+                 onTap()
+             }
+             .glassEffect()
+     } else {
+         image
+         .frame(width: 45, height: 45)
+         .glassIfAvailable()
+         .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
+         .contentShape(Rectangle())
+         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
+         .onTapGesture {onTap()}
      }
  }
 

@@ -23,7 +23,7 @@ struct DraftProfileView: View {
                     Text(p.name)
                 }
                 ProfileImageView(vm: $vm, screenWidth: screenWidth)
-                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
+                ProfileDetailsView(screenWidth: screenWidth , p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
             }
             .frame(maxWidth: .infinity)
         }

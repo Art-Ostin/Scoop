@@ -43,13 +43,9 @@ struct ProfileView: View {
         self._selectedProfile = selectedProfile
     }
     
-    
-    
     var body: some View {
-        
         GeometryReader { proxy in
             let screenWidth = proxy.size.width
-            
             ZStack(alignment: .topLeading) {
                 VStack(spacing: isOverExtended ? (detailsOpen ? 0 : 36) : topSpacing() ) {
                     profileTitle
@@ -123,17 +119,9 @@ struct ProfileView: View {
                     .onTapGesture {detailsOpen.toggle()}
                     .scaleEffect(detailsPadding())
                 
-                
-                
 //                    .padding(Edge.Set.horizontal, detailsPadding())
                     .transition(AnyTransition.move(edge: Edge.bottom))
-                    .overlay(alignment: .bottomLeading) {
-                        if detailsOpen {
-                            DeclineButton(image: Image("DeclineIcon"), padding: 14) {}
-                                .padding(.horizontal)
-                                .padding(.bottom, 96)
-                        }
-                    }
+
                 InviteButton(vm: $vm)
                     .offset(
                         x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
@@ -149,7 +137,6 @@ struct ProfileView: View {
             }
             .onChange(of: detailsPadding()) { oldValue, newValue in
                 detailsPad = newValue
-                print("detailsPad: \(detailsPad)")
             }
             .colorBackground(.background)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
@@ -178,23 +165,10 @@ struct ProfileView: View {
 }
 }
 
-// All the functionality for title and Popup
-
-
 
 extension ProfileView {
     
-    private var declineButton: some View {
-        Image("DeclineIcon")
-            .frame(width: 45, height: 45)
-            .glassIfAvailable()
-            .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
-            .contentShape(Rectangle())
-            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
-            .onTapGesture {
-                
-            }
-    }    
+    
     private var profileTitle: some View {
         HStack {
             let p = vm.profileModel.profile
@@ -387,3 +361,27 @@ extension ProfileView {
     }
 }
 
+
+/*
+ .overlay(alignment: .bottomLeading) {
+     if detailsOpen {
+         DeclineButton(image: Image("DeclineIcon"), padding: 14) {}
+             .padding(.horizontal)
+             .padding(.bottom, 96)
+     }
+ }
+ 
+ private var declineButton: some View {
+     Image("DeclineIcon")
+         .frame(width: 45, height: 45)
+         .glassIfAvailable()
+         .stroke(100, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
+         .contentShape(Rectangle())
+         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 100)
+         .onTapGesture {
+             
+         }
+ }
+
+ 
+ */

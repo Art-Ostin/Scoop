@@ -56,7 +56,7 @@ extension View {
     @ViewBuilder
     func glassIfAvailable() -> some View {
         if #available(iOS 26.0, *) {
-            self.glassEffect()
+            self.glassEffect(.regular.tint(.background))
         } else {
             self
         }

@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-
-
-
 struct CustomCaption: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -30,10 +27,10 @@ struct BackgroundFill: ViewModifier {
 }
 
 extension View {
+    
     func customCaption() -> some View {
         modifier(CustomCaption())
     }
-    
     
     func defaultShadow() -> some View {
         shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)

@@ -9,69 +9,62 @@ import SwiftUI
 import SwiftUIFlowLayout
 
 struct ProfileDetailsView: View {
+
     @State var spacing: CGFloat = 36
     let screenWidth: CGFloat
     let p: UserProfile
     let event: UserEvent?
     @State var noInitialPrompt = false
     var isThreePrompts: Bool { p.prompt3.response.isEmpty == true }
-    
     @State var responseLines1 = 3
     @State var responseLines2 = 3
-    
     @Binding var scrollSelection: Int?
     
-    @State private var contentBottom: CGFloat = 0
-
+    @State var scrollBottom: CGFloat = 0
+    let scrollCoord = "Scroll"
     
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            ScrollView(.horizontal) {
-                HStack(spacing: 0) {
-                    part1DetailsView
-                        .containerRelativeFrame(.horizontal)
-                        .id(0)
-                        .reportBottom(in: .local)
-                    
-                    part1DetailsView
-                        .containerRelativeFrame(.horizontal)
-                        .id(1)
-                    part1DetailsView
-                        .containerRelativeFrame(.horizontal)
-                        .id(2)
-                }
-                .scrollTargetLayout()
-                .frame(maxHeight: .infinity, alignment: .top)
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                part1DetailsView
+                    .containerRelativeFrame(.horizontal)
+                    .id(0)
+                    .reportBottom(scrollCoord)
+                
+                part1DetailsView
+                    .containerRelativeFrame(.horizontal)
+                    .id(1)
+                part1DetailsView
+                    .containerRelativeFrame(.horizontal)
+                    .id(2)
             }
-            .scrollTargetBehavior(.paging)
-            .scrollPosition(id: $scrollSelection, anchor: .center)
-            .scrollIndicators(.never)
-            
-            Text("Hello Test")
-                .position(y: contentBottom)
+            .scrollTargetLayout()
+            .frame(maxHeight: .infinity, alignment: .top)
         }
+        .onPreferenceChange(ReportBottom.self) { scrollBottom = $0}
+        .coordinateSpace(name: scrollCoord)
+        .overlay(alignment: .top) {
+            PageIndicator(count: 3, selection: scrollSelection ?? 0)
+                .padding(.top, scrollBottom)
+            DeclineButton() {}
+                .padding(.top, scrollBottom - 23)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.horizontal, 24)
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $scrollSelection, anchor: .center)
         .padding(.top, 16)
         .colorBackground(.background, top: true)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .onPreferenceChange(ViewBottomPreferenceKey.self) { newBottom in
-            contentBottom = newBottom
-            print("Bottom is: \(contentBottom)")
-        }
     }
 }
-
-/*
- declineButton
-     .padding(.top, 412)
-     .padding(.horizontal, 24)
- */
 
 extension ProfileDetailsView {
     private var part1DetailsView: some View {
         VStack(spacing: 16) {
             DetailsSection(color: .accent) {
-                Text("Hello World")
+                UserKeyInfo(p: p)
             }
             DetailsSection() {
                 PromptView(prompt: p.prompt1)
@@ -101,8 +94,65 @@ extension ProfileDetailsView {
             item2
         }
     }
-    
 }
+
+struct UserKeyInfo: View {
+    let p : UserProfile
+    
+    var body : some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("About")
+                .customCaption()
+                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(alignment: .center) {
+                Group {
+                    InfoItem(image: "Year", info: p.year)
+                    Spacer()
+                    InfoItem(image: "Height", info: ("193cm"))
+                    Spacer()
+                    InfoItem(image: "House", info: p.hometown)
+                }
+            }
+            Divider().background(Color.grayPlaceholder)
+            InfoItem(image: "ScholarStyle", info: p.degree)
+            Divider().background(Color.grayPlaceholder)
+            InfoItem(image: "magnifyingglass", info: p.lookingFor)
+        }
+    }
+}
+
+struct InfoItem: View {
+    let image: String
+    let info: String
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 14) {
+            //Overlay method, ensures all images take up same space
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: 20, height: 17)
+                .overlay {
+                    Image(image)
+                        .resizable()
+                        .scaledToFit()
+                }
+            
+            Text(info)
+                .font(.body(17, .medium))
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 extension ProfileDetailsView {
     
@@ -284,7 +334,6 @@ extension ProfileDetailsView {
     }
     
     
-    
     private var movieAndSong: some View {
         HStack(alignment: .top, spacing: 0) {
             InfoItem(image: "MovieIcon", info: p.favouriteMovie ?? "Fight Club")
@@ -318,32 +367,13 @@ extension ProfileDetailsView {
 }
 
 
-struct InfoItem: View {
-    
-    let image: String
-    let info: String
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            Image(image)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 17)
-                .frame(width: 20, alignment: .leading)
-            
-            Text(info)
-                .font(.body(17, .medium))
-            
-        }
-    }
-}
+
+
 
 struct InfoItemStruct {
     let image: String
     let info: String
 }
-
-
 
 
 struct OptionCellProfile: View {
@@ -369,6 +399,7 @@ struct OptionCellProfile: View {
 
 
 struct OptionCellProfile2: View {
+    
     let infoItem: InfoItemStruct
     var body: some View {
         HStack(spacing: 16) {
@@ -389,7 +420,7 @@ struct OptionCellProfile2: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
-                )
+            )
         )
     }
 }
@@ -469,9 +500,11 @@ struct OptionCellProfile2: View {
  .padding(.top, 36)
  .frame(maxHeight: .infinity, alignment: .top)
  }
+ 
  */
 
 /*
+
  VStack(spacing: 12) {
  Text("About")
  .font(.body(13, .italic))
