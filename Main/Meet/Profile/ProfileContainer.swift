@@ -52,6 +52,9 @@ struct ProfileView: View {
                         .padding(.top, isOverExtended ? (detailsOpen ? -8 : 84) : topPadding())
                     ProfileImageView(vm: $vm, screenWidth: screenWidth)
                         .overlay(alignment: .topLeading) { secondHeader}
+                    
+                    
+                    
                 }
                 .simultaneousGesture (
                     DragGesture()
@@ -103,6 +106,7 @@ struct ProfileView: View {
                                 guard isVertical(v: v) else { return }
                                 state = v.translation.height.clamped(to: detailsDragRange)
                             }
+                        
                             .onEnded {
                                 defer { dragAxis = nil }
                                 guard dragAxis == .vertical else { return }
@@ -129,7 +133,6 @@ struct ProfileView: View {
                     )
                     .offset(y: isOverExtended ? (detailsOpen ? inviteYOffset : 0) : inviteOffset())
                     .gesture(DragGesture())
-                
                 if vm.showInvitePopup {
                     invitePopup
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -350,7 +353,6 @@ extension ProfileView {
     func inviteOffset() -> CGFloat {
         let initial: CGFloat = 0
         let opened:  CGFloat = inviteYOffset
-
         if detailsOpen {
             let p = (t / 0.25).clamped(to: 0...1)
             return lerp(opened, initial, p)
@@ -360,6 +362,9 @@ extension ProfileView {
         }
     }
 }
+
+
+
 
 
 /*

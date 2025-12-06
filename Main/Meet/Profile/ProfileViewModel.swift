@@ -16,7 +16,6 @@ enum ProfileViewType {
 @Observable class ProfileViewModel {
     
     let profileModel: ProfileModel
-    
     let cacheManager: CacheManaging
     
     var showInvitePopup: Bool = false

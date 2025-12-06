@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftUIFlowLayout
 
 struct ProfileDetailsView: View {
-
+    
     @State var spacing: CGFloat = 36
     let screenWidth: CGFloat
     let p: UserProfile
@@ -30,8 +30,7 @@ struct ProfileDetailsView: View {
                     .containerRelativeFrame(.horizontal)
                     .id(0)
                     .reportBottom(scrollCoord)
-                
-                part1DetailsView
+                part2DetailsView
                     .containerRelativeFrame(.horizontal)
                     .id(1)
                 part1DetailsView
@@ -72,55 +71,20 @@ extension ProfileDetailsView {
         }
     }
     
-    private var verticalDivider: some View {
-        Rectangle()
-            .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.70))
-            .frame(width: 0.5, height: 25)
-    }
-    
-    private var horizontalDivider: some View {
-        Rectangle()
-            .foregroundStyle(Color.grayPlaceholder)
-            .containerRelativeFrame(.horizontal)
-            .frame(height: 1)
-    }
-    
-    func detailsLine (_ item1: InfoItem, _ item2: InfoItem) -> some View {
-        HStack {
-            item1
-            Spacer()
-            verticalDivider
-            Spacer()
-            item2
-        }
-    }
-}
-
-struct UserKeyInfo: View {
-    let p : UserProfile
-    
-    var body : some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("About")
-                .customCaption()
-                .frame(maxWidth: .infinity, alignment: .leading)
-            HStack(alignment: .center) {
-                Group {
-                    InfoItem(image: "Year", info: p.year)
-                    Spacer()
-                    InfoItem(image: "Height", info: ("193cm"))
-                    Spacer()
-                    InfoItem(image: "House", info: p.hometown)
-                }
+    private var part2DetailsView: some View {
+        VStack(spacing: 16) {
+            DetailsSection(color: .accent) {
+                UserInterests(p: p)
             }
-            Divider().background(Color.grayPlaceholder)
-            InfoItem(image: "ScholarStyle", info: p.degree)
-            Divider().background(Color.grayPlaceholder)
-            InfoItem(image: "magnifyingglass", info: p.lookingFor)
+            DetailsSection() {
+                PromptView(prompt: p.prompt3)
+            }
         }
     }
+    
+    
+    
 }
-
 struct InfoItem: View {
     let image: String
     let info: String
@@ -143,19 +107,145 @@ struct InfoItem: View {
     }
 }
 
+struct UserKeyInfo: View {
+    let p : UserProfile
+    var body : some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("About")
+                .customCaption()
+                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(alignment: .center) {
+                InfoItem(image: "Year", info: p.year)
+                Spacer()
+                InfoItem(image: "Height", info: ("193cm"))
+                Spacer()
+                InfoItem(image: "House", info: p.hometown)
+            }
+            Divider().background(Color.grayPlaceholder)
+            InfoItem(image: "ScholarStyle", info: p.degree)
+            Divider().background(Color.grayPlaceholder)
+            InfoItem(image: "magnifyingglass", info: p.lookingFor)
+        }
+    }
+}
+
+struct UserInterests: View {
+    let p: UserProfile
+    
+    private var rows: [[String]] {
+        p.interests.chunked(into: 3)
+    }
+    
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Interests")
+                .customCaption()
+            
+            VStack(alignment: .leading, spacing: 30) {
+                ForEach(rows.indices, id: \.self) { rowIndex in
+                    let row = rows[rowIndex]
+                    HStack(spacing: 18) {
+                        ForEach(row.indices, id: \.self) { colIndex in
+                            let interest = row[colIndex]
+                            HStack(spacing: 18) {
+                                Text(interest)
+                                    .font(.body(16, .medium))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                
+                                if colIndex != row.count - 1 {
+                                    NarrowDivide()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct UserExtraInfo: View {
+    let p: UserProfile
+    
+    
+    var vices: [(String, String)] { [
+        ("AlcoholIcon", p.drinking),
+        ("CigaretteIcon", p.smoking),
+        ("WeedIcon", p.marijuana),
+        ("DrugsIcon", p.drugs),]
+    }
+    
+    var vicesOnTwoLines: Bool {
+        (p.favouriteSong == nil) && (p.favouriteMovie == nil)
+    }
+        
+    var body: some View {
+        
+        if vicesOnTwoLines {
+            VStack {
+                HStack {
+                    InfoItem(image: "AlcoholIcon", info: p.drinking)
+                    Spacer()
+                    NarrowDivide()
+                    Spacer()
+                    InfoItem(image: "CigaretteIcon", info: p.smoking)
+                }
+                Divider().foregroundStyle(Color.grayPlaceholder)
+                HStack {
+                    InfoItem(image: "WeedIcon", info: p.marijuana)
+                    Spacer()
+                    NarrowDivide()
+                    Spacer()
+                    InfoItem(image: "DrugsIcon",info: p.drugs)
+                }
+            }
+        } else {
+            VStack {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 16) {
+                        InfoItem(image: "AlcoholIcon", info: p.drinking)
+                        InfoItem(image: "CigaretteIcon", info: p.smoking)
+                        InfoItem(image: "WeedIcon", info: p.marijuana)
+                        InfoItem(image: "DrugsIcon",info: p.drugs)
+                    }
+                }
+                Divider().foregroundStyle(Color.grayPlaceholder)
+                
+                HStack {
+                    if
+                }
+            }
+            
+            
+            //Have them all on one line
+            // Have movies on next line
+        }
+        
+        Divider().foregroundStyle(Color.grayPlaceholder)
+        
+        InfoItem(image: "GenderIcon", info: p.sex)
+        
+        
+    }
+}
 
 
 
 
 
-
-
-
-
+struct NarrowDivide: View {
+    var body: some View {
+        Rectangle()
+            .foregroundColor(.clear)
+            .frame(width: 0.7, height: 16)
+            .background(Color(red: 0.9, green: 0.9, blue: 0.9))
+    }
+}
 
 
 extension ProfileDetailsView {
-    
     @ViewBuilder
     private var detailsSection1: some View {
         keyInfo
@@ -363,7 +453,6 @@ extension ProfileDetailsView {
             .frame(width: 225, height: 0.5)
             .background(Color(red: 0.75, green: 0.75, blue: 0.75))
     }
-    
 }
 
 
@@ -420,7 +509,7 @@ struct OptionCellProfile2: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
-            )
+                )
         )
     }
 }
@@ -432,40 +521,40 @@ struct OptionCellProfile2: View {
 /*
  @ViewBuilder
  private var part2Details: some View {
-     VStack(spacing: 32) {
-         DetailsInfo(title: "Passions") {
-             ForEach(p.interests.indices, id: \.self) { index in
-                 HStack {
-                     InfoItem(image: "HappyFace", info: p.interests[index])
-                     
-                     verticalDivider
-                 }
-             }
-         }
-     }
+ VStack(spacing: 32) {
+ DetailsInfo(title: "Passions") {
+ ForEach(p.interests.indices, id: \.self) { index in
+ HStack {
+ InfoItem(image: "HappyFace", info: p.interests[index])
+ 
+ verticalDivider
  }
-
-
+ }
+ }
+ }
+ }
+ 
+ 
  @ViewBuilder
  private var part1DetailsView: some View {
-     
-     VStack(spacing: 32) {
-         DetailsInfo(title: "About") {
-             detailsLine(
-                 InfoItem(image: "magnifyingglass", info: p.lookingFor),
-                 InfoItem(image: "Year", info: p.year))
-             Divider()
-             detailsLine(
-                 InfoItem(image: "ScholarStyle", info: p.degree),
-                 InfoItem(image: "Height", info: "193" + "cm"))
-             Divider()
-             detailsLine(
-                 InfoItem(image: "House", info: p.hometown),
-                 InfoItem(image: "HappyFace", info: p.interests.first ?? ""))
-         }
-         PromptView(prompt: p.prompt1, spacing: 32)
-     }
-     .padding(.horizontal, 24)
+ 
+ VStack(spacing: 32) {
+ DetailsInfo(title: "About") {
+ detailsLine(
+ InfoItem(image: "magnifyingglass", info: p.lookingFor),
+ InfoItem(image: "Year", info: p.year))
+ Divider()
+ detailsLine(
+ InfoItem(image: "ScholarStyle", info: p.degree),
+ InfoItem(image: "Height", info: "193" + "cm"))
+ Divider()
+ detailsLine(
+ InfoItem(image: "House", info: p.hometown),
+ InfoItem(image: "HappyFace", info: p.interests.first ?? ""))
+ }
+ PromptView(prompt: p.prompt1, spacing: 32)
+ }
+ .padding(.horizontal, 24)
  }
  */
 
@@ -504,7 +593,7 @@ struct OptionCellProfile2: View {
  */
 
 /*
-
+ 
  VStack(spacing: 12) {
  Text("About")
  .font(.body(13, .italic))
@@ -550,35 +639,77 @@ struct OptionCellProfile2: View {
 
 /*
  struct PromptView: View {
-     
-     let prompt: PromptResponse?
-     var count: Int? { prompt?.response.count}
-     
-     let spacing: CGFloat
-     
-     init(prompt: PromptResponse?, spacing: CGFloat = 16) {
-         self.prompt = prompt
-         self.spacing = spacing
-     }
-     
-     var body: some View {
-         
-         VStack(alignment: .leading, spacing: spacing) {
-             Text(prompt?.prompt ?? "No user Prompts")
-                 .font(.body(14, .italic))
-                 .frame(maxWidth: .infinity, alignment: .leading)
-             
-             Text(prompt?.response ?? "")
-                 .font(.title(28))
-                 .lineLimit( count ?? 0 > 90 ? 4 : 3)
-                 .minimumScaleFactor(0.6)
-                 .lineSpacing(8)
-                 .multilineTextAlignment(.center)
-                 .frame(maxWidth: .infinity, alignment: .top)
-                 .padding(.top, -12)
-         }
-         .frame(maxWidth: .infinity)
-     }
+ 
+ let prompt: PromptResponse?
+ var count: Int? { prompt?.response.count}
+ 
+ let spacing: CGFloat
+ 
+ init(prompt: PromptResponse?, spacing: CGFloat = 16) {
+ self.prompt = prompt
+ self.spacing = spacing
  }
+ 
+ var body: some View {
+ 
+ VStack(alignment: .leading, spacing: spacing) {
+ Text(prompt?.prompt ?? "No user Prompts")
+ .font(.body(14, .italic))
+ .frame(maxWidth: .infinity, alignment: .leading)
+ 
+ Text(prompt?.response ?? "")
+ .font(.title(28))
+ .lineLimit( count ?? 0 > 90 ? 4 : 3)
+ .minimumScaleFactor(0.6)
+ .lineSpacing(8)
+ .multilineTextAlignment(.center)
+ .frame(maxWidth: .infinity, alignment: .top)
+ .padding(.top, -12)
+ }
+ .frame(maxWidth: .infinity)
+ }
+ }
+ 
+ 
+ private var verticalDivider: some View {
+ Rectangle()
+ .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.70))
+ .frame(width: 0.5, height: 25)
+ }
+ 
+ private var horizontalDivider: some View {
+ Rectangle()
+ .foregroundStyle(Color.grayPlaceholder)
+ .containerRelativeFrame(.horizontal)
+ .frame(height: 1)
+ }
+ 
+ func detailsLine (_ item1: InfoItem, _ item2: InfoItem) -> some View {
+ HStack {
+ item1
+ Spacer()
+ verticalDivider
+ Spacer()
+ item2
+ }
+ }
+ 
+ */
 
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map { start in
+            Array(self[start..<Swift.min(start + size, count)])
+        }
+    }
+}
+
+/*
+ var vices: [(String, String)] { [
+     ("AlcoholIcon", p.drinking),
+     ("CigaretteIcon", p.smoking),
+     ("WeedIcon", p.marijuana),
+     ("DrugsIcon", p.drugs),]
+ }
  */
