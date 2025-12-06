@@ -26,6 +26,12 @@ struct BackgroundFill: ViewModifier {
     }
 }
 
+
+
+
+
+
+
 extension View {
     
     func customCaption() -> some View {
@@ -58,10 +64,4 @@ extension View {
 }
 
 
-
-
-extension View {
-    
-
-}
 

@@ -17,13 +17,13 @@ struct DraftProfileView: View {
         GeometryReader { proxy in
             VStack {
                 let screenWidth = proxy.size.width
-                
+
                 HStack(spacing: 4) {
                     let p = vm.profileModel.profile
                     Text(p.name)
                 }
                 ProfileImageView(vm: $vm, screenWidth: screenWidth)
-                ProfileDetailsView(screenWidth: screenWidth , p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
+                ProfileDetailsView(/*screenWidth: screenWidth ,*/ p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
             }
             .frame(maxWidth: .infinity)
         }

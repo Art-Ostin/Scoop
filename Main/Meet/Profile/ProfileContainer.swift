@@ -8,9 +8,7 @@ struct ProfileView: View {
     @State private var meetVM: MeetViewModel?
     
     @Binding var selectedProfile: ProfileModel?
-    
-    @State private var scrollSelection: Int? = nil
-    
+        
     let preloadedImages: [UIImage]?
     
     let detailsTopPadding: CGFloat = 24
@@ -97,7 +95,7 @@ struct ProfileView: View {
                     including: .gesture
             )
                 
-                ProfileDetailsView(screenWidth: screenWidth, p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
+                ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
                     .offset(y: detailsStartingOffset + detailsOffset + detailsDismissOffset)
                     .offset(y: detailsOpen ? detailsOpenYOffset : 0)
                     .simultaneousGesture(
@@ -123,9 +121,10 @@ struct ProfileView: View {
                     .onTapGesture {detailsOpen.toggle()}
                     .scaleEffect(detailsPadding())
                 
-//                    .padding(Edge.Set.horizontal, detailsPadding())
                     .transition(AnyTransition.move(edge: Edge.bottom))
 
+                
+                
                 InviteButton(vm: $vm)
                     .offset(
                         x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding

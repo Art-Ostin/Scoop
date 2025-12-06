@@ -14,26 +14,27 @@ struct ProfileImageView: View {
     @State var selection = 0
     @Binding var vm: ProfileViewModel
     let screenWidth: CGFloat
-
+    
     let imagePadding: CGFloat = 8
     
     var body: some View {
-            let safeScreenWidth = screenWidth.isFinite ? max(screenWidth, 0) : 0
-            let imageSizeRaw = safeScreenWidth - imagePadding
-            let imageSize = max(0, imageSizeRaw)
-            VStack(spacing: 12) {
-                profileImages(imageSize)
-                    .frame(height: max(0, imageSize + 6))
-                    .background (
-                        GeometryReader { g in
-                            Color.clear
-                                .preference(key: ImageWidthKey.self, value: g.size.height - 6)
-                        }
-                    )
-                imageScroller
-                    .padding(.horizontal, 4)
-            }
-            .task {
+        let safeScreenWidth = screenWidth.isFinite ? max(screenWidth, 0) : 0
+        let imageSizeRaw = safeScreenWidth - imagePadding
+        let imageSize = max(0, imageSizeRaw)
+        VStack(spacing: 12) {
+            profileImages(imageSize)
+                .frame(height: max(0, imageSize + 6))
+                .background (
+                    GeometryReader { g in
+                        Color.clear
+                            .preference(key: ImageWidthKey.self, value: g.size.height - 6)
+                    }
+                )
+            
+            imageScroller
+                .padding(.horizontal, 4)
+        }
+        .task {
             if let pre = preloaded {
                 images = pre
             } else {
@@ -44,19 +45,20 @@ struct ProfileImageView: View {
 }
 
 extension ProfileImageView {
+    
     private func profileImages(_ size: CGFloat) -> some View {
         
-            TabView(selection: $selection) {
-                ForEach(images.indices, id: \.self) { index in
-                    Image(uiImage: images[index])
-                        .resizable()
-                        .defaultImage(size, 16)
-                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-                        .tag(index)
-                        .indexViewStyle(.page(backgroundDisplayMode: .never))
-                }
+        TabView(selection: $selection) {
+            ForEach(images.indices, id: \.self) { index in
+                Image(uiImage: images[index])
+                    .resizable()
+                    .defaultImage(size, 16)
+                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                    .tag(index)
+                    .indexViewStyle(.page(backgroundDisplayMode: .never))
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
     
