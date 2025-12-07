@@ -20,7 +20,7 @@ struct ProfileView: View {
     let titlePadding: CGFloat = 36
     var imagePadding: CGFloat {titlePadding + 24}
     var detailsPadding: CGFloat {imageSectionBottom}
-    var inviteButtonPadding: CGFloat {imageSectionBottom - 156}
+    var inviteButtonPadding: CGFloat {imageSectionBottom - 175}
     
     @Binding var selectedProfile: ProfileModel?
     @State var showInvitePopup: Bool = false
@@ -91,9 +91,8 @@ struct ProfileView: View {
             
             ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
                 .padding(.top, detailsPadding)
-                .offset(y: detailsSectionOffset())
+                .offset(y: detailsOffset)
                 .onTapGesture {detailsOpen.toggle()}
-                .scaleEffect(detailsPadding)
                 .simultaneousGesture(
                     DragGesture()
                         .updating($detailsOffset) { v, state, _ in
@@ -116,8 +115,8 @@ struct ProfileView: View {
             InviteButton(vm: vm, showInvite: $showInvitePopup)
                 .padding(.top, inviteButtonPadding)
                 .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                .padding(.horizontal, 24)
                 .gesture(DragGesture())
-
             
             if showInvitePopup {
                 invitePopup
@@ -126,7 +125,7 @@ struct ProfileView: View {
         }
         .offset(y: profileOffset)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(.background)
+        .background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
         .shadow(radius: 10)
         .contentShape(Rectangle())
@@ -137,7 +136,6 @@ struct ProfileView: View {
         .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
             imageSectionBottom = imageBottom + 24 //padding
         }
-        
     }
 }
 
@@ -247,6 +245,12 @@ extension ProfileView {
         return 1 - overlayTitleOpacity()
     }
 }
+
+
+
+
+
+
 
 
 
