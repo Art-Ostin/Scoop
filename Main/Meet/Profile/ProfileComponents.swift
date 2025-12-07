@@ -63,6 +63,41 @@ struct NarrowDivide: View {
     }
 }
 
+struct ProfileTitle: View {
+    
+    let p: UserProfile
+    @Binding var selectedProfile: ProfileModel?
+    
+    var body: some View {
+        HStack {
+            Text(p.name)
+            ForEach (p.nationality, id: \.self) {flag in Text(flag)}
+            Spacer()
+            profileDismissButton(selectedProfile: $selectedProfile, color: .black)
+        }
+        .font(.body(24, .bold))
+        .padding(.horizontal)
+    }
+}
+
+struct ProfileSecondTitle: View {
+    
+    let vm: ProfileViewModel
+    @Binding var selectedProfile: ProfileModel?
+    
+    var body: some View {
+        HStack {
+            Text(vm.profileModel.profile.name)
+            Spacer()
+            profileDismissButton(selectedProfile: $selectedProfile, color: .white)
+        }
+        .font(.body(24, .bold))
+        .foregroundStyle(.white)
+        .padding(.top, 32)
+        .padding(.horizontal, 16)
+    }
+}
+
 extension Array {
     func chunked(into size: Int) -> [[Element]] {
         stride(from: 0, to: count, by: size).map { start in
@@ -70,3 +105,28 @@ extension Array {
         }
     }
 }
+
+struct ImageSectionBottom: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+struct ImageSizeKey: PreferenceKey {
+  static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+struct TopSafeArea: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+      static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+          value = max(value, nextValue())
+      }
+}
+
+
+

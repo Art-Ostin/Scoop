@@ -9,28 +9,18 @@ import SwiftUI
 
 struct ProfileImageView: View {
     
+    @Bindable var vm: ProfileViewModel
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
-    @State var selection = 0
-    @Binding var vm: ProfileViewModel
-    let screenWidth: CGFloat
-    
-    let imagePadding: CGFloat = 8
+    @State private var selection = 0
+    let imagePadding: CGFloat = 12
+    @State private var imageSize: CGFloat = 0
     
     var body: some View {
-        let safeScreenWidth = screenWidth.isFinite ? max(screenWidth, 0) : 0
-        let imageSizeRaw = safeScreenWidth - imagePadding
-        let imageSize = max(0, imageSizeRaw)
         VStack(spacing: 12) {
             profileImages(imageSize)
-                .frame(height: max(0, imageSize + 6))
-                .background (
-                    GeometryReader { g in
-                        Color.clear
-                            .preference(key: ImageWidthKey.self, value: g.size.height - 6)
-                    }
-                )
-            
+                .frame(height: imageSize + 6)
+
             imageScroller
                 .padding(.horizontal, 4)
         }
@@ -41,11 +31,14 @@ struct ProfileImageView: View {
                 images = await vm.loadImages()
             }
         }
+        .measure(key: ImageSizeKey.self) {$0.size.width}
+        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
+            imageSize = screenWidth - imagePadding
+        }
     }
 }
 
 extension ProfileImageView {
-    
     private func profileImages(_ size: CGFloat) -> some View {
         
         TabView(selection: $selection) {
@@ -87,8 +80,9 @@ extension ProfileImageView {
                     withAnimation(.easeInOut(duration: 0.3)) { proxy.scrollTo(newIndex, anchor: .trailing)}
                 }
             }
-            .reportBottom(in: "profile", as: ScrollImageBottomValue.self)
+            .measure(key: ImageSectionBottom.self) { geo in
+                geo.frame(in: .named("profile")).maxY //Gets bottom of this view
+            }
         }
     }
 }
-

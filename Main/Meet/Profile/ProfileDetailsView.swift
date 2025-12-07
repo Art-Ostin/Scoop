@@ -13,7 +13,7 @@ struct ProfileDetailsView: View {
     
     @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
-
+    
     let p: UserProfile
     let event: UserEvent?
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
@@ -34,7 +34,6 @@ struct ProfileDetailsView: View {
                     .id(2)
             }
             .scrollTargetLayout()
-            .frame(maxHeight: .infinity, alignment: .top)
         }
         .onPreferenceChange(ReportBottom.self) {scrollBottom = $0}
         .coordinateSpace(name: scrollCoord)
@@ -49,7 +48,8 @@ struct ProfileDetailsView: View {
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
         .padding(.top, 16)
-        .colorBackground(.background, top: true)
+        .padding(.bottom, 36)
+        .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
     }
@@ -111,4 +111,3 @@ extension ProfileDetailsView {
         }
     }
 }
-

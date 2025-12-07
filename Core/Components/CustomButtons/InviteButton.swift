@@ -24,10 +24,11 @@ extension View {
 }
 
 struct InviteButton: View {
-    @Binding var vm: ProfileViewModel
+    @Bindable var vm: ProfileViewModel
+    @Binding var showInvite: Bool
     var body: some View {
         Button {
-            vm.showInvitePopup.toggle()
+            showInvite.toggle()
         } label: {
             Group {
                 if vm.viewProfileType == .accept {

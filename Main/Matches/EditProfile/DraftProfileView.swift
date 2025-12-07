@@ -14,18 +14,15 @@ struct DraftProfileView: View {
     @State var scrollSelection: Int?
     
     var body: some View {
-        GeometryReader { proxy in
-            VStack {
-                let screenWidth = proxy.size.width
-
-                HStack(spacing: 4) {
-                    let p = vm.profileModel.profile
-                    Text(p.name)
-                }
-                ProfileImageView(vm: $vm, screenWidth: screenWidth)
-                ProfileDetailsView(/*screenWidth: screenWidth ,*/ p: vm.profileModel.profile, event: vm.profileModel.event, scrollSelection: $scrollSelection)
+        VStack {
+            
+            HStack(spacing: 4) {
+                let p = vm.profileModel.profile
+                Text(p.name)
             }
-            .frame(maxWidth: .infinity)
+            ProfileImageView(vm: vm)
+            ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
         }
+        .frame(maxWidth: .infinity)
     }
 }

@@ -18,8 +18,6 @@ enum ProfileViewType {
     let profileModel: ProfileModel
     let cacheManager: CacheManaging
     
-    var showInvitePopup: Bool = false
-
     var receivedEvent: UserEvent? { profileModel.event}
     
     var viewProfileType: ProfileViewType {
