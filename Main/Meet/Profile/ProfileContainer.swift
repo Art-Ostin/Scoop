@@ -112,12 +112,6 @@ struct ProfileView: View {
                         }
                 )
             
-            InviteButton(vm: vm, showInvite: $showInvitePopup)
-                .padding(.top, inviteButtonPadding)
-                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-                .padding(.horizontal, 24)
-                .gesture(DragGesture())
-            
             if showInvitePopup {
                 invitePopup
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -249,9 +243,14 @@ extension ProfileView {
 }
 
 
+/*
+ InviteButton(vm: vm, showInvite: $showInvitePopup)
+     .padding(.top, inviteButtonPadding)
+     .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+     .padding(.horizontal, 24)
+     .gesture(DragGesture())
 
-
-
+ */
 
 
 
