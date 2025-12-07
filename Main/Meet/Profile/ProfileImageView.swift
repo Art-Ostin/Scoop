@@ -19,7 +19,7 @@ struct ProfileImageView: View {
     var body: some View {
         VStack(spacing: 12) {
             profileImages(imageSize)
-                .frame(height: imageSize + 6)
+                .frame(height: imageSize + 12)
 
             imageScroller
                 .padding(.horizontal, 4)
@@ -31,7 +31,8 @@ struct ProfileImageView: View {
                 images = await vm.loadImages()
             }
         }
-        .measure(key: ImageSizeKey.self) {$0.size.width}
+        .frame(height: 250)
+        .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
             imageSize = screenWidth - imagePadding
         }

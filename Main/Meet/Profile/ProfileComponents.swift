@@ -127,6 +127,3 @@ struct TopSafeArea: PreferenceKey {
           value = max(value, nextValue())
       }
 }
-
-
-

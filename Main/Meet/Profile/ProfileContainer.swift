@@ -30,7 +30,7 @@ struct ProfileView: View {
     @GestureState var profileOffset = CGFloat.zero
     
     @State var imageSectionBottom: CGFloat = 0
-    @State var detailsOpenOffset: CGFloat = 0 //Turn this into a PreferenceKey measuring openOffset based of how much needed
+    @State var detailsOpenOffset: CGFloat = -150 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     @State var topSafeArea: CGFloat = 0
     
     @State private var dragAxis: Axis? = nil
@@ -52,8 +52,8 @@ struct ProfileView: View {
             
             ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
                 .padding(.top, titlePadding)
-                .opacity(titleOpacity())
                 .offset(y: titleOffset())
+                .opacity(titleOpacity())
             
             ProfileImageView(vm: vm)
                 .padding(.top, imagePadding)
@@ -91,7 +91,7 @@ struct ProfileView: View {
             
             ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
                 .padding(.top, detailsPadding)
-                .offset(y: detailsOffset)
+                .offset(y: detailsSectionOffset())
                 .onTapGesture {detailsOpen.toggle()}
                 .simultaneousGesture(
                     DragGesture()
@@ -124,8 +124,7 @@ struct ProfileView: View {
             }
         }
         .offset(y: profileOffset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.background)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
         .shadow(radius: 10)
         .contentShape(Rectangle())
@@ -177,45 +176,48 @@ extension ProfileView {
     }
     
     private func dragType(v: DragGesture.Value) -> Axis? {
-        if dragAxis == nil {
-            let dy = abs(v.translation.height)
-            let dx = abs(v.translation.width)
-            let dragThresh: CGFloat = 5
-            
-            if  max(dx, dy) >= dragThresh {
-                if dy > dx {
-                    dragAxis = .vertical
-                    return .vertical
-                } else {
-                    dragAxis = .horizontal
-                    return .horizontal
-                }
-            }
+        if let dragAxis { return dragAxis }
+        let dy = abs(v.translation.height)
+        let dx = abs(v.translation.width)
+        let dragThresh: CGFloat = 5
+        if max(dx, dy) >= dragThresh {
+            dragAxis = (dy > dx) ? .vertical : .horizontal
+            return dragAxis
         }
         return nil
     }
 }
 
-
 //Details Open or Closed  Offset
 extension ProfileView {
-        
+    
     func titleOffset() -> CGFloat {
-        if detailsOffset <= titlePadding {
-            return titlePadding - detailsOffset
+        if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
+            return -titlePadding + abs(detailsOffset)
+        } else if detailsOpen {
+            return -titlePadding
+        } else {
+            return 0
         }
-        return 0
     }
     
     func imageOffset() -> CGFloat {
-        if detailsOffset <= imagePadding {
-            return imagePadding - detailsOffset
+        if detailsOpen {
+            return -imagePadding + detailsOffset
         }
-        return 0
+        if detailsOpen {
+            return -imagePadding
+        } else {
+            if detailsOffset <= imagePadding {
+                return -(imagePadding - detailsOffset)
+            }
+            return 0
+        }
     }
     
     func detailsSectionOffset() -> CGFloat {
         if detailsOpen {
+            print("Details is Open")
             return detailsOpenOffset + detailsOffset
         } else {
             return detailsOffset
@@ -255,7 +257,6 @@ extension ProfileView {
 
 
 /*
-
  InviteButton(vm: vm, showInvite: $showInvitePopup)
      .padding(.top, inviteButtonPadding)
      .frame(maxWidth: .infinity, alignment: .bottomTrailing)
@@ -273,12 +274,14 @@ extension ProfileView {
 
 
 /*
+ 
  @inline(__always) private func lerp(_ start: CGFloat,_ end: CGFloat,_ progress: CGFloat) -> CGFloat { start + (end - start) * progress }
  
  private var t: CGFloat {
      let denom = max(1, abs(detailsOpenOffset))
      return min(1, max(0, abs(detailsOffset) / denom))
  }
+ 
  */
 
 
