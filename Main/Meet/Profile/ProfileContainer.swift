@@ -18,7 +18,7 @@ struct ProfileView: View {
     @State private var meetVM: MeetViewModel?
     
     let titlePadding: CGFloat = 36
-    var imagePadding: CGFloat {titlePadding + 24}
+    var imagePadding: CGFloat = 60
     var detailsPadding: CGFloat {imageSectionBottom}
     var inviteButtonPadding: CGFloat {imageSectionBottom - 175}
     
@@ -48,16 +48,16 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topLeading) {
+
+        VStack(spacing: 24) {
             
             ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                .padding(.top, titlePadding)
-                .offset(y: titleOffset())
+                .padding(.top, 12)
+//                .offset(y: titleOffset())
                 .opacity(titleOpacity())
             
             ProfileImageView(vm: vm)
-                .padding(.top, imagePadding)
-                .offset(y: imageOffset())
+//                .offset(y: imageOffset())
                 .overlay(alignment: .topLeading) { overlayTitle }
                 .simultaneousGesture(
                     DragGesture()
@@ -71,7 +71,7 @@ struct ProfileView: View {
                                 state = value.translation.height.clamped(to: detailsDragRange)
                             }
                         }
-                    
+                     
                         .onEnded { v in
                             defer { dragAxis = nil }
                             guard dragAxis == .vertical else { return }
@@ -81,16 +81,15 @@ struct ProfileView: View {
                             
                             let openDetails = predicted < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
                             
-                            if max(distance, predicted) > dismissThreshold {
+                            if max(distance, predicted) > dismissThreshold && !detailsOpen {
                                 selectedProfile = nil
-                            } else if openDetails{
+                            } else if openDetails {
                                 detailsOpen = true
                             }
                         }
                 )
             
             ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
-                .padding(.top, detailsPadding)
                 .offset(y: detailsSectionOffset())
                 .onTapGesture {detailsOpen.toggle()}
                 .simultaneousGesture(
@@ -117,8 +116,8 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
         }
-        .offset(y: profileOffset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).background(Color.background)
+//        .offset(y: profileOffset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
         .shadow(radius: 10)
         .contentShape(Rectangle())
@@ -196,6 +195,11 @@ extension ProfileView {
     }
     
     func imageOffset() -> CGFloat {
+        
+        if detailsOpen {
+            
+        }
+        
         if detailsOpen {
             return -imagePadding + detailsOffset
         }

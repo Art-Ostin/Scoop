@@ -31,7 +31,6 @@ struct ProfileImageView: View {
                 images = await vm.loadImages()
             }
         }
-        .frame(height: 250)
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
             imageSize = screenWidth - imagePadding
