@@ -11,7 +11,6 @@ import SwiftUI
 
 
 struct MeetContainer: View {
-    
     @Bindable var vm: MeetViewModel
     @State var selectedProfile: ProfileModel?
     
@@ -59,8 +58,8 @@ struct MeetContainer: View {
         }
         .animation(.smooth(duration: 0.2), value: selectedProfile)
         .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) { screenSize in
-            imageSize = screenSize - 48
+        .onPreferenceChange(ImageSizeKey.self) {screenSize in
+            imageSize = screenSize - (24 * 2)
         }
         }
     }

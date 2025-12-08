@@ -24,6 +24,7 @@ struct TabButton: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: page == .Matches ? .leading : .trailing)
+        .offset(y: page == .Matches ? -10 : 0)
     }
 }
 

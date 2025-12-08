@@ -36,10 +36,12 @@ struct CustomTabPage<Content: View>: View {
         ScrollView {
             ZStack(alignment: .top) {
                 TabButton(page: page, isPresented: $TabAction)
+                    .padding(.top, 12)
                 TabTitle(page: page, offset: $scrollViewOffset)
-                    .padding(.top, 48)
+                    .padding(.top, 60)
             }
             .padding(.horizontal, 24)
+            .padding(.bottom, 36)
             content
         }
         .overlay(alignment: .top) {
