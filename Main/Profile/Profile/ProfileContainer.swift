@@ -16,8 +16,8 @@ struct ProfileView: View {
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
-    
-//    var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
+
+    var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
 
     @Binding var selectedProfile: ProfileModel?
     @State var showInvitePopup: Bool = false
@@ -28,7 +28,6 @@ struct ProfileView: View {
     
     @State var imageSectionBottom: CGFloat = 0
     @State var detailsOpenOffset: CGFloat = -150 //Turn this into a PreferenceKey measuring openOffset based of how much needed
-    @State var topSafeArea: CGFloat = 0
     
     @State private var dragAxis: Axis? = nil
     let preloadedImages: [UIImage]?
@@ -45,67 +44,73 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        VStack(spacing: 24) {
-            ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                .offset(y: titleOffset())
-                .opacity(titleOpacity())
-                .padding(.top, 12)
-            
-            ProfileImageView(vm: vm)
-                .offset(y: imageOffset())
-                .overlay(alignment: .topLeading) { overlayTitle }
-                .simultaneousGesture(
-                    DragGesture()
-                        .updating($profileOffset) { value, state, _ in
-                            guard dragType(v: value) == .vertical, detailsOpen == false else {return}
-                            state = value.translation.height
-                        }
-                        .updating($detailsOffset) { value, state, _ in
-                            guard dragType(v: value) == .vertical else {return}
-                            if !detailsOpen && value.translation.height < 0 {
-                                state = value.translation.height.clamped(to: detailsDragRange)
+        ZStack {
+            VStack(spacing: 24) {
+                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
+                    .offset(y: titleOffset())
+                    .opacity(titleOpacity())
+                    .padding(.top, 12)
+                
+                ProfileImageView(vm: vm)
+                    .offset(y: imageOffset())
+                    .overlay(alignment: .topLeading) { overlayTitle }
+                    .simultaneousGesture(
+                        DragGesture()
+                            .updating($profileOffset) { value, state, _ in
+                                guard dragType(v: value) == .vertical, detailsOpen == false else {return}
+                                state = value.translation.height
                             }
-                        }
-                     
-                        .onEnded { v in
-                            defer { dragAxis = nil }
-                            guard dragAxis == .vertical else { return }
-                            let predicted = v.predictedEndTranslation.height
-                            let distance = v.translation.height
-                            let dismissThreshold: CGFloat = 50
-                            
-                            let openDetails = predicted < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
-                            
-                            if max(distance, predicted) > dismissThreshold && !detailsOpen {
-                                selectedProfile = nil
-                            } else if openDetails {
-                                detailsOpen = true
+                            .updating($detailsOffset) { value, state, _ in
+                                guard dragType(v: value) == .vertical else {return}
+                                if !detailsOpen && value.translation.height < 0 {
+                                    state = value.translation.height.clamped(to: detailsDragRange)
+                                }
                             }
-                        }
-                )
-            
-            ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
-                .offset(y: detailsSectionOffset())
-                .onTapGesture {detailsOpen.toggle()}
-                .simultaneousGesture(
-                    DragGesture()
-                        .updating($detailsOffset) { v, state, _ in
-                            guard dragType(v: v) == .vertical else { return }
-                            state = v.translation.height.clamped(to: detailsDragRange)
-                        }
-                        .onEnded {
-                            defer { dragAxis = nil }
-                            guard dragAxis == .vertical else { return }
-                            let predicted = $0.predictedEndTranslation.height
-                            
-                            if predicted < toggleDetailsThreshold && profileOffset == 0 {
-                                detailsOpen = true
-                            } else if detailsOpen && predicted > 60 {
-                                detailsOpen = false
+                         
+                            .onEnded { v in
+                                defer { dragAxis = nil }
+                                guard dragAxis == .vertical else { return }
+                                let predicted = v.predictedEndTranslation.height
+                                let distance = v.translation.height
+                                let dismissThreshold: CGFloat = 50
+                                
+                                let openDetails = predicted < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
+                                
+                                if max(distance, predicted) > dismissThreshold && !detailsOpen {
+                                    selectedProfile = nil
+                                } else if openDetails {
+                                    detailsOpen = true
+                                }
                             }
-                        }
-                )
-            
+                    )
+                
+                ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
+                    .offset(y: detailsSectionOffset())
+                    .onTapGesture {detailsOpen.toggle()}
+                    .simultaneousGesture(
+                        DragGesture()
+                            .updating($detailsOffset) { v, state, _ in
+                                guard dragType(v: v) == .vertical else { return }
+                                state = v.translation.height.clamped(to: detailsDragRange)
+                            }
+                            .onEnded {
+                                defer { dragAxis = nil }
+                                guard dragAxis == .vertical else { return }
+                                let predicted = $0.predictedEndTranslation.height
+                                
+                                if predicted < toggleDetailsThreshold && profileOffset == 0 {
+                                    detailsOpen = true
+                                } else if detailsOpen && predicted > 60 {
+                                    detailsOpen = false
+                                }
+                            }
+                    )
+            }
+            InviteButton(vm: vm, showInvite: $showInvitePopup)
+           .padding(.top, inviteButtonPadding)
+           .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+           .gesture(DragGesture())
+
             if showInvitePopup {
                 invitePopup
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -122,12 +127,6 @@ struct ProfileView: View {
         }
     }
 }
-
-/* Use when dismissing stage
- .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
- .shadow(radius: 10)
- .contentShape(Rectangle())
- */
 
 //Two Different views
 extension ProfileView {
@@ -231,215 +230,4 @@ extension ProfileView {
     }
 }
 
-/*
- InviteButton(vm: vm, showInvite: $showInvitePopup)
-.padding(.top, inviteButtonPadding)
-.frame(maxWidth: .infinity, alignment: .bottomTrailing)
-.gesture(DragGesture())
- */
-
-
-
-
-
-
-/*
- InviteButton(vm: vm, showInvite: $showInvitePopup)
-     .padding(.top, inviteButtonPadding)
-     .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-     .padding(.horizontal, 24)
-     .gesture(DragGesture())
-
- */
-
-
-
-
-/*
- InviteButton(vm: vm, showInvite: $showInvitePopup)
-     .padding(.top, inviteButtonPadding)
-     .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-     .gesture(DragGesture())
- */
-
-
-
-/*
- var isOverExtended: Bool {
-     (detailsOpen && (detailsOffset < 0 || detailsOffset == 0)) || (!detailsOpen && detailsOffset > 0)
- }
- */
-
-
-
-/*
- 
- @inline(__always) private func lerp(_ start: CGFloat,_ end: CGFloat,_ progress: CGFloat) -> CGFloat { start + (end - start) * progress }
- 
- private var t: CGFloat {
-     let denom = max(1, abs(detailsOpenOffset))
-     return min(1, max(0, abs(detailsOffset) / denom))
- }
- 
- */
-
-
-/*
- 
- func detailsPadding() -> CGFloat {
-     let initial: CGFloat = 0.97, opened: CGFloat = 1
-     return detailsOpen ? lerp(opened, initial, t) : lerp(initial, opened, t)
- }
- 
- func topOpacity() -> Double {
-     return Double(detailsOpen ? t : (1 - t))
- }
- 
- func topPadding() -> CGFloat {
-     let initial: CGFloat = 84, dismiss: CGFloat = 16
-     
-     if selectedProfile == nil {
-         return 16
-     } else if profileOffset > 0 {
-         return max(initial - profileOffset, dismiss)
-     } else {
-         return detailsOpen ? lerp(0, initial, t) : lerp(initial, 0, t)
-     }
-     
- }
- 
- func top2Spacing() -> CGFloat {
-     if detailsOpen {
-         return 0
-     } else {
-         return 36
-     }
- }
- 
- func top2Padding() -> CGFloat {
-     if detailsOpen {
-         return 16
-     } else {
-         return 84
-     }
- }
- 
- func top2Opacity() -> Double {
-     if detailsOpen {
-         return 0
-     } else {
-         return 1
-     }
- }
- */
-
-
-
-
-/*
- */
-
-/*
- .onChange(of: detailsPadding()) { _, newValue in
-     detailsPad = newValue
- }
- 
- 
- func topSpacing() -> CGFloat {
-     let maxS: CGFloat = 0, minS: CGFloat = 36
-     return detailsOpen ? lerp(maxS, minS, t) : lerp(minS, maxS, t)
- }
- */
-
-
-
-
-/*
-    .offset(y: (detailsOpen ? detailsOpenOffset : detailsClosedOffset) + detailsOffset)
-    .offset(y: 2000)
- */
-
-/*
- func inviteOffset() -> CGFloat {
-     let initial: CGFloat = 0
-     let opened:  CGFloat = inviteYOffset
-     if detailsOpen {
-         let p = (t / 0.25).clamped(to: 0...1)
-         return lerp(opened, initial, p)
-     } else {
-         let p = ((t - 0.75) / 0.25).clamped(to: 0...1)
-         return lerp(initial, opened, p)
-     }
- }
- */
-
-
-
-/*
- 
- .padding(.top, isOverExtended ? (detailsOpen ? -8 : 84) : topPadding())
-
- 
- InviteButton(vm: $vm)
- .offset(
- x: (imageSize - inviteButtonSize - inviteButtonPadding + 8), //The plus 8 is the imagePadding
- y: ((isOverExtended ? top2Padding() + top2Spacing() : topPadding() + topSpacing()) + imageSize - inviteButtonSize + 12)
- )
- .offset(y: isOverExtended ? (detailsOpen ? inviteYOffset : 0) : inviteOffset())
- .gesture(DragGesture())
- if vm.showInvitePopup {
- invitePopup
- .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
- }
- }
- */
-
-/*
- .updating ($detailsDismissOffset) { value, state, _ in
- guard isVerticalDrag(v: value), value.translation.height > 0, detailsOffset == 0 else { return }
- profileOpened = true
- state = (-64 - value.translation.height).clamped(to: -68...0)
- }
- 
- 
- 
- guard DragType(v: value) == .vertical else { return}
- state = value.translation.height
- 
- 
- 
- 
- 
- guard isVerticalDrag(v: v), v.translation.height > 0, detailsOffset == 0 else { return }
- print("Vertical Drag Confirmed")
- state = v.translation.height + 64
- 
- 
- 
- .onEnded { v in
- defer { dragAxis = nil }
- guard dragAxis == .vertical else { return }
- blockTabView = false
- let predicted = v.predictedEndTranslation.height
- let openDetails = predicted < -50 && !detailsOpen && profileOffset == 0 && !profileOpened
- 
- let distance = v.translation.height
- let dismissThreshold: CGFloat = 50
- if distance > dismissThreshold || predicted > dismissThreshold  {
- selectedProfile = nil
- } else if openDetails {
- detailsOpen = true
- }
- 
- DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
- profileOpened = false
- }
- },
- including: .gesture
- )
- 
- 
- //                .transition(AnyTransition.move(edge: Edge.bottom))
- 
- */
 

@@ -18,11 +18,8 @@ struct ProfileImageView: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            profileImages(imageSize)
-                .frame(height: imageSize + 12)
-
+            profileImages
             imageScroller
-                .padding(.horizontal, 4)
         }
         .task {
             if let pre = preloaded {
@@ -39,8 +36,8 @@ struct ProfileImageView: View {
 }
 
 extension ProfileImageView {
-    private func profileImages(_ size: CGFloat) -> some View {
-        
+    
+    private var profileImages: some View {
         TabView(selection: $selection) {
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
@@ -52,8 +49,12 @@ extension ProfileImageView {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(height: imageSize + 6, alignment: .top)
+        .background(Color.blue)
+        .measure(key: ImageSectionBottom.self) {geo in
+              geo.frame(in: .named("profile")).maxY //Gets bottom of this view
+            }
     }
-    
     
     private var imageScroller : some View {
         ScrollViewReader { proxy in
@@ -70,6 +71,7 @@ extension ProfileImageView {
                             .stroke(10, lineWidth: selection == index ? 1.5 : 0, color: .accent)
                             .frame(height: 84)
                     }
+                    ClearRectangle(size: 16)
                 }
             }
             .onChange(of: selection) {oldIndex, newIndex in
@@ -80,9 +82,13 @@ extension ProfileImageView {
                     withAnimation(.easeInOut(duration: 0.3)) { proxy.scrollTo(newIndex, anchor: .trailing)}
                 }
             }
-            .measure(key: ImageSectionBottom.self) { geo in
-                geo.frame(in: .named("profile")).maxY //Gets bottom of this view
-            }
         }
     }
 }
+
+/*
+ .measure(key: ImageSectionBottom.self) { geo in
+//                geo.frame(in: .named("profile")).maxY //Gets bottom of this view
+//            }
+//            .ignoresSafeArea(edges: .all)
+ */

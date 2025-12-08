@@ -25,7 +25,6 @@ struct ProfileDetailsView: View {
                 detailsScreen1
                     .containerRelativeFrame(.horizontal)
                     .id(0)
-                    .reportBottom(scrollCoord)
                 detailsScreen2
                     .containerRelativeFrame(.horizontal)
                     .id(1)
@@ -35,13 +34,10 @@ struct ProfileDetailsView: View {
             }
             .scrollTargetLayout()
         }
-        .onPreferenceChange(ReportBottom.self) {scrollBottom = $0}
         .coordinateSpace(name: scrollCoord)
-        .overlay(alignment: .top) {
+        .overlay(alignment: .bottom) {
             PageIndicator(count: 3, selection: scrollSelection ?? 0)
-                .padding(.top, scrollBottom)
             DeclineButton() {}
-                .padding(.top, scrollBottom - 23)
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.horizontal, 24)
         }
