@@ -47,9 +47,9 @@ struct ProfileView: View {
     var body: some View {
         VStack(spacing: 24) {
             ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                .padding(.top, 12)
                 .offset(y: titleOffset())
                 .opacity(titleOpacity())
+                .padding(.top, 12)
             
             ProfileImageView(vm: vm)
                 .offset(y: imageOffset())
@@ -85,7 +85,7 @@ struct ProfileView: View {
                 )
             
             ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
-//                .offset(y: detailsSectionOffset())
+                .offset(y: detailsSectionOffset())
                 .onTapGesture {detailsOpen.toggle()}
                 .simultaneousGesture(
                     DragGesture()
@@ -106,23 +106,13 @@ struct ProfileView: View {
                         }
                 )
             
-//            InviteButton(vm: vm, showInvite: $showInvitePopup)
-//                .padding(.top, inviteButtonPadding)
-//                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-//                .gesture(DragGesture())
-            
             if showInvitePopup {
                 invitePopup
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
-            
         }
         .offset(y: profileOffset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
-        .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
-        .shadow(radius: 10)
-        .contentShape(Rectangle())
+        .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
         .animation(.spring(duration: 0.2), value: detailsOpen)
         .animation(.easeOut(duration: 0.25), value: profileOffset)
         .animation(.easeInOut(duration: 0.2), value: detailsOffset)
@@ -132,6 +122,12 @@ struct ProfileView: View {
         }
     }
 }
+
+/* Use when dismissing stage
+ .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
+ .shadow(radius: 10)
+ .contentShape(Rectangle())
+ */
 
 //Two Different views
 extension ProfileView {
@@ -234,6 +230,13 @@ extension ProfileView {
         return 1 - overlayTitleOpacity()
     }
 }
+
+/*
+ InviteButton(vm: vm, showInvite: $showInvitePopup)
+.padding(.top, inviteButtonPadding)
+.frame(maxWidth: .infinity, alignment: .bottomTrailing)
+.gesture(DragGesture())
+ */
 
 
 
