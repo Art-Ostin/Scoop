@@ -7,29 +7,46 @@
 
 import SwiftUI
 
-struct CustomTabPage: View {
+enum Page: String, Hashable {
+    case meet = "Meet"
+    case meeting = "Meeting"
+    case matches = "Matches"
+    
+    var image: Image  {
+        switch self {
+            case .meet:
+            return Image(systemName: "info.circle")
+        case .meeting:
+            return Image(systemName: "info.circle")
+        case .matches:
+            return Image(systemName: "gear")
+        }
+    }
+}
+
+struct CustomTabPage<Content: View>: View {
     
     @State var scrollViewOffset: CGFloat = 0
-    
     @State var topSafeArea: CGFloat = 0
+    @State var showPageInfo = false
     
-    @State var showTestScreen = false
     let page: Page
-    //    let content : content
+    let content: Content
+    
+    init(page: Page, content: @escaping () -> Content) {
+        self.page = page
+        self.content = content()
+    }
+    
     var body: some View {
-        ZStack {
             ScrollView {
                 ZStack(alignment: .top) {
                     tabArea
-                    
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 48)
                 }
+                content
             }
-            if showTestScreen {
-                TestScreen(showTestScreen: $showTestScreen)
-            }
-        }
         .overlay(alignment: .top) {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
                 .opacity(scrollViewOffset < 0 ? 1 : 0)
@@ -52,7 +69,9 @@ struct CustomTabPage: View {
 }
 
 #Preview {
-    CustomTabPage(page: .meet)
+    CustomTabPage(page: .meet) {
+        Text("Hello World")
+    }
 }
 
 struct TopSafeAreaTest: PreferenceKey {
@@ -66,13 +85,11 @@ struct TopSafeAreaTest: PreferenceKey {
 
 extension CustomTabPage {
     
+    @ViewBuilder
     var tabArea: some View {
-        HStack {
-            TabButton(image: Image(systemName: "gear"), isPresented: $showTestScreen)
-            Spacer()
-            TabButton(image: Image(systemName: "checkmark"), isPresented: $showTestScreen)
-        }
-        .frame(maxWidth: .infinity)
+        TabButton(image: page.image, isPresented: $showPageInfo)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        
     }
     
 }

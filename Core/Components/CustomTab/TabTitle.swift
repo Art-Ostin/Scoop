@@ -7,13 +7,6 @@
 
 import SwiftUI
 
-enum Page: String, Hashable {
-    case meet = "Meet"
-    case meeting = "Meeting"
-    case matches = "Matches"
-}
-
-
 struct TabTitle: View {
     let page: Page
     @Binding var offset: CGFloat

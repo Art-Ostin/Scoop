@@ -24,13 +24,13 @@ struct ScrollNavBar: View {
                 startPoint: .top, endPoint: .bottom
             )
             .allowsHitTesting(false)
-            Text("\(topSafeArea ?? 5)")
+            Text(title)
                 .font(.body(17, .bold))
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: topSafeArea ?? 0 + 24)
+        .frame(height: (topSafeArea ?? 0) + 36)
     }
 }

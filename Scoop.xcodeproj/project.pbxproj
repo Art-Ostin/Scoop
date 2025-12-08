@@ -729,9 +729,9 @@
 			children = (
 				65F9E3822EE70F6B008A57BD /* CustomTabPage.swift */,
 				65F9E3852EE7187B008A57BD /* TestScreen.swift */,
-				6512639F2EAFD29A005E6930 /* TabViewModifiers.swift */,
-				658DE51C2EAFA3AA000EF2FA /* TabTitle.swift */,
 				658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */,
+				658DE51C2EAFA3AA000EF2FA /* TabTitle.swift */,
+				6512639F2EAFD29A005E6930 /* TabViewModifiers.swift */,
 			);
 			path = CustomTab;
 			sourceTree = "<group>";
