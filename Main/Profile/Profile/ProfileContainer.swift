@@ -1,14 +1,5 @@
 import SwiftUI
 
-//    @State var blockTabView: Bool = false
-//     @State var inviteYOffset: CGFloat = -96
-//     @GestureState var detailsDismissOffset: CGFloat = 0
-//     @State var detailsPad: CGFloat = 0
-/*
- private var cornerRadius: CGFloat {
-     (selectedProfile != nil) ? max(0, min(30, profileOffset / 3)) : 30
- }
- */
 
 struct ProfileView: View {
     
@@ -49,7 +40,7 @@ struct ProfileView: View {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
                     .offset(y: titleOffset())
                     .opacity(titleOpacity())
-                    .padding(.top, 12)
+                    .padding(.top, 36)
                 
                 ProfileImageView(vm: vm)
                     .offset(y: imageOffset())
@@ -66,7 +57,7 @@ struct ProfileView: View {
                                     state = value.translation.height.clamped(to: detailsDragRange)
                                 }
                             }
-                         
+                        
                             .onEnded { v in
                                 defer { dragAxis = nil }
                                 guard dragAxis == .vertical else { return }
@@ -106,18 +97,19 @@ struct ProfileView: View {
                             }
                     )
             }
+            
             InviteButton(vm: vm, showInvite: $showInvitePopup)
-           .padding(.top, inviteButtonPadding)
-           .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-           .gesture(DragGesture())
-
+                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                .gesture(DragGesture())
+            
             if showInvitePopup {
                 invitePopup
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
         }
         .offset(y: profileOffset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.background)
         .animation(.spring(duration: 0.2), value: detailsOpen)
         .animation(.easeOut(duration: 0.25), value: profileOffset)
         .animation(.easeInOut(duration: 0.2), value: detailsOffset)
@@ -229,5 +221,3 @@ extension ProfileView {
         return 1 - overlayTitleOpacity()
     }
 }
-
-
