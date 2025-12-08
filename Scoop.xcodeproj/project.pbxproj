@@ -104,6 +104,7 @@
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
 		659568242ED26A350091163E /* ClearRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568232ED26A350091163E /* ClearRectangle.swift */; };
 		659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568252ED28BBA0091163E /* ShakeEffect.swift */; };
+		659580D02EE78C7C00E9B79D /* VStackTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659580CF2EE78C7C00E9B79D /* VStackTest.swift */; };
 		65A0704D2EE0631A009F798B /* pageIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A0704C2EE0631A009F798B /* pageIndicator.swift */; };
 		65A0704F2EE06A11009F798B /* SignOutButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A0704E2EE06A11009F798B /* SignOutButton.swift */; };
 		65A070522EE0705A009F798B /* OnboardingHomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070512EE0705A009F798B /* OnboardingHomePage.swift */; };
@@ -271,6 +272,7 @@
 		659497172E01DD4000880921 /* ScoopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopApp.swift; sourceTree = "<group>"; };
 		659568232ED26A350091163E /* ClearRectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearRectangle.swift; sourceTree = "<group>"; };
 		659568252ED28BBA0091163E /* ShakeEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEffect.swift; sourceTree = "<group>"; };
+		659580CF2EE78C7C00E9B79D /* VStackTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VStackTest.swift; sourceTree = "<group>"; };
 		65A0704C2EE0631A009F798B /* pageIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pageIndicator.swift; sourceTree = "<group>"; };
 		65A0704E2EE06A11009F798B /* SignOutButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignOutButton.swift; sourceTree = "<group>"; };
 		65A070512EE0705A009F798B /* OnboardingHomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomePage.swift; sourceTree = "<group>"; };
@@ -483,6 +485,7 @@
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
 				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
 				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
+				659580CF2EE78C7C00E9B79D /* VStackTest.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -952,6 +955,7 @@
 				6576B7F22E69082F004217A4 /* ProfileModelBuilder.swift in Sources */,
 				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */,
+				659580D02EE78C7C00E9B79D /* VStackTest.swift in Sources */,
 				6591092E2E19B0810065696F /* Quotes.swift in Sources */,
 				65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,

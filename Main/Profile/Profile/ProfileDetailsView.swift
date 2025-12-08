@@ -48,7 +48,6 @@ struct ProfileDetailsView: View {
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .frame(maxHeight: .infinity, alignment: .bottom)
     }
 }
 
