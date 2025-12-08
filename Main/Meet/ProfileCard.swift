@@ -10,10 +10,11 @@ import SwiftUI
 struct ProfileCard : View {
     let profile: ProfileModel
     
+    let size: CGFloat
+    
     @Bindable var vm: MeetViewModel
     @Binding var quickInvite: ProfileModel?
     @Binding var selectedProfile: ProfileModel?
-
     var isInvite: Bool { profile.event != nil }
     
     var body: some View {
@@ -21,7 +22,7 @@ struct ProfileCard : View {
             if let image = profile.image {
                 Image(uiImage: image)
                     .resizable()
-                    .scoopImage(32)
+                    .defaultImage(size)
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                     .overlay(alignment: .bottomLeading) {
                         HStack(alignment: .bottom) {

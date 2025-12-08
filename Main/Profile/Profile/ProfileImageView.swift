@@ -45,7 +45,7 @@ extension ProfileImageView {
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
                     .resizable()
-                    .defaultImage(size, 16)
+                    .defaultImage(imageSize)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
                     .indexViewStyle(.page(backgroundDisplayMode: .never))

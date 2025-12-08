@@ -20,8 +20,8 @@ struct MeetContainer: View {
     @State var showPendingInvites = false
     @State var showInfo: Bool = false
 
-    
     @State var wasInviteSelected = false
+    @State var imageSize: CGFloat = 0
     
     init(vm: MeetViewModel) { self.vm = vm }
     var body: some View {
@@ -38,7 +38,6 @@ struct MeetContainer: View {
                     .transition(.move(edge: .bottom))
                     .zIndex(1)
             }
-            
             if let currentProfile = quickInvite {
                 SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
                     try? await vm.sendInvite(event: event, profileModel: currentProfile)
@@ -59,10 +58,12 @@ struct MeetContainer: View {
             wasInviteSelected = false
         }
         .animation(.smooth(duration: 0.2), value: selectedProfile)
+        .measure(key: ImageSizeKey.self) { $0.size.width }
+        .onPreferenceChange(ImageSizeKey.self) { screenSize in
+            imageSize = screenSize - 48
+        }
+        }
     }
-}
-
-//Image Width
 
 extension MeetContainer {
     @ViewBuilder
@@ -78,7 +79,7 @@ extension MeetContainer {
     @ViewBuilder private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {
             ForEach(items) { profileInvite in
-                ProfileCard(profile: profileInvite, vm: vm,quickInvite: $quickInvite, selectedProfile: $selectedProfile)
+                ProfileCard(profile: profileInvite, size: imageSize, vm: vm,quickInvite: $quickInvite, selectedProfile: $selectedProfile)
             }
         }
     }
