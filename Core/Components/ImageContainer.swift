@@ -9,19 +9,20 @@ import SwiftUI
 
 struct ImageModifier: ViewModifier {
     
-    @State var imageSize: CGFloat = 0
+
+    @State private var measuredWidth: CGFloat?
     let padding: CGFloat
     let radius: CGFloat
 
     func body(content: Content) -> some View {
         content
             .scaledToFill()
-            .frame(width: imageSize, height: imageSize)
+            .frame(maxWidth: .infinity)
+            .frame(height: measuredWidth.map { max($0, 0) })
+            .aspectRatio(1, contentMode: .fill)
             .clipShape(RoundedRectangle(cornerRadius: radius))
-            .measure(key: NewImageSizeKey.self) { $0.frame(in: .global).width}
-            .onPreferenceChange(NewImageSizeKey.self) { screenWidth in
-                imageSize = screenWidth - padding
-            }
+            .measure(key: NewImageSizeKey.self) { ($0.size.width - padding) }
+            .onPreferenceChange(NewImageSizeKey.self) { measuredWidth = $0}
     }
 }
 
