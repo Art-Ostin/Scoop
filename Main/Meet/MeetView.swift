@@ -36,7 +36,6 @@ struct MeetView: View {
                         }
                         profileScroller
                             .padding(.bottom, 36)
-//                        CustomDivider()
                         VStack(spacing: 60) {
                             MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
                             newProfileTimer
@@ -54,7 +53,6 @@ struct MeetView: View {
                         .id(profileModel.id)
                         .transition(.move(edge: .bottom))
                         .zIndex(1)
-                        .ignoresSafeArea()
                 }
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in

@@ -17,9 +17,6 @@ struct ProfileView: View {
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
     
-    let titlePadding: CGFloat = 36
-    var imagePadding: CGFloat = 60
-    var detailsPadding: CGFloat {imageSectionBottom}
     var inviteButtonPadding: CGFloat {imageSectionBottom - 175}
     
     @Binding var selectedProfile: ProfileModel?
@@ -50,10 +47,9 @@ struct ProfileView: View {
     var body: some View {
 
         VStack(spacing: 24) {
-            
             ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
                 .padding(.top, 12)
-//                .offset(y: titleOffset())
+                .offset(y: titleOffset())
                 .opacity(titleOpacity())
             
             ProfileImageView(vm: vm)
@@ -115,8 +111,10 @@ struct ProfileView: View {
                 invitePopup
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
+            
+            
         }
-//        .offset(y: profileOffset)
+        .offset(y: profileOffset)
         .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
         .shadow(radius: 10)
@@ -245,6 +243,10 @@ extension ProfileView {
         return 1 - overlayTitleOpacity()
     }
 }
+
+
+
+
 
 
 /*
