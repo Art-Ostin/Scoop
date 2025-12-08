@@ -22,13 +22,8 @@ struct DetailsSection<Content: View>: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, minHeight: 185, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.clear)
-                .stroke(20, lineWidth: 1, color: color)
-        )
+        .stroke(20, lineWidth: 1, color: color)
         .padding(.horizontal, 16)
-        .ignoresSafeArea(edges: .top)
     }
 }
 

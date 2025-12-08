@@ -48,8 +48,8 @@ struct ProfileView: View {
 
         VStack(spacing: 24) {
             ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                .padding(.top, 12)
-                .offset(y: titleOffset())
+//                .padding(.top, 12)
+//                .offset(y: titleOffset())
                 .opacity(titleOpacity())
             
             ProfileImageView(vm: vm)
@@ -86,7 +86,7 @@ struct ProfileView: View {
                 )
             
             ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
-                .offset(y: detailsSectionOffset())
+//                .offset(y: detailsSectionOffset())
                 .onTapGesture {detailsOpen.toggle()}
                 .simultaneousGesture(
                     DragGesture()
@@ -183,6 +183,9 @@ extension ProfileView {
 extension ProfileView {
     
     func titleOffset() -> CGFloat {
+        let titlePadding: CGFloat = 12
+        
+        
         if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
             return -titlePadding + abs(detailsOffset)
         } else if detailsOpen {
@@ -193,22 +196,7 @@ extension ProfileView {
     }
     
     func imageOffset() -> CGFloat {
-        
-        if detailsOpen {
-            
-        }
-        
-        if detailsOpen {
-            return -imagePadding + detailsOffset
-        }
-        if detailsOpen {
-            return -imagePadding
-        } else {
-            if detailsOffset <= imagePadding {
-                return -(imagePadding - detailsOffset)
-            }
-            return 0
-        }
+        return 0
     }
     
     func detailsSectionOffset() -> CGFloat {
