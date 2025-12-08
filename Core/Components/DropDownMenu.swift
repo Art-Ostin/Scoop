@@ -35,7 +35,6 @@ struct DropDownMenu<Content: View> : View {
 }
 
 struct customRow : View {
-    
     let image: String?
     let text: String
     var body: some View {

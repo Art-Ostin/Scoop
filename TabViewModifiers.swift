@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-
+/*
  struct TabViewModifiers: ViewModifier {
      let page: Page
      @Binding var scrollViewOffset: CGFloat
@@ -32,4 +32,4 @@ import SwiftUI
          self.modifier(TabViewModifiers(page: page, scrollViewOffset: scrollViewOffset))
      }
  }
-
+ */

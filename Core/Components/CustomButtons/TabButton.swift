@@ -8,18 +8,8 @@
 import SwiftUI
 
 struct TabButton: View {
-    let image: Image
+    let page: Page
     @Binding var isPresented: Bool
-    let size: CGFloat
-    var isSettings: Bool { size == 20 }
-    let padding: CGFloat
-    
-    init(image: Image, isPresented: Binding<Bool>, size: CGFloat = 17, padding: CGFloat = 6) {
-        self.image = image
-        _isPresented = isPresented
-        self.size = size
-        self.padding = padding
-    }
     
     var body: some View {
         Group {
@@ -33,17 +23,16 @@ struct TabButton: View {
                     .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
             }
         }
-//        .frame(maxWidth: .infinity, alignment: isSettings ? .leading : .trailing)
-        .padding(.horizontal, isSettings ? 0 : 24)
-//        .padding(.top, isSettings ? 0 : 60)
+        .frame(maxWidth: .infinity, alignment: page == .matches ? .leading : .trailing)
+        .padding(.horizontal, page == .matches ? 0 : 24)
     }
 }
 
 extension TabButton {
     private var button: some View {
-        image
-            .font(.body(size))
-            .padding(padding)
+        page.image
+            .font(.body(17))
+            .padding(6)
             .foregroundStyle(.black)
             .onTapGesture {
                 isPresented = true

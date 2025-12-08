@@ -18,7 +18,6 @@ struct SignUpTitle: View {
     var body: some View {
         
         HStack(alignment: .bottom, spacing: 12) {
-            
             Text(text)
                 .font(.title())
                 .alignmentGuide(.bottom) { d in d[.firstTextBaseline] }
@@ -41,20 +40,3 @@ struct SignUpTitle: View {
     SignUpTitle(text: "Hello", count: 3 , subtitle: "(Max 3)")
         .padding(.horizontal)
 }
-
-/*
- HStack(spacing: 14) {
-     if count > 0 {
-         ForEach(0..<count, id: \.self) {_ in
-             Circle()
-                 .frame(width: 6, height: 6)
-                 .foregroundStyle(.clear)
-                 .overlay(
-                     RoundedRectangle(cornerRadius: 3)
-                         .inset(by: 0.5)
-                         .stroke(.black, lineWidth: 1)
-                 )
-         }
-     }
- }
- */

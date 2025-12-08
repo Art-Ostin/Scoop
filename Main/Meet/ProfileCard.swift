@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct ProfileCard : View {
+    let profile: ProfileModel
     
     @Bindable var vm: MeetViewModel
-    let profile: ProfileModel
     @Binding var quickInvite: ProfileModel?
     @Binding var selectedProfile: ProfileModel?
-    let imageWidth: CGFloat
-    
+
     var isInvite: Bool { profile.event != nil }
     
     var body: some View {
@@ -22,7 +21,7 @@ struct ProfileCard : View {
             if let image = profile.image {
                 Image(uiImage: image)
                     .resizable()
-                    .defaultImage(imageWidth)
+                    .scoopImage(32)
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                     .overlay(alignment: .bottomLeading) {
                         HStack(alignment: .bottom) {
@@ -33,7 +32,6 @@ struct ProfileCard : View {
                                     .font(.body(14, .medium))
                             }
                             .foregroundStyle(.white)
-                            
                             Spacer()
                             inviteButton
                         }
@@ -67,7 +65,6 @@ extension ProfileCard {
             if let meet = profile.profile.idealMeetUp {
                 let weekDay = meet.time.formatted(.dateTime.weekday(.wide))
                 let hour = meet.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
-                
                 HStack {
                     Text(weekDay + " " + hour)
                     Text("|")

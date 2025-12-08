@@ -52,7 +52,7 @@ extension MatchesView {
     
     private var tabSection: some View {
         HStack(alignment: .top) {
-            TabButton(image: Image(systemName: "gear"), isPresented: $showSettingsView, size: 20)
+            TabButton(page: .matches, isPresented: $showSettingsView)
             Spacer()
             Button {
                 showProfileView = true

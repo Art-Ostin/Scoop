@@ -8,45 +8,41 @@
 import SwiftUI
 
 enum Page: String, Hashable {
-    case meet = "Meet"
-    case meeting = "Meeting"
-    case matches = "Matches"
+    case meet, meeting, matches
+    var title: String {data.title}
+    var image: Image {data.image}
     
-    var image: Image  {
+    private var data: (title: String, image: Image) {
         switch self {
-            case .meet:
-            return Image(systemName: "info.circle")
-        case .meeting:
-            return Image(systemName: "info.circle")
-        case .matches:
-            return Image(systemName: "gear")
+        case .meet: return ("Meet", Image(systemName: "info.circle"))
+        case .meeting: return ("Meeting", Image(systemName: "info.circle"))
+        case .matches: return ("Matches", Image(systemName: "info.circle"))
         }
     }
 }
 
 struct CustomTabPage<Content: View>: View {
-    
     @State var scrollViewOffset: CGFloat = 0
     @State var topSafeArea: CGFloat = 0
-    @State var showPageInfo = false
+    @Binding var TabAction: Bool
     
     let page: Page
     let content: Content
-    
-    init(page: Page, content: @escaping () -> Content) {
+    init(page: Page, TabAction: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
         self.page = page
+        _TabAction = TabAction
         self.content = content()
     }
     
     var body: some View {
-            ScrollView {
-                ZStack(alignment: .top) {
-                    tabArea
-                    TabTitle(page: page, offset: $scrollViewOffset)
-                        .padding(.top, 48)
-                }
-                content
+        ScrollView {
+            ZStack(alignment: .top) {
+                TabButton(page: page, isPresented: $TabAction)
+                TabTitle(page: page, offset: $scrollViewOffset)
+                    .padding(.top, 48)
             }
+            content
+        }
         .overlay(alignment: .top) {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
                 .opacity(scrollViewOffset < 0 ? 1 : 0)
@@ -57,39 +53,19 @@ struct CustomTabPage<Content: View>: View {
         .onPreferenceChange(TitleOffsetsKey.self) { value in
             scrollViewOffset = value[page] ?? 0
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
         .measure(key: TopSafeAreaTest.self) { geo in
             geo.safeAreaInsets.top
         }
         .onPreferenceChange(TopSafeAreaTest.self) { newSafeArea in
             topSafeArea = newSafeArea
         }
-        .background(Color.blue)
-    }
-}
-
-#Preview {
-    CustomTabPage(page: .meet) {
-        Text("Hello World")
     }
 }
 
 struct TopSafeAreaTest: PreferenceKey {
-    
     static var defaultValue: CGFloat = 0
-    
     static func reduce(value: inout Value, nextValue: () -> Value) {
         value = max(value, nextValue())
     }
-}
-
-extension CustomTabPage {
-    
-    @ViewBuilder
-    var tabArea: some View {
-        TabButton(image: page.image, isPresented: $showPageInfo)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-        
-    }
-    
 }

@@ -20,7 +20,6 @@ struct IntroView: View {
                     Image("Monkey")
                         .frame(width: 236, height: 255)
                 }
-                
                 VStack(spacing: 36)  {
                     Text(quote.quoteText)
                         .font(.body(.italic))

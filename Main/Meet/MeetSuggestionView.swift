@@ -14,7 +14,6 @@ struct MeetSuggestionView: View {
     @Binding var showIdealMeet: Bool
     
     var body: some View {
-        
         VStack(spacing: 24) {
             Text("My Meet suggestion")
                 .font(.body(12, .italic))
