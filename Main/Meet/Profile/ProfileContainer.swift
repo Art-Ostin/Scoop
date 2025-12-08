@@ -114,8 +114,9 @@ struct ProfileView: View {
             
             
         }
-        .offset(y: profileOffset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
+//        .offset(y: profileOffset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
         .shadow(radius: 10)
         .contentShape(Rectangle())

@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct MeetView: View {
+struct MeetContainer: View {
+    
     @State private var scrollViewOffset: CGFloat = 0
     @State private var title: String  = "Meet"
     @Bindable var vm: MeetViewModel
@@ -46,7 +47,7 @@ struct MeetView: View {
                     .padding(.bottom, 108)
                 }
                 .id(vm.profiles.count)
-                .tabViewModifiers(page: .meet, scrollViewOffset: $scrollViewOffset)
+//                .tabViewModifiers(page: .meet, scrollViewOffset: $scrollViewOffset)
                 
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
@@ -66,6 +67,7 @@ struct MeetView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {
                 imageWidth = proxy.size.width - 48
             }
@@ -88,7 +90,7 @@ struct MeetView: View {
     }
 }
 
-extension MeetView {
+extension MeetContainer {
     
     @ViewBuilder private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {

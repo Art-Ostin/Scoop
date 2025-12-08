@@ -21,7 +21,7 @@ struct AppContainer: View {
                     .tabItem {
                         Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")
                     }
-                    .ignoresSafeArea()
+                    .ignoresSafeArea(edges: .top)
                 
                 eventsView
                     .tag(TabBarItem.events)
@@ -48,7 +48,7 @@ struct AppContainer: View {
 extension AppContainer {
     
     private var meetView: some View {
-        MeetView(vm: MeetViewModel(
+        MeetContainer(vm: MeetViewModel(
             cycleManager: dep.cycleManager,
             s: dep.sessionManager,
             cacheManager: dep.cacheManager,

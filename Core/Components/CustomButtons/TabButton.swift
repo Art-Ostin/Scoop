@@ -33,9 +33,9 @@ struct TabButton: View {
                     .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
             }
         }
-        .frame(maxWidth: .infinity, alignment: isSettings ? .leading : .trailing)
+//        .frame(maxWidth: .infinity, alignment: isSettings ? .leading : .trailing)
         .padding(.horizontal, isSettings ? 0 : 24)
-        .padding(.top, isSettings ? 0 : 60)
+//        .padding(.top, isSettings ? 0 : 60)
     }
 }
 

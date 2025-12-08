@@ -13,6 +13,7 @@ enum Page: String, Hashable {
     case matches = "Matches"
 }
 
+
 struct TabTitle: View {
     let page: Page
     @Binding var offset: CGFloat
@@ -23,14 +24,8 @@ struct TabTitle: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
             .opacity(Double(offset) / 70)
-            .background (
-                GeometryReader { proxy in
-                    Color.clear.preference (
-                        key: TitleOffsetsKey.self,
-                        value: [page: proxy.frame(in: .named(page)).maxY]
-                    )
-                }
-            )
+            .measure(key: TitleOffsetsKey.self) { geo in
+                [page: geo.frame(in: .named(page)).maxY]}
     }
 }
 

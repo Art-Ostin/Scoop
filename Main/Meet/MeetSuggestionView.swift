@@ -30,14 +30,8 @@ struct MeetSuggestionView: View {
         .padding(24)
         .stroke(24, color: .grayBackground)
         .containerShadow(color: .black.opacity(0.1), radius: 2, y: 3)
-//        .overlay(alignment: .bottomTrailing) {
-//            Image("EditButton").padding(16)
-//        }
         .contentShape(RoundedRectangle(cornerRadius: 24))
         .padding(.horizontal, 24)
         .onTapGesture { showIdealMeet = true }
     }
 }
-
-//    .containerShadow(color: .black.opacity(1), radius: 30, y: 100)
-

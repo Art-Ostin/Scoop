@@ -65,7 +65,7 @@ struct EventPlaceholder: View {
             }
             .padding(.horizontal, 24)
             .overlay(alignment: .top) {
-                ScrollNavBar(title: title)
+                ScrollNavBar(title: title, topSafeArea: 5)
                     .opacity(withAnimation { scrollViewOffset < 0 ? 1 : 0 } )
                     .ignoresSafeArea(edges: .all)
             }

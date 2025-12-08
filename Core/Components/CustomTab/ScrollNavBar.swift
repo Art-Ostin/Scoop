@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct ScrollNavBar: View {
-    
     let title: String
+    
+    let topSafeArea: CGFloat?
+    
     
     var body: some View {
         ZStack {
-            
             LinearGradient(
                 gradient: Gradient(stops: [
                     .init(color: .white.opacity(1.0), location: 0.0),
@@ -23,16 +24,13 @@ struct ScrollNavBar: View {
                 startPoint: .top, endPoint: .bottom
             )
             .allowsHitTesting(false)
-            
-                Text(title)
-                    .font(.body(17, .bold))
-                
-            .frame(maxHeight: .infinity, alignment: .bottom)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
-            
+            Text("\(topSafeArea ?? 5)")
+                .font(.body(17, .bold))
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 80)
+        .frame(height: topSafeArea ?? 0 + 24)
     }
 }

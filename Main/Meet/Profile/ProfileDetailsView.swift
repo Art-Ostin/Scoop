@@ -68,7 +68,6 @@ extension ProfileDetailsView {
                     PromptView(prompt: p.prompt1)
                 }
             }
-            Spacer()
         }
     }
     
@@ -80,7 +79,6 @@ extension ProfileDetailsView {
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
-            Spacer()
         }
     }
     
