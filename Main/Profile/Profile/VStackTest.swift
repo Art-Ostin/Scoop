@@ -9,25 +9,24 @@ import SwiftUI
 
 struct VStackTest: View {
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             Rectangle()
                 .frame(height: 200)
                 .foregroundStyle(.blue)
-                .padding(.top, 12)
 
             Rectangle()
                 .frame(height: 200)
                 .foregroundStyle(.orange)
 
             Rectangle()
-                .frame(height: 500)   // ← big one
+                .frame(height: 600)   // ← big one
                 .foregroundStyle(.green)
         }
-        // Keep the VStack's intrinsic vertical size (200 + 200 + 500),
-        // even if it is taller than the screen.
         .fixedSize(horizontal: false, vertical: true)
-        // Then pin that taller stack to the top of the available space.
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top, 12)
+        .ignoresSafeArea(edges: .bottom)
+
     }
 }
 

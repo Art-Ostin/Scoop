@@ -17,8 +17,12 @@ struct ProfileImageView: View {
     @State private var imageSize: CGFloat = 0
     
     var body: some View {
+        
+        
+        profileImages
+
+        
         VStack(spacing: 12) {
-            profileImages
             imageScroller
         }
         .task {
