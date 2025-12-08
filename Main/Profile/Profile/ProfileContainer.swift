@@ -17,8 +17,8 @@ struct ProfileView: View {
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
     
-    var inviteButtonPadding: CGFloat {imageSectionBottom - 175}
-    
+//    var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
+
     @Binding var selectedProfile: ProfileModel?
     @State var showInvitePopup: Bool = false
     @State var detailsOpen: Bool = false
@@ -106,10 +106,10 @@ struct ProfileView: View {
                         }
                 )
             
-            InviteButton(vm: vm, showInvite: $showInvitePopup)
-                .padding(.top, inviteButtonPadding)
-                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-                .gesture(DragGesture())
+//            InviteButton(vm: vm, showInvite: $showInvitePopup)
+//                .padding(.top, inviteButtonPadding)
+//                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+//                .gesture(DragGesture())
             
             if showInvitePopup {
                 invitePopup
@@ -118,7 +118,7 @@ struct ProfileView: View {
             
         }
         .offset(y: profileOffset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
         .shadow(radius: 10)
