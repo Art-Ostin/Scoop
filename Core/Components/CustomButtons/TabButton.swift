@@ -23,15 +23,14 @@ struct TabButton: View {
                     .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
             }
         }
-        .frame(maxWidth: .infinity, alignment: page == .matches ? .leading : .trailing)
-        .padding(.horizontal, page == .matches ? 0 : 24)
+        .frame(maxWidth: .infinity, alignment: page == .Matches ? .leading : .trailing)
     }
 }
 
 extension TabButton {
     private var button: some View {
         page.image
-            .font(.body(17))
+            .font(.body(page == .Matches ? 20 : 17))
             .padding(6)
             .foregroundStyle(.black)
             .onTapGesture {

@@ -15,7 +15,6 @@ struct TabTitle: View {
         Text(page.rawValue)
             .font(.custom("SFProRounded-Bold", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 24)
             .opacity(Double(offset) / 70)
             .measure(key: TitleOffsetsKey.self) { geo in
                 [page: geo.frame(in: .named(page)).maxY]}

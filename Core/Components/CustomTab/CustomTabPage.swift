@@ -6,17 +6,15 @@
 //
 
 import SwiftUI
-
 enum Page: String, Hashable {
-    case meet, meeting, matches
-    var title: String {data.title}
-    var image: Image {data.image}
-    
-    private var data: (title: String, image: Image) {
+    case Meet, Meeting, Matches
+
+    var image: Image {
         switch self {
-        case .meet: return ("Meet", Image(systemName: "info.circle"))
-        case .meeting: return ("Meeting", Image(systemName: "info.circle"))
-        case .matches: return ("Matches", Image(systemName: "info.circle"))
+        case .Meet, .Meeting:
+            Image(systemName: "info.circle")
+        case .Matches:
+            Image(systemName: "gear")
         }
     }
 }
@@ -41,6 +39,7 @@ struct CustomTabPage<Content: View>: View {
                 TabTitle(page: page, offset: $scrollViewOffset)
                     .padding(.top, 48)
             }
+            .padding(.horizontal, 24)
             content
         }
         .overlay(alignment: .top) {

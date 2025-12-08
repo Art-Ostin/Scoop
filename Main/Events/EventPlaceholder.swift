@@ -16,7 +16,7 @@ struct EventPlaceholder: View {
         
     var body: some View {
         
-        CustomTabPage(page: .meeting, TabAction: $showInfo) {
+        CustomTabPage(page: .Meeting, TabAction: $showInfo) {
             Text("Upcoming Events appear Here")
                 .font(.title(16, .medium))
                 .frame(maxWidth: .infinity, alignment: .center)

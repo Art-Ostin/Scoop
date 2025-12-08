@@ -20,20 +20,8 @@ struct MatchesView: View {
     init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
     
     var body: some View {
-        ZStack {
-            Color.background
-            ScrollView {
-                VStack(spacing: 36) {
-                    VStack(spacing: 14) {
-                        tabSection
-                        TabTitle(page: .matches, offset: $scrollViewOffset)
-                    }
-                }
-            }
-            .onPreferenceChange(TitleOffsetsKey.self) {value in
-                scrollViewOffset = value[.matches] ?? 0
-            }
-            .coordinateSpace(name: Page.matches)
+        CustomTabPage(page: .Matches, TabAction: $showSettingsView) {
+            Text("Hello World")
         }
         .fullScreenCover(isPresented: $showSettingsView) {
             NavigationStack { SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.s))}
@@ -43,17 +31,7 @@ struct MatchesView: View {
                 EditProfileContainer(vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager))
             }
         }
-        .task(id: vm.user) {  image = try? await vm.fetchFirstImage()}
-        .ignoresSafeArea()
-    }
-}
-
-extension MatchesView {
-    
-    private var tabSection: some View {
-        HStack(alignment: .top) {
-            TabButton(page: .matches, isPresented: $showSettingsView)
-            Spacer()
+        .overlay(alignment: .topTrailing) {
             Button {
                 showProfileView = true
             } label: {
@@ -63,7 +41,19 @@ extension MatchesView {
                     .frame(width: 35, height: 35)
                     .clipShape(Circle())
                     .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
+                    .padding(.horizontal)
             }
+        }
+        .task(id: vm.user) {  image = try? await vm.fetchFirstImage()}
+    }
+}
+
+extension MatchesView {
+    
+    private var tabSection: some View {
+        HStack(alignment: .top) {
+            TabButton(page: .Matches, isPresented: $showSettingsView)
+            Spacer()
         }
         .padding(.top, 48)
         .frame(maxWidth: .infinity)
@@ -82,3 +72,22 @@ extension MatchesView {
         .frame(maxHeight: .infinity)
     }
 }
+
+/*
+ 
+ ZStack {
+     Color.background
+     ScrollView {
+         VStack(spacing: 36) {
+             VStack(spacing: 14) {
+                 tabSection
+                 TabTitle(page: .Matches, offset: $scrollViewOffset)
+             }
+         }
+     }
+     .onPreferenceChange(TitleOffsetsKey.self) {value in
+         scrollViewOffset = value[.Matches] ?? 0
+     }
+     .coordinateSpace(name: Page.Matches)
+ }
+ */

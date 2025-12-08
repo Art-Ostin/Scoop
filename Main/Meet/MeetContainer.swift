@@ -26,7 +26,7 @@ struct MeetContainer: View {
     init(vm: MeetViewModel) { self.vm = vm }
     var body: some View {
         ZStack {
-            CustomTabPage(page: .meet,TabAction: $showInfo) {
+            CustomTabPage(page: .Meet,TabAction: $showInfo) {
                     profileScroller
                     meetInfo
             }
