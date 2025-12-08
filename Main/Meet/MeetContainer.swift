@@ -19,7 +19,7 @@ struct MeetContainer: View {
     @State var showPendingInvites = false
     @State var showInfo: Bool = false
 
-    @State var wasInviteSelected = false
+    @State var openPastInvites = false
     @State var imageSize: CGFloat = 0
     
     init(vm: MeetViewModel) { self.vm = vm }
@@ -52,9 +52,10 @@ struct MeetContainer: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .sheet(isPresented: $showPendingInvites) {pastInviteView}
         .onChange(of: selectedProfile) {oldValue, newValue in
-            guard newValue == nil, wasInviteSelected else { return }
-            withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
-            wasInviteSelected = false
+            if newValue != nil && openPastInvites {
+                withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
+                openPastInvites = false
+            }
         }
         .animation(.smooth(duration: 0.2), value: selectedProfile)
         .measure(key: ImageSizeKey.self) { $0.size.width }
@@ -65,7 +66,7 @@ struct MeetContainer: View {
     }
 
 extension MeetContainer {
-    @ViewBuilder
+
     private var meetInfo: some View {
         VStack(spacing: 60) {
             MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
@@ -75,13 +76,13 @@ extension MeetContainer {
         }
     }
     
-    @ViewBuilder private func profileList(_ items: [ProfileModel]) -> some View {
-        LazyVStack(spacing: 84) {
-            ForEach(items) { profileInvite in
-                ProfileCard(profile: profileInvite, size: imageSize, vm: vm,quickInvite: $quickInvite, selectedProfile: $selectedProfile)
-            }
+    private func profileList(_ items: [ProfileModel]) -> some View {
+    LazyVStack(spacing: 84) {
+        ForEach(items) { profileInvite in
+            ProfileCard(profile: profileInvite, size: imageSize, vm: vm, quickInvite: $quickInvite, selectedProfile: $selectedProfile)
         }
     }
+}
     
     private var newProfileTimer: some View {
         HStack(spacing: 0) {
@@ -93,7 +94,6 @@ extension MeetContainer {
         .frame(maxWidth: .infinity, alignment: .center)
     }
     
-    @ViewBuilder
     private var profileScroller: some View {
         VStack(spacing: 0) {
             profileList(vm.invites)
@@ -106,7 +106,8 @@ extension MeetContainer {
         .padding(.bottom, 36)
     }
     
-    @ViewBuilder private var clockView: some View {
+    @ViewBuilder
+    private var clockView: some View {
         if let time = vm.endTime, vm.showProfilesState == .active {
             SimpleClockView(targetTime: time) {}
         } else if vm.showProfilesState == .respond {
@@ -119,7 +120,12 @@ extension MeetContainer {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 48) {
                     ForEach(vm.pendingInvites) { profileModel in
-                        PendingInviteCard(profile: profileModel, selectedProfile: $selectedProfile, showPendingInvites: $showPendingInvites)
+                        PendingInviteCard(
+                            profile: profileModel,
+                            selectedProfile: $selectedProfile,
+                            showPendingInvites: $showPendingInvites,
+                            openPastInvites: $openPastInvites
+                        )
                     }
                 }
             }

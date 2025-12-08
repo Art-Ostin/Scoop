@@ -34,15 +34,17 @@ struct CustomTabPage<Content: View>: View {
     
     var body: some View {
         ScrollView {
-            ZStack(alignment: .top) {
-                TabButton(page: page, isPresented: $TabAction)
-                    .padding(.top, 12)
-                TabTitle(page: page, offset: $scrollViewOffset)
-                    .padding(.top, 60)
+            VStack(spacing: 36) {
+                ZStack(alignment: .top) {
+                    TabButton(page: page, isPresented: $TabAction)
+                        .padding(.top, 12)
+                    TabTitle(page: page, offset: $scrollViewOffset)
+                        .padding(.top, 60)
+                }
+                .padding(.horizontal, 24)
+                content
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 36)
-            content
+            .padding(.bottom, 96)
         }
         .overlay(alignment: .top) {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)

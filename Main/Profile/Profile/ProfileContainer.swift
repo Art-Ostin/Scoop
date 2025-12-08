@@ -45,15 +45,14 @@ struct ProfileView: View {
     }
     
     var body: some View {
-
         VStack(spacing: 24) {
             ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-//                .padding(.top, 12)
-//                .offset(y: titleOffset())
+                .padding(.top, 12)
+                .offset(y: titleOffset())
                 .opacity(titleOpacity())
             
             ProfileImageView(vm: vm)
-//                .offset(y: imageOffset())
+                .offset(y: imageOffset())
                 .overlay(alignment: .topLeading) { overlayTitle }
                 .simultaneousGesture(
                     DragGesture()
@@ -107,14 +106,18 @@ struct ProfileView: View {
                         }
                 )
             
+            InviteButton(vm: vm, showInvite: $showInvitePopup)
+                .padding(.top, inviteButtonPadding)
+                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                .gesture(DragGesture())
+            
             if showInvitePopup {
                 invitePopup
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             
-            
         }
-//        .offset(y: profileOffset)
+        .offset(y: profileOffset)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.background)
         .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
@@ -185,7 +188,6 @@ extension ProfileView {
     
     func titleOffset() -> CGFloat {
         let titlePadding: CGFloat = 12
-        
         
         if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
             return -titlePadding + abs(detailsOffset)

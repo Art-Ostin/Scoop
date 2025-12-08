@@ -31,6 +31,6 @@ struct ScrollNavBar: View {
                 .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: (topSafeArea ?? 0) + 36)
+        .frame(height: (topSafeArea ?? 0) + 24)
     }
 }
