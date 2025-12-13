@@ -22,7 +22,7 @@ struct ProfileView: View {
     
     @State var imageSectionBottom: CGFloat = 0
     @State var detailsSectionTop: CGFloat = 0
-    @State var detailsOpenOffset: CGFloat = -276 - 16 //Turn this into a PreferenceKey measuring openOffset based of how much needed
+    @State var detailsOpenOffset: CGFloat = -292 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     
     @State private var dragAxis: Axis? = nil
     let preloadedImages: [UIImage]?
@@ -42,7 +42,7 @@ struct ProfileView: View {
         GeometryReader { geo in
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                    .offset(y: titleOffset())
+//                    .offset(y: titleOffset())
                     .opacity(titleOpacity())
                     .padding(.top, 36)
 
@@ -196,15 +196,7 @@ extension ProfileView {
     }
     
     func imageOffset() -> CGFloat {
-        if detailsOpen {
-            let start = -108
-            
-    
-            
-            
-        } else {
-            return 0
-        }
+        rangeUpdater(endValue: -108, detailsOpenOffset, detailsOffset)
     }
     
     func detailsSectionOffset() -> CGFloat {
@@ -242,4 +234,21 @@ extension ProfileView {
     func inviteButtonOffset() -> CGFloat {
         return 0
     }
+    
+    
+    func rangeUpdater(endValue: CGFloat,_ detailsOpenOffset: CGFloat,_ currentDetailsOffset: CGFloat) -> CGFloat {
+        let percent = min(abs(currentDetailsOffset)/detailsOpenOffset, 1)
+        let move_amount = endValue * percent
+        
+        print(move_amount)
+        print(endValue)
+        
+        if detailsOpen {
+            return endValue + move_amount
+        } else {
+            return 0 - move_amount
+        }
+    }
 }
+
+

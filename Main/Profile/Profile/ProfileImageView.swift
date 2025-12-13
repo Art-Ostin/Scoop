@@ -56,10 +56,6 @@ extension ProfileImageView {
         .measure(key: ImageSectionBottom.self) {geo in
             geo.frame(in: .named("profile")).maxY //Gets bottom of this view
         }
-        .overlay(alignment: .bottomTrailing) {
-            InviteButton(vm: vm, showInvite: $showInvite)
-                .padding()
-        }
     }
     
     

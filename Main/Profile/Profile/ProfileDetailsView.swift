@@ -52,10 +52,6 @@ struct ProfileDetailsView: View {
             }
             .offset(y: 24)
         }
-        .overlay(alignment: .top) {
-            InviteButton(vm: vm, showInvite: $showInvite)
-                .offset(y: 12)
-        }
         .padding(.top, 16)
         .padding(.bottom, 250)
         .background(Color.background)
@@ -125,3 +121,10 @@ struct TopOfDetailsView: PreferenceKey {
         value = max(value, nextValue())
     }
 }
+
+/*
+ .overlay(alignment: .top) {
+     InviteButton(vm: vm, showInvite: $showInvite)
+         .offset(y: 12)
+ }
+ */
