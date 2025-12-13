@@ -3,7 +3,6 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 25/06/2025.
-//
 
 import SwiftUI
 
@@ -17,13 +16,12 @@ struct ProfileImageView: View {
     @State private var imageSize: CGFloat = 0
     
     var body: some View {
-        
-        
-        profileImages
-
-        
         VStack(spacing: 12) {
+            profileImages(imageSize)
+                .frame(height: imageSize + 6)
+            
             imageScroller
+                .padding(.horizontal, 4)
         }
         .task {
             if let pre = preloaded {
@@ -41,24 +39,25 @@ struct ProfileImageView: View {
 
 extension ProfileImageView {
     
-    private var profileImages: some View {
+    
+    private func profileImages(_ size: CGFloat) -> some View {
         TabView(selection: $selection) {
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
                     .resizable()
-                    .defaultImage(imageSize)
+                    .defaultImage(size, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
                     .indexViewStyle(.page(backgroundDisplayMode: .never))
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .frame(height: imageSize + 6, alignment: .top)
-        .background(Color.blue)
         .measure(key: ImageSectionBottom.self) {geo in
-              geo.frame(in: .named("profile")).maxY //Gets bottom of this view
-            }
+            geo.frame(in: .named("profile")).maxY //Gets bottom of this view
+        }
     }
+    
+    
     
     private var imageScroller : some View {
         ScrollViewReader { proxy in
