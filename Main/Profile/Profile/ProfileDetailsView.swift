@@ -35,9 +35,11 @@ struct ProfileDetailsView: View {
             .scrollTargetLayout()
         }
         .coordinateSpace(name: scrollCoord)
-        .overlay(alignment: .bottom) {
+        .overlay(alignment: .top) {
             PageIndicator(count: 3, selection: scrollSelection ?? 0)
+                .padding(.top, scrollBottom)
             DeclineButton() {}
+                .padding(.top, scrollBottom - 23)
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.horizontal, 24)
         }
@@ -64,6 +66,7 @@ extension ProfileDetailsView {
                     PromptView(prompt: p.prompt1)
                 }
             }
+            Spacer()
         }
     }
     
@@ -75,6 +78,7 @@ extension ProfileDetailsView {
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
+            Spacer()
         }
     }
     
