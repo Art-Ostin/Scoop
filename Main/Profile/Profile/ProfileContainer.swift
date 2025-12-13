@@ -106,24 +106,22 @@ struct ProfileView: View {
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .overlay(alignment: .topLeading) { overlayTitle }
             .overlay(alignment: .topTrailing) {inviteButton}
-            .overlay(alignment: .top) {invitePopup}
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
                 imageSectionBottom = imageBottom
             }
             .coordinateSpace(name: "profile")
         }
+        .overlay {invitePopup}
     }
 }
 
 //Two Different views
 extension ProfileView {
     @ViewBuilder
+    
     private var invitePopup: some View {
         
         if showInvitePopup {
-            CustomScreenCover {showInvitePopup = false }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
             if let event = vm.profileModel.event {
                 AcceptInvitePopup(profileModel: vm.profileModel) {
                     if let meetVM {
@@ -132,12 +130,10 @@ extension ProfileView {
                         tabSelection.wrappedValue = 1
                     }
                 }
-            } else {
-                if let meetVM {
-                    SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { showInvitePopup = false }) { event in
-                        try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel)
-                        selectedProfile = nil
-                    }
+            } else if let meetVM {
+                SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { showInvitePopup = false }) { event in
+                    try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel)
+                    selectedProfile = nil
                 }
             }
         }
@@ -235,12 +231,3 @@ extension ProfileView {
         return 0
     }
 }
-
-
-
-/*
- if showInvitePopup {
- invitePopup
- .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
- }
- */

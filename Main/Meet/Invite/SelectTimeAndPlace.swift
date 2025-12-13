@@ -23,6 +23,7 @@ import MapKit
 }
 
 struct SelectTimeAndPlace: View {
+    
     @State var vm: TimeAndPlaceViewModel
     let onDismiss: () -> Void
     let onSubmit: @Sendable (EventDraft) async -> Void
@@ -49,12 +50,9 @@ struct SelectTimeAndPlace: View {
                     .offset(y: 164)
             }
         }
-        .sheet(isPresented: $vm.showMessageScreen) {
-            InviteAddMessageView(vm: $vm)
-        }
-        .fullScreenCover(isPresented: $vm.showMapView) {
-            MapView(vm2: $vm)
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .sheet(isPresented: $vm.showMessageScreen) {InviteAddMessageView(vm: $vm)}
+        .fullScreenCover(isPresented: $vm.showMapView) {MapView(vm2: $vm)}
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
@@ -65,6 +63,8 @@ struct SelectTimeAndPlace: View {
             Text("If you don't show, you'll be blocked from Scoop")
         }.tint(.blue)
     }
+    
+    
     private var InviteIsValid: Bool {
         return (vm.event.type != nil || vm.event.message != nil) && vm.event.time != nil && vm.event.location != nil
     }
