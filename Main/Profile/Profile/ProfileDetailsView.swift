@@ -26,6 +26,7 @@ struct ProfileDetailsView: View {
                 detailsScreen1
                     .containerRelativeFrame(.horizontal)
                     .id(0)
+                    .padding(.bottom, 36)
                 detailsScreen2
                     .containerRelativeFrame(.horizontal)
                     .id(1)
@@ -121,6 +122,9 @@ struct TopOfDetailsView: PreferenceKey {
         value = max(value, nextValue())
     }
 }
+
+
+
 
 /*
  .overlay(alignment: .top) {

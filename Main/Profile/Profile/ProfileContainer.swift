@@ -28,7 +28,7 @@ struct ProfileView: View {
     let preloadedImages: [UIImage]?
     let toggleDetailsThreshold: CGFloat = -50
     private var detailsDragRange: ClosedRange<CGFloat> {
-        detailsOpen ? (-110...220) : (-220...110)
+        detailsOpen ? (-85 ... -detailsOpenOffset) : (85 ... detailsOpenOffset)
     }
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -185,14 +185,7 @@ extension ProfileView {
 extension ProfileView {
     
     func titleOffset() -> CGFloat {
-        let titlePadding: CGFloat = 12
-        if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
-            return -titlePadding + abs(detailsOffset)
-        } else if detailsOpen {
-            return -titlePadding
-        } else {
-            return 0
-        }
+        rangeUpdater(endValue: -108, detailsOpenOffset, detailsOffset)
     }
     
     func imageOffset() -> CGFloat {
@@ -237,7 +230,7 @@ extension ProfileView {
     
     
     func rangeUpdater(endValue: CGFloat,_ detailsOpenOffset: CGFloat,_ currentDetailsOffset: CGFloat) -> CGFloat {
-        let percent = min(abs(currentDetailsOffset)/detailsOpenOffset, 1)
+        let percent = min(abs(currentDetailsOffset) / detailsOpenOffset, 1)
         let move_amount = endValue * percent
         
         print(move_amount)
@@ -252,3 +245,15 @@ extension ProfileView {
 }
 
 
+/*
+ 
+ 
+ let titlePadding: CGFloat = 12
+ if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
+     return -titlePadding + abs(detailsOffset)
+ } else if detailsOpen {
+     return -titlePadding
+ } else {
+     return 0
+ }
+ */
