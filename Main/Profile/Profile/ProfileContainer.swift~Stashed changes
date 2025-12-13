@@ -1,8 +1,5 @@
 import SwiftUI
 
-/*
- Note: Geometry Reader needed to Keep the VStack from respecting hte top safe Area
- */
 
 struct ProfileView: View {
     
@@ -10,18 +7,18 @@ struct ProfileView: View {
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
-    
+
     var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
-    
+
     @Binding var selectedProfile: ProfileModel?
     @State var showInvitePopup: Bool = false
     @State var detailsOpen: Bool = false
-    
+
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
     
     @State var imageSectionBottom: CGFloat = 0
-    @State var detailsOpenOffset: CGFloat = -276 - 16 //Turn this into a PreferenceKey measuring openOffset based of how much needed
+    @State var detailsOpenOffset: CGFloat = -150 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     
     @State private var dragAxis: Axis? = nil
     let preloadedImages: [UIImage]?
@@ -38,15 +35,16 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        GeometryReader { geo in
+        ZStack {
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
                     .offset(y: titleOffset())
                     .opacity(titleOpacity())
                     .padding(.top, 36)
-
+                
                 ProfileImageView(vm: vm)
                     .offset(y: imageOffset())
+                    .overlay(alignment: .topLeading) { overlayTitle }
                     .simultaneousGesture(
                         DragGesture()
                             .updating($profileOffset) { value, state, _ in
@@ -99,18 +97,25 @@ struct ProfileView: View {
                             }
                     )
             }
-            .offset(y: profileOffset)
-            .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
-            .animation(.spring(duration: 0.2), value: detailsOpen)
-            .animation(.easeOut(duration: 0.25), value: profileOffset)
-            .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-            .overlay(alignment: .topLeading) { overlayTitle }
-            .overlay(alignment: .topTrailing) {inviteButton}
-            .overlay(alignment: .top) {invitePopup}
-            .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
-                imageSectionBottom = imageBottom
+            
+            InviteButton(vm: vm, showInvite: $showInvitePopup)
+                .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                .gesture(DragGesture())
+            
+            if showInvitePopup {
+                invitePopup
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
-            .coordinateSpace(name: "profile")
+        }
+        .offset(y: profileOffset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.background)
+        .animation(.spring(duration: 0.2), value: detailsOpen)
+        .animation(.easeOut(duration: 0.25), value: profileOffset)
+        .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+        .coordinateSpace(name: "profile")
+        .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
+            imageSectionBottom = imageBottom + 24 //padding
         }
     }
 }
@@ -119,37 +124,24 @@ struct ProfileView: View {
 extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
-        
-        if showInvitePopup {
-            CustomScreenCover {showInvitePopup = false }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            if let event = vm.profileModel.event {
-                AcceptInvitePopup(profileModel: vm.profileModel) {
-                    if let meetVM {
-                        @Bindable var meetVM = meetVM
-                        Task { try? await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event) }
-                        tabSelection.wrappedValue = 1
-                    }
-                }
-            } else {
+        CustomScreenCover {showInvitePopup = false }
+
+        if let event = vm.profileModel.event {
+            AcceptInvitePopup(profileModel: vm.profileModel) {
                 if let meetVM {
-                    SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { showInvitePopup = false }) { event in
-                        try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel)
-                        selectedProfile = nil
-                    }
+                    @Bindable var meetVM = meetVM
+                    Task { try? await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event) }
+                    tabSelection.wrappedValue = 1
+                }
+            }
+        } else {
+            if let meetVM {
+                SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { showInvitePopup = false }) { event in
+                    try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel)
+                    selectedProfile = nil
                 }
             }
         }
-    }
-    
-    private var inviteButton: some View {
-        InviteButton(vm: vm, showInvite: $showInvitePopup)
-            .frame(maxWidth: .infinity, alignment: .topTrailing)
-            .padding(.horizontal)
-            .padding(.top, imageSectionBottom - 60)
-            .gesture(DragGesture())
-            .onTapGesture { showInvitePopup = true}
     }
     
     private var overlayTitle: some View {
@@ -160,6 +152,7 @@ extension ProfileView {
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)
+        .padding(.top, 32)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity())
     }
@@ -182,6 +175,7 @@ extension ProfileView {
     
     func titleOffset() -> CGFloat {
         let titlePadding: CGFloat = 12
+        
         if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
             return -titlePadding + abs(detailsOffset)
         } else if detailsOpen {
@@ -192,11 +186,7 @@ extension ProfileView {
     }
     
     func imageOffset() -> CGFloat {
-        if detailsOpen {
-            return  -36 + -24 + -24 + -24//-160
-        } else {
-            return 0
-        }
+        return 0
     }
     
     func detailsSectionOffset() -> CGFloat {
@@ -230,17 +220,4 @@ extension ProfileView {
     func titleOpacity() -> Double {
         return 1 - overlayTitleOpacity()
     }
-    
-    func inviteButtonOffset() -> CGFloat {
-        return 0
-    }
 }
-
-
-
-/*
- if showInvitePopup {
- invitePopup
- .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
- }
- */

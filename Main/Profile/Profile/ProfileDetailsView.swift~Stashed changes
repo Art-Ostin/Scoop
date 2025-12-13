@@ -34,24 +34,17 @@ struct ProfileDetailsView: View {
             }
             .scrollTargetLayout()
         }
-        .scrollIndicators(.hidden)
         .coordinateSpace(name: scrollCoord)
+        .overlay(alignment: .bottom) {
+            PageIndicator(count: 3, selection: scrollSelection ?? 0)
+            DeclineButton() {}
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.horizontal, 24)
+        }
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
-        .overlay(alignment: .bottom) {
-            VStack(spacing: 0) {
-                PageIndicator(count: 3, selection: scrollSelection ?? 0)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .offset(y: 16)
-                
-                DeclineButton() {}
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.horizontal, 16)
-            }
-            .offset(y: 24)
-        }
         .padding(.top, 16)
-        .padding(.bottom, 250)
+        .padding(.bottom, 36)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
