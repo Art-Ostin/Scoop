@@ -71,7 +71,7 @@ struct ProfileView: View {
                                 state = value.translation.height.clamped(to: detailsDragRange)
                             }
                         }
-                     
+                    
                         .onEnded { v in
                             defer { dragAxis = nil }
                             guard dragAxis == .vertical else { return }
@@ -130,6 +130,7 @@ struct ProfileView: View {
         }
     }
 }
+
 
 //Two Different views
 extension ProfileView {
