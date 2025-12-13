@@ -44,7 +44,7 @@ struct CustomTabPage<Content: View>: View {
                 .padding(.horizontal, 24)
                 content
             }
-            .padding(.bottom, 96)
+            .padding(.bottom, 48)
         }
         .overlay(alignment: .top) {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
