@@ -197,7 +197,11 @@ extension ProfileView {
     
     func imageOffset() -> CGFloat {
         if detailsOpen {
-            return  -36 + -24 + -24 + -24//-160
+            let start = -108
+            
+    
+            
+            
         } else {
             return 0
         }
