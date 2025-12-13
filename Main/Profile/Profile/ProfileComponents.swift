@@ -102,6 +102,7 @@ extension Array {
 }
 
 struct ImageSectionBottom: PreferenceKey {
+    let has_updated = false
     static let defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())

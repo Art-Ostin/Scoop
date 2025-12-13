@@ -21,6 +21,7 @@ struct ProfileView: View {
     @GestureState var profileOffset = CGFloat.zero
     
     @State var imageSectionBottom: CGFloat = 0
+    @State var detailsSectionTop: CGFloat = 0
     @State var detailsOpenOffset: CGFloat = -276 - 16 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     
     @State private var dragAxis: Axis? = nil
@@ -45,7 +46,7 @@ struct ProfileView: View {
                     .opacity(titleOpacity())
                     .padding(.top, 36)
 
-                ProfileImageView(vm: vm)
+                ProfileImageView(vm: vm, showInvite: $showInvitePopup)
                     .offset(y: imageOffset())
                     .simultaneousGesture(
                         DragGesture()
@@ -77,7 +78,7 @@ struct ProfileView: View {
                             }
                     )
                 
-                ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
+                ProfileDetailsView(vm: vm, showInvite: $showInvitePopup, p: vm.profileModel.profile, event: vm.profileModel.event)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(
@@ -105,9 +106,15 @@ struct ProfileView: View {
             .animation(.easeOut(duration: 0.25), value: profileOffset)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .overlay(alignment: .topLeading) { overlayTitle }
-            .overlay(alignment: .topTrailing) {inviteButton}
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
-                imageSectionBottom = imageBottom
+                if imageSectionBottom == 0 {
+                    imageSectionBottom = imageBottom - 60
+                }
+            }
+            .onPreferenceChange(TopOfDetailsView.self) { topOfDetails in
+                if detailsSectionTop == 0 {
+                    detailsSectionTop = topOfDetails
+                }
             }
             .coordinateSpace(name: "profile")
         }
@@ -142,8 +149,9 @@ extension ProfileView {
     private var inviteButton: some View {
         InviteButton(vm: vm, showInvite: $showInvitePopup)
             .frame(maxWidth: .infinity, alignment: .topTrailing)
-            .padding(.horizontal)
-            .padding(.top, imageSectionBottom - 60)
+            .padding(.horizontal, 24)
+            .padding(.top, imageSectionBottom)
+            .offset(y: inviteButtonOffset())
             .gesture(DragGesture())
             .onTapGesture { showInvitePopup = true}
     }

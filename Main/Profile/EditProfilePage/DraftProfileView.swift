@@ -10,6 +10,7 @@ import SwiftUI
 struct DraftProfileView: View {
     
     @State var vm: ProfileViewModel
+    @State var showInvite: Bool = false
     
     @State var scrollSelection: Int?
     
@@ -20,8 +21,7 @@ struct DraftProfileView: View {
                 let p = vm.profileModel.profile
                 Text(p.name)
             }
-            ProfileImageView(vm: vm)
-            ProfileDetailsView(p: vm.profileModel.profile, event: vm.profileModel.event)
+            ProfileImageView(vm: vm, showInvite: $showInvite)
         }
         .frame(maxWidth: .infinity)
     }

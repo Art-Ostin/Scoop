@@ -11,9 +11,10 @@ import SwiftUIFlowLayout
 
 struct ProfileDetailsView: View {
     
+    @Bindable var vm: ProfileViewModel
+    @Binding var showInvite: Bool
     @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
-    
     let p: UserProfile
     let event: UserEvent?
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
@@ -34,6 +35,7 @@ struct ProfileDetailsView: View {
             }
             .scrollTargetLayout()
         }
+        .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
         .scrollIndicators(.hidden)
         .coordinateSpace(name: scrollCoord)
         .scrollTargetBehavior(.paging)
@@ -49,6 +51,10 @@ struct ProfileDetailsView: View {
                     .padding(.horizontal, 16)
             }
             .offset(y: 24)
+        }
+        .overlay(alignment: .top) {
+            InviteButton(vm: vm, showInvite: $showInvite)
+                .offset(y: 12)
         }
         .padding(.top, 16)
         .padding(.bottom, 250)
@@ -110,5 +116,12 @@ extension ProfileDetailsView {
                 }
             }
         }
+    }
+}
+
+struct TopOfDetailsView: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }

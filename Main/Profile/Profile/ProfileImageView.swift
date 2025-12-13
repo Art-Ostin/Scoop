@@ -9,6 +9,7 @@ import SwiftUI
 struct ProfileImageView: View {
     
     @Bindable var vm: ProfileViewModel
+    @Binding var showInvite: Bool
     @State private var images: [UIImage] = []
     var preloaded: [UIImage]? = nil
     @State private var selection = 0
@@ -54,6 +55,10 @@ extension ProfileImageView {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .measure(key: ImageSectionBottom.self) {geo in
             geo.frame(in: .named("profile")).maxY //Gets bottom of this view
+        }
+        .overlay(alignment: .bottomTrailing) {
+            InviteButton(vm: vm, showInvite: $showInvite)
+                .padding()
         }
     }
     
