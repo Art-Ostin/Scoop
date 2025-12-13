@@ -28,7 +28,7 @@ struct ProfileView: View {
     let preloadedImages: [UIImage]?
     let toggleDetailsThreshold: CGFloat = -50
     private var detailsDragRange: ClosedRange<CGFloat> {
-        detailsOpen ? (-85...220) : (-220...85)
+        detailsOpen ? (-110...220) : (-220...110)
     }
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -42,7 +42,7 @@ struct ProfileView: View {
         GeometryReader { geo in
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-//                    .offset(y: titleOffset())
+                    .offset(y: titleOffset())
                     .opacity(titleOpacity())
                     .padding(.top, 36)
 
