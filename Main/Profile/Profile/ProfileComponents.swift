@@ -68,7 +68,7 @@ struct ProfileTitle: View {
             Text(p.name)
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
-            ProfileDismissButton(selectedProfile: $selectedProfile, color: .black)
+            ProfileDismissButton(color: .black) { selectedProfile = nil}
         }
         .font(.body(24, .bold))
         .padding(.horizontal)
@@ -84,7 +84,7 @@ struct ProfileSecondTitle: View {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(selectedProfile: $selectedProfile, color: .white)
+            ProfileDismissButton(color: .white) { selectedProfile = nil}
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)

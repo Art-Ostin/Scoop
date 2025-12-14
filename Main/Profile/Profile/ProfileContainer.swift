@@ -170,7 +170,7 @@ extension ProfileView {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(selectedProfile: $selectedProfile, color: .white)
+            ProfileDismissButton(color: .white) { selectedProfile = nil }
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)
@@ -183,7 +183,6 @@ extension ProfileView {
         if self.dragType != nil  {return }
         let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
-        print("function called")
         
         //Ensures user drags at least 5 points, and its a vertical drag
         guard dy > dx else { dragType = .horizontal; return}
