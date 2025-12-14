@@ -100,6 +100,10 @@ struct ProfileView: View {
                     )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
+            .background(
+                Color.background
+                    .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+            )
             .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
             .shadow(color: .black.opacity(0.25),radius: 12,y: 6)
             .animation(.spring(duration: 0.2), value: detailsOpen)
@@ -122,11 +126,6 @@ struct ProfileView: View {
         .overlay {invitePopup}
     }
 }
-
-/*
- .clipShape(RoundedRectangle(cornerRadius: 0))
- .shadow(radius: 10)
- */
 
 //Two Different views
 extension ProfileView {
