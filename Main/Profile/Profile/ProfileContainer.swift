@@ -102,6 +102,10 @@ struct ProfileView: View {
                             }
                     )
             }
+            .overlay(alignment: .top) {
+                Text("Hello World")
+                    .padding(.top, imageSectionBottom)
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 //Do not Change Critical! Fixed the scrolling down issue
@@ -130,6 +134,11 @@ struct ProfileView: View {
             .onChange(of: profileOffset) {
                 print(profileOffset)
             }
+            .onChange(of: imageSectionBottom, { oldValue, newValue in
+                print("Image Section: ")
+                print(oldValue)
+                print("Image new Bottom: \(newValue)")
+            })
             .onAppear {
                 print("Details Top: \(detailsSectionTop)")
                 print("Image Bottom: \(imageSectionBottom)")
@@ -162,12 +171,11 @@ extension ProfileView {
             }
         }
     }
-    
     private var inviteButton: some View {
         InviteButton(vm: vm, showInvite: $showInvitePopup)
 //            .frame(maxWidth: .infinity, alignment: .topTrailing)
             .padding(.horizontal, 24)
-//            .padding(.top, imageSectionBottom)
+            .padding(.top, imageSectionBottom)
             .gesture(DragGesture())
             .onTapGesture { showInvitePopup = true}
     }
