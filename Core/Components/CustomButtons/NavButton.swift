@@ -48,15 +48,20 @@ struct NavButton: View {
 }
 
 struct ProfileDismissButton : View {
-    
     let color: Color
     let onTap: () -> Void
     
     var body: some View {
-        Image(systemName: "chevron.down")
-            .font(.body(18, .bold))
-            .foregroundStyle(color)
-            .contentShape(Rectangle())
-            .onTapGesture {onTap()}
+        
+        Button {
+            onTap()
+            print("Tapped")
+        } label: {
+            Image(systemName: "chevron.down")
+                .font(.body(18, .bold))
+                .foregroundStyle(color)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
