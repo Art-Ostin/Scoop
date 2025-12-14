@@ -40,6 +40,7 @@ struct ProfileView: View {
     }
     
     var body: some View {
+        
         GeometryReader { geo in
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
@@ -100,12 +101,11 @@ struct ProfileView: View {
                     )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
-            .background(
-                Color.background
+            .background (
+                RoundedRectangle(cornerRadius: 24)
                     .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+                    .shadow(color: .black.opacity(0.25),radius: 12,y: 6)
             )
-            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
-            .shadow(color: .black.opacity(0.25),radius: 12,y: 6)
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
@@ -124,6 +124,7 @@ struct ProfileView: View {
         }
         .offset(y: profileOffset)
         .overlay {invitePopup}
+//        .background(Color.red)
     }
 }
 
@@ -243,3 +244,11 @@ enum DragType {
     case details, profile, horizontal
 }
 
+
+/*
+ .background(
+     Color.background
+         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+ )
+ .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+ */
