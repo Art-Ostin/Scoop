@@ -19,7 +19,6 @@ struct ProfileDetailsView: View {
     @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
-    let scrollCoord = "Scroll"
 
     var body: some View {
         ScrollView(.horizontal) {
@@ -39,7 +38,6 @@ struct ProfileDetailsView: View {
         }
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
         .scrollIndicators(.hidden)
-        .coordinateSpace(name: scrollCoord)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
         .overlay(alignment: .bottom) {

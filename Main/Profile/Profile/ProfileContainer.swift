@@ -117,7 +117,7 @@ struct ProfileView: View {
             .overlay(alignment: .topLeading) { overlayTitle }
             .overlay(alignment: .topTrailing) { inviteButton }
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
-                if imageSectionBottom == 0 {
+                if imageSectionBottom.isZero {
                     imageSectionBottom = imageBottom
                 }
             }
@@ -167,7 +167,7 @@ extension ProfileView {
         InviteButton(vm: vm, showInvite: $showInvitePopup)
 //            .frame(maxWidth: .infinity, alignment: .topTrailing)
             .padding(.horizontal, 24)
-            .padding(.top, imageSectionBottom)
+//            .padding(.top, imageSectionBottom)
             .gesture(DragGesture())
             .onTapGesture { showInvitePopup = true}
     }
