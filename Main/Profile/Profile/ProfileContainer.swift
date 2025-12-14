@@ -27,7 +27,6 @@ struct ProfileView: View {
     @State private var dragType: DragType? = nil
     
     let preloadedImages: [UIImage]?
-    let toggleDetailsThreshold: CGFloat = -50
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
         return detailsOpen ? (-85 ... -limit) : (limit ... 85)
@@ -51,29 +50,30 @@ struct ProfileView: View {
                 ProfileImageView(vm: vm, showInvite: $showInvitePopup)
                     .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(
-                        DragGesture()
+                        //Minimum distance: It only begins updating once user dragged at least 5
+                        DragGesture(minimumDistance: 5)
                             .updating($profileOffset) { value, state, _ in
-                                guard dragType(v: value) == .profile else { return }
+                                if dragType == nil { dragType(v: value) }
+                                guard dragType == .profile else { return }
                                 state = value.translation.height
                             }
                             .updating($detailsOffset) { v, state, _ in
-                                guard dragType(v: v) == .details else { return }
-                                print("Never got here")
+                                if dragType == nil { dragType(v: v) }
+                                guard dragType == .details else { return }
                                 state = v.translation.height.clamped(to: detailsDragRange)
                             }
                             .onEnded { v in
                                 defer { dragType = nil }
-                                guard let theDragType = dragType else { return }
-                                let predicted = v.predictedEndTranslation.height
-                                let distance = v.translation.height
-                                let dismissThreshold: CGFloat = 50
-                                                                
-                                let openDetails = predicted < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
+                                guard dragType != nil && dragType != .horizontal else { return }
+                                let predicted = abs(v.predictedEndTranslation.height)
+                                let distance = abs(v.translation.height)
                                 
-                                if max(distance, predicted) > dismissThreshold && !detailsOpen {
+                                //Only update if user drags more than 75
+                                guard max(distance, predicted) > 75 else { return }
+                                if dragType == .profile {
                                     selectedProfile = nil
-                                } else if openDetails {
-                                    detailsOpen = true
+                                } else if dragType == .details {
+                                    detailsOpen.toggle()
                                 }
                             }
                     )
@@ -82,16 +82,19 @@ struct ProfileView: View {
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(
-                        DragGesture()
+                        DragGesture(minimumDistance: 5)
                             .updating($detailsOffset) { v, state, _ in
-                                guard dragType(v: v) != nil else { return }
+                                if dragType == nil {dragType(v: v)}
+                                guard dragType != nil && dragType != .horizontal else { return }
                                 state = v.translation.height.clamped(to: detailsDragRange)
                             }
                             .onEnded {
                                 defer { dragType = nil }
-                                guard dragType != nil else { return }
+                                guard dragType != nil && dragType != .horizontal else { return }
                                 let predicted = $0.predictedEndTranslation.height
-                                if predicted < toggleDetailsThreshold && profileOffset == 0 {
+                                
+                                
+                                if predicted < 50 && profileOffset == 0 {
                                     detailsOpen = true
                                 } else if detailsOpen && predicted > 60 {
                                     detailsOpen = false
@@ -166,25 +169,18 @@ extension ProfileView {
         .opacity(overlayTitleOpacity())
     }
     
-    private func dragType(v: DragGesture.Value) -> DragType? {
+    private func dragType(v: DragGesture.Value) {
         //If there is already a dragType don't reassign it (here), get y and x drag
-        if let dragType {return nil}
+        if self.dragType != nil  {return }
         let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
+        print("function called")
         
-        print("Got to this stage")
+        //Ensures user drags at least 5 points, and its a vertical drag
+        guard dy > dx else { dragType = .horizontal; return}
         
-        let dragThresh: Bool = max(dx, dy) >= 5
-        let isVerticalDrag: Bool = dy > dx
-        guard dragThresh && isVerticalDrag else { return nil }
-        
-        let dragType: DragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
-        
-        print(dragType)
-        
-        
-        self.dragType = dragType
-        return dragType
+        //If it passes conditions updates 'drag type'
+        self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
 }
 
@@ -242,15 +238,26 @@ extension ProfileView {
 }
 
 enum DragType {
-    case details, profile
+    case details, profile, horizontal
 }
-
-//See if it works not having .horizontal, and thus just keeping it nill, and keeps checking for dragType.
 
 
 /*
  
  
+ let openDetails = abs(predicted) < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
+ let closeDetails = predicted > abs(toggleDetailsThreshold) && detailsOpen && (dragType == .details)
+ 
+ if max(distance, predicted) > dismissThreshold && !detailsOpen {
+     selectedProfile = nil
+ } else if openDetails {
+     detailsOpen = true
+ } else if closeDetails {
+     detailsOpen = false
+ }
+ */
+
+/*
  let titlePadding: CGFloat = 12
  if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
      return -titlePadding + abs(detailsOffset)
