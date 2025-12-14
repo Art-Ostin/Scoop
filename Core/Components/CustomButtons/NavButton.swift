@@ -49,18 +49,15 @@ struct NavButton: View {
 
 struct ProfileDismissButton : View {
     let color: Color
-    let onTap: () -> Void
+    @Binding var selectedProfile: ProfileModel?
     
     var body: some View {
-        
         Button {
-            onTap()
-            print("Tapped")
+            selectedProfile = nil
         } label: {
             Image(systemName: "chevron.down")
                 .font(.body(18, .bold))
                 .foregroundStyle(color)
-                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
