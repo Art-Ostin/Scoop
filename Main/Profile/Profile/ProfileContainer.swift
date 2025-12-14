@@ -100,11 +100,13 @@ struct ProfileView: View {
                             }
                     )
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
-            .background (
-                RoundedRectangle(cornerRadius: 24)
-                    .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
-                    .shadow(color: .black.opacity(0.25),radius: 12,y: 6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                //Do not Change Critical! Fixed the scrolling down issue
+                UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
+                    .fill(Color.background)
+                    .ignoresSafeArea()
+                    .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
             )
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
@@ -124,7 +126,6 @@ struct ProfileView: View {
         }
         .offset(y: profileOffset)
         .overlay {invitePopup}
-//        .background(Color.red)
     }
 }
 
