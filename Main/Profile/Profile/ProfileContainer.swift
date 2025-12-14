@@ -120,17 +120,13 @@ struct ProfileView: View {
             .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
             .overlay(alignment: .topTrailing) { inviteButton }
+            .coordinateSpace(name: "profile")
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
-                if imageSectionBottom.isZero {
-                    imageSectionBottom = imageBottom
-                }
+                imageSectionBottom = imageBottom - 60
             }
             .onPreferenceChange(TopOfDetailsView.self) { topOfDetails in
-                if detailsSectionTop == 0 {
-                    detailsSectionTop = topOfDetails
-                }
+                detailsSectionTop = topOfDetails
             }
-            .coordinateSpace(name: "profile")
             .onChange(of: profileOffset) {
                 print(profileOffset)
             }
@@ -268,4 +264,10 @@ enum DragType {
          .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
  )
  .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+ */
+
+/*
+ if imageSectionBottom.isZero {
+     imageSectionBottom = imageBottom
+ }
  */
