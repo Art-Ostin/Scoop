@@ -46,11 +46,10 @@ struct ProfileView: View {
                     .offset(y: rangeUpdater(endValue: -108))
                     .opacity(titleOpacity())
                     .padding(.top, 36)
-
+                
                 ProfileImageView(vm: vm, showInvite: $showInvitePopup)
                     .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(
-                        //Minimum distance: It only begins updating once user dragged at least 5
                         DragGesture(minimumDistance: 5)
                             .updating($profileOffset) { value, state, _ in
                                 if dragType == nil { dragType(v: value) }
@@ -92,8 +91,6 @@ struct ProfileView: View {
                                 defer { dragType = nil }
                                 guard dragType != nil && dragType != .horizontal else { return }
                                 let predicted = $0.predictedEndTranslation.height
-                                
-                                
                                 if predicted < 50 && profileOffset == 0 {
                                     detailsOpen = true
                                 } else if detailsOpen && predicted > 60 {
@@ -123,6 +120,11 @@ struct ProfileView: View {
         .overlay {invitePopup}
     }
 }
+
+/*
+ .clipShape(RoundedRectangle(cornerRadius: 0))
+ .shadow(radius: 10)
+ */
 
 //Two Different views
 extension ProfileView {
@@ -241,29 +243,8 @@ enum DragType {
     case details, profile, horizontal
 }
 
-
 /*
- 
- 
- let openDetails = abs(predicted) < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
- let closeDetails = predicted > abs(toggleDetailsThreshold) && detailsOpen && (dragType == .details)
- 
- if max(distance, predicted) > dismissThreshold && !detailsOpen {
-     selectedProfile = nil
- } else if openDetails {
-     detailsOpen = true
- } else if closeDetails {
-     detailsOpen = false
- }
- */
-
-/*
- let titlePadding: CGFloat = 12
- if detailsOpen && detailsOffset < 0 && abs(detailsOffset) < titlePadding {
-     return -titlePadding + abs(detailsOffset)
- } else if detailsOpen {
-     return -titlePadding
- } else {
-     return 0
- }
+ /* Use when dismissing stage
+  .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
+  */
  */
