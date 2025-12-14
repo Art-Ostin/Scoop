@@ -139,10 +139,6 @@ struct ProfileView: View {
                 print(oldValue)
                 print("Image new Bottom: \(newValue)")
             })
-            .onAppear {
-                print("Details Top: \(detailsSectionTop)")
-                print("Image Bottom: \(imageSectionBottom)")
-            }
         }
         .offset(y: profileOffset)
         .overlay {invitePopup}
