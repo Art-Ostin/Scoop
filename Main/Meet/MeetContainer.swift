@@ -32,10 +32,14 @@ struct MeetContainer: View {
             .id(vm.profiles.count)
             
             if let profileModel = selectedProfile {
+                
+//                VStackTest(selectedProfile: $selectedProfile)
                 ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
                     .id(profileModel.id)
                     .transition(.move(edge: .bottom))
                     .zIndex(1)
+                
+                
             }
             if let currentProfile = quickInvite {
                 SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
@@ -57,7 +61,6 @@ struct MeetContainer: View {
                 openPastInvites = false
             }
         }
-        .animation(.smooth(duration: 0.2), value: selectedProfile)
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) {screenSize in
             imageSize = screenSize - (24 * 2)

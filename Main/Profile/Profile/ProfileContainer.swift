@@ -1,7 +1,8 @@
 import SwiftUI
 
 /*
- Note: Geometry Reader needed to Keep the VStack from respecting hte top safe Area
+ Note: Geometry Reader needed to Keep the VStack from respecting the top safe Area
+ Note:
  */
 
 struct ProfileView: View {
@@ -111,6 +112,7 @@ struct ProfileView: View {
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+            .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
                 if imageSectionBottom == 0 {
@@ -123,6 +125,9 @@ struct ProfileView: View {
                 }
             }
             .coordinateSpace(name: "profile")
+            .onChange(of: profileOffset) {
+                print(profileOffset)
+            }
         }
         .offset(y: profileOffset)
         .overlay {invitePopup}

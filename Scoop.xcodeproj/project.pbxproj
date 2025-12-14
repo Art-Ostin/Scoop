@@ -65,7 +65,7 @@
 		655FADCB2E89F0FC00AFAD5F /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */; };
 		655FADCC2E89F0FC00AFAD5F /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655FADC72E89F0FC00AFAD5F /* ProfileViewModel.swift */; };
 		656126652E23212C00088B6D /* EditInterests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656126642E23212C00088B6D /* EditInterests.swift */; };
-		65618A502EEDE31200DB5AF1 /* VStack Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65618A4F2EEDE31200DB5AF1 /* VStack Test.swift */; };
+		65618A502EEDE31200DB5AF1 /* VStackTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65618A4F2EEDE31200DB5AF1 /* VStackTest.swift */; };
 		6561C8B22E035BE2006A72DF /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6561C8B12E035BC6006A72DF /* RootView.swift */; };
 		6561C8C82E0444EC006A72DF /* ModernEra-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8BF2E0444EC006A72DF /* ModernEra-Bold.ttf */; };
 		6561C8C92E0444EC006A72DF /* ModernEra-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8C02E0444EC006A72DF /* ModernEra-Medium.ttf */; };
@@ -229,7 +229,7 @@
 		655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
 		655FADC72E89F0FC00AFAD5F /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		656126642E23212C00088B6D /* EditInterests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditInterests.swift; sourceTree = "<group>"; };
-		65618A4F2EEDE31200DB5AF1 /* VStack Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VStack Test.swift"; sourceTree = "<group>"; };
+		65618A4F2EEDE31200DB5AF1 /* VStackTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VStackTest.swift; sourceTree = "<group>"; };
 		6561C8B12E035BC6006A72DF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		6561C8BF2E0444EC006A72DF /* ModernEra-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ModernEra-Bold.ttf"; sourceTree = "<group>"; };
 		6561C8C02E0444EC006A72DF /* ModernEra-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ModernEra-Medium.ttf"; sourceTree = "<group>"; };
@@ -484,7 +484,7 @@
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
 				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
-				65618A4F2EEDE31200DB5AF1 /* VStack Test.swift */,
+				65618A4F2EEDE31200DB5AF1 /* VStackTest.swift */,
 				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
 			);
 			path = Profile;
@@ -968,7 +968,7 @@
 				65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */,
 				651263982EAFBCF0005E6930 /* TabButton.swift in Sources */,
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
-				65618A502EEDE31200DB5AF1 /* VStack Test.swift in Sources */,
+				65618A502EEDE31200DB5AF1 /* VStackTest.swift in Sources */,
 				65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventRepo.swift in Sources */,
 				65E5C9262E51FBB10093410B /* MeetViewModel.swift in Sources */,
