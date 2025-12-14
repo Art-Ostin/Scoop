@@ -47,7 +47,7 @@ struct NavButton: View {
     NavButton(.back)
 }
 
-struct profileDismissButton : View {
+struct ProfileDismissButton : View {
     
     @Binding var selectedProfile: ProfileModel?
     let color: Color

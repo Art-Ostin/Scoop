@@ -170,7 +170,7 @@ extension ProfileView {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            profileDismissButton(selectedProfile: $selectedProfile, color: .white)
+            ProfileDismissButton(selectedProfile: $selectedProfile, color: .white)
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)
