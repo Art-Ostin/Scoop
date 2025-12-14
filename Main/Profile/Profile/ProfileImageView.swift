@@ -17,12 +17,11 @@ struct ProfileImageView: View {
     @State private var imageSize: CGFloat = 0
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 24) {
             profileImages(imageSize)
-                .frame(height: imageSize + 6)
+                .frame(height: imageSize + 6, alignment: .top)
             
             imageScroller
-            
         }
         .task {
             if let pre = preloaded {
@@ -56,7 +55,7 @@ extension ProfileImageView {
         .measure(key: ImageSectionBottom.self) {geo in
             geo.frame(in: .named("profile")).maxY //Gets bottom of this view
         }
-        .background(Color.blue)
+        .background(Color.red)
     }
     
     private var imageScroller : some View {
@@ -72,7 +71,7 @@ extension ProfileImageView {
                                     radius: selection == index ? 3 : 1, y: selection == index ? 5 : 2)
                             .onTapGesture { withAnimation(.easeInOut(duration: 0.8)) { self.selection = index} }
                             .stroke(10, lineWidth: selection == index ? 1.5 : 0, color: .accent)
-                            .frame(height: 84)
+                            .frame(height: 68, alignment: .top)
                     }
                     ClearRectangle(size: 0)
                 }
