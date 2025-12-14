@@ -5,15 +5,16 @@ import SwiftUI
  Note:
  */
 
+//    var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
+
+
 struct ProfileView: View {
     
     @Environment(\.tabSelection) private var tabSelection
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
-    
-    var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
-    
+        
     @Binding var selectedProfile: ProfileModel?
     @State var showInvitePopup: Bool = false
     @State var detailsOpen: Bool = false
@@ -114,9 +115,10 @@ struct ProfileView: View {
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
+            .overlay(alignment: .topTrailing) { inviteButton }
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
                 if imageSectionBottom == 0 {
-                    imageSectionBottom = imageBottom - 60
+                    imageSectionBottom = imageBottom
                 }
             }
             .onPreferenceChange(TopOfDetailsView.self) { topOfDetails in
@@ -127,6 +129,10 @@ struct ProfileView: View {
             .coordinateSpace(name: "profile")
             .onChange(of: profileOffset) {
                 print(profileOffset)
+            }
+            .onAppear {
+                print("Details Top: \(detailsSectionTop)")
+                print("Image Bottom: \(imageSectionBottom)")
             }
         }
         .offset(y: profileOffset)
@@ -159,7 +165,7 @@ extension ProfileView {
     
     private var inviteButton: some View {
         InviteButton(vm: vm, showInvite: $showInvitePopup)
-            .frame(maxWidth: .infinity, alignment: .topTrailing)
+//            .frame(maxWidth: .infinity, alignment: .topTrailing)
             .padding(.horizontal, 24)
             .padding(.top, imageSectionBottom)
             .gesture(DragGesture())

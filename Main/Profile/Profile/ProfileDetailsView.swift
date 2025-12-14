@@ -59,7 +59,7 @@ struct ProfileDetailsView: View {
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .scaleEffect(detailsOpen ? 1 : 0.95)
+//        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
     }
 }
 

@@ -50,13 +50,10 @@ extension ProfileImageView {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .measure(key: ImageSectionBottom.self) {geo in
-            geo.frame(in: .named("profile")).maxY //Gets bottom of this view
-        }
-        
         //Apply the shadow after the frame so shadow not included in distance between views
         .frame(height: imageSize)
         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+        .measure(key: ImageSectionBottom.self) {$0.frame(in: .named("profile")).maxY }
     }
     
     private var imageScroller : some View {
