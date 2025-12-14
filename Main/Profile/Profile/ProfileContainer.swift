@@ -24,11 +24,13 @@ struct ProfileView: View {
     @State var detailsSectionTop: CGFloat = 0
     @State var detailsOpenOffset: CGFloat = -292 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     
-    @State private var dragAxis: Axis? = nil
+    @State private var dragType: DragType? = nil
+    
     let preloadedImages: [UIImage]?
     let toggleDetailsThreshold: CGFloat = -50
     private var detailsDragRange: ClosedRange<CGFloat> {
-        detailsOpen ? (-85 ... -detailsOpenOffset) : (85 ... detailsOpenOffset)
+        let limit = detailsOpenOffset - 80
+        return detailsOpen ? (-85 ... -limit) : (limit ... 85)
     }
     
     init(vm: ProfileViewModel, preloadedImages: [UIImage]? = nil, meetVM: MeetViewModel? = nil, selectedProfile: Binding<ProfileModel?>) {
@@ -42,32 +44,30 @@ struct ProfileView: View {
         GeometryReader { geo in
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                    .offset(y: titleOffset())
+                    .offset(y: rangeUpdater(endValue: -108))
                     .opacity(titleOpacity())
                     .padding(.top, 36)
 
                 ProfileImageView(vm: vm, showInvite: $showInvitePopup)
-                    .offset(y: imageOffset())
+                    .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(
                         DragGesture()
                             .updating($profileOffset) { value, state, _ in
-                                guard dragType(v: value) == .vertical, detailsOpen == false else {return}
+                                guard dragType(v: value) == .profile else { return }
                                 state = value.translation.height
                             }
-                            .updating($detailsOffset) { value, state, _ in
-                                guard dragType(v: value) == .vertical else {return}
-                                if !detailsOpen && value.translation.height < 0 {
-                                    state = value.translation.height.clamped(to: detailsDragRange)
-                                }
+                            .updating($detailsOffset) { v, state, _ in
+                                guard dragType(v: v) == .details else { return }
+                                print("Never got here")
+                                state = v.translation.height.clamped(to: detailsDragRange)
                             }
-                        
                             .onEnded { v in
-                                defer { dragAxis = nil }
-                                guard dragAxis == .vertical else { return }
+                                defer { dragType = nil }
+                                guard let theDragType = dragType else { return }
                                 let predicted = v.predictedEndTranslation.height
                                 let distance = v.translation.height
                                 let dismissThreshold: CGFloat = 50
-                                
+                                                                
                                 let openDetails = predicted < toggleDetailsThreshold && !detailsOpen && profileOffset == 0
                                 
                                 if max(distance, predicted) > dismissThreshold && !detailsOpen {
@@ -84,14 +84,13 @@ struct ProfileView: View {
                     .simultaneousGesture(
                         DragGesture()
                             .updating($detailsOffset) { v, state, _ in
-                                guard dragType(v: v) == .vertical else { return }
+                                guard dragType(v: v) != nil else { return }
                                 state = v.translation.height.clamped(to: detailsDragRange)
                             }
                             .onEnded {
-                                defer { dragAxis = nil }
-                                guard dragAxis == .vertical else { return }
+                                defer { dragType = nil }
+                                guard dragType != nil else { return }
                                 let predicted = $0.predictedEndTranslation.height
-                                
                                 if predicted < toggleDetailsThreshold && profileOffset == 0 {
                                     detailsOpen = true
                                 } else if detailsOpen && predicted > 60 {
@@ -100,7 +99,6 @@ struct ProfileView: View {
                             }
                     )
             }
-            .offset(y: profileOffset)
             .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
@@ -118,6 +116,7 @@ struct ProfileView: View {
             }
             .coordinateSpace(name: "profile")
         }
+        .offset(y: profileOffset)
         .overlay {invitePopup}
     }
 }
@@ -151,7 +150,6 @@ extension ProfileView {
             .frame(maxWidth: .infinity, alignment: .topTrailing)
             .padding(.horizontal, 24)
             .padding(.top, imageSectionBottom)
-            .offset(y: inviteButtonOffset())
             .gesture(DragGesture())
             .onTapGesture { showInvitePopup = true}
     }
@@ -168,33 +166,33 @@ extension ProfileView {
         .opacity(overlayTitleOpacity())
     }
     
-    private func dragType(v: DragGesture.Value) -> Axis? {
-        if let dragAxis { return dragAxis }
+    private func dragType(v: DragGesture.Value) -> DragType? {
+        //If there is already a dragType don't reassign it (here), get y and x drag
+        if let dragType {return nil}
         let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
-        let dragThresh: CGFloat = 5
-        if max(dx, dy) >= dragThresh {
-            dragAxis = (dy > dx) ? .vertical : .horizontal
-            return dragAxis
-        }
-        return nil
+        
+        print("Got to this stage")
+        
+        let dragThresh: Bool = max(dx, dy) >= 5
+        let isVerticalDrag: Bool = dy > dx
+        guard dragThresh && isVerticalDrag else { return nil }
+        
+        let dragType: DragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
+        
+        print(dragType)
+        
+        
+        self.dragType = dragType
+        return dragType
     }
 }
 
 //Details Open or Closed  Offset
 extension ProfileView {
     
-    func titleOffset() -> CGFloat {
-        rangeUpdater(endValue: -108, detailsOpenOffset, detailsOffset)
-    }
-    
-    func imageOffset() -> CGFloat {
-        rangeUpdater(endValue: -108, detailsOpenOffset, detailsOffset)
-    }
-    
     func detailsSectionOffset() -> CGFloat {
         if detailsOpen {
-            print("Details is Open")
             return detailsOpenOffset + detailsOffset
         } else {
             return detailsOffset
@@ -202,9 +200,10 @@ extension ProfileView {
     }
     
     func overlayTitleOpacity() -> Double {
+        //Fetch what value e.g. '84' is 1/3 and 2/3 of total detailsOffset
         let one_third = max(1, abs(detailsOpenOffset) / 3)
-        let two_third = one_third * 2
         
+        //While closing (first third of the drag), fade from opaque to transparent.
         if detailsOpen {
             if abs(detailsOffset) < one_third {
                 return 1 - min( detailsOffset/one_third, 1)
@@ -212,10 +211,10 @@ extension ProfileView {
                 return 0
             }
         } else {
-            if abs(detailsOffset) < two_third {
+            if abs(detailsOffset) < one_third {
                 return 0
             } else {
-                return 0 + max((abs(detailsOffset) - two_third) / one_third, 0)
+                return 0 + max((abs(detailsOffset) - one_third)/one_third, 0)
             }
         }
     }
@@ -224,25 +223,29 @@ extension ProfileView {
         return 1 - overlayTitleOpacity()
     }
     
-    func inviteButtonOffset() -> CGFloat {
-        return 0
-    }
-    
-    
-    func rangeUpdater(endValue: CGFloat,_ detailsOpenOffset: CGFloat,_ currentDetailsOffset: CGFloat) -> CGFloat {
-        let percent = min(abs(currentDetailsOffset) / detailsOpenOffset, 1)
-        let move_amount = endValue * percent
+    func rangeUpdater(endValue: CGFloat) -> CGFloat {
+        //Get % details has moved and thus, how much to offset the specific view
+        let percent = min(abs(detailsOffset) / abs(detailsOpenOffset), 1)
+        let move_amount = abs(endValue) * percent
         
-        print(move_amount)
-        print(endValue)
+        // Start from the “resting” position: fully open uses endValue; closed uses 0.
+        var offset: CGFloat = detailsOpen ? endValue : 0
         
-        if detailsOpen {
-            return endValue + move_amount
-        } else {
-            return 0 - move_amount
+        // Apply the drag-driven adjustment but only if dragging in correct direction
+        if detailsOpen && detailsOffset > 0 {
+            offset += move_amount
+        } else if !detailsOpen && detailsOffset < 0 {
+            offset -= move_amount
         }
+        return offset
     }
 }
+
+enum DragType {
+    case details, profile
+}
+
+//See if it works not having .horizontal, and thus just keeping it nill, and keeps checking for dragType.
 
 
 /*
