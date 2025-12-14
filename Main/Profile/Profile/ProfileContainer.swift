@@ -100,8 +100,8 @@ struct ProfileView: View {
                     )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
-            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 0, topTrailingRadius: 0))
-            .shadow(color: .black.opacity(profileShadowOpacity),radius: profileShadowRadius,y: profileShadowYOffset)
+            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
+            .shadow(color: .black.opacity(0.25),radius: 12,y: 6)
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
@@ -239,24 +239,8 @@ extension ProfileView {
         return offset
     }
 }
-//For the Dismisall of container
-extension ProfileView {
-    private var dismissalProgress: CGFloat {
-        let maxOffset: CGFloat = 60
-        return min(max(profileOffset, 0), maxOffset) / maxOffset
-    }
-    private var profileCornerRadius: CGFloat { dismissalProgress * 32 }
-    private var profileShadowOpacity: Double { dismissalProgress == 0 ? 0 : Double(0.25 * dismissalProgress) }
-    private var profileShadowRadius: CGFloat { dismissalProgress * 12 }
-    private var profileShadowYOffset: CGFloat { dismissalProgress * 6 }
-}
 
 enum DragType {
     case details, profile, horizontal
 }
 
-/*
- /* Use when dismissing stage
-  .clipShape(RoundedRectangle(cornerRadius: profileOffset == 0 ? 32 : 0))
-  */
- */
