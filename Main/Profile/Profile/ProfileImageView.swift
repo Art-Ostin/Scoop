@@ -22,7 +22,7 @@ struct ProfileImageView: View {
                 .frame(height: imageSize + 6)
             
             imageScroller
-                .padding(.horizontal, 4)
+            
         }
         .task {
             if let pre = preloaded {
@@ -56,9 +56,8 @@ extension ProfileImageView {
         .measure(key: ImageSectionBottom.self) {geo in
             geo.frame(in: .named("profile")).maxY //Gets bottom of this view
         }
+        .background(Color.blue)
     }
-    
-    
     
     private var imageScroller : some View {
         ScrollViewReader { proxy in
@@ -75,8 +74,9 @@ extension ProfileImageView {
                             .stroke(10, lineWidth: selection == index ? 1.5 : 0, color: .accent)
                             .frame(height: 84)
                     }
-                    ClearRectangle(size: 16)
+                    ClearRectangle(size: 0)
                 }
+                .offset(x: 8) // Gives ScrollView padding initially
             }
             .onChange(of: selection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
@@ -87,12 +87,6 @@ extension ProfileImageView {
                 }
             }
         }
+        .background(Color.blue)
     }
 }
-
-/*
- .measure(key: ImageSectionBottom.self) { geo in
-//                geo.frame(in: .named("profile")).maxY //Gets bottom of this view
-//            }
-//            .ignoresSafeArea(edges: .all)
- */
