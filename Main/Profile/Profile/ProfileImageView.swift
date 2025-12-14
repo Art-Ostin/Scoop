@@ -14,12 +14,13 @@ struct ProfileImageView: View {
     var preloaded: [UIImage]? = nil
     @State private var selection = 0
     let imagePadding: CGFloat = 12
+    @State var selectedImage = 0
     @State private var imageSize: CGFloat = 0
     
     var body: some View {
         VStack(spacing: 24) {
             profileImages
-            
+
             imageScroller
         }
         .task {
@@ -44,7 +45,6 @@ extension ProfileImageView {
                 Image(uiImage: images[index])
                     .resizable()
                     .defaultImage(imageSize, 16)
-                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
                     .indexViewStyle(.page(backgroundDisplayMode: .never))
             }
@@ -53,8 +53,10 @@ extension ProfileImageView {
         .measure(key: ImageSectionBottom.self) {geo in
             geo.frame(in: .named("profile")).maxY //Gets bottom of this view
         }
-        .frame(height: imageSize + 6)
-        .background(Color.red)
+        
+        //Apply the shadow after the frame so shadow not included in distance between views
+        .frame(height: imageSize)
+        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
     
     private var imageScroller : some View {
@@ -68,14 +70,15 @@ extension ProfileImageView {
                             .defaultImage(60, 10)
                             .shadow(color: .black.opacity(selection == index ? 0.2 : 0.15),
                                     radius: selection == index ? 3 : 1, y: selection == index ? 5 : 2)
-                            .onTapGesture { withAnimation(.easeInOut(duration: 0.8)) { self.selection = index} }
-                            .stroke(10, lineWidth: selection == index ? 1.5 : 0, color: .accent)
-                            .frame(height: 68, alignment: .top)
+                            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index} }
+                            .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
                     }
                     ClearRectangle(size: 0)
                 }
-                .offset(x: 8) // Gives ScrollView padding initially
+                .offset(x: 18) // Gives ScrollView padding initially
             }
+            .frame(height: 60)
+            .scrollClipDisabled() //
             .onChange(of: selection) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
                     withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }
@@ -87,3 +90,13 @@ extension ProfileImageView {
         }
     }
 }
+
+/*
+ 
+ .shadow(color: selectedImage == images.map
+ 
+ 
+ images.map == {images[selectedImage]}  .black.opacity(0.3), radius: 5, x: 0, y: 10)
+ 
+ */
+

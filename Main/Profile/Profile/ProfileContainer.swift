@@ -79,7 +79,7 @@ struct ProfileView: View {
                             }
                     )
                 
-                ProfileDetailsView(vm: vm, showInvite: $showInvitePopup, p: vm.profileModel.profile, event: vm.profileModel.event)
+                ProfileDetailsView(vm: vm, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(

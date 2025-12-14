@@ -70,6 +70,7 @@ struct ProfileTitle: View {
             Spacer()
             ProfileDismissButton(color: .black, selectedProfile: $selectedProfile)
         }
+        .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))
         .padding(.horizontal)
     }

@@ -12,11 +12,12 @@ import SwiftUIFlowLayout
 struct ProfileDetailsView: View {
     
     @Bindable var vm: ProfileViewModel
-    @Binding var showInvite: Bool
-    @State private var scrollSelection: Int? = 0
-    @State var scrollBottom: CGFloat = 0
     let p: UserProfile
     let event: UserEvent?
+    let detailsOpen: Bool
+    
+    @State private var scrollSelection: Int? = 0
+    @State var scrollBottom: CGFloat = 0
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
     let scrollCoord = "Scroll"
 
@@ -58,6 +59,7 @@ struct ProfileDetailsView: View {
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+        .scaleEffect(detailsOpen ? 1 : 0.95)
     }
 }
 
