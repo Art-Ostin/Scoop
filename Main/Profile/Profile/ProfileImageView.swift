@@ -18,8 +18,7 @@ struct ProfileImageView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            profileImages(imageSize)
-                .frame(height: imageSize + 6, alignment: .top)
+            profileImages
             
             imageScroller
         }
@@ -39,13 +38,12 @@ struct ProfileImageView: View {
 
 extension ProfileImageView {
     
-    
-    private func profileImages(_ size: CGFloat) -> some View {
+    private var profileImages: some View {
         TabView(selection: $selection) {
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
                     .resizable()
-                    .defaultImage(size, 16)
+                    .defaultImage(imageSize, 16)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                     .tag(index)
                     .indexViewStyle(.page(backgroundDisplayMode: .never))
@@ -55,6 +53,7 @@ extension ProfileImageView {
         .measure(key: ImageSectionBottom.self) {geo in
             geo.frame(in: .named("profile")).maxY //Gets bottom of this view
         }
+        .frame(height: imageSize + 6)
         .background(Color.red)
     }
     
@@ -86,6 +85,5 @@ extension ProfileImageView {
                 }
             }
         }
-        .background(Color.blue)
     }
 }
