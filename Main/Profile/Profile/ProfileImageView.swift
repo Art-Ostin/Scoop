@@ -16,6 +16,7 @@ struct ProfileImageView: View {
     let imagePadding: CGFloat = 12
     @State var selectedImage = 0
     @State private var imageSize: CGFloat = 0
+    let detailsOffset: CGFloat
     
     var body: some View {
         VStack(spacing: 24) {
@@ -54,6 +55,9 @@ extension ProfileImageView {
         .frame(height: imageSize)
         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
         .measure(key: ImageSectionBottom.self) {$0.frame(in: .named("profile")).maxY}
+        .overlay(alignment: .bottomTrailing) {
+            InviteButton(vm: vm, showInvite: $showInvite)
+        }
     }
     
     private var imageScroller : some View {

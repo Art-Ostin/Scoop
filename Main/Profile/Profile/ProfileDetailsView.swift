@@ -36,7 +36,6 @@ struct ProfileDetailsView: View {
             }
             .scrollTargetLayout()
         }
-        .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
@@ -57,6 +56,9 @@ struct ProfileDetailsView: View {
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+        .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
+
+        
 //        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
     }
 }
