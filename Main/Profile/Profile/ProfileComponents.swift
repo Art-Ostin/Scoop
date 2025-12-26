@@ -13,7 +13,6 @@ struct DetailsSection<Content: View>: View {
     let title: String?
     let content: Content
     
-    
     init(color: Color = Color(red: 0.9, green: 0.9, blue: 0.9), title: String? = nil, @ViewBuilder content: () -> Content) {
         self.color = color
         self.title = title
@@ -21,12 +20,12 @@ struct DetailsSection<Content: View>: View {
     }
     
     var body: some View {
-        
             VStack(alignment: .leading, spacing: 18) {
                 content
             }
-            .padding(24)
-            .frame(maxWidth: .infinity, minHeight: 185, alignment: .topLeading)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, minHeight: 168, alignment: .center)
             .stroke(20, lineWidth: 1, color: color)
             .padding(.horizontal, 16)
             .overlay(alignment: .topLeading) {
@@ -115,7 +114,7 @@ struct PromptView: View {
     var count: Int {prompt.response.count}
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 18) {
             Text(prompt.prompt)
                 .font(.body(14, .italic))
             
@@ -127,6 +126,7 @@ struct PromptView: View {
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
@@ -161,24 +161,24 @@ struct TopSafeArea: PreferenceKey {
 }
 
 struct DetailsOverlayTitle: ViewModifier {
-    let title: String
+    let title: String?
     func body(content: Content) -> some View {
         content
-            .overlay(alignment: .topLeading, content: {
-                Text(title)
-                    .customCaption()
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(
-                        Capsule().fill(Color.blue)
-                    )
-                    .offset(x: 24, y: -8)
-            })
+            .overlay(alignment: .topLeading) {
+                if let title = self.title {
+                    Text(title)
+                        .customCaption()
+                        .padding(.horizontal, 8)
+                        .background(Color.background)
+                        .offset(y: -4)
+                        .padding(.horizontal, 36)
+                }
+            }
     }
 }
 
 extension View {
-    func detailsTitle(_ title: String) -> some View {
+    func detailsTitle(_ title: String?) -> some View {
         self.modifier(DetailsOverlayTitle(title: title))
     }
 }

@@ -59,7 +59,7 @@ struct ProfileDetailsView: View {
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
-        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
+//        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
     }
 }
 
@@ -67,13 +67,10 @@ extension ProfileDetailsView {
     private var detailsScreen1: some View {
         VStack(spacing: 16) {
             DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
-            
-            DetailsSection() {
                 if showProfileEvent {
-                    ProfileEvent(p: p, event: event)
+                    DetailsSection(title: "\(p.name)'s preferred meet") {ProfileEvent(p: p, event: event)}
                 } else {
-                    PromptView(prompt: p.prompt1)
-                }
+                    DetailsSection(){ PromptView(prompt: p.prompt1) }
             }
         }
     }
@@ -81,14 +78,8 @@ extension ProfileDetailsView {
     private var detailsScreen2: some View {
         VStack(spacing: 16) {
             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
-                        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
-                            Text(text)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 10)
-                                .font(.body(14))
-                                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
-                        }
-                }
+                UserInterests(p: p)
+            }
             
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)

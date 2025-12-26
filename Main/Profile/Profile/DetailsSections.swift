@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftUIFlowLayout
 
 struct UserKeyInfo: View {
     let p : UserProfile
@@ -23,43 +24,20 @@ struct UserKeyInfo: View {
             InfoItem(image: "magnifyingglass", info: p.lookingFor)
     }
 }
-
 struct UserInterests: View {
     let p: UserProfile
-    
-    private var rows: [[String]] {
-        p.interests.chunked(into: 3)
-    }
-    
-    
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Interests")
-                .customCaption()
-            
-            VStack(alignment: .leading, spacing: 30) {
-                ForEach(rows.indices, id: \.self) { rowIndex in
-                    let row = rows[rowIndex]
-                    HStack(spacing: 18) {
-                        ForEach(row.indices, id: \.self) { colIndex in
-                            let interest = row[colIndex]
-                            HStack(spacing: 18) {
-                                Text(interest)
-                                    .font(.body(16, .medium))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                                
-                                if colIndex != row.count - 1 {
-                                    NarrowDivide()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
+            Text(text)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 10)
+                .font(.body(14))
+                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
         }
+        .padding(.horizontal, -6)
     }
 }
+
 
 struct UserExtraInfo: View {
     let p: UserProfile
@@ -116,36 +94,81 @@ struct UserExtraInfo: View {
     }
 }
 
+
 struct ProfileEvent: View {
-    
     let p: UserProfile
     let event: UserEvent?
     
     var body: some View {
-        
         if let event = event {
-            
-            let hasMessage = event.message != nil
-            
-            VStack(alignment: .center, spacing: hasMessage ? 16 : 24) {
-                Text("\(event.otherUserName)'s Invite")
-                    .font(.body(14, .italic))
-                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
-                    .frame(maxWidth: .infinity, alignment: .center)
-                
-                EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
-                    .frame(maxWidth: .infinity, alignment: hasMessage ? .leading : .center)
-            }
-            .padding(.top, hasMessage ? -8 : 0)
-            
-        } else if let idealMeet =  p.idealMeetUp {
-            VStack(alignment: .center, spacing: 24) {
-                Text("\(p.name)'s Preferred Meet")
-                    .font(.body(14, .italic))
-                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
-                    .frame(maxWidth: .infinity, alignment: .center)
-                EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
-            }
+            EventFormatter(time: event.time, type: event.type, message: event.message, place: event.place, size: 24)
+        } else if let idealMeet = p.idealMeetUp {
+            EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
         }
     }
 }
+
+
+    
+    /*
+     let hasMessage = event.message != nil
+     
+         EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
+             .frame(maxWidth: .infinity, alignment: hasMessage ? .leading : .center)
+     }
+     .padding(.top, hasMessage ? -8 : 0)
+     
+ } else if let idealMeet =  p.idealMeetUp {
+         EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
+     }
+     */
+
+/*
+ VStack(alignment: .center, spacing: 24) {
+     Text("\(p.name)'s Preferred Meet")
+         .font(.body(14, .italic))
+         .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+         .frame(maxWidth: .infinity, alignment: .center)
+
+ */
+
+
+/*
+ struct UserInterests: View {
+     let p: UserProfile
+     
+     private var rows: [[String]] {
+         p.interests.chunked(into: 3)
+     }
+     
+     
+     var body: some View {
+         VStack(alignment: .leading, spacing: 16) {
+             Text("Interests")
+                 .customCaption()
+             
+             VStack(alignment: .leading, spacing: 30) {
+                 ForEach(rows.indices, id: \.self) { rowIndex in
+                     let row = rows[rowIndex]
+                     HStack(spacing: 18) {
+                         ForEach(row.indices, id: \.self) { colIndex in
+                             let interest = row[colIndex]
+                             HStack(spacing: 18) {
+                                 Text(interest)
+                                     .font(.body(16, .medium))
+                                     .lineLimit(1)
+                                     .minimumScaleFactor(0.7)
+                                 
+                                 if colIndex != row.count - 1 {
+                                     NarrowDivide()
+                                 }
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+     }
+ }
+
+ */

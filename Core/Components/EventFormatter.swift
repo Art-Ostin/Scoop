@@ -15,17 +15,14 @@ struct EventFormatter: View {
     let place: EventLocation
     let isInvite: Bool
     let size: CGFloat
-    let isProfile: Bool
     
-    
-    init(time: Date, type: String, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22, isProfile: Bool = false) {
+    init(time: Date, type: String, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
         self.time = time
         self.type = type
         self.message = message
         self.place = place
         self.isInvite = isInvite
         self.size = size
-        self.isProfile = isProfile
     }
     
     var body: some View {
