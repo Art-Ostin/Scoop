@@ -15,6 +15,7 @@ struct ProfileDetailsView: View {
     let p: UserProfile
     let event: UserEvent?
     let detailsOpen: Bool
+    let detailsOffset: CGFloat
     
     @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
@@ -57,17 +58,16 @@ struct ProfileDetailsView: View {
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
-
         
-//        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
+        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
     }
 }
 
 extension ProfileDetailsView {
     private var detailsScreen1: some View {
         VStack(spacing: 16) {
-            DetailsSection(color: .accent) {
-                UserKeyInfo(p: p)
+            DetailsSection(color: detailsOpen ? .accent : Color (red: 0.95, green: 0.95, blue: 0.95)) {
+                    UserKeyInfo(p: p)
             }
             DetailsSection() {
                 if showProfileEvent {
@@ -81,14 +81,35 @@ extension ProfileDetailsView {
     
     private var detailsScreen2: some View {
         VStack(spacing: 16) {
-            DetailsSection(color: .accent) {
-                UserInterests(p: p)
+            
+            VStack(alignment: .leading) {
+                Text("Interests & Character")
+                    .foregroundStyle(.black)
+                    .font(.body(18, .bold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 8)
+                
+                FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
+                    Text(text)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 10)
+                        .font(.body(14))
+                        .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            
+            SoftDivider()
+                .padding(24)
+
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
+    
     
     private var detailsScreen3: some View {
                 

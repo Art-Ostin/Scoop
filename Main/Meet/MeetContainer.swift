@@ -24,47 +24,46 @@ struct MeetContainer: View {
     
     init(vm: MeetViewModel) { self.vm = vm }
     var body: some View {
-        ZStack {
-            CustomTabPage(page: .Meet,TabAction: $showInfo) {
-                    profileScroller
-                    meetInfo
-            }
-            .id(vm.profiles.count)
-            
-            if let profileModel = selectedProfile {
+            ZStack {
+                CustomTabPage(page: .Meet,TabAction: $showInfo) {
+                        profileScroller
+                        meetInfo
+                }
+                .id(vm.profiles.count)
                 
-//                VStackTest(selectedProfile: $selectedProfile)
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
-                    .id(profileModel.id)
-                    .transition(.move(edge: .bottom))
-                    .zIndex(1)
+                if let profileModel = selectedProfile {
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
+                        .id(profileModel.id)
+                        .transition(.move(edge: .bottom))
+                        .zIndex(1)
+                }
                 
                 
-            }
-            if let currentProfile = quickInvite {
-                SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
-                    try? await vm.sendInvite(event: event, profileModel: currentProfile)
+                if let currentProfile = quickInvite {
+                    SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
+                        try? await vm.sendInvite(event: event, profileModel: currentProfile)
+                    }
+                }
+                
+                if showIdealTime {
+                    SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
+                        try? await vm.saveIdealMeetUp(event: event)
+                        try? await vm.createWeeklyCycle()
+                    }
                 }
             }
-            if showIdealTime {
-                SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
-                    try? await vm.saveIdealMeetUp(event: event)
-                    try? await vm.createWeeklyCycle()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .sheet(isPresented: $showPendingInvites) {pastInviteView}
+            .onChange(of: selectedProfile) {oldValue, newValue in
+                if newValue != nil && openPastInvites {
+                    withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
+                    openPastInvites = false
                 }
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .sheet(isPresented: $showPendingInvites) {pastInviteView}
-        .onChange(of: selectedProfile) {oldValue, newValue in
-            if newValue != nil && openPastInvites {
-                withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
-                openPastInvites = false
+            .measure(key: ImageSizeKey.self) { $0.size.width }
+            .onPreferenceChange(ImageSizeKey.self) {screenSize in
+                imageSize = screenSize - (24 * 2)
             }
-        }
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) {screenSize in
-            imageSize = screenSize - (24 * 2)
-        }
         }
     }
 

@@ -2,14 +2,12 @@ import SwiftUI
 
 /*
  Note: Geometry Reader needed to Keep the VStack from respecting the top safe Area
- Note:
  */
-
-//    var inviteButtonPadding: CGFloat { max(imageSectionBottom - 175, 0) }
 
 
 struct ProfileView: View {
     
+    @Namespace private var inviteNS
     @Environment(\.tabSelection) private var tabSelection
     
     @State private var vm: ProfileViewModel
@@ -31,6 +29,8 @@ struct ProfileView: View {
     @State private var measuredImage = false
     @State private var measuredDetails = false
     
+    @Namespace var inviteAnimation
+    
     let preloadedImages: [UIImage]?
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
@@ -45,8 +45,6 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        
-        
         GeometryReader { geo in
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
@@ -84,10 +82,14 @@ struct ProfileView: View {
                             }
                     )
                     .overlay(alignment: .bottomTrailing) {
-                        InviteButton(vm: vm, showInvite: $showInvitePopup)
+                        if !detailsOpen {
+                            InviteButton(vm: vm, showInvite: $showInvitePopup)
+                                .padding(.bottom, 96)
+                                .padding(.horizontal, 24)
+                        }
                     }
                 
-                ProfileDetailsView(vm: vm, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen)
+                ProfileDetailsView(vm: vm, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(
@@ -108,6 +110,14 @@ struct ProfileView: View {
                                 }
                             }
                     )
+                    .overlay(alignment: .topTrailing) {
+                        if detailsOpen {
+                            InviteButton(vm: vm, showInvite: $showInvitePopup)
+                                .offset(y: detailsOpenOffset)
+                                .padding(.horizontal, 24)
+                                .offset(y: -16)
+                        }
+                    }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
@@ -122,9 +132,6 @@ struct ProfileView: View {
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
-            .overlay(alignment: .topTrailing) {
-                    if profileOffset.isZero {inviteButton}
-            }
             .coordinateSpace(name: "profile")
             .onPreferenceChange(ImageSectionBottom.self) {imageBottom in
                 guard !measuredImage else {return}
@@ -136,6 +143,9 @@ struct ProfileView: View {
                 detailsSectionTop = (topOfDetails - 16) /*+ detailsOpenOffset*/ //get top when details Open
                 print("Top of Details when Open: \(detailsSectionTop)")
 //                Task { try? await Task.sleep(nanoseconds: 20000000); measuredDetails = true}
+            }
+            .overlay(alignment: .bottomTrailing) {
+                
             }
         }
         .offset(y: profileOffset)
@@ -229,9 +239,8 @@ extension ProfileView {
         print("Top: \(detailsSectionTop)")
         
         return imageSectionBottom + rangeUpdater(endValue: toggleDetailsYOffset)
-
+        
     }
-    
     
     func overlayTitleOpacity() -> Double {
         //Fetch what value e.g. '84' is 1/3 and 2/3 of total detailsOffset
@@ -273,11 +282,16 @@ extension ProfileView {
         }
         return offset
     }
+    
 }
 
 enum DragType {
     case details, profile, horizontal
 }
+
+
+
+
 
 
 /*
