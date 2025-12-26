@@ -122,23 +122,3 @@ struct TopOfDetailsView: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-
-
-
-
-/*
- .overlay(alignment: .top) {
-     InviteButton(vm: vm, showInvite: $showInvite)
-         .offset(y: 12)
- }
- */
-
-/*
- VStack(spacing: 16) {
-     VStack(alignment: .leading) {
-         Text("Interests & Character")
-             .foregroundStyle(.black)
-             .font(.body(18, .bold))
-             .frame(maxWidth: .infinity, alignment: .leading)
-             .padding(.horizontal, 8)
- */

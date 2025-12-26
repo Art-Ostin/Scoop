@@ -159,26 +159,3 @@ struct TopSafeArea: PreferenceKey {
           value = max(value, nextValue())
       }
 }
-
-struct DetailsOverlayTitle: ViewModifier {
-    let title: String?
-    func body(content: Content) -> some View {
-        content
-            .overlay(alignment: .topLeading) {
-                if let title = self.title {
-                    Text(title)
-                        .customCaption()
-                        .padding(.horizontal, 8)
-                        .background(Color.background)
-                        .offset(y: -4)
-                        .padding(.horizontal, 36)
-                }
-            }
-    }
-}
-
-extension View {
-    func detailsTitle(_ title: String?) -> some View {
-        self.modifier(DetailsOverlayTitle(title: title))
-    }
-}
