@@ -10,11 +10,7 @@ import SwiftUI
 struct UserKeyInfo: View {
     let p : UserProfile
     var body : some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("About")
-                .customCaption()
-                .frame(maxWidth: .infinity, alignment: .leading)
-            HStack(alignment: .center) {
+        HStack(alignment: .center) {
                 InfoItem(image: "Year", info: p.year)
                 Spacer()
                 InfoItem(image: "Height", info: ("193cm"))
@@ -25,7 +21,6 @@ struct UserKeyInfo: View {
             InfoItem(image: "ScholarStyle", info: p.degree)
             Divider().background(Color.grayPlaceholder)
             InfoItem(image: "magnifyingglass", info: p.lookingFor)
-        }
     }
 }
 
@@ -118,26 +113,6 @@ struct UserExtraInfo: View {
         }
         Divider().foregroundStyle(Color.grayPlaceholder)
         InfoItem(image: "GenderIcon", info: p.sex)
-    }
-}
-
-struct PromptView: View {
-    let prompt: PromptResponse
-    var count: Int {prompt.response.count}
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text(prompt.prompt)
-                .font(.body(14, .italic))
-            
-            Text(prompt.response)
-                .font(.title(24, .bold))
-                .lineSpacing(8)
-                .font(.title(28))
-                .lineLimit( count > 90 ? 4 : 3)
-                .minimumScaleFactor(0.6)
-                .lineSpacing(8)
-        }
     }
 }
 

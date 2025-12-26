@@ -10,20 +10,35 @@ import SwiftUI
 
 struct DetailsSection<Content: View>: View {
     let color: Color
+    let title: String?
     let content: Content
     
-    init(color: Color = Color(red: 0.9, green: 0.9, blue: 0.9), @ViewBuilder content: () -> Content) {
+    
+    init(color: Color = Color(red: 0.9, green: 0.9, blue: 0.9), title: String? = nil, @ViewBuilder content: () -> Content) {
         self.color = color
+        self.title = title
         self.content = content()
     }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            content
-        }
-        .padding(18)
-        .frame(maxWidth: .infinity, minHeight: 185, alignment: .topLeading)
-        .stroke(20, lineWidth: 1, color: color)
-        .padding(.horizontal, 16)
+        
+            VStack(alignment: .leading, spacing: 18) {
+                content
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, minHeight: 185, alignment: .topLeading)
+            .stroke(20, lineWidth: 1, color: color)
+            .padding(.horizontal, 16)
+            .overlay(alignment: .topLeading) {
+                if let title = self.title {
+                    Text(title)
+                        .customCaption()
+                        .padding(.horizontal, 8)
+                        .background(Color.background)
+                        .offset(y: -4)
+                        .padding(.horizontal, 36)
+                }
+            }
     }
 }
 
@@ -94,6 +109,27 @@ struct ProfileSecondTitle: View {
     }
 }
 
+struct PromptView: View {
+    
+    let prompt: PromptResponse
+    var count: Int {prompt.response.count}
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text(prompt.prompt)
+                .font(.body(14, .italic))
+            
+            Text(prompt.response)
+                .font(.title(24, .bold))
+                .lineSpacing(8)
+                .font(.title(28))
+                .lineLimit( count > 90 ? 4 : 3)
+                .minimumScaleFactor(0.6)
+                .lineSpacing(8)
+        }
+    }
+}
+
 extension Array {
     func chunked(into size: Int) -> [[Element]] {
         stride(from: 0, to: count, by: size).map { start in
@@ -122,4 +158,27 @@ struct TopSafeArea: PreferenceKey {
       static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
           value = max(value, nextValue())
       }
+}
+
+struct DetailsOverlayTitle: ViewModifier {
+    let title: String
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .topLeading, content: {
+                Text(title)
+                    .customCaption()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(
+                        Capsule().fill(Color.blue)
+                    )
+                    .offset(x: 24, y: -8)
+            })
+    }
+}
+
+extension View {
+    func detailsTitle(_ title: String) -> some View {
+        self.modifier(DetailsOverlayTitle(title: title))
+    }
 }

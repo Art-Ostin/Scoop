@@ -413,6 +413,7 @@
 				655FADC82E89F0FC00AFAD5F /* Profile */,
 				6522EF242E1EE61A004531F9 /* EditProfilePage */,
 				65F9E38E2EE7447F008A57BD /* EditProfileScreens */,
+				6514B60D2EB2FF6100551C3A /* Images */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -727,7 +728,6 @@
 				656126642E23212C00088B6D /* EditInterests.swift */,
 				65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */,
 				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
-				6514B60D2EB2FF6100551C3A /* Images */,
 			);
 			path = EditProfileScreens;
 			sourceTree = "<group>";

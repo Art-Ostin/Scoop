@@ -8,11 +8,13 @@
 import SwiftUI
 import PhotosUI
 
+
+
 struct EditPhotoCell2: View {
-    
+
     @Binding var image: UIImage?
     @State private var item: PhotosPickerItem?
-    
+
     var body: some View {
         PhotosPicker(selection: $item, matching: .images) {
             if let image {

@@ -27,7 +27,6 @@ struct ProfileDetailsView: View {
                 detailsScreen1
                     .containerRelativeFrame(.horizontal)
                     .id(0)
-                    .padding(.bottom, 36)
                 detailsScreen2
                     .containerRelativeFrame(.horizontal)
                     .id(1)
@@ -35,7 +34,9 @@ struct ProfileDetailsView: View {
                     .containerRelativeFrame(.horizontal)
                     .id(2)
             }
+            .offset(y: 8)
             .scrollTargetLayout()
+            .padding(.bottom, 36)
         }
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
@@ -52,13 +53,12 @@ struct ProfileDetailsView: View {
             }
             .offset(y: 24)
         }
-        .padding(.top, 16)
+        .padding(.top, 8)
         .padding(.bottom, 250)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
-        
         .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
     }
 }
@@ -66,9 +66,8 @@ struct ProfileDetailsView: View {
 extension ProfileDetailsView {
     private var detailsScreen1: some View {
         VStack(spacing: 16) {
-            DetailsSection(color: detailsOpen ? .accent : Color (red: 0.95, green: 0.95, blue: 0.95)) {
-                    UserKeyInfo(p: p)
-            }
+            DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+            
             DetailsSection() {
                 if showProfileEvent {
                     ProfileEvent(p: p, event: event)
@@ -81,33 +80,20 @@ extension ProfileDetailsView {
     
     private var detailsScreen2: some View {
         VStack(spacing: 16) {
-            
-            VStack(alignment: .leading) {
-                Text("Interests & Character")
-                    .foregroundStyle(.black)
-                    .font(.body(18, .bold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 8)
-                
-                FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
-                    Text(text)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 10)
-                        .font(.body(14))
-                        .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
+            DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+                        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
+                            Text(text)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 10)
+                                .font(.body(14))
+                                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
+                        }
                 }
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
             
-            SoftDivider()
-                .padding(24)
-
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
     }
     
     
@@ -154,4 +140,14 @@ struct TopOfDetailsView: PreferenceKey {
      InviteButton(vm: vm, showInvite: $showInvite)
          .offset(y: 12)
  }
+ */
+
+/*
+ VStack(spacing: 16) {
+     VStack(alignment: .leading) {
+         Text("Interests & Character")
+             .foregroundStyle(.black)
+             .font(.body(18, .bold))
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .padding(.horizontal, 8)
  */

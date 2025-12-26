@@ -17,7 +17,6 @@ struct EditPhotoCell: View {
     @State private var item: PhotosPickerItem?
 
     var body: some View {
-        
         PhotosPicker(selection: $picker, matching: .images) {
             if let image {
                 Image(uiImage: image)
