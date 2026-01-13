@@ -39,6 +39,7 @@ struct ProfileDetailsView: View {
 
                  PromptView(prompt: p.prompt1)
                     .padding(24)
+                    .padding(.vertical, 12)
                 
                 DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
                     UserInterests(p: p, interestScale: interestScale)
@@ -53,20 +54,23 @@ struct ProfileDetailsView: View {
 
                  PromptView(prompt:  p.prompt2)
                     .padding(24)
+                    .padding(.vertical, 12)
+
 
                 DetailsSection(title: "Extra Info") {UserExtraInfo(p: p)}
                 
                 if !p.prompt3.response.isEmpty {
                         PromptView(prompt: p.prompt3)
                         .padding(24)
-
+                        .padding(.vertical, 12)
                 }
             }
             .offset(y: 16)
             .padding(.bottom, 256)
-            .coordinateSpace(.named("InterestsSection"))
+            
         }
         .frame(height: 600)
+        .coordinateSpace(.named("InterestsSection"))
         .onScrollGeometryChange(for: Bool.self) { geo in
             let y = geo.contentOffset.y + geo.contentInsets.top
             return y <= 0.5
@@ -81,8 +85,12 @@ struct ProfileDetailsView: View {
                     .padding(.horizontal, 24)
                     .offset(y: -24)
             }
-            .offset(y: 364)
+            .offset(y: 400)
         }
+        .overlay(alignment: .top) {
+            
+        }
+        
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)

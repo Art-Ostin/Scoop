@@ -116,6 +116,7 @@ struct PromptView: View {
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
                 .padding(.leading, 12)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
