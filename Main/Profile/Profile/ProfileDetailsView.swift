@@ -23,9 +23,10 @@ struct ProfileDetailsView: View {
     @State var scrollBottom: CGFloat = 0
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
     
-    @State var flowLayoutBottom: CGFloat = 0
-    @State var interestSectionBottom: CGFloat = 0
-    var resizeInterests: Bool {flowLayoutBottom > interestSectionBottom}
+    @State private var flowLayoutBottom: CGFloat = 0
+    @State private var interestSectionBottom: CGFloat = 0
+    @State private var interestScale: CGFloat = 1
+    
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -84,16 +85,14 @@ extension ProfileDetailsView {
     private var detailsScreen2: some View {
         VStack(spacing: 16) {
             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
-                UserInterests(p: p, resizeInterests: resizeInterests)
+                UserInterests(p: p, interestScale: interestScale)
             }
             .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
             .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
             .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
-            .onChange(of: interestSectionBottom) {
-                print("Interests Section Bottom: \(interestSectionBottom)")
-                print("FlowLayoutBottom Section Bottom: \(flowLayoutBottom)")
+            .onChange(of: flowLayoutBottom) {
+                updateInterestScale()
             }
-            
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
@@ -137,3 +136,13 @@ struct TopOfDetailsView: PreferenceKey {
     }
 }
 
+private extension ProfileDetailsView {
+    func updateInterestScale() {
+        guard flowLayoutBottom > 0, interestSectionBottom > 0 else { return }
+        guard flowLayoutBottom > interestSectionBottom else { return }
+        let newScale = max(interestSectionBottom / flowLayoutBottom, 0.1)
+        if newScale < interestScale {
+            interestScale = newScale
+        }
+    }
+}

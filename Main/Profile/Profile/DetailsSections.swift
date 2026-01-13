@@ -78,26 +78,21 @@ struct UserExtraInfo: View {
 }
 struct UserInterests: View {
     let p: UserProfile
-    let resizeInterests: Bool
-    
-    @State var totalHeight: CGFloat = 0
+    let interestScale: CGFloat
     
     var body: some View {
         FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
             Text(text)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 10)
-                .font(.body(16))
+                .padding(.horizontal, 8 * interestScale)
+                .padding(.vertical, 10 * interestScale)
+                .font(.body(16 * interestScale))
+                .stroke(12 * interestScale, color: Color(red: 0.90, green: 0.90, blue: 0.90))
                 .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
                 .measure(key: FlowLayoutBottom.self) { proxy in
                     proxy.frame(in: .named("InterestsSection")).maxY
                 }
-//                .scaleEffect(resizeInterests ? 0.95 : 1)
         }
         .padding(.horizontal, -16)
-        .onAppear {
-            print(resizeInterests)
-        }
     }
 }
 
@@ -108,7 +103,6 @@ struct InterestsBottomKey: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-
 
 struct FlowLayoutBottom: PreferenceKey {
     static var defaultValue: CGFloat = 0
