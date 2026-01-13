@@ -86,7 +86,7 @@ extension ProfileDetailsView {
         VStack(spacing: 16) {
             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
                 UserInterests(p: p, interestScale: interestScale)
-                    .padding(.vertical, interestScale == 0 ? 0 : -10)
+                    .padding(.vertical, interestScale == 0 ? 0 : -12)
             }
             .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
             .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
