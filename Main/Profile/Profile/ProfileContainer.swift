@@ -22,7 +22,7 @@ struct ProfileView: View {
     
     @State var imageSectionBottom: CGFloat = 0
     @State var detailsSectionTop: CGFloat = 0
-    @State var detailsOpenOffset: CGFloat = -292 //Turn this into a PreferenceKey measuring openOffset based of how much needed
+    @State var detailsOpenOffset: CGFloat = -236 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     
     @State private var dragType: DragType? = nil
     
@@ -288,40 +288,3 @@ extension ProfileView {
 enum DragType {
     case details, profile, horizontal
 }
-
-
-
-
-
-
-/*
- .background(
-     Color.background
-         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
- )
- .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24))
- */
-
-/*
- if imageSectionBottom.isZero {
-     imageSectionBottom = imageBottom
- }
- */
-/*
- private func measureOnce(isDetailsTop: Bool, value: CGFloat) {
-     var hasMeasured = false
-     if !hasMeasured {
-         if isDetailsTop {
-             detailsSectionTop = value
-         } else {
-             imageSectionBottom = value - 60
-             print("Updated")
-         }
-         Task {
-             try? await Task.sleep(nanoseconds: 20000000)
-             hasMeasured = true
-         }
-     }
- }
-
- */

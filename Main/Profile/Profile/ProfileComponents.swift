@@ -25,7 +25,7 @@ struct DetailsSection<Content: View>: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, minHeight: 168, alignment: .center)
+            .frame(maxWidth: .infinity, minHeight: 169, alignment: .center)
             .stroke(20, lineWidth: 1, color: color)
             .padding(.horizontal, 16)
             .overlay(alignment: .topLeading) {
@@ -34,7 +34,7 @@ struct DetailsSection<Content: View>: View {
                         .customCaption()
                         .padding(.horizontal, 8)
                         .background(Color.background)
-                        .offset(y: -4)
+                        .offset(y: -6)
                         .padding(.horizontal, 36)
                 }
             }
@@ -63,17 +63,7 @@ struct InfoItem: View {
     }
 }
 
-struct NarrowDivide: View {
-    var body: some View {
-        Rectangle()
-            .foregroundColor(.clear)
-            .frame(width: 0.7, height: 16)
-            .background(Color(red: 0.9, green: 0.9, blue: 0.9))
-    }
-}
-
 struct ProfileTitle: View {
-    
     let p: UserProfile
     @Binding var selectedProfile: ProfileModel?
     
@@ -91,7 +81,6 @@ struct ProfileTitle: View {
 }
 
 struct ProfileSecondTitle: View {
-    
     let vm: ProfileViewModel
     @Binding var selectedProfile: ProfileModel?
     

@@ -49,10 +49,6 @@ struct UserExtraInfo: View {
         
         if vicesOnTwoLines {
             VStack(spacing: 16) {
-                Text("Extra")
-                    .customCaption()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
                 HStack {
                     InfoItem(image: "AlcoholIcon", info: p.drinking)
                     Spacer()
@@ -110,65 +106,3 @@ struct ProfileEvent: View {
 
 
     
-    /*
-     let hasMessage = event.message != nil
-     
-         EventFormatter(time: event.time, type: event.type, message: event.message, isInvite: true, place: event.place, size: 24)
-             .frame(maxWidth: .infinity, alignment: hasMessage ? .leading : .center)
-     }
-     .padding(.top, hasMessage ? -8 : 0)
-     
- } else if let idealMeet =  p.idealMeetUp {
-         EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: false, place: idealMeet.place, size: 24)
-     }
-     */
-
-/*
- VStack(alignment: .center, spacing: 24) {
-     Text("\(p.name)'s Preferred Meet")
-         .font(.body(14, .italic))
-         .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
-         .frame(maxWidth: .infinity, alignment: .center)
-
- */
-
-
-/*
- struct UserInterests: View {
-     let p: UserProfile
-     
-     private var rows: [[String]] {
-         p.interests.chunked(into: 3)
-     }
-     
-     
-     var body: some View {
-         VStack(alignment: .leading, spacing: 16) {
-             Text("Interests")
-                 .customCaption()
-             
-             VStack(alignment: .leading, spacing: 30) {
-                 ForEach(rows.indices, id: \.self) { rowIndex in
-                     let row = rows[rowIndex]
-                     HStack(spacing: 18) {
-                         ForEach(row.indices, id: \.self) { colIndex in
-                             let interest = row[colIndex]
-                             HStack(spacing: 18) {
-                                 Text(interest)
-                                     .font(.body(16, .medium))
-                                     .lineLimit(1)
-                                     .minimumScaleFactor(0.7)
-                                 
-                                 if colIndex != row.count - 1 {
-                                     NarrowDivide()
-                                 }
-                             }
-                         }
-                     }
-                 }
-             }
-         }
-     }
- }
-
- */

@@ -172,13 +172,3 @@ import FirebaseFirestore
         try await userManager.updateUser(userId: user.id, values: values)
     }
 }
-
-/*
-//    func fetchUserField<T>(_ key: KeyPath<UserProfile, T>) -> T {
-//        user[keyPath: key]
-//    }
- */
-
-
-/*
- */

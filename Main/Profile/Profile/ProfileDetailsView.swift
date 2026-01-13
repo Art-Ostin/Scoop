@@ -34,7 +34,7 @@ struct ProfileDetailsView: View {
                     .containerRelativeFrame(.horizontal)
                     .id(2)
             }
-            .offset(y: 8)
+            .offset(y: 16) //Acts as padding
             .scrollTargetLayout()
             .padding(.bottom, 36)
         }
@@ -45,15 +45,15 @@ struct ProfileDetailsView: View {
             VStack(spacing: 0) {
                 PageIndicator(count: 3, selection: scrollSelection ?? 0)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .offset(y: 16)
+//                    .offset(y: 6)
                 
                 DeclineButton() {}
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 24)
+                    .offset(y: -24)
             }
             .offset(y: 24)
         }
-        .padding(.top, 8)
         .padding(.bottom, 250)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
@@ -91,12 +91,12 @@ extension ProfileDetailsView {
     private var detailsScreen3: some View {
                 
         ScrollView(.vertical) {
-            VStack(spacing: 16) {
-                DetailsSection(color: .accent) {
+            VStack(spacing: 0) {
+                DetailsSection(title: "Extra Info") {
                     UserExtraInfo(p: p)
                 }
                 if showProfileEvent {
-                    DetailsSection(color: .accent) {
+                    DetailsSection() {
                         PromptView(prompt: p.prompt2)
                     }
                 } else if showProfileEvent && !p.prompt3.prompt.isEmpty {
