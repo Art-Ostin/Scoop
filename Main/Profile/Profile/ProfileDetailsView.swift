@@ -41,11 +41,13 @@ struct ProfileDetailsView: View {
                 detailsScreen3
                     .containerRelativeFrame(.horizontal)
                     .id(2)
+                    .frame(maxHeight: .infinity)
             }
             .offset(y: 16) //Acts as padding
             .scrollTargetLayout()
             .padding(.bottom, 36)
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
@@ -62,7 +64,10 @@ struct ProfileDetailsView: View {
             }
             .offset(y: 24)
         }
-        .padding(.bottom, scrollSelection == 2 && scrollThirdTab ? 0 :  250)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear
+                .frame(height: scrollSelection == 2 && scrollThirdTab ? 0 : 250)
+        }
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
@@ -126,10 +131,8 @@ extension ProfileDetailsView {
                     }
                 }
             }
-            .padding(.bottom, 148)
             .offset(y: 12)
         }
-        .frame(maxHeight: .infinity)
     }
 }
 
