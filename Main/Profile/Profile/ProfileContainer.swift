@@ -84,10 +84,9 @@ struct ProfileView: View {
                                 }
                             }
                     )
-
                 
                 ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
-                    .scaleEffect(detailsOpen ? 1 : 0.95, anchor: .top)
+                    .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(
@@ -215,12 +214,9 @@ extension ProfileView {
     }
     
     func InviteOffset() -> CGFloat {
-        
         if detailsSectionTop < imageSectionBottom {
             print("")
-            
         }
-        
         let toggleDetailsYOffset = imageSectionBottom - detailsSectionTop
         
         
@@ -255,21 +251,21 @@ extension ProfileView {
         return 1 - overlayTitleOpacity()
     }
     
-    func rangeUpdater(endValue: CGFloat) -> CGFloat {
-        //Get % details has moved and thus, how much to offset the specific view
-        let percent = min(abs(detailsOffset) / abs(detailsOpenOffset), 1)
-        let move_amount = abs(endValue) * percent
-        
-        // Start from the “resting” position: fully open uses endValue; closed uses 0.
-        var offset: CGFloat = detailsOpen ? endValue : 0
-        
-        // Apply the drag-driven adjustment but only if dragging in correct direction
+    func rangeUpdater(startValue: CGFloat, endValue: CGFloat) -> CGFloat {
+        let denom = max(abs(detailsOpenOffset), 0.0001)
+        let t = min(abs(detailsOffset) / denom, 1)
+        let delta = (endValue - startValue) * t
+        var value = detailsOpen ? endValue : startValue
         if detailsOpen && detailsOffset > 0 {
-            offset += move_amount
+            value -= delta
         } else if !detailsOpen && detailsOffset < 0 {
-            offset -= move_amount
+            value += delta
         }
-        return offset
+        return value
+    }
+    
+    func rangeUpdater(endValue: CGFloat) -> CGFloat {
+        rangeUpdater(startValue: 0, endValue: endValue)
     }
 }
 

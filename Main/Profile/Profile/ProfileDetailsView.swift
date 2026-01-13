@@ -75,11 +75,11 @@ struct ProfileDetailsView: View {
 extension ProfileDetailsView {
     private var detailsScreen1: some View {
         VStack(spacing: 16) {
-            DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+            DetailsSection(color: detailsOpen ? .accent : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
                 if showProfileEvent {
                     DetailsSection(title: "\(p.name)'s preferred meet") {ProfileEvent(p: p, event: event)}
                 } else {
-                    DetailsSection(){ PromptView(prompt: p.prompt1) }
+                    DetailsSection() { PromptView(prompt: p.prompt1) }
             }
         }
         .offset(y: 16)
@@ -88,7 +88,7 @@ extension ProfileDetailsView {
     
     private var detailsScreen2: some View {
         VStack(spacing: 16) {
-            DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+            DetailsSection(color: detailsOpen ? .grayPlaceholder : .grayBackground, title: "Interests & Character") {
                 UserInterests(p: p, interestScale: interestScale)
                     .padding(.vertical, interestScale == 0 ? 0 : -12)
             }
@@ -107,13 +107,13 @@ extension ProfileDetailsView {
         .frame(maxHeight: .infinity, alignment: .top)
         .coordinateSpace(.named("InterestsSection"))
     }
-
+    
     @ViewBuilder
     private var detailsScreen3: some View {
         if scrollThirdTab {
             ScrollView(.vertical) {
                 VStack(spacing: 16) {
-                    DetailsSection(title: "Extra Info") {UserExtraInfo(p: p) }
+                    DetailsSection(color: detailsOpen ? .grayPlaceholder : .grayBackground, title: "Extra Info") {UserExtraInfo(p: p) }
                     DetailsSection() {PromptView(prompt: p.prompt2)}
                     DetailsSection() {PromptView(prompt: p.prompt3)}
                 }
@@ -130,7 +130,7 @@ extension ProfileDetailsView {
             .frame(height: 600, alignment: .top)
         } else {
             VStack(spacing: 16) {
-                DetailsSection(title: "Extra Info") {UserExtraInfo(p: p) }
+                DetailsSection(color: detailsOpen ? .grayPlaceholder : .grayBackground, title: "Extra Info") {UserExtraInfo(p: p) }
                 if showProfileEvent {
                     DetailsSection() {PromptView(prompt: p.prompt2)}
                 } else if !p.prompt3.response.isEmpty {
