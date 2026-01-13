@@ -22,7 +22,11 @@ struct ProfileDetailsView: View {
     @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
-
+    
+    @State var flowLayoutBottom: CGFloat = 0
+    @State var interestSectionBottom: CGFloat = 0
+    var resizeInterests: Bool {flowLayoutBottom > interestSectionBottom}
+    
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
@@ -80,23 +84,21 @@ extension ProfileDetailsView {
     private var detailsScreen2: some View {
         VStack(spacing: 16) {
             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
-                UserInterests(p: p)
-                    .measure(key: DetailsSectionHeight.self) { geo in
-                        geo.size.height
-                    }
-                    .padding(.horizontal, -6)
-                    .onPreferenceChange(DetailsSectionHeight.self) { newValue in
-                        totalHeight = newValue
-                    }
-                    .onChange(of: totalHeight) {
-                        print("THISS SISISI ITTTT")
-                        print(totalHeight)
-                    }
+                UserInterests(p: p, resizeInterests: resizeInterests)
             }
+            .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
+            .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
+            .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
+            .onChange(of: interestSectionBottom) {
+                print("Interests Section Bottom: \(interestSectionBottom)")
+                print("FlowLayoutBottom Section Bottom: \(flowLayoutBottom)")
+            }
+            
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
         }
+        .coordinateSpace(.named("InterestsSection"))
     }
     
     
@@ -134,3 +136,4 @@ struct TopOfDetailsView: PreferenceKey {
         value = max(value, nextValue())
     }
 }
+

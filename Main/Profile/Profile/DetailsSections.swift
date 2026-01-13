@@ -78,8 +78,7 @@ struct UserExtraInfo: View {
 }
 struct UserInterests: View {
     let p: UserProfile
-    
-    @State var isOverThreeLines: Bool = false
+    let resizeInterests: Bool
     
     @State var totalHeight: CGFloat = 0
     
@@ -90,21 +89,33 @@ struct UserInterests: View {
                 .padding(.vertical, 10)
                 .font(.body(16))
                 .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
+                .measure(key: FlowLayoutBottom.self) { proxy in
+                    proxy.frame(in: .named("InterestsSection")).maxY
+                }
+//                .scaleEffect(resizeInterests ? 0.95 : 1)
         }
-        .measure(key: DetailsSectionHeight.self) { proxy in
-            proxy.frame(in: .named("FlowSpace")).minY
+        .padding(.horizontal, -16)
+        .onAppear {
+            print(resizeInterests)
         }
-        .coordinateSpace(name: "FlowSpace")
     }
 }
 
-struct DetailsSectionHeight: PreferenceKey {
+
+struct InterestsBottomKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())
     }
 }
 
+
+struct FlowLayoutBottom: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
 
 
 
@@ -120,4 +131,5 @@ struct ProfileEvent: View {
         }
     }
 }
+
 
