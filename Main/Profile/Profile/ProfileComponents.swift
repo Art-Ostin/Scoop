@@ -70,7 +70,7 @@ struct ProfileTitle: View {
     
     var body: some View {
         HStack {
-            Text(p.name)
+            Text("Hello World")
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             ProfileDismissButton(color: .black, selectedProfile: $selectedProfile)
