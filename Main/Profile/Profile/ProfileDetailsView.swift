@@ -132,7 +132,7 @@ extension ProfileDetailsView {
             .offset(y: 12)
             .padding(.bottom, 300)
         }
-        .scrollDisabled(!detailsOpen)
+        .scrollDisabled(disableDetailsScroll)
         .frame(height: scrollSelection == 2 ? 600 : 0)
         .onScrollGeometryChange(for: Bool.self) { geo in
             let y = geo.contentOffset.y + geo.contentInsets.top
@@ -159,4 +159,46 @@ private extension ProfileDetailsView {
             interestScale = newScale
         }
     }
+
+    var disableDetailsScroll: Bool {
+           !detailsOpen || detailsOpen && scrollSelection == 2 && isTopOfScroll && detailsOffset > 0
+    }
 }
+
+/*
+ private var detailsScreen3: some View {
+     ScrollView(.vertical) {
+         VStack(spacing: 16) {
+             DetailsSection(title: "Extra Info") {
+                 UserExtraInfo(p: p)
+             }
+             if scrollThirdTab {
+                 DetailsSection(color: .red) {
+                     PromptView(prompt: p.prompt2)
+                 }
+                 DetailsSection(color: .blue) {
+                     PromptView(prompt: p.prompt3)
+                 }
+             } else if showProfileEvent {
+                 DetailsSection() {
+                     PromptView(prompt: p.prompt2)
+                 }
+             } else if !p.prompt3.response.isEmpty {
+                 DetailsSection(color: .blue) {
+                     PromptView(prompt: p.prompt3)
+                 }
+             }
+         }
+         .offset(y: 12)
+         .padding(.bottom, 300)
+     }
+     .scrollDisabled(!detailsOpen)
+     .frame(height: scrollSelection == 2 ? 600 : 0)
+     .onScrollGeometryChange(for: Bool.self) { geo in
+         let y = geo.contentOffset.y + geo.contentInsets.top
+         return y <= 0.5
+     } action: { _, isAtTop in
+         self.isTopOfScroll = isAtTop
+     }
+ }
+ */
