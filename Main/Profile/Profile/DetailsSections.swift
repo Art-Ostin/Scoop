@@ -80,6 +80,7 @@ struct UserInterests: View {
     let p: UserProfile
     let interestScale: CGFloat
     
+    
     var body: some View {
         FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
             Text(text)
@@ -92,10 +93,9 @@ struct UserInterests: View {
                     proxy.frame(in: .named("InterestsSection")).maxY
                 }
         }
-        .padding(.horizontal, -16)
+        .padding(.horizontal, -12)
     }
 }
-
 
 struct InterestsBottomKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
@@ -110,7 +110,6 @@ struct FlowLayoutBottom: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-
 
 
 struct ProfileEvent: View {

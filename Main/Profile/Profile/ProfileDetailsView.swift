@@ -86,12 +86,19 @@ extension ProfileDetailsView {
         VStack(spacing: 16) {
             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
                 UserInterests(p: p, interestScale: interestScale)
+                    .padding(.vertical, interestScale == 0 ? 0 : -10)
             }
             .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
             .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
             .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
             .onChange(of: flowLayoutBottom) {
                 updateInterestScale()
+            }
+            .onAppear {
+                print(interestScale)
+            }
+            .onChange(of: interestScale) {
+                print(interestScale)
             }
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
@@ -102,16 +109,16 @@ extension ProfileDetailsView {
     
     
     private var detailsScreen3: some View {
-                
         ScrollView(.vertical) {
-            VStack(spacing: 0) {
+            VStack(spacing: 16) {
                 DetailsSection(title: "Extra Info") {
                     UserExtraInfo(p: p)
                 }
+                
                 if showProfileEvent {
                     DetailsSection() {
                         PromptView(prompt: p.prompt2)
-                    }
+                }
                 } else if showProfileEvent && !p.prompt3.prompt.isEmpty {
                     DetailsSection(color: .red) {
                         PromptView(prompt: p.prompt2)
