@@ -102,10 +102,8 @@ extension ProfileDetailsView {
         }
         .coordinateSpace(.named("InterestsSection"))
     }
-    
+
     private var detailsScreen3: some View {
-        
-        
         ScrollView(.vertical) {
             VStack(spacing: 16) {
                 DetailsSection(title: "Extra Info") {
@@ -118,7 +116,6 @@ extension ProfileDetailsView {
                     DetailsSection(color: .blue) {
                         PromptView(prompt: p.prompt3)
                     }
-//                    .padding(.bottom, 148)
                 } else if showProfileEvent {
                     DetailsSection() {
                         PromptView(prompt: p.prompt2)
@@ -129,10 +126,10 @@ extension ProfileDetailsView {
                     }
                 }
             }
-            .padding(.bottom, 148)
             .offset(y: 12)
+            .padding(.bottom, 300)
         }
-        
+        .frame(height: scrollSelection == 2 ? 600 : 0)
     }
 }
 

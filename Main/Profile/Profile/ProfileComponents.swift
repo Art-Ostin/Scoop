@@ -25,7 +25,8 @@ struct DetailsSection<Content: View>: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, minHeight: 169, alignment: .center)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .frame(height: 169)
             .stroke(20, lineWidth: 1, color: color)
             .padding(.horizontal, 16)
             .overlay(alignment: .topLeading) {
