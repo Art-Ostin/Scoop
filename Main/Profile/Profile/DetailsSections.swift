@@ -24,19 +24,6 @@ struct UserKeyInfo: View {
             InfoItem(image: "magnifyingglass", info: p.lookingFor)
     }
 }
-struct UserInterests: View {
-    let p: UserProfile
-    var body: some View {
-        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
-            Text(text)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 10)
-                .font(.body(14))
-                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
-        }
-        .padding(.horizontal, -6)
-    }
-}
 
 
 struct UserExtraInfo: View {
@@ -89,6 +76,44 @@ struct UserExtraInfo: View {
         InfoItem(image: "GenderIcon", info: p.sex)
     }
 }
+struct UserInterests: View {
+    let p: UserProfile
+    
+    @State var isOverThreeLines: Bool = false
+    
+    @State var totalHeight: CGFloat = 0
+    
+    var body: some View {
+        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
+            Text(text)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 10)
+                .font(.body(16))
+                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
+        }
+        .measure(key: DetailsSectionHeight.self) { geo in
+            geo.size.height
+        }
+        .padding(.horizontal, -6)
+        .onPreferenceChange(DetailsSectionHeight.self) { newValue in
+            totalHeight = newValue
+        }
+        .onChange(of: totalHeight) {
+            print("THISS SISISI ITTTT")
+            print(totalHeight)
+        }
+    }
+}
+
+
+struct DetailsSectionHeight: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value += nextValue()
+    }
+}
+
+
 
 
 struct ProfileEvent: View {
@@ -104,5 +129,3 @@ struct ProfileEvent: View {
     }
 }
 
-
-    
