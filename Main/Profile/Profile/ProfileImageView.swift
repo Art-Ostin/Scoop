@@ -49,6 +49,10 @@ extension ProfileImageView {
                     .indexViewStyle(.page(backgroundDisplayMode: .never))
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            InviteButton(vm: vm, showInvite: $showInvite)
+                .padding()
+        }
         .tabViewStyle(.page(indexDisplayMode: .never))
         //Apply the shadow after the frame so shadow not included in distance between views
         .frame(height: imageSize)

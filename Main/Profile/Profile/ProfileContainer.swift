@@ -84,15 +84,13 @@ struct ProfileView: View {
                                 }
                             }
                     )
-                    .overlay(alignment: .bottomTrailing) {
-                        if !detailsOpen {
-                            InviteButton(vm: vm, showInvite: $showInvitePopup)
-                                .padding(.bottom, 96)
-                                .padding(.horizontal, 24)
-                        }
-                    }
+//                    .overlay(alignment: .bottomTrailing) {
+//                            InviteButton(vm: vm, showInvite: $showInvitePopup)
+//                                .padding(.bottom, 96)
+//                                .padding(.horizontal, 16)
+//                    }
                 
-                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset)
+                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(
@@ -116,14 +114,6 @@ struct ProfileView: View {
                                 }
                             }
                     )
-                    .overlay(alignment: .topTrailing) {
-                        if detailsOpen {
-                            InviteButton(vm: vm, showInvite: $showInvitePopup)
-                                .offset(y: detailsOpenOffset)
-                                .padding(.horizontal, 24)
-                                .offset(y: -16)
-                        }
-                    }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(

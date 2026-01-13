@@ -3,8 +3,6 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 23/06/2025.
-//var isThreePrompts: Bool { p.prompt3.response.isEmpty == true }
-
 
 import SwiftUI
 import SwiftUIFlowLayout
@@ -29,6 +27,8 @@ struct ProfileDetailsView: View {
     @State private var interestSectionBottom: CGFloat = 0
     @State private var interestScale: CGFloat = 1
     
+    @Binding var showInvite: Bool
+    
     var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
     var body: some View {
@@ -50,18 +50,41 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
+//        .overlay(alignment: .top) {
+//            VStack(spacing: 0) {
+//                PageIndicator(count: 3, selection: scrollSelection ?? 0)
+//                    .frame(maxWidth: .infinity, alignment: .center)
+//                
+//                DeclineButton() {}
+//                    .frame(maxWidth: .infinity, alignment: .leading)
+//                    .padding(.horizontal, 16)
+//                    .offset(y: -48)
+//                
+//            }
+//            .offset(y: 384)
+//        }
         .overlay(alignment: .top) {
-            VStack(spacing: 0) {
-                PageIndicator(count: 3, selection: scrollSelection ?? 0)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                
+            HStack {
                 DeclineButton() {}
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                    .offset(y: -48)
+                    .offset(y: -24)
+                Spacer()
+                PageIndicator(count: 3, selection: scrollSelection ?? 0)
+                Spacer()
+                InviteButton(vm: vm, showInvite: $showInvite)
+                    .offset(y: -24)
             }
-            .offset(y: 384)
+            .padding(.horizontal, 16)
+            .offset(y: 372)
         }
+        
+//        
+//        .overlay(alignment: .top) {
+//            InviteButton(vm: vm, showInvite: $showInvite)
+//                .frame(maxWidth: .infinity, alignment: .trailing)
+//                .padding(.horizontal, 16)
+//                .offset(y: 384 - 24)
+//        }
+        
         .padding(.bottom, scrollSelection == 2 && scrollThirdTab ? 0 :  250)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
@@ -82,6 +105,7 @@ extension ProfileDetailsView {
             }
         }
         .offset(y: 16)
+        .frame(maxHeight: .infinity, alignment: .top)
     }
     
     private var detailsScreen2: some View {
@@ -102,6 +126,7 @@ extension ProfileDetailsView {
             }
         }
         .offset(y: 16)
+        .frame(maxHeight: .infinity, alignment: .top)
         .coordinateSpace(.named("InterestsSection"))
     }
 
@@ -124,7 +149,7 @@ extension ProfileDetailsView {
             } action: { _, isAtTop in
                 self.isTopOfScroll = isAtTop
             }
-            .frame(height: scrollSelection == 2 ? 600 : 0)
+            .frame(height: 600, alignment: .top)
         } else {
             VStack(spacing: 16) {
                 DetailsSection(title: "Extra Info") {UserExtraInfo(p: p) }
@@ -135,6 +160,7 @@ extension ProfileDetailsView {
                 }
             }
             .offset(y: 16)
+            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 }
@@ -160,6 +186,8 @@ private extension ProfileDetailsView {
            !detailsOpen || detailsOpen && scrollSelection == 2 && isTopOfScroll && detailsOffset > 0
     }
 }
+
+
 
 
 
