@@ -113,10 +113,10 @@ extension ProfileDetailsView {
                     UserExtraInfo(p: p)
                 }
                 if scrollThirdTab {
-                    DetailsSection(color: .red) {
+                    DetailsSection() {
                         PromptView(prompt: p.prompt2)
                     }
-                    DetailsSection(color: .blue) {
+                    DetailsSection() {
                         PromptView(prompt: p.prompt3)
                     }
                 } else if showProfileEvent {
@@ -124,12 +124,12 @@ extension ProfileDetailsView {
                         PromptView(prompt: p.prompt2)
                     }
                 } else if !p.prompt3.response.isEmpty {
-                    DetailsSection(color: .blue) {
+                    DetailsSection() {
                         PromptView(prompt: p.prompt3)
                     }
                 }
             }
-            .offset(y: 12)
+            .offset(y: 16)
             .padding(.bottom, 300)
         }
         .scrollDisabled(disableDetailsScroll)

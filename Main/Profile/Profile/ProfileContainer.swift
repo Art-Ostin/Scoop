@@ -98,10 +98,8 @@ struct ProfileView: View {
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 5)
                             .updating($detailsOffset) { v, state, _ in
-                                
                                 if !isTopOfScroll && scrollSelection == 2 && detailsOpen { return}
-                                
-//                                if isTopOfScroll && scrollSelection == 2 && detailsOpen && v.translation.height > 0 { return }
+                                if isTopOfScroll && scrollSelection == 2 && detailsOpen && v.translation.height < 0 { return }
                                 
                                 if dragType == nil {dragType(v: v)}
                                 guard dragType != nil && dragType != .horizontal else { return }
