@@ -54,7 +54,6 @@ struct ProfileDetailsView: View {
             VStack(spacing: 0) {
                 PageIndicator(count: 3, selection: scrollSelection ?? 0)
                     .frame(maxWidth: .infinity, alignment: .center)
-//                    .offset(y: 6)
                 
                 DeclineButton() {}
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -106,42 +105,39 @@ extension ProfileDetailsView {
         .coordinateSpace(.named("InterestsSection"))
     }
 
+    @ViewBuilder
     private var detailsScreen3: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 16) {
-                DetailsSection(title: "Extra Info") {
-                    UserExtraInfo(p: p)
-                }
-                if scrollThirdTab {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt2)
-                    }
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt3)
-                    }
-                } else if showProfileEvent {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt2)
-                    }
-                } else if !p.prompt3.response.isEmpty {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt3)
+            if scrollThirdTab {
+                ScrollView(.vertical) {
+                    VStack(spacing: 16) {
+                        DetailsSection(title: "Extra Info") {UserExtraInfo(p: p) }
+                        DetailsSection() {PromptView(prompt: p.prompt2)}
+                        DetailsSection() {PromptView(prompt: p.prompt3)}
                     }
                 }
+                .scrollDisabled(disableDetailsScroll)
+                .frame(height: scrollSelection == 2 ? 600 : 0)
+                .onScrollGeometryChange(for: Bool.self) { geo in
+                    let y = geo.contentOffset.y + geo.contentInsets.top
+                    return y <= 0.5
+                } action: { _, isAtTop in
+                    self.isTopOfScroll = isAtTop
+                }
+                .offset(y: 16)
+                .padding(.bottom, 200)
+            } else {
+                VStack(spacing: 16) {
+                    DetailsSection(title: "Extra Info") {UserExtraInfo(p: p) }
+                    if showProfileEvent {
+                        DetailsSection() {PromptView(prompt: p.prompt2)}
+                    } else if !p.prompt3.response.isEmpty {
+                        DetailsSection() {PromptView(prompt: p.prompt3)}
+                    }
+                }
+                .offset(y: 16)
             }
-            .offset(y: 16)
-            .padding(.bottom, 300)
-        }
-        .scrollDisabled(disableDetailsScroll)
-        .frame(height: scrollSelection == 2 ? 600 : 0)
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            let y = geo.contentOffset.y + geo.contentInsets.top
-            return y <= 0.5
-        } action: { _, isAtTop in
-            self.isTopOfScroll = isAtTop
         }
     }
-}
 
 struct TopOfDetailsView: PreferenceKey {
     static var defaultValue: CGFloat = 0
@@ -164,6 +160,9 @@ private extension ProfileDetailsView {
            !detailsOpen || detailsOpen && scrollSelection == 2 && isTopOfScroll && detailsOffset > 0
     }
 }
+
+
+
 
 /*
  private var detailsScreen3: some View {
