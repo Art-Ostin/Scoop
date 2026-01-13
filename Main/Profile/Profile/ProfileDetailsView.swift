@@ -27,6 +27,7 @@ struct ProfileDetailsView: View {
     @State private var interestSectionBottom: CGFloat = 0
     @State private var interestScale: CGFloat = 1
     
+    var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -61,7 +62,7 @@ struct ProfileDetailsView: View {
             }
             .offset(y: 24)
         }
-        .padding(.bottom, 250)
+        .padding(.bottom, scrollSelection == 2 && scrollThirdTab ? 0 :  250)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
@@ -94,12 +95,7 @@ extension ProfileDetailsView {
             .onChange(of: flowLayoutBottom) {
                 updateInterestScale()
             }
-            .onAppear {
-                print(interestScale)
-            }
-            .onChange(of: interestScale) {
-                print(interestScale)
-            }
+            
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
@@ -107,32 +103,33 @@ extension ProfileDetailsView {
         .coordinateSpace(.named("InterestsSection"))
     }
     
-    
     private var detailsScreen3: some View {
         ScrollView(.vertical) {
             VStack(spacing: 16) {
                 DetailsSection(title: "Extra Info") {
                     UserExtraInfo(p: p)
                 }
-                
-                if showProfileEvent {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt2)
-                }
-                } else if showProfileEvent && !p.prompt3.prompt.isEmpty {
+                if scrollThirdTab {
                     DetailsSection(color: .red) {
                         PromptView(prompt: p.prompt2)
                     }
                     DetailsSection(color: .blue) {
                         PromptView(prompt: p.prompt3)
                     }
+                } else if showProfileEvent {
+                    DetailsSection() {
+                        PromptView(prompt: p.prompt2)
+                    }
                 } else if !p.prompt3.response.isEmpty {
-                    DetailsSection(color: .green) {
+                    DetailsSection(color: .blue) {
                         PromptView(prompt: p.prompt3)
                     }
                 }
             }
+            .padding(.bottom, 148)
+            .offset(y: 12)
         }
+        .frame(maxHeight: .infinity)
     }
 }
 

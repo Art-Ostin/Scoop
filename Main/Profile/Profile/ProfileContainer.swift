@@ -22,7 +22,7 @@ struct ProfileView: View {
     
     @State var imageSectionBottom: CGFloat = 0
     @State var detailsSectionTop: CGFloat = 0
-    @State var detailsOpenOffset: CGFloat = -236 //Turn this into a PreferenceKey measuring openOffset based of how much needed
+    @State var detailsOpenOffset: CGFloat = -284 //Turn this into a PreferenceKey measuring openOffset based of how much needed
     
     @State private var dragType: DragType? = nil
     
@@ -195,7 +195,7 @@ extension ProfileView {
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity())
     }
-    
+
     private func dragType(v: DragGesture.Value) {
         //If there is already a dragType don't reassign it (here), get y and x drag
         if self.dragType != nil  {return }
@@ -227,7 +227,6 @@ extension ProfileView {
             print("")
             
         }
-        
         
         let toggleDetailsYOffset = imageSectionBottom - detailsSectionTop
         
@@ -279,7 +278,6 @@ extension ProfileView {
         }
         return offset
     }
-    
 }
 
 enum DragType {
