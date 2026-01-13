@@ -86,12 +86,15 @@ struct ProfileDetailsView: View {
             }
             .scrollDisabled(disableDetailsScroll)
             .overlay(alignment: .top) {
-                VStack(spacing: 0) {
+                HStack {
                     DeclineButton() {}
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
+                        .offset(y: -24)
+                    Spacer()
+                    InviteButton(vm: vm, showInvite: $showInvite)
+                        .offset(y: -24)
                 }
-                .offset(y: 384)
+                .padding(.horizontal, 16)
+                .offset(y: 372)
             }
             .background(Color.background)
             .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
