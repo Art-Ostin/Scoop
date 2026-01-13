@@ -98,8 +98,8 @@ struct ProfileView: View {
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 5)
                             .updating($detailsOffset) { v, state, _ in
-                                if !isTopOfScroll && scrollSelection == 2 && detailsOpen { return}
-                                if isTopOfScroll && scrollSelection == 2 && detailsOpen && v.translation.height < 0 { return }
+                                if !isTopOfScroll  && detailsOpen { return}
+                                if isTopOfScroll && detailsOpen && v.translation.height < 0 { return }
                                 
                                 if dragType == nil {dragType(v: v)}
                                 guard dragType != nil && dragType != .horizontal else { return }
@@ -116,14 +116,6 @@ struct ProfileView: View {
                                 }
                             }
                     )
-                    .overlay(alignment: .topTrailing) {
-                        if detailsOpen {
-                            InviteButton(vm: vm, showInvite: $showInvitePopup)
-                                .offset(y: detailsOpenOffset)
-                                .padding(.horizontal, 24)
-                                .offset(y: -16)
-                        }
-                    }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(

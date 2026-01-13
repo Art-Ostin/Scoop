@@ -104,7 +104,7 @@ struct PromptView: View {
     var count: Int {prompt.response.count}
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(prompt.prompt)
                 .font(.body(14, .italic))
             
@@ -115,6 +115,7 @@ struct PromptView: View {
                 .lineLimit( count > 90 ? 4 : 3)
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
+                .padding(.leading, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }

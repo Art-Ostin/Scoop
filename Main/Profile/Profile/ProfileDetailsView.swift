@@ -32,30 +32,50 @@ struct ProfileDetailsView: View {
     var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                detailsScreen1
-                    .containerRelativeFrame(.horizontal)
-                    .id(0)
-                detailsScreen2
-                    .containerRelativeFrame(.horizontal)
-                    .id(1)
-                detailsScreen3
-                    .containerRelativeFrame(.horizontal)
-                    .id(2)
+        ScrollView(.vertical) {
+            VStack(spacing: 24) {
+                
+                DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+
+                 PromptView(prompt: p.prompt1)
+                    .padding(24)
+                
+                DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+                    UserInterests(p: p, interestScale: interestScale)
+                        .padding(.vertical, interestScale == 0 ? 0 : -12)
+                }
+                .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
+                .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
+                .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
+                .onChange(of: flowLayoutBottom) {
+                    updateInterestScale()
+                }
+
+                 PromptView(prompt:  p.prompt2)
+                    .padding(24)
+
+                DetailsSection(title: "Extra Info") {UserExtraInfo(p: p)}
+                
+                if !p.prompt3.response.isEmpty {
+                        PromptView(prompt: p.prompt3)
+                        .padding(24)
+
+                }
             }
-            .scrollTargetLayout()
-            .padding(.bottom, 36)
+            .offset(y: 16)
+            .padding(.bottom, 256)
+            .coordinateSpace(.named("InterestsSection"))
         }
-        .scrollIndicators(.hidden)
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $scrollSelection, anchor: .center)
+        .frame(height: 600)
+        .onScrollGeometryChange(for: Bool.self) { geo in
+            let y = geo.contentOffset.y + geo.contentInsets.top
+            return y <= 0.5
+        } action: { _, isAtTop in
+            self.isTopOfScroll = isAtTop
+        }
+        .scrollDisabled(disableDetailsScroll)
         .overlay(alignment: .top) {
             VStack(spacing: 0) {
-                PageIndicator(count: 3, selection: scrollSelection ?? 0)
-                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .offset(y: 6)
-                
                 DeclineButton() {}
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(.horizontal, 24)
@@ -63,83 +83,10 @@ struct ProfileDetailsView: View {
             }
             .offset(y: 364)
         }
-        .padding(.bottom, scrollSelection == 2 && scrollThirdTab ? 0 :  250)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
-//        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
-    }
-}
-
-extension ProfileDetailsView {
-    private var detailsScreen1: some View {
-        VStack(spacing: 16) {
-            DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
-                if showProfileEvent {
-                    DetailsSection(title: "\(p.name)'s preferred meet") {ProfileEvent(p: p, event: event)}
-                } else {
-                    DetailsSection(){ PromptView(prompt: p.prompt1) }
-            }
-        }
-        .offset(y: 16)
-    }
-    
-    private var detailsScreen2: some View {
-        VStack(spacing: 16) {
-            DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
-                UserInterests(p: p, interestScale: interestScale)
-                    .padding(.vertical, interestScale == 0 ? 0 : -12)
-            }
-            .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
-            .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
-            .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
-            .onChange(of: flowLayoutBottom) {
-                updateInterestScale()
-            }
-            
-            DetailsSection() {
-                PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
-            }
-        }
-        .offset(y: 16)
-        .coordinateSpace(.named("InterestsSection"))
-    }
-
-    private var detailsScreen3: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 16) {
-                DetailsSection(title: "Extra Info") {
-                    UserExtraInfo(p: p)
-                }
-                if scrollThirdTab {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt2)
-                    }
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt3)
-                    }
-                } else if showProfileEvent {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt2)
-                    }
-                } else if !p.prompt3.response.isEmpty {
-                    DetailsSection() {
-                        PromptView(prompt: p.prompt3)
-                    }
-                }
-            }
-            .offset(y: 16)
-            .padding(.bottom, 300)
-        }
-        .scrollDisabled(disableDetailsScroll)
-        .frame(height: scrollSelection == 2 ? 600 : 0)
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            let y = geo.contentOffset.y + geo.contentInsets.top
-            return y <= 0.5
-        } action: { _, isAtTop in
-            self.isTopOfScroll = isAtTop
-        }
     }
 }
 
@@ -159,11 +106,66 @@ private extension ProfileDetailsView {
             interestScale = newScale
         }
     }
-
     var disableDetailsScroll: Bool {
-           !detailsOpen || detailsOpen && scrollSelection == 2 && isTopOfScroll && detailsOffset > 0
+           !detailsOpen || detailsOpen && isTopOfScroll && detailsOffset > 0
     }
 }
+
+
+
+
+/*
+ 
+ 
+ if showProfileEvent {
+     DetailsSection(title: "\(p.name)'s preferred meet") {ProfileEvent(p: p, event: event)}
+ } else {
+     DetailsSection(){ PromptView(prompt: p.prompt1) }
+ }
+ 
+ DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+ 
+ //Section 3:
+ DetailsSection() {
+     PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
+ }
+ 
+ //Section 4:
+ DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+     UserInterests(p: p, interestScale: interestScale)
+         .padding(.vertical, interestScale == 0 ? 0 : -12)
+ }
+ .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
+ .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
+ .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
+ .onChange(of: flowLayoutBottom) {
+     updateInterestScale()
+ }
+ //Section 5:
+ DetailsSection(title: "Extra Info") {
+     UserExtraInfo(p: p)
+ }
+ 
+ if scrollThirdTab {
+     DetailsSection() {
+         PromptView(prompt: p.prompt2)
+     }
+     DetailsSection() {
+         PromptView(prompt: p.prompt3)
+     }
+ } else if showProfileEvent {
+     DetailsSection() {
+         PromptView(prompt: p.prompt2)
+     }
+ } else if !p.prompt3.response.isEmpty {
+     DetailsSection() {
+         PromptView(prompt: p.prompt3)
+     }
+ }
+ */
+
+
+
 
 /*
  private var detailsScreen3: some View {
@@ -199,6 +201,62 @@ private extension ProfileDetailsView {
          return y <= 0.5
      } action: { _, isAtTop in
          self.isTopOfScroll = isAtTop
+     }
+ }
+ */
+
+/*
+ extension ProfileDetailsView {
+     private var detailsScreen1: some View {
+         VStack(spacing: 16) {
+             DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+                 if showProfileEvent {
+                     DetailsSection(title: "\(p.name)'s preferred meet") {ProfileEvent(p: p, event: event)}
+                 } else {
+                     DetailsSection(){ PromptView(prompt: p.prompt1) }
+             }
+         }
+         .offset(y: 16)
+     }
+     
+     private var detailsScreen2: some View {
+         VStack(spacing: 16) {
+             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+                 UserInterests(p: p, interestScale: interestScale)
+                     .padding(.vertical, interestScale == 0 ? 0 : -12)
+             }
+             .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
+             .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
+             .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
+             .onChange(of: flowLayoutBottom) {
+                 updateInterestScale()
+             }
+             
+             DetailsSection() {
+                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
+             }
+         }
+         .offset(y: 16)
+         .coordinateSpace(.named("InterestsSection"))
+     }
+
+     private var detailsScreen3: some View {
+         ScrollView(.vertical) {
+             VStack(spacing: 16) {
+                 
+                 
+             }
+             .offset(y: 16)
+             .padding(.bottom, 300)
+         }
+         .scrollDisabled(disableDetailsScroll)
+         .frame(height: scrollSelection == 2 ? 600 : 0)
+         .onScrollGeometryChange(for: Bool.self) { geo in
+             let y = geo.contentOffset.y + geo.contentInsets.top
+             return y <= 0.5
+         } action: { _, isAtTop in
+             self.isTopOfScroll = isAtTop
+         }
      }
  }
  */
