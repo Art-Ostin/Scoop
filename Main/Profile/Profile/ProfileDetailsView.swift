@@ -90,7 +90,7 @@ struct ProfileDetailsView: View {
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
-//        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
+        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
     }
 }
 
@@ -191,41 +191,3 @@ private extension ProfileDetailsView {
 
 
 
-
-/*
- private var detailsScreen3: some View {
-     ScrollView(.vertical) {
-         VStack(spacing: 16) {
-             DetailsSection(title: "Extra Info") {
-                 UserExtraInfo(p: p)
-             }
-             if scrollThirdTab {
-                 DetailsSection(color: .red) {
-                     PromptView(prompt: p.prompt2)
-                 }
-                 DetailsSection(color: .blue) {
-                     PromptView(prompt: p.prompt3)
-                 }
-             } else if showProfileEvent {
-                 DetailsSection() {
-                     PromptView(prompt: p.prompt2)
-                 }
-             } else if !p.prompt3.response.isEmpty {
-                 DetailsSection(color: .blue) {
-                     PromptView(prompt: p.prompt3)
-                 }
-             }
-         }
-         .offset(y: 12)
-         .padding(.bottom, 300)
-     }
-     .scrollDisabled(!detailsOpen)
-     .frame(height: scrollSelection == 2 ? 600 : 0)
-     .onScrollGeometryChange(for: Bool.self) { geo in
-         let y = geo.contentOffset.y + geo.contentInsets.top
-         return y <= 0.5
-     } action: { _, isAtTop in
-         self.isTopOfScroll = isAtTop
-     }
- }
- */

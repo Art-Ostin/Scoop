@@ -140,13 +140,6 @@ struct ProfileView: View {
 //                print("Top of Details when Open: \(detailsSectionTop)")
 //                Task { try? await Task.sleep(nanoseconds: 20000000); measuredDetails = true}
             }
-            .onChange(of: isTopOfScroll) {
-                print("is Top Scroll Updated")
-                print(isTopOfScroll)
-            }
-            .onAppear {
-                print("Top of Scroll Status: \(isTopOfScroll)")
-            }
         }
         .offset(y: profileOffset)
         .overlay {invitePopup}
