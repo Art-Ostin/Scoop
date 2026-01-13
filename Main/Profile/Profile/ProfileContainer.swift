@@ -84,13 +84,10 @@ struct ProfileView: View {
                                 }
                             }
                     )
-//                    .overlay(alignment: .bottomTrailing) {
-//                            InviteButton(vm: vm, showInvite: $showInvitePopup)
-//                                .padding(.bottom, 96)
-//                                .padding(.horizontal, 16)
-//                    }
+
                 
                 ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
+                    .scaleEffect(detailsOpen ? 1 : 0.95, anchor: .top)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(

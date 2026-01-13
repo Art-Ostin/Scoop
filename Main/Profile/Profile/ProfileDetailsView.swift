@@ -50,19 +50,6 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
-//        .overlay(alignment: .top) {
-//            VStack(spacing: 0) {
-//                PageIndicator(count: 3, selection: scrollSelection ?? 0)
-//                    .frame(maxWidth: .infinity, alignment: .center)
-//                
-//                DeclineButton() {}
-//                    .frame(maxWidth: .infinity, alignment: .leading)
-//                    .padding(.horizontal, 16)
-//                    .offset(y: -48)
-//                
-//            }
-//            .offset(y: 384)
-//        }
         .overlay(alignment: .top) {
             HStack {
                 DeclineButton() {}
@@ -76,21 +63,12 @@ struct ProfileDetailsView: View {
             .padding(.horizontal, 16)
             .offset(y: 372)
         }
-        
-//        
-//        .overlay(alignment: .top) {
-//            InviteButton(vm: vm, showInvite: $showInvite)
-//                .frame(maxWidth: .infinity, alignment: .trailing)
-//                .padding(.horizontal, 16)
-//                .offset(y: 384 - 24)
-//        }
-        
         .padding(.bottom, scrollSelection == 2 && scrollThirdTab ? 0 :  250)
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
-        .scaleEffect(detailsOpen ? 1 : 0.95) //Adjust so scale Effect works and distance between objects is same
+        .scaleEffect(detailsOpen ? 1 : 0.95, anchor: .top) //Adjust so scale Effect works and distance between objects is same
     }
 }
 
@@ -191,3 +169,13 @@ private extension ProfileDetailsView {
 
 
 
+/*
+ //
+ //        .overlay(alignment: .top) {
+ //            InviteButton(vm: vm, showInvite: $showInvite)
+ //                .frame(maxWidth: .infinity, alignment: .trailing)
+ //                .padding(.horizontal, 16)
+ //                .offset(y: 384 - 24)
+ //        }
+
+ */
