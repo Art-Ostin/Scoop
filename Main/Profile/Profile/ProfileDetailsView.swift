@@ -29,74 +29,144 @@ struct ProfileDetailsView: View {
     @State private var interestSectionBottom: CGFloat = 0
     @State private var interestScale: CGFloat = 1
     
+    @Binding var showInvite: Bool
+    
     var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 24) {
-                
-                DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
-
-                 PromptView(prompt: p.prompt1)
-                    .padding(24)
-                    .padding(.vertical, 12)
-                
-                DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
-                    UserInterests(p: p, interestScale: interestScale)
-                        .padding(.vertical, interestScale == 0 ? 0 : -12)
-                }
-                .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
-                .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
-                .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
-                .onChange(of: flowLayoutBottom) {
-                    updateInterestScale()
-                }
-
-                 PromptView(prompt:  p.prompt2)
-                    .padding(24)
-                    .padding(.vertical, 12)
-
-
-                DetailsSection(title: "Extra Info") {UserExtraInfo(p: p)}
-                
-                if !p.prompt3.response.isEmpty {
-                        PromptView(prompt: p.prompt3)
-                        .padding(24)
-                        .padding(.vertical, 12)
-                }
-            }
-            .offset(y: 16)
-            .padding(.bottom, 256)
-            
-        }
-        .frame(height: 600)
-        .coordinateSpace(.named("InterestsSection"))
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            let y = geo.contentOffset.y + geo.contentInsets.top
-            return y <= 0.5
-        } action: { _, isAtTop in
-            self.isTopOfScroll = isAtTop
-        }
-        .scrollDisabled(disableDetailsScroll)
-        .overlay(alignment: .top) {
-            VStack(spacing: 0) {
-                DeclineButton() {}
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.horizontal, 24)
-                    .offset(y: -24)
-            }
-            .offset(y: 400)
-        }
-        .overlay(alignment: .top) {
-            
-        }
         
-        .background(Color.background)
-        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
+        ZStack(alignment: .top) {
+            
+            
+            ScrollView(.vertical) {
+                
+                    
+                    VStack(spacing: 24) {
+                        
+                        DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+
+                         PromptView(prompt: p.prompt1)
+                            .padding(24)
+                            .padding(.vertical, 6)
+                        
+                        DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+                            UserInterests(p: p, interestScale: interestScale)
+                                .padding(.vertical, interestScale == 0 ? 0 : -12)
+                        }
+                        .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
+                        .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
+                        .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
+                        .onChange(of: flowLayoutBottom) {
+                            updateInterestScale()
+                        }
+
+                         PromptView(prompt:  p.prompt2)
+                            .padding(24)
+                            .padding(.vertical, 6)
+
+
+                        DetailsSection(title: "Extra Info") {UserExtraInfo(p: p)}
+                        
+                        if !p.prompt3.response.isEmpty {
+                                PromptView(prompt: p.prompt3)
+                                .padding(24)
+                                .padding(.vertical, 6)
+                        }
+                    }
+                    .offset(y: 36)
+                    .padding(.bottom, 256)
+            }
+            .frame(height: 600)
+            .coordinateSpace(.named("InterestsSection"))
+            .onScrollGeometryChange(for: Bool.self) { geo in
+                let y = geo.contentOffset.y + geo.contentInsets.top
+                return y <= 0.5
+            } action: { _, isAtTop in
+                self.isTopOfScroll = isAtTop
+            }
+            .scrollDisabled(disableDetailsScroll)
+            .overlay(alignment: .top) {
+                VStack(spacing: 0) {
+                    DeclineButton() {}
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                }
+                .offset(y: 384)
+            }
+            .background(Color.background)
+            .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+            .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+            .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
+            .scrollIndicators(.hidden)
+            
+//            if !isTopOfScroll && detailsOpen {
+//                ZStack(alignment: .top) {
+//                    LinearGradient(
+//                        colors: [.white,.white.opacity(0)],
+//                        startPoint: .top,
+//                        endPoint: .bottom
+//                    )
+//                    .frame(height: 40)
+//                    .frame(maxWidth: .infinity)
+//                    .padding(.horizontal, 16)
+//                    .clipShape(
+//                        UnevenRoundedRectangle(
+//                            topLeadingRadius: 30,
+//                            bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 30,
+//                            style: .continuous
+//                        )
+//                    )
+//                    .allowsHitTesting(false)
+//                }
+//            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if !isTopOfScroll && detailsOpen {
+                Image(systemName: "chevron.down")
+                    .font(.body(16, .bold))
+                    .frame(width: 30, height: 30)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.background.opacity(0.93))
+                    )
+                    .padding()
+                    .padding(.horizontal, 6)
+            }
+        }
+//        .overlay(alignment: .topTrailing) {
+//            InviteButton(vm: vm, showInvite: $showInvite)
+//                .offset(y: 384)
+//                .padding(.horizontal, 16)
+//        }
     }
 }
+
+
+
+/*
+ .font(.body(17, .bold))
+ .frame(width: 40, height: 40)
+ .background(
+     RoundedRectangle(cornerSize: 4)
+         .fill(Color.background)
+ )
+ .stroke(100, lineWidth: 1, color: .grayBackground)
+ .contentShape(Circle())
+ .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
+ .padding(.horizontal, 16)
+ .offset(y: -16)
+ */
+
+
+/*
+ HStack(spacing: 12) {
+     Text("Dismiss")
+     Image(systemName: "chevron.down")
+ }
+ .font(.body(14, .medium))
+ .frame(maxWidth: .infinity, alignment: .center)
+ .padding(.top, 12)
+ */
 
 struct TopOfDetailsView: PreferenceKey {
     static var defaultValue: CGFloat = 0
@@ -268,3 +338,4 @@ private extension ProfileDetailsView {
      }
  }
  */
+
