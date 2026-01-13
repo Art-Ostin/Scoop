@@ -35,6 +35,7 @@
 		653770502E0A15270058D225 /* InviteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537704F2E0A15270058D225 /* InviteButton.swift */; };
 		653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653770612E0ACA600058D225 /* SelectTypeView.swift */; };
 		6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537706D2E0B08DE0058D225 /* AddMessageView.swift */; };
+		6539501C2F16A0E700DCB25A /* ScrollTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6539501B2F16A0E700DCB25A /* ScrollTester.swift */; };
 		653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78542E131FDF0098747F /* EventDetailsView.swift */; };
 		653A78592E1340BA0098747F /* MatchesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78582E1340BA0098747F /* MatchesContainer.swift */; };
 		653A78C42E15DBD80098747F /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78C32E15DBD80098747F /* MapView.swift */; };
@@ -200,6 +201,7 @@
 		6537704F2E0A15270058D225 /* InviteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteButton.swift; sourceTree = "<group>"; };
 		653770612E0ACA600058D225 /* SelectTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTypeView.swift; sourceTree = "<group>"; };
 		6537706D2E0B08DE0058D225 /* AddMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMessageView.swift; sourceTree = "<group>"; };
+		6539501B2F16A0E700DCB25A /* ScrollTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollTester.swift; sourceTree = "<group>"; };
 		653A78542E131FDF0098747F /* EventDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsView.swift; sourceTree = "<group>"; };
 		653A78582E1340BA0098747F /* MatchesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesContainer.swift; sourceTree = "<group>"; };
 		653A78C32E15DBD80098747F /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -480,6 +482,7 @@
 				655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */,
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
+				6539501B2F16A0E700DCB25A /* ScrollTester.swift */,
 				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
 				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
 			);
@@ -970,6 +973,7 @@
 				654982DE2E315B1B00CA335F /* EditPhotoCell.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */,
+				6539501C2F16A0E700DCB25A /* ScrollTester.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				650135862E4B92F100630CF3 /* UserEventModel.swift in Sources */,

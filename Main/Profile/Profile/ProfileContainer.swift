@@ -29,6 +29,9 @@ struct ProfileView: View {
     @State private var measuredImage = false
     @State private var measuredDetails = false
     
+    @State var isTopOfScroll = true
+    @State var scrollSelection: Int? = 0
+    
     @Namespace var inviteAnimation
     
     let preloadedImages: [UIImage]?
@@ -89,12 +92,17 @@ struct ProfileView: View {
                         }
                     }
                 
-                ProfileDetailsView(vm: vm, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset)
+                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset)
                     .offset(y: detailsSectionOffset())
                     .onTapGesture {detailsOpen.toggle()}
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 5)
                             .updating($detailsOffset) { v, state, _ in
+                                
+                                if !isTopOfScroll && scrollSelection == 2 && detailsOpen { return}
+                                
+//                                if isTopOfScroll && scrollSelection == 2 && detailsOpen && v.translation.height > 0 { return }
+                                
                                 if dragType == nil {dragType(v: v)}
                                 guard dragType != nil && dragType != .horizontal else { return }
                                 state = v.translation.height.clamped(to: detailsDragRange)
@@ -143,6 +151,13 @@ struct ProfileView: View {
                 detailsSectionTop = (topOfDetails - 16) /*+ detailsOpenOffset*/ //get top when details Open
 //                print("Top of Details when Open: \(detailsSectionTop)")
 //                Task { try? await Task.sleep(nanoseconds: 20000000); measuredDetails = true}
+            }
+            .onChange(of: isTopOfScroll) {
+                print("is Top Scroll Updated")
+                print(isTopOfScroll)
+            }
+            .onAppear {
+                print("Top of Scroll Status: \(isTopOfScroll)")
             }
         }
         .offset(y: profileOffset)

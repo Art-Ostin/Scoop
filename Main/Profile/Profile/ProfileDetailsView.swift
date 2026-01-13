@@ -12,6 +12,9 @@ import SwiftUIFlowLayout
 struct ProfileDetailsView: View {
     
     @Bindable var vm: ProfileViewModel
+    @Binding var isTopOfScroll: Bool
+    @Binding var scrollSelection: Int?
+    
     let p: UserProfile
     let event: UserEvent?
     let detailsOpen: Bool
@@ -19,7 +22,6 @@ struct ProfileDetailsView: View {
     
     @State private var totalHeight: CGFloat = 0
     
-    @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
     
@@ -42,14 +44,13 @@ struct ProfileDetailsView: View {
                     .containerRelativeFrame(.horizontal)
                     .id(2)
             }
-            .offset(y: 16) //Acts as padding
             .scrollTargetLayout()
             .padding(.bottom, 36)
         }
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $scrollSelection, anchor: .center)
-        .overlay(alignment: .bottom) {
+        .overlay(alignment: .top) {
             VStack(spacing: 0) {
                 PageIndicator(count: 3, selection: scrollSelection ?? 0)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -60,7 +61,7 @@ struct ProfileDetailsView: View {
                     .padding(.horizontal, 24)
                     .offset(y: -24)
             }
-            .offset(y: 24)
+            .offset(y: 364)
         }
         .padding(.bottom, scrollSelection == 2 && scrollThirdTab ? 0 :  250)
         .background(Color.background)
@@ -81,6 +82,7 @@ extension ProfileDetailsView {
                     DetailsSection(){ PromptView(prompt: p.prompt1) }
             }
         }
+        .offset(y: 16)
     }
     
     private var detailsScreen2: some View {
@@ -100,6 +102,7 @@ extension ProfileDetailsView {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }
         }
+        .offset(y: 16)
         .coordinateSpace(.named("InterestsSection"))
     }
 
@@ -129,7 +132,14 @@ extension ProfileDetailsView {
             .offset(y: 12)
             .padding(.bottom, 300)
         }
+        .scrollDisabled(!detailsOpen)
         .frame(height: scrollSelection == 2 ? 600 : 0)
+        .onScrollGeometryChange(for: Bool.self) { geo in
+            let y = geo.contentOffset.y + geo.contentInsets.top
+            return y <= 0.5
+        } action: { _, isAtTop in
+            self.isTopOfScroll = isAtTop
+        }
     }
 }
 
