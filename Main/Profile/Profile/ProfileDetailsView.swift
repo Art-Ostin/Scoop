@@ -17,6 +17,8 @@ struct ProfileDetailsView: View {
     let detailsOpen: Bool
     let detailsOffset: CGFloat
     
+    @State private var totalHeight: CGFloat = 0
+    
     @State private var scrollSelection: Int? = 0
     @State var scrollBottom: CGFloat = 0
     var showProfileEvent: Bool { event != nil || p.idealMeetUp != nil}
@@ -79,8 +81,18 @@ extension ProfileDetailsView {
         VStack(spacing: 16) {
             DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
                 UserInterests(p: p)
+                    .measure(key: DetailsSectionHeight.self) { geo in
+                        geo.size.height
+                    }
+                    .padding(.horizontal, -6)
+                    .onPreferenceChange(DetailsSectionHeight.self) { newValue in
+                        totalHeight = newValue
+                    }
+                    .onChange(of: totalHeight) {
+                        print("THISS SISISI ITTTT")
+                        print(totalHeight)
+                    }
             }
-            
             DetailsSection() {
                 PromptView(prompt: showProfileEvent ? p.prompt1 : p.prompt2)
             }

@@ -91,25 +91,17 @@ struct UserInterests: View {
                 .font(.body(16))
                 .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
         }
-        .measure(key: DetailsSectionHeight.self) { geo in
-            geo.size.height
+        .measure(key: DetailsSectionHeight.self) { proxy in
+            proxy.frame(in: .named("FlowSpace")).minY
         }
-        .padding(.horizontal, -6)
-        .onPreferenceChange(DetailsSectionHeight.self) { newValue in
-            totalHeight = newValue
-        }
-        .onChange(of: totalHeight) {
-            print("THISS SISISI ITTTT")
-            print(totalHeight)
-        }
+        .coordinateSpace(name: "FlowSpace")
     }
 }
-
 
 struct DetailsSectionHeight: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
+        value = max(value, nextValue())
     }
 }
 

@@ -141,11 +141,8 @@ struct ProfileView: View {
             .onPreferenceChange(TopOfDetailsView.self) { topOfDetails in
                 guard !measuredDetails else {return}
                 detailsSectionTop = (topOfDetails - 16) /*+ detailsOpenOffset*/ //get top when details Open
-                print("Top of Details when Open: \(detailsSectionTop)")
+//                print("Top of Details when Open: \(detailsSectionTop)")
 //                Task { try? await Task.sleep(nanoseconds: 20000000); measuredDetails = true}
-            }
-            .overlay(alignment: .bottomTrailing) {
-                
             }
         }
         .offset(y: profileOffset)
