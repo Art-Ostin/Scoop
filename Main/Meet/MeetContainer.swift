@@ -56,7 +56,7 @@ struct MeetContainer: View {
                 imageSize = screenSize - (24 * 2)
             }
             .navigationDestination(for: ProfileModel.self) {profileModel in
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm)
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, firstImage: profileModel.image!)
 //                    .navigationTransition(.id)
                     .toolbar(.hidden, for: .navigationBar)
             }

@@ -16,6 +16,7 @@ struct ProfileImageView: View {
     @State var selectedImage = 0
     @State private var imageSize: CGFloat = 0
     let detailsOffset: CGFloat
+    let firstImage: UIImage
     
     var body: some View {
         VStack(spacing: 24) {
@@ -31,18 +32,23 @@ struct ProfileImageView: View {
 }
 
 extension ProfileImageView {
-    
+
     private var profileImages: some View {
         TabView(selection: $selection) {
-
-            
+            Image(uiImage: firstImage)
+                .resizable()
+                .defaultImage(imageSize, 16)
+                .tag(0)
+                .indexViewStyle(.page(backgroundDisplayMode: .never))            
             
             ForEach(images.indices, id: \.self) { index in
-                Image(uiImage: images[index])
-                    .resizable()
-                    .defaultImage(imageSize, 16)
-                    .tag(index)
-                    .indexViewStyle(.page(backgroundDisplayMode: .never))
+                if index != 0 {
+                    Image(uiImage: images[index])
+                        .resizable()
+                        .defaultImage(imageSize, 16)
+                        .tag(index)
+                        .indexViewStyle(.page(backgroundDisplayMode: .never))
+                }
             }
         }
         .overlay(alignment: .bottomTrailing) {
@@ -88,8 +94,7 @@ extension ProfileImageView {
 }
 
 /*
- 
- .shadow(color: selectedImage == images.map
+  .shadow(color: selectedImage == images.map
  
  
  images.map == {images[selectedImage]}  .black.opacity(0.3), radius: 5, x: 0, y: 10)

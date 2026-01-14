@@ -49,7 +49,6 @@ class CacheManager: CacheManaging  {
         return try await fetchImage(for: url)
     }
     
-    
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
         let urls = profiles.flatMap { profile in

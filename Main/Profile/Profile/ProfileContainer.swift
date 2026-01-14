@@ -22,9 +22,12 @@ struct ProfileView: View {
         return detailsOpen ? (-85 ... -limit) : (limit ... 85)
     }
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil) {
+    let firstImage: UIImage
+    
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, firstImage: UIImage) {
         _vm = State(initialValue: vm)
         _meetVM = State(initialValue: meetVM)
+        self.firstImage = firstImage
     }
     
     var body: some View {
@@ -35,7 +38,7 @@ struct ProfileView: View {
                     .opacity(titleOpacity())
                     .padding(.top, 36)
                 
-                ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset)
+                ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, firstImage: firstImage)
                     .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(imageDetailsDrag)
                 
