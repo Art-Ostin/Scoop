@@ -36,7 +36,7 @@ struct EventView: View {
                         .ignoresSafeArea()
                         .onTapGesture { }
                     
-                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), selectedProfile: $selectedProfile)
+                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager))
                 }
                 .transition(.move(edge: .bottom))
                 .zIndex(1)

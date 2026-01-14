@@ -39,3 +39,6 @@ enum ProfileViewType {
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
 }
+enum DragType {
+    case details, profile, horizontal
+}

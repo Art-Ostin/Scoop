@@ -49,11 +49,11 @@ struct NavButton: View {
 
 struct ProfileDismissButton : View {
     let color: Color
-    @Binding var selectedProfile: ProfileModel?
-    
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         Button {
-            selectedProfile = nil
+            dismiss()
         } label: {
             Image(systemName: "chevron.down")
                 .font(.body(18, .bold))
@@ -62,3 +62,7 @@ struct ProfileDismissButton : View {
         .buttonStyle(.plain)
     }
 }
+
+/*
+ @Binding var selectedProfile: ProfileModel?
+ */

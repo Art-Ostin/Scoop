@@ -66,14 +66,13 @@ struct InfoItem: View {
 
 struct ProfileTitle: View {
     let p: UserProfile
-    @Binding var selectedProfile: ProfileModel?
     
     var body: some View {
         HStack {
             Text(p.name)
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
-            ProfileDismissButton(color: .black, selectedProfile: $selectedProfile)
+            ProfileDismissButton(color: .black)
         }
         .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))
@@ -89,7 +88,7 @@ struct ProfileSecondTitle: View {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
+            ProfileDismissButton(color: .white)
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)
@@ -149,3 +148,7 @@ struct TopSafeArea: PreferenceKey {
           value = max(value, nextValue())
       }
 }
+
+/*
+ @Binding var selectedProfile: ProfileModel?
+ */

@@ -38,7 +38,6 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 
-                
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
                         try? await vm.sendInvite(event: event, profileModel: currentProfile)
@@ -84,12 +83,12 @@ extension MeetContainer {
         LazyVStack(spacing: 84) {
             ForEach(items) { profileModel in
                 NavigationLink {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
-                        .navigationTransition(.zoom(sourceID: "profileImage", in: zoomNS))
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm)
+                        .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
                         .toolbar(.hidden, for: .navigationBar)
                 } label: {
-                    ProfileCard(profile: profileModel, size: imageSize, vm: vm, quickInvite: $quickInvite, selectedProfile: $selectedProfile)
-                        .matchedTransitionSource(id: "profileImage", in: zoomNS)
+                    ProfileCard(profile: profileModel, size: imageSize, vm: vm, quickInvite: $quickInvite)
+                        .matchedTransitionSource(id: profileModel.id, in: zoomNS)
                 }
             }
         }

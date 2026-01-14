@@ -14,7 +14,6 @@ struct ProfileCard : View {
     
     @Bindable var vm: MeetViewModel
     @Binding var quickInvite: ProfileModel?
-    @Binding var selectedProfile: ProfileModel?
     var isInvite: Bool { profile.event != nil }
     
     var body: some View {
@@ -39,7 +38,6 @@ struct ProfileCard : View {
                         .padding(.vertical, 16)
                         .padding(.horizontal)
                     }
-//                    .onTapGesture {selectedProfile = profile}
             }
             if let time = profile.event?.time {
                 HStack(spacing: 4) {

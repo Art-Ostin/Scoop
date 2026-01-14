@@ -57,7 +57,6 @@ extension ProfileImageView {
         //Apply the shadow after the frame so shadow not included in distance between views
         .frame(height: imageSize)
         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-        .measure(key: ImageSectionBottom.self) {$0.frame(in: .named("profile")).maxY}
     }
     
     private var imageScroller : some View {
@@ -99,5 +98,9 @@ extension ProfileImageView {
  
  images.map == {images[selectedImage]}  .black.opacity(0.3), radius: 5, x: 0, y: 10)
  
+ */
+
+/*
+ .measure(key: ImageSectionBottom.self) {$0.frame(in: .named("profile")).maxY}
  */
 

@@ -67,7 +67,6 @@ struct ProfileDetailsView: View {
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
         .scaleEffect(detailsOpen ? 1 : 0.95, anchor: .top) //Adjust so scale Effect works and distance between objects is same
     }
 }
@@ -178,4 +177,8 @@ private extension ProfileDetailsView {
  //                .offset(y: 384 - 24)
  //        }
 
+ */
+
+/*
+ .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
  */
