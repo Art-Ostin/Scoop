@@ -35,7 +35,6 @@
 		653770502E0A15270058D225 /* InviteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537704F2E0A15270058D225 /* InviteButton.swift */; };
 		653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653770612E0ACA600058D225 /* SelectTypeView.swift */; };
 		6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537706D2E0B08DE0058D225 /* AddMessageView.swift */; };
-		6539501C2F16A0E700DCB25A /* ScrollTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6539501B2F16A0E700DCB25A /* ScrollTester.swift */; };
 		653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78542E131FDF0098747F /* EventDetailsView.swift */; };
 		653A78592E1340BA0098747F /* MatchesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78582E1340BA0098747F /* MatchesContainer.swift */; };
 		653A78C42E15DBD80098747F /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78C32E15DBD80098747F /* MapView.swift */; };
@@ -113,6 +112,7 @@
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
+		65AA60EE2F17A829004F276B /* TransitionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA60ED2F17A829004F276B /* TransitionTester.swift */; };
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
@@ -201,7 +201,6 @@
 		6537704F2E0A15270058D225 /* InviteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteButton.swift; sourceTree = "<group>"; };
 		653770612E0ACA600058D225 /* SelectTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTypeView.swift; sourceTree = "<group>"; };
 		6537706D2E0B08DE0058D225 /* AddMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMessageView.swift; sourceTree = "<group>"; };
-		6539501B2F16A0E700DCB25A /* ScrollTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollTester.swift; sourceTree = "<group>"; };
 		653A78542E131FDF0098747F /* EventDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsView.swift; sourceTree = "<group>"; };
 		653A78582E1340BA0098747F /* MatchesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesContainer.swift; sourceTree = "<group>"; };
 		653A78C32E15DBD80098747F /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -280,6 +279,7 @@
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
+		65AA60ED2F17A829004F276B /* TransitionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitionTester.swift; sourceTree = "<group>"; };
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -482,9 +482,9 @@
 				655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */,
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
-				6539501B2F16A0E700DCB25A /* ScrollTester.swift */,
 				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
 				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
+				65AA60ED2F17A829004F276B /* TransitionTester.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -939,6 +939,7 @@
 				65C7D6362E54EE1600B726B8 /* MatchesViewModel.swift in Sources */,
 				65C4A0322ED0A54C00CA6C1B /* EditSex.swift in Sources */,
 				659497202E01DD4000880921 /* EnterEmailView.swift in Sources */,
+				65AA60EE2F17A829004F276B /* TransitionTester.swift in Sources */,
 				6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */,
 				653770502E0A15270058D225 /* InviteButton.swift in Sources */,
 				65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */,
@@ -973,7 +974,6 @@
 				654982DE2E315B1B00CA335F /* EditPhotoCell.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */,
-				6539501C2F16A0E700DCB25A /* ScrollTester.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				650135862E4B92F100630CF3 /* UserEventModel.swift in Sources */,

@@ -38,7 +38,6 @@ struct MeetContainer: View {
                         .zIndex(1)
                 }
                 
-                
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
                         try? await vm.sendInvite(event: event, profileModel: currentProfile)
