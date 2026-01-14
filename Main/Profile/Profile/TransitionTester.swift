@@ -87,7 +87,7 @@ struct DetailView: View {
     }
 
     private var swipeUpToChangeText: some Gesture {
-        DragGesture(minimumDistance: 15, coordinateSpace: .local)
+        DragGesture(minimumDistance: 30, coordinateSpace: .local)
             .updating($dragOffset) { value, state, _ in
                 infoOffset = value.translation.height
             }

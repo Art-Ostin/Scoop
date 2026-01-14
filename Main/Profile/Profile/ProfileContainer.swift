@@ -144,7 +144,7 @@ extension ProfileView {
 extension ProfileView {
     
     private var imageDetailsDrag: some Gesture {
-        DragGesture(minimumDistance: 15) //Critical its 20
+        DragGesture(minimumDistance: 25) //Critical its 20
             .updating($detailsOffset) { v, state, _ in
                 if dragType == nil { dragType(v: v) }
                 guard dragType == .details else { return }
