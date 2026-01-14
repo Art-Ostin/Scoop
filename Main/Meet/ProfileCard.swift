@@ -39,7 +39,7 @@ struct ProfileCard : View {
                         .padding(.vertical, 16)
                         .padding(.horizontal)
                     }
-                    .onTapGesture {selectedProfile = profile}
+//                    .onTapGesture {selectedProfile = profile}
             }
             if let time = profile.event?.time {
                 HStack(spacing: 4) {

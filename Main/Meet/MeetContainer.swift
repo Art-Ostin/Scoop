@@ -18,25 +18,26 @@ struct MeetContainer: View {
     @State var quickInvite: ProfileModel?
     @State var showPendingInvites = false
     @State var showInfo: Bool = false
-
+    
     @State var openPastInvites = false
     @State var imageSize: CGFloat = 0
     
+    @Namespace private var zoomNS
+    
+    
     init(vm: MeetViewModel) { self.vm = vm }
+    
     var body: some View {
+        
+        NavigationStack {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $showInfo) {
-                        profileScroller
-                        meetInfo
+                    profileScroller
+                    meetInfo
                 }
                 .id(vm.profiles.count)
                 
-                if let profileModel = selectedProfile {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
-                        .id(profileModel.id)
-                        .transition(.move(edge: .bottom))
-                        .zIndex(1)
-                }
+                
                 
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
@@ -63,11 +64,13 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
+            
         }
     }
+}
 
 extension MeetContainer {
-
+    
     private var meetInfo: some View {
         VStack(spacing: 60) {
             MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
@@ -78,12 +81,18 @@ extension MeetContainer {
     }
     
     private func profileList(_ items: [ProfileModel]) -> some View {
-    LazyVStack(spacing: 84) {
-        ForEach(items) { profileInvite in
-            ProfileCard(profile: profileInvite, size: imageSize, vm: vm, quickInvite: $quickInvite, selectedProfile: $selectedProfile)
+        LazyVStack(spacing: 84) {
+            ForEach(items) { profileModel in
+                NavigationLink {
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
+                        .navigationTransition(.zoom(sourceID: "profileImage", in: zoomNS))
+                } label: {
+                    ProfileCard(profile: profileModel, size: imageSize, vm: vm, quickInvite: $quickInvite, selectedProfile: $selectedProfile)
+                        .matchedTransitionSource(id: "testImage", in: zoomNS)
+                }
+            }
         }
     }
-}
     
     private var newProfileTimer: some View {
         HStack(spacing: 0) {
@@ -115,7 +124,7 @@ extension MeetContainer {
             Text("Respond to Refresh")
         }
     }
-
+    
     private var pastInviteView: some View {
         NavigationStack {
             ScrollView(.vertical) {
@@ -137,3 +146,23 @@ extension MeetContainer {
         .presentationDragIndicator(.visible)
     }
 }
+
+/*
+ if let profileModel = selectedProfile {
+     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
+         .id(profileModel.id)
+         .transition(.move(edge: .bottom))
+         .zIndex(1)
+ }
+
+ */
+
+/*
+ private func profileList(_ items: [ProfileModel]) -> some View {
+     LazyVStack(spacing: 84) {
+         ForEach(items) { profileInvite in
+             ProfileCard(profile: profileInvite, size: imageSize, vm: vm, quickInvite: $quickInvite, selectedProfile: $selectedProfile)
+         }
+     }
+ }
+ */
