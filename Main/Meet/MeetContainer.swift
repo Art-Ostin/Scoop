@@ -86,9 +86,10 @@ extension MeetContainer {
                 NavigationLink {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
                         .navigationTransition(.zoom(sourceID: "profileImage", in: zoomNS))
+                        .toolbar(.hidden, for: .navigationBar)
                 } label: {
                     ProfileCard(profile: profileModel, size: imageSize, vm: vm, quickInvite: $quickInvite, selectedProfile: $selectedProfile)
-                        .matchedTransitionSource(id: "testImage", in: zoomNS)
+                        .matchedTransitionSource(id: "profileImage", in: zoomNS)
                 }
             }
         }
