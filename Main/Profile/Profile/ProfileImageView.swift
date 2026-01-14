@@ -45,7 +45,7 @@ extension ProfileImageView {
                 if index != 0 {
                     Image(uiImage: images[index])
                         .resizable()
-                        .defaultImage(imageSize, 16)
+                        .defaultImage(imageSize, 16) 
                         .tag(index)
                         .indexViewStyle(.page(backgroundDisplayMode: .never))
                 }
