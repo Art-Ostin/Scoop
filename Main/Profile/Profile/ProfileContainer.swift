@@ -9,6 +9,7 @@ struct ProfileView: View {
     
     @Namespace private var inviteNS
     @Environment(\.tabSelection) private var tabSelection
+    @Environment(\.dismiss) private var dismiss
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
@@ -18,7 +19,6 @@ struct ProfileView: View {
     @State var detailsOpen: Bool = false
     
     @GestureState var detailsOffset = CGFloat.zero
-    @GestureState var profileOffset = CGFloat.zero
     
     @State var imageSectionBottom: CGFloat = 0
     @State var detailsSectionTop: CGFloat = 0
@@ -35,6 +35,7 @@ struct ProfileView: View {
     @Namespace var inviteAnimation
     
     let preloadedImages: [UIImage]?
+    
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
         return detailsOpen ? (-85 ... -limit) : (limit ... 85)
@@ -51,7 +52,7 @@ struct ProfileView: View {
         GeometryReader { geo in
             VStack(spacing: 24) {
                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
-                    .offset(y: rangeUpdater(endValue: -108))
+//                    .offset(y: rangeUpdater(endValue: -108))
                     .opacity(titleOpacity())
                     .padding(.top, 36)
                 
@@ -59,11 +60,6 @@ struct ProfileView: View {
                     .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 5)
-                            .updating($profileOffset) { value, state, _ in
-                                if dragType == nil { dragType(v: value) }
-                                guard dragType == .profile else { return }
-                                state = value.translation.height
-                            }
                             .updating($detailsOffset) { v, state, _ in
                                 if dragType == nil { dragType(v: v) }
                                 guard dragType == .details else { return }
@@ -78,7 +74,8 @@ struct ProfileView: View {
                                 //Only update if user drags more than 75
                                 guard max(distance, predicted) > 75 else { return }
                                 if dragType == .profile {
-                                    selectedProfile = nil
+//                                    selectedProfile = nil
+                                    dismiss()
                                 } else if dragType == .details {
                                     detailsOpen.toggle()
                                 }
@@ -103,7 +100,7 @@ struct ProfileView: View {
                                 defer { dragType = nil }
                                 guard dragType != nil && dragType != .horizontal else { return }
                                 let predicted = $0.predictedEndTranslation.height
-                                if predicted < 50 && profileOffset == 0 {
+                                if predicted < 50 /*&& profileOffset == 0*/ {
                                     detailsOpen = true
                                 } else if detailsOpen && predicted > 60 {
                                     detailsOpen = false
@@ -112,15 +109,15 @@ struct ProfileView: View {
                     )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                //Do not Change Critical! Fixed the scrolling down issue
-                UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
-                    .fill(Color.background)
-                    .ignoresSafeArea()
-                    .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-            )
+//            .background(
+//                //Do not Change Critical! Fixed the scrolling down issue
+//                UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
+//                    .fill(Color.background)
+//                    .ignoresSafeArea()
+//                    .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+//            )
             .animation(.spring(duration: 0.2), value: detailsOpen)
-            .animation(.easeOut(duration: 0.25), value: profileOffset)
+//            .animation(.easeOut(duration: 0.25), value: profileOffset)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
@@ -137,7 +134,7 @@ struct ProfileView: View {
 //                Task { try? await Task.sleep(nanoseconds: 20000000); measuredDetails = true}
             }
         }
-        .offset(y: profileOffset)
+//        .offset(y: profileOffset)
         .overlay {invitePopup}
     }
 }
@@ -272,3 +269,16 @@ extension ProfileView {
 enum DragType {
     case details, profile, horizontal
 }
+
+/*
+ 
+ @GestureState var profileOffset = CGFloat.zero
+
+ 
+ 
+ .updating($profileOffset) { value, state, _ in
+     if dragType == nil { dragType(v: value) }
+     guard dragType == .profile else { return }
+     state = value.translation.height
+ }
+ */
