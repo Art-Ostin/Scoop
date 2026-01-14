@@ -81,15 +81,15 @@ extension MeetContainer {
     
     private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {
-            ForEach(items) { profileModel in
+            ForEach(items) { profileModel in              
                 NavigationLink {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm)
                         .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
                         .toolbar(.hidden, for: .navigationBar)
                 } label: {
-                    ProfileCard(profile: profileModel, size: imageSize, vm: vm, quickInvite: $quickInvite)
-                        .matchedTransitionSource(id: profileModel.id, in: zoomNS)
+                    ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
                 }
+                .buttonStyle(.plain)
             }
         }
     }

@@ -11,10 +11,11 @@ struct ProfileCard : View {
     let profile: ProfileModel
     
     let size: CGFloat
-    
+    let transitionNamespace: Namespace.ID
     @Bindable var vm: MeetViewModel
     @Binding var quickInvite: ProfileModel?
     var isInvite: Bool { profile.event != nil }
+    
     
     var body: some View {
         VStack {
@@ -23,6 +24,7 @@ struct ProfileCard : View {
                     .resizable()
                     .defaultImage(size)
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    .matchedTransitionSource(id: profile.id, in: transitionNamespace)
                     .overlay(alignment: .bottomLeading) {
                         HStack(alignment: .bottom) {
                             VStack(alignment: .leading, spacing: 8) {
@@ -54,7 +56,7 @@ struct ProfileCard : View {
 }
 
 extension ProfileCard {
-    
+
     private var infoSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 12) {
