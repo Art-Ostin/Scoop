@@ -21,9 +21,12 @@ struct MeetContainer: View {
     
     @State var openPastInvites = false
     @State var imageSize: CGFloat = 0
+    @State private var selectedProfileId: String?
+    @State private var selectedProfileImage: UIImage?
     
     @Namespace private var zoomNS
     
+    private let placeholderImage = UIImage(named: "ImagePlaceholder") ?? UIImage()
     
     init(vm: MeetViewModel) { self.vm = vm }
     
@@ -56,8 +59,8 @@ struct MeetContainer: View {
                 imageSize = screenSize - (24 * 2)
             }
             .navigationDestination(for: ProfileModel.self) {profileModel in
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, firstImage: profileModel.image!)
-//                    .navigationTransition(.id)
+                let firstImage = (selectedProfileId == profileModel.id ? selectedProfileImage : nil) ?? profileModel.image ?? placeholderImage
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, firstImage: firstImage)//                    .navigationTransition(.id)
                     .toolbar(.hidden, for: .navigationBar)
             }
         }
@@ -84,6 +87,8 @@ extension MeetContainer {
                 ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
                     .contentShape(Rectangle())
                     .onTapGesture {
+                        selectedProfileId = profileModel.id
+                        selectedProfileImage = profileModel.image
                         var t = Transaction()
                         t.disablesAnimations = true
                         t.animation = nil
