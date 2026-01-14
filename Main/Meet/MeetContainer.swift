@@ -12,7 +12,7 @@ import SwiftUI
 
 struct MeetContainer: View {
     @Bindable var vm: MeetViewModel
-    @State var selectedProfile: ProfileModel?
+    @State private var profilePath: [ProfileModel] = []
     
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
@@ -29,7 +29,7 @@ struct MeetContainer: View {
     
     var body: some View {
         
-        NavigationStack {
+        NavigationStack(path: $profilePath) {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $showInfo) {
                     profileScroller
@@ -37,13 +37,11 @@ struct MeetContainer: View {
                 }
                 .id(vm.profiles.count)
                 
-                
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
                         try? await vm.sendInvite(event: event, profileModel: currentProfile)
                     }
                 }
-                
                 if showIdealTime {
                     SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
                         try? await vm.saveIdealMeetUp(event: event)
@@ -53,17 +51,15 @@ struct MeetContainer: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .sheet(isPresented: $showPendingInvites) {pastInviteView}
-            .onChange(of: selectedProfile) {oldValue, newValue in
-                if newValue != nil && openPastInvites {
-                    withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
-                    openPastInvites = false
-                }
-            }
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
-            
+            .navigationDestination(for: ProfileModel.self) {profileModel in
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm)
+                    .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
+                    .toolbar(.hidden, for: .navigationBar)
+            }
         }
     }
 }
@@ -81,14 +77,8 @@ extension MeetContainer {
     
     private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {
-            ForEach(items) { profileModel in              
-                NavigationLink {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm)
-                        .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
-                        .toolbar(.hidden, for: .navigationBar)
-                } label: {
-                    ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
-                }
+            ForEach(items) { profileModel in
+                NavigationLink(value: profileModel) {ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite) }
                 .buttonStyle(.plain)
             }
         }
@@ -132,7 +122,6 @@ extension MeetContainer {
                     ForEach(vm.pendingInvites) { profileModel in
                         PendingInviteCard(
                             profile: profileModel,
-                            selectedProfile: $selectedProfile,
                             showPendingInvites: $showPendingInvites,
                             openPastInvites: $openPastInvites
                         )
@@ -165,4 +154,14 @@ extension MeetContainer {
          }
      }
  }
+ */
+
+/*
+ .onChange(of: selectedProfile) {oldValue, newValue in
+     if newValue != nil && openPastInvites {
+         withAnimation(.spring(duration: 0.1)) {showPendingInvites = true }
+         openPastInvites = false
+     }
+ }
+
  */

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct ProfileModel: Identifiable, Equatable {
+struct ProfileModel: Identifiable, Equatable, Hashable {
     var event: UserEvent?
     var profile: UserProfile
     var image: UIImage?
@@ -16,6 +16,10 @@ struct ProfileModel: Identifiable, Equatable {
     
     static func == (lhs: ProfileModel, rhs: ProfileModel) -> Bool {
         lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

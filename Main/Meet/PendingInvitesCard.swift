@@ -10,7 +10,6 @@ import SwiftUI
 struct PendingInviteCard: View {
     let profile: ProfileModel
     
-    @Binding var selectedProfile: ProfileModel?
     @Binding var showPendingInvites: Bool
     @Binding var openPastInvites: Bool
     
@@ -41,7 +40,6 @@ struct PendingInviteCard: View {
             .onTapGesture {
                 withAnimation(nil) {
                     showPendingInvites = false
-                    selectedProfile = profile
                     Task {
                         try? await Task.sleep(for: .seconds(0.5))
                         openPastInvites = true

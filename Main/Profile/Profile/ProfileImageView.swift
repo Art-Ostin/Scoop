@@ -11,7 +11,6 @@ struct ProfileImageView: View {
     @Bindable var vm: ProfileViewModel
     @Binding var showInvite: Bool
     @State private var images: [UIImage] = []
-    var preloaded: [UIImage]? = nil
     @State private var selection = 0
     let imagePadding: CGFloat = 12
     @State var selectedImage = 0
@@ -23,13 +22,7 @@ struct ProfileImageView: View {
             profileImages
             imageScroller
         }
-        .task {
-            if let pre = preloaded {
-                images = pre
-            } else {
-                images = await vm.loadImages()
-            }
-        }
+        .task {images = await vm.loadImages()}
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
             imageSize = screenWidth - imagePadding
