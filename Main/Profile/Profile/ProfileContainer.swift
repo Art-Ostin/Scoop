@@ -165,7 +165,6 @@ extension ProfileView {
             .updating($detailsOffset) { v, state, _ in
                 if !isTopOfScroll && scrollSelection == 2 && detailsOpen { return}
                 if isTopOfScroll && scrollSelection == 2 && detailsOpen && v.translation.height < 0 { return }
-                
                 if dragType == nil {dragType(v: v)}
                 guard dragType != nil && dragType != .horizontal else { return }
                 state = v.translation.height.clamped(to: detailsDragRange)
@@ -185,13 +184,13 @@ extension ProfileView {
     private func dragType(v: DragGesture.Value) {
         //If there is already a dragType don't reassign it (here), get y and x drag
         if self.dragType != nil  {return }
-        let dy = v.translation.height
+        let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
         //Ensures user drags at least 5 points, and its a vertical drag
-        guard abs(dy) > dx else { dragType = .horizontal; return}
-        if dy < 0 { dragType = .details } else { dragType = .horizontal }
+        guard dy > dx else { dragType = .horizontal; return}
+        //If it passes conditions updates 'drag type'
+        self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .horizontal
     }
-
 }
 
 
