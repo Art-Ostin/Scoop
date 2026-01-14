@@ -50,7 +50,7 @@ struct ProfileView: View {
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .overlay(alignment: .topLeading) { overlayTitle }
         }
-//        .overlay {invitePopup}
+        .overlay {if showInvitePopup {invitePopup}}
     }
 }
 
@@ -85,19 +85,6 @@ extension ProfileView {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity())
-    }
-    
-    private func dragType(v: DragGesture.Value) {
-        //If there is already a dragType don't reassign it (here), get y and x drag
-        if self.dragType != nil  {return }
-        let dy = abs(v.translation.height)
-        let dx = abs(v.translation.width)
-        
-        //Ensures user drags at least 5 points, and its a vertical drag
-        guard dy > dx else { dragType = .horizontal; return}
-        
-        //If it passes conditions updates 'drag type'
-        self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
 }
 
@@ -157,19 +144,19 @@ extension ProfileView {
 extension ProfileView {
     
     private var imageDetailsDrag: some Gesture {
-        DragGesture(minimumDistance: 5)
-            .updating($detailsOffset) { value, state, _ in
-                guard !detailsOpen else { return }
-                guard value.translation.height < 0 else { return }
-                state = value.translation.height.clamped(to: detailsDragRange)
+        DragGesture(minimumDistance: 15) //Critical its 20
+            .updating($detailsOffset) { v, state, _ in
+                if dragType == nil { dragType(v: v) }
+                guard dragType == .details else { return }
+                state = v.translation.height.clamped(to: detailsDragRange)
             }
-            .onEnded { value in
-                let openDetailsThreshold: CGFloat = -75
-                guard value.translation.height < 0 else { return }
-                let predicted = value.predictedEndTranslation.height
-                if predicted < openDetailsThreshold {
-                    detailsOpen = true
-                }
+            .onEnded { v in
+                defer { dragType = nil }
+                guard dragType == .details else { return }
+                let predicted = abs(v.predictedEndTranslation.height)
+                let distance = abs(v.translation.height)
+                //Only update if user drags more than 75
+                if max(distance, predicted) > 75 { detailsOpen.toggle()}
             }
     }
     
@@ -194,6 +181,17 @@ extension ProfileView {
                 }
             }
     }
+    
+    private func dragType(v: DragGesture.Value) {
+        //If there is already a dragType don't reassign it (here), get y and x drag
+        if self.dragType != nil  {return }
+        let dy = v.translation.height
+        let dx = abs(v.translation.width)
+        //Ensures user drags at least 5 points, and its a vertical drag
+        guard abs(dy) > dx else { dragType = .horizontal; return}
+        if dy < 0 { dragType = .details } else { dragType = .horizontal }
+    }
+
 }
 
 
@@ -311,4 +309,35 @@ extension ProfileView {
 /*
  @Binding var selectedProfile: ProfileModel?
  .animation(.easeInOut(duration: 0.2), value: selectedProfile)
+ */
+
+/*
+ DragGesture(minimumDistance: 5)
+     .updating($detailsOffset) { value, state, _ in
+         guard !detailsOpen else { return }
+         guard value.translation.height < 0 else { return }
+         state = value.translation.height.clamped(to: detailsDragRange)
+     }
+     .onEnded { value in
+         let openDetailsThreshold: CGFloat = -75
+         guard value.translation.height < 0 else { return }
+         let predicted = value.predictedEndTranslation.height
+         if predicted < openDetailsThreshold {
+             detailsOpen = true
+         }
+     }
+ */
+
+/*
+ 
+ self.dragType = detailsOpen ? dy.
+ 
+ self.dragType = detailsOpen ? ( dy < 0 ? )
+ 
+ 
+ 
+ 
+ 
+ //If it passes conditions updates 'drag type'
+ self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
  */

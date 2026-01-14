@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct ContentView: View {
     @Namespace private var zoomNS
 
@@ -20,16 +19,16 @@ struct ContentView: View {
                 NavigationLink {
                     DetailView()
                         .navigationTransition(.zoom(sourceID: "testImage", in: zoomNS))
+                        .toolbar(.hidden, for: .navigationBar)
                 } label: {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Jansj")
                             .font(.headline)
-
+                        
                         Image("CoolGuys")
                             .resizable()
                             .scaledToFill()
                             .frame(height: 500)
-                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                             .matchedTransitionSource(id: "testImage", in: zoomNS)
                     }
                 }
@@ -52,6 +51,14 @@ struct ContentView: View {
 }
 
 struct DetailView: View {
+    
+    @State private var detailsOpen: Bool = true
+    @State private var text = "Some Text below the image."
+    @State private var didTriggerSwipeUp = false
+    @State var infoOffset: CGFloat = 200
+    
+    @GestureState private var dragOffset = CGFloat.zero
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Detail Screen")
@@ -61,14 +68,51 @@ struct DetailView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(height: 360)
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .highPriorityGesture(swipeUpToChangeText, including: detailsOpen ? .all : .none)
+                // Key change: simultaneous, not exclusive.
+                .simultaneousGesture(swipeUpToChangeText)
+            
+                .highPriorityGesture(swipeUpToChangeText, including: detailsOpen ? .all : .none)
 
-            Text("Some text below the image.")
+            Text(text)
+                .offset(y: infoOffset)
             Spacer()
         }
         .padding()
+        .overlay {
+            if detailsOpen {
+                Text("Details Open")
+            }
+        }
+    }
+
+    private var swipeUpToChangeText: some Gesture {
+        DragGesture(minimumDistance: 15, coordinateSpace: .local)
+            .updating($dragOffset) { value, state, _ in
+                infoOffset = value.translation.height
+            }
+            .onEnded { value in
+                let dx = value.translation.width
+                let dy = value.translation.height
+                
+                if value.translation.height > -75 {
+                    detailsOpen.toggle()
+                }
+                // Only treat clearly-vertical drags as intentional.
+                guard abs(dy) > abs(dx) else { return }
+
+                // Upward swipe (negative dy).
+                guard dy < -50 else { return }
+
+                // Optional: fire once to avoid repeated toggles.
+                guard !didTriggerSwipeUp else { return }
+                didTriggerSwipeUp = true
+
+                text = "Swiped Up Successfully"
+            }
     }
 }
+
 #Preview {
     ContentView()
 }

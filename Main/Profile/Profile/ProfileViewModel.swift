@@ -40,5 +40,9 @@ enum ProfileViewType {
     }
 }
 enum DragType {
-    case details, profile, horizontal
+    case details, horizontal
 }
+
+
+/*
+ */
