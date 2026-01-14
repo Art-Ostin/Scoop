@@ -57,12 +57,15 @@ struct MeetContainer: View {
             }
             .navigationDestination(for: ProfileModel.self) {profileModel in
                 ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm)
-                    .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
+//                    .navigationTransition(.id)
                     .toolbar(.hidden, for: .navigationBar)
             }
         }
     }
 }
+    /*
+     .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
+     */
 
 extension MeetContainer {
     
@@ -78,8 +81,16 @@ extension MeetContainer {
     private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {
             ForEach(items) { profileModel in
-                NavigationLink(value: profileModel) {ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite) }
-                .buttonStyle(.plain)
+                ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        var t = Transaction()
+                        t.disablesAnimations = true
+                        t.animation = nil
+                        withTransaction(t) {
+                            profilePath.append(profileModel)
+                        }
+                    }
             }
         }
     }

@@ -34,6 +34,9 @@ extension ProfileImageView {
     
     private var profileImages: some View {
         TabView(selection: $selection) {
+
+            
+            
             ForEach(images.indices, id: \.self) { index in
                 Image(uiImage: images[index])
                     .resizable()

@@ -16,7 +16,7 @@ struct ProfileView: View {
     @State private var isTopOfScroll = true
     @State private var scrollSelection: Int? = 0
     @State private var detailsOpenOffset: CGFloat = -284
-    
+        
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
         return detailsOpen ? (-85 ... -limit) : (limit ... 85)
