@@ -81,23 +81,6 @@ struct ProfileTitle: View {
     }
 }
 
-struct ProfileSecondTitle: View {
-    let vm: ProfileViewModel
-    @Binding var selectedProfile: ProfileModel?
-    
-    var body: some View {
-        HStack {
-            Text(vm.profileModel.profile.name)
-            Spacer()
-            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
-        }
-        .font(.body(24, .bold))
-        .foregroundStyle(.white)
-        .padding(.top, 32)
-        .padding(.horizontal, 16)
-    }
-}
-
 struct PromptView: View {
     
     let prompt: PromptResponse
@@ -152,4 +135,24 @@ struct TopSafeArea: PreferenceKey {
 
 /*
  @Binding var selectedProfile: ProfileModel?
+ */
+
+/*
+ 
+ struct ProfileSecondTitle: View {
+     let vm: ProfileViewModel
+     @Binding var selectedProfile: ProfileModel?
+     
+     var body: some View {
+         HStack {
+             Text(vm.profileModel.profile.name)
+             Spacer()
+             ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
+         }
+         .font(.body(24, .bold))
+         .foregroundStyle(.white)
+         .padding(.top, 32)
+         .padding(.horizontal, 16)
+     }
+ }
  */

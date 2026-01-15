@@ -101,7 +101,7 @@ extension MeetContainer {
     }
     
     private var profileScroller: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 72) {
             profileList(vm.invites)
             if  vm.showProfilesState != .closed {
                 profileList (vm.profiles)

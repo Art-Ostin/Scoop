@@ -53,7 +53,7 @@ struct ProfileDismissButton : View {
 
     var body: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(.snappy(duration: 0.22)) {
                 selectedProfile = nil
             }
         } label: {
