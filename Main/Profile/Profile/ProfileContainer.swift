@@ -180,7 +180,9 @@ extension ProfileView {
                 //Only update if user drags more than 75
                 guard max(distance, predicted) > 75 else { return }
                 if dragType == .profile {
-                    selectedProfile = nil
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedProfile = nil
+                    }
                 } else if dragType == .details {
                     detailsOpen.toggle()
                 }

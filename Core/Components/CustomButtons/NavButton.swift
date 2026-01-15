@@ -53,7 +53,9 @@ struct ProfileDismissButton : View {
 
     var body: some View {
         Button {
-            selectedProfile = nil
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedProfile = nil
+            }
         } label: {
             Image(systemName: "chevron.down")
                 .font(.body(18, .bold))

@@ -40,6 +40,7 @@ struct MeetContainer: View {
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [], selectedProfile: $selectedProfile)
                         .id(profileModel.id)
+                        .transition(.asymmetric(insertion: .identity,removal: .move(edge: .bottom).combined(with: .opacity)))
                         .zIndex(1)
                 }
                 
@@ -57,6 +58,7 @@ struct MeetContainer: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .sheet(isPresented: $showPendingInvites) {pastInviteView}
+            .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
