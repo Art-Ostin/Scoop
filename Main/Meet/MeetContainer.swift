@@ -38,7 +38,7 @@ struct MeetContainer: View {
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [], selectedProfile: $selectedProfile)
                         .id(profileModel.id)
-                        .transition(.move(edge: .bottom))
+//                        .transition(.move(edge: .bottom))
                         .zIndex(1)
                 }
                 if let currentProfile = quickInvite {

@@ -33,6 +33,7 @@ struct ProfileDetailsView: View {
     @Binding var showInvite: Bool
     @Binding var showDecline: Bool
     @Binding var selectedProfile: ProfileModel?
+    @Binding var hideProfileScreen: Bool
     
     var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
@@ -60,8 +61,10 @@ struct ProfileDetailsView: View {
                 DeclineButton() {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         showDecline = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
+                        
                         Task {
-                            try await meetVM?.declineProfile(profileModel: pModel)
+//                           try await meetVM?.declineProfile(profileModel: pModel)
                             
                             try await Task.sleep(nanoseconds: 750_000_000)
                             

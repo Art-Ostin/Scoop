@@ -17,7 +17,8 @@ struct ProfileView: View {
     @State private var isTopOfScroll = true
     @State private var scrollSelection: Int? = 0
     @State private var detailsOpenOffset: CGFloat = -284
-    @State private var showdeclineScreen: Bool = false
+    @State private var showDeclineScreen: Bool = false
+    @State private var hideProfileScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
         
@@ -39,39 +40,41 @@ struct ProfileView: View {
             GeometryReader { geo in
                 let dismissAction = { dismissProfile(viewHeight: geo.size.height) }
                 ZoomContainer {
-                    VStack(spacing: 24) {
-                        ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
-                            .offset(y: rangeUpdater(endValue: -108))
-                            .opacity(titleOpacity())
-                            .padding(.top, 36)
-                        
-                        ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
-                            .offset(y: rangeUpdater(endValue: -100))
-                            .simultaneousGesture(imageDetailsDrag)
-                        
-                        ProfileDetailsView(vm: vm, meetVM: $meetVM, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, pModel: vm.profileModel, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup, showDecline: $showdeclineScreen, selectedProfile: $selectedProfile)
-                            .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
-                            .offset(y: detailsSectionOffset())
-                            .onTapGesture {detailsOpen.toggle()}
-                            .simultaneousGesture(detailsDrag)
+                    if !hideProfileScreen {
+                        VStack(spacing: 24) {
+                            ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
+                                .offset(y: rangeUpdater(endValue: -108))
+                                .opacity(titleOpacity())
+                                .padding(.top, 36)
+                            
+                            ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
+                                .offset(y: rangeUpdater(endValue: -100))
+                                .simultaneousGesture(imageDetailsDrag)
+                            
+                            ProfileDetailsView(vm: vm, meetVM: $meetVM, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, pModel: vm.profileModel, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup, showDecline: $showDeclineScreen, selectedProfile: $selectedProfile, hideProfileScreen: $hideProfileScreen)
+                                .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
+                                .offset(y: detailsSectionOffset())
+                                .onTapGesture {detailsOpen.toggle()}
+                                .simultaneousGesture(detailsDrag)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(
+                            //Do not Change Critical! Fixed the scrolling down issue
+                            UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
+                                .fill(Color.background)
+                                .ignoresSafeArea()
+                                .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+                        )
+                        .animation(.spring(duration: 0.2), value: detailsOpen)
+                        .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+                        .animation(.easeOut(duration: 0.25), value: profileOffset)
+                        .animation(hideProfileScreen ? nil : .snappy(duration: 0.3), value: selectedProfile)
+                        .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(
-                        //Do not Change Critical! Fixed the scrolling down issue
-                        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
-                            .fill(Color.background)
-                            .ignoresSafeArea()
-                            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-                    )
-                    .animation(.spring(duration: 0.2), value: detailsOpen)
-                    .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                    .animation(.easeOut(duration: 0.25), value: profileOffset)
-                    .animation(showdeclineScreen ? nil : .snappy(duration: 0.3), value: selectedProfile)
-                    .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }
                 }
             }
             .overlay {if showInvitePopup {invitePopup}}
-            .overlay { if showdeclineScreen { declineScreen} }
+            .overlay { if showDeclineScreen { declineScreen} }
             .offset(y: activeProfileOffset)
     }
 }
@@ -139,9 +142,7 @@ extension ProfileView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .background(Color.background)
-        .onTapGesture {
-            showdeclineScreen.toggle()
-        }
+        .onTapGesture { showDeclineScreen.toggle() }
     }
 }
 

@@ -111,7 +111,6 @@ struct FlowLayoutBottom: PreferenceKey {
     }
 }
 
-
 struct ProfileEvent: View {
     let p: UserProfile
     let event: UserEvent?
