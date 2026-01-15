@@ -13,6 +13,7 @@ import SwiftUI
 struct MeetContainer: View {
     @Bindable var vm: MeetViewModel
     @State private var profilePath: [ProfileModel] = []
+    @State var selectedProfile: ProfileModel? = nil
     
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
@@ -21,9 +22,7 @@ struct MeetContainer: View {
     
     @State var openPastInvites = false
     @State var imageSize: CGFloat = 0
-    
-    @Namespace private var zoomNS
-    
+        
     @State var profileImages: [String : [UIImage]] = [:]
     
     init(vm: MeetViewModel) { self.vm = vm }
@@ -37,6 +36,12 @@ struct MeetContainer: View {
                     meetInfo
                 }
                 .id(vm.profiles.count)
+                
+                if let profileModel = selectedProfile {
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [])
+                        .id(profileModel.id)
+                        .zIndex(1)
+                }
                 
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
@@ -56,17 +61,9 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
-            .navigationDestination(for: ProfileModel.self) {profileModel in
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [])
-//                    .navigationTransition(.id)
-                    .toolbar(.hidden, for: .navigationBar)
-            }
         }
     }
 }
-    /*
-     .navigationTransition(.zoom(sourceID: profileModel.id, in: zoomNS))
-     */
 
 extension MeetContainer {
     
@@ -82,16 +79,9 @@ extension MeetContainer {
     private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, profile in
-                ProfileCard(profile: profile, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
+                ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $quickInvite)
                     .contentShape(Rectangle())
-                    .onTapGesture {
-                        var t = Transaction()
-                        t.disablesAnimations = true
-                        t.animation = nil
-                        withTransaction(t) {
-                            profilePath.append(profile)
-                        }
-                    }
+                    .onTapGesture { selectedProfile = profile }
                     .task {
                         let loadedImages = await vm.loadImages(profileModel: profile)
                         await MainActor.run {
@@ -182,4 +172,21 @@ extension MeetContainer {
      }
  }
 
+ */
+
+/*
+ .navigationDestination(for: ProfileModel.self) {profileModel in
+     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [])
+//                    .navigationTransition(.id)
+         .toolbar(.hidden, for: .navigationBar)
+ }
+ */
+
+/*
+ var t = Transaction()
+ t.disablesAnimations = true
+ t.animation = nil
+ withTransaction(t) {
+     profilePath.append(profile)
+ }
  */

@@ -49,6 +49,7 @@ struct ProfileView: View {
                     .simultaneousGesture(detailsDrag)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.appBackground)
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .overlay(alignment: .topLeading) { overlayTitle }
