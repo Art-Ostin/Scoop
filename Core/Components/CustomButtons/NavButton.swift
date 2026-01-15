@@ -50,11 +50,16 @@ struct NavButton: View {
 struct ProfileDismissButton : View {
     let color: Color
     @Binding var selectedProfile: ProfileModel?
-
+    let onDismiss: (() -> Void)?
+    
     var body: some View {
         Button {
-            withAnimation(.snappy(duration: 0.22)) {
-                selectedProfile = nil
+            if let onDismiss {
+                onDismiss()
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedProfile = nil
+                }
             }
         } label: {
             Image(systemName: "chevron.down")
