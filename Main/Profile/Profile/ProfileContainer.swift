@@ -107,8 +107,14 @@ extension ProfileView {
     private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
             Text(vm.profileModel.profile.name)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .glassIfAvailable()
+            //APPLYING GAUSSIAN BLUR BEHIND THIS SECTION OF THE IMAGE
             Spacer()
             ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
+                .padding(6)
+                .glassIfAvailable()
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())

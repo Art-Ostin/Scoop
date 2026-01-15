@@ -9,7 +9,6 @@ import SwiftUI
 
 //@State var showProfileTest: ProfileModel?
 
-
 struct MeetContainer: View {
     @Bindable var vm: MeetViewModel
     @State private var profilePath: [ProfileModel] = []

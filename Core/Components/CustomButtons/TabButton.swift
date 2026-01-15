@@ -45,7 +45,9 @@ extension View {
     @ViewBuilder
     func glassIfAvailable() -> some View {
         if #available(iOS 26.0, *) {
-            self.glassEffect(.regular.tint(.background))
+            self
+                .glassEffect(.clear, in: Circle())
+                .shadow(color: .white.opacity(0.25), radius: 6, x: 0, y: 5)
         } else {
             self
         }
