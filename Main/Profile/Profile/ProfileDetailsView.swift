@@ -10,13 +10,16 @@ import SwiftUIFlowLayout
 struct ProfileDetailsView: View {
     
     @Bindable var vm: ProfileViewModel
+    @Binding var meetVM: MeetViewModel?
     @Binding var isTopOfScroll: Bool
     @Binding var scrollSelection: Int?
     
-    let p: UserProfile
+    let pModel: ProfileModel
     let event: UserEvent?
     let detailsOpen: Bool
     let detailsOffset: CGFloat
+    
+    var p: UserProfile { pModel.profile}
     
     @State private var totalHeight: CGFloat = 0
     
@@ -57,11 +60,17 @@ struct ProfileDetailsView: View {
                 DeclineButton() {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         showDecline = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                            var transaction = Transaction()
-                            transaction.animation = .easeInOut(duration: 0.2)
-                            withTransaction(transaction) {
-                                selectedProfile = nil
+                        Task {
+                            try await meetVM?.declineProfile(profileModel: pModel)
+                            
+                            try await Task.sleep(nanoseconds: 750_000_000)
+                            
+                            await MainActor.run {
+                                var transaction = Transaction()
+                                transaction.animation = .easeInOut(duration: 0.2)
+                                withTransaction(transaction) {
+                                    selectedProfile = nil
+                                }
                             }
                         }
                     }

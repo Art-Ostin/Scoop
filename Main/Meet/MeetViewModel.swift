@@ -69,6 +69,11 @@ import FirebaseFirestore
         Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
     }
     
+    func declineProfile(profileModel: ProfileModel) async throws {
+        let user = s.user
+        try await cycleManager.declineProfile(userId: user.id, cycle: s.activeCycle, profileId: profileModel.id)
+    }
+    
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
         guard let event = profileModel.event, let id = event.id else { return }
         try await eventManager.updateStatus(eventId: id, to: .accepted)

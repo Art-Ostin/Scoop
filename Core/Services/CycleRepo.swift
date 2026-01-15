@@ -101,6 +101,13 @@ final class CycleManager {
             fs.increment(cycleDocPath(userId: userId, cycleId: id), by: [ "cycleStats.invited":  1, "cycleStats.pending": -1])
     }
     
+    func declineProfile(userId: String, cycle: CycleModel?, profileId: String) async throws {
+        guard let id = cycle?.id  else { return}
+        try await updateCycleProfile(userId: userId, cycleId: id, profileId: profileId, values: [.status : ProfileRecStatus.dismiss.rawValue])
+        fs.increment(cycleDocPath(userId: userId, cycleId: id), by: [ "cycleStats.dismissed":  1, "cycleStats.pending": -1])
+    }
+    
+    
     func fetchCycleStatus(user: UserProfile) async throws -> (CycleStatus, CycleModel?) {
         guard let cycleId = user.activeCycleId else { return (.closed, nil) }
         let cycle: CycleModel = try await fs.get(cycleDocPath(userId: user.id, cycleId: cycleId))
