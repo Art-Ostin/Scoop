@@ -81,13 +81,10 @@ extension ProfileView {
     
     private func dismissProfile(viewHeight: CGFloat) {
         guard dismissOffset == nil else { return }
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(.snappy(duration: 0.22)) {
             dismissOffset = viewHeight
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            selectedProfile = nil
-            dismissOffset = nil
-        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {selectedProfile = nil}
     }
     
     @ViewBuilder
