@@ -18,9 +18,10 @@ struct ProfileImageView: View {
     @State var importedImages: [UIImage]
     
     var body: some View {
+        
         VStack(spacing: 24) {
             profileImages
-//            imageScroller
+            imageScroller
         }
         .task(id: importedImages.count) {
             //If The images haven't been imported in time, load them up on the screen
@@ -38,7 +39,6 @@ struct ProfileImageView: View {
 extension ProfileImageView {
 
     private var profileImages: some View {
-        ZoomContainer {
             TabView(selection: $selection) {
                 ForEach(importedImages.indices, id: \.self) { index in
                         Image(uiImage: importedImages[index])
@@ -57,7 +57,6 @@ extension ProfileImageView {
             //Apply the shadow after the frame so shadow not included in distance between views
             .frame(height: imageSize)
             .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-        }
     }
     
     private var imageScroller : some View {

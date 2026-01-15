@@ -17,7 +17,6 @@ extension View {
 }
 
 struct ZoomContainer<Content: View>: View {
-    
     var content: Content
     
     init(@ViewBuilder content: @escaping () -> Content) {
@@ -40,7 +39,13 @@ struct ZoomContainer<Content: View>: View {
             }
             .ignoresSafeArea()
     }
+        .coordinateSpace(name: ZoomContainerConstants.coordinateSpace)
     }
+}
+
+
+private enum ZoomContainerConstants {
+    static let coordinateSpace = "zoomContainer"
 }
 
 
@@ -67,8 +72,7 @@ fileprivate struct PinchZoomHelper<Content: View> : View {
             .overlay(GestureOverlay(config: $config))
             .overlay {
                 GeometryReader {
-                    let rect = $0.frame(in: .global)
-                    
+                    let rect = $0.frame(in: .named(ZoomContainerConstants.coordinateSpace))
                     Color.clear
                         .onChange(of: self.config.isGestureActive) {oldValue, newValue in
                             if newValue {

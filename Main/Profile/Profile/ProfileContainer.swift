@@ -35,41 +35,44 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        GeometryReader { geo in
-            let dismissAction = { dismissProfile(viewHeight: geo.size.height) }
-            VStack(spacing: 24) {
-                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
-                    .offset(y: rangeUpdater(endValue: -108))
-                    .opacity(titleOpacity())
-                    .padding(.top, 36)
-                
-                ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
-                    .offset(y: rangeUpdater(endValue: -108))
-                    .offset(y: rangeUpdater(endValue: -108))
-                    .simultaneousGesture(imageDetailsDrag)
-                
-//                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
-//                    .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
-//                    .offset(y: detailsSectionOffset())
-//                    .onTapGesture {detailsOpen.toggle()}
-//                    .simultaneousGesture(detailsDrag)
+            GeometryReader { geo in
+                let dismissAction = { dismissProfile(viewHeight: geo.size.height) }
+                ZoomContainer {
+                    
+                    VStack(spacing: 24) {
+                        ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
+                            .offset(y: rangeUpdater(endValue: -108))
+                            .opacity(titleOpacity())
+                            .padding(.top, 36)
+                        
+                        ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
+                            .offset(y: rangeUpdater(endValue: -108))
+                            .offset(y: rangeUpdater(endValue: -108))
+                            .simultaneousGesture(imageDetailsDrag)
+                        
+                        ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
+                            .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
+                            .offset(y: detailsSectionOffset())
+                            .onTapGesture {detailsOpen.toggle()}
+                            .simultaneousGesture(detailsDrag)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(
+                        //Do not Change Critical! Fixed the scrolling down issue
+                        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
+                            .fill(Color.background)
+                            .ignoresSafeArea()
+                            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+                    )
+                    .animation(.spring(duration: 0.2), value: detailsOpen)
+                    .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+                    .animation(.easeOut(duration: 0.25), value: profileOffset)
+                    .animation(.snappy(duration: 0.3), value: selectedProfile)
+                    .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                //Do not Change Critical! Fixed the scrolling down issue
-                UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
-                    .fill(Color.background)
-                    .ignoresSafeArea()
-                    .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-            )
-            .animation(.spring(duration: 0.2), value: detailsOpen)
-            .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-            .animation(.easeOut(duration: 0.25), value: profileOffset)
-            .animation(.snappy(duration: 0.3), value: selectedProfile)
-            .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }
-        }
-        .overlay {if showInvitePopup {invitePopup}}
-        .offset(y: activeProfileOffset)
+            .overlay {if showInvitePopup {invitePopup}}
+            .offset(y: activeProfileOffset)
     }
 }
 
