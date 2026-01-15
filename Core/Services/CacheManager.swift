@@ -54,23 +54,24 @@ class CacheManager: CacheManaging  {
         let urls = profiles.flatMap { profile in
             profile.imagePathURL.compactMap { URL(string: $0) }
         }
-        var images: [UIImage] = []
-        await withTaskGroup(of: UIImage?.self) { group in
-            for url in urls {
+        var images = Array<UIImage?>(repeating: nil, count: urls.count)
+        await withTaskGroup(of: (Int, UIImage?).self) { group in
+            for (index, url) in urls.enumerated() {
                 group.addTask {
                     do {
-                        return try await self.fetchImage(for: url)
+                        let image = try await self.fetchImage(for: url)
+                        return (index, image)
                     } catch {
                         print("unable to add images to cache")
-                        return nil
+                        return (index, nil)
                     }
                 }
             }
-            for await img in group {
-                if let img { images.append(img) }
+            for await (index, img) in group {
+                if let img { images[index] = img }
             }
-            print("Images saved to cache")
+                print("Images saved to cache")
         }
-        return images
-    }    
+            return images.compactMap { $0 }
+        }
 }
