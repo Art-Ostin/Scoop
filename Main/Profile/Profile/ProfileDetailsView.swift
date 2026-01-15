@@ -58,11 +58,15 @@ struct ProfileDetailsView: View {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         showDecline = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                            selectedProfile = nil
+                            var transaction = Transaction()
+                            transaction.animation = .easeInOut(duration: 0.2)
+                            withTransaction(transaction) {
+                                selectedProfile = nil
+                            }
                         }
                     }
                 }
-                    .offset(y: -24)
+                .offset(y: -24)
                 Spacer()
                 PageIndicator(count: 3, selection: scrollSelection ?? 0)
                 Spacer()

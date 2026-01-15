@@ -66,7 +66,7 @@ struct ProfileView: View {
                     .animation(.spring(duration: 0.2), value: detailsOpen)
                     .animation(.easeInOut(duration: 0.2), value: detailsOffset)
                     .animation(.easeOut(duration: 0.25), value: profileOffset)
-                    .animation(.snappy(duration: 0.3), value: selectedProfile)
+                    .animation(showdeclineScreen ? nil : .snappy(duration: 0.3), value: selectedProfile)
                     .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }
                 }
             }
