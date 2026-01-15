@@ -6,6 +6,7 @@ struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
     
     @GestureState var detailsOffset = CGFloat.zero
+    @GestureState var profileOffset = CGFloat.zero
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
@@ -49,7 +50,13 @@ struct ProfileView: View {
                     .simultaneousGesture(detailsDrag)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.appBackground)
+            .background(
+                //Do not Change Critical! Fixed the scrolling down issue
+                UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
+                    .fill(Color.background)
+                    .ignoresSafeArea()
+                    .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+            )
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .overlay(alignment: .topLeading) { overlayTitle }
