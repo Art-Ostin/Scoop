@@ -24,10 +24,11 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
-             RootView()
-                 .appDependencies(dep)
-                 .task { dep.sessionManager.userStream(appState: $appState) }
-                 .environment(\.appState, $appState)
+            ImageZoomer()
+//             RootView()
+//                 .appDependencies(dep)
+//                 .task { dep.sessionManager.userStream(appState: $appState) }
+//                 .environment(\.appState, $appState)
         }
     }
 }

@@ -38,23 +38,25 @@ struct ProfileImageView: View {
 extension ProfileImageView {
 
     private var profileImages: some View {
-        TabView(selection: $selection) {
-            ForEach(importedImages.indices, id: \.self) { index in
-                    Image(uiImage: importedImages[index])
-                        .resizable()
-                        .defaultImage(imageSize, 16) 
-                        .tag(index)
-                        .indexViewStyle(.page(backgroundDisplayMode: .never))
+        ZoomContainer {
+            TabView(selection: $selection) {
+                ForEach(importedImages.indices, id: \.self) { index in
+                        Image(uiImage: importedImages[index])
+                            .resizable()
+                            .defaultImage(imageSize, 16)
+                            .tag(index)
+                            .indexViewStyle(.page(backgroundDisplayMode: .never))
+                }
             }
+            .overlay(alignment: .bottomTrailing) {
+                InviteButton(vm: vm, showInvite: $showInvite)
+                    .padding()
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            //Apply the shadow after the frame so shadow not included in distance between views
+            .frame(height: imageSize)
+            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
         }
-        .overlay(alignment: .bottomTrailing) {
-            InviteButton(vm: vm, showInvite: $showInvite)
-                .padding()
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        //Apply the shadow after the frame so shadow not included in distance between views
-        .frame(height: imageSize)
-        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
     
     private var imageScroller : some View {

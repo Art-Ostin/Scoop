@@ -45,6 +45,7 @@ struct ProfileView: View {
                 
                 ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
                     .offset(y: rangeUpdater(endValue: -108))
+                    .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(imageDetailsDrag)
                 
                 ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
@@ -110,6 +111,8 @@ extension ProfileView {
             //APPLYING GAUSSIAN BLUR BEHIND THIS SECTION OF THE IMAGE
             Spacer()
             ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
+                .padding(6)
+                .glassIfAvailable(Circle())
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())
