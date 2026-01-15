@@ -38,7 +38,6 @@ struct ProfileView: View {
             GeometryReader { geo in
                 let dismissAction = { dismissProfile(viewHeight: geo.size.height) }
                 ZoomContainer {
-                    
                     VStack(spacing: 24) {
                         ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
                             .offset(y: rangeUpdater(endValue: -108))
@@ -46,8 +45,7 @@ struct ProfileView: View {
                             .padding(.top, 36)
                         
                         ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
-                            .offset(y: rangeUpdater(endValue: -108))
-                            .offset(y: rangeUpdater(endValue: -108))
+                            .offset(y: rangeUpdater(endValue: -100))
                             .simultaneousGesture(imageDetailsDrag)
                         
                         ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
