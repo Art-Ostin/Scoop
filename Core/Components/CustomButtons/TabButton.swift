@@ -43,11 +43,10 @@ extension TabButton {
 
 extension View {
     @ViewBuilder
-    func glassIfAvailable() -> some View {
+    func glassIfAvailable(_ shape: any Shape = .capsule) -> some View {
         if #available(iOS 26.0, *) {
             self
-                .glassEffect(.clear, in: Circle())
-                .shadow(color: .white.opacity(0.25), radius: 6, x: 0, y: 5)
+                .glassEffect(.clear, in: shape)
         } else {
             self
         }

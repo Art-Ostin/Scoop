@@ -107,14 +107,9 @@ extension ProfileView {
     private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
             Text(vm.profileModel.profile.name)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .glassIfAvailable()
             //APPLYING GAUSSIAN BLUR BEHIND THIS SECTION OF THE IMAGE
             Spacer()
             ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
-                .padding(6)
-                .glassIfAvailable()
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())
@@ -211,7 +206,7 @@ extension ProfileView {
     private var detailsDrag: some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($detailsOffset) { v, state, _ in
-                if !isTopOfScroll  && detailsOpen { return}
+                if !isTopOfScroll  && detailsOpen && scrollSelection == 2 { return}
                 if isTopOfScroll && detailsOpen && v.translation.height < 0 { return }
                 
                 if dragType == nil {dragType(v: v)}
@@ -240,6 +235,14 @@ extension ProfileView {
         self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
 }
+
+
+/*
+ .padding(.horizontal, 8)
+ .padding(.vertical, 2)
+ .glassIfAvailable()
+
+ */
 
 
 /*
@@ -315,6 +318,11 @@ extension ProfileView {
  }
  let toggleDetailsYOffset = imageSectionBottom - detailsSectionTop
  
+ .padding(6)
+ .glassIfAvailable(Circle())
+ .shadow(color: .black.opacity(0.3), radius: 12, x: 0, y: 8)
+ .shadow(color: .white.opacity(0.2), radius: 2, x: 0, y: 1)
+
  
  print("Bottom: \(imageSectionBottom)")
  print("Top: \(detailsSectionTop)")

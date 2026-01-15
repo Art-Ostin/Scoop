@@ -78,7 +78,9 @@ extension MeetContainer {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, profile in
                 ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $quickInvite)
                     .contentShape(Rectangle())
-                    .onTapGesture { selectedProfile = profile }
+                    .onTapGesture {
+                        if selectedProfile == nil {selectedProfile = profile }
+                    }
                     .task {
                         let loadedImages = await vm.loadImages(profileModel: profile)
                         await MainActor.run {
