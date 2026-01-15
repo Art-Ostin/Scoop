@@ -63,7 +63,7 @@ struct ProfileView: View {
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
-            .animation(.easeInOut(duration: 0.2), value: selectedProfile)
+//            .animation(.snappy(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
         }
         .overlay {if showInvitePopup {invitePopup}}
@@ -180,7 +180,7 @@ extension ProfileView {
                 //Only update if user drags more than 75
                 guard max(distance, predicted) > 75 else { return }
                 if dragType == .profile {
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.timingCurve(0.2, 0.9, 0.2, 1.0, duration: 1)) {
                         selectedProfile = nil
                     }
                 } else if dragType == .details {
