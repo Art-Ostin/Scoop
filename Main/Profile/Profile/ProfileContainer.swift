@@ -67,9 +67,6 @@ struct ProfileView: View {
         }
         .overlay {if showInvitePopup {invitePopup}}
         .offset(y: profileOffset)
-        .onChange(of: profileOffset) {
-            print(profileOffset)
-        }
     }
 }
 
@@ -210,7 +207,6 @@ extension ProfileView {
                 }
             }
     }
-    
     private func dragType(v: DragGesture.Value) {
         //If there is already a dragType don't reassign it (here), get y and x drag
         if self.dragType != nil  {return }
@@ -219,7 +215,7 @@ extension ProfileView {
         //Ensures user drags at least 5 points, and its a vertical drag
         guard dy > dx else { dragType = .horizontal; return}
         //If it passes conditions updates 'drag type'
-        self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .horizontal
+        self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
 }
 
