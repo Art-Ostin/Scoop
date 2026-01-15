@@ -3,13 +3,13 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.tabSelection) private var tabSelection
-    @Environment(\.dismiss) private var dismiss
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
     
     @State private var vm: ProfileViewModel
     @State private var meetVM: MeetViewModel?
+    @State private var dismissOffset: CGFloat? = nil
     
     @State private var showInvitePopup: Bool = false
     @State private var detailsOpen: Bool = false
@@ -63,16 +63,21 @@ struct ProfileView: View {
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
-//            .animation(.snappy(duration: 0.2), value: selectedProfile)
+            .animation(.snappy(duration: 0.3), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
         }
         .overlay {if showInvitePopup {invitePopup}}
-        .offset(y: profileOffset)
+        .offset(y: activeProfileOffset)
     }
 }
 
 //Two Different views
 extension ProfileView {
+    
+    private var activeProfileOffset: CGFloat {
+        dismissOffset ?? profileOffset
+    }
+    
     @ViewBuilder
     private var invitePopup: some View {
         if showInvitePopup, let event = vm.profileModel.event {
@@ -180,9 +185,8 @@ extension ProfileView {
                 //Only update if user drags more than 75
                 guard max(distance, predicted) > 75 else { return }
                 if dragType == .profile {
-                    withAnimation(.timingCurve(0.2, 0.9, 0.2, 1.0, duration: 1)) {
+                    dismissOffset = v.translation.height
                         selectedProfile = nil
-                    }
                 } else if dragType == .details {
                     detailsOpen.toggle()
                 }
