@@ -70,8 +70,8 @@ class CacheManager: CacheManaging  {
             for await (index, img) in group {
                 if let img { images[index] = img }
             }
-                print("Images saved to cache")
+            print("Images saved to cache")
         }
-            return images.compactMap { $0 }
-        }
+        return images.compactMap { $0 }
+    }
 }
