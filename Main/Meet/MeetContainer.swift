@@ -29,7 +29,6 @@ struct MeetContainer: View {
     
     var body: some View {
         
-        NavigationStack(path: $profilePath) {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $showInfo) {
                     profileScroller
@@ -43,7 +42,6 @@ struct MeetContainer: View {
                         .transition(.move(edge: .bottom))
                         .zIndex(1)
                 }
-                
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
                         try? await vm.sendInvite(event: event, profileModel: currentProfile)
@@ -62,7 +60,6 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
-        }
     }
 }
 
