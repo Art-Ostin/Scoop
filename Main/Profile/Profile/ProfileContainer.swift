@@ -65,6 +65,7 @@ struct ProfileView: View {
             .overlay(alignment: .topLeading) { overlayTitle }
         }
         .overlay {if showInvitePopup {invitePopup}}
+        .offset(y: profileOffset)
     }
 }
 
@@ -158,7 +159,12 @@ extension ProfileView {
 extension ProfileView {
     
     private var imageDetailsDrag: some Gesture {
-        DragGesture(minimumDistance: 25) //Critical its 20
+        DragGesture(minimumDistance: 5)
+            .updating($profileOffset) { value, state, _ in
+                if dragType == nil { dragType(v: value) }
+                guard dragType == .profile else { return }
+                state = value.translation.height
+            }
             .updating($detailsOffset) { v, state, _ in
                 if dragType == nil { dragType(v: v) }
                 guard dragType == .details else { return }
@@ -166,11 +172,16 @@ extension ProfileView {
             }
             .onEnded { v in
                 defer { dragType = nil }
-                guard dragType == .details else { return }
+                guard dragType != nil && dragType != .horizontal else { return }
                 let predicted = abs(v.predictedEndTranslation.height)
                 let distance = abs(v.translation.height)
                 //Only update if user drags more than 75
-                if max(distance, predicted) > 75 { detailsOpen.toggle()}
+                guard max(distance, predicted) > 75 else { return }
+                if dragType == .profile {
+                    selectedProfile = nil
+                } else if dragType == .details {
+                    detailsOpen.toggle()
+                }
             }
     }
     
@@ -353,4 +364,24 @@ extension ProfileView {
  
  //If it passes conditions updates 'drag type'
  self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
+ */
+
+/*
+ DragGesture(minimumDistance: 5) //Critical its 20
+     .updating($detailsOffset) { v, state, _ in
+         if dragType == nil { dragType(v: v) }
+         guard dragType == .details else { return }
+         state = v.translation.height.clamped(to: detailsDragRange)
+     }
+ 
+ .onEnded { v in
+     defer { dragType = nil }
+     guard dragType == .details else { return }
+     let predicted = abs(v.predictedEndTranslation.height)
+     let distance = abs(v.translation.height)
+     //Only update if user drags more than 75
+     if max(distance, predicted) > 75 { detailsOpen.toggle()}
+ }
+
+
  */
