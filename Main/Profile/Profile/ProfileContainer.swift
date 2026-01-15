@@ -17,6 +17,8 @@ struct ProfileView: View {
     @State private var isTopOfScroll = true
     @State private var scrollSelection: Int? = 0
     @State private var detailsOpenOffset: CGFloat = -284
+    
+    @Binding private var selectedProfile: ProfileModel?
         
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
@@ -25,16 +27,17 @@ struct ProfileView: View {
     
     let profileImages: [UIImage]
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage]) {
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>) {
         _vm = State(initialValue: vm)
         _meetVM = State(initialValue: meetVM)
         self.profileImages = profileImages
+        _selectedProfile = selectedProfile
     }
     
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 24) {
-                ProfileTitle(p: vm.profileModel.profile)
+                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
                     .offset(y: rangeUpdater(endValue: -108))
                     .opacity(titleOpacity())
                     .padding(.top, 36)
@@ -88,7 +91,7 @@ extension ProfileView {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(color: .white)
+            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())

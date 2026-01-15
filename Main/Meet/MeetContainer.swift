@@ -38,7 +38,7 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = selectedProfile {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [])
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [], selectedProfile: $selectedProfile)
                         .id(profileModel.id)
                         .zIndex(1)
                 }
