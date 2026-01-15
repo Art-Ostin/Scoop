@@ -91,13 +91,17 @@ fileprivate struct PinchZoomHelper<Content: View> : View {
                         .onChange(of: config.zoom) { oldValue, newValue in
                             if config.isGestureActive {
                                 containerData.zoom = config.zoom
-                                containerData.zoomingView = nil
                             }
                         }
-                    }
+                        .onChange(of: config.dragOffset) { oldValue, newValue in
+                            if config.isGestureActive {
+                                containerData.dragOffset = config.dragOffset
+                            }
+                        }
                 }
             }
     }
+}
 
 fileprivate struct GestureOverlay: UIViewRepresentable {
     @Binding var config: Config
@@ -163,7 +167,7 @@ fileprivate struct GestureOverlay: UIViewRepresentable {
                 let scale = max(gesture.scale, 1)
                 config.zoom = scale
                 
-                config.isGestureActive = false
+                config.isGestureActive = true
             } else {
                 config.isGestureActive = false
             }

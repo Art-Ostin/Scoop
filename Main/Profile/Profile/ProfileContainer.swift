@@ -48,11 +48,11 @@ struct ProfileView: View {
                     .offset(y: rangeUpdater(endValue: -108))
                     .simultaneousGesture(imageDetailsDrag)
                 
-                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
-                    .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
-                    .offset(y: detailsSectionOffset())
-                    .onTapGesture {detailsOpen.toggle()}
-                    .simultaneousGesture(detailsDrag)
+//                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
+//                    .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
+//                    .offset(y: detailsSectionOffset())
+//                    .onTapGesture {detailsOpen.toggle()}
+//                    .simultaneousGesture(detailsDrag)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(

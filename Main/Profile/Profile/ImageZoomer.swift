@@ -14,6 +14,7 @@ struct ImageZoomer: View {
                 .scaledToFit()
                 .frame(width: 200, height: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                .pinchZoom()
         }
     }
 }

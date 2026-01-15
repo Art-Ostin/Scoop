@@ -20,7 +20,7 @@ struct ProfileImageView: View {
     var body: some View {
         VStack(spacing: 24) {
             profileImages
-            imageScroller
+//            imageScroller
         }
         .task(id: importedImages.count) {
             //If The images haven't been imported in time, load them up on the screen
@@ -46,6 +46,7 @@ extension ProfileImageView {
                             .defaultImage(imageSize, 16)
                             .tag(index)
                             .indexViewStyle(.page(backgroundDisplayMode: .never))
+                            .pinchZoom()
                 }
             }
             .overlay(alignment: .bottomTrailing) {
