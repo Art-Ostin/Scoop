@@ -36,8 +36,9 @@ struct ProfileView: View {
     
     var body: some View {
         GeometryReader { geo in
+            let dismissAction = { dismissProfile(viewHeight: geo.size.height) }
             VStack(spacing: 24) {
-                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile)
+                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
                     .offset(y: rangeUpdater(endValue: -108))
                     .opacity(titleOpacity())
                     .padding(.top, 36)
@@ -64,7 +65,7 @@ struct ProfileView: View {
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
             .animation(.snappy(duration: 0.3), value: selectedProfile)
-            .overlay(alignment: .topLeading) { overlayTitle }
+            .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }
         }
         .overlay {if showInvitePopup {invitePopup}}
         .offset(y: activeProfileOffset)
@@ -76,6 +77,17 @@ extension ProfileView {
     
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
+    }
+
+    private func dismissProfile(viewHeight: CGFloat) {
+        guard dismissOffset == nil else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            dismissOffset = viewHeight
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            selectedProfile = nil
+            dismissOffset = nil
+        }
     }
     
     @ViewBuilder
@@ -95,11 +107,11 @@ extension ProfileView {
         }
     }
     
-    private var overlayTitle: some View {
+    private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
+            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())

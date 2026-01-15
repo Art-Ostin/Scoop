@@ -67,13 +67,14 @@ struct InfoItem: View {
 struct ProfileTitle: View {
     let p: UserProfile
     @Binding var selectedProfile: ProfileModel?
+    let onDismiss: (() -> Void)? = nil
     
     var body: some View {
         HStack {
             Text(p.name)
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
-            ProfileDismissButton(color: .black, selectedProfile: $selectedProfile)
+            ProfileDismissButton(color: .black, selectedProfile: $selectedProfile, onDismiss: onDismiss)
         }
         .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))
@@ -84,12 +85,13 @@ struct ProfileTitle: View {
 struct ProfileSecondTitle: View {
     let vm: ProfileViewModel
     @Binding var selectedProfile: ProfileModel?
+    let onDismiss: (() -> Void)? = nil
     
     var body: some View {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
+            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
         }
         .font(.body(24, .bold))
         .foregroundStyle(.white)
