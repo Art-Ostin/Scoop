@@ -17,6 +17,7 @@ struct ProfileView: View {
     @State private var isTopOfScroll = true
     @State private var scrollSelection: Int? = 0
     @State private var detailsOpenOffset: CGFloat = -284
+    @State private var showdeclineScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
         
@@ -48,7 +49,7 @@ struct ProfileView: View {
                             .offset(y: rangeUpdater(endValue: -100))
                             .simultaneousGesture(imageDetailsDrag)
                         
-                        ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup)
+                        ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, p: vm.profileModel.profile, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup, showDecline: $showdeclineScreen, selectedProfile: $selectedProfile)
                             .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                             .offset(y: detailsSectionOffset())
                             .onTapGesture {detailsOpen.toggle()}
@@ -70,6 +71,7 @@ struct ProfileView: View {
                 }
             }
             .overlay {if showInvitePopup {invitePopup}}
+            .overlay { if showdeclineScreen { declineScreen} }
             .offset(y: activeProfileOffset)
     }
 }
@@ -121,6 +123,25 @@ extension ProfileView {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity())
+    }
+    
+    private var declineScreen: some View {
+        ZStack  {
+            VStack(alignment: .center, spacing: 36) {
+                Image("Monkey")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
+                
+                Text("Declined")
+                    .font(.body(16, .bold))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .background(Color.background)
+        .onTapGesture {
+            showdeclineScreen.toggle()
+        }
     }
 }
 

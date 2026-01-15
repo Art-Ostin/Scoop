@@ -28,6 +28,8 @@ struct ProfileDetailsView: View {
     @State private var interestScale: CGFloat = 1
     
     @Binding var showInvite: Bool
+    @Binding var showDecline: Bool
+    @Binding var selectedProfile: ProfileModel?
     
     var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
@@ -52,7 +54,14 @@ struct ProfileDetailsView: View {
         .scrollPosition(id: $scrollSelection, anchor: .center)
         .overlay(alignment: .top) {
             HStack {
-                DeclineButton() {}
+                DeclineButton() {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        showDecline = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                            selectedProfile = nil
+                        }
+                    }
+                }
                     .offset(y: -24)
                 Spacer()
                 PageIndicator(count: 3, selection: scrollSelection ?? 0)
