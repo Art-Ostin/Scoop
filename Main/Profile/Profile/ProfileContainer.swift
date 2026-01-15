@@ -62,10 +62,14 @@ struct ProfileView: View {
             )
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+            .animation(.easeOut(duration: 0.25), value: profileOffset)
             .overlay(alignment: .topLeading) { overlayTitle }
         }
         .overlay {if showInvitePopup {invitePopup}}
         .offset(y: profileOffset)
+        .onChange(of: profileOffset) {
+            print(profileOffset)
+        }
     }
 }
 
