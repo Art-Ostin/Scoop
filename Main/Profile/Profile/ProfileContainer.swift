@@ -63,6 +63,7 @@ struct ProfileView: View {
             .animation(.spring(duration: 0.2), value: detailsOpen)
             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
             .animation(.easeOut(duration: 0.25), value: profileOffset)
+            .animation(.easeInOut(duration: 0.2), value: selectedProfile)
             .overlay(alignment: .topLeading) { overlayTitle }
         }
         .overlay {if showInvitePopup {invitePopup}}
