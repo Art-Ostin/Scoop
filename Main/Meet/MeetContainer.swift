@@ -24,6 +24,7 @@ struct MeetContainer: View {
     
     @Namespace private var zoomNS
     
+    @State var profileImages: [String : [UIImage]] = [:]
     
     init(vm: MeetViewModel) { self.vm = vm }
     
@@ -56,7 +57,7 @@ struct MeetContainer: View {
                 imageSize = screenSize - (24 * 2)
             }
             .navigationDestination(for: ProfileModel.self) {profileModel in
-                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, firstImage: profileModel.image!)
+                ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [])
 //                    .navigationTransition(.id)
                     .toolbar(.hidden, for: .navigationBar)
             }
@@ -80,15 +81,21 @@ extension MeetContainer {
     
     private func profileList(_ items: [ProfileModel]) -> some View {
         LazyVStack(spacing: 84) {
-            ForEach(items) { profileModel in
-                ProfileCard(profile: profileModel, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, profile in
+                ProfileCard(profile: profile, size: imageSize, transitionNamespace: zoomNS, vm: vm, quickInvite: $quickInvite)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         var t = Transaction()
                         t.disablesAnimations = true
                         t.animation = nil
                         withTransaction(t) {
-                            profilePath.append(profileModel)
+                            profilePath.append(profile)
+                        }
+                    }
+                    .task {
+                        let loadedImages = await vm.loadImages(profileModel: profile)
+                        await MainActor.run {
+                            profileImages[profile.id] = loadedImages
                         }
                     }
             }

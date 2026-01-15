@@ -73,4 +73,8 @@ import FirebaseFirestore
         guard let event = profileModel.event, let id = event.id else { return }
         try await eventManager.updateStatus(eventId: id, to: .accepted)
     }
+    
+    func loadImages(profileModel: ProfileModel) async -> [UIImage] {
+        return await cacheManager.loadProfileImages([profileModel.profile])
+    }
 }

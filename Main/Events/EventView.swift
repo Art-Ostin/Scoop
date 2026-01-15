@@ -29,14 +29,14 @@ struct EventView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             
-            if let profile = selectedProfile {
+            if let _ = selectedProfile {
                 ZStack {
                     Color.clear
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
                     
-                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), firstImage: profile.image!)
+//                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), firstImage: profile.image!)
                 }
                 .transition(.move(edge: .bottom))
                 .zIndex(1)

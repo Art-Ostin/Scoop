@@ -10,20 +10,24 @@ struct ProfileImageView: View {
     
     @Bindable var vm: ProfileViewModel
     @Binding var showInvite: Bool
-    @State private var images: [UIImage] = []
     @State private var selection = 0
     let imagePadding: CGFloat = 12
     @State var selectedImage = 0
     @State private var imageSize: CGFloat = 0
     let detailsOffset: CGFloat
-    let firstImage: UIImage
+    @State var importedImages: [UIImage]
     
     var body: some View {
         VStack(spacing: 24) {
             profileImages
             imageScroller
         }
-        .task {images = await vm.loadImages()}
+        .task(id: importedImages.count) {
+            //If The images haven't been imported in time, load them up on the screen
+            guard importedImages.isEmpty else { return }
+            let loaded = await vm.loadImages()
+            await MainActor.run {importedImages = loaded}
+        }
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
             imageSize = screenWidth - imagePadding
@@ -35,20 +39,12 @@ extension ProfileImageView {
 
     private var profileImages: some View {
         TabView(selection: $selection) {
-            Image(uiImage: firstImage)
-                .resizable()
-                .defaultImage(imageSize, 16)
-                .tag(0)
-                .indexViewStyle(.page(backgroundDisplayMode: .never))            
-            
-            ForEach(images.indices, id: \.self) { index in
-                if index != 0 {
-                    Image(uiImage: images[index])
+            ForEach(importedImages.indices, id: \.self) { index in
+                    Image(uiImage: importedImages[index])
                         .resizable()
                         .defaultImage(imageSize, 16) 
                         .tag(index)
                         .indexViewStyle(.page(backgroundDisplayMode: .never))
-                }
             }
         }
         .overlay(alignment: .bottomTrailing) {
@@ -65,8 +61,8 @@ extension ProfileImageView {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 48) {
-                    ForEach(images.indices, id: \.self) {index in
-                        let image = images[index]
+                    ForEach(importedImages.indices, id: \.self) {index in
+                        let image = importedImages[index]
                         Image(uiImage: image)
                             .resizable()
                             .defaultImage(60, 10)
@@ -105,3 +101,14 @@ extension ProfileImageView {
  .measure(key: ImageSectionBottom.self) {$0.frame(in: .named("profile")).maxY}
  */
 
+/*
+ /*
+  Image(uiImage: firstImage)
+      .resizable()
+      .defaultImage(imageSize, 16)
+      .tag(0)
+      .indexViewStyle(.page(backgroundDisplayMode: .never))
+  */
+
+
+ */

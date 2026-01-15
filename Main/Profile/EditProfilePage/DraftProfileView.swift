@@ -21,7 +21,7 @@ struct DraftProfileView: View {
                 let p = vm.profileModel.profile
                 Text(p.name)
             }
-            ProfileImageView(vm: vm, showInvite: $showInvite, detailsOffset: 32, firstImage: vm.profileModel.image!)
+//            ProfileImageView(vm: vm, showInvite: $showInvite, detailsOffset: 32, firstImage: vm.profileModel.image!)
         }
         .frame(maxWidth: .infinity)
     }
