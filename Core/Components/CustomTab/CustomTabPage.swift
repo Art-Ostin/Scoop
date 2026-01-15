@@ -34,7 +34,7 @@ struct CustomTabPage<Content: View>: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            VStack(spacing: 36) {
                 ZStack(alignment: .top) {
                     TabButton(page: page, isPresented: $TabAction)
                         .padding(.top, 12)
