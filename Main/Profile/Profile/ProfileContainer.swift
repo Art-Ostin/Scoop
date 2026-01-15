@@ -21,6 +21,8 @@ struct ProfileView: View {
     @State private var hideProfileScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
+    @Binding private var useDeclineDismissTransition: Bool
+
         
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
@@ -29,11 +31,11 @@ struct ProfileView: View {
     
     let profileImages: [UIImage]
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>) {
-        _vm = State(initialValue: vm)
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, useDeclineDismissTransition: Binding<Bool>) {        _vm = State(initialValue: vm)
         _meetVM = State(initialValue: meetVM)
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
+        _useDeclineDismissTransition = useDeclineDismissTransition
     }
     
     var body: some View {
@@ -51,8 +53,7 @@ struct ProfileView: View {
                                 .offset(y: rangeUpdater(endValue: -100))
                                 .simultaneousGesture(imageDetailsDrag)
                             
-                            ProfileDetailsView(vm: vm, meetVM: $meetVM, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, pModel: vm.profileModel, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup, showDecline: $showDeclineScreen, selectedProfile: $selectedProfile, hideProfileScreen: $hideProfileScreen)
-                                .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
+                            ProfileDetailsView(vm: vm, meetVM: $meetVM, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, pModel: vm.profileModel, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup, showDecline: $showDeclineScreen, selectedProfile: $selectedProfile, hideProfileScreen: $hideProfileScreen, useDeclineDismissTransition: $useDeclineDismissTransition)                                .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                                 .offset(y: detailsSectionOffset())
                                 .onTapGesture {detailsOpen.toggle()}
                                 .simultaneousGesture(detailsDrag)
@@ -88,6 +89,7 @@ extension ProfileView {
     
     private func dismissProfile(viewHeight: CGFloat) {
         guard dismissOffset == nil else { return }
+        
         withAnimation(.snappy(duration: 0.22)) {
             dismissOffset = viewHeight
         }
@@ -222,7 +224,7 @@ extension ProfileView {
                 guard max(distance, predicted) > 75 else { return }
                 if dragType == .profile {
                     dismissOffset = v.translation.height
-                        selectedProfile = nil
+                    selectedProfile = nil
                 } else if dragType == .details {
                     detailsOpen.toggle()
                 }
@@ -261,6 +263,8 @@ extension ProfileView {
         self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
 }
+
+
 
 
 /*

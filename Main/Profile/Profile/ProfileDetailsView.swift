@@ -34,6 +34,7 @@ struct ProfileDetailsView: View {
     @Binding var showDecline: Bool
     @Binding var selectedProfile: ProfileModel?
     @Binding var hideProfileScreen: Bool
+    @Binding var useDeclineDismissTransition: Bool
     
     var scrollThirdTab: Bool { showProfileEvent && !p.prompt3.response.isEmpty }
     
@@ -60,6 +61,7 @@ struct ProfileDetailsView: View {
             HStack {
                 DeclineButton() {
                     withAnimation(.easeInOut(duration: 0.15)) {
+                        useDeclineDismissTransition = true
                         showDecline = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
                         

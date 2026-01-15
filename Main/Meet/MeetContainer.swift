@@ -13,6 +13,8 @@ struct MeetContainer: View {
     @Bindable var vm: MeetViewModel
     @State private var profilePath: [ProfileModel] = []
     @State var selectedProfile: ProfileModel? = nil
+    @State private var useDeclineDismissTransition = false
+    
     
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
@@ -36,9 +38,9 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = selectedProfile {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [], selectedProfile: $selectedProfile)
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [], selectedProfile: $selectedProfile, useDeclineDismissTransition: $useDeclineDismissTransition)
                         .id(profileModel.id)
-//                        .transition(.move(edge: .bottom))
+                        .transition(useDeclineDismissTransition ? .opacity : .move(edge: .bottom))
                         .zIndex(1)
                 }
                 if let currentProfile = quickInvite {
@@ -58,6 +60,11 @@ struct MeetContainer: View {
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
+            }
+            .onChange(of: selectedProfile) { _, newValue in
+                if newValue != nil {
+                    useDeclineDismissTransition = false
+                }
             }
     }
 }
