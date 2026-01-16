@@ -44,8 +44,14 @@ struct ProfileDetailsView: View {
         }
         .scrollDisabled(disableDetailsScroll)
         .scrollIndicators(.hidden)
-        .overlay(alignment: .topTrailing) {dismissDetailsButton}
         .overlay(alignment: .top) {profileActionBar}
+        .overlay(alignment: .top) {
+            if !isTopOfScroll {
+                gradientCover
+                    .offset(y: 0.5)
+            }
+        }
+        .overlay(alignment: .topTrailing) {dismissDetailsButton}
     }
 }
 
@@ -56,15 +62,17 @@ extension ProfileDetailsView {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.background.opacity(0.93))
-                )
+                .glassIfAvailable()
+//                .background(
+//                    Circle()
+//                        .fill(Color.background)
+//                        .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
+//                        .stroke(200, lineWidth: 0.5, color: Color.grayBackground)
+//                )
                 .padding()
                 .padding(.horizontal, 6)
         }
     }
-    
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
             UserInterests(p: p, interestScale: interestScale)
@@ -83,6 +91,13 @@ extension ProfileDetailsView {
         }
         .padding(.horizontal, 16)
         .offset(y: 354)
+    }
+    
+    private var gradientCover: some View {
+        LinearGradient(colors: [.white, .white.opacity(0.9), .white.opacity(0.6), .white.opacity(0.25), .white.opacity(0.0)], startPoint: .top, endPoint: .bottom)
+            .frame(maxWidth: .infinity)
+            .frame(height: 80)
+            .cornerRadius(30)
     }
 }
 
