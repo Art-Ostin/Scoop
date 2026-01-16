@@ -67,9 +67,7 @@ struct ProfileDetailsView: View {
                         
                         Task {
 //                           try await meetVM?.declineProfile(profileModel: pModel)
-                            
                             try await Task.sleep(nanoseconds: 750_000_000)
-                            
                             await MainActor.run {
                                 var transaction = Transaction()
                                 transaction.animation = .easeInOut(duration: 0.2)
@@ -94,7 +92,6 @@ struct ProfileDetailsView: View {
         .background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
-        .scaleEffect(detailsOpen ? 1 : 0.95, anchor: .top) //Adjust so scale Effect works and distance between objects is same
     }
 }
 
@@ -190,22 +187,3 @@ private extension ProfileDetailsView {
            !detailsOpen || detailsOpen && scrollSelection == 2 && isTopOfScroll && detailsOffset > 0
     }
 }
-
-
-
-
-
-/*
- //
- //        .overlay(alignment: .top) {
- //            InviteButton(vm: vm, showInvite: $showInvite)
- //                .frame(maxWidth: .infinity, alignment: .trailing)
- //                .padding(.horizontal, 16)
- //                .offset(y: 384 - 24)
- //        }
-
- */
-
-/*
- .measure(key: TopOfDetailsView.self) {$0.frame(in: .named("profile")).minY}
- */

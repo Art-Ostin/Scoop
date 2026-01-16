@@ -49,10 +49,10 @@ extension ProfileImageView {
                             .pinchZoom()
                 }
             }
-//            .overlay(alignment: .bottomTrailing) {
-//                InviteButton(vm: vm, showInvite: $showInvite)
-//                    .padding()
-//            }
+            .overlay(alignment: .bottomTrailing) {
+                InviteButton(vm: vm, showInvite: $showInvite)
+                    .padding()
+            }
             .tabViewStyle(.page(indexDisplayMode: .never))
             //Apply the shadow after the frame so shadow not included in distance between views
             .frame(height: imageSize)
@@ -90,27 +90,3 @@ extension ProfileImageView {
         }
     }
 }
-
-/*
-  .shadow(color: selectedImage == images.map
- 
- 
- images.map == {images[selectedImage]}  .black.opacity(0.3), radius: 5, x: 0, y: 10)
- 
- */
-
-/*
- .measure(key: ImageSectionBottom.self) {$0.frame(in: .named("profile")).maxY}
- */
-
-/*
- /*
-  Image(uiImage: firstImage)
-      .resizable()
-      .defaultImage(imageSize, 16)
-      .tag(0)
-      .indexViewStyle(.page(backgroundDisplayMode: .never))
-  */
-
-
- */
