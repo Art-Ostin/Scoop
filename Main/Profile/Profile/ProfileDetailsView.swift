@@ -33,6 +33,7 @@ struct ProfileDetailsView: View {
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
             }
             .padding(.bottom, 300)
+            .offset(y: 36)
         }
         .frame(height: 600).background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))

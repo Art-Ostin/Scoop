@@ -91,7 +91,6 @@ extension ProfileView {
     
     private func dismissProfile(viewHeight: CGFloat) {
         guard dismissOffset == nil else { return }
-        
         withAnimation(.snappy(duration: 0.22)) {
             dismissOffset = viewHeight
         }
@@ -236,7 +235,7 @@ extension ProfileView {
     private var detailsDrag: some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($detailsOffset) { v, state, _ in
-                if !isTopOfScroll  && detailsOpen && scrollSelection == 2 { return}
+                if !isTopOfScroll  && detailsOpen { return}
                 if isTopOfScroll && detailsOpen && v.translation.height < 0 { return }
                 if dragType == nil {dragType(v: v)}
                 guard dragType != nil && dragType != .horizontal else { return }
