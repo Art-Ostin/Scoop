@@ -13,8 +13,6 @@ struct MeetContainer: View {
     @Bindable var vm: MeetViewModel
     @State private var profilePath: [ProfileModel] = []
     @State var selectedProfile: ProfileModel? = nil
-    @State var declinedTransition = false
-    
     
     @State var showIdealTime: Bool = false
     @State var quickInvite: ProfileModel?
@@ -29,7 +27,6 @@ struct MeetContainer: View {
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
-        
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $showInfo) {
                     profileScroller
@@ -38,16 +35,13 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = selectedProfile {
-                    
                     ProfileView(
                         vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager),
                         meetVM: vm,
                         profileImages: profileImages[profileModel.id] ?? [],
                         selectedProfile: $selectedProfile,
-                        declinedTransition: $declinedTransition
                     )
                         .id(profileModel.id)
-                        .transition(declinedTransition ? .opacity : .move(edge: .bottom))
                         .zIndex(1)
                 }
                 if let currentProfile = quickInvite {
@@ -68,15 +62,6 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
-            .onChange(of: declinedTransition) {
-                print("Declined Transition Updated")
-                print(declinedTransition)
-            }
-//            .onChange(of: selectedProfile) { _, newValue in
-//                if newValue != nil {
-//                    useDeclineDismissTransition = false
-//                }
-//            }
     }
 }
 
