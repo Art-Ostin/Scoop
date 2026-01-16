@@ -155,7 +155,7 @@ extension ProfileView {
         let delta = (endValue - startValue) * t
         let baseValue = detailsOpen ? endValue : startValue
         let adjustForDrag = (detailsOpen && detailsOffset > 0) || (!detailsOpen && detailsOffset < 0)
-        return adjustForDrag ? (baseValue - delta) : baseValue
+        return adjustForDrag ? (detailsOpen ? (baseValue - delta) : (baseValue + delta)) : baseValue
     }
 }
 
@@ -224,7 +224,6 @@ extension ProfileView {
 
 //Other
 extension ProfileView {
-    
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
     }
@@ -247,7 +246,6 @@ extension ProfileView {
             }
         }
     }
-    
 }
 
 
