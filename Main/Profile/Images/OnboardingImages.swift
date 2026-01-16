@@ -39,7 +39,7 @@ struct OnboardingImages: View {
                 .font(.body())
                 .foregroundStyle(Color.grayText)
             
-            LazyVGrid(columns: columns, spacing: 36) {
+            LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(images.indices, id: \.self) { index in
                     EditPhotoCell2(image: $images[index])
                 }
@@ -73,6 +73,13 @@ extension OnboardingImages {
             .frame(width: 110, height: 110)
     }
 }
+
+
+
+
+
+
+
 
 /*
  #Preview {

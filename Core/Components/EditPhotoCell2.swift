@@ -21,13 +21,16 @@ struct EditPhotoCell2: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
+                    .overlay(alignment: .topTrailing) {
+                        ImageEditButton()
+                    }
             } else {
                 Image("ImagePlaceholder")
                     .resizable()
                     .scaledToFill()
             }
         }
-        .frame(width: 110, height: 110)
+        .frame(width: 120, height: 120)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
         .task(id: item) { @MainActor in
@@ -43,3 +46,22 @@ struct EditPhotoCell2: View {
         }
     }
 }
+
+
+struct ImageEditButton: View {
+    var body: some View {
+        Image("EditButtonBlack")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 13, height: 13)
+            .padding(3)
+            .background (
+                Circle()
+                    .fill(Color.white)
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+            )
+            .padding(.horizontal, 12)
+            .padding(.vertical, 16)
+    }
+}
+

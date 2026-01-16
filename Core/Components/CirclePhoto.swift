@@ -22,7 +22,7 @@ struct CirclePhoto: View {
 
 struct ChangeIcon: View {
     var body: some View {
-        Image("ChangeIcon")
+        Image("EditButton")
         .padding(12)
         .frame(width: 24, height: 24)
         .background (
@@ -44,7 +44,6 @@ struct RemoveIcon: View {
             .scaleEffect(0.7)
     }
 }
-
 
 //#Preview {
 //    CirclePhoto()
