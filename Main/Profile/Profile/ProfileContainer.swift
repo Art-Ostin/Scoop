@@ -227,23 +227,14 @@ extension ProfileView {
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
     }
-    
     private func onDecline() {
-        withAnimation(.easeInOut(duration: 0.15)) {
-            declinedTransition = true
-            showDeclineScreen = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
-            Task {
-    //                           try await meetVM?.declineProfile(profileModel: pModel)
-                try await Task.sleep(nanoseconds: 750_000_000)
-                await MainActor.run {
-                    var transaction = Transaction(animation: .easeInOut(duration: 0.2))
-                    transaction.animation = .easeInOut(duration: 0.2)
-                    withTransaction(transaction) {
-                        selectedProfile = nil
-                    }
-                }
-            }
+        declinedTransition = true
+        showDeclineScreen = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
+        Task {
+            //       try await meetVM?.declineProfile(profileModel: pModel)
+            try await Task.sleep(nanoseconds: 750_000_000)
+            await MainActor.run {withAnimation(.easeInOut(duration: 5)) {selectedProfile = nil}}
         }
     }
 }

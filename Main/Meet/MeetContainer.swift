@@ -47,7 +47,7 @@ struct MeetContainer: View {
                         declinedTransition: $declinedTransition
                     )
                         .id(profileModel.id)
-                        .transition(declinedTransition ? .identity : .move(edge: .bottom))
+                        .transition(declinedTransition ? .opacity : .move(edge: .bottom))
                         .zIndex(1)
                 }
                 if let currentProfile = quickInvite {
