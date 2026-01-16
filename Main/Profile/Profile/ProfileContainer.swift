@@ -21,7 +21,7 @@ struct ProfileView: View {
     
     @Binding private var selectedProfile: ProfileModel?
 
-    @State var declinedTransition: Bool = true
+    @State var declinedTransition: Bool = false
     
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
@@ -233,10 +233,11 @@ extension ProfileView {
     
     private func onDecline() {
         showDeclineScreen = true
+        declinedTransition = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
-            try await Task.sleep(nanoseconds: 750_000_000)
+            try await Task.sleep(nanoseconds: 1750_000_000)
             await MainActor.run { withAnimation(.easeInOut(duration: 0.3)) { selectedProfile = nil} }
         }
     }
