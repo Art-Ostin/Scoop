@@ -128,6 +128,7 @@
 		65D9D0DA2ED14B7B00F7E5CC /* ScrollViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */; };
 		65E1EC9F2F19706D004C9236 /* ImageZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1EC9E2F19706D004C9236 /* ImageZoom.swift */; };
 		65E1ECC12F1A4872004C9236 /* ProfileImagesEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1ECC02F1A4872004C9236 /* ProfileImagesEditing.swift */; };
+		65E1ECC62F1A99C0004C9236 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = 65E1ECC52F1A99C0004C9236 /* SwiftyCrop */; };
 		65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8EE2E4E5CC90093410B /* IntroView.swift */; };
 		65E5C8F22E4E79550093410B /* TabSelectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8F12E4E79550093410B /* TabSelectionKey.swift */; };
 		65E5C8FA2E4EAAE70093410B /* SelectTimeAndPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E5C8F92E4EAAE70093410B /* SelectTimeAndPlace.swift */; };
@@ -348,6 +349,7 @@
 				65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */,
 				653BAF8E2E0B860800C1AB9E /* FirebaseStorage in Frameworks */,
 				653BAF8C2E0B860800C1AB9E /* FirebaseAuth in Frameworks */,
+				65E1ECC62F1A99C0004C9236 /* SwiftyCrop in Frameworks */,
 				65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */,
 				6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */,
 				650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */,
@@ -766,6 +768,7 @@
 				65058E8D2E1C4080009AD7FD /* FirebaseFirestore */,
 				650135682E4A41F400630CF3 /* AsyncAlgorithms */,
 				65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */,
+				65E1ECC52F1A99C0004C9236 /* SwiftyCrop */,
 			);
 			productName = ScoopTest;
 			productReference = 6578382C2DE773CC00770B49 /* Scoop.app */;
@@ -853,6 +856,7 @@
 				6508A0B82DF209B600312AFD /* XCRemoteSwiftPackageReference "swiftui-flow-layout" */,
 				653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				650135672E4A408D00630CF3 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+				65E1ECC42F1A99C0004C9236 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6578382D2DE773CC00770B49 /* Products */;
@@ -1395,6 +1399,14 @@
 				minimumVersion = 11.15.0;
 			};
 		};
+		65E1ECC42F1A99C0004C9236 /* XCRemoteSwiftPackageReference "SwiftyCrop" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/benedom/SwiftyCrop";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1432,6 +1444,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		65E1ECC52F1A99C0004C9236 /* SwiftyCrop */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65E1ECC42F1A99C0004C9236 /* XCRemoteSwiftPackageReference "SwiftyCrop" */;
+			productName = SwiftyCrop;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

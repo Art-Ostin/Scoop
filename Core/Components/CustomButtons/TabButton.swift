@@ -49,6 +49,11 @@ extension View {
                 .glassEffect(.clear, in: shape)
         } else {
             self
+                .background (
+                    Circle()
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
+                )
         }
     }
 }

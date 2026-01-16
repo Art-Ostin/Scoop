@@ -14,20 +14,33 @@ struct EditPhotoCell2: View {
 
     @Binding var image: UIImage?
     @State private var item: PhotosPickerItem?
+    @Binding var selectedImage: SelectedImage?
+    let index: Int
 
     var body: some View {
-        PhotosPicker(selection: $item, matching: .images) {
+        Group {
             if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .overlay(alignment: .topTrailing) {
-                        ImageEditButton()
+                ZStack {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                    
+                    RoundedRectangle(cornerRadius: 10)
+                        .frame(width: 120, height: 120)
+                        .foregroundStyle(Color.clear)
+                        .overlay(alignment: .topTrailing) {
+                            ImageEditButton()
+                                .padding(4)
+                        }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {selectedImage = SelectedImage(index: index, image: image)}
+                } else {
+                    PhotosPicker(selection: $item, matching: .images) {
+                        Image("ImagePlaceholder")
+                            .resizable()
+                            .scaledToFill()
                     }
-            } else {
-                Image("ImagePlaceholder")
-                    .resizable()
-                    .scaledToFill()
             }
         }
         .frame(width: 120, height: 120)
@@ -49,19 +62,19 @@ struct EditPhotoCell2: View {
 
 
 struct ImageEditButton: View {
+    private var editButton: String {
+        if #available(iOS 26.0, *) {
+            return "EditWhiteButton"   // your newer asset
+        } else {
+            return "EditButtonBlack"         // your fallback asset
+        }
+    }
     var body: some View {
-        Image("EditButtonBlack")
+        Image(editButton)
             .resizable()
             .scaledToFit()
-            .frame(width: 13, height: 13)
+            .frame(width: 11, height: 11)
             .padding(3)
-            .background (
-                Circle()
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-            )
-            .padding(.horizontal, 12)
-            .padding(.vertical, 16)
+            .glassIfAvailable(Circle())
     }
 }
-
