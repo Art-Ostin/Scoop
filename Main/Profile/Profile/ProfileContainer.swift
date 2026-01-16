@@ -6,7 +6,7 @@ struct ProfileView: View {
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
-    @State private var dismissOffset: CGFloat? = nil
+    @Binding private var dismissOffset: CGFloat?
     
     @State private var vm: ProfileViewModel
     let meetVM: MeetViewModel?
@@ -30,11 +30,12 @@ struct ProfileView: View {
     }
     
     let profileImages: [UIImage]
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>) {
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
+        _dismissOffset = dismissOffset
     }
     
     var body: some View {
@@ -64,32 +65,19 @@ struct ProfileView: View {
                         .ignoresSafeArea()
                         .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
                 )
-                .animation(.spring(duration: 1), value: detailsOpen)
-                .animation(.easeInOut(duration: 1), value: detailsOffset)
-                .animation(.easeOut(duration: 5), value: profileOffset)
-                .animation(.snappy(duration: 0.2), value: selectedProfile)
+                .animation(.spring(duration: 0.2), value: detailsOpen)
+                .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+                
+                .animation(.snappy(duration: 0.4), value: profileOffset)//Bug Fix: ProfileOffset & selected profile Must be same animation length
+                .animation(.snappy(duration: 0.4), value: selectedProfile)
                 .overlay(alignment: .topLeading) { overlayTitle() { selectedProfile = nil} }
-                .onChange(of: dismissOffset) {
-                    print("Dismiss Offset:")
-                    print(dismissOffset ?? "NOthing given")
-                }
-                .onAppear {
-                    print("Appearing Offset: ", dismissOffset ?? "No Offset Yet")
-                }
-                .onChange(of: selectedProfile) {
-                    print(selectedProfile?.profile.name ?? "No Selected Profile")
-                }
-                .onAppear {
-                    containerHeight = geo.size.height / 1
-                    print(containerHeight)
-                }
+                .onDisappear { dismissOffset = nil }
             }
         }
         .transition( .move(edge: .bottom))
         .overlay {if showInvitePopup {invitePopup}}
         .overlay { if showDeclineScreen { declineScreen} }
         .offset(y: activeProfileOffset)
-//        .offset(y: containerHeight)
     }
 }
 
@@ -195,7 +183,7 @@ extension ProfileView {
                 guard max(distance, predicted) > 75 else { return }
                 if dragType == .profile {
                     dismissOffset = v.translation.height
-                    dismissProfile()
+                    selectedProfile = nil
                 } else if dragType == .details {
                     detailsOpen.toggle()
                 }
@@ -241,14 +229,7 @@ extension ProfileView {
         dismissOffset ?? profileOffset
     }
     
-    private func dismissProfile() {
-        selectedProfile = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
-            print("dismissOffset Is Nil")
-            dismissOffset = nil
-        })
-    }
-    
+
     
     private func onDecline() {
         showDeclineScreen = true
@@ -262,5 +243,9 @@ extension ProfileView {
 }
 
 //IT is the dismiss offset that is causing the bug for it to reappear. When I click on the screen quickly again, there is already a dismiss offset causing the issue.
+
 // The two different offset speeds on the profile: (1) ProfileOffset (animation) sometimes is causing the profile to dismiss at a particular speed (2) Sometimes it is the selectedProfile Causing it to dismiss.
+
+//Potential Bug of still appearing at the bottom is caused b
+
 

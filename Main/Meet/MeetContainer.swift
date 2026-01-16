@@ -24,6 +24,8 @@ struct MeetContainer: View {
         
     @State var profileImages: [String : [UIImage]] = [:]
     
+    @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
+    
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
@@ -39,7 +41,7 @@ struct MeetContainer: View {
                         vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager),
                         meetVM: vm,
                         profileImages: profileImages[profileModel.id] ?? [],
-                        selectedProfile: $selectedProfile,
+                        selectedProfile: $selectedProfile, dismissOffset: $dismissOffset,
                     )
                         .id(profileModel.id)
                         .zIndex(1)
@@ -82,7 +84,10 @@ extension MeetContainer {
                 ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $quickInvite)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if selectedProfile == nil {selectedProfile = profile }
+                        if selectedProfile == nil {
+                            dismissOffset = nil
+                            selectedProfile = profile
+                        }
                     }
                     .task {
                         let loadedImages = await vm.loadImages(profileModel: profile)
