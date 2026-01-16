@@ -58,6 +58,15 @@ struct ProfileView: View {
                                 .simultaneousGesture(detailsDrag)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .overlay( alignment: .bottom) {
+                            HStack  {
+                                InviteButton(vm: vm, showInvite: $showInvitePopup)
+                                Spacer()
+                                DeclineButton {showDeclineScreen.toggle()}
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 300)
+                        }
                         .background(
                             //Do not Change Critical! Fixed the scrolling down issue
                             UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
