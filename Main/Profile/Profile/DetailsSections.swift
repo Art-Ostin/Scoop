@@ -80,7 +80,6 @@ struct UserInterests: View {
     let p: UserProfile
     let interestScale: CGFloat
     
-    
     var body: some View {
         FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
             Text(text)

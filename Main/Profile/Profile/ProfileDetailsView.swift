@@ -8,28 +8,22 @@ import SwiftUI
 import SwiftUIFlowLayout
 
 struct ProfileDetailsView: View {
-    
     @Bindable var vm: ProfileViewModel
-    
     @Binding var isTopOfScroll: Bool
+    @Binding var showInvite: Bool
     
     let detailsOpen: Bool
     let detailsOffset: CGFloat
-    
     let p: UserProfile
-    @State var scrollBottom: CGFloat = 0
     
     @State private var flowLayoutBottom: CGFloat = 0
     @State private var interestSectionBottom: CGFloat = 0
     @State private var interestScale: CGFloat = 1
     
-    @Binding var showInvite: Bool
-    @Binding var selectedProfile: ProfileModel?
-    
     let onDecline: () -> Void
-    
+
     var body: some View {
-        ScrollView(.vertical) {
+        ScrollView {
             VStack(spacing: 24) {
                 DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
@@ -40,15 +34,14 @@ struct ProfileDetailsView: View {
             }
             .padding(.bottom, 300)
         }
-        .frame(height: 600)
+        .frame(height: 600).background(Color.background)
+        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .coordinateSpace(.named("InterestsSection"))
         .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
             self.isTopOfScroll = isAtTop
         }
         .scrollDisabled(disableDetailsScroll)
-        .background(Color.background)
-        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .scrollIndicators(.hidden)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
         .overlay(alignment: .top) {profileActionBar}
@@ -74,12 +67,11 @@ extension ProfileDetailsView {
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
             UserInterests(p: p, interestScale: interestScale)
-                .padding(.vertical, interestScale == 0 ? 0 : -12)
+                .padding(.vertical, -12)
         }
         .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
         .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
-        .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 }
-        .onChange(of: flowLayoutBottom) { updateInterestScale()}
+        .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 ; updateInterestScale()}
     }
     
     private var profileActionBar: some View {
@@ -104,13 +96,8 @@ extension ProfileDetailsView {
     func checkIfTopOfScroll(_ geo: ScrollGeometry) -> Bool {
         geo.contentOffset.y + geo.contentInsets.top <= 0.5
     }
-
-    var disableDetailsScroll: Bool {
-        
-    }
-    
     
     var disableDetailsScroll: Bool {
-        !detailsOpen || isTopOfScroll && detailsOffset > 0
+        !detailsOpen || (isTopOfScroll && detailsOffset > 0)
     }
 }

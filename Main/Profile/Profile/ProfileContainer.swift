@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.tabSelection) private var tabSelection
-    
+
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
     
@@ -39,7 +39,7 @@ struct ProfileView: View {
     
     var body: some View {
             GeometryReader { geo in
-                let dismissAction = { dismissProfile(viewHeight: geo.size.height) }
+                let dismissAction = {dismissProfile(viewHeight: geo.size.height) }
                 ZoomContainer {
                     if !hideProfileScreen {
                         ZStack {
@@ -53,12 +53,12 @@ struct ProfileView: View {
                                     .offset(y: rangeUpdater(endValue: -100))
                                     .simultaneousGesture(imageDetailsDrag)
                                 
-                                ProfileDetailsView(vm: vm, meetVM: $meetVM, isTopOfScroll: $isTopOfScroll, scrollSelection: $scrollSelection, pModel: vm.profileModel, event: vm.profileModel.event, detailsOpen: detailsOpen, detailsOffset: detailsOffset, showInvite: $showInvitePopup, showDecline: $showDeclineScreen, selectedProfile: $selectedProfile, hideProfileScreen: $hideProfileScreen, useDeclineDismissTransition: $useDeclineDismissTransition)                                .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
+                                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: vm.profileModel.profile) {onDecline()}
+                                    .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                                     .offset(y: detailsSectionOffset())
                                     .onTapGesture {detailsOpen.toggle()}
                                     .simultaneousGesture(detailsDrag)
                             }
-                            
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(
                                 //Do not Change Critical! Fixed the scrolling down issue
@@ -282,8 +282,6 @@ extension ProfileView {
             }
         }
     }
-    
-    
 }
 
 
