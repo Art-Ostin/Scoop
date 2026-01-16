@@ -263,6 +263,27 @@ extension ProfileView {
         //If it passes conditions updates 'drag type'
         self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
+    
+    private func onDecline() {
+        withAnimation(.easeInOut(duration: 0.15)) {
+            useDeclineDismissTransition = true
+            showDeclineScreen = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
+            Task {
+   //                           try await meetVM?.declineProfile(profileModel: pModel)
+                try await Task.sleep(nanoseconds: 750_000_000)
+                await MainActor.run {
+                    var transaction = Transaction()
+                    transaction.animation = .easeInOut(duration: 0.2)
+                    withTransaction(transaction) {
+                        selectedProfile = nil
+                    }
+                }
+            }
+        }
+    }
+    
+    
 }
 
 
