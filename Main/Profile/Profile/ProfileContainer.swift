@@ -28,7 +28,6 @@ struct ProfileView: View {
     }
     
     let profileImages: [UIImage]
-    
     init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, declinedTransition: Binding<Bool>) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
@@ -44,7 +43,7 @@ struct ProfileView: View {
                             VStack(spacing: 24) {
                                 ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile) { selectedProfile = nil}
                                     .offset(y: rangeUpdater(endValue: -108))
-                                    .opacity(titleOpacity())
+                                    .opacity(1 - overlayTitleOpacity)
                                     .padding(.top, 36)
                                 
                                 ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
@@ -69,7 +68,7 @@ struct ProfileView: View {
                             .animation(.spring(duration: 0.2), value: detailsOpen)
                             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
                             .animation(.easeOut(duration: 0.25), value: profileOffset)
-                            .animation(.snappy(duration: 0.3), value: selectedProfile)
+                            .animation(.snappy(duration: 1), value: selectedProfile)
                             .overlay(alignment: .topLeading) { overlayTitle() { selectedProfile = nil} }
                         }
                     }
@@ -77,17 +76,11 @@ struct ProfileView: View {
             .overlay {if showInvitePopup {invitePopup}}
             .overlay { if showDeclineScreen { declineScreen} }
             .offset(y: activeProfileOffset)
-
             }
     }
 
-//Two Different views
+//Different Screens
 extension ProfileView {
-    
-    private var activeProfileOffset: CGFloat {
-        dismissOffset ?? profileOffset
-    }
-        
     @ViewBuilder
     private var invitePopup: some View {
         if showInvitePopup, let event = vm.profileModel.event {
@@ -108,7 +101,6 @@ extension ProfileView {
     private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
             Text(vm.profileModel.profile.name)
-            //APPLYING GAUSSIAN BLUR BEHIND THIS SECTION OF THE IMAGE
             Spacer()
             ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
                 .padding(6)
@@ -119,7 +111,7 @@ extension ProfileView {
         .zIndex(2)
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
-        .opacity(overlayTitleOpacity())
+        .opacity(overlayTitleOpacity)
     }
     
     private var declineScreen: some View {
@@ -140,57 +132,35 @@ extension ProfileView {
     }
 }
 
-//Details Open or Closed  Offset
+//Details Open or Closed Animations
 extension ProfileView {
-    
     func detailsSectionOffset() -> CGFloat {
         return detailsOffset + (detailsOpen ? detailsOpenOffset : 0)
     }
     
-    func overlayTitleOpacity() -> Double {
-        //Fetch what value e.g. '84' is 1/3 and 2/3 of total detailsOffset
-        let one_third = max(1, abs(detailsOpenOffset) / 3)
-        
-        //While closing (first third of the drag), fade from opaque to transparent.
+    private var overlayTitleOpacity: Double {
+        let oneThird = max(1, abs(detailsOpenOffset) / 3)
+        let offsetProgress = abs(detailsOffset)
         if detailsOpen {
-            if abs(detailsOffset) < one_third {
-                return 1 - min( detailsOffset/one_third, 1)
-            } else {
-                return 0
-            }
-        } else {
-            if abs(detailsOffset) < one_third {
-                return 0
-            } else {
-                return 0 + max((abs(detailsOffset) - one_third)/one_third, 0)
-            }
+            guard offsetProgress < oneThird else { return 0 }
+            return 1 - min(detailsOffset / oneThird, 1)
         }
+        guard offsetProgress >= oneThird else { return 0 }
+        return max((offsetProgress - oneThird) / oneThird, 0)
     }
     
-    func titleOpacity() -> Double {
-        return 1 - overlayTitleOpacity()
-    }
-    
-    func rangeUpdater(startValue: CGFloat, endValue: CGFloat) -> CGFloat {
+    func rangeUpdater(startValue: CGFloat = 0, endValue: CGFloat) -> CGFloat {
         let denom = max(abs(detailsOpenOffset), 0.0001)
         let t = min(abs(detailsOffset) / denom, 1)
         let delta = (endValue - startValue) * t
-        var value = detailsOpen ? endValue : startValue
-        if detailsOpen && detailsOffset > 0 {
-            value -= delta
-        } else if !detailsOpen && detailsOffset < 0 {
-            value += delta
-        }
-        return value
-    }
-    
-    func rangeUpdater(endValue: CGFloat) -> CGFloat {
-        rangeUpdater(startValue: 0, endValue: endValue)
+        let baseValue = detailsOpen ? endValue : startValue
+        let adjustForDrag = (detailsOpen && detailsOffset > 0) || (!detailsOpen && detailsOffset < 0)
+        return adjustForDrag ? (baseValue - delta) : baseValue
     }
 }
 
+//Drag Gestures
 extension ProfileView {
-    
     private var imageDetailsDrag: some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($profileOffset) { value, state, _ in
@@ -223,12 +193,11 @@ extension ProfileView {
         DragGesture(minimumDistance: 5)
             .updating($detailsOffset) { v, state, _ in
                 if detailsOpen && (!isTopOfScroll || v.translation.height < 0) { return }
-
-                
                 if dragType == nil {dragType(v: v)}
                 guard dragType != nil && dragType != .horizontal else { return }
                 state = v.translation.height.clamped(to: detailsDragRange)
             }
+        
             .onEnded {
                 defer { dragType = nil }
                 guard dragType != nil && dragType != .horizontal else { return }
@@ -240,6 +209,7 @@ extension ProfileView {
                 }
             }
     }
+    
     private func dragType(v: DragGesture.Value) {
         //If there is already a dragType don't reassign it (here), get y and x drag
         if self.dragType != nil  {return }
@@ -250,6 +220,14 @@ extension ProfileView {
         //If it passes conditions updates 'drag type'
         self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
     }
+}
+
+//Other
+extension ProfileView {
+    
+    private var activeProfileOffset: CGFloat {
+        dismissOffset ?? profileOffset
+    }
     
     private func onDecline() {
         withAnimation(.easeInOut(duration: 0.15)) {
@@ -257,7 +235,7 @@ extension ProfileView {
             showDeclineScreen = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
             Task {
-   //                           try await meetVM?.declineProfile(profileModel: pModel)
+    //                           try await meetVM?.declineProfile(profileModel: pModel)
                 try await Task.sleep(nanoseconds: 750_000_000)
                 await MainActor.run {
                     var transaction = Transaction(animation: .easeInOut(duration: 0.2))
@@ -269,7 +247,9 @@ extension ProfileView {
             }
         }
     }
+    
 }
+
 
 
 /*
