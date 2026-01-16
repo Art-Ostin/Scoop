@@ -51,7 +51,7 @@ struct ProfileView: View {
                                     .simultaneousGesture(imageDetailsDrag)
                                     .onTapGesture { if detailsOpen { detailsOpen.toggle()}}
                                 
-                                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: vm.profileModel.profile) {onDecline()}
+                                ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: vm.profileModel.profile) { declinedTransition = true ; onDecline()}
                                     .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                                     .offset(y: detailsSectionOffset())
                                     .onTapGesture {detailsOpen.toggle()}
@@ -108,7 +108,6 @@ extension ProfileView {
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())
-        .zIndex(2)
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity)
@@ -232,9 +231,15 @@ extension ProfileView {
         showDeclineScreen = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
         Task {
+            declinedTransition = true
             //       try await meetVM?.declineProfile(profileModel: pModel)
             try await Task.sleep(nanoseconds: 750_000_000)
-            await MainActor.run {withAnimation(.easeInOut(duration: 5)) {selectedProfile = nil}}
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 5)) {
+                    declinedTransition = true
+                    selectedProfile = nil
+                }
+            }
         }
     }
 }

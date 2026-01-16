@@ -68,7 +68,10 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
-        
+            .onChange(of: declinedTransition) {
+                print("Declined Transition Updated")
+                print(declinedTransition)
+            }
 //            .onChange(of: selectedProfile) { _, newValue in
 //                if newValue != nil {
 //                    useDeclineDismissTransition = false
