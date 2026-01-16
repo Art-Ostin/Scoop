@@ -56,6 +56,7 @@
 		654C00932E3549EA00FFD504 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C00922E3549EA00FFD504 /* UserModel.swift */; };
 		654C009B2E35689000FFD504 /* UserProfileRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009A2E35689000FFD504 /* UserProfileRepo.swift */; };
 		654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009D2E35835900FFD504 /* AppDependencies.swift */; };
+		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
 		655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4A92E6B901000AE626D /* AppTabBarView.swift */; };
 		655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */; };
 		655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AD2E6B94AA00AE626D /* TabBarItem.swift */; };
@@ -352,6 +353,7 @@
 				653BAF8E2E0B860800C1AB9E /* FirebaseStorage in Frameworks */,
 				653BAF8C2E0B860800C1AB9E /* FirebaseAuth in Frameworks */,
 				65E1ECC62F1A99C0004C9236 /* SwiftyCrop in Frameworks */,
+				655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */,
 				65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */,
 				6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */,
 				650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */,
@@ -772,6 +774,7 @@
 				650135682E4A41F400630CF3 /* AsyncAlgorithms */,
 				65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */,
 				65E1ECC52F1A99C0004C9236 /* SwiftyCrop */,
+				655E5E282F1AD12D006ADA24 /* Zoomable */,
 			);
 			productName = ScoopTest;
 			productReference = 6578382C2DE773CC00770B49 /* Scoop.app */;
@@ -860,6 +863,7 @@
 				653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				650135672E4A408D00630CF3 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 				65E1ECC42F1A99C0004C9236 /* XCRemoteSwiftPackageReference "SwiftyCrop" */,
+				655E5E272F1AD12D006ADA24 /* XCRemoteSwiftPackageReference "Zoomable" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6578382D2DE773CC00770B49 /* Products */;
@@ -1403,6 +1407,14 @@
 				minimumVersion = 11.15.0;
 			};
 		};
+		655E5E272F1AD12D006ADA24 /* XCRemoteSwiftPackageReference "Zoomable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ryohey/Zoomable.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		65E1ECC42F1A99C0004C9236 /* XCRemoteSwiftPackageReference "SwiftyCrop" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/benedom/SwiftyCrop";
@@ -1443,6 +1455,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 653BAF882E0B860800C1AB9E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		655E5E282F1AD12D006ADA24 /* Zoomable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 655E5E272F1AD12D006ADA24 /* XCRemoteSwiftPackageReference "Zoomable" */;
+			productName = Zoomable;
 		};
 		65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */ = {
 			isa = XCSwiftPackageProductDependency;

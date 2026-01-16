@@ -6,23 +6,22 @@ struct ProfileView: View {
 
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
+    @State private var dismissOffset: CGFloat? = nil
     
     @State private var vm: ProfileViewModel
-    @State private var meetVM: MeetViewModel?
-    @State private var dismissOffset: CGFloat? = nil
+    let meetVM: MeetViewModel?
     
     @State private var showInvitePopup: Bool = false
     @State private var detailsOpen: Bool = false
     @State private var dragType: DragType? = nil
     @State private var isTopOfScroll = true
-    @State private var scrollSelection: Int? = 0
     @State private var detailsOpenOffset: CGFloat = -284
     @State private var showDeclineScreen: Bool = false
     @State private var hideProfileScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
-    @Binding private var useDeclineDismissTransition: Bool
-        
+    @Binding var declinedTransition: Bool
+    
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
         return detailsOpen ? (-85 ... -limit) : (limit ... 85)
@@ -30,21 +29,20 @@ struct ProfileView: View {
     
     let profileImages: [UIImage]
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, useDeclineDismissTransition: Binding<Bool>) {        _vm = State(initialValue: vm)
-        _meetVM = State(initialValue: meetVM)
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, declinedTransition: Binding<Bool>) {
+        _vm = State(initialValue: vm)
+        self.meetVM = meetVM
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
-        _useDeclineDismissTransition = useDeclineDismissTransition
+        _declinedTransition = declinedTransition
     }
     
     var body: some View {
             GeometryReader { geo in
-                let dismissAction = {dismissProfile(viewHeight: geo.size.height) }
                 ZoomContainer {
                     if !hideProfileScreen {
-                        ZStack {
                             VStack(spacing: 24) {
-                                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile, onDismiss: dismissAction)
+                                ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile) { selectedProfile = nil}
                                     .offset(y: rangeUpdater(endValue: -108))
                                     .opacity(titleOpacity())
                                     .padding(.top, 36)
@@ -52,6 +50,7 @@ struct ProfileView: View {
                                 ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
                                     .offset(y: rangeUpdater(endValue: -100))
                                     .simultaneousGesture(imageDetailsDrag)
+                                    .onTapGesture { if detailsOpen { detailsOpen.toggle()}}
                                 
                                 ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: vm.profileModel.profile) {onDecline()}
                                     .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
@@ -70,17 +69,17 @@ struct ProfileView: View {
                             .animation(.spring(duration: 0.2), value: detailsOpen)
                             .animation(.easeInOut(duration: 0.2), value: detailsOffset)
                             .animation(.easeOut(duration: 0.25), value: profileOffset)
-                            .animation(hideProfileScreen ? nil : .snappy(duration: 0.3), value: selectedProfile)
-                            .overlay(alignment: .topLeading) { overlayTitle(onDismiss: dismissAction) }                            
+                            .animation(.snappy(duration: 0.3), value: selectedProfile)
+                            .overlay(alignment: .topLeading) { overlayTitle() { selectedProfile = nil} }
                         }
                     }
                 }
-            }
             .overlay {if showInvitePopup {invitePopup}}
             .overlay { if showDeclineScreen { declineScreen} }
             .offset(y: activeProfileOffset)
+
+            }
     }
-}
 
 //Two Different views
 extension ProfileView {
@@ -88,15 +87,7 @@ extension ProfileView {
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
     }
-    
-    private func dismissProfile(viewHeight: CGFloat) {
-        guard dismissOffset == nil else { return }
-        withAnimation(.snappy(duration: 0.22)) {
-            dismissOffset = viewHeight
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {selectedProfile = nil}
-    }
-    
+        
     @ViewBuilder
     private var invitePopup: some View {
         if showInvitePopup, let event = vm.profileModel.event {
@@ -153,11 +144,7 @@ extension ProfileView {
 extension ProfileView {
     
     func detailsSectionOffset() -> CGFloat {
-        if detailsOpen {
-            return detailsOpenOffset + detailsOffset
-        } else {
-            return detailsOffset
-        }
+        return detailsOffset + (detailsOpen ? detailsOpenOffset : 0)
     }
     
     func overlayTitleOpacity() -> Double {
@@ -235,8 +222,9 @@ extension ProfileView {
     private var detailsDrag: some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($detailsOffset) { v, state, _ in
-                if !isTopOfScroll  && detailsOpen { return}
-                if isTopOfScroll && detailsOpen && v.translation.height < 0 { return }
+                if detailsOpen && (!isTopOfScroll || v.translation.height < 0) { return }
+
+                
                 if dragType == nil {dragType(v: v)}
                 guard dragType != nil && dragType != .horizontal else { return }
                 state = v.translation.height.clamped(to: detailsDragRange)
@@ -265,14 +253,14 @@ extension ProfileView {
     
     private func onDecline() {
         withAnimation(.easeInOut(duration: 0.15)) {
-            useDeclineDismissTransition = true
+            declinedTransition = true
             showDeclineScreen = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
             Task {
    //                           try await meetVM?.declineProfile(profileModel: pModel)
                 try await Task.sleep(nanoseconds: 750_000_000)
                 await MainActor.run {
-                    var transaction = Transaction()
+                    var transaction = Transaction(animation: .easeInOut(duration: 0.2))
                     transaction.animation = .easeInOut(duration: 0.2)
                     withTransaction(transaction) {
                         selectedProfile = nil
@@ -284,3 +272,11 @@ extension ProfileView {
 }
 
 
+/*
+ init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, declinedTransition: Binding<Bool>) {        _vm = State(initialValue: vm)
+     _meetVM = State(initialValue: meetVM)
+     self.profileImages = profileImages
+     _selectedProfile = selectedProfile
+     _declinedTransition = declinedTransition
+ }
+ */

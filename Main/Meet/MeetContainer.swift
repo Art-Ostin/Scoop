@@ -13,7 +13,7 @@ struct MeetContainer: View {
     @Bindable var vm: MeetViewModel
     @State private var profilePath: [ProfileModel] = []
     @State var selectedProfile: ProfileModel? = nil
-    @State private var useDeclineDismissTransition = false
+    @State var declinedTransition = false
     
     
     @State var showIdealTime: Bool = false
@@ -38,9 +38,16 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = selectedProfile {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, profileImages: profileImages[profileModel.id] ?? [], selectedProfile: $selectedProfile, useDeclineDismissTransition: $useDeclineDismissTransition)
+                    
+                    ProfileView(
+                        vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager),
+                        meetVM: vm,
+                        profileImages: profileImages[profileModel.id] ?? [],
+                        selectedProfile: $selectedProfile,
+                        declinedTransition: $declinedTransition
+                    )
                         .id(profileModel.id)
-                        .transition(useDeclineDismissTransition ? .opacity : .move(edge: .bottom))
+                        .transition(declinedTransition ? .identity : .move(edge: .bottom))
                         .zIndex(1)
                 }
                 if let currentProfile = quickInvite {
@@ -61,11 +68,12 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (24 * 2)
             }
-            .onChange(of: selectedProfile) { _, newValue in
-                if newValue != nil {
-                    useDeclineDismissTransition = false
-                }
-            }
+        
+//            .onChange(of: selectedProfile) { _, newValue in
+//                if newValue != nil {
+//                    useDeclineDismissTransition = false
+//                }
+//            }
     }
 }
 
@@ -150,6 +158,8 @@ extension MeetContainer {
     }
 }
 
+
+
 /*
  if let profileModel = selectedProfile {
      ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager), meetVM: vm, selectedProfile: $selectedProfile)
@@ -196,3 +206,4 @@ extension MeetContainer {
      profilePath.append(profile)
  }
  */
+

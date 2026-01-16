@@ -6,6 +6,9 @@
 
 import SwiftUI
 
+import Zoomable
+
+
 struct ProfileImageView: View {
     
     @Bindable var vm: ProfileViewModel
