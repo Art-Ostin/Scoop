@@ -177,7 +177,6 @@ fileprivate struct GestureOverlay: UIViewRepresentable {
             }
         }
         
-        //Maybe change later
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
             if gestureRecognizer.name == "PINCHPANGESTURE" || otherGestureRecognizer.name == "PINCHZOOMGESTURE" {
                 return true

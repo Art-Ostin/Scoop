@@ -106,14 +106,6 @@ struct PromptView: View {
     }
 }
 
-extension Array {
-    func chunked(into size: Int) -> [[Element]] {
-        stride(from: 0, to: count, by: size).map { start in
-            Array(self[start..<Swift.min(start + size, count)])
-        }
-    }
-}
-
 struct ImageSectionBottom: PreferenceKey {
     let has_updated = false
     static let defaultValue: CGFloat = 0
@@ -137,25 +129,12 @@ struct TopSafeArea: PreferenceKey {
 }
 
 /*
- @Binding var selectedProfile: ProfileModel?
- */
-
-/*
- 
- struct ProfileSecondTitle: View {
-     let vm: ProfileViewModel
-     @Binding var selectedProfile: ProfileModel?
-     
-     var body: some View {
-         HStack {
-             Text(vm.profileModel.profile.name)
-             Spacer()
-             ProfileDismissButton(color: .white, selectedProfile: $selectedProfile)
+ extension Array {
+     func chunked(into size: Int) -> [[Element]] {
+         stride(from: 0, to: count, by: size).map { start in
+             Array(self[start..<Swift.min(start + size, count)])
          }
-         .font(.body(24, .bold))
-         .foregroundStyle(.white)
-         .padding(.top, 32)
-         .padding(.horizontal, 16)
      }
  }
+
  */
