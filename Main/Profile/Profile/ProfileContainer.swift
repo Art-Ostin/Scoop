@@ -21,6 +21,9 @@ struct ProfileView: View {
     
     @Binding private var selectedProfile: ProfileModel?
     
+    @State private var containerHeight: CGFloat = 0
+    private let dismissalDuration: TimeInterval = 0.35
+    
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
         return detailsOpen ? (-85 ... -limit) : (limit ... 85)
@@ -54,7 +57,6 @@ struct ProfileView: View {
                         .onTapGesture { detailsOpen.toggle() }
                         .simultaneousGesture(detailsDrag)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(
                     //Do not Change Critical! Fixed the scrolling down issue
                     UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
@@ -62,10 +64,10 @@ struct ProfileView: View {
                         .ignoresSafeArea()
                         .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
                 )
-                .animation(.spring(duration: 0.2), value: detailsOpen)
-                .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                .animation(.easeOut(duration: 0.25), value: profileOffset)
-                .animation(.snappy(duration: 4), value: selectedProfile)
+                .animation(.spring(duration: 1), value: detailsOpen)
+                .animation(.easeInOut(duration: 1), value: detailsOffset)
+                .animation(.easeOut(duration: 5), value: profileOffset)
+                .animation(.snappy(duration: 0.2), value: selectedProfile)
                 .overlay(alignment: .topLeading) { overlayTitle() { selectedProfile = nil} }
                 .onChange(of: dismissOffset) {
                     print("Dismiss Offset:")
@@ -74,12 +76,20 @@ struct ProfileView: View {
                 .onAppear {
                     print("Appearing Offset: ", dismissOffset ?? "No Offset Yet")
                 }
+                .onChange(of: selectedProfile) {
+                    print(selectedProfile?.profile.name ?? "No Selected Profile")
+                }
+                .onAppear {
+                    containerHeight = geo.size.height / 1
+                    print(containerHeight)
+                }
             }
         }
         .transition( .move(edge: .bottom))
         .overlay {if showInvitePopup {invitePopup}}
         .overlay { if showDeclineScreen { declineScreen} }
         .offset(y: activeProfileOffset)
+//        .offset(y: containerHeight)
     }
 }
 
@@ -185,7 +195,7 @@ extension ProfileView {
                 guard max(distance, predicted) > 75 else { return }
                 if dragType == .profile {
                     dismissOffset = v.translation.height
-                    selectedProfile = nil
+                    dismissProfile()
                 } else if dragType == .details {
                     detailsOpen.toggle()
                 }
@@ -200,7 +210,6 @@ extension ProfileView {
                 guard dragType != nil && dragType != .horizontal else { return }
                 state = v.translation.height.clamped(to: detailsDragRange)
             }
-        
             .onEnded {
                 defer { dragType = nil }
                 guard dragType != nil && dragType != .horizontal else { return }
@@ -227,8 +236,17 @@ extension ProfileView {
 
 //Other
 extension ProfileView {
+    
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
+    }
+    
+    private func dismissProfile() {
+        selectedProfile = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+            print("dismissOffset Is Nil")
+            dismissOffset = nil
+        })
     }
     
     
@@ -242,3 +260,7 @@ extension ProfileView {
         }
     }
 }
+
+//IT is the dismiss offset that is causing the bug for it to reappear. When I click on the screen quickly again, there is already a dismiss offset causing the issue.
+// The two different offset speeds on the profile: (1) ProfileOffset (animation) sometimes is causing the profile to dismiss at a particular speed (2) Sometimes it is the selectedProfile Causing it to dismiss.
+
