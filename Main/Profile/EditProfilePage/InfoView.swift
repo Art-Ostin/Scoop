@@ -104,7 +104,6 @@ struct InfoView: View {
                 }
             }
         }
-        .padding(.horizontal, 32)
     }
 }
 struct EditPreview: Identifiable {

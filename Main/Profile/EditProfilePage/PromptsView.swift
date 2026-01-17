@@ -41,7 +41,6 @@ struct PromptsView: View {
             }
             .padding(.vertical, 8)
         }
-        .padding(.horizontal, 32)
     }
 }
 

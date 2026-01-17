@@ -38,7 +38,6 @@ struct InterestsHolder<Content: View, Destination: View>: View {
             }
             .padding()
         }
-        .padding(.horizontal, 32)
     }
 }
 
