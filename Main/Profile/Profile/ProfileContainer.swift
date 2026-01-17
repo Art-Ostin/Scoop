@@ -121,9 +121,11 @@ extension ProfileView {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile) { onDismiss() }
-                .padding(6)
-                .glassIfAvailable(Circle())
+            if !isUserProfile {
+                ProfileDismissButton(color: .white, selectedProfile: $selectedProfile) { onDismiss() }
+                    .padding(6)
+                    .glassIfAvailable(Circle())
+            }
         }
         .font(.body(24, .bold))
         .contentShape(Rectangle())
