@@ -53,7 +53,7 @@ extension EditProfileContainer {
             Image(systemName: "xmark")
                 .font(.body(17, .bold))
                 .padding(5)
-                .glassIfAvailable()
+                .glassIfAvailable(Circle())
         }
     }
     

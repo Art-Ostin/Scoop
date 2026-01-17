@@ -22,7 +22,6 @@ struct CustomList<Content: View> : View {
     }
     
     var body: some View {
-            
             VStack(alignment: .leading, spacing: 8) {
                 if let title = title {
                     Text(title)
@@ -30,7 +29,6 @@ struct CustomList<Content: View> : View {
                         .foregroundStyle(Color.grayText)
                         .padding(.horizontal, 16)
                 }
-
                 VStack(spacing: 6) {
                     content()
                 }
@@ -40,8 +38,7 @@ struct CustomList<Content: View> : View {
                 .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
             }
             .padding(.vertical)
-//            .padding(.horizontal, 32)
-        }
+    }
     }
 
 #Preview {

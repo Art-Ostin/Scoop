@@ -43,7 +43,7 @@ struct CustomTabPage<Content: View>: View {
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 60)
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal)
                 content
             }
             .padding(.bottom, 48)
@@ -65,6 +65,7 @@ struct CustomTabPage<Content: View>: View {
         .onPreferenceChange(TopSafeAreaTest.self) { newSafeArea in
             topSafeArea = newSafeArea
         }
+        .contentMargins(.horizontal, 16, for: .scrollContent)
     }
 }
 
