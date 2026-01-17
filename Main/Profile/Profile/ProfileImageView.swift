@@ -53,8 +53,10 @@ extension ProfileImageView {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                InviteButton(vm: vm, showInvite: $showInvite)
-                    .padding()
+                if !(vm.viewProfileType == .view) {
+                    InviteButton(vm: vm, showInvite: $showInvite)
+                        .padding()
+                }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             //Apply the shadow after the frame so shadow not included in distance between views

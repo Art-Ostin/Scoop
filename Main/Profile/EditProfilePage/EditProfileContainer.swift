@@ -20,7 +20,7 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if isView {
-                ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset)
+                ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
                     .transition(.move(edge: .leading))
             } else {
                 EditProfileView(vm: vm)
@@ -30,11 +30,53 @@ struct EditProfileContainer: View {
         .id(vm.updatedImages.count)
         .task {await vm.assignSlots()}
         .overlay(alignment: .bottom) {EditProfileButton(isView: $isView)}
-        .toolbar {CloseToolBar(isLeading: false)}
-        .toolbar {ToolbarItem(placement: .topBarLeading) {Button("SAVE") { if vm.showSaveButton {Task {try await vm.saveProfileChanges()}}}}}
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topTrailing) {
+            NavButton(.cross, 17)
+                .glassIfAvailable()
+        }
+        .overlay(alignment: .topLeading) {
+            if vm.showSaveButton {
+                saveButton
+            }
+        }
+    }
+}
+
+extension EditProfileContainer {
+    
+    private var saveButton: some View {
+        Button {
+            Task { try await vm.saveProfileChanges() }
+        } label : {
+            Text("Save")
+                .font(.body(14, .bold))
+                .foregroundStyle(.accent)
+                .padding(.horizontal)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.1), radius: 6, y: 5)
+                        .stroke(20, lineWidth: 1, color: .black)
+                )
+                .padding(.bottom)
+                .animation(.spring(), value: isView)
+        }
     }
 }
 
 /*
- DraftProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cacheManager))
+.toolbar {CloseToolBar(isLeading: false)}
+ .toolbar {
+     ToolbarItem(placement: .topBarLeading) {
+         if vm.showSaveButton {
+             Button("Save") {
+                 Task {
+                     try await vm.saveProfileChanges()
+                 }
+             }
+         }
+     }
+ }
  */

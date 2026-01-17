@@ -116,10 +116,6 @@ import FirebaseFirestore
         try await saveUserArray()
         try await saveUpdatedImages()
     }
-
-    
-    
-
     
     
     //Images

@@ -21,8 +21,9 @@ struct ProfileView: View {
     @State private var hideProfileScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
-    
+    @State var isUserProfile: Bool = false
     @State private var containerHeight: CGFloat = 0
+    
     private let dismissalDuration: TimeInterval = 0.35
     
     private var detailsDragRange: ClosedRange<CGFloat> {
@@ -32,12 +33,13 @@ struct ProfileView: View {
     
     let profileImages: [UIImage]
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>) {
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, isUserProfile: Bool = false) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
+        self.isUserProfile = isUserProfile
     }
     
     var body: some View {
@@ -70,8 +72,8 @@ struct ProfileView: View {
                 )
                 .animation(.spring(duration: 0.2), value: detailsOpen)
                 .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                .animation(.snappy(duration: 0.4), value: profileOffset)//Bug Fix: ProfileOffset & selected profile Must be same animation length
-                .animation(.snappy(duration: 0.4), value: selectedProfile)
+                .animation(.snappy(duration: 0.35), value: profileOffset)//Bug Fix: ProfileOffset & selected profile Must be same animation length
+                .animation(.snappy(duration: 0.35), value: selectedProfile)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
             }
         }
@@ -100,6 +102,40 @@ extension ProfileView {
             }
         }
     }
+    
+    private func profileTitle(geo: GeometryProxy) -> some View {
+        HStack {
+            Text(vm.profileModel.profile.name)
+            ForEach (vm.profileModel.profile.nationality, id: \.self) {flag in Text(flag)}
+            Spacer()
+            if !isUserProfile {
+                ProfileDismissButton(color: .black, selectedProfile: $selectedProfile) {dismissProfile(using: geo)}
+            }
+        }
+        .offset(y: 4) // Hack to align to bottom of HStack
+        .font(.body(24, .bold))
+        .padding(.horizontal)
+    }
+    
+    struct ProfileTitle: View {
+        let p: UserProfile
+        @Binding var selectedProfile: ProfileModel?
+        let onDismiss: (() -> Void)?
+        
+        var body: some View {
+            HStack {
+                Text(p.name)
+                ForEach (p.nationality, id: \.self) {flag in Text(flag)}
+                Spacer()
+                ProfileDismissButton(color: .black, selectedProfile: $selectedProfile, onDismiss: onDismiss)
+            }
+            .offset(y: 4) // Hack to align to bottom of HStack
+            .font(.body(24, .bold))
+            .padding(.horizontal)
+        }
+    }
+
+
     
     private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
