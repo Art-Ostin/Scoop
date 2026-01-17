@@ -83,18 +83,20 @@ struct InfoView: View {
             ("Core", coreInfo), ("About", aboutMe)]
         
         ScrollView {
-            ForEach(sections, id: \.title) {section in
-                CustomList(title: section.title) {
-                    ForEach(section.data) { info in
-                        VStack(spacing: 0) {
-                            ListItem(title: info.title, response: info.response) {info.destination }
-                                if info.id != section.data.last?.id {
-                                    SoftDivider()
-                                        .padding(.leading, 24)
-                                        .foregroundStyle(.red)
-                                }
+            VStack(spacing: 36) {
+                ForEach(sections, id: \.title) {section in
+                    CustomList(title: section.title) {
+                        ForEach(section.data) { info in
+                            VStack(spacing: 0) {
+                                ListItem(title: info.title, response: info.response) {info.destination }
+                                    if info.id != section.data.last?.id {
+                                        SoftDivider()
+                                            .padding(.leading, 24)
+                                            .foregroundStyle(.red)
+                                    }
+                            }
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(maxWidth: .infinity)
                     }
                 }
             }
