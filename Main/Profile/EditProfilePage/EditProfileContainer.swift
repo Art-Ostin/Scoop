@@ -21,12 +21,11 @@ struct EditProfileContainer: View {
         Group {
             if isEdit {
                 EditProfileView(vm: vm)
-                    .transition(.move(edge: .trailing))
             } else {
                 ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
-                    .transition(.move(edge: .leading))
             }
         }
+        .transition(.move(edge: .leading))
         .id(vm.updatedImages.count)
         .task {await vm.assignSlots()}
         .overlay(alignment: .bottom) {EditProfileButton(isEdit: $isEdit)}

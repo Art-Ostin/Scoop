@@ -15,11 +15,13 @@ struct EditProfileView: View {
     
     var body: some View {
         CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
-            ImagesView(vm: vm)
-            PromptsView(vm: vm)
-            InfoView(vm: vm)
-            InterestsView(vm: vm)
-            YearsView()
+            NavigationStack {
+                ImagesView(vm: vm)
+                PromptsView(vm: vm)
+                InfoView(vm: vm)
+                InterestsView(vm: vm)
+                YearsView()
+            }
         }
     }
 }

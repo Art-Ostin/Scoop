@@ -77,7 +77,7 @@ struct ProfileView: View {
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
             }
         }
-        .transition( .move(edge: .bottom))
+        .transition(isUserProfile ? .move(edge: .trailing) : .move(edge: .bottom))
         .overlay {if showInvitePopup {invitePopup}}
         .overlay { if showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
