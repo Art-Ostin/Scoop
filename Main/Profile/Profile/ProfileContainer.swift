@@ -21,7 +21,7 @@ struct ProfileView: View {
     @State private var hideProfileScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
-    @State var isUserProfile: Bool = false
+    @State var isUserProfile: Bool
     @State private var containerHeight: CGFloat = 0
     
     private let dismissalDuration: TimeInterval = 0.35
@@ -80,7 +80,7 @@ struct ProfileView: View {
         .transition( .move(edge: .bottom))
         .overlay {if showInvitePopup {invitePopup}}
         .overlay { if showDeclineScreen { declineScreen} }
-        .offset(y: activeProfileOffset)
+        .offset(y: isUserProfile ? activeProfileOffset : 0)
     }
 }
 
