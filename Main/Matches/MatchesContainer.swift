@@ -23,7 +23,10 @@ struct MatchesView: View {
             Text("Hello World")
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
-        .fullScreenCover(isPresented: $showProfileView) {NavigationStack {editProfileScreen()}}
+        .fullScreenCover(isPresented: $showProfileView) {NavigationStack {
+            editProfileScreen()
+                .toolbar(.hidden, for: .navigationBar)
+        }}
         .overlay(alignment: .topTrailing) {profileButton}
         .task { await prepareUserImages() }
     }

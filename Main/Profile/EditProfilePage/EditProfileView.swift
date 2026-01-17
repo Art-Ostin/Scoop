@@ -11,19 +11,30 @@ struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
     
+    @State var callDismiss = false
+    
     var body: some View {
-        ZStack {
-            ScrollView {
-                ImagesView(vm: vm)
-                PromptsView(vm: vm)
-                InfoView(vm: vm)
-                InterestsView(vm: vm)
-                YearsView()
-            }
+        CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
+            ImagesView(vm: vm)
+            PromptsView(vm: vm)
+            InfoView(vm: vm)
+            InterestsView(vm: vm)
+            YearsView()
         }
-        .navigationTitle("Edit Profile")
-        .navigationBarTitleDisplayMode(.large)
         .navigationBarBackButtonHidden()
         .background(Color.background)
     }
 }
+
+
+/*
+ZStack {
+     ScrollView {
+         ImagesView(vm: vm)
+         PromptsView(vm: vm)
+         InfoView(vm: vm)
+         InterestsView(vm: vm)
+         YearsView()
+     }
+ }
+ */

@@ -7,7 +7,7 @@
 
 import SwiftUI
 enum Page: String, Hashable {
-    case Meet, Meeting, Matches
+    case Meet, Meeting, Matches, EditProfile
 
     var image: Image {
         switch self {
@@ -15,6 +15,8 @@ enum Page: String, Hashable {
             Image(systemName: "info.circle")
         case .Matches:
             Image(systemName: "gear")
+        case .EditProfile:
+            Image(systemName: "xmark")
         }
     }
 }
@@ -50,6 +52,11 @@ struct CustomTabPage<Content: View>: View {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
                 .opacity(scrollViewOffset < 0 ? 1 : 0)
                 .ignoresSafeArea(edges: .all)
+                .overlay(alignment: .topTrailing) {
+                    if page == .EditProfile {
+                        TabButton(page: page, isPresented: $TabAction)
+                    }
+                }
         }
         .scrollIndicators(.never)
         .coordinateSpace(name: page)
