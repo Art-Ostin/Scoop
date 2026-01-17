@@ -23,7 +23,6 @@ struct EditProfileView: View {
                     InterestsView(vm: vm)
                     YearsView()
                 }
-                .padding(.horizontal, 16)
             }
         }
     }
