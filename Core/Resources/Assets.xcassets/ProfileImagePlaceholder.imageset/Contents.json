@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "ProfileImagePlaceholder.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

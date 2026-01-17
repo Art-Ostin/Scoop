@@ -11,12 +11,16 @@ struct EditProfileContainer: View {
     @Environment(\.dismiss) private var dismiss
     @State var isView: Bool = true
     @State var vm: EditProfileViewModel
+    let profileVM: ProfileViewModel
     @State var selectedProfile: ProfileModel?
+    
+    @Binding var images: [UIImage]
+    @State var dismissOffset: CGFloat? = nil
     
     var body: some View {
         Group {
             if isView {
-                DraftProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cacheManager))
+                ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset)
                     .transition(.move(edge: .leading))
             } else {
                 EditProfileView(vm: vm)
@@ -30,3 +34,7 @@ struct EditProfileContainer: View {
         .toolbar {ToolbarItem(placement: .topBarLeading) {Button("SAVE") { if vm.showSaveButton {Task {try await vm.saveProfileChanges()}}}}}
     }
 }
+
+/*
+ DraftProfileView(vm: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cacheManager))
+ */

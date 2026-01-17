@@ -43,6 +43,7 @@ import UIKit
         try? authManager.signOutAuthUser()
     }
     
-    
-    
+    func loadUserImages() async -> [UIImage] {
+        return await cacheManager.loadProfileImages([s.user])
+    }
 }

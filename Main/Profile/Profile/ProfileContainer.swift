@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.tabSelection) private var tabSelection
+    @Environment(\.dismiss) private var dismiss
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
@@ -30,6 +31,7 @@ struct ProfileView: View {
     }
     
     let profileImages: [UIImage]
+    
     init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
@@ -42,7 +44,7 @@ struct ProfileView: View {
         GeometryReader { geo in
             ZoomContainer {
                 VStack(spacing: 24) {
-                    ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile) { selectedProfile = nil }
+                    ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile) { dismissProfile(using: geo)}
                         .offset(y: rangeUpdater(endValue: -108))
                         .opacity(1 - overlayTitleOpacity)
                         .padding(.top, 36)
@@ -58,6 +60,7 @@ struct ProfileView: View {
                         .onTapGesture { detailsOpen.toggle() }
                         .simultaneousGesture(detailsDrag)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(
                     //Do not Change Critical! Fixed the scrolling down issue
                     UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
@@ -67,11 +70,9 @@ struct ProfileView: View {
                 )
                 .animation(.spring(duration: 0.2), value: detailsOpen)
                 .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                
                 .animation(.snappy(duration: 0.4), value: profileOffset)//Bug Fix: ProfileOffset & selected profile Must be same animation length
                 .animation(.snappy(duration: 0.4), value: selectedProfile)
-                .overlay(alignment: .topLeading) { overlayTitle() { selectedProfile = nil} }
-                .onDisappear { dismissOffset = nil }
+                .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
             }
         }
         .transition( .move(edge: .bottom))
@@ -104,7 +105,7 @@ extension ProfileView {
         HStack {
             Text(vm.profileModel.profile.name)
             Spacer()
-            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile, onDismiss: onDismiss)
+            ProfileDismissButton(color: .white, selectedProfile: $selectedProfile) { onDismiss() }
                 .padding(6)
                 .glassIfAvailable(Circle())
         }
@@ -229,6 +230,16 @@ extension ProfileView {
         dismissOffset ?? profileOffset
     }
     
+    private func dismissProfile(using geo: GeometryProxy) {
+        dismiss()
+        let distance = geo.size.height + geo.safeAreaInsets.bottom
+        withAnimation(.snappy(duration: dismissalDuration)) {
+            dismissOffset = distance
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + dismissalDuration) {
+            selectedProfile = nil
+        }
+    }
 
     
     private func onDecline() {
