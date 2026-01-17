@@ -22,7 +22,6 @@ struct ImagesView: View {
                     }
                 }
             }
-            .padding(.horizontal)
         }
     }
 }

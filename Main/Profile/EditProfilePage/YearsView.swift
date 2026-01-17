@@ -10,7 +10,7 @@ import SwiftUI
 struct YearsView: View {
     var body: some View {
         CustomList(title: "Years you're open to meeting") {
-            HStack(spacing: 24) {
+            HStack(spacing: 16) {
                 YearCell(title: "U0", onTap: {})
                 YearCell(title: "U1", onTap: {})
                 YearCell(title: "U2", onTap: {})

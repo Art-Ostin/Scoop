@@ -62,7 +62,7 @@ struct MeetContainer: View {
             .sheet(isPresented: $showPendingInvites) {pastInviteView}
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
-                imageSize = screenSize - (24 * 2)
+                imageSize = screenSize - (16 * 2)
             }
     }
 }
@@ -79,7 +79,7 @@ extension MeetContainer {
     }
     
     private func profileList(_ items: [ProfileModel]) -> some View {
-        LazyVStack(spacing: 84) {
+        LazyVStack(spacing: 72) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, profile in
                 ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $quickInvite)
                     .contentShape(Rectangle())

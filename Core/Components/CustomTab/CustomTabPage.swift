@@ -43,7 +43,6 @@ struct CustomTabPage<Content: View>: View {
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 60)
                 }
-                .padding(.horizontal)
                 content
             }
             .padding(.bottom, 48)
