@@ -50,7 +50,7 @@ struct CustomTabPage<Content: View>: View {
         }
         .overlay(alignment: .top) {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
-                .opacity(scrollViewOffset < 0 ? 1 : 0)
+                .opacity(withAnimation(.easeInOut(duration: 0.2)) {scrollViewOffset < 0 ? 1 : 0})
                 .ignoresSafeArea(edges: .all)
         }
         .scrollIndicators(.never)
