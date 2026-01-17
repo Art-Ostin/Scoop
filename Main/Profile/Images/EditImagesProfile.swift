@@ -24,7 +24,6 @@ struct ImagesView: View {
             }
             .padding(.horizontal)
         }
-        .padding(.horizontal, 32)
     }
 }
 

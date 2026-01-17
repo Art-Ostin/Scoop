@@ -16,11 +16,14 @@ struct EditProfileView: View {
     var body: some View {
         NavigationStack {
             CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
-//                    ImagesView(vm: vm)
+                Group{
+                    ImagesView(vm: vm)
                     PromptsView(vm: vm)
                     InfoView(vm: vm)
                     InterestsView(vm: vm)
-//                    YearsView()
+                    YearsView()
+                }
+                .padding(.horizontal, 16)
             }
         }
     }

@@ -20,7 +20,6 @@ struct YearsView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(.bottom, 48)
-        .padding(.horizontal, 32)
     }
 }
 

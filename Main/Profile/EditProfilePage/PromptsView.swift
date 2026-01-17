@@ -12,7 +12,6 @@ struct PromptsView: View {
     @Bindable var vm: EditProfileViewModel
         
     var body: some View {
-        
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
                 NavigationLink {
@@ -49,7 +48,6 @@ extension PromptsView {
     private func promptResponse (prompt: String, response: String) -> some View {
                     
             VStack(alignment: .leading, spacing: 12) {
-                
                 Text(prompt)
                     .foregroundStyle(Color.grayText)
                     .font(.body(14))
@@ -57,8 +55,8 @@ extension PromptsView {
                     .font(.title(response.count < 80 ? 24 : 16 ))
             }
             .font(.body())
+            .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
             .padding()
-            .frame(width: 340, height: 130, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.white)
@@ -69,8 +67,11 @@ extension PromptsView {
                 Image(prompt == "Add Prompt" ? "EditButton" : "EditGray")
                     .padding()
             })
-            .padding(.horizontal)
             .lineSpacing(8)
+            .padding(.horizontal)
     }
 }
 
+/*
+ .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
+ */
