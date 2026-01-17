@@ -67,14 +67,6 @@ extension TextFieldGeneric {
                 .tint(.blue)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") { isFocused = false }
-                            .font(.body(.medium))
-                            .foregroundStyle(Color.accent)
-                    }
-                }
 
             
             RoundedRectangle(cornerRadius: 20, style: .circular)
@@ -125,3 +117,15 @@ enum TextFieldOptions: CaseIterable {
         }
     }
 }
+
+
+/*
+ .toolbar {
+     ToolbarItemGroup(placement: .keyboard) {
+         Spacer()
+         Button("Done") { isFocused = false }
+             .font(.body(.medium))
+             .foregroundStyle(Color.accent)
+     }
+ }
+ */

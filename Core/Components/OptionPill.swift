@@ -27,7 +27,7 @@ struct OptionPill: View {
         
         Text(title)
             .frame(width: width, height: 44)
-            .background (selected ? Color.accentColor : Color.grayBackground, in: RoundedRectangle(cornerRadius: 20))
+            .background (selected ? Color.accent : Color.grayBackground, in: RoundedRectangle(cornerRadius: 20))
             .font(.body(16, .bold))
             .foregroundStyle(selected ? Color.white : Color.black)
             .onTapGesture {

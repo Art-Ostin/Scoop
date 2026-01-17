@@ -11,10 +11,10 @@ import SwiftUI
 struct ImagesView: View {
 
     @Bindable var vm: EditProfileViewModel
-    private let columns = Array(repeating: GridItem(.fixed(105), spacing: 10), count: 3)
+    private let columns = Array(repeating: GridItem(.fixed(105), spacing: 24), count: 3)
 
     var body: some View {
-        CustomList {
+//        CustomList {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(0..<6) {idx in                    
                     EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
@@ -22,7 +22,8 @@ struct ImagesView: View {
                     }
                 }
             }
-        }
+            .frame(maxWidth: .infinity)
+//        }
     }
 }
 

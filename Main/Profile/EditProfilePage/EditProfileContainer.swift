@@ -33,24 +33,43 @@ struct EditProfileContainer: View {
         .task {await vm.assignSlots()}
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) {
-            if navigationPath.isEmpty {
-                EditProfileButton(isEdit: $isEdit)
-            }
+            if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
         }
-        .overlay(alignment: .topTrailing) {
-            if navigationPath.isEmpty {
-                closeButton
-            }
-        }
-        .overlay(alignment: .topLeading) {
-            if navigationPath.isEmpty &&  vm.showSaveButton {
-                saveButton
-            }
-        }
+        .overlay(alignment: .top) {editAction}
     }
 }
 
 extension EditProfileContainer {
+    private var editAction: some View {
+        HStack {
+            if navigationPath.isEmpty &&  vm.showSaveButton {
+                Button {
+                    Task { try await vm.saveProfileChanges() }
+                } label : {
+                    Text("Save")
+                        .font(.body(14, .bold))
+                        .foregroundStyle(.accent)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .glassIfAvailable()
+                }
+            }
+            Spacer()
+            if navigationPath.isEmpty {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.body(17, .bold))
+                        .padding(5)
+                        .glassIfAvailable(Circle())
+                }
+            }
+
+        }
+        .padding(.top, 6)
+        .padding(.horizontal, 16)
+    }
     
     
     private var closeButton: some View {
@@ -75,15 +94,18 @@ extension EditProfileContainer {
                 .foregroundStyle(.accent)
                 .padding(.horizontal)
                 .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.1), radius: 6, y: 5)
-                        .stroke(20, lineWidth: 1, color: .black)
-                )
-                .padding(.bottom)
+                .glassIfAvailable()
+                .padding(.top, 6)
+                .padding(.leading, 16)
         }
     }
 }
 
-
+/*
+ .background(
+     RoundedRectangle(cornerRadius: 20)
+         .fill(Color.white)
+         .shadow(color: .black.opacity(0.1), radius: 6, y: 5)
+         .stroke(20, lineWidth: 1, color: .black)
+ )
+ */

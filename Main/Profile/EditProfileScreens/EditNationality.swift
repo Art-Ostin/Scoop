@@ -34,6 +34,8 @@ struct EditNationality: View {
         GenericNationality(countriesSelected: $countriesSelected) { countriesSelected.toggle($0, limit: 3)
         }
         .onDisappear {vm.draft.nationality = countriesSelected}
+        .padding(.top, 24)
+        .background(Color.background)
     }
 }
 
