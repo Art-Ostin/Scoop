@@ -9,13 +9,13 @@ import SwiftUI
 
 struct EditProfileButton: View {
     
-    @Binding var isView: Bool
+    @Binding var isEdit: Bool
     
     var body: some View {
         Group {
-            if isView {
+            if isEdit {
                 HStack {
-                    Text("Edit")
+                    Text("View")
                         .font(.body(14, .bold))
                     Image(systemName: "chevron.right")
                         .font(.body(12, .bold))
@@ -26,7 +26,7 @@ struct EditProfileButton: View {
                     Image(systemName: "chevron.left")
                         .font(.body(12, .bold))
                         .offset(y: -1)
-                    Text("View" )
+                    Text("Edit" )
                         .font(.body(14, .bold))
                 }
             }
@@ -40,8 +40,8 @@ struct EditProfileButton: View {
                 .stroke(20, lineWidth: 1, color: .accent)
         )
         .padding(.bottom)
-        .onTapGesture {isView.toggle()}
-        .animation(.spring(), value: isView)
+        .onTapGesture {withAnimation (.easeInOut(duration: 0.3)) {isEdit.toggle()}}
+        .animation(.spring(), value: isEdit)
     }
 }
 

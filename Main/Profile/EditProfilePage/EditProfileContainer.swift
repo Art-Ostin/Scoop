@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditProfileContainer: View {
     @Environment(\.dismiss) private var dismiss
-    @State var isView: Bool = true
+    @State var isEdit: Bool = true
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
     @State var selectedProfile: ProfileModel?
@@ -19,20 +19,23 @@ struct EditProfileContainer: View {
     
     var body: some View {
         Group {
-            if isView {
-                ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
-                    .transition(.move(edge: .leading))
-            } else {
+            if isEdit {
                 EditProfileView(vm: vm)
                     .transition(.move(edge: .trailing))
+                
+            } else {
+                ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
+                    .transition(.move(edge: .leading))
             }
         }
         .id(vm.updatedImages.count)
         .task {await vm.assignSlots()}
-        .overlay(alignment: .bottom) {EditProfileButton(isView: $isView)}
+        .overlay(alignment: .bottom) {EditProfileButton(isEdit: $isEdit)}
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
-            NavButton(.cross, 17)
+            Image(systemName: "xmark")
+                .font(.body(17, .bold))
+                .padding(5)
                 .glassIfAvailable()
         }
         .overlay(alignment: .topLeading) {
@@ -61,7 +64,6 @@ extension EditProfileContainer {
                         .stroke(20, lineWidth: 1, color: .black)
                 )
                 .padding(.bottom)
-                .animation(.spring(), value: isView)
         }
     }
 }
@@ -80,3 +82,4 @@ extension EditProfileContainer {
      }
  }
  */
+

@@ -46,7 +46,7 @@ struct ProfileView: View {
         GeometryReader { geo in
             ZoomContainer {
                 VStack(spacing: 24) {
-                    ProfileTitle(p: vm.profileModel.profile, selectedProfile: $selectedProfile) { dismissProfile(using: geo)}
+                    profileTitle(geo: geo)
                         .offset(y: rangeUpdater(endValue: -108))
                         .opacity(1 - overlayTitleOpacity)
                         .padding(.top, 36)
@@ -80,7 +80,7 @@ struct ProfileView: View {
         .transition( .move(edge: .bottom))
         .overlay {if showInvitePopup {invitePopup}}
         .overlay { if showDeclineScreen { declineScreen} }
-        .offset(y: isUserProfile ? activeProfileOffset : 0)
+        .offset(y: isUserProfile ? 0 : activeProfileOffset)
     }
 }
 
@@ -116,26 +116,6 @@ extension ProfileView {
         .font(.body(24, .bold))
         .padding(.horizontal)
     }
-    
-    struct ProfileTitle: View {
-        let p: UserProfile
-        @Binding var selectedProfile: ProfileModel?
-        let onDismiss: (() -> Void)?
-        
-        var body: some View {
-            HStack {
-                Text(p.name)
-                ForEach (p.nationality, id: \.self) {flag in Text(flag)}
-                Spacer()
-                ProfileDismissButton(color: .black, selectedProfile: $selectedProfile, onDismiss: onDismiss)
-            }
-            .offset(y: 4) // Hack to align to bottom of HStack
-            .font(.body(24, .bold))
-            .padding(.horizontal)
-        }
-    }
-
-
     
     private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
@@ -295,4 +275,12 @@ extension ProfileView {
 
 //Potential Bug of still appearing at the bottom is caused b
 
-
+/*
+ .overlay(alignment: .topTrailing) {
+     Image(systemName: "xmark")
+         .font(.body(17, .bold))
+         .padding(5)
+         .glassIfAvailable()
+ }
+ 
+ */
