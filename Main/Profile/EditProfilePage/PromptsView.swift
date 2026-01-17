@@ -55,8 +55,8 @@ extension PromptsView {
                     .font(.title(response.count < 80 ? 24 : 16 ))
             }
             .font(.body())
-            .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
             .padding()
+            .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.white)
@@ -68,7 +68,7 @@ extension PromptsView {
                     .padding()
             })
             .lineSpacing(8)
-            .padding(.horizontal)
+//            .padding(.horizontal)
     }
 }
 
