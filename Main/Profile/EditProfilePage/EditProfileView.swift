@@ -14,15 +14,18 @@ struct EditProfileView: View {
     @State var callDismiss = false
     
     var body: some View {
-        CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
-            ImagesView(vm: vm)
-            PromptsView(vm: vm)
-            InfoView(vm: vm)
-            InterestsView(vm: vm)
-            YearsView()
+        ZStack {
+            CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
+                ImagesView(vm: vm)
+                PromptsView(vm: vm)
+                InfoView(vm: vm)
+                InterestsView(vm: vm)
+                YearsView()
+            }
+            .navigationBarBackButtonHidden()
+            .background(Color.background)
+
         }
-        .navigationBarBackButtonHidden()
-        .background(Color.background)
     }
 }
 

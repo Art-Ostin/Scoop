@@ -22,7 +22,6 @@ struct EditProfileContainer: View {
             if isEdit {
                 EditProfileView(vm: vm)
                     .transition(.move(edge: .trailing))
-                
             } else {
                 ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
                     .transition(.move(edge: .leading))
@@ -33,10 +32,10 @@ struct EditProfileContainer: View {
         .overlay(alignment: .bottom) {EditProfileButton(isEdit: $isEdit)}
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
-            Image(systemName: "xmark")
-                .font(.body(17, .bold))
-                .padding(5)
-                .glassIfAvailable()
+            closeButton
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+                .zIndex(10)
         }
         .overlay(alignment: .topLeading) {
             if vm.showSaveButton {
@@ -47,6 +46,18 @@ struct EditProfileContainer: View {
 }
 
 extension EditProfileContainer {
+    
+    
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.body(17, .bold))
+                .padding(5)
+                .glassIfAvailable()
+        }
+    }
     
     private var saveButton: some View {
         Button {
@@ -66,20 +77,8 @@ extension EditProfileContainer {
                 .padding(.bottom)
         }
     }
+    
+    
 }
 
-/*
-.toolbar {CloseToolBar(isLeading: false)}
- .toolbar {
-     ToolbarItem(placement: .topBarLeading) {
-         if vm.showSaveButton {
-             Button("Save") {
-                 Task {
-                     try await vm.saveProfileChanges()
-                 }
-             }
-         }
-     }
- }
- */
 
