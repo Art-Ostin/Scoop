@@ -18,7 +18,6 @@ struct PromptsView: View {
                     EditPrompt(vm: vm, promptIndex: 0)
                 } label: {
                     promptResponse(prompt: vm.draft.prompt1.prompt, response: vm.draft.prompt1.response)
-                        .padding(.horizontal)
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -27,7 +26,6 @@ struct PromptsView: View {
                     EditPrompt(vm: vm, promptIndex: 1)
                 } label: {
                     promptResponse(prompt: vm.draft.prompt2.prompt, response: vm.draft.prompt2.response)
-                        .padding(.horizontal)
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
@@ -36,12 +34,12 @@ struct PromptsView: View {
                     EditPrompt(vm: vm, promptIndex: 2)
                 } label: {
                     promptResponse(prompt: vm.draft.prompt3.prompt, response: vm.draft.prompt3.response)
-                        .padding(.horizontal)
                         .foregroundStyle(.black)
                 }
                 .buttonStyle(.plain)
             }
             .padding(.vertical, 8)
+            .padding(.horizontal, 16)
         }
     }
 }
