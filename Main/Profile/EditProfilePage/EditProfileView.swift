@@ -12,9 +12,10 @@ struct EditProfileView: View {
     @Bindable var vm: EditProfileViewModel
     
     @State var callDismiss = false
+    @Binding var navigationPath: NavigationPath
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
                     ImagesView(vm: vm)
                     PromptsView(vm: vm)

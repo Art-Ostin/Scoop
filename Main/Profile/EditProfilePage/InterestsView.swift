@@ -20,24 +20,24 @@ struct InterestsHolder<Content: View, Destination: View>: View {
     }
     
     var body: some View {
-        CustomList {
-            NavigationLink {
-                destination
-            } label : {
-                VStack(spacing: 8) {
-                    HStack {
-                        Text(title)
-                            .font(.body(12, .bold))
-                            .foregroundStyle(Color.grayText)
-                        Spacer()
-                        Image("EditGray")
-                    }
-                    .padding(.horizontal, 8)
-                    content
+        NavigationLink {
+            destination
+        } label : {
+            VStack(spacing: 8) {
+                HStack {
+                    Text("Interests & Character")
+                        .font(.body(12, .bold))
+                        .foregroundStyle(Color.grayText)
+                    Spacer()
+                    Image("EditGray")
+                        .offset(x: -8)
+                        .offset(y: -4)
                 }
+                .padding(.horizontal, 16)
+                content
             }
-            .padding()
         }
+//        .padding()
     }
 }
 
@@ -47,7 +47,7 @@ struct InterestsLayout: View {
     var passions: [String]
     
     let forProfile: Bool
-
+    
     
     private var rows: [[String]] {
         stride(from: 0, to: passions.count, by: 2).map {
@@ -78,11 +78,11 @@ struct InterestsLayout: View {
         .font(.body())
         .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(forProfile ? Color.background : Color.white)
-                .shadow(color: forProfile ? Color.clear : Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
+            RoundedRectangle(cornerRadius: 20)
+                .fill( Color.white)
+                .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
         )
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
+//        .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
     }
 }
 

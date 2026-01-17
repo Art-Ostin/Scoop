@@ -17,10 +17,12 @@ struct EditProfileContainer: View {
     @Binding var images: [UIImage]
     @State var dismissOffset: CGFloat? = nil
     
+    @State var navigationPath = NavigationPath()
+    
     var body: some View {
         Group {
             if isEdit {
-                EditProfileView(vm: vm)
+                EditProfileView(vm: vm, navigationPath: $navigationPath)
             } else {
                 ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
             }
@@ -28,15 +30,19 @@ struct EditProfileContainer: View {
         .transition(.move(edge: .leading))
         .id(vm.updatedImages.count)
         .task {await vm.assignSlots()}
-        .overlay(alignment: .bottom) {EditProfileButton(isEdit: $isEdit)}
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottom) {
+            if navigationPath.isEmpty {
+                EditProfileButton(isEdit: $isEdit)
+            }
+        }
         .overlay(alignment: .topTrailing) {
-            closeButton
-                .padding(.top, 8)
-                .padding(.trailing, 16)
+            if navigationPath.isEmpty {
+                closeButton
+            }
         }
         .overlay(alignment: .topLeading) {
-            if vm.showSaveButton {
+            if navigationPath.isEmpty &&  vm.showSaveButton {
                 saveButton
             }
         }
@@ -54,6 +60,8 @@ extension EditProfileContainer {
                 .font(.body(17, .bold))
                 .padding(5)
                 .glassIfAvailable(Circle())
+                .padding(.top, 6)
+                .padding(.trailing, 16)
         }
     }
     
@@ -75,8 +83,6 @@ extension EditProfileContainer {
                 .padding(.bottom)
         }
     }
-    
-    
 }
 
 
