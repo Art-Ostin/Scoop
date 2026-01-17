@@ -35,7 +35,6 @@ struct EditProfileContainer: View {
             closeButton
                 .padding(.top, 8)
                 .padding(.trailing, 16)
-                .zIndex(10)
         }
         .overlay(alignment: .topLeading) {
             if vm.showSaveButton {

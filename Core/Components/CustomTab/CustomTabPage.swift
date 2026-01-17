@@ -16,7 +16,7 @@ enum Page: String, Hashable {
         case .Matches:
             Image(systemName: "gear")
         case .EditProfile:
-            Image(systemName: "xmark")
+            Image(systemName: "")
         }
     }
 }
@@ -52,11 +52,6 @@ struct CustomTabPage<Content: View>: View {
             ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
                 .opacity(scrollViewOffset < 0 ? 1 : 0)
                 .ignoresSafeArea(edges: .all)
-                .overlay(alignment: .topTrailing) {
-                    if page == .EditProfile {
-                        TabButton(page: page, isPresented: $TabAction)
-                    }
-                }
         }
         .scrollIndicators(.never)
         .coordinateSpace(name: page)
