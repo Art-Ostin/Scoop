@@ -10,33 +10,18 @@ import SwiftUI
 struct PromptsView: View {
     
     @Bindable var vm: EditProfileViewModel
-        
+    
     var body: some View {
+        let prompts: [PromptResponse] = [ vm.draft.prompt1, vm.draft.prompt2, vm.draft.prompt3,]
         CustomList(title: "Prompts") {
             VStack(spacing: 12) {
-                NavigationLink {
-                    EditPrompt(vm: vm, promptIndex: 0)
-                } label: {
-                    promptResponse(prompt: vm.draft.prompt1.prompt, response: vm.draft.prompt1.response)
-                        .foregroundStyle(.black)
+                ForEach(prompts.indices, id: \.self) { i in
+                    NavigationLink(value: EditProfileRoute.prompt(i)) {
+                        promptResponse(prompt: prompts[i].prompt, response: prompts[i].response)
+                            .foregroundStyle(.black)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-                
-                NavigationLink {
-                    EditPrompt(vm: vm, promptIndex: 1)
-                } label: {
-                    promptResponse(prompt: vm.draft.prompt2.prompt, response: vm.draft.prompt2.response)
-                        .foregroundStyle(.black)
-                }
-                .buttonStyle(.plain)
-                
-                NavigationLink {
-                    EditPrompt(vm: vm, promptIndex: 2)
-                } label: {
-                    promptResponse(prompt: vm.draft.prompt3.prompt, response: vm.draft.prompt3.response)
-                        .foregroundStyle(.black)
-                }
-                .buttonStyle(.plain)
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 16)
@@ -47,7 +32,6 @@ struct PromptsView: View {
 extension PromptsView {
     
     private func promptResponse (prompt: String, response: String) -> some View {
-                    
             VStack(alignment: .leading, spacing: 12) {
                 Text(prompt)
                     .foregroundStyle(Color.grayText)

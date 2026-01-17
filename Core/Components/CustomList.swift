@@ -46,19 +46,16 @@ struct CustomList<Content: View> : View {
     CustomList(content: {})
 }
 
-struct ListItem<Destination: View>: View {
+struct ListItem<Value: Hashable>: View {
     
     let title: String
     
     let response: [String]
     
-    let destination: () -> Destination
+    let value: Value
     
     var body: some View {
-        
-        NavigationLink {
-            destination()
-        } label: {
+        NavigationLink(value: value) {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)

@@ -15,24 +15,12 @@ struct InfoView: View {
          let u = vm.draft /*else { return [] }*/
 
         return [
-            EditPreview("Name", [u.name]) {
-                       EditTextfield(vm: vm, field: .name)
-                   },
-            EditPreview("Sex", [u.sex]) {
-                       EditOption(vm: vm, field: .sex)
-                   },
-            EditPreview("Attracted To", [u.attractedTo]) {
-                    EditOption(vm: vm, field: .attractedTo)
-                   },
-            EditPreview("Year", [u.year]) {
-                    EditOption(vm: vm, field: .year)
-                   },
-            EditPreview("Height", [u.height]) {
-                       EditHeight(vm: vm)
-                   },
-                   EditPreview("Nationality", [u.nationality.joined(separator: ", ")]) {
-                       EditNationality(vm: vm)
-                }
+            EditPreview("Name", [u.name], route: .textField(.name)),
+            EditPreview("Sex", [u.sex], route: .option(.sex)),
+            EditPreview("Attracted To", [u.attractedTo], route: .option(.attractedTo)),
+            EditPreview("Year", [u.year], route: .option(.year)),
+            EditPreview("Height", [u.height], route: .height),
+            EditPreview("Nationality", [u.nationality.joined(separator: ", ")], route: .nationality)
         ]
     }
     
@@ -56,25 +44,12 @@ struct InfoView: View {
         }()
         
         return [
-            EditPreview("Looking For", [u.lookingFor]) {
-                EditOption(vm: vm, field: .lookingFor)
-            },
-            EditPreview("Degree", [u.degree]) {
-                EditTextfield(vm: vm, field: .degree)
-            },
-            EditPreview("Hometown", [u.hometown]) {
-                EditTextfield(vm: vm, field: .hometown)
-            },
-            
-            EditPreview("Lifestyle", [lifestyle]) {
-                EditLifestyle(vm: vm)
-            },
-            EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")]) {
-                EditMyLifeAs(vm: vm)
-            },
-            EditPreview("Languages", [u.languages]) {
-                EditTextfield(vm: vm, field: .languages)
-            }
+            EditPreview("Looking For", [u.lookingFor], route: .option(.lookingFor)),
+            EditPreview("Degree", [u.degree], route: .textField(.degree)),
+            EditPreview("Hometown", [u.hometown], route: .textField(.hometown)),
+            EditPreview("Lifestyle", [lifestyle], route: .lifestyle),
+            EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")], route: .myLifeAs),
+            EditPreview("Languages", [u.languages], route: .textField(.languages))
         ]
     }
 
@@ -88,8 +63,8 @@ struct InfoView: View {
                     CustomList(title: section.title) {
                         ForEach(section.data) { info in
                             VStack(spacing: 0) {
-                                ListItem(title: info.title, response: info.response) {info.destination }
-                                    if info.id != section.data.last?.id {
+                                ListItem(title: info.title, response: info.response, value: info.route)
+                                if info.id != section.data.last?.id {
                                         SoftDivider()
                                             .padding(.leading, 24)
                                             .foregroundStyle(.red)
@@ -108,12 +83,12 @@ struct EditPreview: Identifiable {
     let id =  UUID()
     let title: String
     let response: [String]
-    let destination: AnyView
+    let route: EditProfileRoute
     
-    init<Content : View> (_ title: String, _ response: [String], @ViewBuilder _ destination: @escaping () -> Content) {
+    init(_ title: String, _ response: [String], route: EditProfileRoute) {
         self.title = title
         self.response = response
-        self.destination = AnyView(destination())
+        self.route = route
     }
 }
 

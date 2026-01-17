@@ -17,7 +17,8 @@ struct EditProfileContainer: View {
     @Binding var images: [UIImage]
     @State var dismissOffset: CGFloat? = nil
     
-    @State var navigationPath = NavigationPath()
+    @State var navigationPath: [EditProfileRoute] = []
+    
     
     var body: some View {
         Group {

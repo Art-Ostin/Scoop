@@ -7,22 +7,20 @@
 
 import SwiftUI
 
-struct InterestsHolder<Content: View, Destination: View>: View {
+struct InterestsHolder<Content: View, Value: Hashable>: View {
     
     let title: String
-    let destination: Destination
+    let value: Value
     let content: Content
     
-    init(title: String, @ViewBuilder content: () -> Content, @ViewBuilder destination: () -> Destination) {
+    init(title: String, value: Value, @ViewBuilder content: () -> Content) {
         self.title = title
         self.content = content()
-        self.destination = destination()
+        self.value = value
     }
     
     var body: some View {
-        NavigationLink {
-            destination
-        } label : {
+        NavigationLink(value: value) {
             VStack(spacing: 8) {
                 HStack {
                     Text("Interests & Character")
@@ -99,10 +97,8 @@ struct InterestsView: View {
     @State var interests: [String]?
     
     var body: some View {
-        InterestsHolder(title: "Interests") {
+        InterestsHolder(title: "Interests", value: EditProfileRoute.interests) {
             InterestsLayout(passions: interests ?? [], forProfile: false)
-        } destination: {
-            EditInterests(vm: vm)
         }
         .onAppear {
             interests = vm.user.interests
