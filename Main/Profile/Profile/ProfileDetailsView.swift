@@ -45,12 +45,7 @@ struct ProfileDetailsView: View {
         .scrollDisabled(disableDetailsScroll)
         .scrollIndicators(.hidden)
         .overlay(alignment: .top) { if vm.viewProfileType != .view {profileActionBar}}
-        .overlay(alignment: .top) {
-            if !isTopOfScroll {
-                gradientCover
-                    .offset(y: 0.5)
-            }
-        }
+        .customScrollFade(height: 80, showFade: !isTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
     }
 }
@@ -86,13 +81,6 @@ extension ProfileDetailsView {
         .padding(.horizontal, 16)
         .offset(y: 354)
     }
-    
-    private var gradientCover: some View {
-        LinearGradient(colors: [.white, .white.opacity(0.9), .white.opacity(0.6), .white.opacity(0.25), .white.opacity(0.0)], startPoint: .top, endPoint: .bottom)
-            .frame(maxWidth: .infinity)
-            .frame(height: 80)
-            .cornerRadius(30)
-    }
 }
 
 extension ProfileDetailsView {
@@ -111,6 +99,16 @@ extension ProfileDetailsView {
         !detailsOpen || (isTopOfScroll && detailsOffset > 0)
     }
 }
+
+/*
+ private var gradientCover: some View {
+     LinearGradient(colors: [.white, .white.opacity(0.9), .white.opacity(0.6), .white.opacity(0.25), .white.opacity(0.0)], startPoint: .top, endPoint: .bottom)
+         .frame(maxWidth: .infinity)
+         .frame(height: 80)
+         .cornerRadius(30)
+ }
+ */
+
 
 
 /*

@@ -47,11 +47,8 @@ struct CustomTabPage<Content: View>: View {
             }
             .padding(.bottom, 48)
         }
-        .overlay(alignment: .top) {
-            ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
-                .opacity(withAnimation(.easeInOut(duration: 0.2)) {scrollViewOffset < 0 ? 1 : 0})
-                .ignoresSafeArea(edges: .all)
-        }
+        .overlay(alignment: .top) {scrollTitle.opacity(scrollViewOffset < 0 ? 1 : 0)}
+        .customScrollFade(height: (topSafeArea) + 48, showFade: scrollViewOffset < 0)
         .scrollIndicators(.never)
         .coordinateSpace(name: page)
         .onPreferenceChange(TitleOffsetsKey.self) { value in
@@ -74,3 +71,22 @@ struct TopSafeAreaTest: PreferenceKey {
         value = max(value, nextValue())
     }
 }
+
+extension CustomTabPage {
+    private var scrollTitle: some View {
+            Text(page.rawValue)
+                .font(.body(17, .bold))
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+    }
+}
+
+
+/*
+ .overlay(alignment: .top) {
+     ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
+         .opacity(withAnimation(.easeInOut(duration: 0.2)) {scrollViewOffset < 0 ? 1 : 0})
+         .ignoresSafeArea(edges: .all)
+ }
+ */

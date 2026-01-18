@@ -15,24 +15,21 @@ struct EditLanguages: View {
     @State var selected: [String] = []
 
     var body: some View {
-        VStack(spacing: 32)  {
+        VStack(alignment: .leading, spacing: 32)  {
             VStack(spacing: 8) {
                 SignUpTitle(text: "Languages Spoken")
-                    .padding(.horizontal)
                 selectedView
             }
-            VStack {
+            VStack(spacing: 0) {
                 customTextField
-                    .padding(.horizontal)
                 languagesView
-                    .padding(.top, 12)
+                    .customScrollFade(height: 81, showFade: true)
             }
         }
         .focusable()
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
         .padding(.top, 48)
-        .padding(.horizontal)
         .background(Color.background)
         .ignoresSafeArea(.keyboard)
     }
@@ -70,9 +67,13 @@ extension EditLanguages {
                     }
                 }
             }
+            .padding(.horizontal, -16) //Offsets default Flowlayout padding
+            .offset(y: 16) //Acts as Padding with the fade at start
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, -16)
+        .overlay(alignment: .top) {
+            
+        }
     }
     
     private var selectedView: some View {

@@ -12,17 +12,16 @@ struct ScrollNavBar: View {
     
     let topSafeArea: CGFloat?
     
-    
     var body: some View {
         ZStack {
             LinearGradient(
                 colors: [
-                    .white,                 // solid at the very top
+                    .white,
                     .white.opacity(0.98),
                     .white.opacity(0.90),
                     .white.opacity(0.65),
                     .white.opacity(0.35),
-                    .white.opacity(0.0)     // fully transparent at the bottom
+                    .white.opacity(0.0)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
