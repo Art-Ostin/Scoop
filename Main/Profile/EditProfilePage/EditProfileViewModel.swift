@@ -27,6 +27,8 @@ import FirebaseFirestore
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     var updatedImages: [(index: Int, data: Data)] = []
     
+    var draftRevision = 0
+    
 //    var importedImages: [UIImage]
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
@@ -49,11 +51,13 @@ import FirebaseFirestore
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draft[keyPath: kp] = value
         updatedFields[key] = value
+        draftRevision += 1
     }
     
     func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse>, to value: PromptResponse) {
         draft[keyPath: kp] = value
         updatedFields[key] = ["prompt": value.prompt, "response": value.response]
+        draftRevision += 1
     }
     
     func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
@@ -64,6 +68,7 @@ import FirebaseFirestore
             draft[keyPath: kp].removeAll { removeSet.contains($0) }
         }
         updatedFieldsArray.append((field: key, value: elements, add: add))
+        draftRevision += 1
     }
 
     func saveUser() async throws {

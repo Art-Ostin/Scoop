@@ -21,10 +21,16 @@ struct ProfileView: View {
     @State private var hideProfileScreen: Bool = false
     
     @Binding private var selectedProfile: ProfileModel?
-    @State var isUserProfile: Bool
+    var isUserProfile: Bool { draftProfile != nil }
     @State private var containerHeight: CGFloat = 0
     
     private let dismissalDuration: TimeInterval = 0.35
+    
+    let draftProfile: UserProfile?
+    
+    private var displayProfile: UserProfile {
+        draftProfile ?? vm.profileModel.profile
+    }
     
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = detailsOpenOffset - 80
@@ -33,13 +39,13 @@ struct ProfileView: View {
     
     let profileImages: [UIImage]
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, isUserProfile: Bool = false) {
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, draftProfile: UserProfile? = nil) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
-        self.isUserProfile = isUserProfile
+        self.draftProfile = draftProfile
     }
     
     var body: some View {
@@ -56,7 +62,7 @@ struct ProfileView: View {
                         .simultaneousGesture(imageDetailsDrag)
                         .onTapGesture { if detailsOpen { detailsOpen.toggle()}}
                     
-                    ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: vm.profileModel.profile) { onDecline() }
+                    ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
                         .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                         .offset(y: detailsSectionOffset())
                         .onTapGesture { detailsOpen.toggle() }
@@ -105,8 +111,8 @@ extension ProfileView {
     
     private func profileTitle(geo: GeometryProxy) -> some View {
         HStack {
-            Text(vm.profileModel.profile.name)
-            ForEach (vm.profileModel.profile.nationality, id: \.self) {flag in Text(flag)}
+            Text(displayProfile.name)
+            ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             if !isUserProfile {
                 ProfileDismissButton(color: .black, selectedProfile: $selectedProfile) {dismissProfile(using: geo)}
@@ -119,7 +125,7 @@ extension ProfileView {
     
     private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
-            Text(vm.profileModel.profile.name)
+            Text(displayProfile.name)
             Spacer()
             if !isUserProfile {
                 ProfileDismissButton(color: .white, selectedProfile: $selectedProfile) { onDismiss() }

@@ -22,9 +22,8 @@ struct EditProfileContainer: View {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath)
             } else {
-                ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
+                ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, draftProfile: vm.draft)
                     .id(vm.images.count)
-                    .id(vm.draft)
             }
         }
         .transition(.move(edge: .leading))
