@@ -39,7 +39,9 @@ struct EditProfileContainer: View {
                 Task { try await vm.changeImage(image: updatedImage) }
             }
         }
-        .task {await vm.assignSlots()}
+        .task {
+            await vm.loadImages()
+        }
     }
 }
 

@@ -3,14 +3,12 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 19/08/2025.
-//Structure: The data edits the 'draft' profile which is repeatedly updated to be displayed on the 'preview' 'view' screen. Images however depend on the 'importedImages
+//Structure: The data edits the 'draft' profile which is repeatedly updated to be displayed on the 'preview' 'view' screen. Images however depend on the images.
 
 import Foundation
 import SwiftUI
 import PhotosUI
 import FirebaseFirestore
-
-
 
 @MainActor
 @Observable class EditProfileViewModel {
@@ -21,15 +19,11 @@ import FirebaseFirestore
     @ObservationIgnored private let storageManager: StorageManaging
 
     var draft: UserProfile
-    
-    var updatedFields: [UserProfile.Field : Any] = [:]
-    var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
-    
-    var updatedImages: [Int: Data] = [:]
-    
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
-    
-    
+
+    var updatedFields: [UserProfile.Field : Any] = [:]
+    var updatedImages: [Int: Data] = [:]
+        
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
         self.cacheManager = cacheManager
         self.s = s
@@ -40,7 +34,7 @@ import FirebaseFirestore
     
     var user: UserProfile { s.user }
     
-    var showSaveButton: Bool { !updatedFields.isEmpty || !updatedFieldsArray.isEmpty || !updatedImages.isEmpty}
+    var showSaveButton: Bool { !updatedFields.isEmpty || !updatedImages.isEmpty}
     
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draft[keyPath: kp] = value
@@ -56,18 +50,9 @@ import FirebaseFirestore
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(userId: user.id, values: updatedFields)
     }
-        
-    func saveUserArray() async throws {
-        guard !updatedFieldsArray.isEmpty else { return }
-        for (field, value, add) in updatedFieldsArray {
-            let data: [UserProfile.Field : [String]] = [field: value]
-            try await userManager.updateUserArray(userId: user.id, values: data, add: add)
-        }
-    }
     
     func saveProfileChanges() async throws {
         try await saveUser()
-        try await saveUserArray()
         try await saveUpdatedImages()
     }
     
@@ -82,23 +67,9 @@ import FirebaseFirestore
 
 //Image Functionality
 extension EditProfileViewModel {
-    
     //Images
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
-    
-    @MainActor
-    func assignSlots() async {
-        let urlStrings = user.imagePathURL
-        let urls = urlStrings.compactMap(URL.init(string:))
-        var newImages = Array(repeating: Self.placeholder, count: 6)
-        for i in 0..<min(urls.count, 6) {
-            if let img = try? await cacheManager.fetchImage(for: urls[i]) {
-                newImages[i] = img
-            }
-        }
-        images = newImages
-    }
-    
+
     func changeImage(image: ImageSlot) async throws {
         let index = image.index
         await MainActor.run {
@@ -145,9 +116,30 @@ extension EditProfileViewModel {
          try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
     }
     
-    func loadImages() async -> [UIImage] {
-        return await cacheManager.loadProfileImages([user])
+    @MainActor
+    func loadImages() async {
+        self.images = await cacheManager.loadProfileImages([user])
     }
 }
 
 
+/*
+ !updatedFieldsArray.isEmpty ||
+ 
+ var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
+ 
+ try await saveUserArray()
+
+ func saveUserArray() async throws {
+     guard !updatedFieldsArray.isEmpty else {
+         print("UpdatedFields Array empty not calling this function!")
+         return
+     }
+     for (field, value, add) in updatedFieldsArray {
+         let data: [UserProfile.Field : [String]] = [field: value]
+         try await userManager.updateUserArray(userId: user.id, values: data, add: add)
+     }
+ }
+ 
+ 
+ */
