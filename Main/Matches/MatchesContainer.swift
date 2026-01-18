@@ -67,6 +67,10 @@ extension MatchesView {
                         .padding(.horizontal)
                 } else {
                     Image("ProfileImagePlaceholder")
+                        .padding(.horizontal)
+                        .padding(.top, 10)
+                        .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
+
                 }
             }
         }
