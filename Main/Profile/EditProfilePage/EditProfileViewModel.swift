@@ -29,19 +29,15 @@ import FirebaseFirestore
     
     var draftRevision = 0
     
-//    var importedImages: [UIImage]
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
-    
-    var imageContainers: [ImageStruct] = []
-    
+        
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
         self.cacheManager = cacheManager
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
         self.draft = s.user
-//        self.importedImages = importedImages
     }
     
     var user: UserProfile { s.user }
@@ -51,26 +47,13 @@ import FirebaseFirestore
     func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draft[keyPath: kp] = value
         updatedFields[key] = value
-        draftRevision += 1
     }
     
     func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse>, to value: PromptResponse) {
         draft[keyPath: kp] = value
         updatedFields[key] = ["prompt": value.prompt, "response": value.response]
-        draftRevision += 1
     }
     
-    func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
-        if add == true {
-            draft[keyPath: kp].append(contentsOf: elements)
-        } else {
-            let removeSet = Set(elements)
-            draft[keyPath: kp].removeAll { removeSet.contains($0) }
-        }
-        updatedFieldsArray.append((field: key, value: elements, add: add))
-        draftRevision += 1
-    }
-
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(userId: user.id, values: updatedFields)
@@ -185,11 +168,26 @@ extension EditProfileViewModel {
 
 
 
-struct ImageStruct: Equatable, Identifiable {
-    let id = UUID()
-    var image: UIImage
-    var pickerItem: PhotosPickerItem?
-    var index: Int
-}
+
 
 //Don't need the path or the URL, in ImageStruct as here its just for show. Then when I 'UpdateImages' I just delete the old path and URL (which I am doing already) at that Index
+
+/*
+ func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
+     if add == true {
+         draft[keyPath: kp].append(contentsOf: elements)
+     } else {
+         let removeSet = Set(elements)
+         draft[keyPath: kp].removeAll { removeSet.contains($0) }
+     }
+     updatedFieldsArray.append((field: key, value: elements, add: add))
+ }
+ 
+ struct ImageStruct: Equatable, Identifiable {
+     let id = UUID()
+     var image: UIImage
+     var pickerItem: PhotosPickerItem?
+     var index: Int
+ }
+
+ */
