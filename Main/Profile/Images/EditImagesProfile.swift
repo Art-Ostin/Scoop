@@ -19,12 +19,17 @@ struct ImageSlot: Equatable {
 struct ImagesView: View {
 
     @Bindable var vm: EditProfileViewModel
+    @Binding var selectedImage: SelectedImage?
     
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3)
 
     var body: some View {
             LazyVGrid(columns: columns, spacing: 24) {
-                ForEach(0..<6) {idx in                    
+                ForEach(0..<6) {idx in
+                    EditPhotoCell2(image: $vm.slots[idx].pickerItem, selectedImage: $selectedImage, index: idx)
+                    
+                    
+                    
                     EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
                         try await vm.changeImage(at: idx)
                     }
@@ -32,3 +37,9 @@ struct ImagesView: View {
             }
     }
 }
+
+/*
+ EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
+     try await vm.changeImage(at: idx)
+ }
+ */

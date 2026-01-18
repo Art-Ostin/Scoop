@@ -12,14 +12,13 @@ import PhotosUI
 
 struct EditPhotoCell2: View {
 
-    @Binding var image: UIImage?
     @State private var item: PhotosPickerItem?
     @Binding var selectedImage: SelectedImage?
     let index: Int
-
+    
     var body: some View {
         Group {
-            if let image {
+            if let image = selectedImage?.image {
                 ZStack {
                     Image(uiImage: image)
                         .resizable()
@@ -46,12 +45,13 @@ struct EditPhotoCell2: View {
         .frame(width: 120, height: 120)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
-        .task(id: item) { @MainActor in
+        .task(id: item) {
+            @MainActor in
             guard let item = item else { return }
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
-                    image = uiImage
+                    selectedImage?.image = uiImage
                 }
             } catch {
                 print(error)
@@ -64,9 +64,9 @@ struct EditPhotoCell2: View {
 struct ImageEditButton: View {
     private var editButton: String {
         if #available(iOS 26.0, *) {
-            return "EditWhiteButton"   // your newer asset
+            return "EditWhiteButton" //If Using liquid glass
         } else {
-            return "EditButtonBlack"         // your fallback asset
+            return "EditButtonBlack"         // If not just black
         }
     }
     var body: some View {
@@ -78,3 +78,7 @@ struct ImageEditButton: View {
             .glassIfAvailable(Circle())
     }
 }
+
+/*
+ @Binding var image: UIImage?
+ */

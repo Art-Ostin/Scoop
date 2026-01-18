@@ -26,11 +26,12 @@ struct EditProfileView: View {
     
     @State var callDismiss = false
     @Binding var navigationPath: [EditProfileRoute]
+    @Binding var selectedImage: SelectedImage?
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
             CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
-                    ImagesView(vm: vm)
+                    ImagesView(vm: vm, selectedImage: $selectedImage)
                     PromptsView(vm: vm)
                     InfoView(vm: vm)
                     InterestsView(vm: vm)

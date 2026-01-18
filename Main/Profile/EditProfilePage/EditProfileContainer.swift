@@ -39,9 +39,10 @@ struct EditProfileContainer: View {
         }
         .overlay(alignment: .top) {editAction}
         .fullScreenCover(item: $selectedImage) { localImage in
-            ProfileImagesEditing(importedImage: localImage, images: vm.images[localImage.index])
+            ProfileImagesEditing(importedImage: localImage) {updatedImage in
+                Task { try await vm.changeImage(selectedImage: updatedImage) }
+            }
         }
-
         .task {
             await vm.assignSlots()
         }

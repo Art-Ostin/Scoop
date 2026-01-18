@@ -107,21 +107,17 @@ extension EditProfileViewModel {
         images = newImages
     }
     
-    func changeImage(at index: Int) async throws {
-        guard
-            let selection = slots[index].pickerItem,
-            let data = try? await selection.loadTransferable(type: Data.self),
-            let uiImage = UIImage(data: data)
-        else { return }
-        
+    func changeImage(selectedImage: SelectedImage) async throws {
+        let index = selectedImage.index
         await MainActor.run {
-            if images.indices.contains(index) { images[index] = uiImage }
+            if images.indices.contains(index) {images[index] = selectedImage.image}
         }
-        //Tells where to update images
-        if let i = updatedImages.firstIndex(where: {$0.index == index}) {
-            updatedImages[i] = (index: index, data: data)
-        } else {
-            updatedImages.append((index: index, data: data))
+        if let data = selectedImage.imageData {
+            if let i = updatedImages.firstIndex(where: {$0.index == index}) {
+                updatedImages[i] = (index: index, data: data)
+            } else {
+                updatedImages.append((index: index, data: data))
+            }
         }
     }
     
@@ -190,4 +186,60 @@ extension EditProfileViewModel {
      var index: Int
  }
 
+ */
+
+/*
+ .task(id: item) { @MainActor in
+     guard let item = item else { return }
+     do {
+         if let data = try await item.loadTransferable(type: Data.self),
+            let uiImage = UIImage(data: data) {
+            importedImage.image = uiImage
+         }
+     } catch {
+         print(error)
+     }
+ }
+ 
+ */
+
+/*
+ func changeImage(at index: Int) async throws {
+     guard
+         let selection = slots[index].pickerItem,
+         let data = try? await selection.loadTransferable(type: Data.self),
+         let uiImage = UIImage(data: data)
+     else { return }
+     
+     await MainActor.run {
+         if images.indices.contains(index) { images[index] = uiImage }
+     }
+     //Tells where to update images
+     if let i = updatedImages.firstIndex(where: {$0.index == index}) {
+         updatedImages[i] = (index: index, data: data)
+     } else {
+         updatedImages.append((index: index, data: data))
+     }
+ }
+ */
+
+/*
+ 
+ func changeImage(at index: Int) async throws {
+     guard
+         let selection = slots[index].pickerItem,
+         let data = try? await selection.loadTransferable(type: Data.self),
+         let uiImage = UIImage(data: data)
+     else { return }
+     
+     await MainActor.run {
+         if images.indices.contains(index) { images[index] = uiImage }
+     }
+     //Tells where to update images
+     if let i = updatedImages.firstIndex(where: {$0.index == index}) {
+         updatedImages[i] = (index: index, data: data)
+     } else {
+         updatedImages.append((index: index, data: data))
+     }
+ }
  */

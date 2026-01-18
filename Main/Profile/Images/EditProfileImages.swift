@@ -9,20 +9,21 @@ import SwiftUI
 import PhotosUI
 import SwiftyCrop
 
-
 struct ProfileImagesEditing: View {
-    
+
     @State private var importedImage: SelectedImage
     @Environment(\.dismiss) private var dismiss
-    @State var imageSize: CGFloat = 0
+    @State private var imageSize: CGFloat = 0
     @State private var item: PhotosPickerItem?
-    @Binding var images: [UIImage?]
     @State private var showImageCropper: Bool = false
-    
-    init(importedImage: SelectedImage, images: Binding<[UIImage?]>) {
-        _importedImage = State(initialValue: importedImage)
-        self._images = images
+
+    let onSave: (SelectedImage) -> Void
+
+    init(importedImage: SelectedImage, onSave: @escaping (SelectedImage) -> Void) {
+        self._importedImage = State(initialValue: importedImage)
+        self.onSave = onSave
     }
+    
     var body: some View {
         VStack(spacing: 60) {
             cancelButton
@@ -35,6 +36,7 @@ struct ProfileImagesEditing: View {
                     .defaultImage(imageSize, 16)
                     .overlay(alignment: .bottomTrailing) {changeImageButton}
                     .overlay(alignment: .bottomLeading) { cropPhotoIcon}
+                
                 saveButton
                     .padding(.top, 24)
             }
@@ -51,6 +53,7 @@ struct ProfileImagesEditing: View {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
                     importedImage.image = uiImage
+                    importedImage.imageData = data
                 }
             } catch {
                 print(error)
@@ -87,8 +90,7 @@ extension ProfileImagesEditing {
     
     private var saveButton: some View {
         Button {
-            images[importedImage.index] = importedImage.image
-            dismiss()
+            onSave(importedImage)
         } label : {
             Text("Save")
                 .font(.body(20, .bold))
@@ -137,12 +139,17 @@ extension ProfileImagesEditing {
         )
         .padding()
     }
-    
-    
 }
 
 
 /*
+ 
+ init(importedImage: SelectedImage, images: Binding<[UIImage?]>) {
+     _importedImage = State(initialValue: importedImage)
+ }
+ 
+
+ 
  HStack(spacing: 8) {
      Image("CropImageIcon")
      
@@ -153,5 +160,9 @@ extension ProfileImagesEditing {
 
  */
 
+/*
+ @Binding var images: [UIImage?]
+
+ */
 
 
