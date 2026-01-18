@@ -40,12 +40,12 @@ extension OnboardingPhotoCell {
         }
     }
     func loadPickedImage () async {
-        guard let item = selectedImage?.pickerItem else { return }
+        guard let item = pickerItem else { return }
         do {
             if let data = try await item.loadTransferable(type: Data.self),
                let uiImage = UIImage(data: data) {
-                selectedImage?.image = uiImage
                 self.image = uiImage
+                selectedImage?.image = uiImage
             }
         } catch {
             print(error)

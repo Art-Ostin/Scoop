@@ -12,7 +12,7 @@ import SwiftyCrop
 struct ProfileImagesEditing: View {
 
     @State private var importedImage: SelectedImage
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss)  var dismiss
     @State private var imageSize: CGFloat = 0
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
@@ -27,6 +27,7 @@ struct ProfileImagesEditing: View {
     var body: some View {
         VStack(spacing: 60) {
             cancelButton
+
             VStack(spacing: 36) {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
@@ -49,18 +50,10 @@ struct ProfileImagesEditing: View {
         .padding(.top, 36)
         .task(id: item) { await loadImage()}
         .fullScreenCover(isPresented: $showImageCropper) {
-            let configuration = SwiftyCropConfiguration(
-                maxMagnificationScale: 6.0, zoomSensitivity: 6.0
-            )
-                SwiftyCropView(
-                    imageToCrop: importedImage.image,
-                    maskShape: .square,
-                    configuration: configuration
-                ) { croppedImage in
-                    if let newCroppedImage = croppedImage {
-                        importedImage.image = newCroppedImage
-                    }
-                }
+            let configuration = SwiftyCropConfiguration( maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
+            SwiftyCropView( imageToCrop: importedImage.image,maskShape: .square, configuration: configuration) { croppedImage in
+                if let newCroppedImage = croppedImage {importedImage.image = newCroppedImage}
+            }
         }
     }
 }

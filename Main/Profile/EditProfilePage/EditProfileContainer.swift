@@ -23,16 +23,11 @@ struct EditProfileContainer: View {
         Group {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath, selectedImage: $selectedImage)
-                    .onAppear {
-                        print(vm.draft.interests)
-                    }
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, draftProfile: vm.draft)
-                    .id(vm.images.count)
             }
         }
         .transition(.move(edge: .leading))
-        .id(vm.updatedImages.count)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) {
             if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
@@ -54,7 +49,7 @@ extension EditProfileContainer {
                 Button {
                     Task {
                         try await vm.saveProfileChanges()
-                        await MainActor.run { dismiss()}
+                        await MainActor.run {dismiss()}
                     }
                 } label : {
                     Text("Save")
