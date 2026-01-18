@@ -13,6 +13,7 @@ struct EditLanguages: View {
     @FocusState var isFocused: Bool
     @State var text = ""
     @State var selected: [String] = []
+    @State var isTopOfScroll: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32)  {
@@ -23,7 +24,7 @@ struct EditLanguages: View {
             VStack(spacing: 0) {
                 customTextField
                 languagesView
-                    .customScrollFade(height: 81, showFade: true)
+                    .customScrollFade(height: 36, showFade: !isTopOfScroll)
             }
         }
         .focusable()
@@ -32,6 +33,9 @@ struct EditLanguages: View {
         .padding(.top, 48)
         .background(Color.background)
         .ignoresSafeArea(.keyboard)
+        .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
+            self.isTopOfScroll = isAtTop
+        }
     }
 }
 
@@ -71,9 +75,7 @@ extension EditLanguages {
             .offset(y: 16) //Acts as Padding with the fade at start
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .top) {
-            
-        }
+        .background(Color.background)
     }
     
     private var selectedView: some View {
@@ -105,5 +107,8 @@ extension EditLanguages {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
     }
+    
+    func checkIfTopOfScroll(_ geo: ScrollGeometry) -> Bool {
+        geo.contentOffset.y + geo.contentInsets.top <= 1
+    }
 }
-
