@@ -9,17 +9,11 @@
 import SwiftUI
 import PhotosUI
 
-//Old
-struct ImageSlot: Equatable {
-    var pickerItem: PhotosPickerItem?
-    var path: String?
-    var url: URL?
-}
 
 struct ImagesView: View {
 
     @Bindable var vm: EditProfileViewModel
-    @Binding var selectedImage: SelectedImage?
+    @Binding var selectedImage: ImageSlot?
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3)
     
     var body: some View {
@@ -27,7 +21,7 @@ struct ImagesView: View {
                 ForEach(0..<6) {index in
                     let image = vm.images[index]
                     ImageCell(image: image, size: 110)
-                        .onTapGesture {selectedImage = SelectedImage(index: index, image: image)}
+                        .onTapGesture {selectedImage = ImageSlot(index: index, image: image)}
                 }
             }
     }

@@ -11,15 +11,15 @@ import SwiftyCrop
 
 struct ProfileImagesEditing: View {
 
-    @State private var importedImage: SelectedImage
+    @State private var importedImage: ImageSlot
     @Environment(\.dismiss)  var dismiss
     @State private var imageSize: CGFloat = 0
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
 
-    let onSave: (SelectedImage) -> Void
+    let onSave: (ImageSlot) -> Void
 
-    init(importedImage: SelectedImage, onSave: @escaping (SelectedImage) -> Void) {
+    init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
         self._importedImage = State(initialValue: importedImage)
         self.onSave = onSave
     }
@@ -52,7 +52,7 @@ struct ProfileImagesEditing: View {
         .fullScreenCover(isPresented: $showImageCropper) {
             let configuration = SwiftyCropConfiguration( maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
             SwiftyCropView( imageToCrop: importedImage.image,maskShape: .square, configuration: configuration) { croppedImage in
-                if let newCroppedImage = croppedImage {importedImage.image = newCroppedImage}
+                if let newCroppedImage = croppedImage { updateImage(newCroppedImage) }
             }
         }
     }
@@ -131,12 +131,16 @@ extension ProfileImagesEditing {
         do {
             if let data = try await item.loadTransferable(type: Data.self),
                let uiImage = UIImage(data: data) {
-                importedImage.image = uiImage
-                importedImage.imageData = data
+                updateImage(uiImage, data: data)
             }
         } catch {
             print(error)
         }
+    }
+    
+    private func updateImage(_ image: UIImage, data: Data? = nil) {
+        importedImage.image = image
+        importedImage.data = data ?? image.jpegData(compressionQuality: 1.0)
     }
     
 }

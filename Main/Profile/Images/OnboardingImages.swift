@@ -7,13 +7,6 @@
 import SwiftUI
 import PhotosUI
 
-struct SelectedImage: Identifiable {
-    let id = UUID()
-    let index: Int
-    var image: UIImage
-    var imageData: Data?
-    var pickerItem: PhotosPickerItem?
-}
 
 struct OnboardingImages: View {
     
@@ -25,8 +18,7 @@ struct OnboardingImages: View {
 
     @State var images: [UIImage?] = Array(repeating: nil, count: 6)
 
-
-    @State var selectedImage: SelectedImage? = nil
+    @State var selectedImage: ImageSlot? = nil
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     

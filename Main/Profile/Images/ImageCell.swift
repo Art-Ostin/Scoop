@@ -33,7 +33,7 @@ struct ImageCell: View {
 
 struct OnboardingPhotoCell: View {
 
-    @Binding var selectedImage: SelectedImage?
+    @Binding var selectedImage: ImageSlot?
     @State var pickerItem: PhotosPickerItem?
     let index: Int
     @Binding var image: UIImage?
@@ -42,7 +42,7 @@ struct OnboardingPhotoCell: View {
         Group {
             if let image {
                 ImageCell(image: image, size: 120)
-                    .onTapGesture {selectedImage = SelectedImage(index: index, image: image)}
+                    .onTapGesture {selectedImage = ImageSlot(index: index, image: image)}
             } else {
                 placeHolderView
             }

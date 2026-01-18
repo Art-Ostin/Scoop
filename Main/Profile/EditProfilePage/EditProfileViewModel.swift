@@ -24,11 +24,11 @@ import FirebaseFirestore
     
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
-    var updatedImages: [(index: Int, data: Data)] = []
+    
+    var updatedImages: [Int: Data] = [:]
     
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
     
-    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
         self.cacheManager = cacheManager
@@ -97,31 +97,21 @@ extension EditProfileViewModel {
                 newImages[i] = img
             }
         }
-        for i in 0..<6 {
-            slots[i].path = i < paths.count ? paths[i] : nil
-            slots[i].url  = i < urls.count  ? urls[i]  : nil
-            slots[i].pickerItem = nil
-        }
         images = newImages
     }
     
-    func changeImage(selectedImage: SelectedImage) async throws {
-        let index = selectedImage.index
+    func changeImage(image: ImageSlot) async throws {
+        let index = image.index
         await MainActor.run {
-            if images.indices.contains(index) {images[index] = selectedImage.image}
+            if images.indices.contains(index) {images[index] = image.image}
         }
-        if let data = selectedImage.imageData {
-            if let i = updatedImages.firstIndex(where: {$0.index == index}) {
-                updatedImages[i] = (index: index, data: data)
-            } else {
-                updatedImages.append((index: index, data: data))
-            }
+        if let data = image.data {
+            updatedImages[index] = data
         }
     }
     
     func saveUpdatedImages() async throws {
          let updates = updatedImages
-         let snapshotSlots = slots
          var paths = user.imagePath
          var urls  = user.imagePathURL
          if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
@@ -132,8 +122,9 @@ extension EditProfileViewModel {
          
          let results: [ImgResult] = try await withThrowingTaskGroup(of: ImgResult.self, returning: [ImgResult].self) { group in
              for (index, data) in updates {
-                 let oldPath = snapshotSlots[index].path
-                 let oldURL  = snapshotSlots[index].url
+                 let oldPath = paths[index].isEmpty ? nil : paths[index]
+                 let oldURLString = urls[index]
+                 let oldURL = oldURLString.isEmpty ? nil : URL(string: oldURLString)
                  group.addTask {
                      if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
                      if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
@@ -161,83 +152,3 @@ extension EditProfileViewModel {
 }
 
 
-
-
-
-//Don't need the path or the URL, in ImageStruct as here its just for show. Then when I 'UpdateImages' I just delete the old path and URL (which I am doing already) at that Index
-
-/*
- func setArray(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, [String]>,  to elements: [String], add: Bool) {
-     if add == true {
-         draft[keyPath: kp].append(contentsOf: elements)
-     } else {
-         let removeSet = Set(elements)
-         draft[keyPath: kp].removeAll { removeSet.contains($0) }
-     }
-     updatedFieldsArray.append((field: key, value: elements, add: add))
- }
- 
- struct ImageStruct: Equatable, Identifiable {
-     let id = UUID()
-     var image: UIImage
-     var pickerItem: PhotosPickerItem?
-     var index: Int
- }
-
- */
-
-/*
- .task(id: item) { @MainActor in
-     guard let item = item else { return }
-     do {
-         if let data = try await item.loadTransferable(type: Data.self),
-            let uiImage = UIImage(data: data) {
-            importedImage.image = uiImage
-         }
-     } catch {
-         print(error)
-     }
- }
- 
- */
-
-/*
- func changeImage(at index: Int) async throws {
-     guard
-         let selection = slots[index].pickerItem,
-         let data = try? await selection.loadTransferable(type: Data.self),
-         let uiImage = UIImage(data: data)
-     else { return }
-     
-     await MainActor.run {
-         if images.indices.contains(index) { images[index] = uiImage }
-     }
-     //Tells where to update images
-     if let i = updatedImages.firstIndex(where: {$0.index == index}) {
-         updatedImages[i] = (index: index, data: data)
-     } else {
-         updatedImages.append((index: index, data: data))
-     }
- }
- */
-
-/*
- 
- func changeImage(at index: Int) async throws {
-     guard
-         let selection = slots[index].pickerItem,
-         let data = try? await selection.loadTransferable(type: Data.self),
-         let uiImage = UIImage(data: data)
-     else { return }
-     
-     await MainActor.run {
-         if images.indices.contains(index) { images[index] = uiImage }
-     }
-     //Tells where to update images
-     if let i = updatedImages.firstIndex(where: {$0.index == index}) {
-         updatedImages[i] = (index: index, data: data)
-     } else {
-         updatedImages.append((index: index, data: data))
-     }
- }
- */

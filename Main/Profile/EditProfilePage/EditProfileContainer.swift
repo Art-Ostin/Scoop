@@ -17,17 +17,18 @@ struct EditProfileContainer: View {
     @State var dismissOffset: CGFloat? = nil
     @State var navigationPath: [EditProfileRoute] = []
     
-    @State var selectedImage: SelectedImage? = nil
+    @State var selectedImage: ImageSlot? = nil
     
     var body: some View {
-        Group {
+        ZStack {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath, selectedImage: $selectedImage)
+//                    .transition(.move(edge: .leading))
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, draftProfile: vm.draft)
+//                    .transition(.move(edge: .trailing))
             }
         }
-        .transition(.move(edge: .leading))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) {
             if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
@@ -35,7 +36,7 @@ struct EditProfileContainer: View {
         .overlay(alignment: .top) {editAction}
         .fullScreenCover(item: $selectedImage) { localImage in
             ProfileImagesEditing(importedImage: localImage) {updatedImage in
-                Task { try await vm.changeImage(selectedImage: updatedImage) }
+                Task { try await vm.changeImage(image: updatedImage) }
             }
         }
         .task {await vm.assignSlots()}

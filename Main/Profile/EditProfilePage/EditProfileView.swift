@@ -26,7 +26,7 @@ struct EditProfileView: View {
     
     @State var callDismiss = false
     @Binding var navigationPath: [EditProfileRoute]
-    @Binding var selectedImage: SelectedImage?
+    @Binding var selectedImage: ImageSlot?
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
