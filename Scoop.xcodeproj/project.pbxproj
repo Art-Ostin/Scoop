@@ -418,7 +418,6 @@
 			children = (
 				655FADC82E89F0FC00AFAD5F /* Profile */,
 				6522EF242E1EE61A004531F9 /* EditProfilePage */,
-				65F9E38E2EE7447F008A57BD /* EditProfileScreens */,
 				6514B60D2EB2FF6100551C3A /* Images */,
 			);
 			path = Profile;
@@ -457,6 +456,7 @@
 				65FEDBA62E2307B7006CF3CD /* YearsView.swift */,
 				65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */,
 				656E3D242EB1754000303D9D /* DraftProfileView.swift */,
+				65F9E38E2EE7447F008A57BD /* EditProfileScreens */,
 			);
 			path = EditProfilePage;
 			sourceTree = "<group>";

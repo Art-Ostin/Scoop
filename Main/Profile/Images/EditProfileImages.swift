@@ -47,18 +47,7 @@ struct ProfileImagesEditing: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.top, 36)
-        .task(id: item) { @MainActor in
-            guard let item = item else { return }
-            do {
-                if let data = try await item.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
-                    importedImage.image = uiImage
-                    importedImage.imageData = data
-                }
-            } catch {
-                print(error)
-            }
-        }
+        .task(id: item) { await loadImage()}
         .fullScreenCover(isPresented: $showImageCropper) {
             let configuration = SwiftyCropConfiguration(
                 maxMagnificationScale: 6.0, zoomSensitivity: 6.0
@@ -79,13 +68,16 @@ struct ProfileImagesEditing: View {
 extension ProfileImagesEditing {
     
     private var cancelButton: some View {
-        Text("Cancel")
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .foregroundStyle(Color.grayText)
-            .font(.body(14, .medium))
-            .padding(.horizontal, 16)
-            .contentShape(Rectangle())
-            .onTapGesture { dismiss() }
+        Button {
+            dismiss()
+        } label: {
+            Text("Cancel")
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .foregroundStyle(Color.grayText)
+                .font(.body(14, .medium))
+                .padding(.horizontal, 16)
+                .contentShape(Rectangle())
+        }
     }
     
     private var saveButton: some View {
@@ -140,6 +132,20 @@ extension ProfileImagesEditing {
         )
         .padding()
     }
+    
+    private func loadImage () async {
+        guard let item = item else { return }
+        do {
+            if let data = try await item.loadTransferable(type: Data.self),
+               let uiImage = UIImage(data: data) {
+                importedImage.image = uiImage
+                importedImage.imageData = data
+            }
+        } catch {
+            print(error)
+        }
+    }
+    
 }
 
 
