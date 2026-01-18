@@ -41,12 +41,9 @@ struct EditProfileContainer: View {
         .fullScreenCover(item: $selectedImage) { localImage in
             ProfileImagesEditing(importedImage: localImage) {updatedImage in
                 Task { try await vm.changeImage(selectedImage: updatedImage) }
-                dismiss()
             }
         }
-        .task {
-            await vm.assignSlots()
-        }
+        .task {await vm.assignSlots()}
     }
 }
 

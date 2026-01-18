@@ -23,9 +23,7 @@ struct OnboardingImages: View {
     let vm: OnboardingViewModel
     @State private var imageVM: OnboardingImageViewModel
 
-    @State var images: [UIImage] = Array(repeating: placeholder, count: 6)
-    
-    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
+    @State var images: [UIImage?] = Array(repeating: nil, count: 6)
 
 
     @State var selectedImage: SelectedImage? = nil
@@ -49,7 +47,7 @@ struct OnboardingImages: View {
             
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(images.indices, id: \.self) { index in
-                    EditPhotoCell2(selectedImage: $selectedImage, index: index, image: $images[index])
+                    OnboardingPhotoCell(selectedImage: $selectedImage, index: index, image: $images[index])
                 }
             }
             ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {
@@ -71,7 +69,7 @@ struct OnboardingImages: View {
         .fullScreenCover(item: $selectedImage) { localImage in
             ProfileImagesEditing(importedImage: localImage) { updatedImage in
                 images[updatedImage.index] = updatedImage.image
-                dismiss()
+//                dismiss()
             }
         }
     }

@@ -20,19 +20,21 @@ struct ImagesView: View {
 
     @Bindable var vm: EditProfileViewModel
     @Binding var selectedImage: SelectedImage?
-    
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3)
-
+    
     var body: some View {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(0..<6) {index in
-                    EditPhotoCell2(selectedImage: $selectedImage, index: index, image: $vm.images[index])
-                    
-     
+                    let image = vm.images[index]
+                    ImageCell(image: image, size: 110)
+                        .onTapGesture {selectedImage = SelectedImage(index: index, image: image)}
                 }
             }
     }
 }
+
+
+
 
 /*
  EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
@@ -41,9 +43,6 @@ struct ImagesView: View {
  */
 
 /*
- 
- 
- 
  EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
      try await vm.changeImage(at: idx)
  }

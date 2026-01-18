@@ -91,6 +91,7 @@ extension ProfileImagesEditing {
     private var saveButton: some View {
         Button {
             onSave(importedImage)
+            dismiss()
         } label : {
             Text("Save")
                 .font(.body(20, .bold))
