@@ -68,7 +68,6 @@ struct ProfileImagesEditing: View {
                     if let newCroppedImage = croppedImage {
                         importedImage.image = newCroppedImage
                     }
-                    // Do something with the returned, cropped image
                 }
         }
     }
@@ -85,6 +84,7 @@ extension ProfileImagesEditing {
             .contentShape(Rectangle())
             .onTapGesture { dismiss() }
     }
+    
     private var saveButton: some View {
         Button {
             images[importedImage.index] = importedImage.image
@@ -137,6 +137,8 @@ extension ProfileImagesEditing {
         )
         .padding()
     }
+    
+    
 }
 
 

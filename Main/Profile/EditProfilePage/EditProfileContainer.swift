@@ -17,10 +17,15 @@ struct EditProfileContainer: View {
     @State var dismissOffset: CGFloat? = nil
     @State var navigationPath: [EditProfileRoute] = []
     
+    @State var selectedImage: SelectedImage? = nil
+    
     var body: some View {
         Group {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath)
+                    .onAppear {
+                        print(vm.draft.interests)
+                    }
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, draftProfile: vm.draft)
                     .id(vm.images.count)
@@ -33,11 +38,10 @@ struct EditProfileContainer: View {
             if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
         }
         .overlay(alignment: .top) {editAction}
-//        .task {
-//            guard vm.importedImages.isEmpty else { return }
-//            let loaded = await vm.loadImages()
-//            await MainActor.run {vm.importedImages = loaded}
-//        }
+        .fullScreenCover(item: $selectedImage) { localImage in
+            ProfileImagesEditing(importedImage: localImage, images: vm.images[localImage.index])
+        }
+
         .task {
             await vm.assignSlots()
         }

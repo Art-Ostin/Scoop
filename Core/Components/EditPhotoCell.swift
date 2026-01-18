@@ -10,7 +10,13 @@ import PhotosUI
 
 struct EditPhotoCell: View {
     
+    @State private var item: PhotosPickerItem?
+    @Binding var selectedImage: SelectedImage?
+    let index: Int
+    
     @Binding var picker: PhotosPickerItem?
+    
+    
     let image: UIImage?
     let action: () async throws -> Void
 

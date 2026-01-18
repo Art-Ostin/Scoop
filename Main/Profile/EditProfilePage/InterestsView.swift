@@ -35,7 +35,6 @@ struct InterestsHolder<Content: View, Value: Hashable>: View {
                 content
             }
         }
-//        .padding()
     }
 }
 
@@ -80,7 +79,6 @@ struct InterestsLayout: View {
                 .fill( Color.white)
                 .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
         )
-//        .overlay(RoundedRectangle(cornerRadius: 12).stroke(passions.count < 1 ? Color.accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
     }
 }
 
@@ -93,15 +91,10 @@ extension Array {
 
 struct InterestsView: View {
     @Bindable var vm: EditProfileViewModel
-    
-    @State var interests: [String]?
-    
+        
     var body: some View {
         InterestsHolder(title: "Interests", value: EditProfileRoute.interests) {
-            InterestsLayout(passions: interests ?? [], forProfile: false)
-        }
-        .onAppear {
-            interests = vm.user.interests
+            InterestsLayout(passions: vm.draft.interests, forProfile: false)
         }
     }
 }

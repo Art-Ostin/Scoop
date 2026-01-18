@@ -32,8 +32,13 @@ struct EditInterests: View {
     
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
+            .onChange(of: selected) {
+                print(selected)
+            }
             .onDisappear {
-                guard selected != vm.draft.interests else { return }
+                guard selected != vm.draft.interests else {
+                    return
+                }
                 vm.set(.interests, \.interests, to: selected)
             }
             .padding(.top, 24)
