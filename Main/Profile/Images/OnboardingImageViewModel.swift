@@ -48,9 +48,7 @@ import UIKit
                     results.append(r)
                 }
             }
-        } catch {
-            print(error)
-        }
+        } catch {print(error) }
         let sorted = results.sorted { $0.index < $1.index }
         await MainActor.run {
             defaults.signUpDraft?.imagePath = sorted.map { $0.path }

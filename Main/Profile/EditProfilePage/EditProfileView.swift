@@ -20,11 +20,13 @@ enum EditProfileRoute: Hashable {
 
 
 struct EditProfileView: View {
+    
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
     
     @State var callDismiss = false
     @Binding var navigationPath: [EditProfileRoute]
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {

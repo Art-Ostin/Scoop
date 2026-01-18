@@ -80,14 +80,13 @@ extension MatchesView {
                 cacheManager: vm.cacheManager,
                 s: vm.s,
                 userManager: vm.userManager,
-                storageManager: vm.storageManager
+                storageManager: vm.storageManager, importedImages: userProfileImages
             ),
             profileVM: ProfileViewModel(
                 profileModel: ProfileModel(profile: vm.user),
                 cacheManager: vm.cacheManager
             ),
-            selectedProfile: nil, images: $userProfileImages
-        )
+            selectedProfile: nil)
     }
     
     private func settingScreen() -> some View {

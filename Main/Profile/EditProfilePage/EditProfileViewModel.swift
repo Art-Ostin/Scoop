@@ -3,7 +3,7 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 19/08/2025.
-//
+//Structure: The data edits the 'draft' profile which is repeatedly updated to be displayed on the 'preview' 'view' screen. Images however depend on the 'importedImages
 
 import Foundation
 import SwiftUI
@@ -19,17 +19,22 @@ import FirebaseFirestore
     @ObservationIgnored private let storageManager: StorageManaging
 
     var draft: UserProfile
+    var importedImages: [UIImage]
+    var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
+
     
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     var updatedImages: [(index: Int, data: Data)] = []
     
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging) {
+    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
         self.cacheManager = cacheManager
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
         self.draft = s.user
+        self.importedImages = importedImages
     }
     
     var user: UserProfile { s.user }
@@ -56,7 +61,6 @@ import FirebaseFirestore
         updatedFieldsArray.append((field: key, value: elements, add: add))
     }
 
-    
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userManager.updateUser(userId: user.id, values: updatedFields)
@@ -70,58 +74,26 @@ import FirebaseFirestore
         }
     }
     
-    func saveUpdatedImages() async throws {
-        /*
-         let updates = updatedImages
-         let snapshotSlots = slots
-         var paths = user.imagePath
-         var urls  = user.imagePathURL
-         if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
-         if urls.count  < 6 { urls  += Array(repeating: "", count: 6 - urls.count) }
-         let userId = user.id
-         
-         struct ImgResult { let index: Int; let path: String; let url: URL }
-         
-         let results: [ImgResult] = try await withThrowingTaskGroup(of: ImgResult.self, returning: [ImgResult].self) { group in
-             for (index, data) in updates {
-                 let oldPath = snapshotSlots[index].path
-                 let oldURL  = snapshotSlots[index].url
-                 
-                 group.addTask {
-                     if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
-                     if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
-                     let originalPath = try await self.storageManager.saveImage(data: data, userId: userId)
-                     let url = try await self.storageManager.getImageURL(path: originalPath)
-                     let resized = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
-                     return ImgResult(index: index, path: resized, url: url)
-                 }
-             }
-             var tmp: [ImgResult] = []
-             for try await r in group { tmp.append(r) }
-             return tmp
-         }
-         
-         for r in results {
-             paths[r.index] = r.path
-             urls[r.index]  = r.url.absoluteString
-         }
-         try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
-         */
-    }
-    
-    
-    
     func saveProfileChanges() async throws {
         try await saveUser()
         try await saveUserArray()
         try await saveUpdatedImages()
     }
     
+    func interestIsSelected(text: String) -> Bool {
+        user.interests.contains(text) == true
+    }
+    
+    func updateUser(values: [UserProfile.Field : Any]) async throws  {
+        try await userManager.updateUser(userId: user.id, values: values)
+    }
+}
+
+//Image Functionality
+extension EditProfileViewModel {
     
     //Images
-    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
     static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
-    var images: [UIImage] = Array(repeating: placeholder, count: 6)
     
     @MainActor
     func assignSlots() async {
@@ -152,7 +124,6 @@ import FirebaseFirestore
         await MainActor.run {
             if images.indices.contains(index) { images[index] = uiImage }
         }
-        
         if let i = updatedImages.firstIndex(where: {$0.index == index}) {
             updatedImages[i] = (index: index, data: data)
         } else {
@@ -160,11 +131,44 @@ import FirebaseFirestore
         }
     }
     
-    func interestIsSelected(text: String) -> Bool {
-        user.interests.contains(text) == true
+    func saveUpdatedImages() async throws {
+         let updates = updatedImages
+         let snapshotSlots = slots
+         var paths = user.imagePath
+         var urls  = user.imagePathURL
+         if paths.count < 6 { paths += Array(repeating: "", count: 6 - paths.count) }
+         if urls.count  < 6 { urls  += Array(repeating: "", count: 6 - urls.count) }
+         let userId = user.id
+         
+         struct ImgResult { let index: Int; let path: String; let url: URL }
+         
+         let results: [ImgResult] = try await withThrowingTaskGroup(of: ImgResult.self, returning: [ImgResult].self) { group in
+             for (index, data) in updates {
+                 let oldPath = snapshotSlots[index].path
+                 let oldURL  = snapshotSlots[index].url
+                 group.addTask {
+                     if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
+                     if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
+                     let saveResult = try await self.storageManager.saveImage(data: data, userId: userId)
+                     let originalPath = saveResult.path
+                     let url = saveResult.url
+                     let resized = originalPath.replacingOccurrences(of: ".jpeg", with: "_1350x1350.jpeg")
+                     return ImgResult(index: index, path: resized, url: url)
+                 }
+             }
+             var tmp: [ImgResult] = []
+             for try await r in group { tmp.append(r) }
+             return tmp
+         }
+         for r in results {
+             paths[r.index] = r.path
+             urls[r.index]  = r.url.absoluteString
+         }
+         try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
     }
     
-    func updateUser(values: [UserProfile.Field : Any]) async throws  {
-        try await userManager.updateUser(userId: user.id, values: values)
+    func loadImages() async -> [UIImage] {
+        return await cacheManager.loadProfileImages([user])
     }
+    
 }

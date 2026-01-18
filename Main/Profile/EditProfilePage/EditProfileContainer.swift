@@ -14,28 +14,32 @@ struct EditProfileContainer: View {
     let profileVM: ProfileViewModel
     @State var selectedProfile: ProfileModel?
     
-    @Binding var images: [UIImage]
     @State var dismissOffset: CGFloat? = nil
-    
     @State var navigationPath: [EditProfileRoute] = []
-    
     
     var body: some View {
         Group {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath)
             } else {
-                ProfileView(vm: profileVM, profileImages: images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
+                ProfileView(vm: profileVM, profileImages: vm.importedImages, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
             }
         }
         .transition(.move(edge: .leading))
         .id(vm.updatedImages.count)
-        .task {await vm.assignSlots()}
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) {
             if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
         }
         .overlay(alignment: .top) {editAction}
+        .task {
+            guard vm.importedImages.isEmpty else { return }
+            let loaded = await vm.loadImages()
+            await MainActor.run {vm.importedImages = loaded}
+        }
+        .task {
+            await vm.assignSlots()
+        }
     }
 }
 
@@ -44,7 +48,10 @@ extension EditProfileContainer {
         HStack {
             if navigationPath.isEmpty &&  vm.showSaveButton {
                 Button {
-                    Task { try await vm.saveProfileChanges() }
+                    Task {
+                        try await vm.saveProfileChanges()
+                        await MainActor.run { dismiss()}
+                    }
                 } label : {
                     Text("Save")
                         .font(.body(14, .bold))
@@ -100,6 +107,10 @@ extension EditProfileContainer {
         }
     }
 }
+
+/*
+ .task {await vm.assignSlots()}
+ */
 
 /*
  .background(
