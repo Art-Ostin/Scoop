@@ -27,11 +27,10 @@ import FirebaseFirestore
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     var updatedImages: [(index: Int, data: Data)] = []
     
-    var draftRevision = 0
-    
     var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    
     var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
-        
+    
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
         self.cacheManager = cacheManager
         self.s = s

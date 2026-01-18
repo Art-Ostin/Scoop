@@ -22,7 +22,7 @@ struct EditProfileContainer: View {
     var body: some View {
         Group {
             if isEdit {
-                EditProfileView(vm: vm, navigationPath: $navigationPath)
+                EditProfileView(vm: vm, navigationPath: $navigationPath, selectedImage: $selectedImage)
                     .onAppear {
                         print(vm.draft.interests)
                     }
@@ -41,6 +41,7 @@ struct EditProfileContainer: View {
         .fullScreenCover(item: $selectedImage) { localImage in
             ProfileImagesEditing(importedImage: localImage) {updatedImage in
                 Task { try await vm.changeImage(selectedImage: updatedImage) }
+                dismiss()
             }
         }
         .task {

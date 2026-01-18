@@ -25,14 +25,10 @@ struct ImagesView: View {
 
     var body: some View {
             LazyVGrid(columns: columns, spacing: 24) {
-                ForEach(0..<6) {idx in
-                    EditPhotoCell2(image: $vm.slots[idx].pickerItem, selectedImage: $selectedImage, index: idx)
+                ForEach(0..<6) {index in
+                    EditPhotoCell2(selectedImage: $selectedImage, index: index, image: $vm.images[index])
                     
-                    
-                    
-                    EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
-                        try await vm.changeImage(at: idx)
-                    }
+     
                 }
             }
     }
@@ -42,4 +38,14 @@ struct ImagesView: View {
  EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
      try await vm.changeImage(at: idx)
  }
+ */
+
+/*
+ 
+ 
+ 
+ EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
+     try await vm.changeImage(at: idx)
+ }
+
  */

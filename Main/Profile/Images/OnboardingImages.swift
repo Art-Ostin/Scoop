@@ -12,6 +12,7 @@ struct SelectedImage: Identifiable {
     let index: Int
     var image: UIImage
     var imageData: Data?
+    var pickerItem: PhotosPickerItem?
 }
 
 struct OnboardingImages: View {
@@ -22,8 +23,11 @@ struct OnboardingImages: View {
     let vm: OnboardingViewModel
     @State private var imageVM: OnboardingImageViewModel
 
-    @State var images: [UIImage?] = Array(repeating: nil, count: 6)
+    @State var images: [UIImage] = Array(repeating: placeholder, count: 6)
     
+    static let placeholder = UIImage(named: "ImagePlaceholder") ?? UIImage()
+
+
     @State var selectedImage: SelectedImage? = nil
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
@@ -45,7 +49,7 @@ struct OnboardingImages: View {
             
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(images.indices, id: \.self) { index in
-                    EditPhotoCell2(selectedImage: $selectedImage, index: index)
+                    EditPhotoCell2(selectedImage: $selectedImage, index: index, image: $images[index])
                 }
             }
             ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {

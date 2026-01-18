@@ -12,13 +12,15 @@ import PhotosUI
 
 struct EditPhotoCell2: View {
 
-    @State private var item: PhotosPickerItem?
     @Binding var selectedImage: SelectedImage?
+    @State var pickerItem: PhotosPickerItem?
     let index: Int
+    @Binding var image: UIImage?
     
     var body: some View {
+        
         Group {
-            if let image = selectedImage?.image {
+            if let image {
                 ZStack {
                     Image(uiImage: image)
                         .resizable()
@@ -35,7 +37,7 @@ struct EditPhotoCell2: View {
                 .contentShape(Rectangle())
                 .onTapGesture {selectedImage = SelectedImage(index: index, image: image)}
                 } else {
-                    PhotosPicker(selection: $item, matching: .images) {
+                    PhotosPicker(selection: $pickerItem, matching: .images) {
                         Image("ImagePlaceholder")
                             .resizable()
                             .scaledToFill()
@@ -44,14 +46,15 @@ struct EditPhotoCell2: View {
         }
         .frame(width: 120, height: 120)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .shadow(color: image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
-        .task(id: item) {
+        .shadow(color: selectedImage?.image != nil ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
+        .task(id: selectedImage?.pickerItem) {
             @MainActor in
-            guard let item = item else { return }
+            guard let item = selectedImage?.pickerItem else { return }
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
                     selectedImage?.image = uiImage
+                    self.image = uiImage
                 }
             } catch {
                 print(error)
