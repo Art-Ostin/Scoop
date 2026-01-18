@@ -88,7 +88,6 @@ extension EditProfileViewModel {
     
     @MainActor
     func assignSlots() async {
-        let paths = user.imagePath
         let urlStrings = user.imagePathURL
         let urls = urlStrings.compactMap(URL.init(string:))
         var newImages = Array(repeating: Self.placeholder, count: 6)
@@ -105,7 +104,7 @@ extension EditProfileViewModel {
         await MainActor.run {
             if images.indices.contains(index) {images[index] = image.image}
         }
-        if let data = image.data {
+        if let data = image.jpegData {
             updatedImages[index] = data
         }
     }

@@ -61,7 +61,6 @@ struct OnboardingImages: View {
         .fullScreenCover(item: $selectedImage) { localImage in
             ProfileImagesEditing(importedImage: localImage) { updatedImage in
                 images[updatedImage.index] = updatedImage.image
-//                dismiss()
             }
         }
     }

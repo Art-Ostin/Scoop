@@ -68,7 +68,6 @@ extension OnboardingPhotoCell {
             if let data = try await item.loadTransferable(type: Data.self),
                let uiImage = UIImage(data: data) {
                 self.image = uiImage
-                selectedImage?.image = uiImage
             }
         } catch {
             print(error)

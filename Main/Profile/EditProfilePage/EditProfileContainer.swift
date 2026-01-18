@@ -23,10 +23,10 @@ struct EditProfileContainer: View {
         ZStack {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath, selectedImage: $selectedImage)
-//                    .transition(.move(edge: .leading))
+                    .transition(.move(edge: .leading))
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, draftProfile: vm.draft)
-//                    .transition(.move(edge: .trailing))
+                    .transition(.move(edge: .trailing))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

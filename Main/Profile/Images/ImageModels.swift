@@ -12,7 +12,7 @@ import PhotosUI
 struct ImageSlot: Identifiable, Equatable {
     let index: Int
     var image: UIImage
-    var data: Data? = nil
+    var jpegData: Data? { image.jpegData(compressionQuality: 1.0) }
     var id: Int { index }
 }
 

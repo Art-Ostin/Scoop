@@ -52,7 +52,9 @@ struct ProfileImagesEditing: View {
         .fullScreenCover(isPresented: $showImageCropper) {
             let configuration = SwiftyCropConfiguration( maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
             SwiftyCropView( imageToCrop: importedImage.image,maskShape: .square, configuration: configuration) { croppedImage in
-                if let newCroppedImage = croppedImage { updateImage(newCroppedImage) }
+                if let newCroppedImage = croppedImage {
+                    importedImage.image = newCroppedImage
+                }
             }
         }
     }
@@ -131,16 +133,10 @@ extension ProfileImagesEditing {
         do {
             if let data = try await item.loadTransferable(type: Data.self),
                let uiImage = UIImage(data: data) {
-                updateImage(uiImage, data: data)
+                importedImage.image = uiImage
             }
         } catch {
             print(error)
         }
     }
-    
-    private func updateImage(_ image: UIImage, data: Data? = nil) {
-        importedImage.image = image
-        importedImage.data = data ?? image.jpegData(compressionQuality: 1.0)
-    }
-    
 }
