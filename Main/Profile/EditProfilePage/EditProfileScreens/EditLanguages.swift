@@ -14,27 +14,32 @@ struct EditLanguages: View {
     @State var text = ""
     @State var selected: [String] = []
     @State var isTopOfScroll: Bool = false
+    @State private var isScrolling = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32)  {
             VStack(spacing: 8) {
                 SignUpTitle(text: "Languages Spoken")
+                    .padding(.horizontal, 24)
                 selectedView
             }
             VStack(spacing: 0) {
                 customTextField
+                    .padding(.horizontal, 24)
                 languagesView
-                    .customScrollFade(height: 36, showFade: !isTopOfScroll)
+                    .padding(.horizontal, 24)
             }
         }
         .focusable()
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
-        .padding(.top, 48)
+        .padding(.top, 24)
         .background(Color.background)
         .ignoresSafeArea(.keyboard)
-        .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
-            self.isTopOfScroll = isAtTop
+        .onChange(of: isScrolling) {
+            if isScrolling {
+                isFocused = false
+            }
         }
     }
 }
@@ -72,16 +77,24 @@ extension EditLanguages {
                 }
             }
             .padding(.horizontal, -16) //Offsets default Flowlayout padding
-            .offset(y: 16) //Acts as Padding with the fade at start
+            .padding(.top, 8)
+            .offset(y: 24) //Acts as Padding with the fade at start
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.background)
+        .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
+            self.isTopOfScroll = isAtTop
+        }
+        .onScrollPhaseChange { _, newPhase in
+            isScrolling = newPhase.isScrolling
+        }
+        .customScrollFade(height: 48, showFade: !isTopOfScroll)
     }
     
     private var selectedView: some View {
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
-                    HStack(alignment: .bottom, spacing: 24) {
+                    HStack(alignment: .bottom, spacing: 23) {
                         ClearRectangle(size: 1)
                         ForEach(selected, id: \.self) { selection in
                             OptionCell(text: selection, selection: $selected, fillColour: false) { text in

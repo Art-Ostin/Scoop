@@ -14,12 +14,12 @@ struct CustomScrollFade: ViewModifier {
     
     func body(content: Content) -> some View {
         let isDetails = height == 80
-        let isLanguage = height == 36
+        let isLanguage = height == 48
         content
             .overlay(alignment: .top){
                 if showFade {
                     LinearGradient(
-                        colors: [.white, .white.opacity(0.9), .white.opacity(0.6), .white.opacity(0.25), .white.opacity(0.0)], startPoint: .top, endPoint: .bottom)
+                        colors: [.background, .background.opacity(0.9), .background.opacity(0.6), .background.opacity(0.25), .background.opacity(0.0)], startPoint: .top, endPoint: .bottom)
                         .frame(maxWidth: .infinity)
                         .frame(height: height)
                         .cornerRadius(isLanguage ? 0 : 30)
