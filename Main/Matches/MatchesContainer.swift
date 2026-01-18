@@ -24,8 +24,8 @@ struct MatchesView: View {
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
         .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
-        .overlay(alignment: .topTrailing) {profileButton}
-        .task { await prepareUserImages() }
+        .overlay(alignment: .topTrailing) {actionBar}
+        .task(id: vm.user.imagePathURL) { await prepareUserImages() }
     }
 }
 
@@ -64,16 +64,34 @@ extension MatchesView {
                         .frame(width: 35, height: 35)
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
-                        .padding(.horizontal)
                 } else {
                     Image("ProfileImagePlaceholder")
-                        .padding(.horizontal)
                         .padding(.top, 10)
                         .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
-
                 }
             }
         }
+    }
+    private var settingsButton: some View {
+        Button {
+            showSettingsView.toggle()
+        } label: {
+            Image(systemName: "gear")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .frame(width: 35, height: 35)
+                .glassIfAvailable(Circle())
+                .contentShape(Circle())
+        }
+    }
+    private var actionBar: some View {
+        HStack {
+            settingsButton
+            Spacer()
+            profileButton
+        }
+        .padding(.horizontal, 16)
     }
 }
 //Additional Functions
@@ -94,33 +112,3 @@ extension MatchesView {
         await MainActor.run {userProfileImages = loadedUserImages}
     }
 }
-
-
-
-//Old Way of fetching only first image:
-/*
- .task(id: vm.user) {image = try? await vm.fetchFirstImage()}
- @State var image: UIImage?
-
- */
-
-
-/*
- 
- ZStack {
-     Color.background
-     ScrollView {
-         VStack(spacing: 36) {
-             VStack(spacing: 14) {
-                 tabSection
-                 TabTitle(page: .Matches, offset: $scrollViewOffset)
-             }
-         }
-     }
-     .onPreferenceChange(TitleOffsetsKey.self) {value in
-         scrollViewOffset = value[.Matches] ?? 0
-     }
-     .coordinateSpace(name: Page.Matches)
- }
- @State var scrollViewOffset: CGFloat = 0
- */

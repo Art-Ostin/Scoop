@@ -12,20 +12,10 @@ struct TabButton: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        if page != .EditProfile {
-            Group {
-                if #available(iOS 26.0, *) {
-                    button
-                        .glassEffect()
-                } else {
-                    button
-                        .background( Circle().fill(Color.background) )
-                        .overlay( Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4) )
-                        .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: page == .Matches ? .leading : .trailing)
-            .offset(y: page == .Matches ? -10 : 0)
+        if page != .EditProfile || page != .Matches {
+            button
+                .glassIfAvailable()
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 }
@@ -51,11 +41,9 @@ extension View {
                 .glassEffect(.clear, in: shape)
         } else {
             self
-                .background (
-                    Circle()
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 5)
-                )
+                .background( Circle().fill(Color.background) )
+                .overlay( Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4) )
+                .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
         }
     }
 }

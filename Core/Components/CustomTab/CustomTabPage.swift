@@ -14,7 +14,7 @@ enum Page: String, Hashable {
         case .Meet, .Meeting:
             Image(systemName: "info.circle")
         case .Matches:
-            Image(systemName: "gear")
+            Image(systemName: "")
         case .EditProfile:
             Image(systemName: "")
         }
