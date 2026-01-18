@@ -28,8 +28,6 @@ struct ImagesView: View {
 }
 
 
-
-
 /*
  EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
      try await vm.changeImage(at: idx)

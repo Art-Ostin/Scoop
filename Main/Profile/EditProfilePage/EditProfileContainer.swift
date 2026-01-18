@@ -34,14 +34,12 @@ struct EditProfileContainer: View {
             if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
         }
         .overlay(alignment: .top) {editAction}
-        .fullScreenCover(item: $selectedImage) { localImage in
+        .fullScreenCover(item: $selectedImage) {localImage in
             ProfileImagesEditing(importedImage: localImage) {updatedImage in
                 Task { try await vm.changeImage(image: updatedImage) }
             }
         }
-        .task {
-            await vm.loadImages()
-        }
+        .task {await vm.loadImages()}
     }
 }
 
@@ -109,16 +107,3 @@ extension EditProfileContainer {
         }
     }
 }
-
-/*
- .task {await vm.assignSlots()}
- */
-
-/*
- .background(
-     RoundedRectangle(cornerRadius: 20)
-         .fill(Color.white)
-         .shadow(color: .black.opacity(0.1), radius: 6, y: 5)
-         .stroke(20, lineWidth: 1, color: .black)
- )
- */
