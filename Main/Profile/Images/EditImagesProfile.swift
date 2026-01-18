@@ -7,6 +7,14 @@
 
 
 import SwiftUI
+import PhotosUI
+
+//Old
+struct ImageSlot: Equatable {
+    var pickerItem: PhotosPickerItem?
+    var path: String?
+    var url: URL?
+}
 
 struct ImagesView: View {
 

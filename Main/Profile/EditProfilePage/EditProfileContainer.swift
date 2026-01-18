@@ -22,7 +22,8 @@ struct EditProfileContainer: View {
             if isEdit {
                 EditProfileView(vm: vm, navigationPath: $navigationPath)
             } else {
-                ProfileView(vm: profileVM, profileImages: vm.importedImages, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
+                ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, isUserProfile: true)
+                    .id(vm.images.count)
             }
         }
         .transition(.move(edge: .leading))
@@ -32,11 +33,11 @@ struct EditProfileContainer: View {
             if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
         }
         .overlay(alignment: .top) {editAction}
-        .task {
-            guard vm.importedImages.isEmpty else { return }
-            let loaded = await vm.loadImages()
-            await MainActor.run {vm.importedImages = loaded}
-        }
+//        .task {
+//            guard vm.importedImages.isEmpty else { return }
+//            let loaded = await vm.loadImages()
+//            await MainActor.run {vm.importedImages = loaded}
+//        }
         .task {
             await vm.assignSlots()
         }

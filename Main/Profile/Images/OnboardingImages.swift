@@ -7,12 +7,6 @@
 import SwiftUI
 import PhotosUI
 
-struct ImageSlot: Equatable {
-    var pickerItem: PhotosPickerItem?
-    var path: String?
-    var url: URL?
-}
-
 struct SelectedImage: Identifiable {
     let id = UUID()
     let index: Int

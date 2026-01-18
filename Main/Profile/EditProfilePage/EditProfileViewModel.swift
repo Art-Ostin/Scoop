@@ -10,6 +10,9 @@ import SwiftUI
 import PhotosUI
 import FirebaseFirestore
 
+
+
+
 @MainActor
 @Observable class EditProfileViewModel {
     
@@ -19,14 +22,16 @@ import FirebaseFirestore
     @ObservationIgnored private let storageManager: StorageManaging
 
     var draft: UserProfile
-    var importedImages: [UIImage]
-    var images: [UIImage] = Array(repeating: placeholder, count: 6)
-    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
-
     
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
     var updatedImages: [(index: Int, data: Data)] = []
+    
+//    var importedImages: [UIImage]
+    var images: [UIImage] = Array(repeating: placeholder, count: 6)
+    var slots: [ImageSlot] = Array(repeating: .init(), count: 6)
+    
+    var imageContainers: [ImageStruct] = []
     
     init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
         self.cacheManager = cacheManager
@@ -34,7 +39,7 @@ import FirebaseFirestore
         self.userManager = userManager
         self.storageManager = storageManager
         self.draft = s.user
-        self.importedImages = importedImages
+//        self.importedImages = importedImages
     }
     
     var user: UserProfile { s.user }
@@ -124,6 +129,7 @@ extension EditProfileViewModel {
         await MainActor.run {
             if images.indices.contains(index) { images[index] = uiImage }
         }
+        //Tells where to update images
         if let i = updatedImages.firstIndex(where: {$0.index == index}) {
             updatedImages[i] = (index: index, data: data)
         } else {
@@ -170,5 +176,15 @@ extension EditProfileViewModel {
     func loadImages() async -> [UIImage] {
         return await cacheManager.loadProfileImages([user])
     }
-    
 }
+
+
+
+struct ImageStruct: Equatable, Identifiable {
+    let id = UUID()
+    var image: UIImage
+    var pickerItem: PhotosPickerItem?
+    var index: Int
+}
+
+//Don't need the path or the URL, in ImageStruct as here its just for show. Then when I 'UpdateImages' I just delete the old path and URL (which I am doing already) at that Index
