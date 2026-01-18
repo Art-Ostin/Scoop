@@ -20,7 +20,7 @@ struct ImagesView: View {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(0..<6) {index in
                     let image = vm.images[index]
-                    ImageCell(image: image, size: 110)
+                    ImageCell(image: image, size: 112)
                         .onTapGesture {selectedImage = ImageSlot(index: index, image: image)}
                 }
             }

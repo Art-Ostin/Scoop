@@ -42,14 +42,13 @@ struct InfoView: View {
             ].compactMap { $0 }
             return choices.isEmpty ? ["Add information"] : choices
         }()
-        
         return [
             EditPreview("Looking For", [u.lookingFor], route: .option(.lookingFor)),
             EditPreview("Degree", [u.degree], route: .textField(.degree)),
             EditPreview("Hometown", [u.hometown], route: .textField(.hometown)),
             EditPreview("Lifestyle", [lifestyle], route: .lifestyle),
             EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")], route: .myLifeAs),
-            EditPreview("Languages", [u.languages], route: .textField(.languages))
+            EditPreview("Languages", [u.languages], route: .languages)
         ]
     }
 

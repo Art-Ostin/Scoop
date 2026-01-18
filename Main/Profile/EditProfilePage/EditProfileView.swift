@@ -11,6 +11,7 @@ enum EditProfileRoute: Hashable {
     case prompt(Int)
     case interests
     case textField(TextFieldOptions)
+    case languages
     case option(OptionField)
     case height
     case nationality
@@ -55,6 +56,8 @@ struct EditProfileView: View {
                     EditLifestyle(vm: vm)
                 case .myLifeAs:
                     EditMyLifeAs(vm: vm)
+                case .languages:
+                    EditLanguages(vm: vm)
                 }
             }
         }

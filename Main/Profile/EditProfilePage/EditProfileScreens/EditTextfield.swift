@@ -32,6 +32,8 @@ struct EditTextfield : View {
 }
 
 
+
+
 struct TextFieldGeneric: View {
     
     @Binding var text: String
@@ -53,6 +55,8 @@ struct TextFieldGeneric: View {
         .ignoresSafeArea(.keyboard)
     }
 }
+
+
 
 extension TextFieldGeneric {
     

@@ -12,7 +12,7 @@ struct TabButton: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        if page != .EditProfile || page != .Matches {
+        if page != .EditProfile && page != .Matches {
             button
                 .glassIfAvailable()
                 .frame(maxWidth: .infinity, alignment: .trailing)

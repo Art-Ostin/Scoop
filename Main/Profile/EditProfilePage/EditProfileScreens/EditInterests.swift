@@ -83,6 +83,7 @@ struct GenericInterests: View {
 
 
 extension GenericInterests {
+    
     private var selectedInterestsView: some View {
         ZStack {
             if selected.isEmpty {
@@ -254,11 +255,14 @@ struct OptionCell: View {
     let onTap: (String) -> Void
     let fillColour: Bool
     let overlayText: String?
-    init(text: String, selection: Binding<[String]>, fillColour: Bool = true, overlayText: String? = nil, onTap: @escaping (String) -> Void) {
+    let isLanguages: Bool
+    
+    init(text: String, selection: Binding<[String]>, fillColour: Bool = true, overlayText: String? = nil, isLanguages: Bool = false, onTap: @escaping (String) -> Void) {
         self.text = text
         self._selection = selection
         self.fillColour = fillColour
         self.overlayText = overlayText
+        self.isLanguages = isLanguages
         self.onTap = onTap
     }
     
@@ -267,9 +271,9 @@ struct OptionCell: View {
         let isSelected = selection.contains(text)
 
         Text(text)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, isLanguages ? 12 : 8)
             .padding(.vertical, 10)
-            .font(.body(14))
+            .font(.body(isLanguages ? 15 : 14))
             .foregroundStyle(isSelected && fillColour ? Color.white : Color.black)
             .background (
                 RoundedRectangle(cornerRadius: 12)
