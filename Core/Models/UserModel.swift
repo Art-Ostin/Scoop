@@ -36,7 +36,7 @@ struct DraftProfile: Codable {
     }
 }
 
-struct UserProfile: Codable, Equatable, Identifiable {
+struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     
     let id: String
     let email: String
@@ -69,6 +69,14 @@ struct UserProfile: Codable, Equatable, Identifiable {
     var activeCycleId: String?
     var character: [String]?
     @ServerTimestamp var createdAt: Date?
+    
+    static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 extension UserProfile {
@@ -103,10 +111,8 @@ extension UserProfile {
            marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
            favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp
     }
-    static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
-        lhs.id == rhs.id
-    }
 }
+
 
 struct IdealMeetUp: Codable {
     let time: Date
