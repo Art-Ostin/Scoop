@@ -29,6 +29,7 @@ import FirebaseFirestore
         self.s = s
         self.userManager = userManager
         self.storageManager = storageManager
+        self.images = importedImages
         self.draft = s.user
     }
     

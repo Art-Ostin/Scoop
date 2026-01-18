@@ -23,7 +23,7 @@ struct MatchesView: View {
             Text("Hello World")
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
-        .fullScreenCover(isPresented: $showProfileView) {editProfileScreen()}
+        .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
         .overlay(alignment: .topTrailing) {profileButton}
         .task { await prepareUserImages() }
     }
@@ -80,16 +80,8 @@ extension MatchesView {
 extension MatchesView {
     private func editProfileScreen() -> some View {
         EditProfileContainer(
-            vm: EditProfileViewModel(
-                cacheManager: vm.cacheManager,
-                s: vm.s,
-                userManager: vm.userManager,
-                storageManager: vm.storageManager, importedImages: userProfileImages
-            ),
-            profileVM: ProfileViewModel(
-                profileModel: ProfileModel(profile: vm.user),
-                cacheManager: vm.cacheManager
-            ),
+            vm: EditProfileViewModel(cacheManager: vm.cacheManager, s: vm.s, userManager: vm.userManager, storageManager: vm.storageManager, importedImages: userProfileImages),
+            profileVM: ProfileViewModel(profileModel: ProfileModel(profile: vm.user), cacheManager: vm.cacheManager),
             selectedProfile: nil)
     }
     

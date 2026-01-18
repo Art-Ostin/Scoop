@@ -39,7 +39,13 @@ struct EditProfileContainer: View {
                 Task { try await vm.changeImage(image: updatedImage) }
             }
         }
-        .task {await vm.loadImages()}
+        .task {
+            if vm.images.isEmpty  {
+                await vm.loadImages()
+            } else {
+                print("Images Succesfully Imported")
+            }
+        }
     }
 }
 
