@@ -51,7 +51,6 @@
 		654982C02E2FA54100CA335F /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982BF2E2FA54100CA335F /* StorageService.swift */; };
 		654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982D32E3101BE00CA335F /* OnboardingImages.swift */; };
 		654982D82E3152C000CA335F /* EditImagesProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982D72E3152C000CA335F /* EditImagesProfile.swift */; };
-		654982DE2E315B1B00CA335F /* EditPhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982DD2E315B1B00CA335F /* EditPhotoCell.swift */; };
 		6549837D2E35429400CA335F /* ManagersProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6549837C2E35429400CA335F /* ManagersProtocol.swift */; };
 		654C00932E3549EA00FFD504 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C00922E3549EA00FFD504 /* UserModel.swift */; };
 		654C009B2E35689000FFD504 /* UserProfileRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009A2E35689000FFD504 /* UserProfileRepo.swift */; };
@@ -218,7 +217,6 @@
 		654982BF2E2FA54100CA335F /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		654982D32E3101BE00CA335F /* OnboardingImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImages.swift; sourceTree = "<group>"; };
 		654982D72E3152C000CA335F /* EditImagesProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditImagesProfile.swift; sourceTree = "<group>"; };
-		654982DD2E315B1B00CA335F /* EditPhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoCell.swift; sourceTree = "<group>"; };
 		6549837C2E35429400CA335F /* ManagersProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagersProtocol.swift; sourceTree = "<group>"; };
 		654C00922E3549EA00FFD504 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		654C009A2E35689000FFD504 /* UserProfileRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileRepo.swift; sourceTree = "<group>"; };
@@ -582,7 +580,6 @@
 				65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */,
 				65E5C8F12E4E79550093410B /* TabSelectionKey.swift */,
 				65F450BE2E45567900AE3503 /* ImageContainer.swift */,
-				654982DD2E315B1B00CA335F /* EditPhotoCell.swift */,
 				650E8E4D2EB5829E009F5454 /* EditPhotoCell2.swift */,
 				659568252ED28BBA0091163E /* ShakeEffect.swift */,
 				659568232ED26A350091163E /* ClearRectangle.swift */,
@@ -986,7 +983,6 @@
 				65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */,
 				65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */,
 				65F9E3832EE70F6B008A57BD /* CustomTabPage.swift in Sources */,
-				654982DE2E315B1B00CA335F /* EditPhotoCell.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,

@@ -56,7 +56,6 @@ extension OnboardingPhotoCell {
 struct ImageCell: View {
     let image: UIImage
     let size: CGFloat
-    
     var body: some View {
         ZStack {
             Image(uiImage: image)
