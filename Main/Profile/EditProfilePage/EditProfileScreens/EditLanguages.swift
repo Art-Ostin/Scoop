@@ -11,11 +11,21 @@ import SwiftUIFlowLayout
 struct EditLanguages: View {
     @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
-    @State var text = ""
+    @State var searchText: String = ""
     @State var selected: [String] = []
     @State var isTopOfScroll: Bool = false
     @State private var isScrolling = false
 
+    
+    private var filteredLanguages: [String] {
+        let all = WorldLanguages.top120Alphabetical
+        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return all }
+        return all.filter {
+            $0.range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 32)  {
             VStack(spacing: 8) {
@@ -41,6 +51,11 @@ struct EditLanguages: View {
                 isFocused = false
             }
         }
+        .onChange(of: selected.count) { oldValue, newValue in
+            if oldValue < newValue {
+                searchText = ""
+            }
+        }
     }
 }
 
@@ -48,7 +63,7 @@ extension EditLanguages {
     
     private var customTextField: some View {
         VStack {
-            TextField("Language", text: $text)
+            TextField("Language", text: $searchText)
                 .frame(maxWidth: .infinity)
                 .font(.body(24))
                 .font(.body(.medium))
@@ -67,7 +82,7 @@ extension EditLanguages {
     
     private var languagesView: some View {
         ScrollView(.vertical) {
-            FlowLayout(mode: .scrollable, items: WorldLanguages.top120Alphabetical, itemSpacing: 16) { country in
+            FlowLayout(mode: .scrollable, items: filteredLanguages, itemSpacing: 16) { country in
                 if !selected.contains(country) {
                     OptionCell(text: country, selection: $selected, fillColour: false, isLanguages: true) { text in
                         withAnimation(.easeInOut(duration: 0.2)) {
