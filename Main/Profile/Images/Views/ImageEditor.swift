@@ -140,29 +140,3 @@ extension ProfileImagesEditing {
     }
     
 }
-
-
-/*
- 
- init(importedImage: SelectedImage, images: Binding<[UIImage?]>) {
-     _importedImage = State(initialValue: importedImage)
- }
- 
-
- 
- HStack(spacing: 8) {
-     Image("CropImageIcon")
-     
-     Text("Crop")
-         .foregroundStyle(.white)
-         .font(.body(12, .bold))
- }
-
- */
-
-/*
- @Binding var images: [UIImage?]
-
- */
-
-

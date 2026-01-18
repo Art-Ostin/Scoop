@@ -76,7 +76,6 @@ struct OnboardingImages: View {
 }
 
 extension OnboardingImages {
-    
     private var onboardingImagePlaceholder: some View {
         Image("ImagePlaceholder")
             .resizable()
