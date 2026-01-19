@@ -84,14 +84,13 @@ extension TextFieldGeneric {
 
 enum TextFieldOptions: CaseIterable {
     
-    case degree, hometown, name, languages
+    case degree, hometown, name
     
     var title: String {
         switch self {
         case .degree: return "Degree"
         case .hometown: return "Hometown"
         case .name: return "Name"
-        case .languages: return "I Speak"
         }
     }
 
@@ -100,7 +99,6 @@ enum TextFieldOptions: CaseIterable {
         case .degree: return .degree
         case .hometown: return .hometown
         case .name: return .name
-        case .languages: return .languages
         }
     }
     
@@ -109,7 +107,6 @@ enum TextFieldOptions: CaseIterable {
         case .degree: return \.degree
         case .hometown: return \.hometown
         case .name: return \.name
-        case .languages: return \.languages
         }
     }
     

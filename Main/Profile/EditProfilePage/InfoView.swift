@@ -13,7 +13,6 @@ struct InfoView: View {
     
     private var coreInfo: [EditPreview] {
          let u = vm.draft /*else { return [] }*/
-
         return [
             EditPreview("Name", [u.name], route: .textField(.name)),
             EditPreview("Sex", [u.sex], route: .option(.sex)),
@@ -23,32 +22,32 @@ struct InfoView: View {
             EditPreview("Nationality", [u.nationality.joined(separator: ", ")], route: .nationality)
         ]
     }
-    
+
     
     private var aboutMe: [EditPreview] {
          let u = vm.draft /* else { return [] }*/
-
+        let spacer = String(repeating: " ", count: 3)
         let lifestyle =
-        "Drinking: \(u.drinking.lowercased()), " +
-        "Smoking: \(u.smoking.lowercased()), " +
-        "Marijuana: \(u.marijuana.lowercased()), " +
-        "Drugs: \(u.drugs.lowercased())"
+        "🍻 \(u.drinking.lowercased()) " + spacer +
+        "🚬 \(u.smoking.lowercased())" + spacer +
+        "🌿 \(u.marijuana.lowercased()) " + spacer +
+        "💊 \(u.drugs.lowercased())"
         
         let myLifeAs: [String] = {
             let choices = [
-                u.favouriteMovie.map { "Movie: \($0)" },
-                u.favouriteSong.map { "Song: \($0)" },
-                u.favouriteBook.map { "Book: \($0)" }
+                u.favouriteMovie.map { "🎬 \($0)" },
+                u.favouriteSong.map { "🎶 \($0)" },
+                u.favouriteBook.map { "📗 \($0)" }
             ].compactMap { $0 }
-            return choices.isEmpty ? ["Add information"] : choices
+            return choices.isEmpty ? [] : choices
         }()
         return [
             EditPreview("Looking For", [u.lookingFor], route: .option(.lookingFor)),
             EditPreview("Degree", [u.degree], route: .textField(.degree)),
             EditPreview("Hometown", [u.hometown], route: .textField(.hometown)),
             EditPreview("Lifestyle", [lifestyle], route: .lifestyle),
-            EditPreview("My Life as a", [myLifeAs.joined(separator: ", ")], route: .myLifeAs),
-            EditPreview("Languages", [u.languages], route: .languages)
+            EditPreview("Favourite Media", [myLifeAs.joined(separator: ", ")], route: .myLifeAs),
+            EditPreview("Languages", u.languages, route: .languages)
         ]
     }
 
@@ -98,3 +97,4 @@ struct EditPreview: Identifiable {
         
         
         
+

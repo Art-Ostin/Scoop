@@ -57,7 +57,7 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     var smoking: String
     var marijuana: String
     var drugs: String
-    var languages: String = ""
+    var languages: [String] = []
     var prompt1: PromptResponse
     var prompt2: PromptResponse
     var prompt3 = PromptResponse(prompt: "The dream date", response: "")

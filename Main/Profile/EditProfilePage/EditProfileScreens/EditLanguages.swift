@@ -12,11 +12,10 @@ struct EditLanguages: View {
     @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
     @State var searchText: String = ""
-    @State var selected: [String] = []
+    @State var selected: [String]
     @State var isTopOfScroll: Bool = false
     @State private var isScrolling = false
     @State private var flashMaxText: Set<String> = []
-    @State private var shakeTicks: [String: Int] = [:]
     
     private var filteredLanguages: [String] {
         let all = WorldLanguages.top120Alphabetical
@@ -25,6 +24,11 @@ struct EditLanguages: View {
         return all.filter {
             $0.range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) != nil
         }
+    }
+    
+    init(vm: EditProfileViewModel) {
+        self.vm = vm
+        _selected = .init(wrappedValue: vm.draft.languages)
     }
 
     var body: some View {
@@ -56,6 +60,12 @@ struct EditLanguages: View {
             if oldValue < newValue {
                 searchText = ""
             }
+        }
+        .onDisappear {
+            guard selected != vm.draft.languages else {
+                return
+            }
+            vm.set(.languages, \.languages, to: selected)
         }
     }
 }
@@ -93,20 +103,16 @@ extension EditLanguages {
                         isLanguages: true
                     ) { text in
                         if selected.count >= 5 {
-                            shakeTicks[text, default: 0] &+= 1
                             flashMaxText.insert(text)
                             Task { @MainActor in
                                 try? await Task.sleep(nanoseconds: 1_000_000_000)
-                                    flashMaxText.remove(text)
+                                flashMaxText.remove(text)
                             }
                         } else {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 selected.append(text)
                             }
                         }
-                        .modifier(Shake(animatableData: CGFloat(shakeTicks[country, default: 0])))
-                        .animation(.easeInOut(duration: 0.6), value: shakeTicks[country, default: 0])
-                        .animation(.easeInOut(duration: 0.4), value: flashMaxText)
                     }
                 }
             }

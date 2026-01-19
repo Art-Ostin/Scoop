@@ -50,30 +50,38 @@ struct ListItem<Value: Hashable>: View {
     
     let title: String
     
-    let response: [String]
+    var response: [String]
     
     let value: Value
     
     var body: some View {
+        let isEmpty = response.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
         NavigationLink(value: value) {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
                         .font(.body(.bold))
                         .foregroundStyle(Color.black)
-                    Text(response.joined(separator: ", "))
-                        .foregroundStyle(Color.grayText)
+                    Text(isEmpty ? "Add Info" : response.joined(separator: ", "))
+                        .foregroundStyle(isEmpty ? .accent : Color.grayText)
                         .font(.body(15))
                         .multilineTextAlignment(.leading)
                 }
                 Spacer()
-                Spacer()
-                Image("EditGray")
+                Image(systemName: "chevron.right")
                     .font(.body(13, .bold))
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(isEmpty ? .accent : Color.grayText)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 6)
         }
+        .onAppear {
+            print("Title is: \(title), value is: \(response)")
+        }
     }
 }
+
+/*
+ Image("EditGray")
+ */
