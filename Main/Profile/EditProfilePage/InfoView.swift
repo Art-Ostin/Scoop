@@ -16,7 +16,6 @@ struct InfoView: View {
         return [
             EditPreview("Name", [u.name], route: .textField(.name)),
             EditPreview("Sex", [u.sex], route: .option(.sex)),
-            EditPreview("Attracted To", [u.attractedTo], route: .option(.attractedTo)),
             EditPreview("Year", [u.year], route: .option(.year)),
             EditPreview("Height", [u.height], route: .height),
             EditPreview("Nationality", [u.nationality.joined(separator: ", ")], route: .nationality)
@@ -50,7 +49,6 @@ struct InfoView: View {
         let sections: [(title: String, data: [EditPreview])] = [
             ("Core", coreInfo), ("About", aboutMe)]
         
-        ScrollView {
             VStack(spacing: 36) {
                 ForEach(sections, id: \.title) {section in
                     CustomList(title: section.title) {
@@ -67,7 +65,6 @@ struct InfoView: View {
                         }
                     }
                 }
-            }
         }
     }
 }
@@ -84,12 +81,6 @@ struct EditPreview: Identifiable {
         self.route = route
     }
 }
-
-
-
-
-
-        
-        
-        
-
+/*
+ EditPreview("Attracted To", [u.attractedTo], route: .option(.attractedTo)),
+ */

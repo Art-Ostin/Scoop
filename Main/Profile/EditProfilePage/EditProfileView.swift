@@ -37,7 +37,7 @@ struct EditProfileView: View {
                     PromptsView(vm: vm)
                     InfoView(vm: vm)
                     InterestsView(vm: vm)
-                    YearsView()
+                    PreferencesView(vm: vm)
             }
             .navigationDestination(for: EditProfileRoute.self) { route in
                 switch route {
@@ -59,6 +59,8 @@ struct EditProfileView: View {
                     EditMyLifeAs(vm: vm)
                 case .languages:
                     EditLanguages(vm: vm)
+                case .desiredAgeRange:
+                    EditPreferredYears(vm: vm)
                 }
             }
         }

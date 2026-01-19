@@ -68,8 +68,8 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     var favouriteBook: String?
     var activeCycleId: String?
     var character: [String]?
+    var preferredYears: [String] = ["U0", "U1", "U2", "U3", "U4"]
     @ServerTimestamp var createdAt: Date?
-    var desiredAgeRange: [String] = ["U0", "U1", "U2", "U3", "U4", "U5"]
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id
@@ -110,7 +110,7 @@ extension UserProfile {
       case name, sex, attractedTo, year, height, interests, degree, hometown,
            nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
            marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
-           favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp
+           favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp, preferredYears
     }
 }
 
