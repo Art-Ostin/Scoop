@@ -16,6 +16,7 @@ struct EditProfileContainer: View {
     @State var dismissOffset: CGFloat? = nil
     @State var navigationPath: [EditProfileRoute] = []
     @State var selectedImage: ImageSlot? = nil
+    @State var showSavingScreen: Bool = false
     
     var body: some View {
         ZStack {
@@ -40,8 +41,6 @@ struct EditProfileContainer: View {
         .task {
             if vm.images.isEmpty  {
                 await vm.loadImages()
-            } else {
-                print("Images Succesfully Imported")
             }
         }
     }
@@ -50,7 +49,7 @@ struct EditProfileContainer: View {
 extension EditProfileContainer {
     private var editAction: some View {
         HStack {
-            if /*navigationPath.isEmpty &&*/  vm.showSaveButton {
+            if navigationPath.isEmpty &&  vm.showSaveButton {
                 Button {
                     Task {
                         try await vm.saveProfileChanges()
