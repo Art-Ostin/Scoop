@@ -10,31 +10,22 @@ import PhotosUI
 import SwiftyCrop
 
 struct ProfileImagesEditing: View {
-
+    
     @State private var importedImage: ImageSlot
     @Environment(\.dismiss)  var dismiss
     @State private var imageSize: CGFloat = 0
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
-
+    
     let onSave: (ImageSlot) -> Void
-
+    
     init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
         self._importedImage = State(initialValue: importedImage)
         self.onSave = onSave
     }
     
     var body: some View {
-        VStack(spacing: 60) {
-            cancelButton
-                .overlay {
-                    Rectangle()
-                        .foregroundStyle(.clear)
-                        .onTapGesture {
-                            dismiss()
-                        }
-                }
-
+        ZStack(alignment: .topTrailing) {
             VStack(spacing: 36) {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
@@ -42,23 +33,32 @@ struct ProfileImagesEditing: View {
                 Image(uiImage: importedImage.image)
                     .resizable()
                     .defaultImage(imageSize, 16)
-                    .overlay(alignment: .bottomTrailing) {changeImageButton}
-                    .overlay(alignment: .bottomLeading) { cropPhotoIcon}
+                    .overlay(alignment: .bottomTrailing) { changeImageButton }
+                    .overlay(alignment: .bottomLeading) { cropPhotoIcon }
                 
                 saveButton
                     .padding(.top, 24)
             }
+            .padding(.top, 120)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .measure(key: ImageSizeKey.self) { $0.frame(in: .global).width }
+            .onPreferenceChange(ImageSizeKey.self) { screenWidth in
+                imageSize = screenWidth - 16
+            }
+            
+            cancelButton
+                .padding(.top, 16)
+                .padding(.trailing, 16)
+                .zIndex(1)
         }
-        .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
-        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 16
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 12)
-        .task(id: item) { await loadImage()}
+        .task(id: item) { await loadImage() }
         .fullScreenCover(isPresented: $showImageCropper) {
-            let configuration = SwiftyCropConfiguration( maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
-            SwiftyCropView( imageToCrop: importedImage.image,maskShape: .square, configuration: configuration) { croppedImage in
+            let configuration = SwiftyCropConfiguration(maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
+            SwiftyCropView(
+                imageToCrop: importedImage.image,
+                maskShape: .square,
+                configuration: configuration
+            ) { croppedImage in
                 if let newCroppedImage = croppedImage {
                     importedImage.image = newCroppedImage
                 }
@@ -74,10 +74,9 @@ extension ProfileImagesEditing {
             dismiss()
         } label: {
             Text("Cancel")
-                .frame(maxWidth: .infinity, alignment: .trailing)
                 .foregroundStyle(Color.grayText)
                 .font(.body(14, .medium))
-                .frame(minHeight: 50)   //Fixes bug where sometimes it does not register taps
+                .frame(minWidth: 50, minHeight: 50, alignment: .center)   //Fixes bug so Icon is in centre of its tappable area
                 .padding(.horizontal, 16)
                 .contentShape(Rectangle())
         }
