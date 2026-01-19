@@ -85,8 +85,7 @@ extension TextFieldGeneric {
         VStack {
             TextField("Type \(field) here", text: $text)
                 .frame(maxWidth: .infinity)
-                .font(.body(24))
-                .font(.body(.medium))
+                .font(.body(24,.medium))
                 .focused($isFocused)
                 .autocorrectionDisabled(true)
                 .tint(.blue)

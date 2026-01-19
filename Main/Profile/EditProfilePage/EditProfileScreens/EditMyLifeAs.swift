@@ -7,51 +7,59 @@
 
 import SwiftUI
 
+enum Field: String, Hashable, CaseIterable {
+    case movie, song, book
+    var placeholder: String {
+        switch self {
+        case .movie: return "E.g. La Haine"
+        case .song: return "E.g. Burial - Comafields"
+        case .book: return "E.g. Candide - Voltaire"
+        }
+    }
+}
+
+
 struct EditMyLifeAs: View {
     @Bindable var vm: EditProfileViewModel
-    @State var selection: Int = 0
+    @State var selection: Field = .movie
+    @State var selectedValues: [Field: String] = [:]
+    private func binding(for field: Field) -> Binding<String> {
+        Binding(
+            get: { selectedValues[field] ?? "" },
+            set: { newValue in
+                if newValue.isEmpty {
+                    selectedValues[field] = ""
+                } else {
+                    selectedValues[field] = newValue
+                }
+            }
+        )
+    }
     
     
-    @State var selectedMovie: String = ""
-    @State var selectedSong: String = ""
-    @State var selectedBook: String = ""
     
-    private enum Field: String, Hashable, CaseIterable { case movie, song, book }
     @FocusState private var focus: Field?
     @Namespace private var tabNamespace
-    
     
     var body: some View {
         VStack {
             TabView(selection: $selection) {
-                textField(placeholder: "E.g. La Haine", selectedOption: $selectedMovie, field: .movie)
-                    .tag(0)
-                textField(placeholder: "E.g. Comafields - Burial", selectedOption: $selectedSong, field: .song)
-                    .tag(1)
-                textField(placeholder: "E.g. Candide - Voltaire ", selectedOption: $selectedBook, field: .book)
-                    .tag(2)
+                ForEach(Field.allCases) { field in
+                    textField(selectedOption: binding(for: field), field: field)
+                }
             }
             .tabViewStyle(PageTabViewStyle())
-            
             scrollToSection
-            
         }
-        .onChange(of: selection) {
-            if selection == 0 {
-                focus = .movie
-            } else if selection == 1 {
-                focus = .song
-            } else {
-                focus = .book
-            }
-        }
-        .onChange(of: selectedMovie) { vm.set(.favouriteMovie, \.favouriteMovie, to: selectedMovie) }
-        .onChange(of: selectedSong) { vm.set(.favouriteSong, \.favouriteSong, to: selectedSong)}
-        .onChange(of: selectedBook) { vm.set(.favouriteBook, \.favouriteBook, to: selectedBook)}
+        .padding(.top, 72)
+        .onChange(of: selection) {updateFocus(for: selection)}
+        .onChange(of: selectedValues[.movie]) { vm.set(.favouriteMovie, \.favouriteMovie, to: selectedValues[.movie]) }
+        .onChange(of: selectedValues[.song]) { vm.set(.favouriteSong, \.favouriteSong, to: selectedValues[.song])}
+        .onChange(of: selectedValues[.book]) { vm.set(.favouriteBook, \.favouriteBook, to: selectedValues[.book])}
         .onAppear {
-            selectedMovie = vm.draft.favouriteMovie ?? ""
-            selectedSong = vm.draft.favouriteSong ?? ""
-            selectedBook =  vm.draft.favouriteBook ?? ""
+            selectedValues[.movie] = vm.draft.favouriteMovie ?? ""
+            selectedValues[.song] = vm.draft.favouriteSong ?? ""
+            selectedValues[.song] =  vm.draft.favouriteBook ?? ""
             DispatchQueue.main.async { focus = .movie }
         }
     }
@@ -60,24 +68,29 @@ struct EditMyLifeAs: View {
 extension EditMyLifeAs {
 
     @ViewBuilder
-    private func textField(placeholder: String, selectedOption: Binding<String>, field: Field) -> some View {
-        VStack(alignment: .leading, spacing: 36) {
+    private func textField(selectedOption: Binding<String>, field: Field) -> some View {
+        VStack(alignment: .leading, spacing: 72) {
             Text("Favourite" + " \(field.rawValue.capitalized)")
                 .font(.title())
             VStack {
-                TextField(placeholder, text: selectedOption)
+                TextField(field.placeholder, text: selectedOption)
                     .frame(maxWidth: .infinity)
-                    .font(.body(24))
+                    .font(.body(24,.medium))
                     .focused($focus, equals: field)
-                
+                    .autocorrectionDisabled(true)
+                    .tint(.blue)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+
                 RoundedRectangle(cornerRadius: 20, style: .circular)
                     .frame(maxWidth: .infinity)
                     .frame(height: 1)
-                    .foregroundStyle (Color(red: 0.48, green: 0.48, blue: 0.48))
+                    .foregroundStyle (Color.grayPlaceholder)
+                
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal)
+        .padding(.horizontal, 36)
     }
 
     private var scrollToSection: some View {
@@ -88,9 +101,7 @@ extension EditMyLifeAs {
                     Text(field.rawValue.capitalized)
                         .font(.body(17, .bold))
                         .contentShape(Rectangle())
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { selection = index }
-                        }
+                        .onTapGesture {withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { selection = index }}
                         .foregroundStyle(isSelected ? .accent : .black)
                         .overlay {
                             if isSelected {
@@ -103,54 +114,13 @@ extension EditMyLifeAs {
                         }
                 }
             }
-            .padding(.horizontal)
+        }
+        .padding(.horizontal, 24)
+    }
+    
+    private func updateFocus(for index: Int) {
+        DispatchQueue.main.async {
+            focus = Field.allCases.indices.contains(index) ? Field.allCases[index] : nil
         }
     }
 }
-
-
-
-/*
- HStack(spacing: 60) {
-     ForEach(typeSelection.indices, id: \.self) { index in
-         let text = typeSelection[index]
-         Text(text)
-             .foregroundStyle(selection == index ? .accent : .primary)
-             .font(.body(16, selection == index ? .bold : .medium))
-     }
- }
- .frame(maxWidth: .infinity, alignment: .center)
- .padding(.top)
-
- */
-
-
-/*
- 
- 
- 
- 
- ForEach(typeSelection.indices, id: \.self) { index in
-     let isSelected = index == selection
-     Text(typeSelection[index])
-         .contentShape(Rectangle())
-         .onTapGesture {
-             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {selection = index}
-         }
-         .foregroundStyle(isSelected ? .accent : .black)
-         .overlay {
-             if isSelected {
-                 RoundedRectangle(cornerRadius: 16)
-                     .frame(width: 50, height: 3)
-                     .foregroundStyle(Color.accent)
-                     .offset(y: 12)
-                     .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
-             }
-         }
- }
-}
-}
-}
-}
-
- */

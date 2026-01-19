@@ -40,7 +40,7 @@ struct InfoView: View {
             EditPreview("Degree", [u.degree], route: .textField(.degree)),
             EditPreview("Hometown", [u.hometown], route: .textField(.hometown)),
             EditPreview("Lifestyle", [lifestyle], route: .lifestyle),
-            EditPreview("Favourite Media", [myLifeAs.joined(separator: ", ")], route: .myLifeAs),
+            EditPreview("Favourite Media", [myLifeAs.joined(separator: "   ")], route: .myLifeAs),
             EditPreview("Languages", u.languages, route: .languages)
         ]
     }
