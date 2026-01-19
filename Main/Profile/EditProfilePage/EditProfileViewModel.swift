@@ -37,9 +37,13 @@ import FirebaseFirestore
     
     var showSaveButton: Bool { !updatedFields.isEmpty || !updatedImages.isEmpty}
     
-    func set<T>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
+    func set<T: Equatable>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
         draft[keyPath: kp] = value
-        updatedFields[key] = value
+        if user[keyPath: kp] == value {
+            updatedFields.removeValue(forKey: key)
+        } else {
+            updatedFields[key] = value
+        }
     }
     
     func setPrompt(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, PromptResponse>, to value: PromptResponse) {

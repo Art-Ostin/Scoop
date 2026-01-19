@@ -50,7 +50,7 @@ struct EditProfileContainer: View {
 extension EditProfileContainer {
     private var editAction: some View {
         HStack {
-            if navigationPath.isEmpty &&  vm.showSaveButton {
+            if /*navigationPath.isEmpty &&*/  vm.showSaveButton {
                 Button {
                     Task {
                         try await vm.saveProfileChanges()
