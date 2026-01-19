@@ -24,7 +24,7 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            ImageZoomer()
+//            EditFavouriteMedia()
              RootView()
                  .appDependencies(dep)
                  .task { dep.sessionManager.userStream(appState: $appState) }

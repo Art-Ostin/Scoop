@@ -86,7 +86,6 @@ extension GenericNationality {
     
     private var selectedCountries: some View {
         HStack(spacing: 0) {
-            
             ForEach(countriesSelected, id: \.self) {country in
                 Text(country)
                     .font(.body(32))
@@ -295,8 +294,9 @@ struct CustomScrollTab<Content: View>: View {
             .frame(height: height)
             .padding(.vertical, 16)
             .font(.body(16, .bold))
-            .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
             .glassRectangle()
+            .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
+
             .contentShape(Rectangle())
             .onTapGesture {}
             .frame(maxHeight: .infinity, alignment: .bottom)
@@ -304,3 +304,4 @@ struct CustomScrollTab<Content: View>: View {
             .padding(.vertical, 12)
     }
 }
+

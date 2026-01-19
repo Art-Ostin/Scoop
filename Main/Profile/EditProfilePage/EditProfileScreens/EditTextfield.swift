@@ -37,8 +37,7 @@ struct EditTextfield : View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        print("Button Hit!")
-                        if selection.wrappedValue.isEmpty {
+                            if selection.wrappedValue.isEmpty {
                             showEmptyAlert = true
                         } else {
                             dismiss()

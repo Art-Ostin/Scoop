@@ -39,6 +39,9 @@ struct EditProfileView: View {
                     InterestsView(vm: vm)
                     PreferencesView(vm: vm)
             }
+            .onAppear {
+                print("Changed: ", vm.updatedFields)
+            }
             .navigationDestination(for: EditProfileRoute.self) { route in
                 switch route {
                 case .prompt(let index):
