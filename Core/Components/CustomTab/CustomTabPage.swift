@@ -48,7 +48,7 @@ struct CustomTabPage<Content: View>: View {
             .padding(.bottom, 48)
         }
         .overlay(alignment: .top) {
-            ScrollNavBar(title: page.rawValue, topSafeArea: topSafeArea)
+            ScrollNavBar(title: page == .EditProfile ? "Edit Profile" : page.rawValue, topSafeArea: topSafeArea)
                 .opacity(withAnimation(.easeInOut(duration: 0.2)) {scrollViewOffset < 0 ? 1 : 0})
                 .ignoresSafeArea(edges: .all)
         }

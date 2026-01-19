@@ -12,7 +12,7 @@ struct TabTitle: View {
     @Binding var offset: CGFloat
     
     var body: some View {
-        Text(page.rawValue)
+        Text(page == .EditProfile ? "Edit Profile" : page.rawValue)
             .font(.custom("SFProRounded-Bold", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)
             .opacity(Double(offset) / 70)
