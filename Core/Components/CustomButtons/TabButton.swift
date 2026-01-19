@@ -35,15 +35,15 @@ extension TabButton {
 
 extension View {
     @ViewBuilder
-    func glassIfAvailable(_ shape: any Shape = .capsule) -> some View {
+    func glassIfAvailable<S: InsettableShape>(_ shape: S = Capsule(), isClear: Bool = true) -> some View {
         if #available(iOS 26.0, *) {
             self
-                .glassEffect(.clear, in: shape)
+                .glassEffect(isClear ? .clear : .regular, in: shape)
         } else {
             self
-                .background( Circle().fill(Color.background) )
-                .overlay( Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4) )
-                .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
+                .background {shape.fill(Color.background)}
+                .overlay {shape.strokeBorder(Color.grayBackground, lineWidth: 0.4)}
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
         }
     }
 }
@@ -123,3 +123,10 @@ struct CloseToolBar: ToolbarContent {
     }
 }
 
+/*
+ if #available(iOS 26.0, *) {
+     self
+         .glassEffect(isClear ? .clear : .regular, in: shape)
+ } else {
+
+ */

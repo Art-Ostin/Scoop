@@ -21,13 +21,33 @@ struct OnboardingTextField: View  {
 }
 
 struct EditTextfield : View {
+    @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
+    @State private var showEmptyAlert = false
+    
     let field: TextFieldOptions
     var selection: Binding<String> {
         Binding {vm.draft[keyPath: field.keyPath]} set: {vm.set(field.key, field.keyPath, to: $0)}
     }
+    
     var body: some View {
         TextFieldGeneric(text: selection, field: field.title)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        let trimmed = selection.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if trimmed.isEmpty {
+                            showEmptyAlert = true
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                }
+            }
+            .customAlert(isPresented: $showEmptyAlert, message: "You can't leave \(field.title.lowercased()) empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
     }
 }
 

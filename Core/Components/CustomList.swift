@@ -77,8 +77,5 @@ struct ListItem<Value: Hashable>: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 6)
         }
-        .onAppear {
-            print("Title is: \(title), value is: \(response)")
-        }
     }
 }
