@@ -10,7 +10,10 @@ import Lottie
 
 struct LoadingScreen: View {
     var body: some View {
-        LottieView(animation: .named("LoadingAnimation.json"))
+        VStack {
+            LottieView(animation: .named("LoadingAnimation.json"))
+            Text("Hello World")
+        }
     }
 }
 
