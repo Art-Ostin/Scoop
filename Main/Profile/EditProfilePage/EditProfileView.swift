@@ -17,6 +17,7 @@ enum EditProfileRoute: Hashable {
     case nationality
     case lifestyle
     case myLifeAs
+    case desiredAgeRange
 }
 
 

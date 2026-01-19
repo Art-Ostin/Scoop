@@ -69,6 +69,7 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     var activeCycleId: String?
     var character: [String]?
     @ServerTimestamp var createdAt: Date?
+    var desiredAgeRange: [String] = ["U0", "U1", "U2", "U3", "U4", "U5"]
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id

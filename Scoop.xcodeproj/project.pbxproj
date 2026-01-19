@@ -148,6 +148,7 @@
 		65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */; };
 		65EA17492E4DFDB300EF38DC /* AcceptInvitePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */; };
 		65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */; };
+		65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E072F1E82CB008BF4DA /* PreferencesView.swift */; };
 		65F450BF2E45567900AE3503 /* ImageModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450BE2E45567900AE3503 /* ImageModifiers.swift */; };
 		65F450CB2E463E7900AE3503 /* MeetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CA2E463E7900AE3503 /* MeetContainer.swift */; };
 		65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450D22E482B2F00AE3503 /* ProfileCard.swift */; };
@@ -319,6 +320,7 @@
 		65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileContainer.swift; sourceTree = "<group>"; };
 		65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptInvitePopup.swift; sourceTree = "<group>"; };
 		65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
+		65F28E072F1E82CB008BF4DA /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		65F450BE2E45567900AE3503 /* ImageModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifiers.swift; sourceTree = "<group>"; };
 		65F450CA2E463E7900AE3503 /* MeetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetContainer.swift; sourceTree = "<group>"; };
 		65F450D22E482B2F00AE3503 /* ProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCard.swift; sourceTree = "<group>"; };
@@ -463,6 +465,7 @@
 				65FEDBA62E2307B7006CF3CD /* YearsView.swift */,
 				65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */,
 				656E3D242EB1754000303D9D /* DraftProfileView.swift */,
+				65F28E072F1E82CB008BF4DA /* PreferencesView.swift */,
 				65F9E38E2EE7447F008A57BD /* EditProfileScreens */,
 			);
 			path = EditProfilePage;
@@ -1058,6 +1061,7 @@
 				65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */,
 				658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */,
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,
+				65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */,
 				65A070522EE0705A009F798B /* OnboardingHomePage.swift in Sources */,
 				650884122EAD475E00776620 /* PendingInvitesCard.swift in Sources */,
 				652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */,

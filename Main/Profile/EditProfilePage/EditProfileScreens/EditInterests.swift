@@ -18,6 +18,11 @@ struct OnboardingInterests: View {
             .nextButton(isEnabled: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
+            .overlay(alignment: .top) {
+                Text("Choose at least 6")
+                    .font(.body(14, .bold))
+                    .offset(y: -24)
+            }
     }
 }
 

@@ -25,6 +25,7 @@ struct EditTextfield : View {
     @Bindable var vm: EditProfileViewModel
     @State private var showEmptyAlert = false
     
+    @State private var initialValue = ""
     let field: TextFieldOptions
     var selection: Binding<String> {
         Binding {vm.draft[keyPath: field.keyPath]} set: {vm.set(field.key, field.keyPath, to: $0)}
@@ -36,7 +37,8 @@ struct EditTextfield : View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                            if selection.wrappedValue.isEmpty {
+                        print("Button Hit!")
+                        if selection.wrappedValue.isEmpty {
                             showEmptyAlert = true
                         } else {
                             dismiss()
@@ -47,7 +49,7 @@ struct EditTextfield : View {
                     }
                 }
             }
-            .customAlert(isPresented: $showEmptyAlert, message: "You can't leave \(field.title.lowercased()) empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
+            .customAlert(isPresented: $showEmptyAlert, message: "You can't leave '\(field.title.lowercased())' empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
     }
 }
 
