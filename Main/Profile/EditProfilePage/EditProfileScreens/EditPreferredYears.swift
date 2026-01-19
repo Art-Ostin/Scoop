@@ -16,6 +16,7 @@ struct EditPreferredYears: View {
     let options = ["U0", "U1", "U2", "U3", "U4"]
     
     @State private var shakeTicks: [String: Int] = [:]
+    @State private var messageTicks: [String: Int] = [:]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 84) {
@@ -38,9 +39,11 @@ extension EditPreferredYears {
     @ViewBuilder
     private func optionPill(_ title: String) -> some View {
         let isSelected = selection.wrappedValue.contains(title)
+
         let shakeValue = shakeTicks[title, default: 0]
-        
-        return VStack(spacing: 8) {
+        let messageValue = messageTicks[title, default: 0]
+
+        VStack(spacing: 8) {
             Text(title)
                 .frame(width: 148, height: 44)
                 .font(.body(16, .bold))
@@ -51,44 +54,58 @@ extension EditPreferredYears {
                     if !isSelected {
                         Cross()
                             .stroke(style: .init(lineWidth: 1, lineCap: .round))
-                            .foregroundStyle(Color.grayPlaceholder) // or .black / .accent / etc.
-                            .padding(6) // keeps the X inside the rounded corners
+                            .foregroundStyle(Color.grayPlaceholder)
+                            .padding(6)
                     }
                 }
                 .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
                 .animation(shakeValue > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeValue)
-            
-            if shakeValue > 0 {
-                Text("min 3")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(.accent)
-            } else {
-                Text(" ")
-                    .font(.body(12, .bold))
-            }
-        }
-        .onChange(of: shakeTicks[title, default: 0]) { _, newValue in
-            guard newValue > 0 else { return }
-            
-            Task {
-                try? await Task.sleep(for: .seconds(1))
-                if shakeTicks[title, default: 0] == newValue {
-                    withAnimation { shakeTicks[title] = 0 }
+
+            Group {
+                if messageValue > 0 {
+                    Text("Can only deselect 2 years")
+                        .font(.body(12, .bold))
+                        .foregroundStyle(.accent)
+                        .transition(.opacity)
+                } else {
+                    Text(" ")
+                        .font(.body(12, .bold))
                 }
             }
-            
+            .animation(.easeInOut(duration: 0.5), value: messageValue)
         }
-        .onTapGesture  {
+        .task(id: shakeValue) {
+            guard shakeValue > 0 else { return }
+            try? await Task.sleep(for: .seconds(0.5))
+            await MainActor.run {
+                if shakeTicks[title, default: 0] == shakeValue {
+                    shakeTicks[title] = 0
+                }
+            }
+        }
+        .task(id: messageValue) {
+            guard messageValue > 0 else { return }
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                if messageTicks[title, default: 0] == messageValue {
+                    messageTicks[title] = 0
+                }
+            }
+        }
+        .onTapGesture {
             var current = selection.wrappedValue
+
             if let idx = current.firstIndex(of: title) {
-                if current.count <= 3 {
+                if current.count <= 4 {
                     shakeTicks[title, default: 0] += 1
+                    messageTicks[title, default: 0] += 1
                     return
                 }
                 current.remove(at: idx)
             } else {
                 current.append(title)
             }
+
             selection.wrappedValue = current
         }
     }
@@ -104,24 +121,3 @@ private struct Cross: Shape {
         return p
     }
 }
-
-
-/*
- .font(.body(16, .bold))
- .overlay ( RoundedRectangle(cornerRadius: 20).stroke(isSelected ? Color.black : Color.grayBackground, lineWidth: 1))
- .foregroundStyle(isSelected ? Color.accent : Color.grayText
- )            .onTapGesture {
-
-     isSelected.toggle()
- }
-
- */
-
-
-
-
-//
-//#Preview {
-//    EditPreferredYears()
-//}
-

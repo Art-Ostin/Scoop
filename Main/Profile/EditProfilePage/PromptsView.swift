@@ -31,11 +31,14 @@ struct PromptsView: View {
 
 extension PromptsView {
     
+    @ViewBuilder
     private func promptResponse (prompt: String, response: String) -> some View {
+        let isEmpty = response.isEmpty
             VStack(alignment: .leading, spacing: 12) {
-                Text(prompt)
-                    .foregroundStyle(Color.grayText)
+                Text(isEmpty ? "Add Prompt" : prompt)
+                    .foregroundStyle(isEmpty ? .accent : Color.grayText)
                     .font(.body(14))
+
                 Text(response)
                     .font(.title(response.count < 80 ? 24 : 16 ))
             }
@@ -47,9 +50,9 @@ extension PromptsView {
                     .fill(Color.white)
                     .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 1)
             )
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke( isEmpty ? .accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
             .overlay(alignment: .topTrailing, content: {
-                Image(prompt == "Add Prompt" ? "EditButton" : "EditGray")
+                Image(isEmpty ? "EditButton" : "EditGray")
                     .padding()
             })
             .lineSpacing(8)

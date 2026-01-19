@@ -33,7 +33,9 @@ struct OnboardingPrompt: View {
 
 struct EditPrompt: View {
     @Bindable var vm: EditProfileViewModel
+    @Environment(\.dismiss) private var dismiss
     let promptIndex: Int
+    @State var showEmptyAlert: Bool = false
     private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
@@ -45,8 +47,29 @@ struct EditPrompt: View {
             vm.setPrompt(key, keyPath, to: $0)
         }
     }
+    
+    
     var body: some View {
         PromptGeneric(prompt: prompt, promptIndex: promptIndex)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        if (promptIndex == 0 || promptIndex == 1) && prompt.wrappedValue.response.isEmpty {
+                            showEmptyAlert = true
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .contentShape(Circle())
+                    }
+                }
+            }
+            .customAlert(isPresented: $showEmptyAlert, message: "Can't leave this prompt empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
+            .onAppear {
+                print(promptIndex)
+            }
     }
 }
 
@@ -86,9 +109,10 @@ extension PromptGeneric {
                 .font(.body(17))
                 .lineSpacing(8)
             Spacer()
-            Image("EditButton")
+            Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .offset(x: -4)
+                .foregroundStyle(.accent)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)

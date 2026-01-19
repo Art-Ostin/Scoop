@@ -56,14 +56,16 @@ struct ListItem<Value: Hashable>: View {
     
     var body: some View {
         let isEmpty = response.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-
+        
+        let writeAll = response == ["U0", "U1", "U2", "U3", "U4"]
+        
         NavigationLink(value: value) {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
                         .font(.body(.bold))
                         .foregroundStyle(Color.black)
-                    Text(isEmpty ? "Add Info" : response.joined(separator: ", "))
+                    Text(isEmpty ? "Add Info" : (writeAll ? "All" : response.joined(separator: ", ")))
                         .foregroundStyle(isEmpty ? .accent : Color.grayText)
                         .font(.body(15))
                         .multilineTextAlignment(.leading)

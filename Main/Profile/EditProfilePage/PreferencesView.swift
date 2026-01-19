@@ -23,6 +23,8 @@ struct PreferencesView: View {
         CustomList(title: "Dating Preferences (Not Public)") {
             ForEach(preferences) { info in
                 VStack(spacing: 0) {
+                    
+                    
                     ListItem(title: info.title, response: info.response, value: info.route)
                     if info.title != "Age Preference" {
                         SoftDivider()
