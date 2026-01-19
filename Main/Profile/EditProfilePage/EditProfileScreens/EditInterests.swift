@@ -24,6 +24,8 @@ struct OnboardingInterests: View {
 struct EditInterests: View {
     let vm: EditProfileViewModel
     @State var selected: [String]
+    @Environment(\.dismiss) private var dismiss
+    @State var showEmptyAlert = false
     
     init(vm: EditProfileViewModel) {
         self.vm = vm
@@ -32,8 +34,20 @@ struct EditInterests: View {
     
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
-            .onChange(of: selected) {
-                print(selected)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        if selected.count < 6 {
+                            showEmptyAlert = true
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .contentShape(Circle())
+                    }
+                }
             }
             .onDisappear {
                 guard selected != vm.draft.interests else {
@@ -42,6 +56,7 @@ struct EditInterests: View {
                 vm.set(.interests, \.interests, to: selected)
             }
             .padding(.top, 24)
+            .customAlert(isPresented: $showEmptyAlert, message: "Please select at least 6 interests", showTwoButtons: false, onOK: {showEmptyAlert.toggle()})
             .background(Color.background)
     }
 }

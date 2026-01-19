@@ -36,14 +36,14 @@ struct EditTextfield : View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        let trimmed = selection.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if trimmed.isEmpty {
+                            if selection.wrappedValue.isEmpty {
                             showEmptyAlert = true
                         } else {
                             dismiss()
                         }
                     } label: {
                         Image(systemName: "chevron.left")
+                            .contentShape(Circle())
                     }
                 }
             }
