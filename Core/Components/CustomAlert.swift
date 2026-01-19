@@ -24,7 +24,7 @@ struct CustomAlertCard: View {
         .padding(24)
         .frame(width: 320)
         .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
-//        .defaultShadow()
+        .defaultShadow()
         .frame(maxWidth: .infinity)
     }
 }

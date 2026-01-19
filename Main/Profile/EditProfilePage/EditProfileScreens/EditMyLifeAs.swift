@@ -43,12 +43,11 @@ struct EditMyLifeAs: View {
                 ForEach(Field.allCases) { page(for: $0).tag($0)}
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            
             tabs
         }
         .padding(.top, 72)
         .onChange(of: selection) { _, new in
-            DispatchQueue.main.async { focus = new }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { focus = new } //Delay removes bug of half swiping for user
         }
         .onChange(of: selectedValues) { _, values in
             vm.set(.favouriteMovie, \.favouriteMovie, to: values[.movie])
@@ -87,7 +86,7 @@ extension EditMyLifeAs {
                                 if isSelected {
                                     RoundedRectangle(cornerRadius: 16)
                                         .frame(width: 50, height: 3)
-                                        .offset(y: 12)
+                                        .offset(y: 8)
                                         .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
                                         .foregroundStyle(.accent)
                                 }
