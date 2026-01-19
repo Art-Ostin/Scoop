@@ -26,12 +26,7 @@ struct InfoView: View {
     
     private var aboutMe: [EditPreview] {
          let u = vm.draft /* else { return [] }*/
-        let spacer = String(repeating: " ", count: 3)
-        let lifestyle =
-        "🍻 \(u.drinking.lowercased()) " + spacer +
-        "🚬 \(u.smoking.lowercased())" + spacer +
-        "🌿 \(u.marijuana.lowercased()) " + spacer +
-        "💊 \(u.drugs.lowercased())"
+        let lifestyle = ["🍻 \(u.drinking) ", "💊 \(u.drugs)", "🌿 \(u.marijuana) ", "🚬 \(u.smoking)"].joined(separator: "   ")
         
         let myLifeAs: [String] = {
             let choices = [

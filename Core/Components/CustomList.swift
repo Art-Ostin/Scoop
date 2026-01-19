@@ -67,6 +67,7 @@ struct ListItem<Value: Hashable>: View {
                         .foregroundStyle(isEmpty ? .accent : Color.grayText)
                         .font(.body(15))
                         .multilineTextAlignment(.leading)
+                        .lineLimit(1)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -81,7 +82,3 @@ struct ListItem<Value: Hashable>: View {
         }
     }
 }
-
-/*
- Image("EditGray")
- */

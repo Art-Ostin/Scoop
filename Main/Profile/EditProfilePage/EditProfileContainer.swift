@@ -13,10 +13,8 @@ struct EditProfileContainer: View {
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
     @State var selectedProfile: ProfileModel?
-    
     @State var dismissOffset: CGFloat? = nil
     @State var navigationPath: [EditProfileRoute] = []
-    
     @State var selectedImage: ImageSlot? = nil
     
     var body: some View {
