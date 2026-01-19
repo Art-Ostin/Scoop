@@ -27,6 +27,13 @@ struct ProfileImagesEditing: View {
     var body: some View {
         VStack(spacing: 60) {
             cancelButton
+                .overlay {
+                    Rectangle()
+                        .foregroundStyle(.clear)
+                        .onTapGesture {
+                            dismiss()
+                        }
+                }
 
             VStack(spacing: 36) {
                 Text("Edit Picture")
@@ -47,7 +54,7 @@ struct ProfileImagesEditing: View {
             imageSize = screenWidth - 16
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 36)
+        .padding(.top, 12)
         .task(id: item) { await loadImage()}
         .fullScreenCover(isPresented: $showImageCropper) {
             let configuration = SwiftyCropConfiguration( maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
@@ -70,6 +77,7 @@ extension ProfileImagesEditing {
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .foregroundStyle(Color.grayText)
                 .font(.body(14, .medium))
+                .frame(minHeight: 50)   //Fixes bug where sometimes it does not register taps
                 .padding(.horizontal, 16)
                 .contentShape(Rectangle())
         }
