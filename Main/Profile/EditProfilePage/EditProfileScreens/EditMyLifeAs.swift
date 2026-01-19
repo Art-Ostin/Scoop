@@ -7,13 +7,15 @@
 
 import SwiftUI
 
-enum Field: String, Hashable, CaseIterable {
+enum Field: String, CaseIterable, Hashable, Identifiable {
     case movie, song, book
+    var id: Self { self }
+    var title: String { rawValue.capitalized }
     var placeholder: String {
         switch self {
-        case .movie: return "E.g. La Haine"
-        case .song: return "E.g. Burial - Comafields"
-        case .book: return "E.g. Candide - Voltaire"
+        case .movie: "E.g. La Haine"
+        case .song:  "E.g. Burial - Comafields"
+        case .book:  "E.g. Candide - Voltaire"
         }
     }
 }
@@ -21,59 +23,88 @@ enum Field: String, Hashable, CaseIterable {
 
 struct EditMyLifeAs: View {
     @Bindable var vm: EditProfileViewModel
-    @State var selection: Field = .movie
-    @State var selectedValues: [Field: String] = [:]
-    private func binding(for field: Field) -> Binding<String> {
-        Binding(
-            get: { selectedValues[field] ?? "" },
-            set: { newValue in
-                if newValue.isEmpty {
-                    selectedValues[field] = ""
-                } else {
-                    selectedValues[field] = newValue
-                }
-            }
-        )
-    }
-    
-    
-    
+
+    @State private var selection: Field = .movie
+    @State private var selectedValues: [Field: String] = [:]
+
     @FocusState private var focus: Field?
     @Namespace private var tabNamespace
+
+    private func binding(for field: Field) -> Binding<String> {
+        .init(
+            get: { selectedValues[field, default: ""] },
+            set: { selectedValues[field] = $0 }
+        )
+    }
     
     var body: some View {
         VStack {
             TabView(selection: $selection) {
-                ForEach(Field.allCases) { field in
-                    textField(selectedOption: binding(for: field), field: field)
-                }
+                ForEach(Field.allCases) { page(for: $0).tag($0)}
             }
-            .tabViewStyle(PageTabViewStyle())
-            scrollToSection
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            
+            tabs
         }
         .padding(.top, 72)
-        .onChange(of: selection) {updateFocus(for: selection)}
-        .onChange(of: selectedValues[.movie]) { vm.set(.favouriteMovie, \.favouriteMovie, to: selectedValues[.movie]) }
-        .onChange(of: selectedValues[.song]) { vm.set(.favouriteSong, \.favouriteSong, to: selectedValues[.song])}
-        .onChange(of: selectedValues[.book]) { vm.set(.favouriteBook, \.favouriteBook, to: selectedValues[.book])}
+        .onChange(of: selection) { _, new in
+            DispatchQueue.main.async { focus = new }
+        }
+        .onChange(of: selectedValues) { _, values in
+            vm.set(.favouriteMovie, \.favouriteMovie, to: values[.movie])
+            vm.set(.favouriteSong,  \.favouriteSong,  to: values[.song])
+            vm.set(.favouriteBook,  \.favouriteBook,  to: values[.book])
+        }
         .onAppear {
-            selectedValues[.movie] = vm.draft.favouriteMovie ?? ""
-            selectedValues[.song] = vm.draft.favouriteSong ?? ""
-            selectedValues[.song] =  vm.draft.favouriteBook ?? ""
-            DispatchQueue.main.async { focus = .movie }
+            selectedValues = [
+                .movie: vm.draft.favouriteMovie ?? "",
+                .song:  vm.draft.favouriteSong  ?? "",
+                .book:  vm.draft.favouriteBook  ?? ""
+            ]
+            DispatchQueue.main.async { focus = selection }
         }
     }
 }
 
 extension EditMyLifeAs {
 
-    @ViewBuilder
-    private func textField(selectedOption: Binding<String>, field: Field) -> some View {
+         var tabs: some View {
+            CustomScrollTab(height: 20) {
+                HStack(spacing: 64) {
+                    ForEach(Field.allCases) { field in
+                        let isSelected = field == selection
+
+                        Text(field.title)
+                            .font(.body(17, .bold))
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                    selection = field
+                                }
+                            }
+                            .foregroundStyle(isSelected ? .accent : .primary)
+                            .overlay(alignment: .bottom) {
+                                if isSelected {
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .frame(width: 50, height: 3)
+                                        .offset(y: 12)
+                                        .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
+                                        .foregroundStyle(.accent)
+                                }
+                            }
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+        }
+    
+    func page(for field: Field) -> some View {
         VStack(alignment: .leading, spacing: 72) {
-            Text("Favourite" + " \(field.rawValue.capitalized)")
+            Text("Favourite \(field.title)")
                 .font(.title())
+            
             VStack {
-                TextField(field.placeholder, text: selectedOption)
+                TextField(field.placeholder, text: binding(for: field))
                     .frame(maxWidth: .infinity)
                     .font(.body(24,.medium))
                     .focused($focus, equals: field)
@@ -81,46 +112,14 @@ extension EditMyLifeAs {
                     .tint(.blue)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-
+                
                 RoundedRectangle(cornerRadius: 20, style: .circular)
                     .frame(maxWidth: .infinity)
                     .frame(height: 1)
                     .foregroundStyle (Color.grayPlaceholder)
-                
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 36)
-    }
-
-    private var scrollToSection: some View {
-        CustomScrollTab(height: 20) {
-            HStack(spacing: 64) {
-                ForEach(Array(Field.allCases.enumerated()), id: \.offset) { index, field in
-                    let isSelected = index == selection
-                    Text(field.rawValue.capitalized)
-                        .font(.body(17, .bold))
-                        .contentShape(Rectangle())
-                        .onTapGesture {withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { selection = index }}
-                        .foregroundStyle(isSelected ? .accent : .black)
-                        .overlay {
-                            if isSelected {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .frame(width: 50, height: 3)
-                                    .foregroundStyle(Color.accent)
-                                    .offset(y: 12)
-                                    .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
-                            }
-                        }
-                }
-            }
-        }
-        .padding(.horizontal, 24)
-    }
-    
-    private func updateFocus(for index: Int) {
-        DispatchQueue.main.async {
-            focus = Field.allCases.indices.contains(index) ? Field.allCases[index] : nil
-        }
     }
 }
