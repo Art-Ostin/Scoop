@@ -50,26 +50,13 @@ struct EditPrompt: View {
     
     
     var body: some View {
+        
+        let check = (promptIndex == 0 || promptIndex == 1) && prompt.wrappedValue.response.isEmpty
+        
+        
         PromptGeneric(prompt: prompt, promptIndex: promptIndex)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        if (promptIndex == 0 || promptIndex == 1) && prompt.wrappedValue.response.isEmpty {
-                            showEmptyAlert = true
-                        } else {
-                            dismiss()
-                        }
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .contentShape(Circle())
-                    }
-                }
-            }
+            .closeAndCheckNavButton(check: check, triggerAlert: $showEmptyAlert)
             .customAlert(isPresented: $showEmptyAlert, message: "Can't leave this prompt empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
-            .onAppear {
-                print(promptIndex)
-            }
     }
 }
 

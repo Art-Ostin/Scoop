@@ -32,28 +32,15 @@ struct EditInterests: View {
     @Environment(\.dismiss) private var dismiss
     @State var showEmptyAlert = false
     
-    init(vm: EditProfileViewModel) {
+    
+    init(vm: EditProfileViewModel, ) {
         self.vm = vm
         _selected = .init(wrappedValue: vm.draft.interests)
     }
     
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        if selected.count < 6 {
-                            showEmptyAlert = true
-                        } else {
-                            dismiss()
-                        }
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .contentShape(Circle())
-                    }
-                }
-            }
+            .closeAndCheckNavButton(check: selected.count < 6, triggerAlert: $showEmptyAlert)
             .onDisappear {
                 guard selected != vm.draft.interests else {
                     return

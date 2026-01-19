@@ -31,8 +31,7 @@ struct EditNationality: View {
     }
     
     var body: some View {
-        GenericNationality(countriesSelected: $countriesSelected) { countriesSelected.toggle($0, limit: 3)
-        }
+        GenericNationality(countriesSelected: $countriesSelected) { countriesSelected.toggle($0, limit: 3)}
         .onDisappear {
             guard countriesSelected != vm.draft.nationality else { return }
             vm.set(.nationality, \.nationality, to: countriesSelected)

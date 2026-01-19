@@ -33,21 +33,7 @@ struct EditTextfield : View {
     
     var body: some View {
         TextFieldGeneric(text: selection, field: field.title)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                            if selection.wrappedValue.isEmpty {
-                            showEmptyAlert = true
-                        } else {
-                            dismiss()
-                        }
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .contentShape(Circle())
-                    }
-                }
-            }
+            .closeAndCheckNavButton(check: selection.wrappedValue.isEmpty, triggerAlert: $showEmptyAlert)
             .customAlert(isPresented: $showEmptyAlert, message: "You can't leave '\(field.title.lowercased())' empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
     }
 }
@@ -139,14 +125,3 @@ enum TextFieldOptions: CaseIterable {
     }
 }
 
-
-/*
- .toolbar {
-     ToolbarItemGroup(placement: .keyboard) {
-         Spacer()
-         Button("Done") { isFocused = false }
-             .font(.body(.medium))
-             .foregroundStyle(Color.accent)
-     }
- }
- */
