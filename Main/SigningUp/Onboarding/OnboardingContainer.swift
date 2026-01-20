@@ -67,9 +67,13 @@ struct OnboardingContainer: View {
                                 }
                             }
                         }
-                        
                         ToolbarItem(placement: .principal) {
-                            if showSaved {
+                            ZStack {
+                                Text("\(vm.onboardingStep)/\(12)")
+                                    .font(.body(12, .bold))
+                                    .foregroundStyle(bounce ? .accent : .accent)
+                                    .opacity(showSaved ? 0 : 1)
+                                
                                 HStack(spacing: 12) {
                                     Text("Saved")
                                         .font(.body(14, .bold))
@@ -77,23 +81,21 @@ struct OnboardingContainer: View {
                                     
                                     Image("GreenTick")
                                 }
-                            } else {
-                                Text("\(vm.onboardingStep)/\(12)")
-                                    .font(.body(12, .bold))
-                                    .foregroundStyle(bounce ? .accent : .accent)
+                                .opacity(showSaved ? 1 : 0)
                             }
+                            .animation(.easeInOut(duration: 0.25), value: showSaved)
                         }
                         .hideSharedBackgroundIfAvailable()
                     }
                     .transition(vm.transitionStep)
+                    .animation(.easeInOut(duration: 0.3), value: showSaved)
                     .onChange(of: vm.onboardingStep) { oldValue, newValue in
-                        guard newValue > oldValue else { return}
+                        guard newValue > oldValue else {return}
                         showSaved = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                             showSaved = false
                         }
                     }
-                    .animation(.easeInOut(duration: 5), value: showSaved)
             }
         }
     }
