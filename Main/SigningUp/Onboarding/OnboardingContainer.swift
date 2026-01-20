@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+enum TransitionDirection { case forward, back }
+
+
 struct OnboardingContainer: View {
     
     @Environment(\.dismiss) private var dismiss
@@ -14,6 +17,10 @@ struct OnboardingContainer: View {
     let vm: OnboardingViewModel
     let storage: StorageManaging
     @State private var enlargenStep: Bool = false
+    
+    
+    
+    
     
     @ViewBuilder
     private var stepView: some View {
@@ -81,8 +88,16 @@ struct OnboardingContainer: View {
                         }
                         .hideSharedBackgroundIfAvailable()
                     }
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                    .transition(vm.transitionStep)
             }
         }
     }
 }
+
+/*
+ //Moving Forward Animation:
+ .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+
+ //Moving Backward Animation:
+ .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing)))
+ */

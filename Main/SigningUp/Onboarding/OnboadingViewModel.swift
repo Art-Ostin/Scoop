@@ -22,6 +22,17 @@ import FirebaseAuth
         self.sessionManager = sessionManager
         self.userManager = userManager
     }
+    
+    //Method to decide which direction to go if forward or back
+    var direction: TransitionDirection = .forward
+    var transitionStep: AnyTransition {
+        switch direction {
+        case .forward:
+            return  .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+        case .back:
+            return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+        }
+    }
 
     func signOut() async throws {
         try await authManager.deleteAuthUser()
@@ -51,12 +62,14 @@ import FirebaseAuth
     }
     
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
+        direction = .forward
         if !updateOnly { withAnimation(.easeInOut) {defaultManager.onboardingStep += 1 }}
         defaultManager.update(kp, to: value)
     }
     
     func goBackStep() {
         guard defaultManager.onboardingStep > 0 else { return }
+        direction = .back
         withAnimation(.easeInOut) {
             defaultManager.onboardingStep -= 1
         }
