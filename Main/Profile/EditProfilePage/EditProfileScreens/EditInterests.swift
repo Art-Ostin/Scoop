@@ -18,11 +18,11 @@ struct OnboardingInterests: View {
             .nextButton(isEnabled: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
-            .overlay(alignment: .top) {
-                Text("Choose at least 6")
-                    .font(.body(14, .bold))
-                    .offset(y: -24)
-            }
+//            .overlay(alignment: .top) {
+//                Text("Choose at least 6")
+//                    .font(.body(14, .bold))
+//                    .offset(y: -24)
+//            }
     }
 }
 
@@ -47,9 +47,7 @@ struct EditInterests: View {
                 }
                 vm.set(.interests, \.interests, to: selected)
             }
-            .padding(.top, 24)
             .customAlert(isPresented: $showEmptyAlert, message: "Please select at least 6 interests", showTwoButtons: false, onOK: {showEmptyAlert.toggle()})
-            .background(Color.background)
     }
 }
 
@@ -67,7 +65,7 @@ struct GenericInterests: View {
         let i = Interests.instance
         return [
             ("Social","figure.socialdance",i.social),
-            ("Interests", "book",i.passions),
+            ("Interests", "BookIcon",i.passions),
             ("Sports","tennisball",i.sports),
             ("Music","MyCustomMic",i.music1),
             (nil,nil,i.music2),
@@ -77,7 +75,16 @@ struct GenericInterests: View {
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-            scrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
+            HStack(alignment: .bottom) {
+                scrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
+                if selected.count < 6 {
+                Spacer()
+                Text("Choose at least 6")
+                        .font(.body(14, .bold))
+                        .offset(y: -24)
+                }
+            }
+            .padding(.leading, 6)
             selectedInterestsView.zIndex(2)
             scrollFader().zIndex(1)
             interestsSections
@@ -93,13 +100,6 @@ extension GenericInterests {
     
     private var selectedInterestsView: some View {
         ZStack {
-            if selected.isEmpty {
-                Text("Choose at least 6")
-                    .font(.body(16, .italic))
-                    .foregroundStyle(Color.grayText)
-                    .offset(y: 12)
-            }
-            
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
                     HStack(alignment: .bottom) {
@@ -130,6 +130,8 @@ extension GenericInterests {
                 .padding(.top, 12)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
+        .padding(.top, 36)
     }
 
     @ViewBuilder
@@ -315,3 +317,12 @@ struct OptionCell: View {
     }
 }
 
+
+/*
+ if selected.isEmpty {
+     Text("Choose at least 6")
+         .font(.body(16, .italic))
+         .foregroundStyle(Color.grayText)
+         .offset(y: 12)
+ }
+ */

@@ -263,17 +263,34 @@ struct scrollTitle: View {
     let selectedCount: Int
     let totalCount: Int
     let title: String
+    
     var body: some View {
+        
         HStack {
-            Text(title)
-                .font(.title(32, .bold))
-                .offset(y: -8)
-            
-            Text("\(selectedCount)/\(totalCount)")
-                .font(.title(12))
+            HStack {
+                Text(title)
+                    .font(.title(32, .bold))
+                    .offset(y: -8)
+                
+                Text("\(selectedCount)/\(totalCount)")
+                    .font(.title(12))
+            }
+            .padding(.horizontal)
+            .offset(y: -12)
+
+            HStack(alignment: .bottom) {
+                scrollTitle(selectedCount: selectedCount, totalCount: 10, title: "Passions")
+                if selectedCount < 6 {
+                Spacer()
+                Text("Choose at least 6")
+                        .font(.body(14, .medium))
+                        .offset(y: -24)
+                        .foregroundStyle(Color.grayText)
+                }
+            }
+            .padding(.leading, 6)
         }
-        .padding(.horizontal)
-        .offset(y: -12)
+        
     }
 }
 
