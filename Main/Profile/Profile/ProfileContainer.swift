@@ -38,36 +38,38 @@ struct ProfileView: View {
     
     var body: some View {
         GeometryReader { geo in
-            ZoomContainer {
-                VStack(spacing: 24) {
-                    profileTitle(geo: geo)
-                        .offset(y: rangeUpdater(endValue: -108))
-                        .opacity(1 - overlayTitleOpacity)
-                        .padding(.top, 36)
-                    
-                    ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
-                        .offset(y: rangeUpdater(endValue: -100))
-                        .simultaneousGesture(imageDetailsDrag)
-                        .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
-                    
-                    ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
-                        .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
-                        .offset(y: detailsSectionOffset())
-                        .onTapGesture { ui.detailsOpen.toggle() }
-                        .simultaneousGesture(detailsDrag)
+            if !ui.hideProfileScreen {
+                ZoomContainer {
+                    VStack(spacing: 24) {
+                        profileTitle(geo: geo)
+                            .offset(y: rangeUpdater(endValue: -108))
+                            .opacity(1 - overlayTitleOpacity)
+                            .padding(.top, 36)
+                        
+                        ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
+                            .offset(y: rangeUpdater(endValue: -100))
+                            .simultaneousGesture(imageDetailsDrag)
+                            .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
+                        
+                        ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
+                            .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
+                            .offset(y: detailsSectionOffset())
+                            .onTapGesture { ui.detailsOpen.toggle() }
+                            .simultaneousGesture(detailsDrag)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .background(
+                        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
+                            .fill(Color.background)
+                            .ignoresSafeArea()
+                            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+                    )
+                    .animation(.spring(duration: 0.2), value: ui.detailsOpen)
+                    .animation(.easeInOut(duration: 0.2), value: detailsOffset)
+                    .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
+                    .animation(.easeInOut(duration: 3), value: selectedProfile) /*snappy(duration: ui.dismissalDuration)*/
+                    .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(
-                    UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
-                        .fill(Color.background)
-                        .ignoresSafeArea()
-                        .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-                )
-                .animation(.spring(duration: 0.2), value: ui.detailsOpen)
-                .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
-                .animation(.snappy(duration: ui.dismissalDuration), value: selectedProfile)
-                .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
             }
         }
         .transition(isUserProfile ? .move(edge: .trailing) : vm.dismissTransition)
@@ -258,11 +260,11 @@ extension ProfileView {
     private func onDecline() {
         vm.transitionType = .actionPerformed
         ui.showDeclineScreen = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {ui.hideProfileScreen = true}
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {ui.hideProfileScreen = true}
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
             try await Task.sleep(nanoseconds: 750_000_000)
-            await MainActor.run {  selectedProfile = nil }
+            await MainActor.run { selectedProfile = nil }
         }
     }
 }

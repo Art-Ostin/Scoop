@@ -27,7 +27,7 @@ enum ProfileViewType {
         case .standard:
                 .move(edge: .bottom)
         case .actionPerformed:
-                .opacity
+                .opacity.animation(.easeInOut(duration: 0.3))
         }
     }
     
