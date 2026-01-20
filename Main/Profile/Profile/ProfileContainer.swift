@@ -155,6 +155,7 @@ extension ProfileView {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .background(Color.background)
         .onTapGesture { showDeclineScreen.toggle() }
+        .transition(.opacity.animation(.easeInOut(duration: 0.18)))
     }
 }
 
@@ -271,11 +272,12 @@ extension ProfileView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
-            try await Task.sleep(nanoseconds: 750_000_000)
+            try await Task.sleep(nanoseconds: 5_750_000_000)
             await MainActor.run { withAnimation(.easeInOut(duration: 0.3)) { selectedProfile = nil} }
         }
     }
 }
+
 
 //IT is the dismiss offset that is causing the bug for it to reappear. When I click on the screen quickly again, there is already a dismiss offset causing the issue.
 

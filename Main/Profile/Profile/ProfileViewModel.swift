@@ -21,7 +21,7 @@ enum ProfileViewType {
     var receivedEvent: UserEvent? { profileModel.event}
     
     var viewProfileType: ProfileViewType {
-        if profileModel.event?.status == .accepted || profileModel.event?.status == nil {
+        if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
             return .view
         } else if profileModel.event?.status == .pending {
             return .accept
