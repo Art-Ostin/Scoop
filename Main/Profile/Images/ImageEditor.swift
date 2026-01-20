@@ -48,7 +48,7 @@ struct ProfileImagesEditing: View {
             
             cancelButton
                 .padding(.top, 16)
-                .padding(.trailing, 16)
+                .padding(.trailing, 6)
                 .zIndex(1)
         }
         .task(id: item) { await loadImage() }

@@ -29,7 +29,7 @@ struct ProfileDetailsView: View {
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
-                DetailsSection(title: "Extra Info") {UserExtraInfo(p: p)}
+                DetailsSection(title: "Extra Info", adaptivePadding: true) {UserExtraInfo(p: p)}
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
             }
             .padding(.bottom, 300)

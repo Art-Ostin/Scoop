@@ -96,7 +96,7 @@ extension EditPreferredYears {
             var current = selection.wrappedValue
 
             if let idx = current.firstIndex(of: title) {
-                if current.count <= 4 {
+                if current.count < 4 {
                     shakeTicks[title, default: 0] += 1
                     messageTicks[title, default: 0] += 1
                     return
@@ -105,7 +105,6 @@ extension EditPreferredYears {
             } else {
                 current.append(title)
             }
-
             selection.wrappedValue = current
         }
     }

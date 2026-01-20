@@ -18,6 +18,8 @@ struct EditProfileContainer: View {
     @State var selectedImage: ImageSlot? = nil
     @State var showSavingScreen: Bool = false
     
+
+    
     var body: some View {
         ZStack {
             if isEdit {
@@ -43,6 +45,9 @@ struct EditProfileContainer: View {
                 await vm.loadImages()
             }
         }
+        .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
+        
+        
     }
 }
 
@@ -51,6 +56,10 @@ extension EditProfileContainer {
         HStack {
             if navigationPath.isEmpty &&  vm.showSaveButton {
                 Button {
+                    if !vm.updatedImages.isEmpty {
+                        showSavingScreen = true
+                    }
+                    
                     Task {
                         try await vm.saveProfileChanges()
                         await MainActor.run {dismiss()}

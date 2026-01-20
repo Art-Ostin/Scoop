@@ -34,6 +34,10 @@
 		6514B60B2EB2FB9500551C3A /* OnboardingImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */; };
 		651975842F1EF2CA0002F6A2 /* LoadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */; };
 		651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */; };
+		6519758C2F1EFCE90002F6A2 /* SandyLoading.json in Resources */ = {isa = PBXBuildFile; fileRef = 6519758B2F1EFCE90002F6A2 /* SandyLoading.json */; };
+		6519758E2F1EFFD80002F6A2 /* ScoopLoading.json in Resources */ = {isa = PBXBuildFile; fileRef = 6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */; };
+		651975912F1F91E80002F6A2 /* Facts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975902F1F91E80002F6A2 /* Facts.swift */; };
+		651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */; };
 		6522EF272E1EFDE6004531F9 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6522EF262E1EFDE6004531F9 /* EditProfileView.swift */; };
 		652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652FC9722E1AD7360034A387 /* AuthService.swift */; };
 		65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* DefaultParameters.swift */; };
@@ -213,6 +217,10 @@
 		6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImageViewModel.swift; sourceTree = "<group>"; };
 		651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LoadingAnimation.json; sourceTree = "<group>"; };
 		651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
+		6519758B2F1EFCE90002F6A2 /* SandyLoading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SandyLoading.json; sourceTree = "<group>"; };
+		6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ScoopLoading.json; sourceTree = "<group>"; };
+		651975902F1F91E80002F6A2 /* Facts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Facts.swift; sourceTree = "<group>"; };
+		651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsExtraInfo.swift; sourceTree = "<group>"; };
 		6522EF262E1EFDE6004531F9 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		652FC9722E1AD7360034A387 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		65376D792E05A7AF0058D225 /* DefaultParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultParameters.swift; sourceTree = "<group>"; };
@@ -472,7 +480,6 @@
 				65FEDAF22E229E19006CF3CD /* PromptsView.swift */,
 				65E820A82E3836CA0098CC36 /* InfoView.swift */,
 				65E820A42E382C7F0098CC36 /* InterestsView.swift */,
-				65FEDBA62E2307B7006CF3CD /* YearsView.swift */,
 				65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */,
 				656E3D242EB1754000303D9D /* DraftProfileView.swift */,
 				65F28E072F1E82CB008BF4DA /* PreferencesView.swift */,
@@ -513,6 +520,7 @@
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
 				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
+				651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */,
 				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
 				65E1EC9E2F19706D004C9236 /* ImageZoom.swift */,
 			);
@@ -623,6 +631,7 @@
 				65E820B02E3901080098CC36 /* Core */,
 				659497012E01DD4000880921 /* Main */,
 				650884152EAD4EA000776620 /* PendingInviteView.swift */,
+				65FEDBA62E2307B7006CF3CD /* YearsView.swift */,
 				6512639F2EAFD29A005E6930 /* TabViewModifiers.swift */,
 				6578383C2DE773CE00770B49 /* ScoopTests */,
 				657838462DE773CE00770B49 /* ScoopUITests */,
@@ -711,6 +720,8 @@
 				659497152E01DD4000880921 /* Assets.xcassets */,
 				65376D792E05A7AF0058D225 /* DefaultParameters.swift */,
 				651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */,
+				6519758B2F1EFCE90002F6A2 /* SandyLoading.json */,
+				6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */,
 				65A070572EE09F85009F798B /* CustomViewModifiers.swift */,
 				65B059572EE4CF0F00427B95 /* CustomModifier.swift */,
 				659109252E19B0810065696F /* Countries.swift */,
@@ -718,6 +729,7 @@
 				659109272E19B0810065696F /* Quotes.swift */,
 				65E820A02E37F3460098CC36 /* Interests.swift */,
 				6509DCEA2F1D78C000455AB5 /* Languages.swift */,
+				651975902F1F91E80002F6A2 /* Facts.swift */,
 				6561C8C62E0444EC006A72DF /* Fonts */,
 			);
 			path = Resources;
@@ -912,9 +924,11 @@
 			files = (
 				6561C8C82E0444EC006A72DF /* ModernEra-Bold.ttf in Resources */,
 				653BAFC02E0D930900C1AB9E /* SFCompactRounded-Regular.otf in Resources */,
+				6519758E2F1EFFD80002F6A2 /* ScoopLoading.json in Resources */,
 				6561C8C92E0444EC006A72DF /* ModernEra-Medium.ttf in Resources */,
 				658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */,
 				6561C8CA2E0444EC006A72DF /* ModernEra-MediumItalic.ttf in Resources */,
+				6519758C2F1EFCE90002F6A2 /* SandyLoading.json in Resources */,
 				6561C8CB2E0444EC006A72DF /* ModernEra-Regular.ttf in Resources */,
 				653BAF872E0B846600C1AB9E /* GoogleService-Info.plist in Resources */,
 				6561C8CC2E0444EC006A72DF /* NewYorkLarge-Bold.otf in Resources */,
@@ -1035,6 +1049,7 @@
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
 				65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */,
 				65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */,
+				651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */,
 				655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */,
 				655FADCA2E89F0FC00AFAD5F /* ProfileDetailsView.swift in Sources */,
 				655FADCB2E89F0FC00AFAD5F /* ProfileImageView.swift in Sources */,
@@ -1051,6 +1066,7 @@
 				6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserProfileRepo.swift in Sources */,
 				65BFE7E12E40D0B500B31A58 /* LocationModel.swift in Sources */,
+				651975912F1F91E80002F6A2 /* Facts.swift in Sources */,
 				65F450CB2E463E7900AE3503 /* MeetContainer.swift in Sources */,
 				655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */,
 				6577D7EB2E2077A200FFCF82 /* EditMyLifeAs.swift in Sources */,

@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftUIFlowLayout
 
+
+
+
 struct UserKeyInfo: View {
     let p : UserProfile
     var body : some View {
@@ -25,57 +28,6 @@ struct UserKeyInfo: View {
     }
 }
 
-
-struct UserExtraInfo: View {
-    let p: UserProfile
-    
-    var vicesOnTwoLines: Bool {
-        (p.favouriteSong == nil) && (p.favouriteMovie == nil)
-    }
-    var body: some View {
-        
-        if vicesOnTwoLines {
-            VStack(spacing: 16) {
-                HStack {
-                    InfoItem(image: "AlcoholIcon", info: p.drinking)
-                    Spacer()
-                    InfoItem(image: "CigaretteIcon", info: p.smoking)
-                }
-                Divider().foregroundStyle(Color.grayPlaceholder)
-                HStack {
-                    InfoItem(image: "WeedIcon", info: p.marijuana)
-                    Spacer()
-                    InfoItem(image: "DrugsIcon",info: p.drugs)
-                }
-            }
-        } else {
-            VStack(alignment: .leading) {
-                ScrollView(.horizontal) {
-                    HStack(spacing: 16) {
-                        InfoItem(image: "AlcoholIcon", info: p.drinking)
-                        InfoItem(image: "CigaretteIcon", info: p.smoking)
-                        InfoItem(image: "WeedIcon", info: p.marijuana)
-                        InfoItem(image: "DrugsIcon",info: p.drugs)
-                    }
-                }
-                Divider().foregroundStyle(Color.grayPlaceholder)
-                HStack {
-                    if let favouriteSong = p.favouriteSong {
-                        InfoItem(image: "MusicIcon", info: favouriteSong)
-                    } else if let favouriteMovie =  p.favouriteMovie {
-                        InfoItem(image: "MovieIcon", info: favouriteMovie)
-                    } else if let favouriteSong = p.favouriteSong, let favouriteMovie = p.favouriteMovie {
-                        InfoItem(image: "MovieIcon", info: favouriteMovie)
-                        Spacer()
-                        InfoItem(image: "MusicIcon", info: favouriteSong)
-                    }
-                }
-            }
-        }
-        Divider().foregroundStyle(Color.grayPlaceholder)
-        InfoItem(image: "GenderIcon", info: p.sex)
-    }
-}
 struct UserInterests: View {
     let p: UserProfile
     let interestScale: CGFloat
