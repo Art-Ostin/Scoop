@@ -5,39 +5,27 @@ struct ProfileView: View {
     @Environment(\.tabSelection) private var tabSelection
     @Environment(\.dismiss) private var dismiss
     
-    @GestureState var detailsOffset = CGFloat.zero
-    @GestureState var profileOffset = CGFloat.zero
-    @Binding private var dismissOffset: CGFloat?
-    
     @State private var vm: ProfileViewModel
     let meetVM: MeetViewModel?
     
-    @State private var showInvitePopup: Bool = false
-    @State private var detailsOpen: Bool = false
-    @State private var dragType: DragType? = nil
-    @State private var isTopOfScroll = true
-    @State private var detailsOpenOffset: CGFloat = -284
-    @State private var showDeclineScreen: Bool = false
-    @State private var hideProfileScreen: Bool = false
-    
+    @GestureState var detailsOffset = CGFloat.zero
+    @GestureState var profileOffset = CGFloat.zero
+    @Binding private var dismissOffset: CGFloat?
     @Binding private var selectedProfile: ProfileModel?
-    var isUserProfile: Bool { draftProfile != nil }
-    @State private var containerHeight: CGFloat = 0
-    
-    private let dismissalDuration: TimeInterval = 0.35
-    
+
+    @State private var ui = ProfileUIState()
+    private var detailsDragRange: ClosedRange<CGFloat> {
+        let limit = ui.detailsOpenOffset - 80
+        return ui.detailsOpen ? (-85 ... -limit) : (limit ... 85)
+    }
+    let profileImages: [UIImage]
+
+    //Functionality to do with draftProfile to display
     let draftProfile: UserProfile?
-    
+    var isUserProfile: Bool { draftProfile != nil }
     private var displayProfile: UserProfile {
         draftProfile ?? vm.profileModel.profile
     }
-    
-    private var detailsDragRange: ClosedRange<CGFloat> {
-        let limit = detailsOpenOffset - 80
-        return detailsOpen ? (-85 ... -limit) : (limit ... 85)
-    }
-    
-    let profileImages: [UIImage]
     
     init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, draftProfile: UserProfile? = nil) {
         _vm = State(initialValue: vm)
@@ -57,35 +45,34 @@ struct ProfileView: View {
                         .opacity(1 - overlayTitleOpacity)
                         .padding(.top, 36)
                     
-                    ProfileImageView(vm: vm, showInvite: $showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
+                    ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
                         .offset(y: rangeUpdater(endValue: -100))
                         .simultaneousGesture(imageDetailsDrag)
-                        .onTapGesture { if detailsOpen { detailsOpen.toggle()}}
+                        .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                     
-                    ProfileDetailsView(vm: vm, isTopOfScroll: $isTopOfScroll, showInvite: $showInvitePopup, detailsOpen: detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
+                    ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
                         .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                         .offset(y: detailsSectionOffset())
-                        .onTapGesture { detailsOpen.toggle() }
+                        .onTapGesture { ui.detailsOpen.toggle() }
                         .simultaneousGesture(detailsDrag)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(
-                    //Do not Change Critical! Fixed the scrolling down issue
-                    UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24)
+                    UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
                         .fill(Color.background)
                         .ignoresSafeArea()
                         .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
                 )
-                .animation(.spring(duration: 0.2), value: detailsOpen)
+                .animation(.spring(duration: 0.2), value: ui.detailsOpen)
                 .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                .animation(.snappy(duration: 0.35), value: profileOffset)//Bug Fix: ProfileOffset & selected profile Must be same animation length
-                .animation(.snappy(duration: 0.35), value: selectedProfile)
+                .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
+                .animation(.snappy(duration: ui.dismissalDuration), value: selectedProfile)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
             }
         }
         .transition(isUserProfile ? .move(edge: .trailing) : vm.dismissTransition)
-        .overlay {if showInvitePopup {invitePopup}}
-        .overlay { if showDeclineScreen { declineScreen} }
+        .overlay {if ui.showInvitePopup {invitePopup}}
+        .overlay { if ui.showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
     }
 }
@@ -94,7 +81,7 @@ struct ProfileView: View {
 extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
-        if showInvitePopup, let event = vm.profileModel.event {
+        if ui.showInvitePopup, let event = vm.profileModel.event {
             AcceptInvitePopup(profileModel: vm.profileModel) {
                 if let meetVM {
                     @Bindable var meetVM = meetVM
@@ -103,7 +90,7 @@ extension ProfileView {
                 }
             }
         } else if let meetVM {
-            SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { showInvitePopup = false }) { event in
+            SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { ui.showInvitePopup = false }) { event in
                 try? await meetVM.sendInvite(event: event, profileModel: vm.profileModel)
             }
         }
@@ -154,7 +141,7 @@ extension ProfileView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .background(Color.background)
-        .onTapGesture { showDeclineScreen.toggle() }
+        .onTapGesture { ui.showDeclineScreen.toggle() }
         .transition(.opacity.animation(.easeInOut(duration: 0.18)))
     }
 }
@@ -162,13 +149,13 @@ extension ProfileView {
 //Details Open or Closed Animations
 extension ProfileView {
     func detailsSectionOffset() -> CGFloat {
-        return detailsOffset + (detailsOpen ? detailsOpenOffset : 0)
+        return detailsOffset + (ui.detailsOpen ? ui.detailsOpenOffset : 0)
     }
     
     private var overlayTitleOpacity: Double {
-        let oneThird = max(1, abs(detailsOpenOffset) / 3)
+        let oneThird = max(1, abs(ui.detailsOpenOffset) / 3)
         let offsetProgress = abs(detailsOffset)
-        if detailsOpen {
+        if ui.detailsOpen {
             guard offsetProgress < oneThird else { return 0 }
             return 1 - min(detailsOffset / oneThird, 1)
         }
@@ -177,12 +164,12 @@ extension ProfileView {
     }
     
     func rangeUpdater(startValue: CGFloat = 0, endValue: CGFloat) -> CGFloat {
-        let denom = max(abs(detailsOpenOffset), 0.0001)
+        let denom = max(abs(ui.detailsOpenOffset), 0.0001)
         let t = min(abs(detailsOffset) / denom, 1)
         let delta = (endValue - startValue) * t
-        let baseValue = detailsOpen ? endValue : startValue
-        let adjustForDrag = (detailsOpen && detailsOffset > 0) || (!detailsOpen && detailsOffset < 0)
-        return adjustForDrag ? (detailsOpen ? (baseValue - delta) : (baseValue + delta)) : baseValue
+        let baseValue = ui.detailsOpen ? endValue : startValue
+        let adjustForDrag = (ui.detailsOpen && detailsOffset > 0) || (!ui.detailsOpen && detailsOffset < 0)
+        return adjustForDrag ? (ui.detailsOpen ? (baseValue - delta) : (baseValue + delta)) : baseValue
     }
 }
 
@@ -191,27 +178,27 @@ extension ProfileView {
     private var imageDetailsDrag: some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($profileOffset) { value, state, _ in
-                if dragType == nil { dragType(v: value) }
-                guard dragType == .profile else { return }
+                if ui.dragType == nil { dragType(v: value) }
+                guard ui.dragType == .profile else { return }
                 state = value.translation.height
             }
             .updating($detailsOffset) { v, state, _ in
-                if dragType == nil { dragType(v: v) }
-                guard dragType == .details else { return }
+                if ui.dragType == nil { dragType(v: v) }
+                guard ui.dragType == .details else { return }
                 state = v.translation.height.clamped(to: detailsDragRange)
             }
             .onEnded { v in
-                defer { dragType = nil }
-                guard dragType != nil && dragType != .horizontal else { return }
+                defer { ui.dragType = nil }
+                guard ui.dragType != nil && ui.dragType != .horizontal else { return }
                 let predicted = abs(v.predictedEndTranslation.height)
                 let distance = abs(v.translation.height)
                 //Only update if user drags more than 75
                 guard max(distance, predicted) > 75 else { return }
-                if dragType == .profile {
+                if ui.dragType == .profile {
                     dismissOffset = v.translation.height
                     selectedProfile = nil
-                } else if dragType == .details {
-                    detailsOpen.toggle()
+                } else if ui.dragType == .details {
+                    ui.detailsOpen.toggle()
                 }
             }
     }
@@ -219,38 +206,37 @@ extension ProfileView {
     private var detailsDrag: some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($detailsOffset) { v, state, _ in
-                if detailsOpen && (!isTopOfScroll || v.translation.height < 0) { return }
-                if dragType == nil {dragType(v: v)}
-                guard dragType != nil && dragType != .horizontal else { return }
+                if ui.detailsOpen && (!ui.isTopOfScroll || v.translation.height < 0) { return }
+                if ui.dragType == nil {dragType(v: v)}
+                guard ui.dragType != nil && ui.dragType != .horizontal else { return }
                 state = v.translation.height.clamped(to: detailsDragRange)
             }
             .onEnded {
-                defer { dragType = nil }
-                guard dragType != nil && dragType != .horizontal else { return }
+                defer { ui.dragType = nil }
+                guard ui.dragType != nil && ui.dragType != .horizontal else { return }
                 let predicted = $0.predictedEndTranslation.height
                 if predicted < 50 && profileOffset == 0 {
-                    detailsOpen = true
-                } else if detailsOpen && predicted > 60 {
-                    detailsOpen = false
+                    ui.detailsOpen = true
+                } else if ui.detailsOpen && predicted > 60 {
+                    ui.detailsOpen = false
                 }
             }
     }
     
     private func dragType(v: DragGesture.Value) {
         //If there is already a dragType don't reassign it (here), get y and x drag
-        if self.dragType != nil  {return }
+        if ui.dragType != nil  {return }
         let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
         //Ensures user drags at least 5 points, and its a vertical drag
-        guard dy > dx else { dragType = .horizontal; return}
+        guard dy > dx else { ui.dragType = .horizontal; return}
         //If it passes conditions updates 'drag type'
-        self.dragType = (v.translation.height < 0 || detailsOpen) ? .details : .profile
+        ui.dragType = (v.translation.height < 0 || ui.detailsOpen) ? .details : .profile
     }
 }
 
-//Other
+//Dismissing Profile
 extension ProfileView {
-    
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
     }
@@ -258,19 +244,18 @@ extension ProfileView {
     private func dismissProfile(using geo: GeometryProxy) {
         dismiss()
         let distance = geo.size.height + geo.safeAreaInsets.bottom
-        withAnimation(.snappy(duration: dismissalDuration)) {
+        withAnimation(.snappy(duration: ui.dismissalDuration)) {
             dismissOffset = distance
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissalDuration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissalDuration) {
             selectedProfile = nil
         }
     }
-
     
     private func onDecline() {
         vm.transitionType = .actionPerformed
-        showDeclineScreen = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
+        ui.showDeclineScreen = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {ui.hideProfileScreen = true}
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
             try await Task.sleep(nanoseconds: 750_000_000)
@@ -278,20 +263,3 @@ extension ProfileView {
         }
     }
 }
-
-
-//IT is the dismiss offset that is causing the bug for it to reappear. When I click on the screen quickly again, there is already a dismiss offset causing the issue.
-
-// The two different offset speeds on the profile: (1) ProfileOffset (animation) sometimes is causing the profile to dismiss at a particular speed (2) Sometimes it is the selectedProfile Causing it to dismiss.
-
-//Potential Bug of still appearing at the bottom is caused b
-
-/*
- .overlay(alignment: .topTrailing) {
-     Image(systemName: "xmark")
-         .font(.body(17, .bold))
-         .padding(5)
-         .glassIfAvailable()
- }
- 
- */

@@ -31,7 +31,6 @@ enum ProfileViewType {
         }
     }
     
-    
     var viewProfileType: ProfileViewType {
         if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
             return .view
@@ -58,6 +57,19 @@ enum DragType {
 enum DismissTransition {
     case standard, actionPerformed
 }
+
+@Observable final class ProfileUIState {
+    var showInvitePopup = false
+    var showDeclineScreen = false
+    var detailsOpen = false
+    var dragType: DragType? = nil
+    var isTopOfScroll = true
+    var detailsOpenOffset: CGFloat = -284
+    var hideProfileScreen: Bool = false
+    let dismissalDuration: TimeInterval = 0.35
+}
+
+
 
 
 /*
