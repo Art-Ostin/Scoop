@@ -54,6 +54,13 @@ import FirebaseAuth
         if !updateOnly { withAnimation(.easeInOut) {defaultManager.onboardingStep += 1 }}
         defaultManager.update(kp, to: value)
     }
+    
+    func goBackStep() {
+        guard defaultManager.onboardingStep > 0 else { return }
+        withAnimation(.easeInOut) {
+            defaultManager.onboardingStep -= 1
+        }
+    }
 }
 
 

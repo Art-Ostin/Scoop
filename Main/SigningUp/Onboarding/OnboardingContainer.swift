@@ -40,12 +40,24 @@ struct OnboardingContainer: View {
             ZStack {
                 stepView
                     .toolbar {
+                        
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
                                 dismiss()
                             } label: {
                                 Image(systemName: "xmark")
                                     .font(.body(16, .bold))
+                            }
+                        }
+                        
+                        ToolbarItem(placement: .topBarLeading) {
+                            if vm.onboardingStep > 0 {
+                                Button {
+                                    vm.goBackStep()
+                                } label: {
+                                    Image(systemName: "chevron.left")
+                                        .font(.body(16, .bold))
+                                }
                             }
                         }
                         
