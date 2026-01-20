@@ -67,18 +67,14 @@ struct ProfileView: View {
                     .animation(.spring(duration: 0.2), value: ui.detailsOpen)
                     .animation(.easeInOut(duration: 0.2), value: detailsOffset)
                     .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
-                    .animation(.easeInOut(duration: 3), value: selectedProfile) /*snappy(duration: ui.dismissalDuration)*/
+                    .animation(.easeInOut(duration: ui.dismissalDuration), value: selectedProfile) /*snappy(duration: ui.dismissalDuration)*/
                     .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 }
             }
         }
-        .transition(isUserProfile ? .move(edge: .trailing) : vm.dismissTransition)
         .overlay {if ui.showInvitePopup {invitePopup}}
         .overlay { if ui.showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
-        .onChange(of: vm.transitionType) {
-            print(vm.transitionType)
-        }
     }
 }
 
@@ -258,7 +254,8 @@ extension ProfileView {
     }
     
     private func onDecline() {
-        vm.transitionType = .actionPerformed
+        guard let meetVM else {return}
+        meetVM.transitionType = .actionPerformed
         ui.showDeclineScreen = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {ui.hideProfileScreen = true}
         Task {

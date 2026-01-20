@@ -20,16 +20,6 @@ enum ProfileViewType {
     
     var receivedEvent: UserEvent? { profileModel.event}
     
-    var transitionType: DismissTransition = .standard
-    
-    var dismissTransition: AnyTransition {
-        switch transitionType {
-        case .standard:
-                .move(edge: .bottom)
-        case .actionPerformed:
-                .opacity.animation(.easeInOut(duration: 0.3))
-        }
-    }
     
     var viewProfileType: ProfileViewType {
         if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
@@ -54,9 +44,6 @@ enum DragType {
     case details, profile, horizontal
 }
 
-enum DismissTransition {
-    case standard, actionPerformed
-}
 
 @Observable final class ProfileUIState {
     var showInvitePopup = false

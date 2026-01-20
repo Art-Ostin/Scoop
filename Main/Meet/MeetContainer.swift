@@ -38,9 +38,11 @@ struct MeetContainer: View {
                 
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $selectedProfile, dismissOffset: $dismissOffset)
+                        .transition(vm.dismissTransition)
                         .id(profileModel.id)
                         .zIndex(1)
                 }
+                
                 if let currentProfile = quickInvite {
                     SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
                         try? await vm.sendInvite(event: event, profileModel: currentProfile)

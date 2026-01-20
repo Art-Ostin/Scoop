@@ -7,6 +7,7 @@
 import Foundation
 import UIKit
 import FirebaseFirestore
+import SwiftUI
 
 @MainActor
 @Observable final class MeetViewModel {
@@ -82,4 +83,19 @@ import FirebaseFirestore
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
+    
+    var transitionType: DismissTransition = .standard
+    
+    var dismissTransition: AnyTransition {
+        switch transitionType {
+        case .standard:
+                return .move(edge: .bottom)
+        case .actionPerformed:
+                return .opacity
+        }
+    }
+}
+
+enum DismissTransition {
+    case standard, actionPerformed
 }
