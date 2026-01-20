@@ -20,6 +20,18 @@ enum ProfileViewType {
     
     var receivedEvent: UserEvent? { profileModel.event}
     
+    var transitionType: DismissTransition = .standard
+    
+    var dismissTransition: AnyTransition {
+        switch transitionType {
+        case .standard:
+                .move(edge: .bottom)
+        case .actionPerformed:
+                .opacity
+        }
+    }
+    
+    
     var viewProfileType: ProfileViewType {
         if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
             return .view
@@ -41,6 +53,10 @@ enum ProfileViewType {
 }
 enum DragType {
     case details, profile, horizontal
+}
+
+enum DismissTransition {
+    case standard, actionPerformed
 }
 
 

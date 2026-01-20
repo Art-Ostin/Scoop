@@ -83,7 +83,7 @@ struct ProfileView: View {
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
             }
         }
-        .transition(isUserProfile ? .move(edge: .trailing) : .move(edge: .bottom))
+        .transition(isUserProfile ? .move(edge: .trailing) : vm.dismissTransition)
         .overlay {if showInvitePopup {invitePopup}}
         .overlay { if showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
@@ -268,11 +268,12 @@ extension ProfileView {
 
     
     private func onDecline() {
+        vm.transitionType = .actionPerformed
         showDeclineScreen = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {hideProfileScreen = true}
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
-            try await Task.sleep(nanoseconds: 5_750_000_000)
+            try await Task.sleep(nanoseconds: 750_000_000)
             await MainActor.run { withAnimation(.easeInOut(duration: 0.3)) { selectedProfile = nil} }
         }
     }

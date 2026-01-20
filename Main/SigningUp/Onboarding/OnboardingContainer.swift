@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-enum TransitionDirection { case forward, back }
-
-
 struct OnboardingContainer: View {
     
     @Environment(\.dismiss) private var dismiss
@@ -17,9 +14,6 @@ struct OnboardingContainer: View {
     let vm: OnboardingViewModel
     let storage: StorageManaging
     @State private var enlargenStep: Bool = false
-    
-    
-    
     
     
     @ViewBuilder
@@ -39,7 +33,7 @@ struct OnboardingContainer: View {
             case 11: OnboardingPrompt(vm: vm, promptIndex: 1)
             case 12: OnboardingImages(vm: vm, defaults: vm.defaultManager, storage: storage, auth: vm.authManager)
             default: EmptyView()
-            }
+        }
     }
     @State private var bounce = false
     var body: some View {

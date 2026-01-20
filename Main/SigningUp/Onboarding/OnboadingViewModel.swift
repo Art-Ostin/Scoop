@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 
+
 @Observable class OnboardingViewModel {
     
     @ObservationIgnored let authManager: AuthManaging
@@ -75,6 +76,7 @@ import FirebaseAuth
         }
     }
 }
+enum TransitionDirection { case forward, back }
 
 
 /*
