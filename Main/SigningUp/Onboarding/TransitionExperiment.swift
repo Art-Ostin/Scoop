@@ -74,7 +74,6 @@ struct SheetLikeView: View {
             }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .padding()

@@ -48,6 +48,9 @@ struct OnboardingContainer: View {
                             } label: {
                                 Image(systemName: "xmark")
                                     .font(.body(16, .bold))
+                                    .padding(24)
+                                    .contentShape(Rectangle())
+                                    .padding(-24)
                             }
                         }
                         
@@ -58,6 +61,9 @@ struct OnboardingContainer: View {
                                 } label: {
                                     Image(systemName: "chevron.left")
                                         .font(.body(16, .bold))
+                                        .padding(24)
+                                        .contentShape(Rectangle())
+                                        .padding(-24)
                                 }
                             }
                         }

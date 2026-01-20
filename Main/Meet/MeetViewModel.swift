@@ -89,9 +89,9 @@ import SwiftUI
     var dismissTransition: AnyTransition {
         switch transitionType {
         case .standard:
-                return .move(edge: .bottom)
+            return  .move(edge: .leading)
         case .actionPerformed:
-                return .opacity
+            return .move(edge: .trailing)
         }
     }
 }

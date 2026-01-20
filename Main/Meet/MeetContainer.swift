@@ -10,7 +10,7 @@ import SwiftUI
 //@State var showProfileTest: ProfileModel?
 
 struct MeetContainer: View {
-    @Bindable var vm: MeetViewModel
+    let vm: MeetViewModel
     @State private var profilePath: [ProfileModel] = []
     @State var selectedProfile: ProfileModel? = nil
     
@@ -38,9 +38,10 @@ struct MeetContainer: View {
                 
                 if let profileModel = selectedProfile {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $selectedProfile, dismissOffset: $dismissOffset)
-                        .transition(vm.dismissTransition)
                         .id(profileModel.id)
                         .zIndex(1)
+                        .transition(vm.dismissTransition)
+
                 }
                 
                 if let currentProfile = quickInvite {
