@@ -85,6 +85,9 @@ extension UserExtraInfo {
                 InfoItem(image: "DrugsIcon",info: p.drugs)
             }
         }
+        .padding(.vertical, 12) //Trick to expand the tap area of the view so scrolls easier
+        .contentShape(Rectangle())
+        .padding(.vertical, -12)
     }
     
     private var genderAndLanguages: some View {
@@ -110,6 +113,9 @@ extension UserExtraInfo {
                 }
             }
         }
+        .padding(.vertical, 12) //Trick to expand the tap area of the view so scrolls easier
+        .contentShape(Rectangle())
+        .padding(.vertical, -12)
     }
     
     

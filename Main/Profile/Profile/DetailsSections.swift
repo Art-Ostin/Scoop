@@ -3,17 +3,35 @@
 //  Scoop
 //
 //  Created by Art Ostin on 02/11/2025.
-//
+
 
 import SwiftUI
 import SwiftUIFlowLayout
 
 
-
-
 struct UserKeyInfo: View {
     let p : UserProfile
+    var hometownCount: Int { p.hometown.count}
+    
     var body : some View {
+        if hometownCount <= 14 {
+            keyInfoOneLine
+        } else {
+            keyInfoScrollView
+        }
+        Divider().background(Color.grayPlaceholder)
+        InfoItem(image: "ScholarStyle", info: p.degree)
+        Divider().background(Color.grayPlaceholder)
+        InfoItem(image: "magnifyingglass", info: p.lookingFor)
+            .onAppear {
+                print(hometownCount)
+            }
+    }
+}
+
+extension UserKeyInfo {
+
+    private var keyInfoOneLine: some View {
         HStack(alignment: .center) {
                 InfoItem(image: "Year", info: p.year)
                 Spacer()
@@ -21,12 +39,22 @@ struct UserKeyInfo: View {
                 Spacer()
                 InfoItem(image: "House", info: p.hometown)
             }
-            Divider().background(Color.grayPlaceholder)
-            InfoItem(image: "ScholarStyle", info: p.degree)
-            Divider().background(Color.grayPlaceholder)
-            InfoItem(image: "magnifyingglass", info: p.lookingFor)
+    }
+
+    private var keyInfoScrollView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 24) {
+                InfoItem(image: "Year", info: p.year)
+                InfoItem(image: "Height", info: ("193cm"))
+                InfoItem(image: "House", info: p.hometown)
+            }
+        }
+        .padding(.vertical, 12) //Trick to expand the tap area of the view so scrolls easier
+        .contentShape(Rectangle())
+        .padding(.vertical, -12)
     }
 }
+
 
 struct UserInterests: View {
     let p: UserProfile
@@ -74,5 +102,3 @@ struct ProfileEvent: View {
         }
     }
 }
-
-
