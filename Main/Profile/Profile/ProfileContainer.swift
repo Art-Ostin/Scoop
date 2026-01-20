@@ -74,6 +74,9 @@ struct ProfileView: View {
         .overlay {if ui.showInvitePopup {invitePopup}}
         .overlay { if ui.showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
+        .onChange(of: vm.transitionType) {
+            print(vm.transitionType)
+        }
     }
 }
 
@@ -259,7 +262,7 @@ extension ProfileView {
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
             try await Task.sleep(nanoseconds: 750_000_000)
-            await MainActor.run { withAnimation(.easeInOut(duration: 0.3)) { selectedProfile = nil} }
+            await MainActor.run {  selectedProfile = nil }
         }
     }
 }
