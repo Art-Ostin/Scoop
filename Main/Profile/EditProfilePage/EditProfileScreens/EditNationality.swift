@@ -69,7 +69,7 @@ struct GenericNationality: View {
     var body: some View {
         ScrollViewReader { proxy in
             ZStack(alignment: .topLeading) {
-                scrollTitle(selectedCount: countriesSelected.count, totalCount: 3, title: "Nationality")
+                ScrollTitle(selectedCount: countriesSelected.count, totalCount: 3, title: "Nationality")
                 selectedCountries.zIndex(2)
                 scrollFader().zIndex(1)
                 nationalitiesView.zIndex(0)
@@ -259,38 +259,28 @@ struct scrollFader: View {
 
 
 
-struct scrollTitle: View {
+struct ScrollTitle: View {
     let selectedCount: Int
     let totalCount: Int
     let title: String
     
     var body: some View {
         
-        HStack {
-            HStack {
-                Text(title)
-                    .font(.title(32, .bold))
-                    .offset(y: -8)
-                
-                Text("\(selectedCount)/\(totalCount)")
-                    .font(.title(12))
-            }
-            .padding(.horizontal)
-            .offset(y: -12)
-
-            HStack(alignment: .bottom) {
-                scrollTitle(selectedCount: selectedCount, totalCount: 10, title: "Passions")
-                if selectedCount < 6 {
+        HStack(alignment: .bottom) {
+            Text(title)
+                .font(.title(32, .bold))
+                .offset(y: 6)
+            
+            Text("\(selectedCount)/\(totalCount)")
+                .font(.title(12))
+            
+            if title != "Nationality" && selectedCount < 6 {
                 Spacer()
                 Text("Choose at least 6")
-                        .font(.body(14, .medium))
-                        .offset(y: -24)
-                        .foregroundStyle(Color.grayText)
-                }
+                    .font(.body(14, .medium))
+                    .foregroundStyle(Color.grayText)
             }
-            .padding(.leading, 6)
         }
-        
     }
 }
 

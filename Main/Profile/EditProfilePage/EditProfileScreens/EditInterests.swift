@@ -75,16 +75,7 @@ struct GenericInterests: View {
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-            HStack(alignment: .bottom) {
-                scrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
-                if selected.count < 6 {
-                Spacer()
-                Text("Choose at least 6")
-                        .font(.body(14, .bold))
-                        .offset(y: -24)
-                }
-            }
-            .padding(.leading, 6)
+            ScrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
             selectedInterestsView.zIndex(2)
             scrollFader().zIndex(1)
             interestsSections
