@@ -14,6 +14,8 @@ struct OnboardingContainer: View {
     let vm: OnboardingViewModel
     let storage: StorageManaging
     @State private var enlargenStep: Bool = false
+    @State private var showSaved: Bool = false
+    
     
     
     @ViewBuilder
@@ -61,43 +63,38 @@ struct OnboardingContainer: View {
                                 } label: {
                                     Image(systemName: "chevron.left")
                                         .font(.body(16, .bold))
-                                        .padding(24)
                                         .contentShape(Rectangle())
-                                        .padding(-24)
                                 }
                             }
                         }
                         
                         ToolbarItem(placement: .principal) {
-                            Text("\(vm.onboardingStep)/\(12)")
-                                .font(.body(12, .bold))
-                                .foregroundStyle(bounce ? .accent : .accent)
-                                .scaleEffect(bounce ? 1.4 : 1.0, anchor: .leading)
-                                .rotationEffect(.degrees(bounce ? -4 : 0), anchor: .leading)
-                                .animation(
-                                    .spring(response: 0.25, dampingFraction: 0.5, blendDuration: 0.25),
-                                    value: bounce
-                                )
-                                .onChange(of: vm.onboardingStep) {
-                                    bounce = true
-                                    Task {
-                                        try? await Task.sleep(nanoseconds: 300_000_000)
-                                        bounce = false
-                                    }
+                            if showSaved {
+                                HStack(spacing: 12) {
+                                    Text("Saved")
+                                        .font(.body(14, .bold))
+                                        .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
+                                    
+                                    Image("GreenTick")
                                 }
+                            } else {
+                                Text("\(vm.onboardingStep)/\(12)")
+                                    .font(.body(12, .bold))
+                                    .foregroundStyle(bounce ? .accent : .accent)
+                            }
                         }
                         .hideSharedBackgroundIfAvailable()
                     }
                     .transition(vm.transitionStep)
+                    .onChange(of: vm.onboardingStep) { oldValue, newValue in
+                        guard newValue > oldValue else { return}
+                        showSaved = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                            showSaved = false
+                        }
+                    }
+                    .animation(.easeInOut(duration: 5), value: showSaved)
             }
         }
     }
 }
-
-/*
- //Moving Forward Animation:
- .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-
- //Moving Backward Animation:
- .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing)))
- */

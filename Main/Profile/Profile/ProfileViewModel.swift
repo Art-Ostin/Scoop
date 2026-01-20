@@ -18,22 +18,21 @@ enum ProfileViewType {
     let profileModel: ProfileModel
     let cacheManager: CacheManaging
     
-    var receivedEvent: UserEvent? { profileModel.event}
+    var receivedEvent: UserEvent? { profileModel.event }
     
-    
-    var viewProfileType: ProfileViewType {
-        if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
-            return .view
-        } else if profileModel.event?.status == .pending {
-            return .accept
-        } else {
-            return .invite
-        }
-    }
+    var viewProfileType: ProfileViewType
     
     init(profileModel: ProfileModel, cacheManager: CacheManaging) {
         self.profileModel = profileModel
         self.cacheManager = cacheManager
+        
+        if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
+            self.viewProfileType = .view
+        } else if profileModel.event?.status == .pending {
+            self.viewProfileType = .accept
+        } else {
+            self.viewProfileType = .invite
+        }
     }
     
     func loadImages() async -> [UIImage] {
@@ -61,3 +60,4 @@ enum DragType {
 
 /*
  */
+

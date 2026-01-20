@@ -84,16 +84,6 @@ import SwiftUI
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
     
-    var transitionType: DismissTransition = .standard
-    
-    var dismissTransition: AnyTransition {
-        switch transitionType {
-        case .standard:
-            return  .move(edge: .leading)
-        case .actionPerformed:
-            return .move(edge: .trailing)
-        }
-    }
 }
 
 enum DismissTransition {

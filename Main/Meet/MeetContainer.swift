@@ -40,8 +40,7 @@ struct MeetContainer: View {
                     ProfileView(vm: ProfileViewModel(profileModel: profileModel, cacheManager: vm.cacheManager),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $selectedProfile, dismissOffset: $dismissOffset)
                         .id(profileModel.id)
                         .zIndex(1)
-                        .transition(vm.dismissTransition)
-
+                        .transition(.move(edge: .bottom))
                 }
                 
                 if let currentProfile = quickInvite {
@@ -62,6 +61,7 @@ struct MeetContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (16 * 2)
             }
+        
     }
 }
 

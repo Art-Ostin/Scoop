@@ -75,9 +75,7 @@ struct ProfileView: View {
         .overlay {if ui.showInvitePopup {invitePopup}}
         .overlay { if ui.showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
-        .onAppear {
-            if let meetVM  { meetVM.transitionType = .standard}
-        }
+        .onAppear { if isUserProfile {vm.viewProfileType = .view } }
     }
 }
 
@@ -257,10 +255,8 @@ extension ProfileView {
     }
     
     private func onDecline() {
-        guard let meetVM else {return}
-        meetVM.transitionType = .actionPerformed
         ui.showDeclineScreen = true
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {ui.hideProfileScreen = true}
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {ui.hideProfileScreen = true}
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
             try await Task.sleep(nanoseconds: 750_000_000)
