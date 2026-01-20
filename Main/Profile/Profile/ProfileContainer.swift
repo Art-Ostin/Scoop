@@ -264,7 +264,8 @@ extension ProfileView {
         Task {
             //       try await meetVM?.declineProfile(profileModel: pModel)
             try await Task.sleep(nanoseconds: 750_000_000)
-            await MainActor.run { selectedProfile = nil }
+            await MainActor.run { withAnimation(.easeInOut(duration: 0.3)) {selectedProfile = nil}
+            }
         }
     }
 }
