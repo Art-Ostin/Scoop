@@ -25,7 +25,7 @@ struct ProfileDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                DetailsSection(color: detailsOpen ? .accent : Color.grayPlaceholder, title: "About") {UserKeyInfo(p: p)}
+                DetailsSection(color: detailsOpen ? .accent : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)

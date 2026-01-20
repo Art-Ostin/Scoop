@@ -49,10 +49,8 @@ struct OnboardingContainer: View {
                             }
                         }
                         
-                        ToolbarItem(placement: .topBarLeading){
+                        ToolbarItem(placement: .principal) {
                             Text("\(vm.onboardingStep)/\(12)")
-                                .padding(.leading, 4)
-                                .frame(width: 100, alignment: .leading)
                                 .font(.body(12, .bold))
                                 .foregroundStyle(bounce ? .accent : .accent)
                                 .scaleEffect(bounce ? 1.4 : 1.0, anchor: .leading)
