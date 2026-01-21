@@ -18,6 +18,13 @@ struct OnboardingInterests: View {
             .nextButton(isEnabled: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
+            .onAppear {
+                if let draft = vm.draftProfile {
+                    if !draft.interests.isEmpty {
+                        selected = draft.interests
+                    }
+                }
+            }
     }
 }
 

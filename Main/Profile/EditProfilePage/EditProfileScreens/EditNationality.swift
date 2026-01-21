@@ -17,6 +17,13 @@ struct OnboardingNationality: View {
         .nextButton(isEnabled: countriesSelected.count > 0, padding: 140) {
             vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
         }
+        .onAppear {
+            if let draft = vm.draftProfile {
+                if !draft.interests.isEmpty {
+                    countriesSelected = draft.nationality
+                }
+            }
+        }        
     }
 }
 
@@ -94,10 +101,8 @@ extension GenericNationality {
             }
             Spacer()
         }
-        .padding(.top, 6)
-        .frame(height: 30)
-
-        .background(Color.blue)
+        .frame(height: 35)
+        .padding(.top, 10)
     }
     
 
@@ -132,7 +137,7 @@ extension GenericNationality {
     private var nationalitiesView: some View {
         let scrollAnchor = UnitPoint(x: 0.5, y: 0.12)
         ScrollView {
-            ClearRectangle(size: 32)
+            ClearRectangle(size: 6)
             VStack(spacing: 48) {
                 LazyVGrid(columns: columns, spacing: 36) {
                     ForEach(CountryDataServices.shared.popularCountries) { country in
@@ -163,7 +168,7 @@ extension GenericNationality {
         }
         .scrollPosition(id: $scrollPosition, anchor: scrollAnchor)
         .frame(maxHeight: .infinity, alignment: .top)
-//        .customScrollFade(height: 30, showFade: true)
+        .customScrollFade(height: 30, showFade: true)
     }
     
     private func isSelected(_ country: String) -> Bool {

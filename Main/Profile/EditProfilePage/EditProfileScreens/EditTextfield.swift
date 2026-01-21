@@ -17,6 +17,20 @@ struct OnboardingTextField: View  {
             .nextButton(isEnabled: text.count > 2, padding: 36) {
                 vm.saveAndNextStep(kp: field.draftKeyPath, to: text)
             }
+            .onAppear {
+                if let draft = vm.draftProfile {
+                    if field == .degree {
+                        if !draft.degree.isEmpty {
+                            text = draft.degree
+                        }
+                    }
+                    if field == .hometown {
+                        if !draft.degree.isEmpty {
+                            text = draft.hometown
+                        }
+                    }
+                }
+            }
     }
 }
 

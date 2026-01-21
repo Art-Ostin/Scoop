@@ -62,6 +62,11 @@ import FirebaseAuth
         defaultManager.onboardingStep
     }
     
+    var draftProfile: DraftProfile? {
+        return defaultManager.signUpDraft
+    }
+    
+    
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
         direction = .forward
         if !updateOnly { withAnimation(.easeInOut) {defaultManager.onboardingStep += 1 }}
