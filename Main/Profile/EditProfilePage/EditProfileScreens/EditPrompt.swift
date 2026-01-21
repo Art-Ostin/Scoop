@@ -135,6 +135,7 @@ extension PromptGeneric {
                 .lineSpacing(8)
                 .font(.body(17, .medium))
                 .focused($isFocused)
+                .lineLimit(3)
             
             if prompt.response.isEmpty {
                 Text("Type your response here")

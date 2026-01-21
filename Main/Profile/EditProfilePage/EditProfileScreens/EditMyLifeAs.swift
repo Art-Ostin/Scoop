@@ -38,14 +38,14 @@ struct EditMyLifeAs: View {
     }
     
     var body: some View {
-        VStack {
-            TabView(selection: $selection) {
-                ForEach(Field.allCases) { page(for: $0).tag($0)}
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+        TabView(selection: $selection) {
+            ForEach(Field.allCases) { page(for: $0).tag($0)}
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: .bottom) {
             tabs
         }
-        .padding(.top, 72)
         .onChange(of: selection) { _, new in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { focus = new } //Delay removes bug of half swiping for user
         }
@@ -117,8 +117,11 @@ extension EditMyLifeAs {
                     .frame(height: 1)
                     .foregroundStyle (Color.grayPlaceholder)
             }
+            Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 36)
+        .padding(.top, 96)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
