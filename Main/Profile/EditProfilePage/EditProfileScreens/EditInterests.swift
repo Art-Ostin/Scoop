@@ -67,27 +67,24 @@ struct GenericInterests: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: 0) {
-                ScrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
-                selectedInterestsView
-                interestsSections
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).ignoresSafeArea()
+        VStack(spacing: 0) {
+            ScrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
+            selectedInterestsView
+            interestsSections
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.background.ignoresSafeArea())
+        .overlay(alignment: .topLeading) {
             scrollToSection
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).ignoresSafeArea()
-        .padding(.top, 12)
-        .background(Color.background)
     }
 }
-
 
 extension GenericInterests {
     private var selectedInterestsView: some View {
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
-                    HStack(alignment: .bottom) {
+                    HStack(alignment: .top) {
                         ClearRectangle(size: 10)
                         ForEach(selected, id: \.self) { selection in
                             OptionCell(text: selection, selection: $selected, fillColour: false) { text in
@@ -100,6 +97,7 @@ extension GenericInterests {
                         ClearRectangle(size: 30)
                             .id("End Scroll")
                     }
+                    .frame(height: 45)
                 }
                 .onChange(of: selected.count) { oldValue, newValue in
                     if newValue > oldValue {
@@ -113,14 +111,11 @@ extension GenericInterests {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .frame(height: 48)
         }
 
     @ViewBuilder
     private var interestsSections: some View {
-        
         ScrollView(.vertical) {
-            
             VStack(spacing: 0) {
                 ClearRectangle(size: 32)
                 
@@ -139,7 +134,7 @@ extension GenericInterests {
         .scrollIndicators(.never)
         .padding(.horizontal)
         .animation(.easeInOut(duration: 0.4), value: currentScroll)
-        .customScrollFade(height: 20, showFade: true)
+        .customScrollFade(height: 50, showFade: true)
     }
     
     private var scrollToSection: some View {
@@ -172,6 +167,8 @@ extension GenericInterests {
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentScroll)
         }
+        .padding(.bottom, 12)
+        .padding(.horizontal)
     }
 }
 
@@ -297,14 +294,3 @@ struct OptionCell: View {
             }
     }
 }
-
-
-/*
- if selected.isEmpty {
-     Text("Choose at least 6")
-         .font(.body(16, .italic))
-         .foregroundStyle(Color.grayText)
-         .offset(y: 12)
- }
- scrollFader().zIndex(1)
- */

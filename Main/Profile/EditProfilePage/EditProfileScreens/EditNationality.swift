@@ -14,13 +14,13 @@ struct OnboardingNationality: View {
         GenericNationality(countriesSelected: $countriesSelected) {
             countriesSelected.toggle($0, limit: 3)
         }
-        .nextButton(isEnabled: countriesSelected.count > 0, padding: 120) {
+        .nextButton(isEnabled: countriesSelected.count > 0, padding: 140) {
             vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
         }
     }
 }
 
-//Return to this could be a powerful new way of doing arrays: I update a local copy, then assign it on dismiss
+//Powerful new way of doing arrays: I update a local copy, then assign it on dismiss. It is
 struct EditNationality: View {
     let vm: EditProfileViewModel
     @State var countriesSelected: [String]
@@ -37,7 +37,6 @@ struct EditNationality: View {
             vm.set(.nationality, \.nationality, to: countriesSelected)
         }
         .padding(.top, 24)
-        .background(Color.background)
     }
 }
 
@@ -67,24 +66,21 @@ struct GenericNationality: View {
     }
     
     var body: some View {
-        ScrollViewReader { proxy in
-            ZStack(alignment: .topLeading) {
+            VStack(spacing: 0) {
                 ScrollTitle(selectedCount: countriesSelected.count, totalCount: 3, title: "Nationality")
-                selectedCountries.zIndex(2)
-                scrollFader().zIndex(1)
-                nationalitiesView.zIndex(0)
-                alphabet(proxy: proxy)
+                selectedCountries
+                nationalitiesView
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color.background)
-        }
+            .overlay {alphabet}
     }
 }
 
 extension GenericNationality {
     
     private var selectedCountries: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .bottom, spacing: 0) {
             ForEach(countriesSelected, id: \.self) {country in
                 Text(country)
                     .font(.body(32))
@@ -96,12 +92,16 @@ extension GenericNationality {
                     .contentShape(Rectangle())
                     .onTapGesture { withAnimation(.smooth(duration: 0.2)) {onCountryTap(country)}}
             }
+            Spacer()
         }
-        .padding(.top, 12)
+        .padding(.top, 6)
+        .frame(height: 30)
+
+        .background(Color.blue)
     }
     
 
-    private func alphabet(proxy: ScrollViewProxy) -> some View {
+    private var alphabet: some View {
         CustomScrollTab(height: 60) {
             LazyVGrid(columns: alphabetColumns, spacing: 24) {
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
@@ -130,10 +130,7 @@ extension GenericNationality {
     
     @ViewBuilder
     private var nationalitiesView: some View {
-        
         let scrollAnchor = UnitPoint(x: 0.5, y: 0.12)
-
-        
         ScrollView {
             ClearRectangle(size: 32)
             VStack(spacing: 48) {
@@ -144,7 +141,7 @@ extension GenericNationality {
                     }
                 }
                 
-                ForEach(Array(groupedCountries.enumerated()), id: \.offset) { _, group in
+                ForEach(groupedCountries, id: \.letter) {group in
                     VStack(spacing: 24) {
                         Text(group.letter)
                             .font(.body(32, .medium))
@@ -163,10 +160,10 @@ extension GenericNationality {
                 }
             }
             .padding(.bottom, 200)
-            .frame(maxHeight: .infinity, alignment: .top)
         }
         .scrollPosition(id: $scrollPosition, anchor: scrollAnchor)
-        .padding(.top, 60)
+        .frame(maxHeight: .infinity, alignment: .top)
+//        .customScrollFade(height: 30, showFade: true)
     }
     
     private func isSelected(_ country: String) -> Bool {
@@ -257,8 +254,6 @@ struct scrollFader: View {
     }
 }
 
-
-
 struct ScrollTitle: View {
     let selectedCount: Int
     let totalCount: Int
@@ -304,12 +299,9 @@ struct CustomScrollTab<Content: View>: View {
             .font(.body(16, .bold))
             .glassRectangle()
             .shadow(color: .black.opacity(0.1), radius: 5, y: 12)
-
             .contentShape(Rectangle())
-            .onTapGesture {}
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.horizontal, 8)
             .padding(.vertical, 12)
     }
 }
-
