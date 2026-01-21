@@ -16,6 +16,13 @@ struct OnboardingHeight: View {
             .nextButton(isEnabled: true) {
                 vm.saveAndNextStep(kp: \.height, to: height)
             }
+            .onAppear {
+                if let draft = vm.draftProfile {
+                    if !draft.height.isEmpty  {
+                        height = draft.height
+                    }
+                }
+            }
     }
 }
 

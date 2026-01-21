@@ -53,7 +53,6 @@ struct EditPrompt: View {
         
         let check = (promptIndex == 0 || promptIndex == 1) && prompt.wrappedValue.response.isEmpty
         
-        
         PromptGeneric(prompt: prompt, promptIndex: promptIndex)
             .closeAndCheckNavButton(check: check, triggerAlert: $showEmptyAlert)
             .customAlert(isPresented: $showEmptyAlert, message: "Can't leave this prompt empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
@@ -108,7 +107,7 @@ extension PromptGeneric {
     }
     
     private var textEditor: some View {
-        TextEditor(text: $prompt.response)
+        TextEditor(text: $prompt.response, placeholder: "Type Your Response here")
             .padding()
             .scrollContentBackground(.hidden)
             .frame(maxWidth: .infinity)
