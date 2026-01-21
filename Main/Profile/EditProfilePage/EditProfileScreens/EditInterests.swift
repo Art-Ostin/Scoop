@@ -18,11 +18,6 @@ struct OnboardingInterests: View {
             .nextButton(isEnabled: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
-//            .overlay(alignment: .top) {
-//                Text("Choose at least 6")
-//                    .font(.body(14, .bold))
-//                    .offset(y: -24)
-//            }
     }
 }
 
@@ -42,9 +37,7 @@ struct EditInterests: View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
             .closeAndCheckNavButton(check: selected.count < 6, triggerAlert: $showEmptyAlert)
             .onDisappear {
-                guard selected != vm.draft.interests else {
-                    return
-                }
+                guard selected != vm.draft.interests else { return}
                 vm.set(.interests, \.interests, to: selected)
             }
             .customAlert(isPresented: $showEmptyAlert, message: "Please select at least 6 interests", showTwoButtons: false, onOK: {showEmptyAlert.toggle()})
@@ -75,22 +68,23 @@ struct GenericInterests: View {
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-            ScrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
-            selectedInterestsView.zIndex(2)
-            scrollFader().zIndex(1)
-            interestsSections
+            VStack(spacing: 0) {
+                ScrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
+                selectedInterestsView
+                interestsSections
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).ignoresSafeArea()
             scrollToSection
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).ignoresSafeArea()
+        .padding(.top, 12)
         .background(Color.background)
     }
 }
 
 
 extension GenericInterests {
-    
     private var selectedInterestsView: some View {
-        ZStack {
             ScrollViewReader { proxy in
                 ScrollView(.horizontal) {
                     HStack(alignment: .bottom) {
@@ -106,7 +100,6 @@ extension GenericInterests {
                         ClearRectangle(size: 30)
                             .id("End Scroll")
                     }
-                    .frame(height: 48)
                 }
                 .onChange(of: selected.count) { oldValue, newValue in
                     if newValue > oldValue {
@@ -118,16 +111,13 @@ extension GenericInterests {
                 }
                 .scrollIndicators(.never)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 12)
             }
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .frame(height: 48)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
-        .padding(.top, 36)
-    }
 
     @ViewBuilder
     private var interestsSections: some View {
-        let topPadding: CGFloat = 60
         
         ScrollView(.vertical) {
             
@@ -146,10 +136,10 @@ extension GenericInterests {
         }
         .scrollContentBackground(.hidden)
         .scrollPosition(id: $currentScroll, anchor: .leading)
-        .padding(.top, topPadding)
         .scrollIndicators(.never)
         .padding(.horizontal)
         .animation(.easeInOut(duration: 0.4), value: currentScroll)
+        .customScrollFade(height: 20, showFade: true)
     }
     
     private var scrollToSection: some View {
@@ -316,4 +306,5 @@ struct OptionCell: View {
          .foregroundStyle(Color.grayText)
          .offset(y: 12)
  }
+ scrollFader().zIndex(1)
  */

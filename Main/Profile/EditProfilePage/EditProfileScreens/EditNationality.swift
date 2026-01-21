@@ -274,13 +274,15 @@ struct ScrollTitle: View {
             Text("\(selectedCount)/\(totalCount)")
                 .font(.title(12))
             
+            Spacer()
+            
             if title != "Nationality" && selectedCount < 6 {
-                Spacer()
                 Text("Choose at least 6")
                     .font(.body(14, .medium))
                     .foregroundStyle(Color.grayText)
             }
         }
+        .padding(.horizontal)
     }
 }
 
