@@ -62,12 +62,13 @@ struct OnboardingContainer: View {
                                 } label: {
                                     Image(systemName: "chevron.left")
                                         .font(.body(16, .bold))
+                                        .frame(width: 30, height: 50) //Frame Solves a bug for quick dismissing
                                         .contentShape(Rectangle())
                                 }
                             }
                         }
                         
-                        ToolbarItem(placement: .principal) { //This is the culprit
+                        ToolbarItem(placement: .principal) {
                             ZStack {
                                 Text("\(vm.onboardingStep)/\(12)")
                                     .font(.body(12, .bold))
@@ -82,7 +83,7 @@ struct OnboardingContainer: View {
                                     Image("GreenTick")
                                 }
                                 .opacity(showSaved ? 1 : 0)
-                            }
+                             }
                             .animation(.easeInOut(duration: 0.25), value: showSaved)
                         }
                         .hideSharedBackgroundIfAvailable()
@@ -97,6 +98,7 @@ struct OnboardingContainer: View {
                         }
                     }
             }
+            .navigationBarTitleDisplayMode(.inline) //Fixes Bug: decreases the top container pushing all the content down
         }
     }
 }

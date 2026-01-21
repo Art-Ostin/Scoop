@@ -47,18 +47,17 @@ extension SignUpView {
                 .tag(0)
             
             VStack(spacing: 36) {
-                (Text("Skip small talk: ").bold() + Text("No 'likes'. Send an invite with a time & place to meet."))
-                (Text("Social Scoop: ").bold() + Text("Meet one-on-one or meet at an event/bar with each other's friends. (Or a double date!)"))
+                (Text("Skip small talk: ").bold() + Text("No 'likes'. Match, then send a time & place to meet."))
+                (Text("Social Scoop: ").bold() + Text("Meet amongst each other's friends, or a double date!"))
             }
             .font(.body(.regular))
             .lineSpacing(12)
             .multilineTextAlignment(.center)
-            .padding(.horizontal)
+            .padding(.horizontal, 48)
             .tag(1)
         }
-        .indexViewStyle(.page(backgroundDisplayMode: .never))
         .frame(height: 200)
-        .tabViewStyle(.page)
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
     private var titleSection: some View {
