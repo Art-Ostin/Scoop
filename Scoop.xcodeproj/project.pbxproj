@@ -569,10 +569,10 @@
 			isa = PBXGroup;
 			children = (
 				65FAF9952E42960A0015E231 /* EventViewModel.swift */,
+				65FAF9852E413B100015E231 /* EventContainer.swift */,
 				65FAF9872E4140740015E231 /* EventPlaceholder.swift */,
 				65FAF9892E414D1B0015E231 /* EventView.swift */,
 				650135892E4C06DF00630CF3 /* EventSlot.swift */,
-				65FAF9852E413B100015E231 /* EventContainer.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
 			);
 			path = Events;

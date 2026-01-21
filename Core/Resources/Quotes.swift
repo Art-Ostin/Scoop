@@ -26,7 +26,6 @@ class quotes {
     static let shared = quotes()
     
     let allQuotes: [quoteContent] = [
-        
         quoteContent(quoteText: "You don't love someone for their looks, or their clothes, or for their fancy car, but because they sing a song only you can hear", name: "Oscar Wilde"),
         quoteContent(quoteText: "Oh let a 1000 Angels Gawp for they are witnessing the rare phenomenon of true love's gaze", name: "Anonymous"),
         quoteContent(quoteText: "If Life's a drink, then love's a drug", name: "Coldplay"),

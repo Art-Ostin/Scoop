@@ -35,8 +35,6 @@ struct EventView: View {
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
                         .onTapGesture { }
-                    
-//                    ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), firstImage: profile.image!)
                 }
                 .transition(.move(edge: .bottom))
                 .zIndex(1)

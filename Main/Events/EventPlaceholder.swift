@@ -17,27 +17,30 @@ struct EventPlaceholder: View {
     var body: some View {
         
         CustomTabPage(page: .Meeting, TabAction: $showInfo) {
-            Text("Upcoming Events appear Here")
-                .font(.title(16, .medium))
-                .frame(maxWidth: .infinity, alignment: .center)
-            
-            Image("Plants")
-                .resizable()
-                .scaledToFit()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 24)
-            
-            VStack(spacing: 24) {
-                Text("Reload when you don't have to so that when you reload you don't have to")
-                    .font(.body(16, .italic))
-                    .lineSpacing(8)
-                    .multilineTextAlignment(.center)
+            VStack(spacing: 84) {
+                Text("Upcoming Events appear Here")
+                    .font(.title(16, .medium))
+                    .frame(maxWidth: .infinity, alignment: .center)
                 
-                Text("-Oscar Wilde")
-                    .font(.body(16, .bold))
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                Image("Plants")
+                    .resizable()
+                    .scaledToFit()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+//                    .padding(.horizontal, 48)
+                
+                VStack(spacing: 24) {
+                    Text(quotes.shared.allQuotes.randomElement()?.quoteText ?? "")
+                        .font(.body(16, .italic))
+                        .lineSpacing(8)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("-\(quotes.shared.allQuotes.randomElement()?.name ?? "")")
+                        .font(.body(16, .bold))
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
             }
+            .padding(.bottom, 16)
             CustomDivider()
             VStack(spacing: 60) {
                 ImageSection(textTitle: "Social Meet", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
