@@ -139,6 +139,7 @@
 		65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */; };
 		65C7D6362E54EE1600B726B8 /* MatchesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
+		65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */; };
 		65D9D0DA2ED14B7B00F7E5CC /* ScrollViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */; };
 		65E1EC9F2F19706D004C9236 /* ImageZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1EC9E2F19706D004C9236 /* ImageZoom.swift */; };
 		65E1ECC12F1A4872004C9236 /* ImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1ECC02F1A4872004C9236 /* ImageEditor.swift */; };
@@ -322,6 +323,7 @@
 		65C7D6302E54A4DF00B726B8 /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesViewModel.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
+		65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLoadingScreen.swift; sourceTree = "<group>"; };
 		65D9D0D92ED14B7B00F7E5CC /* ScrollViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewTest.swift; sourceTree = "<group>"; };
 		65E1EC9E2F19706D004C9236 /* ImageZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageZoom.swift; sourceTree = "<group>"; };
 		65E1ECC02F1A4872004C9236 /* ImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEditor.swift; sourceTree = "<group>"; };
@@ -621,6 +623,7 @@
 				651975942F1FC67E0002F6A2 /* ExpandTapArea.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 				651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */,
+				65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */,
 				65F9E3842EE711F1008A57BD /* CustomTab */,
 				650383DF2E6B84A80053DDB2 /* CustomTabBar */,
 				65FAF99C2E42BAC30015E231 /* ClockComponents */,
@@ -1044,6 +1047,7 @@
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				650135862E4B92F100630CF3 /* UserEventModel.swift in Sources */,
+				65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
 				653A78552E131FDF0098747F /* EventDetailsView.swift in Sources */,

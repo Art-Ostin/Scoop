@@ -28,6 +28,21 @@ struct OnboardingPrompt: View {
             .nextButton(isEnabled: prompt.response.count > 3, padding: 24) {
                 vm.saveAndNextStep(kp: keyPath, to: prompt)
             }
+            .onAppear {
+                if let draft = vm.draftProfile {
+                    if promptIndex == 0 {
+                        if !draft.prompt1.response.isEmpty {
+                            prompt.prompt = draft.prompt1.prompt
+                            prompt.response = draft.prompt1.response
+                        }
+                    } else if promptIndex == 1 {
+                        if !draft.prompt2.response.isEmpty {
+                            prompt.prompt = draft.prompt2.prompt
+                            prompt.prompt = draft.prompt2.response
+                        }
+                    }
+                }
+            }
     }
 }
 
@@ -47,7 +62,6 @@ struct EditPrompt: View {
             vm.setPrompt(key, keyPath, to: $0)
         }
     }
-    
     
     var body: some View {
         
@@ -69,20 +83,25 @@ struct PromptGeneric: View {
         let p = Prompts.instance
         return [p.prompts1, p.prompts2, p.prompts3] [promptIndex]
     }
+    
+    let promptTitle: [String] = ["Prompt 1", "Prompt 2", "Prompt 3"]
 
     var body: some View {
-        VStack(spacing: 12) {
-            selector
-            textEditor
+        VStack(spacing: 60) {
+            SignUpTitle(text: promptTitle[promptIndex])
+            VStack(spacing: 36) {
+                selector
+                textEditor
+            }
         }
         .onAppear {
             isFocused = true
             if prompt.prompt.isEmpty {prompt.prompt = prompts.randomElement() ?? "My Ideal Date"}
         }
-        .padding(.top, 60)
-        .padding(24)
+        .padding(.top, 24)
+        .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt)}
+        .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt, promptIndex: promptIndex)}
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.background)
     }
@@ -90,31 +109,43 @@ struct PromptGeneric: View {
 
 extension PromptGeneric {
     private var selector: some View {
-        HStack {
+        HStack (spacing: 24) {
             Text(prompt.prompt)
-                .font(.body(17))
+                .font(.body(16))
                 .lineSpacing(8)
-            Spacer()
+
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .offset(x: -4)
                 .foregroundStyle(.accent)
+            Spacer()
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
         .contentShape(Rectangle())
         .onTapGesture {showPrompts.toggle()}
     }
     
     private var textEditor: some View {
-        TextEditor(text: $prompt.response, placeholder: "Type Your Response here")
-            .padding()
-            .scrollContentBackground(.hidden)
-            .frame(maxWidth: .infinity)
-            .frame(height: 120)
-            .lineSpacing(8)
-            .font(.body(17, .medium))
-            .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
-            .focused($isFocused)
+        ZStack(alignment: .topLeading) {
+            TextEditor(text: $prompt.response)
+                .padding()
+                .scrollContentBackground(.hidden)
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+                .lineSpacing(8)
+                .font(.body(17, .medium))
+                .focused($isFocused)
+            
+            if prompt.response.isEmpty {
+                Text("Type your response here")
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.grayPlaceholder)
+                // Match the TextEditor’s visual inset (tweak if you want it tighter/looser)
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 24)
+                    .allowsHitTesting(false)
+            }
+        }
+        .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
     }
 }

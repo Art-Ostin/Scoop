@@ -10,6 +10,8 @@ import SwiftUI
 struct SelectPrompt: View {
     let prompts: [String]
     @Binding var userPrompt: PromptResponse
+    let promptIndex: Int
+    let titles = ["Prompts 1", "Prompts 2", "Prompts 3"]
     
     var body: some View {
         NavigationStack {
@@ -26,7 +28,7 @@ struct SelectPrompt: View {
             .toolbar {
                 CloseToolBar(imageString: "chevron.down", isLeading: false)
             }
-            .navigationTitle("Prompts 1")
+            .navigationTitle(titles[promptIndex])
         }
     }
 }

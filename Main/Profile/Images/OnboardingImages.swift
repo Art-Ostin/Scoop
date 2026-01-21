@@ -22,6 +22,8 @@ struct OnboardingImages: View {
     
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
     
+    @State var showSavingScreen: Bool = false
+    
     init(vm: OnboardingViewModel, defaults: DefaultsManager, storage: StorageManaging, auth: AuthManaging) {
         self.vm = vm
         _imageVM = State(wrappedValue: OnboardingImageViewModel(defaults: defaults, storage: storage, auth: auth))
@@ -43,11 +45,12 @@ struct OnboardingImages: View {
                 }
             }
             ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {
+                showSavingScreen = true
                 Task {
                     do {
-                        await imageVM.saveAll(images: images)
-                        try await vm.createProfile()
-                        appState.wrappedValue = .app
+                         await imageVM.saveAll(images: images)
+                         try await vm.createProfile()
+                         appState.wrappedValue = .app
                     } catch {
                         print(error)
                     }
@@ -58,19 +61,25 @@ struct OnboardingImages: View {
         .padding(.top, 84)
         .padding(.horizontal, 24)
         .background(Color.background)
-        .fullScreenCover(item: $selectedImage) { localImage in
+        .fullScreenCover(item: $selectedImage) {localImage in
             ProfileImagesEditing(importedImage: localImage) { updatedImage in
                 images[updatedImage.index] = updatedImage.image
             }
         }
-    }
-}
-
-extension OnboardingImages {
-    private var onboardingImagePlaceholder: some View {
-        Image("ImagePlaceholder")
-            .resizable()
-            .scaledToFill()
-            .frame(width: 110, height: 110)
+        .animation(.easeInOut(duration: 0.18), value: showSavingScreen)
+        .overlay {
+            if showSavingScreen {
+                ZStack {
+                    OnboardingLoadingScreen()
+                }
+                .transition(.opacity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
+                .background(Color.background)
+                .onTapGesture {
+                    showSavingScreen = false
+                }
+            }
+        }
+        .toolbar(showSavingScreen ? .hidden : .visible, for: .navigationBar)
     }
 }

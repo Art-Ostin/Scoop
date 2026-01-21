@@ -62,7 +62,7 @@ struct OnboardingContainer: View {
                                 } label: {
                                     Image(systemName: "chevron.left")
                                         .font(.body(16, .bold))
-                                        .frame(width: 30, height: 50) //Frame Solves a bug for quick dismissing
+                                        .frame(width: 30, height: 60) //Frame Solves a bug for quick dismissing
                                         .contentShape(Rectangle())
                                 }
                             }

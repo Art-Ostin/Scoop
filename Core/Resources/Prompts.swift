@@ -24,7 +24,7 @@ class Prompts {
     ]
     
     let prompts2: [String] = [
-        "My McGill confession:",
+        "My McGill confession",
         "Three qualities I look for in a person",
         "I’ll fall for you if",
         "I’m looking for",
