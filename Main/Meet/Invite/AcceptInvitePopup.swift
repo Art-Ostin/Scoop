@@ -15,42 +15,55 @@ struct AcceptInvitePopup: View {
     var onSubmit : () -> Void
 
     var body: some View {
-        
-        VStack(spacing: 32) {
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {showAlert = false }
             
-            HStack() {
-                CirclePhoto(image: profileModel.image ?? UIImage())
-                
-                Text("Meet \(profileModel.profile.name)")
-                    .font(.title(24, .bold))
-                
-                if profileModel.event?.message != nil {
-                    Spacer()
+            VStack(spacing: 32) {
+                HStack() {
+                    CirclePhoto(image: profileModel.image ?? UIImage())
+                    
+                    Text("Meet \(profileModel.profile.name)")
+                        .font(.title(24, .bold))
+                    
+                    if profileModel.event?.message != nil {
+                        Spacer()
+                    }
+                }
+                if let event = profileModel.event {EventFormatter(time: event.time, type: event.type, message: event.message, place: event.place) }
+                ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle() }
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .padding(.top, 24)
+            .padding(.bottom, 32)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity)
+            .background(Color.background, in: RoundedRectangle(cornerRadius: 30))
+            .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Color.grayBackground, lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.25), radius: 50, x: 0, y: 10)
+            .overlay(alignment: .topTrailing) {
+                Button {
+                    showAlert = false
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundStyle(.black)
+                        .font(.body(17, .bold))
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
             }
-            if let event = profileModel.event {EventFormatter(time: event.time, type: event.type, message: event.message, place: event.place) }
-            ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle() }
-                .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.horizontal, 24)
+            .alert("Event Commitment", isPresented: $showAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button ("I Understand") {
+                    onSubmit()
+                }
+            } message: {
+                Text("If you dont show, you'll be blocked from Scoop")
+            }.tint(.blue)
         }
-        .padding(.top, 24)
-        .padding(.bottom, 32)
-        .padding(.horizontal, 16)
-        .frame(maxWidth: .infinity)
-        .background(Color.background, in: RoundedRectangle(cornerRadius: 30))
-        .overlay(RoundedRectangle(cornerRadius: 30).strokeBorder(Color.grayBackground, lineWidth: 0.5))
-        .shadow(color: .black.opacity(0.25), radius: 50, x: 0, y: 10)
-        .overlay(alignment: .topTrailing) {
-            NavButton(.cross)
-                .padding(20)
-        }
-        .padding(.horizontal, 24)
-        .alert("Event Commitment", isPresented: $showAlert) {
-            Button("Cancel", role: .cancel) {}
-            Button ("I Understand") {
-                onSubmit()
-            }
-        } message: {
-            Text("If you dont show, you'll be blocked from Scoop")
-        }.tint(.blue)
     }
 }

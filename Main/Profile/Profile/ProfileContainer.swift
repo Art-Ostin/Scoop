@@ -87,8 +87,14 @@ extension ProfileView {
             AcceptInvitePopup(profileModel: vm.profileModel) {
                 if let meetVM {
                     @Bindable var meetVM = meetVM
-                    Task { try? await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event) }
-                    tabSelection.wrappedValue = 1
+                    Task {
+                        do {
+                            try await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event)
+                            await MainActor.run { withAnimation { tabSelection.wrappedValue = 1 } }
+                        } catch {
+                            print("Error sending invite: \(error)")
+                        }
+                    }
                 }
             }
         } else if let meetVM {

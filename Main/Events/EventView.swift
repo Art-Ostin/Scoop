@@ -19,8 +19,17 @@ struct EventView: View {
     @State var selectedProfile: ProfileModel?
     
     
+    
     var body: some View {
         ZStack {
+            
+            VStack {
+                Text("You're ")
+                
+            }
+            
+            
+            
             Color.background
             TabView(selection: $selection) {
                 ForEach(vm.events) { profile in
@@ -28,17 +37,6 @@ struct EventView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
-            
-            if let _ = selectedProfile {
-                ZStack {
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .ignoresSafeArea()
-                        .onTapGesture { }
-                }
-                .transition(.move(edge: .bottom))
-                .zIndex(1)
-            }
         }
     }
 }

@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "Chat1.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "Chat2.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "Chat3.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "ChatIcon.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {
