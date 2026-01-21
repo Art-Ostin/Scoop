@@ -40,10 +40,9 @@ struct OnboardingContainer: View {
     @State private var bounce = false
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .topLeading) {
                 stepView
                     .toolbar {
-                        
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
                                 dismiss()
@@ -67,7 +66,8 @@ struct OnboardingContainer: View {
                                 }
                             }
                         }
-                        ToolbarItem(placement: .principal) {
+                        
+                        ToolbarItem(placement: .principal) { //This is the culprit
                             ZStack {
                                 Text("\(vm.onboardingStep)/\(12)")
                                     .font(.body(12, .bold))
