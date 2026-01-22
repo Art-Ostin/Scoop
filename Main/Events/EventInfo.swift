@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct EventTextFormatter: View {
-    @Binding var showCantMake: Bool
-    @Binding var showEventDetails: UserEvent?
     
+    @Bindable var ui: EventUIState
+    let profile: ProfileModel
     let event: UserEvent
 
     private var formattedTime: String {
@@ -155,7 +155,7 @@ extension EventTextFormatter {
     private var actionBar: some View {
         HStack {
             Button {
-                showCantMake = true
+                ui.showCantMakeIt = profile
             } label: {
                 Text("Can't Make it?")
                     .font(.body(16))
@@ -176,7 +176,7 @@ extension EventTextFormatter {
     
     private var eventDetailsButton: some View {
         Button {
-            showEventDetails = event
+            ui.showEventDetails = event
         } label: {
             HStack(spacing: 10) {
                 Image("CoolGuys")
@@ -201,13 +201,3 @@ extension EventTextFormatter {
         }
     }
 }
-
-/*
- .frame(maxWidth: .infinity, alignment: .leading)
-//            .overlay(alignment: .topTrailing) {
-//                eventDetailsButton
-//                    .padding()
-//                    .offset(y: -16)
-//            }
-
- */

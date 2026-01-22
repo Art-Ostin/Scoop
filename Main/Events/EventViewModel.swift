@@ -28,4 +28,20 @@ import MapKit
     }
 
     var events: [ProfileModel] { sessionManager.events}
+    
+    func updateEventStatus(eventId: String, status: EventStatus) async throws {
+        try await eventManager.updateStatus(eventId: eventId, to: status)
+    }
+    
+    func loadImages(profileModel: ProfileModel) async -> [UIImage] {
+        return await cacheManager.loadProfileImages([profileModel.profile])
+    }
+}
+
+@Observable
+final class EventUIState {
+    var showEventDetails: UserEvent? = nil
+    var showMessageScreen: ProfileModel? = nil
+    var showCantMakeIt: ProfileModel? = nil
+    var selectedProfile: ProfileModel? = nil
 }

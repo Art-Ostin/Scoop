@@ -14,12 +14,10 @@ import Contacts
 struct EventSlot: View {
     
     let vm: EventViewModel
-    @Binding var selectedProfile: ProfileModel?
+    @Bindable var ui: EventUIState
     @State var profileModel: ProfileModel
     @State var imageSize: CGFloat = 0
-    @State var showMessageScreen: Bool = false
-    @State var showCantMakeIt: Bool = false
-    @State var showEventDetails: UserEvent? = nil
+    @Binding var dismissOffset: CGFloat?
     
     let locationManager = CLLocationManager()
     
@@ -41,7 +39,7 @@ struct EventSlot: View {
                         
                         mapView(event: event)
                         
-                        EventTextFormatter(showCantMake: $showCantMakeIt, showEventDetails: $showEventDetails, event: event)
+                        EventTextFormatter(ui: ui, profile: profileModel, event: event)
                             .padding(.horizontal, 24)
                     }
                     .padding(.top, 60)
@@ -55,25 +53,11 @@ struct EventSlot: View {
                     }
                     .padding(.bottom, 144)
                 }
-                
-                if let profile = selectedProfile {
-                    ProfileView(vm: <#T##ProfileViewModel#>, meetVM: <#T##MeetViewModel?#>, profileImages: <#T##[UIImage]#>, selectedProfile: <#T##Binding<ProfileModel?>#>, dismissOffset: <#T##Binding<CGFloat?>#>, draftProfile: <#T##UserProfile?#>)
-                }                
-                
-                
-                
                 .measure(key: ImageSizeKey.self) { $0.size.width }
                 .onPreferenceChange(ImageSizeKey.self) { screenWidth in
                     imageSize = screenWidth - 48 //Adds 24 padding on each side
                 }
-                .fullScreenCover(isPresented: $showMessageScreen) {
-                    Text("Message Screen here")
-                    Button("Close") { showMessageScreen = false}
-                }
                 .scrollIndicators(.hidden)
-                .sheet(item: $showEventDetails) { event in
-                    Text("Hello World")
-                }
             }
         }
     }
@@ -95,12 +79,19 @@ extension EventSlot {
                 .resizable()
                 .defaultImage(imageSize)
                 .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if ui.selectedProfile == nil {
+                        dismissOffset = nil
+                        ui.selectedProfile = profileModel
+                    }
+                }
         }
     }
     
     private var messageButton: some View {
         Button {
-            showMessageScreen = true
+            ui.showMessageScreen = profileModel
         } label: {
             Image("ChatIcon")
                 .resizable()
@@ -116,29 +107,7 @@ extension EventSlot {
                 .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
         }
     }
-    
-    @ViewBuilder
-    private func openInMapsButton(event: UserEvent) -> some View {
-        Button {
-            Task {
-                await MapsRouting.openMaps(place: event.place)
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "map")
-                    .font(.body(14, .bold))
-                
-                Text("Open Maps")
-                    .foregroundStyle(Color.blue)
-                    .font(.body(12, .bold))
-            }
-            .padding(.horizontal, 8)
-            .tint(.blue)
-            .padding(.vertical, 6)
-            .glassIfAvailable()
-        }
-    }
-    
+        
     @ViewBuilder
     func mapView(event: UserEvent) ->  some View {
         let coord = CLLocationCoordinate2D(latitude: event.place.latitude, longitude: event.place.longitude)
@@ -197,16 +166,3 @@ extension EventSlot {
         }
     }
 }
-
-
-
-/*
- (
-     Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’re ")
-         .font(.body(16, .medium))
-     +
-     Text("blocked")
-         .font(.body(16, .bold))
-         .underline()
- )
- */
