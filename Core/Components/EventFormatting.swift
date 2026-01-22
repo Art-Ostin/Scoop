@@ -5,7 +5,6 @@
 //  Created by Art Ostin on 22/01/2026.
 //
 
-/*
  import SwiftUI
 
 
@@ -28,5 +27,3 @@
          (event.place.name ?? "") + " " + (event.place.address ?? "")
      }
  }
-
- */
