@@ -166,12 +166,14 @@ extension EventSlot {
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 36 : imageSize)
-            .padding(.top, 24)
+//            .padding(.top, 24)
             
             openInMapsButton(coord: coord)
-                .padding(.vertical, 32)
+                .padding(.vertical, 12)
                 .padding(.horizontal, 12)
                 .zIndex(2)
+            
+            
         }
     }
     

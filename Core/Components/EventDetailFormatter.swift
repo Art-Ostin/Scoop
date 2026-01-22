@@ -32,14 +32,38 @@ struct EventTextFormatter: View {
         event.otherUserName
     }
     
+    private var title: String {
+        switch event.type {
+        case .drink:
+            "Drink with \(otherPerson)"
+        case .doubleDate:
+            "Double Date with \(otherPerson)"
+        case .socialMeet:
+            "Social with \(otherPerson)"
+        case .custom:
+            "Meet with \(otherPerson)"
+        }
+    }
+    
+    
+    
+    
     var body: some View {
         
         VStack(alignment: .leading, spacing: 24) {
-            Text("What to Do")
+            Text(title)
                 .font(.body(20, .bold))
+            
+            Text(EventFormatting.dayAndTime(event))
+            
+            
+            
             
             whatToDoText
                 .font(.body(16, .medium))
+            
+            
+            
             
             (
                 Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’re ")
@@ -90,3 +114,4 @@ extension EventTextFormatter {
 //#Preview {
 //    EventTextFormatter(time: Date(timeIntervalSince1970: 1_704_158_600))
 //}
+

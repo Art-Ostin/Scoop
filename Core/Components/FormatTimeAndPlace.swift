@@ -12,16 +12,9 @@ struct FormatTimeAndPlace: View {
     let time: Date
     let place: EventLocation
     
-    private var formattedDate: String {
-        let df = DateFormatter()
-        df.timeZone = .current
-        df.dateFormat = "EEEE, MMM d · HH:mm"
-        return df.string(from: time)
-    }
-    
     var body: some View {
         (
-            Text("\(formattedDate)\n") +
+            Text("\(formattedDate(from: time))\n") +
             Text(place.name ?? " ")
                 .foregroundStyle(.accent)
         )
@@ -31,3 +24,22 @@ struct FormatTimeAndPlace: View {
         .lineSpacing(14)
     }
 }
+
+func formattedDate(from date: Date) -> String {
+    let dayPart = date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
+    let timePart = date.formatted(.dateTime.hour().minute())
+    return "\(dayPart) · \(timePart)"
+}
+
+
+
+/*
+ private var formattedDate: String {
+     let df = DateFormatter()
+     df.timeZone = .current
+     df.dateFormat = "EEEE, MMM d · HH:mm"
+     return df.string(from: time)
+ }
+ 
+
+ */

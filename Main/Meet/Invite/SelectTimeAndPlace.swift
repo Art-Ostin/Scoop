@@ -42,7 +42,7 @@ struct SelectTimeAndPlace: View {
             sendInviteScreen
             
             if vm.showTypePopup {
-                SelectTypeView(vm: $vm)
+                SelectTypeView(vm: vm)
                     .offset(y: 96)
             }
             if vm.showTimePopup {
