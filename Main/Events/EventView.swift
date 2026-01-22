@@ -38,15 +38,17 @@ struct EventView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
+            .background(Color.background)
             
             if let profile = ui.selectedProfile {
                 ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
                     .id(profile.id)
                     .zIndex(1)
-                    .transition(.move(edge: .bottom))
+                    .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea(edges: .all)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(item: $ui.showMessageScreen) {profileModel in
             Text(profileModel.id)
         }
@@ -56,5 +58,6 @@ struct EventView: View {
         .fullScreenCover(item: $ui.showCantMakeIt) { event in
             //Print can't make it here
         }
+//        .animation(ui.selectedProfile == nil ? nil : .easeInOut(duration: 5), value: ui.selectedProfile)
     }
 }

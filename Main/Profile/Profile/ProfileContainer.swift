@@ -48,7 +48,7 @@ struct ProfileView: View {
                         
                         ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
                             .offset(y: rangeUpdater(endValue: -100))
-                            .simultaneousGesture(imageDetailsDrag)
+                            .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                         
                         ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
@@ -184,7 +184,7 @@ extension ProfileView {
 
 //Drag Gestures
 extension ProfileView {
-    private var imageDetailsDrag: some Gesture {
+    private func imageDetailsDrag(using geo: GeometryProxy) -> some Gesture {
         DragGesture(minimumDistance: 5)
             .updating($profileOffset) { value, state, _ in
                 if ui.dragType == nil { dragType(v: value) }
@@ -204,6 +204,9 @@ extension ProfileView {
                 //Only update if user drags more than 75
                 guard max(distance, predicted) > 75 else { return }
                 if ui.dragType == .profile {
+                    dismissOffset = v.translation.height
+                    dismissProfile(using: geo, startingOffset: v.translation.height)
+                    
                     dismissOffset = v.translation.height
                     selectedProfile = nil
                 } else if ui.dragType == .details {
@@ -250,9 +253,12 @@ extension ProfileView {
         dismissOffset ?? profileOffset
     }
     
-    private func dismissProfile(using geo: GeometryProxy) {
+    private func dismissProfile(using geo: GeometryProxy, startingOffset: CGFloat? = nil) {
         dismiss()
         let distance = geo.size.height + geo.safeAreaInsets.bottom
+        if let startingOffset {
+            dismissOffset = startingOffset
+        }
         withAnimation(.snappy(duration: ui.dismissalDuration)) {
             dismissOffset = distance
         }

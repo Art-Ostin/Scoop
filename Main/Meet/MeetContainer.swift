@@ -60,8 +60,7 @@ struct MeetContainer: View {
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (16 * 2)
-            }
-        
+            }        
     }
 }
 
