@@ -6,81 +6,27 @@
 //
 
 import SwiftUI
+import MapKit
 
-enum SlideDirection { case leading, trailing }
+struct MapExperiment: View {
+    
+    let coordinate = CLLocationCoordinate2D(latitude: 45.5019, longitude: -73.5674) // Montreal
 
-struct Example: View {
-    @State private var isPresented = false
-    @State private var direction: SlideDirection = .trailing
-
-    private var transition: AnyTransition {
-        switch direction {
-        case .leading:
-            return .asymmetric(
-                insertion: .move(edge: .leading).combined(with: .opacity),
-                removal:   .move(edge: .trailing).combined(with: .opacity)
-            )
-        case .trailing:
-            return .asymmetric(
-                 insertion: .move(edge: .trailing).combined(with: .opacity),
-                 removal:   .move(edge: .leading).combined(with: .opacity)
-             )
-        }
-    }
-
+    
     var body: some View {
-        ZStack {
-            VStack(spacing: 12) {
-                Button("Next (enter from trailing)") {
-                    direction = .trailing
-                    withAnimation(.spring()) { isPresented = true }
-                }
+        Button("Open Maps"){
+            let destination = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
+            destination.name = "Meet location"
 
-                Button("Back (enter from leading)") {
-                    direction = .leading
-                    withAnimation(.spring()) { isPresented = true }
-                }
-
-                Button("Hide (exit to leading)") {
-                    direction = .leading
-                    withAnimation(.spring()) { isPresented = false }
-                }
-
-                Button("Hide (exit to trailing)") {
-                    direction = .trailing
-                    withAnimation(.spring()) { isPresented = false }
-                }
-            }
-
-            if isPresented {
-                SheetLikeView(isPresented: $isPresented)
-                    .transition(transition)     // identity stays the same
-                    .zIndex(1)
-                    .frame(maxWidth: .infinity)
-            }
+            destination.openInMaps(launchOptions: [
+                MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+            ])
         }
     }
-}
-
-struct SheetLikeView: View {
-    @State private var counter = 0
-    @Binding var isPresented: Bool
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("I keep my state.")
-            Button("Counter: \(counter)") { withAnimation {
-                isPresented = false
-            }
-            }
-        }
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .padding()
-        .offset(y: -144)
-    }
+    
 }
 
 #Preview {
-    Example()
+    MapExperiment()
 }
+

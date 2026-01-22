@@ -22,14 +22,6 @@ struct EventView: View {
     
     var body: some View {
         ZStack {
-            
-            VStack {
-                Text("You're ")
-                
-            }
-            
-            
-            
             Color.background
             TabView(selection: $selection) {
                 ForEach(vm.events) { profile in
@@ -38,5 +30,6 @@ struct EventView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea(edges: .all)
     }
 }

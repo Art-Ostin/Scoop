@@ -6,24 +6,21 @@
 //
 
 import SwiftUI
+import MapKit
 
-struct Screen_Test: View {    
+struct MiniMap: View {
+    let coordinate: CLLocationCoordinate2D
+
     var body: some View {
-        Image("ChatIcon")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 30, height: 30)
-            .font(.body(17, .bold))
-            .padding()
-            .background (
-                Circle()
-                    .foregroundStyle(Color.background)
-                    .stroke(100, lineWidth: 1.5, color: .black)
-            )
-            .defaultShadow()
+        Map(initialPosition: .camera(.init(centerCoordinate: coordinate, distance: 800))) {
+            Marker("", coordinate: coordinate)
+        }
+        .frame(height: 300)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .padding(.horizontal)
     }
 }
 
 #Preview {
-    Screen_Test()
+    MiniMap(coordinate: .init(latitude: 45.5088, longitude: -73.5618))
 }

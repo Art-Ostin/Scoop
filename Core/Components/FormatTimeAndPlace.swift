@@ -28,5 +28,6 @@ struct FormatTimeAndPlace: View {
         .font(.body(24, .bold))
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity, alignment: .center)
+        .lineSpacing(14)
     }
 }
