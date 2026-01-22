@@ -5,25 +5,23 @@
 //  Created by Art Ostin on 22/01/2026.
 //
 
- import SwiftUI
-
+import Foundation
 
  public enum EventFormatting {
      
-     static func dayAndTime(_ event: UserEvent) -> String {
-         let date = event.time
+     static func dayAndTime(_ date: Date) -> String {
          let dayPart = date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
          let timePart = date.formatted(.dateTime.hour().minute())
          return "\(dayPart) · \(timePart)"
      }
      
-     static func placeName(_ event: UserEvent) -> String {
-         event.place.name
-         ?? event.place.address.map { String($0.prefix(20)) }
+     static func placeName(_ place: EventLocation) -> String {
+         place.name
+         ?? place.address.map { String($0.prefix(20)) }
          ?? ""
      }
      
-     static func placeFullAddress( event: UserEvent) -> String {
-         (event.place.name ?? "") + " " + (event.place.address ?? "")
+     static func placeFullAddress( place: EventLocation) -> String {
+         (place.name ?? "") + " " + (place.address ?? "")
      }
  }

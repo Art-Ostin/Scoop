@@ -34,13 +34,14 @@ struct EventSlot: View {
                         imageView
                         
                         VStack(spacing: 24) {
-                            FormatTimeAndPlace(time: event.time, place: event.place)
+                            timeAndPlace(event: event)
                             LargeClockView(targetTime: event.time) {}
                         }
                         
                         mapView(event: event)
                         
                         EventTextFormatter(showCantMakeItView: $showCantMaketItView, event: event)
+                            .padding(.horizontal)
                     }
                     .padding(.top, 60)
                     .overlay(alignment: .topTrailing) {
@@ -51,6 +52,7 @@ struct EventSlot: View {
                     .onAppear {
                         locationManager.requestWhenInUseAuthorization()
                     }
+                    .padding(.bottom, 144)
                 }
                 
                 .measure(key: ImageSizeKey.self) { $0.size.width }
@@ -61,8 +63,8 @@ struct EventSlot: View {
                     Text("Message Screen here")
                     Button("Close") { showMessageScreen = false}
                 }
+                .scrollIndicators(.hidden)
             }
-            
         }
     }
 }
@@ -87,7 +89,6 @@ extension EventSlot {
     }
     
     private var messageButton: some View {
-        
         Button {
             showMessageScreen = true
         } label: {
@@ -107,32 +108,10 @@ extension EventSlot {
     }
     
     @ViewBuilder
-    private func openInMapsButton(coord: CLLocationCoordinate2D) -> some View {
+    private func openInMapsButton(event: UserEvent) -> some View {
         Button {
-            let name = profileModel.event?.place.name ?? "Meet Location"
-            let address = profileModel.event?.place.address ?? ""
-            
             Task {
-                // fallback if search doesn't find anything
-                let fallback = MKMapItem(placemark: MKPlacemark(coordinate: coord))
-                fallback.name = name
-
-                do {
-                    let request = MKLocalSearch.Request()
-                    request.naturalLanguageQuery = [name, address].filter { !$0.isEmpty }.joined(separator: " ")
-                    request.region = MKCoordinateRegion( center: coord, latitudinalMeters: 1500, longitudinalMeters: 1500)
-                    
-                    let response = try await MKLocalSearch(request: request).start()
-                    let item = response.mapItems.first ?? fallback
-
-                    item.openInMaps(launchOptions: [
-                        MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking
-                    ])
-                } catch {
-                    fallback.openInMaps(launchOptions: [
-                        MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking
-                    ])
-                }
+                await MapsRouting.openMaps(place: event.place)
             }
         } label: {
             HStack(spacing: 6) {
@@ -166,15 +145,37 @@ extension EventSlot {
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 36 : imageSize)
-//            .padding(.top, 24)
             
-            openInMapsButton(coord: coord)
+            openInMapsButton(event: event)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 12)
                 .zIndex(2)
-            
-            
         }
     }
     
+    private func timeAndPlace(event: UserEvent) -> some View {
+        VStack(spacing: 14) {
+            Text(EventFormatting.dayAndTime(event.time))
+            
+            Text(EventFormatting.placeName(event.place))
+                .foregroundStyle(.accent)
+                .onTapGesture {
+                    Task { await MapsRouting.openMaps(place: event.place) }
+                }
+        }
+        .font(.body(24, .bold))
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
 }
+
+/*
+ (
+     Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’re ")
+         .font(.body(16, .medium))
+     +
+     Text("blocked")
+         .font(.body(16, .bold))
+         .underline()
+ )
+ */
