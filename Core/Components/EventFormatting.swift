@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-enum EventFormatting {
+public enum EventFormatting {
     
     static func dayAndTime(_ event: UserEvent) -> String {
         let date = event.time
