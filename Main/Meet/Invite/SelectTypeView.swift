@@ -15,8 +15,11 @@ struct SelectTypeView: View {
     var body: some View {
 
         DropDownMenu {
-            ForEach(EventType.allCases, id: \.self) {event in
-                if event == .writeAMessage && vm.event.message != nil { customRow(image: "✒️", text: "Edit Message")
+            ForEach(EventType.allCases, id: \.self) { event in
+                
+                
+                
+                if event == .custom && vm.event.message != nil { customRow(image: "✒️", text: "Edit Message")
                         .foregroundStyle(Color.accent)
                         .onTapGesture {
                             if event == .writeAMessage {

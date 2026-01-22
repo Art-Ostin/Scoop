@@ -18,6 +18,7 @@ struct EventSlot: View {
     @State var profileModel: ProfileModel
     @State var imageSize: CGFloat = 0
     @State var showMessageScreen: Bool = false
+    @State var showCantMaketItView: Bool = false
     
     let locationManager = CLLocationManager()
     
@@ -39,8 +40,7 @@ struct EventSlot: View {
                         
                         mapView(event: event)
                         
-                        
-                        
+                        EventTextFormatter(showCantMakeItView: $showCantMaketItView, event: event)
                     }
                     .padding(.top, 60)
                     .overlay(alignment: .topTrailing) {

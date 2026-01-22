@@ -120,13 +120,13 @@ extension SelectTimeAndPlace {
             
             if let type = event.type, let message = event.message {
                 (
-                    Text((event.type == "Write a message") ? "" : "\(type): ")
+                    Text(verbatim: (event.type == .custom) ? "" : "\(type.description.label): ")
                         .font(.body(16, .bold))
-                    + Text(" " + message)
+                    + Text(verbatim: " " + message)
                         .font(.body(12, .italic))
                         .foregroundStyle(Color.grayText)
                 )
-            } else if let type = event.type {
+            } else if let type = event.type?.description.label {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(type).font(.body(18))
                     Text("Add a Message").foregroundStyle(.accent).font(.body(14))

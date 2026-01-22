@@ -11,7 +11,7 @@ import FirebaseFirestore
 struct EventDraft {
     var initiatorId: String?
     var recipientId: String?
-    var type: String?
+    var type: EventType?
     var message: String?
     var time: Date?
     var location: EventLocation?
@@ -26,7 +26,7 @@ struct Event: Identifiable, Codable {
     var id: String { _id! }
     var initiatorId: String
     var recipientId: String
-    var type: String
+    var type: EventType
     var time: Date
     var location: EventLocation
     var status: EventStatus = .pending
@@ -47,7 +47,7 @@ extension Event {
         self.init(
             initiatorId: draft.initiatorId ?? "",
             recipientId: draft.recipientId ?? "",
-            type: draft.type ?? "",
+            type: draft.type ?? .custom,
             time: draft.time ?? Date(),
             location: draft.location ?? EventLocation(mapItem: MKMapItem()),
             status: draft.status,
@@ -61,24 +61,26 @@ enum EventStatus: String, Codable { case pending, accepted, declined, declinedTi
 
 enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 
-enum EventType: CaseIterable, Codable {
-    case grabFood, grabADrink, houseParty, doubleDate, samePlace, writeAMessage
+enum EventType: String, CaseIterable, Codable, Hashable {
+    case socialMeet, doubleDate, drink, custom
     
     var description: (emoji: String?, label: String) {
         switch self {
-        case .grabFood:
-            return ("🍕", "Grab Food")
-        case .grabADrink:
+        case .drink:
             return ("🍻", "Grab a Drink")
-        case .houseParty:
-            return ("🎉", "House Party")
         case .doubleDate:
             return ("🎑", "Double Date")
-        case .samePlace:
+        case .socialMeet:
             return ("🕺🏻", "Same Place")
-        case .writeAMessage:
+        case .custom:
             return ("✒️", "Write a Message")
         }
     }
 }
 
+
+
+/*
+ case .grabFood:
+     return ("🍕", "Grab Food")
+ */

@@ -69,7 +69,7 @@ extension ProfileCard {
                     Text("|")
                         .foregroundStyle(Color.grayPlaceholder)
                     
-                    Text(meet.type)
+                    Text(meet.type.description.label)
                 }
                 .font(.body(16, .regular))
                 

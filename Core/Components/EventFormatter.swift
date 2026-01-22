@@ -10,13 +10,13 @@ import SwiftUI
 struct EventFormatter: View {
 
     let time: Date
-    let type: String
+    let type: EventType
     let message: String?
     let place: EventLocation
     let isInvite: Bool
     let size: CGFloat
     
-    init(time: Date, type: String, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
+    init(time: Date, type: EventType, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
         self.time = time
         self.type = type
         self.message = message
@@ -29,7 +29,7 @@ struct EventFormatter: View {
         let hasMessage = (message?.isEmpty == false)
         let time = formatTime(date: time)
         let place = place.name ?? ""
-        let header =  Text("\(time), \(type), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
+        let header =  Text("\(time), \(type.description.label), ") + Text(place).foregroundStyle(isInvite ? Color.appGreen : Color.accent).font(.body(size, .bold))
         
         return VStack(alignment: (hasMessage || !isInvite) ? .leading : .center, spacing: hasMessage ? 16 : 0) {
             header
