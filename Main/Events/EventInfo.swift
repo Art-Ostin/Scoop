@@ -7,20 +7,28 @@
 
 import SwiftUI
 
-
 struct EventTextFormatter: View {
-    
-    @Binding var showCantMakeItView: Bool
-    
+    @Binding var showCantMake: Bool
+    @Binding var showEventDetails: UserEvent?
     
     let event: UserEvent
-    
+
     private var formattedTime: String {
         event.time.formatted(.dateTime.hour().minute())
     }
     
     private var place: String {
-        event.place.name ?? (event.type != .drink ? "the venue" : "the bar")
+        let place = event.place.name ?? (event.type != .drink ? "the venue" : "the bar")
+        if place.count > 15 {
+            return (event.type != .drink ? "the venue" : "the bar")
+        } else {
+            return place
+        }
+    }
+    
+    private var weekdayDate: String {
+        let date = event.time
+        return date.formatted(.dateTime.weekday(.wide))
     }
     
     private var otherPerson: String {
@@ -64,45 +72,39 @@ struct EventTextFormatter: View {
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 36) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(.body(20, .bold))
+        VStack(alignment: .leading, spacing: 24) {
+            VStack {
                 
-                Text(EventFormatting.dayAndTime(event.time))
-                    .font(.body(16, .regular))
-                    .foregroundColor(Color(red: 0.32, green: 0.32, blue: 0.32))
-
-                address
-                
-                
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(alignment: .topTrailing) {
-                eventDetailsButton
-                    .padding()
-                    .offset(y: -16)
+                HStack {
+                    Text(title)
+                        .font(.body(20, .bold))
+                    
+                    Spacer()
+                    
+                }
             }
             
-            VStack(spacing: 16) {
-//                whatToDoText
-//                    .foregroundStyle(Color.grayText)
-//                    .font(.body(16, .medium))
-//                    .lineSpacing(8)
-                
-                confirmedText
-                    .lineSpacing(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            whatToDoText
+                .foregroundStyle(Color.grayText)
+                .font(.body(16, .medium))
+                .lineSpacing(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
-            
+            confirmedText
+                .lineSpacing(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             actionBar
+            
+            eventDetailsButton
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .offset(y: -12)
         }
     }
 }
 
 extension EventTextFormatter {
+    
     private var whatToDoText: Text {
         switch event.type {
         case .socialMeet:
@@ -112,9 +114,9 @@ extension EventTextFormatter {
         case .drink:
             Text("On \(formattedDate) go to \(place) for \(formattedTime), meet \(otherPerson) & have a drink together")
         case .custom:
-            Text("Go to \(place) for \(formattedTime), meet \(otherPerson) & do whatever you have planned!")
+            Text("On \(formattedDate) go to \(place) for \(formattedTime), meet \(otherPerson) & do whatever you've planned!")
         }
-    }
+    } //On \(weekdayDate)
     
     private var address: some View {
         Button {
@@ -153,9 +155,9 @@ extension EventTextFormatter {
     private var actionBar: some View {
         HStack {
             Button {
-                showCantMakeItView = true
+                showCantMake = true
             } label: {
-                Text("Showing Policy")
+                Text("Can't Make it?")
                     .font(.body(16))
                     .foregroundStyle(.accent)
                     .padding(24)
@@ -174,7 +176,7 @@ extension EventTextFormatter {
     
     private var eventDetailsButton: some View {
         Button {
-            
+            showEventDetails = event
         } label: {
             HStack(spacing: 10) {
                 Image("CoolGuys")
@@ -199,3 +201,13 @@ extension EventTextFormatter {
         }
     }
 }
+
+/*
+ .frame(maxWidth: .infinity, alignment: .leading)
+//            .overlay(alignment: .topTrailing) {
+//                eventDetailsButton
+//                    .padding()
+//                    .offset(y: -16)
+//            }
+
+ */

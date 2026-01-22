@@ -22,6 +22,6 @@ import Foundation
      }
      
      static func placeFullAddress( place: EventLocation) -> String {
-         (place.name ?? "") + " " + (place.address ?? "")
+        (place.address ?? "")
      }
  }

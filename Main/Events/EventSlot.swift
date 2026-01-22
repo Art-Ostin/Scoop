@@ -18,7 +18,8 @@ struct EventSlot: View {
     @State var profileModel: ProfileModel
     @State var imageSize: CGFloat = 0
     @State var showMessageScreen: Bool = false
-    @State var showCantMaketItView: Bool = false
+    @State var showCantMakeIt: Bool = false
+    @State var showEventDetails: UserEvent? = nil
     
     let locationManager = CLLocationManager()
     
@@ -40,8 +41,8 @@ struct EventSlot: View {
                         
                         mapView(event: event)
                         
-                        EventTextFormatter(showCantMakeItView: $showCantMaketItView, event: event)
-                            .padding(.horizontal)
+                        EventTextFormatter(showCantMake: $showCantMakeIt, showEventDetails: $showEventDetails, event: event)
+                            .padding(.horizontal, 24)
                     }
                     .padding(.top, 60)
                     .overlay(alignment: .topTrailing) {
@@ -55,6 +56,12 @@ struct EventSlot: View {
                     .padding(.bottom, 144)
                 }
                 
+                if let profile = selectedProfile {
+                    ProfileView(vm: <#T##ProfileViewModel#>, meetVM: <#T##MeetViewModel?#>, profileImages: <#T##[UIImage]#>, selectedProfile: <#T##Binding<ProfileModel?>#>, dismissOffset: <#T##Binding<CGFloat?>#>, draftProfile: <#T##UserProfile?#>)
+                }                
+                
+                
+                
                 .measure(key: ImageSizeKey.self) { $0.size.width }
                 .onPreferenceChange(ImageSizeKey.self) { screenWidth in
                     imageSize = screenWidth - 48 //Adds 24 padding on each side
@@ -64,6 +71,9 @@ struct EventSlot: View {
                     Button("Close") { showMessageScreen = false}
                 }
                 .scrollIndicators(.hidden)
+                .sheet(item: $showEventDetails) { event in
+                    Text("Hello World")
+                }
             }
         }
     }
@@ -144,12 +154,11 @@ extension EventSlot {
             }
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .frame(width: imageSize, height: imageSize > 50 ? imageSize - 36 : imageSize)
+            .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
             
-            openInMapsButton(event: event)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 12)
-                .zIndex(2)
+            eventAddress(event: event)
+                .padding(4)
+            
         }
     }
     
@@ -167,7 +176,29 @@ extension EventSlot {
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity, alignment: .center)
     }
+    
+    private func eventAddress(event: UserEvent) -> some View {
+        Button {
+            Task { await MapsRouting.openMaps(place: event.place) }
+        } label: {
+            Text(event.place.address ?? "")
+                .font(.body(12, .medium))
+                .underline(color: .black.opacity(0.6))
+                .foregroundStyle(Color.black.opacity(0.6))
+                .lineLimit(2)
+                .padding(.trailing, 8)
+                .padding(.vertical, 4)
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: 175)
+                .background (
+                    RoundedRectangle(cornerRadius: 12)
+                        .foregroundStyle(.ultraThinMaterial)
+                )
+        }
+    }
 }
+
+
 
 /*
  (

@@ -140,7 +140,6 @@
 		65C7D6362E54EE1600B726B8 /* MatchesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */; };
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
 		65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */; };
-		65CA5E232F213AEE00694981 /* Screen Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E222F213AEE00694981 /* Screen Test.swift */; };
 		65CA5E2B2F21564700694981 /* FormatTimeAndPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E2A2F21564700694981 /* FormatTimeAndPlace.swift */; };
 		65CA5E2D2F219AC400694981 /* EventInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E2C2F219AC400694981 /* EventInfo.swift */; };
 		65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E342F2263A600694981 /* EventFormatting.swift */; };
@@ -329,7 +328,6 @@
 		65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesViewModel.swift; sourceTree = "<group>"; };
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
 		65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLoadingScreen.swift; sourceTree = "<group>"; };
-		65CA5E222F213AEE00694981 /* Screen Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Screen Test.swift"; sourceTree = "<group>"; };
 		65CA5E2A2F21564700694981 /* FormatTimeAndPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatTimeAndPlace.swift; sourceTree = "<group>"; };
 		65CA5E2C2F219AC400694981 /* EventInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfo.swift; sourceTree = "<group>"; };
 		65CA5E342F2263A600694981 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
@@ -585,7 +583,6 @@
 				650135892E4C06DF00630CF3 /* EventSlot.swift */,
 				65CA5E2C2F219AC400694981 /* EventInfo.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
-				65CA5E222F213AEE00694981 /* Screen Test.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -1066,7 +1063,6 @@
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				650135862E4B92F100630CF3 /* UserEventModel.swift in Sources */,
-				65CA5E232F213AEE00694981 /* Screen Test.swift in Sources */,
 				65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
