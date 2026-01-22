@@ -68,8 +68,10 @@ extension EventSlot {
     
     
     private var titleView: some View {
-        Text("You're Meeting \(profileModel.profile.name)!")
-            .font(.title(28, .medium))
+        Text("Meeting \(profileModel.profile.name)!")
+            .font(.custom("SFProRounded-Bold", size: 32))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
     }
 
     @ViewBuilder

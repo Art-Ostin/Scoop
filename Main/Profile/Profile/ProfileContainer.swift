@@ -205,10 +205,12 @@ extension ProfileView {
                 guard max(distance, predicted) > 75 else { return }
                 if ui.dragType == .profile {
                     dismissOffset = v.translation.height
-                    dismissProfile(using: geo, startingOffset: v.translation.height)
                     
-                    dismissOffset = v.translation.height
-                    selectedProfile = nil
+                    if meetVM != nil {
+                        selectedProfile = nil
+                    } else {
+                        withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil }
+                    }
                 } else if ui.dragType == .details {
                     ui.detailsOpen.toggle()
                 }
