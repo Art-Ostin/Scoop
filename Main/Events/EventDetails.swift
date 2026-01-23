@@ -24,6 +24,9 @@ struct EventDetails: View {
             Text("Good Luck!")
                 .font(.body(20, .bold))
                 .padding(.top, 36)
+            
+            cantMakeItButton
+                .padding(.top, 36)
         }
         .padding(.horizontal)
         .frame(maxHeight: .infinity, alignment: .top)
@@ -39,7 +42,7 @@ extension EventDetails {
             
             Spacer()
             
-            Text(detailsTypeTitle)
+            Text("\(detailsTypeTitle)  ")
                 .font(.body(20, .medium))
             + Text(event.type.description.emoji ?? "🦥")
                 .font(.body(24, .medium))
@@ -72,9 +75,7 @@ extension EventDetails {
         .foregroundStyle(Color.grayText)
         .lineSpacing(6)
         .frame(maxWidth: .infinity, alignment: .leading)
-        
     }
-    
     
     private var detailsImage: some View {
         Image("CoolGuys")
@@ -82,8 +83,6 @@ extension EventDetails {
             .scaledToFit()
             .frame(width: 240, height: 240)
     }
-    
-    
     
     private func eventDetailsFormat(text1: String, text2: String, text3: String) -> some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -99,9 +98,6 @@ extension EventDetails {
         .lineSpacing(6)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
-    
-    
     
     func eventMeetingDescription(event: UserEvent) -> some View {
         let name = event.otherUserName
@@ -139,5 +135,25 @@ extension EventDetails {
             text3 = "So just head there for \(hour) & do whatever you've planned. You can text to find each other."
         }
         return eventDetailsFormat(text1: text1, text2: text2, text3: text3)
+    }
+    
+    private var cantMakeItButton: some View {
+        NavigationLink {
+            CantMakeIt()
+        } label: {
+            HStack(spacing: 6){
+                Text("Can't make it?")
+                Image(systemName: "chevron.right")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                    .font(.body(17, .bold))
+            }
+            .font(.body(15, .medium))
+            .foregroundStyle(.accent)
+            .contentShape(Rectangle())
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.horizontal)
+        }
     }
 }

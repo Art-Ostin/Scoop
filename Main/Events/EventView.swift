@@ -53,7 +53,10 @@ struct EventView: View {
             Text(profileModel.id)
         }
         .sheet(item: $ui.showEventDetails) { event in
-            EventDetails(event: event)
+            NavigationStack {
+                EventDetails(event: event)
+            }
+//            .toolbar(.hidden)
         }
         .fullScreenCover(item: $ui.showCantMakeIt) { event in
             //Print can't make it here
