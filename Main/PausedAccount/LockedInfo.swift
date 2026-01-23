@@ -16,6 +16,7 @@ struct LockedInfo: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Your account was blocked for never showing up to this Event: ")
                 
+                Text("Frame event Here")
                 
                 
                 

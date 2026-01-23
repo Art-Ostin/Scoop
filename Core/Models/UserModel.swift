@@ -62,14 +62,6 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     var prompt2: PromptResponse
     var prompt3 = PromptResponse(prompt: "The dream date", response: "")
     
-    var frozenUntil: Date? = nil
-    var frozenReason: String? = nil
-    var isFrozen: Bool {
-        guard let frozenUntil else { return false }
-        return frozenUntil > Date()
-    }
-    
-    var isBlocked: Bool = false
     var idealMeetUp: IdealMeetUp?
     var favouriteMovie: String?
     var favouriteSong: String?
@@ -78,6 +70,17 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     var character: [String]?
     var preferredYears: [String] = ["U0", "U1", "U2", "U3", "U4"]
     @ServerTimestamp var createdAt: Date?
+    
+    //Data regarding pausing/blocking User account
+    var frozenUntil: Date? = nil
+    var frozenReason: String? = nil
+    var isFrozen: Bool {
+        guard let frozenUntil else { return false }
+        return frozenUntil > Date()
+    }
+    var blockedContext: BlockedContext? = nil
+    var isBlocked: Bool = false
+
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id
