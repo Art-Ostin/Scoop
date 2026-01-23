@@ -74,24 +74,20 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     //Data regarding pausing/blocking User account
     var frozenUntil: Date? = nil
     var frozenReason: String? = nil
-    var isFrozen: Bool {
-        guard let frozenUntil else { return false }
-        return frozenUntil > Date()
-    }
+ 
     var blockedContext: BlockedContext? = nil
     var isBlocked: Bool = false
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id
     }
-
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 }
 
 extension UserProfile {
-    
+
     init(draft: DraftProfile) {
         self.init(
             id: draft.id,

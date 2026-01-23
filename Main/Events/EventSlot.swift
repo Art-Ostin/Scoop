@@ -34,7 +34,7 @@ struct EventSlot: View {
                         
                         VStack(spacing: 24) {
                             timeAndPlace(event: event)
-                            LargeClockView(targetTime: event.time, isButton: true) {}
+                            LargeClockView(targetTime: event.time) {}
                         }
                         
                         mapView(event: event)

@@ -10,7 +10,6 @@ import SwiftUI
 struct LargeClockView: View {
     
     let targetTime: Date
-    let isButton: Bool
     let onFinished: () -> Void
     
     
@@ -21,7 +20,7 @@ struct LargeClockView: View {
             let minutes = timeRemaining.minute ?? 0
             let seconds = timeRemaining.second ?? 0
 
-            if days > 3 {
+            if days > 20 {
                 HStack(spacing: 32) {
                     clockSection(time: days, sign: "days")
                     clockSection(time: hours, sign: "hr")
@@ -37,9 +36,9 @@ struct LargeClockView: View {
         }
         .foregroundStyle(.white)
         .frame(width: 253, height: 52)
-        .background(isButton ? Color.accent : Color.clear)
+        .background( Color.accent)
         .cornerRadius(15)
-        .shadow(color: .black.opacity(isButton ? 0 : 0.15), radius: 1, x: 0, y: 2)
+        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
     func clockSection(time: Int, sign: String) -> some View {
         HStack(spacing: 5) {

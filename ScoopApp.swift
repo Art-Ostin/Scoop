@@ -24,7 +24,7 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
-            TestScreen()
+            FrozenScreen()
 //             RootView()
 //                 .appDependencies(dep)
 //                 .task { dep.sessionManager.userStream(appState: $appState) }

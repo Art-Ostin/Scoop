@@ -8,35 +8,45 @@
 import SwiftUI
 
 struct LockedScreen: View {
-    
-    @State var showWhyBlocked: Bool = false
-    
     var body: some View {
-        VStack(spacing: 72) {
-            VStack(spacing: 24) {
-                Text("Your Account is Blocked")
-                    .font(.custom("SFProRounded-Bold", size: 32))
-                
-                Text("arthur.ostin@mail.mcgill.ca")
-                    .font(.body(20, .medium))
-                
+            VStack(spacing: 48) {
+                VStack(spacing: 10) {
+                    Text("Account Blocked")
+                        .font(.custom("SFProRounded-Bold", size: 32))
+                    
+                    Text(verbatim: "arthur.ostin@mail.mcgill.ca")
+                        .font(.body(14, .medium))
+                        .foregroundStyle(Color.grayText)
+                }
                 
                 Image("Monkey")
                 
+                VStack(spacing: 12) {
+                    Text("Account blocked for not showing")
+                        .font(.body(17, .italic))
+                        .foregroundStyle(Color.grayText)
+                        .lineSpacing(6)
+                        .multilineTextAlignment(.center)
+                    
+                    BlockedContextView()
+                }
             }
             .padding(.top, 96)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .allowsHitTesting(false)
-            .overlay (alignment: .topTrailing){
-                TabInfoButton(showScreen: $showWhyBlocked)
-            }
-            .sheet(isPresented: $showWhyBlocked) {
-                
-            }
-        }
     }
 }
 
 #Preview {
-    LockedScreen(showWhyBlocked: true)
+    LockedScreen()
 }
+
+/*
+ //            .overlay (alignment: .topTrailing){
+ //                TabInfoButton(showScreen: $showWhyBlocked)
+ //            }
+ //            .sheet(isPresented: $showWhyBlocked) {
+ //                LockedInfo()
+ //            }
+//     @State var showWhyBlocked: Bool = false
+ */

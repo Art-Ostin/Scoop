@@ -7,37 +7,41 @@
 
 import SwiftUI
 
-struct TestScreen: View {
+struct BlockedContextView: View {
     
     var body: some View {
         
         VStack(spacing: 6)  {
-            Text("Susan Never Showed")
-                .font(.body(12, .bold))
-                .foregroundStyle(.accent)
-                .frame(maxWidth: .infinity, alignment: .center)
-
             
             VStack(alignment: .leading, spacing: 24) {
                 HStack(alignment: .center, spacing: 8) {
-                    Image("ProfileMockA")
+                    Image("ProfileMockB")
                         .resizable()
                         .scaledToFill()
                         .frame(width: 25, height: 25)
                         .clipShape(Circle())
                     
-                    Text("Meeting with Arthur")
+                    Text("Meeting With Arthur")
                         .font(.body(18, .bold))
                     
+                    Spacer()
+                    
+                    Text("Drink 🍻")
+                        .font(.body(14, .medium))
+                        .offset(y: -10)
+                        .offset(x: 6)
+//                        .padding(.horizontal)
+//                        .padding(.top, 16)
                 }
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Thursday, August 23rd · 22:30 ")
                     Text("Brandy Melville")
                 }
+                .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
+                .font(.body(16, .regular))
             }
-            .font(.body(16, .medium))
-            .padding(16)
-            .frame(width: 320, alignment: .leading)
+            .padding(22)
+            .frame(width: 330, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .foregroundStyle(Color.background)
@@ -45,27 +49,16 @@ struct TestScreen: View {
             )
             .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)
             .overlay(alignment: .bottomTrailing) {
-                Text("🍻 Drink")
-                    .font(.body(14, .bold))
+                Text("Susan Cancelled")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(.accent)
                     .padding()
+
             }
         }
-        
-        
-        
-
-        
-        
-//        .overlay(alignment: .topTrailing) {
-//            Text("No show")
-//                .font(.body(12, .bold))
-//                .foregroundStyle(.accent)
-//                .padding(.horizontal, 14)
-//                .offset(y: 10)
-//        }
     }
 }
 
-#Preview {
-    TestScreen()
-}
+//#Preview {
+//    TestScreen()
+//}

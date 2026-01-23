@@ -13,18 +13,14 @@ struct LockedInfo: View {
             Text("Account Blocked")
                 .font(.body(24, .bold))
             
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Your account was blocked for never showing to meet Arthur: ")
-                
-                
-                
-                
-                
-                Text("All Scoop functionality will be restored on Thursday 7th February.")
-            }
-            .font(.body(17, .italic))
-            .foregroundStyle(.black)
-            .lineSpacing(6)
+            
+            Text("Your account is blocked for not showing to meet Arthur")
+                .font(.body(17, .italic))
+                .foregroundStyle(Color.grayText)
+                .lineSpacing(6)
+            
+            BlockedContextView()
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }
