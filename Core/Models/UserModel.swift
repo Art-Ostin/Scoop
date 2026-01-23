@@ -80,7 +80,6 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     }
     var blockedContext: BlockedContext? = nil
     var isBlocked: Bool = false
-
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
         lhs.id == rhs.id

@@ -14,9 +14,7 @@ struct LockedInfo: View {
                 .font(.body(24, .bold))
             
             VStack(alignment: .leading, spacing: 16) {
-                Text("Your account was blocked for never showing up to this Event: ")
-                
-                Text("Frame event Here")
+                Text("Your account was blocked for never showing to meet Arthur: ")
                 
                 
                 

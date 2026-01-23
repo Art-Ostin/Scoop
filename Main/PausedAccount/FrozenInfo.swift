@@ -12,6 +12,7 @@ struct FrozenExplainedScreen: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
+        
         VStack(alignment: .leading, spacing: 36) {
             Text("Account Frozen")
                 .font(.body(24, .bold))
