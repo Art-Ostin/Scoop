@@ -21,6 +21,7 @@ struct BlockedContextView: View {
                         .frame(width: 25, height: 25)
                         .clipShape(Circle())
                     
+                    
                     Text("Meeting With Arthur")
                         .font(.body(18, .bold))
                     

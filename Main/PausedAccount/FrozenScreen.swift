@@ -22,8 +22,6 @@ struct FrozenScreen: View {
                 Text(EventFormatting.expandedDate(twoWeeksFromNow))
                     .font(.custom("SFProRounded-Bold", size: 32))
             }
-            
-            
             Image("Monkey")
 
             VStack(spacing: 12) {
@@ -47,6 +45,10 @@ struct FrozenScreen: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .overlay(alignment: .bottom) {
+                    PageIndicator(count: 2, selection: tabSelection)
+                        .padding(.bottom, 36)
+                }
             }
         }
         .padding(.top, 96)
@@ -57,6 +59,7 @@ struct FrozenScreen: View {
         .sheet(isPresented: $showWhyFrozen) {
             FrozenExplainedScreen()
         }
+        .background(Color.background)
     }
 }
 

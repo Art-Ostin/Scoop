@@ -12,7 +12,6 @@ struct LargeClockView: View {
     let targetTime: Date
     let onFinished: () -> Void
     
-    
     var body: some View {
         CountdownTimer(targetTime: targetTime, onFinished: {onFinished()}) { timeRemaining in
             let days = timeRemaining.day ?? 0
@@ -20,11 +19,12 @@ struct LargeClockView: View {
             let minutes = timeRemaining.minute ?? 0
             let seconds = timeRemaining.second ?? 0
 
-            if days > 20 {
+            if days > 3 {
                 HStack(spacing: 32) {
                     clockSection(time: days, sign: "days")
                     clockSection(time: hours, sign: "hr")
                     clockSection(time: minutes, sign: "m")
+//                    clockSection(time: seconds, sign: "s")
                 }
             } else {
                 HStack(spacing: 32) {
