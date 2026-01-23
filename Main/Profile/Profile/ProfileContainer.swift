@@ -206,7 +206,7 @@ extension ProfileView {
                 if ui.dragType == .profile {
                     dismissOffset = v.translation.height
                     
-                    if meetVM != nil {
+                    if meetVM != nil { //Bug Fix: Causes issues with the selectedProfile
                         selectedProfile = nil
                     } else {
                         withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil }

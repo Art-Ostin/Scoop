@@ -45,7 +45,7 @@ struct EventView: View {
                 ProfileView(vm: ProfileViewModel(profileModel: profile, cacheManager: vm.cacheManager), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
                     .id(profile.id)
                     .zIndex(1)
-                    .transition(.asymmetric(insertion: .identity, removal: .move(edge: .bottom)))
+                    .transition(.move(edge: .bottom))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

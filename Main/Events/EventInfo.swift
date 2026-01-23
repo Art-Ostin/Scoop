@@ -73,32 +73,34 @@ struct EventTextFormatter: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: 24) {
-            VStack {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title)
+                    .font(.body(20, .bold))
+
+                Text(EventFormatting.dayAndTime(event.time))
+                    .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
+                    .font(.body(16, .regular))
                 
-                HStack {
-                    Text(title)
-                        .font(.body(20, .bold))
-                    
-                    Spacer()
-                    
-                }
+                address
             }
-            
-            whatToDoText
-                .foregroundStyle(Color.grayText)
-                .font(.body(16, .medium))
-                .lineSpacing(8)
-                .frame(maxWidth: .infinity, alignment: .leading)
             
             confirmedText
                 .lineSpacing(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            actionBar
+            HStack(alignment: .top) {
+//                actionBar
+                Spacer()
+                eventDetailsButton
+            }
+            .padding(.top ,12)
             
-            eventDetailsButton
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .offset(y: -12)
+            
+//            actionBar
+//            
+//            eventDetailsButton
+//                .frame(maxWidth: .infinity, alignment: .trailing)
+//                .offset(y: -24)
         }
     }
 }
@@ -126,18 +128,18 @@ extension EventTextFormatter {
                 .font(.body(12, .regular))
                 .underline(color: .grayText)
                 .foregroundStyle(Color.grayText)
-                .frame(width: 240, alignment: .leading)
+                .frame(width: 300, alignment: .leading)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
         }
     }
     
     private var confirmedText: Text {
-        Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you’re ")
+        Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you're ")
             .foregroundStyle(Color.grayText)
             .font(.body(16, .medium))
 
-        + Text("blocked")
+        + Text("blocked.")
             .font(.body(16, .bold))
             .underline()
             .foregroundStyle(Color.black)

@@ -28,7 +28,13 @@ struct EventSlot: View {
                 
                 ScrollView {
                     VStack(spacing: 36) {
-                        titleView
+                        HStack {
+                            titleView
+                            Spacer()
+//                            eventDetailsButton(event: event)
+//                                .padding(.horizontal, 16)
+                        }
+                        
                         
                         imageView
                         
@@ -44,10 +50,20 @@ struct EventSlot: View {
                     }
                     .padding(.top, 60)
                     .overlay(alignment: .topTrailing) {
+                        
+//                        eventDetailsButton(event: event)
+//                            .padding(.horizontal, 16)
+
                         messageButton
-                            .padding(.horizontal)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 2)
                             .padding(.top, 8)
                     }
+                    .overlay(alignment: .topLeading) {
+//                        eventDetailsButton(event: event)
+//                            .padding(.horizontal)
+                    }
+                    
                     .onAppear {
                         locationManager.requestWhenInUseAuthorization()
                     }
@@ -68,10 +84,10 @@ extension EventSlot {
     
     
     private var titleView: some View {
-        Text("Meeting \(profileModel.profile.name)!")
+        Text("Meeting")
             .font(.custom("SFProRounded-Bold", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -88,6 +104,17 @@ extension EventSlot {
                         ui.selectedProfile = profileModel
                     }
                 }
+                .overlay(alignment: .bottomLeading) {
+                    Text(profileModel.profile.name)
+                        .font(.body(24, .bold))
+                        .padding(.vertical)
+                        .padding(.horizontal)
+                        .foregroundStyle(.white)
+                }
+//                .overlay(alignment: .bottomTrailing) { //For the moment button kept in top right
+//                    messageButton
+//                        .padding()
+//                }
         }
     }
     
@@ -98,15 +125,17 @@ extension EventSlot {
             Image("ChatIcon")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 18, height: 18)
+                .frame(width: 20, height: 20)
                 .font(.body(17, .bold))
-                .padding(6)
-                .background (
-                    Circle()
-                        .foregroundStyle(Color.background)
-                        .stroke(100, lineWidth: 1.5, color: .black)
-                )
-                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+                .padding(8)
+                .glassIfAvailable()
+//
+//                .background (
+//                    Circle()
+//                        .foregroundStyle(Color.background)
+////                        .stroke(100, lineWidth: 1.5, color: .black)
+//                )
+//                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
         }
     }
         
@@ -127,8 +156,8 @@ extension EventSlot {
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
             
-            eventAddress(event: event)
-                .padding(4)
+//            eventAddress(event: event)
+//                .padding(4)
             
         }
     }
@@ -167,4 +196,32 @@ extension EventSlot {
                 )
         }
     }
+    
+    private func eventDetailsButton(event: UserEvent) -> some View {
+        Button {
+            ui.showEventDetails = event
+        } label: {
+            HStack(spacing: 10) {
+                Image("CoolGuys")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                
+                Text("Drink")
+                    .font(.body(17, .bold))
+            }
+            .padding(8)
+            .padding(.horizontal, 4)
+            .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color.background)
+                            .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 2)
+                )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+            )
+        }
+    }
+
 }
