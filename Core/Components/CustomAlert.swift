@@ -13,6 +13,13 @@ struct CustomAlertCard: View {
     let showTwoButtons: Bool
     let onCancel: () -> Void
     let onOK: () -> Void
+    let cancelTitle: String
+    let okTitle: String
+    let emoji: String
+    
+    var isDanger: Bool {
+        cancelTitle == "Back"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -26,6 +33,7 @@ struct CustomAlertCard: View {
         .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
         .defaultShadow()
         .frame(maxWidth: .infinity)
+        .lineSpacing(8)
     }
 }
 
@@ -33,7 +41,7 @@ extension CustomAlertCard {
     
     private var titleAndMessage: some View {
         VStack(alignment: showTwoButtons ? .leading : .center, spacing: 24) {
-            Text("\(title)  🦥")
+            Text("\(title)  \(emoji)")
                 .font(.body(20, .bold))
             
             Text(message)
@@ -62,16 +70,16 @@ extension CustomAlertCard {
                 onOK()
             }
         } label:  {
-            Text(isCancel ? "Cancel" : "OK")
+            Text(isCancel ? cancelTitle : okTitle)
                 .font(.body(17, .bold))
-                .foregroundStyle(isCancel ? .black : .white)
+                .foregroundStyle(isCancel ? (isDanger ? Color.white : Color.black) : (isDanger ? Color.black : Color.white))
                 .padding(.vertical, 14)
                 .frame(width: 100)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .foregroundStyle(isCancel ? Color.background : Color.accent)
+                        .foregroundStyle(isCancel ? (isDanger ? Color.accent : Color.background) : (isDanger ? Color.background : Color.accent) )
                 )
-                .stroke(20, lineWidth: isCancel ? 1 : 0, color: .grayText)
+                .stroke(20, lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: .grayText)
                 .frame(maxWidth: .infinity,  alignment: showTwoButtons ? (isCancel ? .leading : .trailing) : .center)
         }
     }
@@ -84,6 +92,11 @@ struct CustomAlertModifier: ViewModifier {
     let title: String
     let message: String
     let showTwoButtons: Bool
+    let cancelTitle:String
+    let okTitle: String
+    let emoji: String
+    
+    
     let onOK: () -> Void
     
     func body(content: Content) -> some View {
@@ -106,7 +119,7 @@ struct CustomAlertModifier: ViewModifier {
                             onOK: {
                                 onOK()
                                 isPresented = false
-                            }
+                            }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
                         )
                     }
                     .transition(.opacity)
@@ -119,15 +132,7 @@ struct CustomAlertModifier: ViewModifier {
 }
 
 extension View {
-    func customAlert(isPresented: Binding<Bool>, title: String = "Error", message: String, showTwoButtons: Bool, onOK: @escaping () -> Void) -> some View {
-        modifier(CustomAlertModifier(isPresented: isPresented, title: title, message: message, showTwoButtons: showTwoButtons, onOK: onOK))
+    func customAlert(isPresented: Binding<Bool>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, onOK: @escaping () -> Void) -> some View {
+        modifier(CustomAlertModifier(isPresented: isPresented, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, onOK: onOK))
     }
 }
-
-/*
- .background(
-     RoundedRectangle(cornerRadius: 24)
-         .foregroundStyle(Color.background)
-         .defaultShadow()
- )
- */

@@ -9,28 +9,28 @@ import SwiftUI
 
 struct EventDetails: View {
     
+    let vm: EventViewModel
     let event: UserEvent
     
-    
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 36) {
             detailsTitle
             
             eventMeetingDescription(event: event)
             
             detailsImage
-                .padding(.top, 36)
+                .padding(.top, 24)
             
             Text("Good Luck!")
                 .font(.body(20, .bold))
-                .padding(.top, 36)
+                .padding(.top, 24)
             
             cantMakeItButton
-                .padding(.top, 36)
+                .padding(.top, 24)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 60)
+        .padding(.top, 72)
     }
 }
 
@@ -139,7 +139,8 @@ extension EventDetails {
     
     private var cantMakeItButton: some View {
         NavigationLink {
-            CantMakeIt()
+            CantMakeIt(vm: vm, event: event)
+                .navigationBarTitleDisplayMode(.inline)
         } label: {
             HStack(spacing: 6){
                 Text("Can't make it?")

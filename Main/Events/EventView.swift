@@ -54,13 +54,11 @@ struct EventView: View {
         }
         .sheet(item: $ui.showEventDetails) { event in
             NavigationStack {
-                EventDetails(event: event)
+                EventDetails(vm: vm, event: event)
             }
-//            .toolbar(.hidden)
         }
         .fullScreenCover(item: $ui.showCantMakeIt) { event in
             //Print can't make it here
         }
-//        .animation(ui.selectedProfile == nil ? nil : .easeInOut(duration: 5), value: ui.selectedProfile)
     }
 }
