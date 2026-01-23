@@ -61,6 +61,12 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     var prompt1: PromptResponse
     var prompt2: PromptResponse
     var prompt3 = PromptResponse(prompt: "The dream date", response: "")
+    var frozenUntil: Date? = nil
+    var isFrozen: Bool {
+        guard let frozenUntil else { return false }
+        return frozenUntil > Date()
+    }
+    var isBlocked: Bool = false
     
     var idealMeetUp: IdealMeetUp?
     var favouriteMovie: String?

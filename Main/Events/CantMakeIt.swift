@@ -81,7 +81,7 @@ struct CantMakeIt: View {
             .padding(.bottom, 4)
         }
         .background(Color.background)
-        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",cancelTitle: "Back", okTitle: "Confirm", emoji: "🚨", message: "Are you sure? Scoop will be frozen for two weeks.", showTwoButtons: true) {
+        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",cancelTitle: "Back", okTitle: "Confirm", emoji: "🚨", message: "Are you sure? Scoop will be frozen for two weeks & all pending invites removed", showTwoButtons: true) {
             
             //Implement code to actually freeze profile here (need a timer)
         }
