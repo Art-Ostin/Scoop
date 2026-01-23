@@ -53,7 +53,7 @@ struct EventView: View {
             Text(profileModel.id)
         }
         .sheet(item: $ui.showEventDetails) { event in
-            Text(event.id ?? "")
+            EventDetails(event: event)
         }
         .fullScreenCover(item: $ui.showCantMakeIt) { event in
             //Print can't make it here

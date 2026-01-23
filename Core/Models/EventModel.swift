@@ -61,6 +61,10 @@ enum EventStatus: String, Codable { case pending, accepted, declined, declinedTi
 
 enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 
+
+
+
+//Add the images and functions of event details all here.
 enum EventType: String, CaseIterable, Codable, Hashable {
     case socialMeet, doubleDate, drink, custom
     

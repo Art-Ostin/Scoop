@@ -44,31 +44,10 @@ struct EventTextFormatter: View {
         case .socialMeet:
             "Social with \(otherPerson)"
         case .custom:
-            "Drink with \(otherPerson)"
+            "Custom Date with \(otherPerson)"
         }
     }
     
-    private var formattedDate: String {
-        let date = event.time
-
-        let weekday = date.formatted(.dateTime.weekday(.wide))
-        let month = date.formatted(.dateTime.month(.abbreviated))
-
-        let day = Calendar.current.component(.day, from: date)
-        return "\(weekday) \(day)\(ordinalSuffix(for: day)) \(month)"
-    }
-
-    private func ordinalSuffix(for day: Int) -> String {
-        let mod100 = day % 100
-        if (11...13).contains(mod100) { return "th" }
-
-        switch day % 10 {
-        case 1: return "st"
-        case 2: return "nd"
-        case 3: return "rd"
-        default: return "th"
-        }
-    }
     
     var body: some View {
         
@@ -88,19 +67,7 @@ struct EventTextFormatter: View {
                 .lineSpacing(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            HStack(alignment: .top) {
-//                actionBar
-                Spacer()
-                eventDetailsButton
-            }
-            .padding(.top ,12)
-            
-            
-//            actionBar
-//            
-//            eventDetailsButton
-//                .frame(maxWidth: .infinity, alignment: .trailing)
-//                .offset(y: -24)
+            eventDetailsButton
         }
     }
 }
@@ -108,16 +75,17 @@ struct EventTextFormatter: View {
 extension EventTextFormatter {
     
     private var whatToDoText: Text {
-        switch event.type {
-        case .socialMeet:
-            Text("On \(formattedDate) go to \(place) for \(formattedTime) with your mates & \(otherPerson) and their friends will also be there")
-        case .doubleDate:
-            Text("On \(formattedDate) go to \(place) for \(formattedTime) with your friend & meet \(otherPerson) & their friend there for the double date")
-        case .drink:
-            Text("On \(formattedDate) go to \(place) for \(formattedTime), meet \(otherPerson) & have a drink together")
-        case .custom:
-            Text("On \(formattedDate) go to \(place) for \(formattedTime), meet \(otherPerson) & do whatever you've planned!")
-        }
+        Text("Hello")
+//        switch event.type {
+//        case .socialMeet:
+//            Text("On \(formattedDate) go to \(place) for \(formattedTime) with your mates & \(otherPerson) and their friends will also be there")
+//        case .doubleDate:
+//            Text("On \(formattedDate) go to \(place) for \(formattedTime) with your friend & meet \(otherPerson) & their friend there for the double date")
+//        case .drink:
+//            Text("On \(formattedDate) go to \(place) for \(formattedTime), meet \(otherPerson) & have a drink together")
+//        case .custom:
+//            Text("On \(formattedDate) go to \(place) for \(formattedTime), meet \(otherPerson) & do whatever you've planned!")
+//        }
     } //On \(weekdayDate)
     
     private var address: some View {

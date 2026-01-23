@@ -28,13 +28,7 @@ struct EventSlot: View {
                 
                 ScrollView {
                     VStack(spacing: 36) {
-                        HStack {
-                            titleView
-                            Spacer()
-//                            eventDetailsButton(event: event)
-//                                .padding(.horizontal, 16)
-                        }
-                        
+                        titleView
                         
                         imageView
                         
@@ -45,25 +39,19 @@ struct EventSlot: View {
                         
                         mapView(event: event)
                         
-                        EventTextFormatter(ui: ui, profile: profileModel, event: event)
-                            .padding(.horizontal, 24)
+                        eventInfo(event: event)
+                        
+                        
+//                        EventTextFormatter(ui: ui, profile: profileModel, event: event)
+//                            .padding(.horizontal, 24)
                     }
                     .padding(.top, 60)
                     .overlay(alignment: .topTrailing) {
-                        
-//                        eventDetailsButton(event: event)
-//                            .padding(.horizontal, 16)
-
                         messageButton
                             .padding(.horizontal, 24)
                             .padding(.vertical, 2)
                             .padding(.top, 8)
                     }
-                    .overlay(alignment: .topLeading) {
-//                        eventDetailsButton(event: event)
-//                            .padding(.horizontal)
-                    }
-                    
                     .onAppear {
                         locationManager.requestWhenInUseAuthorization()
                     }
@@ -89,7 +77,7 @@ extension EventSlot {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
     }
-
+    
     @ViewBuilder
     private var imageView: some View {
         if let image = profileModel.image {
@@ -111,10 +99,6 @@ extension EventSlot {
                         .padding(.horizontal)
                         .foregroundStyle(.white)
                 }
-//                .overlay(alignment: .bottomTrailing) { //For the moment button kept in top right
-//                    messageButton
-//                        .padding()
-//                }
         }
     }
     
@@ -129,16 +113,9 @@ extension EventSlot {
                 .font(.body(17, .bold))
                 .padding(8)
                 .glassIfAvailable()
-//
-//                .background (
-//                    Circle()
-//                        .foregroundStyle(Color.background)
-////                        .stroke(100, lineWidth: 1.5, color: .black)
-//                )
-//                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
         }
     }
-        
+    
     @ViewBuilder
     func mapView(event: UserEvent) ->  some View {
         let coord = CLLocationCoordinate2D(latitude: event.place.latitude, longitude: event.place.longitude)
@@ -155,10 +132,6 @@ extension EventSlot {
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
-            
-//            eventAddress(event: event)
-//                .padding(4)
-            
         }
     }
     
@@ -196,6 +169,51 @@ extension EventSlot {
                 )
         }
     }
+}
+
+extension EventSlot {
+    private func eventInfoTitle (event: UserEvent) -> some View {
+        let otherPerson = event.otherUserName
+        
+        var text = ""
+        switch event.type {
+        case .drink:
+            text = "Drink with \(otherPerson)"
+        case .doubleDate:
+            text = "Double Date with \(otherPerson)"
+        case .socialMeet:
+            text = "Social with \(otherPerson)"
+        case .custom:
+            text = "Custom Date with \(otherPerson)"
+        }
+        return Text(text)
+            .font(.body(20, .bold))
+    }
+    
+    private func address(event: UserEvent) -> some View {
+        Button {
+            Task { await MapsRouting.openMaps(place: event.place) }
+        } label: {
+            Text(EventFormatting.placeFullAddress(place: event.place))
+                .font(.body(12, .regular))
+                .underline(color: .grayText)
+                .foregroundStyle(Color.grayText)
+                .frame(width: 300, alignment: .leading)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+        }
+    }
+    
+    private var confirmedText: Text {
+        Text("You’ve both confirmed so don’t worry, they’ll be there! If you stand them up you're ")
+            .foregroundStyle(Color.grayText)
+            .font(.body(16, .medium))
+
+        + Text("blocked.")
+            .font(.body(16, .bold))
+            .underline()
+            .foregroundStyle(Color.black)
+    }
     
     private func eventDetailsButton(event: UserEvent) -> some View {
         Button {
@@ -207,10 +225,10 @@ extension EventSlot {
                     .scaledToFit()
                     .frame(width: 24, height: 24)
                 
-                Text("Drink")
+                Text(event.type.rawValue.capitalized)
                     .font(.body(17, .bold))
             }
-            .padding(8)
+            .padding(6)
             .padding(.horizontal, 4)
             .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -223,5 +241,59 @@ extension EventSlot {
             )
         }
     }
+    
+    
+    
+    private func eventInfo(event: UserEvent) -> some View {
+        
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 10) {
+                
+                eventInfoTitle(event: event)
 
+                Text(EventFormatting.dayAndTime(event.time))
+                    .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
+                    .font(.body(16, .regular))
+                
+                address(event: event)
+            }
+            
+            confirmedText
+                .lineSpacing(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            eventDetailsButton(event: event)
+        }
+        .padding(.horizontal, 24)
+    }
 }
+
+/*
+ private func eventDetailsButton(event: UserEvent) -> some View {
+     Button {
+         ui.showEventDetails = event
+     } label: {
+         HStack(spacing: 10) {
+             Image("CoolGuys")
+                 .resizable()
+                 .scaledToFit()
+                 .frame(width: 24, height: 24)
+             
+             Text("Drink")
+                 .font(.body(17, .bold))
+         }
+         .padding(8)
+         .padding(.horizontal, 4)
+         .background(
+                     RoundedRectangle(cornerRadius: 16, style: .continuous)
+                         .fill(Color.background)
+                         .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 2)
+             )
+         .overlay(
+             RoundedRectangle(cornerRadius: 16, style: .continuous)
+                 .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+         )
+     }
+ }
+
+ */
