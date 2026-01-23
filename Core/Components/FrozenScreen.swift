@@ -14,30 +14,23 @@ struct Frozen_Screen: View {
     
     var body: some View {
         ZStack(alignment: .top){
-            
-            
-
-            VStack {
-                Text("Account Frozen For")
-                    .font(.body(24, .bold))
-                
-                LargeClockView(targetTime: twoWeeksFromNow, isButton: false) {
+            VStack(spacing: 72) {
+                VStack(spacing: 24) {
+                    Text("Account Frozen Until")
+                        .font(.body(20, .medium))
                     
+                    Text(EventFormatting.expandedDate(twoWeeksFromNow))
+                        .font(.custom("SFProRounded-Bold", size: 32))
                 }
+                Image("Monkey")
+
+                LargeClockView(targetTime: twoWeeksFromNow, isButton: true) {}
             }
-            
-            
-//            Text("🥶")
-//                .font(.body(100))
-            
         }
         .padding(.top, 96)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(
-            Color(red: 0, green: 0.65, blue: 0.73)
-                .opacity(0.95)
-        )
         .allowsHitTesting(false)
+        
     }
 }
 

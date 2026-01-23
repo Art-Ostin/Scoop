@@ -23,6 +23,14 @@ import Foundation
              let day = Calendar.current.component(.day, from: date)
              return "\(weekday) \(day)\(ordinalSuffix(for: day)) \(month)"
      }
+     
+     static func expandedDate(_ date: Date) -> String {
+         let weekday = date.formatted(.dateTime.weekday(.wide))
+         let month = date.formatted(.dateTime.month(.wide))
+
+         let day = Calendar.current.component(.day, from: date)
+         return "\(weekday) \(day)\(ordinalSuffix(for: day)) \(month)"
+     }
           
      
      static func placeName(_ place: EventLocation) -> String {

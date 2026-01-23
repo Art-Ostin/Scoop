@@ -31,14 +31,14 @@ struct CountdownTimer<Content: View>: View {
     
     private func updateTimeRemaining() {
         if Date() >= targetTime {
-            timeRemaining = DateComponents(hour: 0, minute: 0, second: 0)
+            timeRemaining = DateComponents(day: 0, hour: 0, minute: 0, second: 0)
             if !didFinish {
                 didFinish = true
                 onFinished()
             }
             return
         }
-        timeRemaining = Calendar.current.dateComponents([.hour, .minute, .second], from: Date(), to: targetTime)
+        timeRemaining = Calendar.current.dateComponents([.day, .hour, .minute, .second], from: Date(), to: targetTime)
     }
 }
 
