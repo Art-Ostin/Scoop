@@ -13,7 +13,7 @@ struct FrozenView: View {
     
     @State var showInfo: Bool = false
     @State var showSettings : Bool = false
-    @State var tabSelection: Int
+    @State var tabSelection: Int = 0
     
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
@@ -27,19 +27,22 @@ struct FrozenView: View {
                     tabTitle
                     tabSection(frozenContext: frozenContext, frozenUntilDate: frozenUntilDate)
                 }
-                
             }
             .padding(.top, 72)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
             .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm)}
             .background(Color.background)
+            .fullScreenCover(isPresented: $showSettings) {
+                NavigationStack {
+                    SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.sessionManager))
+                }
+            }
         }
     }
 }
 
 extension FrozenView {
-    
     private func frozenHeader(_ date: Date) -> some View {
         VStack(spacing: 12) {
             Text("Account Frozen Until")

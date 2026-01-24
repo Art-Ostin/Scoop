@@ -52,6 +52,10 @@ import FirebaseFirestore
         try await userManager.updateUser(userId: userId, values: [.blockedContext : encodedBlockedContext] )
         try await userManager.updateUser(userId: userId, values: [.frozenUntil : twoWeeksFromNow] )
         
+        let events = sessionManager
+        
+        
+        
         //Update the status of the Event & UserEvents
         if let eventId = event.id {
             try await eventManager.cancelEvent(eventId: eventId, cancelledById: userId)

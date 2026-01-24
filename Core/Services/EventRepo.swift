@@ -54,6 +54,12 @@ class EventManager {
         }
     }
     
+    //Only used when their profile is frozen & there is pending invites
+    func deleteEvent(eventId: String) {
+        
+        
+    }
+    
     func getEventExpiryTime(draft: EventDraft) -> Date? {
         guard let eventTime = draft.time else {return nil}
         

@@ -26,5 +26,4 @@ import Foundation
         try? authManager.signOutAuthUser()
         sessionManager.stopSession()
     }
-
 }
