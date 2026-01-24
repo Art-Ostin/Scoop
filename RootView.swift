@@ -31,7 +31,7 @@ struct RootView : View {
                 AppContainer()
                 
             case .frozen:
-                EmptyView()
+                FrozenHomeView()
                 
             case .blocked:
                 EmptyView()

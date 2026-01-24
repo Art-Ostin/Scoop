@@ -7,14 +7,21 @@
 
 import SwiftUI
 
-struct FrozenHomeView: View {
+struct FrozenContainer: View {
     
+    @Environment(\.appDependencies) private var dep
+
+    let vm: FrozenViewModel
+
     @State var showSettings: Bool = false
     
     @State private var tabSelection: TabBarItem = .meet
     
     @State private var frozenSelection: Int = 0
 
+    init() {
+        vm = FrozenViewModel(sessionManager: dep.sessionManager)
+    }
     
     var body: some View {
         ZStack {
@@ -47,10 +54,12 @@ struct FrozenHomeView: View {
                         .tabBarItem(.events, selection: $tabSelection)
                         .overlay(alignment: .topLeading) {
                             SettingsButton(showSettingsView: $showSettings)
-                                .padding(.horizontal)
+                                .padding(.horizontal) 
                     }
                 }
             }
+        }
+        .task {
         }
     }
 }

@@ -69,7 +69,15 @@ enum showProfilesState {
                     session = nil
                     continue
                 }
-                await startSession(user: user) { appState.wrappedValue = .app }
+                await startSession(user: user) {
+                    if user.isBlocked {
+                        appState.wrappedValue = .blocked
+                    } else if user.frozenUntil != nil {
+                        appState.wrappedValue = .frozen
+                    } else {
+                        appState.wrappedValue = .app
+                    }
+                }
                 Task { await cacheManager.loadProfileImages([user]) }
             }
         }
