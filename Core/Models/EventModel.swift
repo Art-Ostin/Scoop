@@ -32,12 +32,12 @@ struct Event: Identifiable, Codable {
     var status: EventStatus = .pending
     var inviteExpiryTime: Date
     var canText: Bool = false
-    
     var message: String?
+    var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible for that
     @ServerTimestamp var date_created: Date?
     
     enum Field: String {
-        case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time
+        case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time, earlyTerminatorID
     }
 }
 
@@ -57,7 +57,7 @@ extension Event {
     }
 }
 
-enum EventStatus: String, Codable { case pending, accepted, declined, declinedTimePassed, cancelled, pastAccepted }
+enum EventStatus: String, Codable { case pending, accepted, declined, declinedTimePassed,pastAccepted, cancelled, neverShowed }
 
 enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 

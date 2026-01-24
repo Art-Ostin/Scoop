@@ -25,9 +25,10 @@ struct UserEvent: Identifiable, Codable {
     let updatedAt: Date?
     let inviteExpiryTime: Date
     var canMessage: Bool = false
+    var earlyTerminatorID: String?
     
     enum Field: String, Codable {
-        case id, otherUserId, role, status, time, type, message, place, otherUserName, otherUserPhoto, updatedAt, invite_expiry_time, canMessage
+        case id, otherUserId, role, status, time, type, message, place, otherUserName, otherUserPhoto, updatedAt, invite_expiry_time, earlyTerminatorID, canMessage
     }
 }
 
