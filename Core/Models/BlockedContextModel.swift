@@ -7,7 +7,7 @@
 import Foundation
 
 struct BlockedContext: Codable, Hashable {
-    let profileImage: URL
+    let profileImage: String
     let profileName: String
     let eventPlace: String
     let eventTime: String

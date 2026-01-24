@@ -59,6 +59,7 @@ final class LiveFirestoreService: FirestoreService {
         }
     }
     
+    
     func updateArray(_ path: String, append: [String: [Any]] = [:], remove: [String: [Any]] = [:]) async throws {
         var payload: [String: Any] = [:]
         for (k, v) in append where !v.isEmpty { payload[k] = FieldValue.arrayUnion(v) }

@@ -73,7 +73,6 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     
     //Data regarding pausing/blocking User account
     var frozenUntil: Date? = nil
-    var frozenReason: String? = nil //Delete later
  
     var blockedContext: BlockedContext? = nil
     var isBlocked: Bool = false
