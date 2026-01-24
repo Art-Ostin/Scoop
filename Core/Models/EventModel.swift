@@ -33,7 +33,7 @@ struct Event: Identifiable, Codable {
     var inviteExpiryTime: Date
     var canText: Bool = false
     var message: String?
-    var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible for that
+    var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible to track e.g. how many 'cancel's or 'no shows.
     @ServerTimestamp var date_created: Date?
     
     enum Field: String {

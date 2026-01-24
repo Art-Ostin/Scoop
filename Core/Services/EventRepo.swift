@@ -146,5 +146,25 @@ class EventManager {
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
-    }    
+    }
+    
+    func cancelEvent(eventId: String, cancelledById: String) async throws {
+        //Update the status and specify who cancelled the event
+        let event = try await fetchEvent(eventId: eventId)
+        let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
+        
+        try await updateStatus(eventId: eventId, to: .cancelled)
+        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        print("Succesfully updated Cancelled By user")
+    }
+    
+    
+    
+   // func noShowEvents(eventId: )
+    
+    
+  //  func removeAllUpcomingEvents // (Because user is cancelled
+    
 }

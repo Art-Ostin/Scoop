@@ -37,7 +37,7 @@ import MapKit
         return await cacheManager.loadProfileImages([profileModel.profile])
     }
     
-    func cancelEvent(event: UserEvent) async {
+    func cancelEvent(event: UserEvent) async throws {
         //Get the fields for the 'blockedContext'
         let profileName = event.otherUserName
         let eventTime = "\(EventFormatting.expandedDate(event.time)) · \(EventFormatting.hourTime(event.time))"
@@ -45,18 +45,17 @@ import MapKit
         let url = URL(string: event.otherUserPhoto)
         let blockedContext = BlockedContext(profileImage: url!, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
         let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
+        let userId = sessionManager.user.id
         
         //Update the user to frozen for two weeks
-        try? await userManager.updateUser(userId: sessionManager.user.id, values: [.blockedContext : blockedContext] )
-        try? await userManager.updateUser(userId: sessionManager.user.id, values: [.frozenUntil : twoWeeksFromNow] )
+        try await userManager.updateUser(userId: userId, values: [.blockedContext : blockedContext] )
+        try await userManager.updateUser(userId: userId, values: [.frozenUntil : twoWeeksFromNow] )
         
-        //Update the status of the event
-        if let id = event.id {
-            do {
-                try await eventManager.updateStatus(eventId: id, to: .cancelled)
-            } catch {
-                print(error)
-            }
+        //Update the status of the Event & UserEvents
+        if let eventId = event.id {
+            try await eventManager.cancelEvent(eventId: eventId, cancelledById: userId)
+        } else {
+            print("No Id found for event!")
         }
     }
 }
