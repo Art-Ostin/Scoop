@@ -10,6 +10,7 @@ import SwiftUI
 struct FrozenExplainedScreen: View {
     
     @Environment(\.dismiss) private var dismiss
+    let vm: FrozenViewModel
     
     var body: some View {
         
@@ -53,8 +54,4 @@ struct FrozenExplainedScreen: View {
         .padding(.horizontal, 24)
         .padding(.top, 60)
     }
-}
-
-#Preview {
-    FrozenExplainedScreen()
 }

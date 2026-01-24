@@ -44,7 +44,7 @@
 		652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652FC9722E1AD7360034A387 /* AuthService.swift */; };
 		6536063D2F238077006334D6 /* EventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063C2F238077006334D6 /* EventDetails.swift */; };
 		6536063F2F239E02006334D6 /* CantMakeIt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063E2F239E02006334D6 /* CantMakeIt.swift */; };
-		653606412F23CBD2006334D6 /* FrozenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606402F23CBD2006334D6 /* FrozenScreen.swift */; };
+		653606412F23CBD2006334D6 /* FrozenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606402F23CBD2006334D6 /* FrozenView.swift */; };
 		653606432F23CCDA006334D6 /* FrozenExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606422F23CCDA006334D6 /* FrozenExtension.swift */; };
 		65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* DefaultParameters.swift */; };
 		653770502E0A15270058D225 /* InviteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537704F2E0A15270058D225 /* InviteButton.swift */; };
@@ -180,7 +180,7 @@
 		65F660C42F23E79600AF791F /* InfoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C32F23E79600AF791F /* InfoButton.swift */; };
 		65F660C62F23E86700AF791F /* LockedInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C52F23E86700AF791F /* LockedInfo.swift */; };
 		65F660C82F23EF9E00AF791F /* BlockedContextModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C72F23EBF000AF791F /* BlockedContextModel.swift */; };
-		65F660CA2F23F46300AF791F /* BlockedContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C92F23F46300AF791F /* BlockedContextView.swift */; };
+		65F660CA2F23F46300AF791F /* FrozenContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C92F23F46300AF791F /* FrozenContextView.swift */; };
 		65F9E3832EE70F6B008A57BD /* CustomTabPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F9E3822EE70F6B008A57BD /* CustomTabPage.swift */; };
 		65FAF9862E413B100015E231 /* EventContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9852E413B100015E231 /* EventContainer.swift */; };
 		65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9872E4140740015E231 /* EventPlaceholder.swift */; };
@@ -247,7 +247,7 @@
 		652FC9722E1AD7360034A387 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		6536063C2F238077006334D6 /* EventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetails.swift; sourceTree = "<group>"; };
 		6536063E2F239E02006334D6 /* CantMakeIt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantMakeIt.swift; sourceTree = "<group>"; };
-		653606402F23CBD2006334D6 /* FrozenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenScreen.swift; sourceTree = "<group>"; };
+		653606402F23CBD2006334D6 /* FrozenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenView.swift; sourceTree = "<group>"; };
 		653606422F23CCDA006334D6 /* FrozenExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenExtension.swift; sourceTree = "<group>"; };
 		65376D792E05A7AF0058D225 /* DefaultParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultParameters.swift; sourceTree = "<group>"; };
 		6537704F2E0A15270058D225 /* InviteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteButton.swift; sourceTree = "<group>"; };
@@ -380,7 +380,7 @@
 		65F660C32F23E79600AF791F /* InfoButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoButton.swift; sourceTree = "<group>"; };
 		65F660C52F23E86700AF791F /* LockedInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedInfo.swift; sourceTree = "<group>"; };
 		65F660C72F23EBF000AF791F /* BlockedContextModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedContextModel.swift; sourceTree = "<group>"; };
-		65F660C92F23F46300AF791F /* BlockedContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedContextView.swift; sourceTree = "<group>"; };
+		65F660C92F23F46300AF791F /* FrozenContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenContextView.swift; sourceTree = "<group>"; };
 		65F9E3822EE70F6B008A57BD /* CustomTabPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabPage.swift; sourceTree = "<group>"; };
 		65FAF9852E413B100015E231 /* EventContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventContainer.swift; sourceTree = "<group>"; };
 		65FAF9872E4140740015E231 /* EventPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPlaceholder.swift; sourceTree = "<group>"; };
@@ -704,7 +704,7 @@
 				6561C8D32E04465A006A72DF /* Matches */,
 				6514B60C2EB2FE9300551C3A /* Profile */,
 				6514B60E2EB3001600551C3A /* SigningUp */,
-				65F660BE2F23DBDA00AF791F /* PausedAccount */,
+				65F660BE2F23DBDA00AF791F /* FrozenApp  */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -805,18 +805,18 @@
 			path = EdgeFiles;
 			sourceTree = "<group>";
 		};
-		65F660BE2F23DBDA00AF791F /* PausedAccount */ = {
+		65F660BE2F23DBDA00AF791F /* FrozenApp  */ = {
 			isa = PBXGroup;
 			children = (
 				656B31D22F251501008641C1 /* FrozenViewModel.swift */,
 				656B31CE2F24F7E8008641C1 /* FrozenContainer.swift */,
-				653606402F23CBD2006334D6 /* FrozenScreen.swift */,
+				653606402F23CBD2006334D6 /* FrozenView.swift */,
 				65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */,
+				65F660C92F23F46300AF791F /* FrozenContextView.swift */,
 				65F660C12F23E4B900AF791F /* LockedScreen.swift */,
 				65F660C52F23E86700AF791F /* LockedInfo.swift */,
-				65F660C92F23F46300AF791F /* BlockedContextView.swift */,
 			);
-			path = PausedAccount;
+			path = "FrozenApp ";
 			sourceTree = "<group>";
 		};
 		65F9E3842EE711F1008A57BD /* CustomTab */ = {
@@ -1057,7 +1057,7 @@
 				65E5C91A2E50E7700093410B /* SessionManager.swift in Sources */,
 				6594971A2E01DD4000880921 /* AppContainer.swift in Sources */,
 				650884102EAD23B800776620 /* MeetSuggestionView.swift in Sources */,
-				65F660CA2F23F46300AF791F /* BlockedContextView.swift in Sources */,
+				65F660CA2F23F46300AF791F /* FrozenContextView.swift in Sources */,
 				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
 				656B31CF2F24F7E8008641C1 /* FrozenContainer.swift in Sources */,
 				65FEDBA72E2307B7006CF3CD /* YearsView.swift in Sources */,
@@ -1201,7 +1201,7 @@
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,
 				65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */,
 				65A070522EE0705A009F798B /* OnboardingHomePage.swift in Sources */,
-				653606412F23CBD2006334D6 /* FrozenScreen.swift in Sources */,
+				653606412F23CBD2006334D6 /* FrozenView.swift in Sources */,
 				65F660C22F23E4B900AF791F /* LockedScreen.swift in Sources */,
 				650884122EAD475E00776620 /* PendingInvitesCard.swift in Sources */,
 				652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */,

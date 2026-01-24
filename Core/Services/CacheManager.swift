@@ -36,6 +36,7 @@ class CacheManager: CacheManaging  {
         let (data, _) = try await URLSession.shared.data(from: url)
         if let image = UIImage(data: data) {
             cache.setObject(image, forKey: url as NSURL, cost: data.count)
+            print("Image Obtained")
             return image
         }
         return UIImage()

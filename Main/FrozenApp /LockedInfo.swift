@@ -19,7 +19,7 @@ struct LockedInfo: View {
                 .foregroundStyle(Color.grayText)
                 .lineSpacing(6)
             
-            BlockedContextView()
+//            BlockedContextView()
                 .frame(maxWidth: .infinity, alignment: .center)
         }
     }

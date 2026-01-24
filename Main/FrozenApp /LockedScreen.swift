@@ -28,7 +28,7 @@ struct LockedScreen: View {
                         .lineSpacing(6)
                         .multilineTextAlignment(.center)
                     
-                    BlockedContextView()
+//                    BlockedContextView()
                 }
             }
             .padding(.top, 96)

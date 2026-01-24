@@ -9,6 +9,9 @@ import SwiftUI
 
 struct BlockedContextView: View {
     
+    let frozenContext: BlockedContext
+    let vm: FrozenViewModel
+    
     var body: some View {
         
         VStack(spacing: 6)  {
@@ -22,21 +25,19 @@ struct BlockedContextView: View {
                         .clipShape(Circle())
                     
                     
-                    Text("Meeting With Arthur")
+                    Text("\(frozenContext.profileName)")
                         .font(.body(18, .bold))
                     
                     Spacer()
                     
-                    Text("Drink 🍻")
+                    Text("\(frozenContext.eventType.description.label)  \(frozenContext.eventType.description.emoji ?? "")")
                         .font(.body(14, .medium))
                         .offset(y: -10)
                         .offset(x: 6)
-//                        .padding(.horizontal)
-//                        .padding(.top, 16)
                 }
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Thursday, August 23rd · 22:30 ")
-                    Text("Brandy Melville")
+                    Text(frozenContext.eventTime)
+                    Text(frozenContext.eventPlace)
                 }
                 .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
                 .font(.body(16, .regular))
@@ -50,7 +51,7 @@ struct BlockedContextView: View {
             )
             .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)
             .overlay(alignment: .bottomTrailing) {
-                Text("Susan Cancelled")
+                Text("\(vm.user.name) Cancelled")
                     .font(.body(12, .bold))
                     .foregroundStyle(.accent)
                     .padding()
