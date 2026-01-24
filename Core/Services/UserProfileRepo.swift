@@ -47,6 +47,8 @@ class UserManager {
         try await fs.update(userPath(userId), fields: data)
     }
     
+    
+    
     func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error> {
         fs.listenD(userPath(userId))
     }

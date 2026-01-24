@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import MapKit
+import FirebaseFirestore
 
 
 @MainActor
@@ -43,11 +44,12 @@ import MapKit
         let eventTime = "\(EventFormatting.expandedDate(event.time)) · \(EventFormatting.hourTime(event.time))"
         let eventPlace = event.place.name ?? event.place.address.map { String($0.suffix(10)) }  ?? ""
         let blockedContext = BlockedContext(profileImage: event.otherUserPhoto, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
+        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
         let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
         let userId = sessionManager.user.id
         
         //Update the user to frozen for two weeks
-        try await userManager.updateUser(userId: userId, values: [.blockedContext : blockedContext] )
+        try await userManager.updateUser(userId: userId, values: [.blockedContext : encodedBlockedContext] )
         try await userManager.updateUser(userId: userId, values: [.frozenUntil : twoWeeksFromNow] )
         
         //Update the status of the Event & UserEvents

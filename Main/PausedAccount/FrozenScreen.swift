@@ -10,8 +10,9 @@ import SwiftUI
 struct FrozenScreen: View {
     
     let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
+    
     @State var showWhyFrozen: Bool = false
-    @State var tabSelection: Int = 0
+    @Binding var tabSelection: Int
     
     var body: some View {
         VStack(spacing: 72) {
@@ -51,10 +52,11 @@ struct FrozenScreen: View {
                 }
             }
         }
-        .padding(.top, 96)
+        .padding(.top, 72)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay (alignment: .topTrailing){
             TabInfoButton(showScreen: $showWhyFrozen)
+                .padding(.horizontal)
         }
         .sheet(isPresented: $showWhyFrozen) {
             FrozenExplainedScreen()
@@ -62,7 +64,7 @@ struct FrozenScreen: View {
         .background(Color.background)
     }
 }
-
-#Preview {
-    FrozenScreen()
-}
+//
+//#Preview {
+//    FrozenScreen()
+//}

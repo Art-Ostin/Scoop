@@ -72,22 +72,9 @@ extension MatchesView {
             }
         }
     }
-    private var settingsButton: some View {
-        Button {
-            showSettingsView.toggle()
-        } label: {
-            Image(systemName: "gear")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20, height: 20)
-                .frame(width: 35, height: 35)
-                .glassIfAvailable(Circle())
-                .contentShape(Circle())
-        }
-    }
     private var actionBar: some View {
         HStack {
-            settingsButton
+            SettingsButton(showSettingsView: $showSettingsView)
             Spacer()
             profileButton
         }

@@ -1,19 +1,19 @@
 //
-//  InfoButton.swift
+//  SettingsButton.swift
 //  Scoop
 //
-//  Created by Art Ostin on 23/01/2026.
+//  Created by Art Ostin on 24/01/2026.
 //
 
 import SwiftUI
 
-struct TabInfoButton: View {
-    @Binding var showScreen: Bool
+struct SettingsButton: View {
+    @Binding var showSettingsView: Bool
     var body: some View {
         Button {
-            showScreen = true
+            showSettingsView = true
         } label: {
-            Image(systemName: "info.circle")
+            Image(systemName: "gear")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 20, height: 20)
@@ -24,7 +24,3 @@ struct TabInfoButton: View {
         }
     }
 }
-//
-//#Preview {
-//    TabInfoButton(showScreen: true)
-//}

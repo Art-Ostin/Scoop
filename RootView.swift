@@ -7,7 +7,7 @@
 import SwiftUI
 
 enum AppState {
-    case booting, login, createAccount, app
+    case booting, login, createAccount, app, frozen, blocked
 }
 
 struct RootView : View {
@@ -29,6 +29,12 @@ struct RootView : View {
                 
             case .app:
                 AppContainer()
+                
+            case .frozen:
+                EmptyView()
+                
+            case .blocked:
+                EmptyView()
             }
         }
     }
