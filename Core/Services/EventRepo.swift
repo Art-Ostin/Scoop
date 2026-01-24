@@ -55,9 +55,12 @@ class EventManager {
     }
     
     //Only used when their profile is frozen & there is pending invites
-    func deleteEvent(eventId: String) {
-        
-        
+    func deleteEvent(eventId: String) async throws {
+        let event = try await fetchEvent(eventId: eventId)
+        async let deleteEventDoc: Void = fs.delete(EventPath(eventId: eventId))
+        async let deleteInitiator: Void = fs.delete(userEventPath(userId: event.initiatorId, userEventId: eventId))
+        async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
+        _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
     }
     
     func getEventExpiryTime(draft: EventDraft) -> Date? {

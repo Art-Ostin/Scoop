@@ -59,6 +59,15 @@ final class LiveFirestoreService: FirestoreService {
         }
     }
     
+    func delete(_ path: String) async throws {
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            db.document(path).delete { error in
+                if let error { cont.resume(throwing: error) }
+                else { cont.resume() }
+            }
+        }
+    }
+    
     
     func updateArray(_ path: String, append: [String: [Any]] = [:], remove: [String: [Any]] = [:]) async throws {
         var payload: [String: Any] = [:]
