@@ -59,7 +59,6 @@ extension EditProfileContainer {
                     if !vm.updatedImages.isEmpty {
                         showSavingScreen = true
                     }
-                    
                     Task {
                         try await vm.saveProfileChanges()
                         await MainActor.run {dismiss()}

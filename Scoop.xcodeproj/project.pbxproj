@@ -789,6 +789,7 @@
 			isa = PBXGroup;
 			children = (
 				65FEDBA62E2307B7006CF3CD /* YearsView.swift */,
+				656B31CE2F24F7E8008641C1 /* FrozenContainer.swift */,
 				6512639F2EAFD29A005E6930 /* TabViewModifiers.swift */,
 				65CA5E2C2F219AC400694981 /* EventInfo.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
@@ -809,7 +810,6 @@
 			isa = PBXGroup;
 			children = (
 				656B31D22F251501008641C1 /* FrozenViewModel.swift */,
-				656B31CE2F24F7E8008641C1 /* FrozenContainer.swift */,
 				653606402F23CBD2006334D6 /* FrozenView.swift */,
 				65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */,
 				65F660C92F23F46300AF791F /* FrozenContextView.swift */,
