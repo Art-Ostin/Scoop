@@ -15,6 +15,9 @@ import Foundation
          return "\(dayPart) · \(timePart)"
      }
      
+     static func hourTime(_ date: Date) -> String {
+         date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+     }
      
      static func fullDate(_ date: Date) -> String {
              let weekday = date.formatted(.dateTime.weekday(.wide))
@@ -55,5 +58,3 @@ import Foundation
          }
      }
  }
-
-
