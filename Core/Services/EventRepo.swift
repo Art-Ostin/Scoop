@@ -54,15 +54,6 @@ class EventManager {
         }
     }
     
-    //Only used when their profile is frozen & there is pending invites
-    func deleteEvent(eventId: String) async throws {
-        let event = try await fetchEvent(eventId: eventId)
-        async let deleteEventDoc: Void = fs.delete(EventPath(eventId: eventId))
-        async let deleteInitiator: Void = fs.delete(userEventPath(userId: event.initiatorId, userEventId: eventId))
-        async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
-        _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
-    }
-    
     func getEventExpiryTime(draft: EventDraft) -> Date? {
         guard let eventTime = draft.time else {return nil}
         
@@ -169,11 +160,31 @@ class EventManager {
         print("Succesfully updated Cancelled By user")
     }
     
+    func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
+        let path = "users/\(userId)/user_events"
+        typealias F = UserEvent.Field
+        
+        let pendingSentFilters: [FSWhere] = [
+            FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.pending.rawValue),
+            FSWhere(field: F.role.rawValue, op: .eq, value: EdgeRole.sent.rawValue),
+        ]
+        return try await fs.fetchFromCollection(path, filters: pendingSentFilters, orderBy: nil, limit: nil)
+    }
     
+    //Only used when their profile becomes frozen (or blocked) & just remove all their pending invite events.
+    private func deleteEvent(eventId: String) async throws {
+        let event = try await fetchEvent(eventId: eventId)
+        async let deleteEventDoc: Void = fs.delete(EventPath(eventId: eventId))
+        async let deleteInitiator: Void = fs.delete(userEventPath(userId: event.initiatorId, userEventId: eventId))
+        async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
+        _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
+    }
     
-   // func noShowEvents(eventId: )
-    
-    
-  //  func removeAllUpcomingEvents // (Because user is cancelled
-    
+    func deleteAllSentPendingInvites(userId: String) async throws {
+        let events = try await fetchPendingSentInvites(userId: userId)
+        let ids = events.compactMap(\.id)
+        for eventId in ids {
+            try await deleteEvent(eventId: eventId)
+        }
+    }
 }

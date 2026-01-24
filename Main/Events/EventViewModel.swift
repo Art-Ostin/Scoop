@@ -52,9 +52,8 @@ import FirebaseFirestore
         try await userManager.updateUser(userId: userId, values: [.blockedContext : encodedBlockedContext] )
         try await userManager.updateUser(userId: userId, values: [.frozenUntil : twoWeeksFromNow] )
         
-        let events = sessionManager
-        
-        
+        //Delete all their pending event Invites
+        try await eventManager.deleteAllSentPendingInvites(userId: userId)
         
         //Update the status of the Event & UserEvents
         if let eventId = event.id {
