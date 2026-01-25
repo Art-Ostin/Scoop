@@ -95,6 +95,7 @@
 		656B31D12F2501A3008641C1 /* SettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D02F2501A3008641C1 /* SettingsButton.swift */; };
 		656B31D32F251501008641C1 /* FrozenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D22F251501008641C1 /* FrozenViewModel.swift */; };
 		656B31D52F252E90008641C1 /* FrozenContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D42F252E90008641C1 /* FrozenContainer.swift */; };
+		656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */; };
 		656E3D252EB1754000303D9D /* DraftProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D242EB1754000303D9D /* DraftProfileView.swift */; };
 		656E3D272EB17FED00303D9D /* SelectPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D262EB17FED00303D9D /* SelectPrompt.swift */; };
 		6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7ED2E687FB3004217A4 /* FirestoreService.swift */; };
@@ -293,6 +294,7 @@
 		656B31D02F2501A3008641C1 /* SettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButton.swift; sourceTree = "<group>"; };
 		656B31D22F251501008641C1 /* FrozenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenViewModel.swift; sourceTree = "<group>"; };
 		656B31D42F252E90008641C1 /* FrozenContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenContainer.swift; sourceTree = "<group>"; };
+		656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenWithEvents.swift; sourceTree = "<group>"; };
 		656E3D242EB1754000303D9D /* DraftProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftProfileView.swift; sourceTree = "<group>"; };
 		656E3D262EB17FED00303D9D /* SelectPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPrompt.swift; sourceTree = "<group>"; };
 		6576B7ED2E687FB3004217A4 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -811,6 +813,7 @@
 				656B31D22F251501008641C1 /* FrozenViewModel.swift */,
 				656B31D42F252E90008641C1 /* FrozenContainer.swift */,
 				653606402F23CBD2006334D6 /* FrozenView.swift */,
+				656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */,
 				65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */,
 				65F660C92F23F46300AF791F /* FrozenContextView.swift */,
 				65F660C12F23E4B900AF791F /* LockedScreen.swift */,
@@ -1196,6 +1199,7 @@
 				6565AB6F2E660E1500AAE306 /* OnboadingViewModel.swift in Sources */,
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* CacheManager.swift in Sources */,
+				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* CustomList.swift in Sources */,
 				658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */,
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,

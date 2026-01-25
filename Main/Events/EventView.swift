@@ -12,7 +12,6 @@ struct EventView: View {
     
     @State var ui = EventUIState()
     
-    
     let vm: EventViewModel
     
     @State var showEventDetails: Bool = false

@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import FirebaseFirestore
+
+
 
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
@@ -148,8 +151,8 @@ class EventManager {
         try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
     }
     
-    func cancelEvent(eventId: String, cancelledById: String) async throws {
-        //Update the status and specify who cancelled the event
+    func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws {
+        //1. Update the status and specify who cancelled the event
         let event = try await fetchEvent(eventId: eventId)
         let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
         
@@ -158,6 +161,16 @@ class EventManager {
         try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         print("Succesfully updated Cancelled By user")
+        
+        //2. Update user profile to a frozen account (by updating/adding to those fields)
+        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
+        let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
+        
+        try await userManager.updateUser(userId: cancelledById, values: [.blockedContext : encodedBlockedContext] )
+        try await userManager.updateUser(userId: cancelledById, values: [.frozenUntil : twoWeeksFromNow] )
+        
+        //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
+        try await deleteAllSentPendingInvites(userId: cancelledById)
     }
     
     func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
@@ -179,6 +192,7 @@ class EventManager {
         async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
         _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
     }
+    
     
     func deleteAllSentPendingInvites(userId: String) async throws {
         let events = try await fetchPendingSentInvites(userId: userId)

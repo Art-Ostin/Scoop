@@ -87,7 +87,7 @@ struct CantMakeIt: View {
                 do {
                     try await vm.cancelEvent(event: event)
                     print("Updated")
-                    appState = 
+                    appState.wrappedValue = .frozen 
                 } catch {
                     print("cancelEvent failed:", error)
                     Thread.callStackSymbols.forEach { print($0) }

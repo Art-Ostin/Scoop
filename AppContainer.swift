@@ -59,9 +59,7 @@ extension AppContainer {
     private var eventsView: some View {
         EventContainer(vm: EventViewModel(
             cacheManager: dep.cacheManager,
-            userManager: dep.userManager,
             eventManager: dep.eventManager,
-            cycleManager: dep.cycleManager,
             sessionManager: dep.sessionManager
         ))
     }

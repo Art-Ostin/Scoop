@@ -14,6 +14,7 @@ import Contacts
 struct EventSlot: View {
     
     let vm: EventViewModel
+    let coordinateSpace = "EventSlot"
     @Bindable var ui: EventUIState
     @State var profileModel: ProfileModel
     @State var imageSize: CGFloat = 0
@@ -40,10 +41,6 @@ struct EventSlot: View {
                         mapView(event: event)
                         
                         eventInfo(event: event)
-                        
-                        
-//                        EventTextFormatter(ui: ui, profile: profileModel, event: event)
-//                            .padding(.horizontal, 24)
                     }
                     .padding(.top, 60)
                     .overlay(alignment: .topTrailing) {
@@ -63,6 +60,7 @@ struct EventSlot: View {
                 }
                 .scrollIndicators(.hidden)
             }
+            .coordinateSpace(.named(coordinateSpace))
         }
     }
 }
@@ -76,6 +74,10 @@ extension EventSlot {
             .font(.custom("SFProRounded-Bold", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
+            .measure(key: TopRightOfTitle.self) { geo in
+                let f = geo.frame(in: .global)
+                return CGPoint(x: f.minX, y: f.minY)
+            }
     }
     
     @ViewBuilder
@@ -268,32 +270,9 @@ extension EventSlot {
     }
 }
 
-/*
- private func eventDetailsButton(event: UserEvent) -> some View {
-     Button {
-         ui.showEventDetails = event
-     } label: {
-         HStack(spacing: 10) {
-             Image("CoolGuys")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 24, height: 24)
-             
-             Text("Drink")
-                 .font(.body(17, .bold))
-         }
-         .padding(8)
-         .padding(.horizontal, 4)
-         .background(
-                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                         .fill(Color.background)
-                         .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 2)
-             )
-         .overlay(
-             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                 .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
-         )
-     }
- }
-
- */
+struct TopRightOfTitle: PreferenceKey {
+    static var defaultValue: CGPoint? = nil
+    static func reduce(value: inout CGPoint?, nextValue: () -> CGPoint?) {
+        value = nextValue()
+    }
+}

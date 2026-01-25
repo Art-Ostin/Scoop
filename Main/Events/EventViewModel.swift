@@ -8,23 +8,18 @@
 import Foundation
 import SwiftUI
 import MapKit
-import FirebaseFirestore
 
 
 @MainActor
 @Observable class EventViewModel {
     
     var cacheManager: CacheManaging
-    var userManager: UserManager
     var eventManager: EventManager
-    var cycleManager: CycleManager
     var sessionManager: SessionManager
     
-    init(cacheManager: CacheManaging, userManager: UserManager, eventManager: EventManager, cycleManager: CycleManager, sessionManager: SessionManager) {
+    init(cacheManager: CacheManaging, eventManager: EventManager, sessionManager: SessionManager) {
         self.cacheManager = cacheManager
-        self.userManager = userManager
         self.eventManager = eventManager
-        self.cycleManager = cycleManager
         self.sessionManager = sessionManager
     }
 
@@ -44,20 +39,11 @@ import FirebaseFirestore
         let eventTime = "\(EventFormatting.expandedDate(event.time)) · \(EventFormatting.hourTime(event.time))"
         let eventPlace = event.place.name ?? event.place.address.map { String($0.suffix(10)) }  ?? ""
         let blockedContext = BlockedContext(profileImage: event.otherUserPhoto, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
-        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
-        let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
         let userId = sessionManager.user.id
         
-        //Update the user to frozen for two weeks
-        try await userManager.updateUser(userId: userId, values: [.blockedContext : encodedBlockedContext] )
-        try await userManager.updateUser(userId: userId, values: [.frozenUntil : twoWeeksFromNow] )
-        
-        //Delete all their pending event Invites
-        try await eventManager.deleteAllSentPendingInvites(userId: userId)
-        
-        //Update the status of the Event & UserEvents
+        //Cancell the event which deals with logic of updating user profile etc.
         if let eventId = event.id {
-            try await eventManager.cancelEvent(eventId: eventId, cancelledById: userId)
+            try await eventManager.cancelEvent(eventId: eventId, cancelledById: userId, blockedContext: blockedContext)
         } else {
             print("No Id found for event!")
         }

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct FrozenExplainedScreen: View {
     
+    //Turn this into a tab view. 
+    
+    
     @Environment(\.dismiss) private var dismiss
     let vm: FrozenViewModel
     
