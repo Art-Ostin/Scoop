@@ -19,7 +19,7 @@ struct EventView: View {
     @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [String : [UIImage]] = [ : ]
     
-    @Binding var showFrozenInfo: Bool?
+    @Binding var showFrozenInfo: Bool
     let isFrozenEvent: Bool
     
     var body: some View {

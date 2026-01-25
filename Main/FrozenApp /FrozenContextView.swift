@@ -12,18 +12,21 @@ struct BlockedContextView: View {
     let frozenContext: BlockedContext
     let vm: FrozenViewModel
     
+    @State private var profileImage: UIImage?
+    
     var body: some View {
         
         VStack(spacing: 6)  {
             
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .center, spacing: 8) {
-                    Image("ProfileMockB")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 25, height: 25)
-                        .clipShape(Circle())
-                    
+                    if let image = profileImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 25, height: 25)
+                            .clipShape(Circle())
+                    }
                     
                     Text("\(frozenContext.profileName)")
                         .font(.body(18, .bold))
@@ -32,10 +35,9 @@ struct BlockedContextView: View {
                     
                     Text("\(frozenContext.eventType.description.label)  \(frozenContext.eventType.description.emoji ?? "")")
                         .font(.body(14, .medium))
-                        .offset(y: -10)
                         .offset(x: 6)
                 }
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(frozenContext.eventTime)
                     Text(frozenContext.eventPlace)
                 }
@@ -43,6 +45,7 @@ struct BlockedContextView: View {
                 .font(.body(16, .regular))
             }
             .padding(22)
+            .padding(.bottom, 8)
             .frame(width: 330, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 16)
@@ -55,9 +58,26 @@ struct BlockedContextView: View {
                     .font(.body(12, .bold))
                     .foregroundStyle(.accent)
                     .padding()
-
+                    .offset(y: 6)
+            }
+            .task {
+                do {
+                    profileImage = try await fetchImage()
+                } catch {
+                    print(error)
+                }
             }
         }
+    }
+}
+
+extension BlockedContextView {
+    func fetchImage() async throws  -> UIImage? {
+        guard let url = URL(string: frozenContext.profileImage) else {
+            return nil
+        }
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
     }
 }
 

@@ -10,18 +10,18 @@ import SwiftUI
 struct EventContainer: View {
     
     @State var vm: EventViewModel
-    @State var showFrozenInfo: Bool?  //Need it for frozen view
+    @Binding var showFrozenInfo: Bool  //Need it for frozen view
     let isFrozenEvent: Bool
 
-    init(vm: EventViewModel, showFrozenInfo: Binding<Bool?> = nil, isFrozenEvent: Bool = false) {
+    init(vm: EventViewModel, showFrozenInfo: Binding<Bool> = .constant(false), isFrozenEvent: Bool = false) {
         _vm = State(initialValue: vm)
-        self.showFrozenInfo = showFrozenInfo
+        _showFrozenInfo = showFrozenInfo
         self.isFrozenEvent = isFrozenEvent
     }
     
     var body: some View {
         if !vm.events.isEmpty {
-            EventView(vm: vm, showFrozenInfo: $showFrozenInfo, isFrozenEvent: false)
+            EventView(vm: vm, showFrozenInfo: $showFrozenInfo, isFrozenEvent: isFrozenEvent)
         } else {
             EventPlaceholder(vm: vm)
         }

@@ -19,7 +19,7 @@ struct EventSlot: View {
     @State var imageSize: CGFloat = 0
     @Binding var dismissOffset: CGFloat?
     let isFrozenEvent: Bool
-    @Binding var showfrozenInfo: Bool?
+    @Binding var showfrozenInfo: Bool
     let locationManager = CLLocationManager()
     
     var body: some View {
@@ -76,10 +76,10 @@ extension EventSlot {
             
             if isFrozenEvent {
                 Button {
-                    
+                    showfrozenInfo.toggle()
                 } label: {
                     Image(systemName: "info.circle")
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color(red: 0.26, green: 0.26, blue: 0.26))
                         .contentShape(Circle())
                 }
             }

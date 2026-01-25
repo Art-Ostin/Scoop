@@ -13,8 +13,8 @@ struct FrozenWithEvents: View {
     
     @State var tabSelection: TabBarItem = .events
     @State var topRightOfTitle: CGPoint = .zero
-    @State var showFrozenInfo: Bool? = false
-
+    @State var showFrozenInfo: Bool = false
+    
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView(selection: $tabSelection) {
@@ -24,8 +24,8 @@ struct FrozenWithEvents: View {
                     .tabItem {
                         Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                     }
-//                    .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
-//                
+                    .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
+
                 frozenView
                     .tag(TabBarItem.matches)
                     .tabItem {
