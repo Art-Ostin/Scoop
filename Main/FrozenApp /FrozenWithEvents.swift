@@ -31,10 +31,12 @@ struct FrozenWithEvents: View {
                                     showFrozenInfo.toggle()
                                 } label: {
                                     Image(systemName: "info.circle")
-                                        .position(x: rect.maxX + 12, y: rect.minY) // top-right
-                                        .contentShape(Rectangle())
                                         .foregroundStyle(.black)
+                                        .contentShape(Circle())
                                 }
+                                .frame(width: 24, height: 24)
+                                .position(x: rect.maxX + 12, y: rect.minY) // top-right
+                                .buttonStyle(.plain)
                             }
                         }
                     }

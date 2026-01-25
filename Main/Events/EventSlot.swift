@@ -225,8 +225,9 @@ extension EventSlot {
                     .scaledToFit()
                     .frame(width: 24, height: 24)
                 
-                Text(event.type.rawValue.capitalized)
+                Text(event.type.title)
                     .font(.body(17, .bold))
+                    .foregroundStyle(Color.black)
             }
             .padding(6)
             .padding(.horizontal, 4)

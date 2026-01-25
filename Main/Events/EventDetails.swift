@@ -30,7 +30,7 @@ struct EventDetails: View {
         }
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 72)
+        .padding(.top, 36)
     }
 }
 

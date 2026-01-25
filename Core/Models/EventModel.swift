@@ -80,6 +80,19 @@ enum EventType: String, CaseIterable, Codable, Hashable {
             return ("✒️", "Write a Message")
         }
     }
+    
+    var title: String {
+        switch self {
+        case . drink:
+            return "Drink"
+        case .doubleDate:
+            return "Double Date"
+        case .socialMeet:
+            return "Social"
+        case .custom:
+            return "Custom Meet"
+        }
+    }
 }
 
 

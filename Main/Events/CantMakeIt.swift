@@ -31,7 +31,7 @@ struct CantMakeIt: View {
             Text("Can’t Make It?")
                 .font(.body(24, .bold))
             
-            Text("We get it, shit happens. You can cancel up to 10 hours before (No rescheduling)")
+            Text("We get it, shit happens. You can cancel up to 10 hours before (No rescheduling).")
                              
             Text("But to deter people bailing from nerves or effort ")
             + Text("your account is frozen for 14 days 🥶")
@@ -82,7 +82,7 @@ struct CantMakeIt: View {
             .padding(.bottom, 4)
         }
         .background(Color.background)
-        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",cancelTitle: "Back", okTitle: "Confirm", emoji: "🚨", message: "Are you sure? By clicking confirm you understand you account will be frozen for two weeks & all pending invites removed", showTwoButtons: true) {
+        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",cancelTitle: "Back", okTitle: "Confirm", emoji: "🚨", message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", showTwoButtons: true) {
             Task {
                 do {
                     try await vm.cancelEvent(event: event)
