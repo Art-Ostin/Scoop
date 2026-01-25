@@ -73,7 +73,7 @@ struct UserProfile: Codable, Equatable, Identifiable, Hashable {
     
     //Data regarding pausing/blocking User account
     var frozenUntil: Date? = nil
- 
+    var cancelCount: Int = 0
     var blockedContext: BlockedContext? = nil
     var isBlocked: Bool = false
     
@@ -115,7 +115,7 @@ extension UserProfile {
       case name, sex, attractedTo, year, height, interests, degree, hometown,
            nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
            marijuana, drugs, prompt1, prompt2, prompt3, languages, character,
-           favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp, preferredYears,
+           favouriteMovie, favouriteSong, favouriteBook, activeCycleId, idealMeetUp, preferredYears, cancelCount,
             frozenUntil, frozenReason, blockedContext
     }
 }

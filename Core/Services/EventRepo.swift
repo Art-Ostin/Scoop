@@ -168,6 +168,7 @@ class EventManager {
         
         try await userManager.updateUser(userId: cancelledById, values: [.blockedContext : encodedBlockedContext] )
         try await userManager.updateUser(userId: cancelledById, values: [.frozenUntil : twoWeeksFromNow] )
+        try await userManager.updateUser(userId: cancelledById, values: [.cancelCount: FieldValue.increment(1)] )
         
         //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
         try await deleteAllSentPendingInvites(userId: cancelledById)

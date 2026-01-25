@@ -3,7 +3,7 @@
 //  Scoop
 //
 //  Created by Art Ostin on 23/01/2026.
-//
+// Implement a 'pay' to unlock again. 
 
 import SwiftUI
 

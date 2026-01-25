@@ -57,6 +57,7 @@ enum showProfilesState {
     }
     
     func userStream (appState: Binding<AppState>) {
+        appStateBinding = appState
         userStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
                 guard let uid else {
