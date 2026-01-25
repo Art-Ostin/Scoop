@@ -15,6 +15,7 @@ struct FrozenView: View {
     @State var showSettings : Bool = false
     @State var tabSelection: Int = 0
     
+    
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
             VStack(spacing: 72) {
@@ -31,13 +32,14 @@ struct FrozenView: View {
             .padding(.top, 72)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
-            .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm)}
+            .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate)}
             .background(Color.background)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
                     SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.sessionManager))
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: tabSelection)
         }
     }
 }
@@ -58,10 +60,16 @@ extension FrozenView {
             BlockedContextView(frozenContext: frozenContext, vm: vm)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .tag(0)
+                .onTapGesture {
+                    showInfo.toggle()
+                }
             
             VStack(spacing: 48) {
                 LargeClockView(targetTime: frozenUntilDate) {}
                     .frame(maxWidth: .infinity)
+                    .onTapGesture {
+                        showInfo.toggle()
+                    }
                 
                 Text(verbatim: vm.user.email)
                     .font(.body(14, .medium))
@@ -80,19 +88,22 @@ extension FrozenView {
     }
     
     private var tabTitle: some View {
-        Text("Account Frozen " +  (tabSelection == 0 ? "for Cancelling" : "until:"))
+        Text("Account frozen for" +  (tabSelection == 0 ? " cancelling" : ":"))
             .font(.body(17, .italic))
             .foregroundStyle(Color.grayText)
             .lineSpacing(6)
             .multilineTextAlignment(.center)
             .transition(.opacity)
+//            .frame(width: 245, alignment: .leading)
+//            .frame(maxWidth: .infinity, alignment: .center)
     }
     
     private var actionBar: some View {
         HStack {
+//            Spacer()
             SettingsButton(showSettingsView: $showSettings)
             Spacer()
-            TabInfoButton(showScreen: $showInfo)
+ //            TabInfoButton(showScreen: $showInfo)
         }
         .padding(.horizontal)
     }

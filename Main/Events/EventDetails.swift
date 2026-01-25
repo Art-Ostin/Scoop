@@ -30,7 +30,7 @@ struct EventDetails: View {
         }
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 36)
+        .padding(.top, 60)
     }
 }
 
@@ -116,23 +116,23 @@ extension EventDetails {
         case .socialMeet:
             text1 = "\(opening) you're going to \(place) on \(fullTime)"
             text2 = "each with your friends"
-            text3 = "So head there for \(hour) & meet \(name) & their friends there! You can text to find one another."
+            text3 = "So head there for \(hour) & meet \(name) & their friends there! Text to find one another :)"
             
            // You’ve both confirmed you’re going to Barbossa on Thursday 15th January, each with your own friends
         case .doubleDate:
-            text1 = "\(opening) you're meeting on \(fullTime) at \(place) "
+            text1 = "\(opening) to meet on \(fullTime) at \(place) "
             text2 = "for a double date"
-            text3 = "Go there with your friend at \(hour) & meet \(name) & their friend there :) You can text to find each other."
+            text3 = "Go there with your friend at \(hour) & meet \(name) & their friend there! Text to find each other :)"
             
         case .drink:
-            text1 = "\(opening) you're meeting on \(fullTime) "
+            text1 = "\(opening) to meet on \(fullTime) "
             text2 = "for a drink"
-            text3 = "So just meet \(name) there at \(hour) and share a good evening Together :) Text to find one another."
+            text3 = "So just meet \(name) there at \(hour) and share a good evening together! Text to find one another :)"
             
         case .custom:
-            text1 = "\(opening) you're meeting on \(fullTime) at \(place)"
+            text1 = "\(opening) to meet on \(fullTime) at \(place)"
             text2 = ""
-            text3 = "So just head there for \(hour) & do whatever you've planned. You can text to find each other."
+            text3 = "So just head there for \(hour) & do whatever you've planned! Text to find each other :)"
         }
         return eventDetailsFormat(text1: text1, text2: text2, text3: text3)
     }
@@ -153,12 +153,3 @@ extension EventDetails {
         }
     }
 }
-
-/*
- Image(systemName: "chevron.right")
-     .resizable()
-     .scaledToFit()
-     .frame(width: 12, height: 12)
-     .font(.body(17, .bold))
-
- */
