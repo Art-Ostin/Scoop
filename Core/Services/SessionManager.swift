@@ -32,6 +32,7 @@ enum showProfilesState {
     private var userProfileStreamTask: Task<Void, Never>?
     
     var showProfilesState: showProfilesState?
+    private var appStateBinding: Binding<AppState>?
     
     var activeCycle: CycleModel? { session?.activeCycle }
     
@@ -70,13 +71,7 @@ enum showProfilesState {
                     continue
                 }
                 await startSession(user: user) {
-                    if user.isBlocked {
-                        appState.wrappedValue = .blocked
-                    } else if user.frozenUntil != nil {
-                        appState.wrappedValue = .frozen
-                    } else {
-                        appState.wrappedValue = .app
-                    }
+                    updateAppState(appState, for: user)
                 }
                 Task { await cacheManager.loadProfileImages([user]) }
             }
@@ -223,6 +218,9 @@ enum showProfilesState {
                 for try await change in userManager.userListener(userId: user.id) {
                     if let change {
                         session?.user = change
+                        if let appStateBinding {
+                            updateAppState(appStateBinding, for: change)
+                        }
                     }
                 }
             } catch {
@@ -263,6 +261,16 @@ enum showProfilesState {
         _ = await (eventsLoaded, profilesLoaded)
         userProfileStream()
         onReady?()
+    }
+    
+    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
+        if user.isBlocked {
+            appState.wrappedValue = .blocked
+        } else if user.frozenUntil != nil {
+            appState.wrappedValue = .frozen
+        } else {
+            appState.wrappedValue = .app
+        }
     }
 }
 

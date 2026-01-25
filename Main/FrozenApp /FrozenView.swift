@@ -19,7 +19,6 @@ struct FrozenView: View {
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
             VStack(spacing: 72) {
-                
                 frozenHeader(frozenUntilDate)
                 
                 Image("Monkey")

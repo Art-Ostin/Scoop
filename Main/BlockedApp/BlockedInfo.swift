@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LockedInfo: View {
+struct BlockedInfo: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 36) {
             Text("Account Blocked")
@@ -23,8 +23,4 @@ struct LockedInfo: View {
                 .frame(maxWidth: .infinity, alignment: .center)
         }
     }
-}
-
-#Preview {
-    LockedInfo()
 }
