@@ -10,10 +10,10 @@ import SwiftUI
 struct BlockedContainer: View {
     @Environment(\.appDependencies) private var dep
     var body: some View {
-        if dep.sessionManager.events.isEmpty {
-            BlockedWithEvents(vm: FrozenViewModel(sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, authManager: dep.authManager, eventManager: dep.eventManager))
+        if !dep.sessionManager.events.isEmpty {
+            BlockedScreen(vm: FrozenViewModel(sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, authManager: dep.authManager, eventManager: dep.eventManager), email: dep.sessionManager.user.email)
         } else {
-            FrozenWithEvents(vm: FrozenViewModel(sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, authManager: dep.authManager, eventManager: dep.eventManager))
+            BlockedWithEvents(vm: FrozenViewModel(sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, authManager: dep.authManager, eventManager: dep.eventManager))
         }
     }
 }

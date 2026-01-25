@@ -34,7 +34,7 @@ struct RootView : View {
                 FrozenContainer()
                 
             case .blocked:
-                EmptyView()
+                BlockedContainer()
             }
         }
     }

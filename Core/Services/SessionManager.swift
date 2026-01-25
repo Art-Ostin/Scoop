@@ -71,7 +71,7 @@ enum showProfilesState {
                     continue
                 }
                 await startSession(user: user) {
-                    updateAppState(appState, for: user)
+                    self.updateAppState(appState, for: user)
                 }
                 Task { await cacheManager.loadProfileImages([user]) }
             }
