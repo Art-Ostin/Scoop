@@ -36,8 +36,10 @@ struct EventSlot: View {
                         VStack(spacing: 24) {
                             timeAndPlace(event: event)
                             LargeClockView(targetTime: event.time) {}
+                                .onTapGesture {
+                                    ui.showEventDetails = event
+                                }
                         }
-                        
                         mapView(event: event)
                         
                         eventInfo(event: event)
@@ -151,12 +153,13 @@ extension EventSlot {
     private func timeAndPlace(event: UserEvent) -> some View {
         VStack(spacing: 14) {
             Text(EventFormatting.dayAndTime(event.time))
-            
-            Text(EventFormatting.placeName(event.place))
-                .foregroundStyle(.accent)
-                .onTapGesture {
-                    Task { await MapsRouting.openMaps(place: event.place) }
-                }
+
+            Button {
+                Task { await MapsRouting.openMaps(place: event.place)}
+            } label :  {
+                Text(EventFormatting.placeName(event.place))
+                    .foregroundStyle(.accent)
+            }
         }
         .font(.body(24, .bold))
         .multilineTextAlignment(.center)
