@@ -648,7 +648,6 @@
 			children = (
 				6577317D2F2677E000B309FC /* BlockedContainer.swift */,
 				65F660C12F23E4B900AF791F /* BlockedView.swift */,
-				65F660C52F23E86700AF791F /* BlockedInfo.swift */,
 			);
 			path = BlockedApp;
 			sourceTree = "<group>";
@@ -808,6 +807,7 @@
 			isa = PBXGroup;
 			children = (
 				65FEDBA62E2307B7006CF3CD /* YearsView.swift */,
+				65F660C52F23E86700AF791F /* BlockedInfo.swift */,
 				6512639F2EAFD29A005E6930 /* TabViewModifiers.swift */,
 				65CA5E2C2F219AC400694981 /* EventInfo.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,

@@ -11,25 +11,25 @@ struct FrozenExplainedScreen: View {
     
     //Turn this into a tab view. 
     
-    
     @Environment(\.dismiss) private var dismiss
     let vm: FrozenViewModel
     let name: String
     let frozenUntilDate: Date
-    
-    
+    let isBlocked: Bool
     
     var body: some View {
-        
-        
         VStack(alignment: .leading, spacing: 36) {
-            Text("Account Frozen")
+            Text("Account" + (isBlocked ? "Blocked" : "Frozen"))
                 .font(.body(24, .bold))
             
             VStack(alignment: .leading, spacing: 16) {
-                Text("Your account is currently frozen as you cancelled on \(name).")
-                
-                Text("All Scoop functionality will be restored on \(EventFormatting.expandedDate(frozenUntilDate)).")
+                if isBlocked {
+                    Text("Your account is blocked as you didn't turn up to meet \(name)")
+                } else {
+                    Text("Your account is currently frozen as you cancelled on \(name).")
+                    
+                    Text("All Scoop functionality will be restored on \(EventFormatting.expandedDate(frozenUntilDate)).")
+                }
             }
             .font(.body(17, .italic))
             .foregroundStyle(.black)

@@ -20,22 +20,15 @@ struct BlockedScreen: View {
                 VStack(spacing: 10) {
                     Text("Account Blocked")
                         .font(.custom("SFProRounded-Bold", size: 32))
-                        .overlay(alignment: .topTrailing) {
-                            Button {
-                                showBlockedInfo = true
-                            } label : {
-                                Image(systemName: "info.circle")
-                                    .font(.body(17, .regular))
-                                    .offset(x: 20, y: -12)
-                                    .foregroundStyle(.black)
-                            }
-                        }
                     
                     Text(verbatim: email)
                         .font(.body(14, .medium))
                         .foregroundStyle(Color.grayText)
                 }
                 Image("Monkey")
+                    .onTapGesture {
+                        showBlockedInfo = true
+                }
                 VStack(spacing: 12) {
                     Text("Account blocked for not showing")
                         .font(.body(17, .italic))
@@ -45,23 +38,25 @@ struct BlockedScreen: View {
 
                     BlockedContextView(frozenContext: blockedContext, vm: vm, isBlock: true)
                         .onTapGesture { showBlockedInfo  = true }
-                    
                 }
             }
             .padding(.top, 96)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .allowsHitTesting(false)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
                     SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.sessionManager))
                 }
             }
             .overlay(alignment: .topLeading) {
-                SettingsButton(showSettingsView: $showSettings)
-                    .padding(.horizontal)
+                HStack {
+                    SettingsButton(showSettingsView: $showSettings)
+                    Spacer()
+                    TabInfoButton(showScreen: $showBlockedInfo)
+                }
+                .padding(.horizontal)
             }
             .sheet(isPresented: $showBlockedInfo) {
-                BlockedInfo(blockedContext: blockedContext, vm: vm)
+                FrozenExplainedScreen(vm: vm, name: blockedContext.profileName, frozenUntilDate: Date(), isBlocked: true)
             }
         }
     }
@@ -79,4 +74,17 @@ struct BlockedScreen: View {
  //                LockedInfo()
  //            }
 //     @State var showWhyBlocked: Bool = false
+ */
+
+/*
+ .overlay(alignment: .topTrailing) {
+     Button {
+         showBlockedInfo = true
+     } label : {
+         Image(systemName: "info.circle")
+             .font(.body(17, .regular))
+             .offset(x: 20, y: -12)
+             .foregroundStyle(.black)
+     }
+ }
  */

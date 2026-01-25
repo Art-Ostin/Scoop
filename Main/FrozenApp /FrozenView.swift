@@ -31,7 +31,7 @@ struct FrozenView: View {
             .padding(.top, 72)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
-            .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate)}
+            .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
             .background(Color.background)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
@@ -102,7 +102,7 @@ extension FrozenView {
 //            Spacer()
             SettingsButton(showSettingsView: $showSettings)
             Spacer()
- //            TabInfoButton(showScreen: $showInfo)
+             TabInfoButton(showScreen: $showInfo)
         }
         .padding(.horizontal)
     }
