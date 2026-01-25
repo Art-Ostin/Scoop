@@ -9,10 +9,7 @@ import SwiftUI
 
 struct BlockedContainer: View {
     @Environment(\.appDependencies) private var dep
-    
     var body: some View {
-        if let blockedContext = dep.sessionManager.user.blockedContext {
-            BlockedContextView(frozenContext: blockedContext, vm: FrozenViewModel(sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, authManager: dep.authManager, eventManager: dep.eventManager))
-        }
+        BlockedScreen(vm: FrozenViewModel(sessionManager: dep.sessionManager, cacheManager: dep.cacheManager, authManager: dep.authManager, eventManager: dep.eventManager), email: dep.sessionManager.user.email)
     }
 }

@@ -13,6 +13,7 @@ struct BlockedContextView: View {
     let vm: FrozenViewModel
     
     @State private var profileImage: UIImage?
+    let isBlock: Bool
     
     var body: some View {
         
@@ -54,7 +55,7 @@ struct BlockedContextView: View {
             )
             .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)
             .overlay(alignment: .bottomTrailing) {
-                Text("\(vm.user.name) Cancelled")
+                Text("\(vm.user.name) " + (isBlock ? "didn't show" : "cancelled"))
                     .font(.body(12, .bold))
                     .foregroundStyle(.accent)
                     .padding()

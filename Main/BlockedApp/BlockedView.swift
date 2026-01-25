@@ -10,7 +10,9 @@ import SwiftUI
 struct BlockedScreen: View {
     
     let vm: FrozenViewModel
-    let email: String    
+    let email: String
+    @State var showSettings: Bool = false
+    @State var showBlockedInfo = false
     
     var body: some View {
         if let blockedContext = vm.user.blockedContext {
@@ -18,6 +20,16 @@ struct BlockedScreen: View {
                 VStack(spacing: 10) {
                     Text("Account Blocked")
                         .font(.custom("SFProRounded-Bold", size: 32))
+                        .overlay(alignment: .topTrailing) {
+                            Button {
+                                showBlockedInfo = true
+                            } label : {
+                                Image(systemName: "info.circle")
+                                    .font(.body(17, .regular))
+                                    .offset(x: 20, y: -12)
+                                    .foregroundStyle(.black)
+                            }
+                        }
                     
                     Text(verbatim: email)
                         .font(.body(14, .medium))
@@ -31,12 +43,26 @@ struct BlockedScreen: View {
                         .lineSpacing(6)
                         .multilineTextAlignment(.center)
 
-                    BlockedContextView(frozenContext: blockedContext, vm: vm)
+                    BlockedContextView(frozenContext: blockedContext, vm: vm, isBlock: true)
+                        .onTapGesture { showBlockedInfo  = true }
+                    
                 }
             }
             .padding(.top, 96)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .allowsHitTesting(false)
+            .fullScreenCover(isPresented: $showSettings) {
+                NavigationStack {
+                    SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.sessionManager))
+                }
+            }
+            .overlay(alignment: .topLeading) {
+                SettingsButton(showSettingsView: $showSettings)
+                    .padding(.horizontal)
+            }
+            .sheet(isPresented: $showBlockedInfo) {
+                BlockedInfo(blockedContext: blockedContext, vm: vm)
+            }
         }
     }
 }

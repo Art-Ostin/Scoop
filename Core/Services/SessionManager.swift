@@ -204,6 +204,8 @@ enum showProfilesState {
                         }
                     case .remove:
                         self.invites.removeAll { $0.id == event.otherUserId }
+                        self.events.removeAll { $0.id == event.otherUserId }
+                        self.pastEvents.removeAll { $0.id == event.otherUserId }
                     }
                 }
             } catch {

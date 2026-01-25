@@ -56,7 +56,7 @@ extension FrozenView {
     
     private func tabSection(frozenContext: BlockedContext, frozenUntilDate: Date) -> some View {
         TabView(selection: $tabSelection) {
-            BlockedContextView(frozenContext: frozenContext, vm: vm)
+            BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .tag(0)
                 .onTapGesture {
