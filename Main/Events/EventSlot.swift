@@ -14,7 +14,6 @@ import Contacts
 struct EventSlot: View {
     
     let vm: EventViewModel
-    let coordinateSpace = "EventSlot"
     @Bindable var ui: EventUIState
     @State var profileModel: ProfileModel
     @State var imageSize: CGFloat = 0
@@ -60,7 +59,6 @@ struct EventSlot: View {
                 }
                 .scrollIndicators(.hidden)
             }
-            .coordinateSpace(.named(coordinateSpace))
         }
     }
 }
@@ -70,14 +68,14 @@ extension EventSlot {
     
     
     private var titleView: some View {
-        Text("Meeting")
-            .font(.custom("SFProRounded-Bold", size: 32))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
-            .measure(key: TopRightOfTitle.self) { geo in
-                let f = geo.frame(in: .global)
-                return CGPoint(x: f.minX, y: f.minY)
-            }
+        HStack {
+            Text("Meeting")
+                .font(.custom("SFProRounded-Bold", size: 32))
+                .fixedSize()
+                .anchorPreference(key: TitleBoundsKey.self, value: .bounds) { $0 }
+            Spacer()
+        }
+        .padding(.horizontal, 16)
     }
     
     @ViewBuilder
@@ -270,9 +268,9 @@ extension EventSlot {
     }
 }
 
-struct TopRightOfTitle: PreferenceKey {
-    static var defaultValue: CGPoint? = nil
-    static func reduce(value: inout CGPoint?, nextValue: () -> CGPoint?) {
-        value = nextValue()
+struct TitleBoundsKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>? = nil
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
     }
 }

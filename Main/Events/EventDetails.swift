@@ -144,17 +144,21 @@ extension EventDetails {
         } label: {
             HStack(spacing: 6){
                 Text("Can't make it?")
-                Image(systemName: "chevron.right")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 12, height: 12)
-                    .font(.body(17, .bold))
             }
             .font(.body(15, .medium))
             .foregroundStyle(.accent)
             .contentShape(Rectangle())
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
         }
     }
 }
+
+/*
+ Image(systemName: "chevron.right")
+     .resizable()
+     .scaledToFit()
+     .frame(width: 12, height: 12)
+     .font(.body(17, .bold))
+
+ */

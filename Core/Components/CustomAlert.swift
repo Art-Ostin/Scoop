@@ -47,6 +47,7 @@ extension CustomAlertCard {
             Text(message)
                 .font(.body(16))
                 .foregroundStyle(Color.black.opacity(0.8))
+                .multilineTextAlignment(showTwoButtons ? .leading : .center)
         }
         .frame(maxWidth: .infinity, alignment: showTwoButtons ? .leading : .center)
     }

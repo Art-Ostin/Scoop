@@ -13,6 +13,7 @@ struct FrozenWithEvents: View {
     
     @State var tabSelection: TabBarItem = .events
     @State var topRightOfTitle: CGPoint = .zero
+    @State var showFrozenInfo: Bool = false
 
     var body: some View {
         if #available(iOS 26.0, *) {
@@ -22,15 +23,22 @@ struct FrozenWithEvents: View {
                     .tabItem {
                         Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                     }
-                    .overlay {
-                        Image(systemName: "info.circle")
-                            .frame(width: 20, height: 20)
-                            
+                    .overlayPreferenceValue(TitleBoundsKey.self) { anchor in
+                        GeometryReader { proxy in
+                            if let anchor {
+                                let rect = proxy[anchor] // rect in EventsSpace
+                                Button {
+                                    showFrozenInfo.toggle()
+                                } label: {
+                                    Image(systemName: "info.circle")
+                                        .position(x: rect.maxX + 12, y: rect.minY) // top-right
+                                        .contentShape(Rectangle())
+                                        .foregroundStyle(.black)
+                                }
+                            }
+                        }
                     }
-                    .onPreferenceChange(TopRightOfTitle.self) { topRightOfTitle in
-                        self.topRightOfTitle = topRightOfTitle ?? .zero
-                    }
-                
+                    .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
                 
                 frozenView
                     .tag(TabBarItem.matches)
