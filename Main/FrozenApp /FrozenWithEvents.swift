@@ -12,7 +12,8 @@ struct FrozenWithEvents: View {
     let vm: FrozenViewModel
     
     @State var tabSelection: TabBarItem = .events
-    
+    @State var topRightOfTitle: CGPoint = .zero
+
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView(selection: $tabSelection) {
@@ -21,6 +22,16 @@ struct FrozenWithEvents: View {
                     .tabItem {
                         Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                     }
+                    .overlay {
+                        Image(systemName: "info.circle")
+                            .frame(width: 20, height: 20)
+                            
+                    }
+                    .onPreferenceChange(TopRightOfTitle.self) { topRightOfTitle in
+                        self.topRightOfTitle = topRightOfTitle ?? .zero
+                    }
+                
+                
                 frozenView
                     .tag(TabBarItem.matches)
                     .tabItem {
