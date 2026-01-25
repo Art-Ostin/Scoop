@@ -18,7 +18,8 @@ struct EventSlot: View {
     @State var profileModel: ProfileModel
     @State var imageSize: CGFloat = 0
     @Binding var dismissOffset: CGFloat?
-    
+    let isFrozenEvent: Bool
+    @Binding var showfrozenInfo: Bool?
     let locationManager = CLLocationManager()
     
     var body: some View {
@@ -68,13 +69,22 @@ extension EventSlot {
     
     
     private var titleView: some View {
-        HStack {
+        
+        HStack(alignment: .top, spacing: 6) {
             Text("Meeting")
                 .font(.custom("SFProRounded-Bold", size: 32))
-                .fixedSize()
-                .anchorPreference(key: TitleBoundsKey.self, value: .bounds) { $0 }
-            Spacer()
+            
+            if isFrozenEvent {
+                Button {
+                    
+                } label: {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(.black)
+                        .contentShape(Circle())
+                }
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
     }
     
@@ -120,7 +130,8 @@ extension EventSlot {
     func mapView(event: UserEvent) ->  some View {
         let coord = CLLocationCoordinate2D(latitude: event.place.latitude, longitude: event.place.longitude)
         
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .bottomTrailing) {
+            
             
             Map(initialPosition: .camera(.init(centerCoordinate: coord, distance: 800))) {
                 Marker(event.place.name ?? "",systemImage: "mappin", coordinate: coord)
@@ -132,6 +143,8 @@ extension EventSlot {
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
+            
+            openInMapsButton(event: event)
         }
     }
     
@@ -194,7 +207,7 @@ extension EventSlot {
         Button {
             Task { await MapsRouting.openMaps(place: event.place) }
         } label: {
-            Text(EventFormatting.placeFullAddress(place: event.place))
+            Text(removingTrailingCountry(from: EventFormatting.placeFullAddress(place: event.place)))
                 .font(.body(12, .regular))
                 .underline(color: .grayText)
                 .foregroundStyle(Color.grayText)
@@ -202,6 +215,10 @@ extension EventSlot {
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
         }
+    }
+    private func removingTrailingCountry(from address: String) -> String {
+        guard let i = address.lastIndex(of: ",") else { return address }
+        return String(address[..<i]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     private var confirmedText: Text {
@@ -243,13 +260,9 @@ extension EventSlot {
         }
     }
     
-    
-    
     private func eventInfo(event: UserEvent) -> some View {
-        
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 10) {
-                
                 eventInfoTitle(event: event)
 
                 Text(EventFormatting.dayAndTime(event.time))
@@ -258,7 +271,6 @@ extension EventSlot {
                 
                 address(event: event)
             }
-            
             confirmedText
                 .lineSpacing(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -267,11 +279,28 @@ extension EventSlot {
         }
         .padding(.horizontal, 24)
     }
-}
-
-struct TitleBoundsKey: PreferenceKey {
-    static var defaultValue: Anchor<CGRect>? = nil
-    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
-        value = nextValue() ?? value
+    
+    @ViewBuilder
+    private func openInMapsButton(event: UserEvent) -> some View {
+        Button {
+            Task {
+                await MapsRouting.openMaps(place: event.place)
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "map")
+                    .font(.body(14, .bold))
+                
+                Text("Open Maps")
+                    .foregroundStyle(Color.blue)
+                    .font(.body(12, .bold))
+            }
+            .padding(.horizontal, 8)
+            .tint(.blue)
+            .padding(.vertical, 6)
+            .glassIfAvailable()
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+        }
     }
 }

@@ -15,19 +15,19 @@ struct EventView: View {
     let vm: EventViewModel
     
     @State var showEventDetails: Bool = false
-    
     @State var selection: String?
-    
     @State var dismissOffset: CGFloat? = nil
-        
     @State var profileImages: [String : [UIImage]] = [ : ]
+    
+    @Binding var showFrozenInfo: Bool?
+    let isFrozenEvent: Bool
     
     var body: some View {
         ZStack {
             Color.background
             TabView(selection: $selection) {
                 ForEach(vm.events) { profile in
-                    EventSlot(vm: vm, ui: ui, profileModel: profile, dismissOffset: $dismissOffset)
+                    EventSlot(vm: vm, ui: ui, profileModel: profile, dismissOffset: $dismissOffset, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo)
                         .task {
                             let loadedImages = await vm.loadImages(profileModel: profile)
                             await MainActor.run {

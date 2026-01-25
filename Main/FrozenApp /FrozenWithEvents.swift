@@ -13,35 +13,19 @@ struct FrozenWithEvents: View {
     
     @State var tabSelection: TabBarItem = .events
     @State var topRightOfTitle: CGPoint = .zero
-    @State var showFrozenInfo: Bool = false
+    @State var showFrozenInfo: Bool? = false
 
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView(selection: $tabSelection) {
                 eventsView
+                    .coordinateSpace(name: "EventsSpace")
                     .tag(TabBarItem.events)
                     .tabItem {
                         Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                     }
-                    .overlayPreferenceValue(TitleBoundsKey.self) { anchor in
-                        GeometryReader { proxy in
-                            if let anchor {
-                                let rect = proxy[anchor] // rect in EventsSpace
-                                Button {
-                                    showFrozenInfo.toggle()
-                                } label: {
-                                    Image(systemName: "info.circle")
-                                        .foregroundStyle(.black)
-                                        .contentShape(Circle())
-                                }
-                                .frame(width: 24, height: 24)
-                                .position(x: rect.maxX + 12, y: rect.minY) // top-right
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
-                
+//                    .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
+//                
                 frozenView
                     .tag(TabBarItem.matches)
                     .tabItem {
@@ -63,10 +47,32 @@ extension FrozenWithEvents {
             cacheManager: vm.cacheManager,
             eventManager: vm.eventManager,
             sessionManager: vm.sessionManager
-        ))
+        ), showFrozenInfo: $showFrozenInfo, isFrozenEvent: true)
     }
     
     private var frozenView: some View {
             FrozenView(vm: vm)
     }
 }
+
+/*
+ .overlayPreferenceValue(TitleBoundsKey.self) { anchor in
+     GeometryReader { proxy in
+         if let anchor {
+             let rect = proxy[anchor, in: .named("EventsSpace")]
+             Button {
+                 showFrozenInfo.toggle()
+             } label: {
+                 Image(systemName: "info.circle")
+                     .foregroundStyle(.black)
+                     .contentShape(Circle())
+             }
+             .frame(width: 24, height: 24)
+             .position(x: rect.maxX + 12, y: rect.minY) // top-right
+             .buttonStyle(.plain)
+             .zIndex(1)
+         }
+     }
+ }
+
+ */
