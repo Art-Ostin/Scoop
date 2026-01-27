@@ -60,11 +60,11 @@ struct DropDownView<Row: View, DropDown: View> : View {
                                        alignment: .top)
                                 .offset(y: -shadowAllowance)
                         }
-                        .offset(y: -28)
+                        .offset(y: -24)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .allowsHitTesting(showOptions)
-                .animation(.easeInOut(duration: 0.2), value: showOptions)
+                .animation(.easeInOut(duration: 0.1), value: showOptions)
             }
 }
 

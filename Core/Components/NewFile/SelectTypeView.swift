@@ -37,7 +37,7 @@ struct SelectTypeView: View {
                             image: eventType.description.emoji ?? "",
                             text: eventType.description.label
                         )
-                        .foregroundStyle(selectedType == eventType ? .blue : .black)
+                        .foregroundStyle(selectedType == eventType ? .accent : .black)
                         .frame(maxWidth: .infinity)
                         
                         .onTapGesture {
