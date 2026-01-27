@@ -26,9 +26,7 @@ struct SelectTypeView: View {
                             .onTapGesture {
                                 vm.showMessageScreen = true
                                 vm.event.type = eventType
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    vm.showTypePopup.toggle()
-                                }
+                                vm.showTypePopup.toggle()
                             }
                     } else {
                         customRow(

@@ -29,6 +29,8 @@ struct SelectTimeAndPlace: View {
     let onSubmit: @Sendable (EventDraft) async -> Void
     @State var showInfoScreen: Bool = false
     
+    let rowHeight = CGFloat(52)
+    
     init(profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
         _vm = .init(initialValue: .init(text: text, profile: profile))
         self.onDismiss = onDismiss
@@ -43,7 +45,8 @@ struct SelectTimeAndPlace: View {
             sendInviteScreen
                 .overlay(alignment: .topTrailing) {
                     TabInfoButton(showScreen: $showInfoScreen)
-                        .scaleEffect(0.95)
+                        .scaleEffect(0.9)
+                        .offset(y: -48)
                 }
             
             if vm.showTypePopup {
@@ -84,7 +87,8 @@ struct SelectTimeAndPlace: View {
 }
 
 extension SelectTimeAndPlace {
-
+    
+    
     private var sendInviteScreen: some View {
         VStack(spacing: 32) {
             if vm.text == "Confirm & Send" {
