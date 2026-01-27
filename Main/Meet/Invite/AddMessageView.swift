@@ -54,7 +54,7 @@ struct InviteAddMessageView: View {
         .padding(.horizontal, 32)
         .overlay(alignment: .topLeading) {
             if vm.showTypePopup {
-                SelectTypeView(vm: vm)
+                SelectTypeView(vm: vm, selectedType: vm.event.type)
                     .padding(.top, 12)
             }
         }

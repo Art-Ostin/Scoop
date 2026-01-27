@@ -50,8 +50,8 @@ struct SelectTimeAndPlace: View {
                 }
             
             if vm.showTypePopup {
-                SelectTypeView(vm: vm)
-                    .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .topTrailing)))
+                SelectTypeView(vm: vm, selectedType: vm.event.type)
+                    .transition(.dropDownExpand)
                     .zIndex(1)
                     .offset(y: 48)
             }
@@ -64,7 +64,7 @@ struct SelectTimeAndPlace: View {
         .toolbar(.hidden, for: .tabBar)
         .tabBarHidden(true) // This is custom Tool bar hidden
         .sheet(isPresented: $vm.showMessageScreen) {InviteAddMessageView(vm: $vm)}
-        .animation(.easeOut(duration: 0.18), value: vm.showTypePopup)
+        .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: vm.showTypePopup)
         .fullScreenCover(isPresented: $vm.showMapView) {MapView(vm2: $vm)}
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }

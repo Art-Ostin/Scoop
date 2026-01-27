@@ -12,6 +12,9 @@ struct SelectTypeView: View {
     @Bindable var vm: TimeAndPlaceViewModel   // if your VM is @Observable
     // If your VM is not @Observable, tell me what it is (ObservableObject?), and I’ll adjust.
     
+    let selectedType: EventType?
+    
+    
     var body: some View {
         VStack(spacing: 0) {
             DropDownMenu {
@@ -33,6 +36,10 @@ struct SelectTypeView: View {
                             image: eventType.description.emoji ?? "",
                             text: eventType.description.label
                         )
+                        .font(.body)
+                        .fontWeight(selectedType == eventType ? .bold : .medium)
+                        
+                        
                         .onTapGesture {
                             if isCustom { vm.showMessageScreen = true }
                             vm.event.type = eventType
@@ -47,6 +54,8 @@ struct SelectTypeView: View {
         }
     }
 }
+
+
 
 /*
  
