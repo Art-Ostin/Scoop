@@ -124,15 +124,16 @@ extension SelectTimeAndPlace {
             
             if let type = event.type, let message = event.message {
                 (
-                    Text(verbatim: (event.type == .custom) ? "" : "\(type.description.label): ")
+                    Text(verbatim: (event.type == .custom) ? "" : " \(type.description.emoji ?? "") \(type.description.label): ")
                         .font(.body(16, .bold))
                     + Text(verbatim: " " + message)
                         .font(.body(12, .italic))
                         .foregroundStyle(Color.grayText)
                 )
-            } else if let type = event.type?.description.label {
+            } else if let type = event.type?.description.label, let emoji = event.type?.description.emoji {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(type).font(.body(18))
+                    Text("\(emoji) \(type)")
+                        .font(.body(18))
                     Text("Add a Message").foregroundStyle(.accent).font(.body(14))
                         .onTapGesture {
                             vm.showTypePopup = false
@@ -145,12 +146,14 @@ extension SelectTimeAndPlace {
             
             Spacer()
             
-            
-            Image(systemName: "chevron.down")
-                .font(.body(17, .bold))
-                .foregroundStyle(Color.accent)
-                .contentShape(Rectangle())
-                .onTapGesture {vm.showTypePopup.toggle()}
+            Button {
+                vm.showTypePopup.toggle()
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.body(17, .bold))
+                    .foregroundStyle(Color.accent)
+                    .contentShape(Rectangle())
+            }
         }
     }
     
