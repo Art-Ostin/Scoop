@@ -139,6 +139,7 @@ extension SelectTimeAndPlace {
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         )
+        .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: vm.showTypePopup)
     }
     
     private var InviteTypeRow: some View {

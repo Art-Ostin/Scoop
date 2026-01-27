@@ -61,6 +61,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
                                 .offset(y: -shadowAllowance)
                         }
                         .offset(y: -24)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
         .frame(maxWidth: .infinity, alignment: .center)
         .allowsHitTesting(showOptions)
@@ -89,3 +90,4 @@ private extension View {
 //#Preview {
 //    ContentView()
 //}
+
