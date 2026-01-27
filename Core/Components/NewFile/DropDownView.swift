@@ -43,16 +43,15 @@ struct DropDownView<Row: View, DropDown: View> : View {
             }
     }
 
+    
     @ViewBuilder
     private var dropdownRevealOverlay: some View {
                 VStack(spacing: 0) {
                     Color.clear.frame(height: rowHeight)
-                    
                     dropDown()
                         .padding(24)
                         .readHeight { menuHeight = $0 }
                         .offset(y: showOptions ? 0 : -menuHeight)
-                        .opacity(showOptions ? 1 : 0)
                         .mask(alignment: .top) {
                             Rectangle()
                                 .padding(shadowAllowance)
@@ -61,11 +60,9 @@ struct DropDownView<Row: View, DropDown: View> : View {
                                 .offset(y: -shadowAllowance)
                         }
                         .offset(y: -24)
-                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
         .frame(maxWidth: .infinity, alignment: .center)
         .allowsHitTesting(showOptions)
-        .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: showOptions)
     }
 }
 
@@ -91,3 +88,11 @@ private extension View {
 //    ContentView()
 //}
 
+/* Fixed some unwanted animation
+ /*
+  .opacity(showOptions ? 1 : 0)
+  .transition(.move(edge: .top).combined(with: .opacity))
+  .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: showOptions)
+  */
+
+ */

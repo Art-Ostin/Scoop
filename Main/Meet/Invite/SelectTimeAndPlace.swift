@@ -58,8 +58,8 @@ struct SelectTimeAndPlace: View {
         .toolbar(.hidden, for: .tabBar)
         .tabBarHidden(true) // This is custom Tool bar hidden
         .sheet(isPresented: $vm.showMessageScreen) {InviteAddMessageView(vm: $vm)}
-        .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: vm.showTypePopup)
         .fullScreenCover(isPresented: $vm.showMapView) {MapView(vm2: $vm)}
+        .animation(.snappy(duration: 5), value: vm.showTypePopup)
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
@@ -139,7 +139,6 @@ extension SelectTimeAndPlace {
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         )
-        .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: vm.showTypePopup)
     }
     
     private var InviteTypeRow: some View {
