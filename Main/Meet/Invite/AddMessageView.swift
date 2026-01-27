@@ -17,7 +17,7 @@ struct InviteAddMessageView: View {
         
         
         VStack(alignment: .leading, spacing: 72) {
-            HStack() {
+            HStack {
                 Text(vm.event.type?.description.label ?? "Select a type")
                     .font(.body(24, .medium))
                 Image(systemName: "chevron.down")
@@ -27,6 +27,8 @@ struct InviteAddMessageView: View {
             .onTapGesture {  vm.showTypePopup.toggle() }
             
             ZStack {
+                
+                
                 TextEditor(text: Binding(
                     get: { vm.event.message ?? ""},
                     set: { vm.event.message = $0}
@@ -49,6 +51,8 @@ struct InviteAddMessageView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
+            
+            OkDismissButton()
         }
         .padding(.top, 24)
         .padding(.horizontal, 32)

@@ -59,7 +59,7 @@ struct SelectTimeAndPlace: View {
         .tabBarHidden(true) // This is custom Tool bar hidden
         .sheet(isPresented: $vm.showMessageScreen) {InviteAddMessageView(vm: $vm)}
         .fullScreenCover(isPresented: $vm.showMapView) {MapView(vm2: $vm)}
-        .animation(.snappy(duration: 5), value: vm.showTypePopup)
+        .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
             Button ("I Understand") {
@@ -90,7 +90,7 @@ extension SelectTimeAndPlace {
     private var sendInviteScreen: some View {
         VStack(spacing: 24) {
             if vm.text == "Confirm & Send" {
-                HStack(spacing: 8) {
+                HStack(spacing: 16) {
                     CirclePhoto(image: vm.profile?.image ?? UIImage())
                     
                     

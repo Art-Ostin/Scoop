@@ -51,14 +51,15 @@ struct DropDownView<Row: View, DropDown: View> : View {
                     dropDown()
                         .padding(24)
                         .readHeight { menuHeight = $0 }
-                        .offset(y: showOptions ? 0 : -menuHeight)
+                        .offset(y: showOptions ? 0 : -(menuHeight + shadowAllowance * 2))
                         .mask(alignment: .top) {
                             Rectangle()
                                 .padding(shadowAllowance)
-                                .frame(height: showOptions ? (menuHeight + shadowAllowance * 2) : 0,
+                                .frame(height: menuHeight + shadowAllowance * 2,
                                        alignment: .top)
                                 .offset(y: -shadowAllowance)
                         }
+                        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
                         .offset(y: -24)
                 }
         .frame(maxWidth: .infinity, alignment: .center)
