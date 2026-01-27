@@ -15,6 +15,7 @@ struct DropDownTest: View {
     var maxWidth: CGFloat = 180
     var cornerRaidus: CGFloat = 15
     @Binding var selection: String?
+    @State var eventType: EventType
 
     ///View Properties
     @State private var showOptions: Bool = false
@@ -49,9 +50,8 @@ struct DropDownTest: View {
                 .background(Color.blue)
                 
                 if showOptions {
-                    OptionsView()
+                    SelectTypeView(vm: TimeAndPlaceViewModel(text: "Hello"), selectedType: eventType)
                 }
-
             }
             .clipped()
             .background((scheme == .dark ? Color.black : Color.white).shadow(.drop(color: .primary.opacity(0.15), radius: 4)), in : .rect(cornerRadius: cornerRaidus))

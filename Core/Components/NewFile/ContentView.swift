@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     
+    
+    
     @State private var selection: String?
     var body: some View {
         NavigationStack {
@@ -22,7 +24,7 @@ struct ContentView: View {
                         "Snapchat",
                         "TikTok"
                     ],
-                    selection: $selection)
+                    selection: $selection, eventType: .drink)
             }
             .navigationTitle("Dropdown Picker ")
         }
