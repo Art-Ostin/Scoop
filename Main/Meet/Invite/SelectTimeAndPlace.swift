@@ -49,12 +49,6 @@ struct SelectTimeAndPlace: View {
                         .offset(x: -12, y: -48)
                 }
             
-            if vm.showTypePopup {
-                SelectTypeView(vm: vm, selectedType: vm.event.type)
-                    .transition(.dropDownExpand)
-                    .zIndex(1)
-                    .offset(y: 48)
-            }
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
                     .offset(y: 164)
@@ -109,9 +103,14 @@ extension SelectTimeAndPlace {
                 Text ("Your Time & Place")
                     .font(.title(24))
             }
+
             VStack(spacing: 12) {
-                InviteTypeRow
-                    .frame(height: rowHeight)
+                DropDownView {
+                    InviteTypeRow
+                } dropDown: {
+                    SelectTypeView(vm: vm, selectedType: vm.event.type)
+                }
+
                 Divider()
                 InviteTimeRow
                     .frame(height: rowHeight)
@@ -169,7 +168,7 @@ extension SelectTimeAndPlace {
             
             Spacer()
             
-            ToggleDropDownButton(isExpanded: $vm.showTypePopup)
+            DropDownButton(isExpanded: $vm.showTypePopup)
         }  
     }
     
@@ -222,4 +221,13 @@ extension SelectTimeAndPlace {
  //            Image((event.type == nil) && event.message == nil ? "InviteType" : "EditButton")
  //                .onTapGesture {vm.showTypePopup.toggle()}
 
+ */
+
+/*
+ if vm.showTypePopup {
+     SelectTypeView(vm: vm, selectedType: vm.event.type)
+//                    .transition(.dropDownExpand)
+         .zIndex(1)
+         .offset(y: 48)
+ }
  */

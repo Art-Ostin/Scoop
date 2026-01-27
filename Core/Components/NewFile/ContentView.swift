@@ -7,30 +7,54 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    
-    
-    
-    @State private var selection: String?
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 15) {
-                DropDownTest(
-                    hint: "Select",
-                    options: [
-                        "Youtube",
-                        "Instagram",
-                        "X",
-                        "Snapchat",
-                        "TikTok"
-                    ],
-                    selection: $selection, eventType: .drink)
-            }
-            .navigationTitle("Dropdown Picker ")
-        }
-    }
-}
+/*
+ 
+ 
+ */
 
-#Preview {
-    ContentView()
-}
+//
+//struct ContentView: View {
+//    
+//    //View Properties
+//    @State private var selection: String?
+//    @State private var selection1: String?
+//    @State private var selection2: String?
+//
+//    
+//    var body: some View {
+//            VStack(spacing: 15) {
+//                
+//                Button("Click Me") {
+//                    
+//                }
+//                
+//                
+//                DropDownView(
+//                    hint: "Select",
+//                    selection: $selection)
+//                
+//                
+//                DropDownView(
+//                    hint: "Select",
+//                    selection: $selection2)
+//                
+//                
+//                DropDownView(
+//                    hint: "Select",
+//                    selection: $selection1)
+//                
+//                
+//                Button("Click Me") {
+//                    
+//                }
+//
+//            }
+//            .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea(edges: .all)
+//            .background(Color.background)
+//
+//        }
+//    }
+//
+//#Preview {
+//    ContentView()
+//}

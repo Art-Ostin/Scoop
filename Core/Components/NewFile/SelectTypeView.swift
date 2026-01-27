@@ -26,6 +26,7 @@ struct SelectTypeView: View {
                     if isCustom && hasMessage {
                         customRow(image: "✒️", text: "Edit Message")
                             .foregroundStyle(Color.accent)
+                            .frame(maxWidth: .infinity)
                             .onTapGesture {
                                 vm.showMessageScreen = true
                                 vm.event.type = eventType
@@ -36,9 +37,8 @@ struct SelectTypeView: View {
                             image: eventType.description.emoji ?? "",
                             text: eventType.description.label
                         )
-                        .font(.body)
-                        .fontWeight(selectedType == eventType ? .bold : .medium)
-                        
+                        .foregroundStyle(selectedType == eventType ? .blue : .black)
+                        .frame(maxWidth: .infinity)
                         
                         .onTapGesture {
                             if isCustom { vm.showMessageScreen = true }
@@ -54,8 +54,6 @@ struct SelectTypeView: View {
         }
     }
 }
-
-
 
 /*
  

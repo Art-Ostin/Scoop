@@ -58,6 +58,8 @@ struct customRow : View {
             Text(text)
             Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 

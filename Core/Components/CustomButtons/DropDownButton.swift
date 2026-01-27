@@ -7,21 +7,19 @@
 
 import SwiftUI
 
-struct ToggleDropDownButton: View {
+struct DropDownButton: View {
     
     @Binding var isExpanded: Bool
-    
-    @State var showDropDownMenu: Bool = false
-    
+        
     var body: some View {
         Button {
             withAnimation(.spring(response: 0.2, dampingFraction: 0.9)) {
-                showDropDownMenu.toggle()
+                isExpanded.toggle()
             }
         } label: {
                 Image(systemName: "chevron.down")
                     .font(.body(17, .bold))
-                    .rotationEffect(.degrees(showDropDownMenu ? 180 : 0))
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     .foregroundStyle(Color.accent)
                     .padding(12)
                     .contentShape(Rectangle())
@@ -32,7 +30,7 @@ struct ToggleDropDownButton: View {
 }
 
 #Preview {
-    ToggleDropDownButton(isExpanded: .constant(true))
+    DropDownButton(isExpanded: .constant(false))
 }
 
 

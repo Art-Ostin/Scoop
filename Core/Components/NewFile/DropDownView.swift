@@ -1,5 +1,5 @@
 //
-//  DropDownTest.swift
+//  DropDownView.swift
 //  Scoop
 //
 //  Created by Art Ostin on 27/01/2026.
@@ -7,93 +7,84 @@
 
 import SwiftUI
 
-struct DropDownTest: View {
-    ///Customisation Properties
-    var hint: String
-    var options: [String]
-    var anchor: Anchor = .bottom
-    var maxWidth: CGFloat = 180
-    var cornerRaidus: CGFloat = 15
-    @Binding var selection: String?
-    @State var eventType: EventType
+struct DropDownView<Row: View, DropDown: View> : View {
 
-    ///View Properties
+    let row: () -> Row
+    let dropDown: () -> DropDown
+    
+    @SceneStorage("drop_down_zindex") private var index = 1000.0
     @State private var showOptions: Bool = false
+    @State private var menuHeight: CGFloat = 0
+    @State private var zIndex: Double = 1000.0
     
-    @Environment(\.colorScheme) private var scheme
+    private let shadowAllowance: CGFloat = 14
+    private let rowHeight: CGFloat = 60
+
+    init(@ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
+        self.row = row
+        self.dropDown = dropDown
+    }
+    
     var body: some View {
-        GeometryReader {
-            let size = $0.size
-            
-            VStack(spacing: 0)  {
-                HStack (spacing: 0) {
-                    Text(selection ?? hint)
-                        .foregroundStyle(selection == nil ? .gray : .primary)
-                        .lineLimit(1)
-                    Spacer(minLength: 0)
-                    
-                    Image(systemName: "chevron.down")
-                        .font(.title3)
-                        .foregroundStyle(.gray)
-                        .rotationEffect(.init( degrees: showOptions ? -180 : 0))
-                    
-                }
-                .padding(.horizontal, 15)
-                .frame(width: size.width, height: size.height)
-                .contentShape(.rect)
-                .background(scheme == .dark ? .black : .white)
-                .onTapGesture {
-                    withAnimation(.snappy()) {
-                        showOptions.toggle()
-                    }
-                }
-                .background(Color.blue)
-                
-                if showOptions {
-                    SelectTypeView(vm: TimeAndPlaceViewModel(text: "Hello"), selectedType: eventType)
-                }
-            }
-            .clipped()
-            .background((scheme == .dark ? Color.black : Color.white).shadow(.drop(color: .primary.opacity(0.15), radius: 4)), in : .rect(cornerRadius: cornerRaidus))
+        row()
+        .frame(height: rowHeight)
+        .frame(maxWidth: .infinity)
+        .contentShape(.rect)
+        .overlay(alignment: .topLeading) {
+            dropdownRevealOverlay
         }
-        .frame(width: maxWidth, height: 50)
+        .zIndex(zIndex)
+        .onChange(of: showOptions) { _, newValue in
+            if newValue {
+                index += 1
+                zIndex = index
+            }
+        }
     }
-    
+
     @ViewBuilder
-    func OptionsView() -> some View {
-        VStack(spacing: 10) {
-            ForEach(options, id: \.self) { option in
-                HStack(spacing: 0) {
-                    Text(option)
-                        .lineLimit(1)
-                    Spacer(minLength: 0)
-                    Image(systemName: "checkmark")
-                        .opacity(selection == option ? 1 : 0)
+    private var dropdownRevealOverlay: some View {
+                VStack(spacing: 0) {
+                    Color.clear.frame(height: rowHeight)
+                    
+                    dropDown()
+                        .padding(24)
+                        .readHeight { menuHeight = $0 }
+                        .offset(y: showOptions ? 0 : -menuHeight)
+                        .opacity(showOptions ? 1 : 0)
+                        .mask(alignment: .top) {
+                            Rectangle()
+                                .padding(shadowAllowance)
+                                .frame(height: showOptions ? (menuHeight + shadowAllowance * 2) : 0,
+                                       alignment: .top)
+                                .offset(y: -shadowAllowance)
+                        }
+                        .offset(y: -16)
                 }
-                .foregroundStyle(selection == option ? Color.primary: Color.gray)
-                .animation(.none, value: selection)
-                .frame(height: 40)
-                .contentShape(.rect)
-                .onTapGesture {
-                    withAnimation(.snappy) {
-                        selection = option
-                        
-                        showOptions = false
-                    }
-                }
-
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .allowsHitTesting(showOptions)
+                .animation(.easeInOut(duration: 0.2), value: showOptions)
             }
-        }
-        .padding(.horizontal)
-        .transition(.move(edge: .top))
-    }
-    
-    enum Anchor {
-        case top
-        case bottom
+}
+
+private struct ViewHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 
-#Preview {
-    ContentView()
+private extension View {
+    func readHeight(_ onChange: @escaping (CGFloat) -> Void) -> some View {
+        background(
+            GeometryReader { proxy in
+                Color.clear.preference(key: ViewHeightKey.self, value: proxy.size.height)
+            }
+        )
+        .onPreferenceChange(ViewHeightKey.self, perform: onChange)
+    }
 }
+
+//#Preview {
+//    ContentView()
+//}
