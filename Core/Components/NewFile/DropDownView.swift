@@ -31,7 +31,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
             .frame(height: rowHeight)
             .frame(maxWidth: .infinity)
             .contentShape(.rect)
-            .overlay(alignment: .topLeading) {
+            .overlay(alignment: .top) {
                 dropdownRevealOverlay
             }
             .zIndex(zIndex)
@@ -60,9 +60,9 @@ struct DropDownView<Row: View, DropDown: View> : View {
                                        alignment: .top)
                                 .offset(y: -shadowAllowance)
                         }
-                        .offset(y: -16)
+                        .offset(y: -28)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .allowsHitTesting(showOptions)
                 .animation(.easeInOut(duration: 0.2), value: showOptions)
             }
