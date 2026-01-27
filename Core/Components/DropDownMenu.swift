@@ -34,18 +34,6 @@ struct DropDownMenu<Content: View> : View {
     }
 }
 
-extension AnyTransition {
-    static var dropDownExpand: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .top)
-                .combined(with: .opacity)
-                .combined(with: .scale(scale: 0.98, anchor: .top)),
-            removal: .move(edge: .top)
-                .combined(with: .opacity)
-                .combined(with: .scale(scale: 0.98, anchor: .top))
-        )
-    }
-}
 
 struct customRow : View {
     let image: String?

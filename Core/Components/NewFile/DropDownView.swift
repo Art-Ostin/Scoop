@@ -62,10 +62,10 @@ struct DropDownView<Row: View, DropDown: View> : View {
                         }
                         .offset(y: -24)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .allowsHitTesting(showOptions)
-                .animation(.easeInOut(duration: 0.1), value: showOptions)
-            }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .allowsHitTesting(showOptions)
+        .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: showOptions)
+    }
 }
 
 private struct ViewHeightKey: PreferenceKey {
