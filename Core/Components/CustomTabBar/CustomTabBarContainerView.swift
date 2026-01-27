@@ -14,6 +14,7 @@ struct CustomTabBarContainerView<Content: View>:  View {
     @Binding var selection: TabBarItem
     let content: Content
     @State private var tabs: [TabBarItem] = []
+    @State private var isTabBarHidden = false
     
     public init(selection: Binding<TabBarItem>, @ViewBuilder content: () -> Content) {
         self._selection = selection
@@ -26,10 +27,14 @@ struct CustomTabBarContainerView<Content: View>:  View {
                 .ignoresSafeArea()
             
             CustomTabBarView(tabs: tabs, selection: $selection, localSelection: selection)
+                .opacity(isTabBarHidden ? 0 : 1)
+                .allowsHitTesting(!isTabBarHidden)
         }
-
         .onPreferenceChange(TabBarItemsPreferenceKey.self) { value in
             self.tabs = value
+        }
+        .onPreferenceChange(TabBarVisibilityPreferenceKey.self) { value in
+            isTabBarHidden = value
         }
     }
 }

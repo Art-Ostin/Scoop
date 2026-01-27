@@ -36,9 +36,7 @@ struct SelectTypeView: View {
                         .onTapGesture {
                             if isCustom { vm.showMessageScreen = true }
                             vm.event.type = eventType
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                vm.showTypePopup.toggle()
-                            }
+                            vm.showTypePopup.toggle()
                         }
                     }
                     if index < EventType.allCases.count - 1 {

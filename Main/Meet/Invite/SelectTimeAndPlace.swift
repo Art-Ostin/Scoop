@@ -29,7 +29,7 @@ struct SelectTimeAndPlace: View {
     let onSubmit: @Sendable (EventDraft) async -> Void
     @State var showInfoScreen: Bool = false
     
-    let rowHeight = CGFloat(52)
+    let rowHeight = CGFloat(60)
     
     init(profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
         _vm = .init(initialValue: .init(text: text, profile: profile))
@@ -46,12 +46,14 @@ struct SelectTimeAndPlace: View {
                 .overlay(alignment: .topTrailing) {
                     TabInfoButton(showScreen: $showInfoScreen)
                         .scaleEffect(0.9)
-                        .offset(y: -48)
+                        .offset(x: -12, y: -48)
                 }
             
             if vm.showTypePopup {
                 SelectTypeView(vm: vm)
-                    .offset(y: 96)
+                    .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .topTrailing)))
+                    .zIndex(1)
+                    .offset(y: 48)
             }
             if vm.showTimePopup {
                 SelectTimeView(vm: $vm)
@@ -59,7 +61,10 @@ struct SelectTimeAndPlace: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .toolbar(.hidden, for: .tabBar)
+        .tabBarHidden(true) // This is custom Tool bar hidden
         .sheet(isPresented: $vm.showMessageScreen) {InviteAddMessageView(vm: $vm)}
+        .animation(.easeOut(duration: 0.18), value: vm.showTypePopup)
         .fullScreenCover(isPresented: $vm.showMapView) {MapView(vm2: $vm)}
         .alert("Event Commitment", isPresented: $vm.showAlert) {
             Button("Cancel", role: .cancel) { }
@@ -76,7 +81,6 @@ struct SelectTimeAndPlace: View {
                 vm.event.type = .drink
             }
         }
-
         .sheet(isPresented: $showInfoScreen) {
             Text("Info screen here")
         }
@@ -90,25 +94,31 @@ extension SelectTimeAndPlace {
     
     
     private var sendInviteScreen: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 24) {
             if vm.text == "Confirm & Send" {
-                HStack {
+                HStack(spacing: 8) {
                     CirclePhoto(image: vm.profile?.image ?? UIImage())
+                    
                     
                     if let name = vm.profile?.profile.name {
                         Text("Meet \(name)")
-                            .font(.title(24))
+                            .font(.custom("SFProRounded-Bold", size: 24))
                     }
                 }
             } else {
                 Text ("Your Time & Place")
                     .font(.title(24))
             }
-            InviteTypeRow
-            Divider()
-            InviteTimeRow
-            Divider()
-            InvitePlaceRow
+            VStack(spacing: 12) {
+                InviteTypeRow
+                    .frame(height: rowHeight)
+                Divider()
+                InviteTimeRow
+                    .frame(height: rowHeight)
+                Divider()
+                InvitePlaceRow
+                    .frame(height: rowHeight)
+            }
             ActionButton(isValid: InviteIsValid, text: vm.text) {
                 if vm.text == "Confirm & Send" {
                     vm.showAlert.toggle()
@@ -159,15 +169,8 @@ extension SelectTimeAndPlace {
             
             Spacer()
             
-            Button {
-                vm.showTypePopup.toggle()
-            } label: {
-                Image(systemName: "chevron.down")
-                    .font(.body(17, .bold))
-                    .foregroundStyle(Color.accent)
-                    .contentShape(Rectangle())
-            }
-        }
+            ToggleDropDownButton(isExpanded: $vm.showTypePopup)
+        }  
     }
     
     private var InviteTimeRow: some View {

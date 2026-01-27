@@ -77,7 +77,7 @@ enum EventType: String, CaseIterable, Codable, Hashable {
         case .socialMeet:
             return ("🪩", "Social")
         case .custom:
-            return ("✒️", "Custom Meet")
+            return ("✒️", "Custom")
         }
     }
     

@@ -98,6 +98,7 @@
 		656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */; };
 		656E3D252EB1754000303D9D /* DraftProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D242EB1754000303D9D /* DraftProfileView.swift */; };
 		656E3D272EB17FED00303D9D /* SelectPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D262EB17FED00303D9D /* SelectPrompt.swift */; };
+		6570CADD2F28D6EE00CBEA67 /* ToggleDropDownButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6570CADC2F28D6EE00CBEA67 /* ToggleDropDownButton.swift */; };
 		6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7ED2E687FB3004217A4 /* FirestoreService.swift */; };
 		6576B7F22E69082F004217A4 /* ProfileModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7F12E69082F004217A4 /* ProfileModelBuilder.swift */; };
 		6577317A2F265D5800B309FC /* BlockedContainerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657731792F265D5800B309FC /* BlockedContainerOld.swift */; };
@@ -300,6 +301,7 @@
 		656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenWithEvents.swift; sourceTree = "<group>"; };
 		656E3D242EB1754000303D9D /* DraftProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftProfileView.swift; sourceTree = "<group>"; };
 		656E3D262EB17FED00303D9D /* SelectPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPrompt.swift; sourceTree = "<group>"; };
+		6570CADC2F28D6EE00CBEA67 /* ToggleDropDownButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleDropDownButton.swift; sourceTree = "<group>"; };
 		6576B7ED2E687FB3004217A4 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
 		6576B7F12E69082F004217A4 /* ProfileModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModelBuilder.swift; sourceTree = "<group>"; };
 		657731792F265D5800B309FC /* BlockedContainerOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedContainerOld.swift; sourceTree = "<group>"; };
@@ -740,6 +742,7 @@
 				650E8E5D2EB82F6F009F5454 /* DeclineButton.swift */,
 				65A0704E2EE06A11009F798B /* SignOutButton.swift */,
 				655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */,
+				6570CADC2F28D6EE00CBEA67 /* ToggleDropDownButton.swift */,
 			);
 			path = CustomButtons;
 			sourceTree = "<group>";
@@ -1115,6 +1118,7 @@
 				65F660C02F23DC4A00AF791F /* FrozenInfo.swift in Sources */,
 				65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */,
 				65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */,
+				6570CADD2F28D6EE00CBEA67 /* ToggleDropDownButton.swift in Sources */,
 				6591092C2E19B0810065696F /* Countries.swift in Sources */,
 				65A070542EE08F4A009F798B /* ProfileComponents.swift in Sources */,
 				65F660C42F23E79600AF791F /* InfoButton.swift in Sources */,
