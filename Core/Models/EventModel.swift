@@ -71,13 +71,13 @@ enum EventType: String, CaseIterable, Codable, Hashable {
     var description: (emoji: String?, label: String) {
         switch self {
         case .drink:
-            return ("🍻", "Grab a Drink")
+            return ("🍻", "Drink")
         case .doubleDate:
             return ("🎑", "Double Date")
         case .socialMeet:
-            return ("🕺🏻", "Same Place")
+            return ("🪩", "Social")
         case .custom:
-            return ("✒️", "Write a Message")
+            return ("✒️", "Custom Meet")
         }
     }
     

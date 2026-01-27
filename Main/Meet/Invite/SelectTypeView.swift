@@ -8,42 +8,44 @@
 import SwiftUI
 
 struct SelectTypeView: View {
-
+    
     @Bindable var vm: TimeAndPlaceViewModel   // if your VM is @Observable
     // If your VM is not @Observable, tell me what it is (ObservableObject?), and I’ll adjust.
-
+    
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(Array(EventType.allCases.enumerated()), id: \.element) { index, eventType in
-
-                let hasMessage = (vm.event.message?.isEmpty == false)
-                let isCustom = (eventType == .custom)
-
-                if isCustom && hasMessage {
-                    customRow(image: "✒️", text: "Edit Message")
-                        .foregroundStyle(Color.accent)
+            DropDownMenu {
+                ForEach(Array(EventType.allCases.enumerated()), id: \.element) { index, eventType in
+                    
+                    let hasMessage = (vm.event.message?.isEmpty == false)
+                    let isCustom = (eventType == .custom)
+                    
+                    if isCustom && hasMessage {
+                        customRow(image: "✒️", text: "Edit Message")
+                            .foregroundStyle(Color.accent)
+                            .onTapGesture {
+                                vm.showMessageScreen = true
+                                vm.event.type = eventType
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    vm.showTypePopup.toggle()
+                                }
+                            }
+                    } else {
+                        customRow(
+                            image: eventType.description.emoji ?? "",
+                            text: eventType.description.label
+                        )
                         .onTapGesture {
-                            vm.showMessageScreen = true
+                            if isCustom { vm.showMessageScreen = true }
                             vm.event.type = eventType
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 vm.showTypePopup.toggle()
                             }
                         }
-                } else {
-                    customRow(
-                        image: eventType.description.emoji ?? "",
-                        text: eventType.description.label
-                    )
-                    .onTapGesture {
-                        if isCustom { vm.showMessageScreen = true }
-                        vm.event.type = eventType
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            vm.showTypePopup.toggle()
-                        }
                     }
-                }
-                if index < EventType.allCases.count - 1 {
-                    SoftDivider()
+                    if index < EventType.allCases.count - 1 {
+                        SoftDivider()
+                    }
                 }
             }
         }

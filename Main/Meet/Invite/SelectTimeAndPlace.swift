@@ -27,6 +27,7 @@ struct SelectTimeAndPlace: View {
     @State var vm: TimeAndPlaceViewModel
     let onDismiss: () -> Void
     let onSubmit: @Sendable (EventDraft) async -> Void
+    @State var showInfoScreen: Bool = false
     
     init(profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
         _vm = .init(initialValue: .init(text: text, profile: profile))
@@ -40,6 +41,10 @@ struct SelectTimeAndPlace: View {
         ZStack {
             CustomScreenCover {onDismiss()}
             sendInviteScreen
+                .overlay(alignment: .topTrailing) {
+                    TabInfoButton(showScreen: $showInfoScreen)
+                        .scaleEffect(0.95)
+                }
             
             if vm.showTypePopup {
                 SelectTypeView(vm: vm)
@@ -67,6 +72,10 @@ struct SelectTimeAndPlace: View {
             if vm.event.type == nil {
                 vm.event.type = .drink
             }
+        }
+
+        .sheet(isPresented: $showInfoScreen) {
+            Text("Info screen here")
         }
     }
     private var InviteIsValid: Bool {
