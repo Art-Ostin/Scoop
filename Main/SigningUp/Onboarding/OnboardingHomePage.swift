@@ -32,8 +32,10 @@ struct LimitedAccessPage: View {
                 .padding(.horizontal, 32)
                 .font(.body(18, .medium))
             
-            ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12") {
-                showOnboarding = true
+            if !showOnboarding { //fixes bug where it sometimes appears 'underneath' prompt view.
+                ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12") {
+                    showOnboarding = true
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

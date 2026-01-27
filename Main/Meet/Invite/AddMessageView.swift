@@ -61,5 +61,7 @@ struct InviteAddMessageView: View {
         .onAppear {
             isFocused = true
         }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.top, 72) 
     }
 }

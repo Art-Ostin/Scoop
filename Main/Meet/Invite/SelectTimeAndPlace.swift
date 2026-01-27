@@ -61,10 +61,14 @@ struct SelectTimeAndPlace: View {
             }
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")
-        }.tint(.blue)
+        }
+        .tint(.blue)
+        .onAppear {
+            if vm.event.type == nil {
+                vm.event.type = .drink
+            }
+        }
     }
-    
-    
     private var InviteIsValid: Bool {
         return (vm.event.type != nil || vm.event.message != nil) && vm.event.time != nil && vm.event.location != nil
     }
@@ -141,7 +145,11 @@ extension SelectTimeAndPlace {
             
             Spacer()
             
-            Image((event.type == nil) && event.message == nil ? "InviteType" : "EditButton")
+            
+            Image(systemName: "chevron.down")
+                .font(.body(17, .bold))
+                .foregroundStyle(Color.accent)
+                .contentShape(Rectangle())
                 .onTapGesture {vm.showTypePopup.toggle()}
         }
     }
@@ -186,3 +194,13 @@ extension SelectTimeAndPlace {
         }
     }
 }
+
+/*
+ //            if event.type == nil && event.message == nil {
+ //                Image("InviteType")
+ //            }
+ //
+ //            Image((event.type == nil) && event.message == nil ? "InviteType" : "EditButton")
+ //                .onTapGesture {vm.showTypePopup.toggle()}
+
+ */
