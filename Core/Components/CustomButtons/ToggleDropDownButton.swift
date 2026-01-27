@@ -19,12 +19,6 @@ struct ToggleDropDownButton: View {
                 showDropDownMenu.toggle()
             }
         } label: {
-            HStack {
-                
-                Text("Grab a Drink")
-                
-                Spacer()
-                
                 Image(systemName: "chevron.down")
                     .font(.body(17, .bold))
                     .rotationEffect(.degrees(showDropDownMenu ? 180 : 0))
@@ -32,7 +26,6 @@ struct ToggleDropDownButton: View {
                     .padding(12)
                     .contentShape(Rectangle())
                     .padding(-12)
-            }
         }
         .buttonStyle(.plain)
     }
