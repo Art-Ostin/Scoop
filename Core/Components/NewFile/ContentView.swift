@@ -7,54 +7,42 @@
 
 import SwiftUI
 
-/*
- 
- 
- */
+struct ContentView: View {
+    
+    //View Properties
+    @State var isExpanded: Bool = false
+    
+    var body: some View {
+            VStack(spacing: 15) {
+                
+                Button("Click Me") {
+                    
+                }
+                
+                DropDownView(showOptions: $isExpanded) {
+                    HStack {
+                        Text("Grab a drink")
+                            .font(.body( 17, .bold))
+                        
+                        Spacer()
+                        
+                        DropDownButton(isExpanded: $isExpanded)
+                    }
+                } dropDown: {
+                    SelectTypeView(vm: .init(text: "Hello World"), selectedType: .drink)
+                }
+                
+                Button("Click Me") {
+                    
+                }
 
-//
-//struct ContentView: View {
-//    
-//    //View Properties
-//    @State private var selection: String?
-//    @State private var selection1: String?
-//    @State private var selection2: String?
-//
-//    
-//    var body: some View {
-//            VStack(spacing: 15) {
-//                
-//                Button("Click Me") {
-//                    
-//                }
-//                
-//                
-//                DropDownView(
-//                    hint: "Select",
-//                    selection: $selection)
-//                
-//                
-//                DropDownView(
-//                    hint: "Select",
-//                    selection: $selection2)
-//                
-//                
-//                DropDownView(
-//                    hint: "Select",
-//                    selection: $selection1)
-//                
-//                
-//                Button("Click Me") {
-//                    
-//                }
-//
-//            }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea(edges: .all)
-//            .background(Color.background)
-//
-//        }
-//    }
-//
-//#Preview {
-//    ContentView()
-//}
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea(edges: .all)
+            .background(Color.background)
+
+        }
+    }
+
+#Preview {
+    ContentView()
+}

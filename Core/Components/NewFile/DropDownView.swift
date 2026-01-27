@@ -9,37 +9,38 @@ import SwiftUI
 
 struct DropDownView<Row: View, DropDown: View> : View {
 
+    @Binding var showOptions: Bool
     let row: () -> Row
     let dropDown: () -> DropDown
     
     @SceneStorage("drop_down_zindex") private var index = 1000.0
-    @State private var showOptions: Bool = false
     @State private var menuHeight: CGFloat = 0
     @State private var zIndex: Double = 1000.0
     
     private let shadowAllowance: CGFloat = 14
     private let rowHeight: CGFloat = 60
 
-    init(@ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
+    init(showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
+        _showOptions = showOptions
         self.row = row
         self.dropDown = dropDown
     }
     
     var body: some View {
         row()
-        .frame(height: rowHeight)
-        .frame(maxWidth: .infinity)
-        .contentShape(.rect)
-        .overlay(alignment: .topLeading) {
-            dropdownRevealOverlay
-        }
-        .zIndex(zIndex)
-        .onChange(of: showOptions) { _, newValue in
-            if newValue {
-                index += 1
-                zIndex = index
+            .frame(height: rowHeight)
+            .frame(maxWidth: .infinity)
+            .contentShape(.rect)
+            .overlay(alignment: .topLeading) {
+                dropdownRevealOverlay
             }
-        }
+            .zIndex(zIndex)
+            .onChange(of: showOptions) { _, newValue in
+                if newValue {
+                    index += 1
+                    zIndex = index
+                }
+            }
     }
 
     @ViewBuilder

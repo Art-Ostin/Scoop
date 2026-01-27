@@ -24,6 +24,7 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
+//            ContentView()
              RootView()
                  .appDependencies(dep)
                  .task { dep.sessionManager.userStream(appState: $appState) }

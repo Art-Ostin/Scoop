@@ -105,7 +105,7 @@ extension SelectTimeAndPlace {
             }
 
             VStack(spacing: 12) {
-                DropDownView {
+                DropDownView(showOptions: $vm.showTypePopup) {
                     InviteTypeRow
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type)
