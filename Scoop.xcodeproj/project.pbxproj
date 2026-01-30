@@ -47,7 +47,6 @@
 		6536063D2F238077006334D6 /* EventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063C2F238077006334D6 /* EventDetails.swift */; };
 		6536063F2F239E02006334D6 /* CantMakeIt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063E2F239E02006334D6 /* CantMakeIt.swift */; };
 		653606412F23CBD2006334D6 /* FrozenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606402F23CBD2006334D6 /* FrozenView.swift */; };
-		653606432F23CCDA006334D6 /* FrozenExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606422F23CCDA006334D6 /* FrozenExtension.swift */; };
 		65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* DefaultParameters.swift */; };
 		653770502E0A15270058D225 /* InviteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537704F2E0A15270058D225 /* InviteButton.swift */; };
 		653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653770612E0ACA600058D225 /* SelectTypeView.swift */; };
@@ -115,6 +114,7 @@
 		6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */; };
 		657B8D492F2CF3EC00583ADA /* FocusedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */; };
 		657B8D4B2F2CFA5F00583ADA /* SaveIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D4A2F2CFA5F00583ADA /* SaveIcon.swift */; };
+		657B8D4D2F2D202F00583ADA /* CustomTextBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D4C2F2D202F00583ADA /* CustomTextBox.swift */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
 		658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */; };
 		658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */; };
@@ -261,7 +261,6 @@
 		6536063C2F238077006334D6 /* EventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetails.swift; sourceTree = "<group>"; };
 		6536063E2F239E02006334D6 /* CantMakeIt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantMakeIt.swift; sourceTree = "<group>"; };
 		653606402F23CBD2006334D6 /* FrozenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenView.swift; sourceTree = "<group>"; };
-		653606422F23CCDA006334D6 /* FrozenExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenExtension.swift; sourceTree = "<group>"; };
 		65376D792E05A7AF0058D225 /* DefaultParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultParameters.swift; sourceTree = "<group>"; };
 		6537704F2E0A15270058D225 /* InviteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteButton.swift; sourceTree = "<group>"; };
 		653770612E0ACA600058D225 /* SelectTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTypeView.swift; sourceTree = "<group>"; };
@@ -327,6 +326,7 @@
 		657838432DE773CE00770B49 /* ScoopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextView.swift; sourceTree = "<group>"; };
 		657B8D4A2F2CFA5F00583ADA /* SaveIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveIcon.swift; sourceTree = "<group>"; };
+		657B8D4C2F2D202F00583ADA /* CustomTextBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextBox.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
 		658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollNavBar.swift; sourceTree = "<group>"; };
@@ -693,9 +693,9 @@
 				651975942F1FC67E0002F6A2 /* ExpandTapArea.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
+				657B8D4C2F2D202F00583ADA /* CustomTextBox.swift */,
 				651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */,
 				65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */,
-				653606422F23CCDA006334D6 /* FrozenExtension.swift */,
 				65F9E3842EE711F1008A57BD /* CustomTab */,
 				650383DF2E6B84A80053DDB2 /* CustomTabBar */,
 				65FAF99C2E42BAC30015E231 /* ClockComponents */,
@@ -1101,7 +1101,6 @@
 				65F660CA2F23F46300AF791F /* FrozenContextView.swift in Sources */,
 				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
 				65FEDBA72E2307B7006CF3CD /* YearsView.swift in Sources */,
-				653606432F23CCDA006334D6 /* FrozenExtension.swift in Sources */,
 				657B8D4B2F2CFA5F00583ADA /* SaveIcon.swift in Sources */,
 				6514B6092EB2F32100551C3A /* ToggleHelper.swift in Sources */,
 				651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */,
@@ -1150,6 +1149,7 @@
 				650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */,
 				6576B7F22E69082F004217A4 /* ProfileModelBuilder.swift in Sources */,
 				65CA5E2D2F219AC400694981 /* EventInfo.swift in Sources */,
+				657B8D4D2F2D202F00583ADA /* CustomTextBox.swift in Sources */,
 				6577317C2F265D6D00B309FC /* BlockedWithEvents.swift in Sources */,
 				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6536063D2F238077006334D6 /* EventDetails.swift in Sources */,
