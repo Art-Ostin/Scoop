@@ -66,7 +66,7 @@ enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 
 //Add the images and functions of event details all here.
 enum EventType: String, CaseIterable, Codable, Hashable {
-    case socialMeet, doubleDate, drink, custom
+    case drink, doubleDate, socialMeet, custom
     
     var description: (emoji: String?, label: String) {
         switch self {

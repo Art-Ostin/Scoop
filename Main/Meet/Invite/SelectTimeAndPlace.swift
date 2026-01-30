@@ -147,7 +147,7 @@ extension SelectTimeAndPlace {
             
             if let type = event.type, let message = event.message {
                 (
-                    Text(verbatim: (event.type == .custom) ? "" : " \(type.description.emoji ?? "") \(type.description.label): ")
+                    Text(verbatim: " \(type.description.emoji ?? "") \(type.description.label): ")
                         .font(.body(16, .bold))
                     + Text(verbatim: " " + message)
                         .font(.body(12, .italic))
@@ -157,7 +157,12 @@ extension SelectTimeAndPlace {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("\(emoji) \(type)")
                         .font(.body(18))
-                    Text("Add a Message").foregroundStyle(.accent).font(.body(14))
+                        .overlay(alignment: .bottomTrailing) {
+                            Image("EditButton")
+                                .frame(width: 16, height: 16)
+                        }
+                    Text("Add a Message")
+                        .foregroundStyle(.accent).font(.body(14))
                         .onTapGesture {
                             vm.showTypePopup = false
                             vm.showMessageScreen.toggle()

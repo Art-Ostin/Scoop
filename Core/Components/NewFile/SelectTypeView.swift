@@ -15,6 +15,8 @@ struct SelectTypeView: View {
     let selectedType: EventType?
     
     
+    
+    
     var body: some View {
         VStack(spacing: 0) {
             DropDownMenu {
@@ -38,7 +40,7 @@ struct SelectTypeView: View {
                             text: eventType.description.label
                         )
                         .foregroundStyle(selectedType == eventType ? .accent : .black)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         
                         .onTapGesture {
                             if isCustom { vm.showMessageScreen = true }
@@ -50,6 +52,7 @@ struct SelectTypeView: View {
                         SoftDivider()
                     }
                 }
+                
             }
         }
     }

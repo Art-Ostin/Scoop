@@ -655,8 +655,6 @@
 		6570CAE02F28FDF400CBEA67 /* NewFile */ = {
 			isa = PBXGroup;
 			children = (
-				65FE78D52F293C6C00DC2538 /* DropDownView.swift */,
-				65FE78CC2F292B0E00DC2538 /* ContentView.swift */,
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 			);
 			path = NewFile;
@@ -750,6 +748,7 @@
 		65A070502EE06A59009F798B /* CustomButtons */ = {
 			isa = PBXGroup;
 			children = (
+				65FE78D52F293C6C00DC2538 /* DropDownView.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
 				6537704F2E0A15270058D225 /* InviteButton.swift */,
@@ -834,6 +833,7 @@
 				65CA5E2C2F219AC400694981 /* EventInfo.swift */,
 				653A78542E131FDF0098747F /* EventDetailsView.swift */,
 				65CA5E2A2F21564700694981 /* FormatTimeAndPlace.swift */,
+				65FE78CC2F292B0E00DC2538 /* ContentView.swift */,
 				650884152EAD4EA000776620 /* PendingInviteView.swift */,
 				657731792F265D5800B309FC /* BlockedContainerOld.swift */,
 				6577317B2F265D6D00B309FC /* BlockedWithEvents.swift */,

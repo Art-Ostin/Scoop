@@ -18,11 +18,23 @@ struct InviteAddMessageView: View {
         
         VStack(alignment: .leading, spacing: 72) {
             HStack {
-                Text(vm.event.type?.description.label ?? "Select a type")
-                    .font(.body(24, .medium))
-                Image(systemName: "chevron.down")
-                    .font(.body(24, .medium))
-                    .foregroundStyle(.accent)
+                
+                Text("Type: ")
+                    .font(.body(18, .bold))
+                
+                Spacer()
+                
+                DropDownView(showOptions: $vm.showTypePopup) {
+                    HStack {
+                        Text(vm.event.type?.description.label ?? "Select a type")
+
+                        Image(systemName: "chevron.down")
+                            .font(.body(24, .bold))
+                            .foregroundStyle(.accent)
+                    }
+                } dropDown: {
+                    SelectTypeView(vm: vm, selectedType: vm.event.type)
+                }
             }
             .onTapGesture {  vm.showTypePopup.toggle() }
             
