@@ -36,7 +36,7 @@ struct AddMessageView: View {
                 
                 Spacer()
                 
-                DropDownView(showOptions: $showTypePopup) {
+                DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
                     dropdownTitle
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
@@ -54,6 +54,14 @@ struct AddMessageView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+            .overlay(alignment: .topLeading) {
+                Text("Hello World")
+                    .padding()
+                    .foregroundStyle(Color.grayPlaceholder)
+            }
+            
+            
+            
             OkDismissButton()
 //                .padding(.bottom, 36)
         }

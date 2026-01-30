@@ -93,6 +93,19 @@ enum EventType: String, CaseIterable, Codable, Hashable {
             return "Custom Meet"
         }
     }
+    
+    var textPlaceholder: String {
+        switch self {
+        case . drink:
+            return "Drink"
+        case .doubleDate:
+            return "Double Date"
+        case .socialMeet:
+            return "Social"
+        case .custom:
+            return "Custom Meet"
+        }
+    }
 }
 
 
