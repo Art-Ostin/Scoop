@@ -49,10 +49,10 @@ struct SelectTimeAndPlace: View {
                         .offset(x: -12, y: -48)
                 }
             
-            if vm.showTimePopup {
-                SelectTimeView(vm: $vm)
-                    .offset(y: 164)
-            }
+//            if vm.showTimePopup {
+//                SelectTimeView(vm: vm)
+//                    .offset(y: 164)
+//            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .toolbar(.hidden, for: .tabBar)
@@ -106,14 +106,19 @@ extension SelectTimeAndPlace {
 
             VStack(spacing: 12) {
                 DropDownView(showOptions: $vm.showTypePopup) {
-                    InviteTypeRow
+                    InviteTypeRow(vm: vm)
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
                 }
 
                 Divider()
-                InviteTimeRow
-                    .frame(height: rowHeight)
+                
+                DropDownView(showOptions: $vm.showTimePopup) {
+                    InviteTimeRow
+                        .frame(height: rowHeight)
+                } dropDown: {
+                    SelectTimeView(vm: vm)
+                }
                 Divider()
                 InvitePlaceRow
                     .frame(height: rowHeight)
@@ -140,54 +145,7 @@ extension SelectTimeAndPlace {
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         )
     }
-    
-    @ViewBuilder
-    private var InviteTypeRow: some View {
-        let event = vm.event
-        let trimmedMessage = (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        HStack {
-            //If there is a response in place
-            if let type = event.type, !trimmedMessage.isEmpty {
-                let title = Text(verbatim: "\(type.description.emoji ?? "") \(type.description.label): ")
-                    .font(.body(16, .bold))
 
-                let body = Text(" \(trimmedMessage)")
-                    .font(.body(12, .italic))
-                    .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.grayText)
-                
-                let newText = Text("  edit")
-                    .font(.body(12, .italic))
-                    .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
-
-                (title + body + newText)
-                    .lineSpacing(6)
-                    .contentShape(.rect)
-                    .onTapGesture { openMessageScreen() }
-                    .onLongPressGesture(minimumDuration: 0.1, pressing: { vm.isMessageTap = $0 },perform: {}) //Have no actual pressing
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            //Otherwise have this placeholder
-            else if let type = event.type?.description.label, let emoji = event.type?.description.emoji {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\(emoji) \(type)")
-                        .font(.body(18))
-                    Text("Add a Message")
-                        .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
-                        .font(.body(14))
-                        .onTapGesture { openMessageScreen() }
-                        .onLongPressGesture(minimumDuration: 0.1,
-                                            pressing: { vm.isMessageTap = $0 },
-                                            perform: {})
-                }
-            } else {
-                Text("Type").font(.body(20, .bold))
-            }
-            
-            Spacer()
-            
-            DropDownButton(isExpanded: $vm.showTypePopup)
-        }  
-    }
     
     private var InviteTimeRow: some View {
 
@@ -226,15 +184,6 @@ extension SelectTimeAndPlace {
             Spacer()
             Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
                 .onTapGesture { vm.showMapView.toggle() }
-        }
-    }
-    
-    private func openMessageScreen() {
-        vm.isMessageTap = true
-        vm.showTypePopup = false
-        vm.showMessageScreen.toggle()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            vm.isMessageTap = false
         }
     }
 }

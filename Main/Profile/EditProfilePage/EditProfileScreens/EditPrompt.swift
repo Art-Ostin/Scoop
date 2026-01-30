@@ -74,10 +74,11 @@ struct EditPrompt: View {
 }
 
 struct PromptGeneric: View {
-//    @FocusState var isFocused: Bool
+    @FocusState var isFocused: Bool
     @Binding var prompt: PromptResponse
     @State var showPrompts = false
     let promptIndex: Int
+    let maxChars = 110
 
     private var prompts: [String] {
         let p = Prompts.instance
@@ -95,7 +96,7 @@ struct PromptGeneric: View {
             }
         }
         .onAppear {
-//            isFocused = true
+            isFocused = true
             if prompt.prompt.isEmpty {prompt.prompt = prompts.randomElement() ?? "My Ideal Date"}
         }
         .padding(.top, 24)
@@ -125,34 +126,45 @@ extension PromptGeneric {
         .onTapGesture {showPrompts.toggle()}
     }
     
+//    @ViewBuilder
     private var textEditor: some View {
-        CustomTextBox(placeholder: "Type your response here", textBinding: $prompt.response, characterLimit: 110)
+        ZStack(alignment: .topLeading) {
+            TextEditor(text: $prompt.response)
+                .padding()
+                .scrollContentBackground(.hidden)
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+                .lineSpacing(8)
+                .font(.body(17, .medium))
+                .focused($isFocused)
+                .lineLimit(3)
+                .onChange(of: prompt.response) { _, newValue in
+                    if newValue.count > maxChars {
+                        prompt.response = String(newValue.prefix(maxChars))
+                    }
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    let remaining = max(0, maxChars - (prompt.response).count)
+                    if remaining <= 25 {
+                        Text("\(remaining)")
+                            .font(.body(14))
+                            .foregroundStyle(Color.warningYellow)
+                            .padding(.trailing, 12)
+                            .padding(.bottom, 10)
+                    }
+                }
+            
+            
+            if prompt.response.isEmpty {
+                Text("Type your response here")
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.grayPlaceholder)
+                // Match the TextEditor’s visual inset
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 24)
+                    .allowsHitTesting(false)
+            }
+        }
+        .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
     }
 }
-
-
-/*
- ZStack(alignment: .topLeading) {
-     TextEditor(text: $prompt.response)
-         .padding()
-         .scrollContentBackground(.hidden)
-         .frame(maxWidth: .infinity)
-         .frame(height: 120)
-         .lineSpacing(8)
-         .font(.body(17, .medium))
-         .focused($isFocused)
-         .lineLimit(3)
-     
-     if prompt.response.isEmpty {
-         Text("Type your response here")
-             .font(.body(17, .medium))
-             .foregroundStyle(Color.grayPlaceholder)
-         // Match the TextEditor’s visual inset (tweak if you want it tighter/looser)
-             .padding(.horizontal, 22)
-             .padding(.vertical, 24)
-             .allowsHitTesting(false)
-     }
- }
- .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
-
- */

@@ -31,7 +31,7 @@ struct FocusedTextView: UIViewRepresentable {
         tv.text = text
         tv.isScrollEnabled = true
         tv.alpha = 0
-        DispatchQueue.main.asyncAfter(deadline: .now()) { // + 0.05
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.062) { // makes it appear at same rate as screen. 
             tv.alpha = 1
             tv.becomeFirstResponder()
         }
