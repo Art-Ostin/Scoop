@@ -29,7 +29,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
     var body: some View {
         row()
             .frame(height: rowHeight)
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .trailing)
             .contentShape(.rect)
             .overlay(alignment: .top) {
                 dropdownRevealOverlay

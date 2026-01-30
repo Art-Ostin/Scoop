@@ -8,76 +8,116 @@
  
  import SwiftUI
 
-struct InviteAddMessageView: View {
+struct AddMessageView: View {
     
     @Binding var vm: TimeAndPlaceViewModel
-    
     @FocusState var isFocused: Bool
+    @State var showTypePopup: Bool = false
+    
+    private var messageBinding: Binding<String> {
+        Binding(
+            get: { vm.event.message ?? "" },
+            set: { vm.event.message = $0 }
+        )
+    }
+
+    
+    
+    
     var body: some View {
         
         
         VStack(alignment: .leading, spacing: 72) {
             HStack {
-                
-                Text("Type: ")
-                    .font(.body(18, .bold))
+                Text("Add Message")
+                    .font(.custom("SFProRounded-Bold", size: 24))
                 
                 Spacer()
                 
-                DropDownView(showOptions: $vm.showTypePopup) {
-                    HStack {
-                        Text(vm.event.type?.description.label ?? "Select a type")
-
-                        Image(systemName: "chevron.down")
-                            .font(.body(24, .bold))
-                            .foregroundStyle(.accent)
-                    }
+                DropDownView(showOptions: $showTypePopup) {
+                    dropdownTitle
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type)
                 }
             }
-            .onTapGesture {  vm.showTypePopup.toggle() }
-            
-            ZStack {
-                
-                
-                TextEditor(text: Binding(
-                    get: { vm.event.message ?? ""},
-                    set: { vm.event.message = $0}
-                ))
-                
-                if (vm.event.message ?? "").isEmpty {
-                    Text("Write a message here to give some info about the meet-up")
-                        .foregroundStyle(Color.grayPlaceholder)
-                        .offset(x: 9, y: -19)
-                        .allowsHitTesting(false)
-                        .font(.body(.regular))
-                        .lineSpacing(8)
-                }
-            }
-            .padding()
-            .background(Color.clear)
-            .font(.body(18))
-            .focused($isFocused)
-            .lineSpacing(CGFloat(3))
             .frame(maxWidth: .infinity)
-            .frame(height: 130)
-            .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
+            
+            TextEditor(text: messageBinding)
+                .padding()
+                .background(Color.clear).zIndex(0)
+                .font(.body(18))
+                .focused($isFocused)
+                .lineSpacing(CGFloat(3))
+                .frame(maxWidth: .infinity)
+                .frame(height: 130)
+                .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+            
             
             OkDismissButton()
+                .padding(.bottom, 12)
         }
-        .padding(.top, 24)
-        .padding(.horizontal, 32)
-        .overlay(alignment: .topLeading) {
-            if vm.showTypePopup {
-                SelectTypeView(vm: vm, selectedType: vm.event.type)
-                    .padding(.top, 12)
-            }
-        }
-        .onAppear {
-            isFocused = true
-        }
+        .padding(.top, 84)
+        .padding(.horizontal, 24)
+        .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 72) 
     }
 }
+
+extension AddMessageView {
+    
+    @ViewBuilder
+    private var dropdownTitle: some View {
+        let emoji = vm.event.type?.description.emoji ?? ""
+        let type = vm.event.type?.description.label ?? "Select"
+        
+        HStack(spacing: 10) {
+            Text("\(emoji) \(type)")
+                .foregroundStyle(.black)
+                .font(.body(17))
+            
+            DropDownButton(isExpanded: $showTypePopup)
+        }
+    }
+}
+
+
+/*
+ 
+ 
+ 
+ 
+ ZStack {
+     
+     
+     TextEditor(text: Binding(
+         get: { vm.event.message ?? ""},
+         set: { vm.event.message = $0}
+     ))
+     
+     if (vm.event.message ?? "").isEmpty {
+         Text("Write a message here to give some info about the meet-up")
+             .foregroundStyle(Color.grayPlaceholder)
+             .offset(x: 9, y: -19)
+             .allowsHitTesting(false)
+             .font(.body(.regular))
+             .lineSpacing(8)
+     }
+ }
+ .padding()
+ .background(Color.clear)
+ .font(.body(18))
+ .focused($isFocused)
+ .lineSpacing(CGFloat(3))
+ .frame(maxWidth: .infinity)
+ .frame(height: 130)
+ .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
+ 
+ OkDismissButton()
+}
+.onAppear {
+ isFocused = true
+}
+.frame(maxHeight: .infinity, alignment: .top)
+.padding(.top, 72)
+
+ */

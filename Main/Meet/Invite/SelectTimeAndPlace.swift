@@ -15,7 +15,6 @@ import MapKit
     var showAlert: Bool = false
     var isMessageTap: Bool = false
     
-
     init(text: String, profile: ProfileModel? = nil) {
         self.text = text
         self.profile = profile
@@ -58,7 +57,7 @@ struct SelectTimeAndPlace: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .toolbar(.hidden, for: .tabBar)
         .tabBarHidden(true) // This is custom Tool bar hidden
-        .sheet(isPresented: $vm.showMessageScreen) {InviteAddMessageView(vm: $vm)}
+        .sheet(isPresented: $vm.showMessageScreen) {AddMessageView(vm: $vm)}
         .fullScreenCover(isPresented: $vm.showMapView) {MapView(vm2: $vm)}
         .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
         .alert("Event Commitment", isPresented: $vm.showAlert) {
@@ -237,39 +236,3 @@ extension SelectTimeAndPlace {
         }
     }
 }
-
-/*
- //            if event.type == nil && event.message == nil {
- //                Image("InviteType")
- //            }
- //
- //            Image((event.type == nil) && event.message == nil ? "InviteType" : "EditButton")
- //                .onTapGesture {vm.showTypePopup.toggle()}
-
- */
-
-/*
- if vm.showTypePopup {
-     SelectTypeView(vm: vm, selectedType: vm.event.type)
-//                    .transition(.dropDownExpand)
-         .zIndex(1)
-         .offset(y: 48)
- }
- */
-
-/*
- (
-     Text(verbatim: " \(type.description.emoji ?? "") \(type.description.label): ")
-         .font(.body(16, .bold))
-     + Text(verbatim: " " + message)
-         .font(.body(12, .italic))
-         .foregroundStyle(Color.grayText)
- )
- .overlay(alignment: .bottomTrailing) {
-     Image("EditButton")
-         .resizable()
-         .scaledToFit()
-         .frame(width: 10, height: 10)
-         .offset(x: -10, y: 12)
- }
- */
