@@ -10,7 +10,7 @@
 
 
 import SwiftUI
-
+import UIKit
 
 
 
@@ -91,5 +91,11 @@ extension Font {
     
     static func tabTitle(_ size: CGFloat = 32, weight: tabTitleType = .title) -> Font {
         .custom(weight.rawValue, size: size)
+    }
+}
+
+extension UIFont {
+    static func body(_ size: CGFloat = 16, _ weight: Font.bodyFontWeight = .medium) -> UIFont {
+        UIFont(name: weight.rawValue, size: size) ?? .systemFont(ofSize: size)
     }
 }

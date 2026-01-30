@@ -113,6 +113,7 @@
 		6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */; };
 		6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */; };
 		6577D8012E21C8C400FFCF82 /* DropDownMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */; };
+		657B8D492F2CF3EC00583ADA /* FocusedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
 		658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */; };
 		658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */; };
@@ -323,6 +324,7 @@
 		6578382C2DE773CC00770B49 /* Scoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838392DE773CE00770B49 /* ScoopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838432DE773CE00770B49 /* ScoopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextView.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
 		658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollNavBar.swift; sourceTree = "<group>"; };
@@ -653,13 +655,6 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
-		6570CAE02F28FDF400CBEA67 /* NewFile */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = NewFile;
-			sourceTree = "<group>";
-		};
 		657731782F265C9100B309FC /* BlockedApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -672,7 +667,6 @@
 		6577D7D42E203EF300FFCF82 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				6570CAE02F28FDF400CBEA67 /* NewFile */,
 				65A070502EE06A59009F798B /* CustomButtons */,
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
 				6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */,
@@ -694,6 +688,7 @@
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				651975942F1FC67E0002F6A2 /* ExpandTapArea.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
+				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
 				651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */,
 				65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */,
 				653606422F23CCDA006334D6 /* FrozenExtension.swift */,
@@ -1110,6 +1105,7 @@
 				6509DDC32E36F6EE0042917B /* OptionEdit.swift in Sources */,
 				65A0704D2EE0631A009F798B /* pageIndicator.swift in Sources */,
 				65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */,
+				657B8D492F2CF3EC00583ADA /* FocusedTextView.swift in Sources */,
 				6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */,
 				65E5C8F22E4E79550093410B /* TabSelectionKey.swift in Sources */,
 				65E5C91E2E5100FC0093410B /* CycleModel.swift in Sources */,

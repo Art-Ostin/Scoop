@@ -23,9 +23,8 @@ struct AddMessageView: View {
 
     var body: some View {
         
-        
         VStack(alignment: .leading, spacing: 48) {
-            HStack(alignment: .bottom) {
+            HStack(alignment: .firstTextBaseline) {
                 Text("Add Message")
                     .font(.custom("SFProRounded-Bold", size: 24))
                 
@@ -35,6 +34,7 @@ struct AddMessageView: View {
                     dropdownTitle
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
+                        .offset(x: -48)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -42,7 +42,7 @@ struct AddMessageView: View {
             
             FocusedTextView(
                 text: messageBinding,
-                font: UIFont.systemFont(ofSize: 18),
+                font: .body(18),
                 lineSpacing: 3
             )
             .padding()
@@ -99,65 +99,6 @@ extension AddMessageView {
 }
 
 
-struct FocusedTextView: UIViewRepresentable {
-    @Binding var text: String
-    var font: UIFont
-    var lineSpacing: CGFloat
-
-    func makeUIView(context: Context) -> UITextView {
-        let tv = UITextView()
-        tv.delegate = context.coordinator
-        tv.backgroundColor = .clear
-        tv.font = font
-        tv.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
-        tv.text = text
-        tv.isScrollEnabled = true
-
-        DispatchQueue.main.async {
-            tv.becomeFirstResponder()
-        }
-
-        applyParagraphStyle(to: tv)
-        return tv
-    }
-
-    func updateUIView(_ uiView: UITextView, context: Context) {
-        if uiView.text != text {
-            uiView.text = text
-        }
-        if uiView.font != font {
-            uiView.font = font
-        }
-        applyParagraphStyle(to: uiView)
-    }
-
-    private func applyParagraphStyle(to textView: UITextView) {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.lineSpacing = lineSpacing
-
-        let attributed = NSAttributedString(
-            string: textView.text ?? "",
-            attributes: [
-                .font: font,
-                .paragraphStyle: paragraph
-            ]
-        )
-        textView.attributedText = attributed
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text)
-    }
-
-    final class Coordinator: NSObject, UITextViewDelegate {
-        @Binding var text: String
-        init(text: Binding<String>) { _text = text }
-
-        func textViewDidChange(_ textView: UITextView) {
-            text = textView.text
-        }
-    }
-}
 
 
 
