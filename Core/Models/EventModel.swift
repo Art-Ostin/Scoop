@@ -99,11 +99,11 @@ enum EventType: String, CaseIterable, Codable, Hashable {
         case . drink:
             return "E.g. Lets get a drink"
         case .doubleDate:
-            return "E.g. My friends instagram is @..., what's yours & let do a double dateee"
+            return "E.g. My friends instagram is @, let do a double dateee if you're dow!"
         case .socialMeet:
             return "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
         case .custom:
-            return "E.g. Throwing a house party on Friday come with your friends"
+            return "E.g. Throwing a house party on Friday, you should come along with your friends"
         }
     }
 }

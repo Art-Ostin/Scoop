@@ -32,12 +32,14 @@ struct AddMessageView: View {
 
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 48) {
+        VStack(alignment: .leading, spacing: 36) {
             headerSection
             
             textFieldSection
+                .padding(.top, 24)
             
             OkDismissButton()
+            
         }
         .overlay(alignment: .topTrailing) {
             if showSaved {
@@ -45,7 +47,7 @@ struct AddMessageView: View {
                     .offset(y: -36)
             }
         }
-        .padding(.top, 84)
+        .padding(.top, 96)
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
         .animation(.easeInOut(duration: 0.2), value: showTypePopup)
@@ -127,60 +129,3 @@ extension AddMessageView {
         .zIndex(1)
     }
 }
-
-
-
-
-
-/*
- 
- //
- //            TextEditor(text: messageBinding)
- //                .padding()
- //                .background(Color.clear).zIndex(0)
- //                .font(.body(18))
- //                .focused($isFocused)
- //                .lineSpacing(CGFloat(3))
- //                .frame(maxWidth: .infinity)
- //                .frame(height: 130)
- //                .stroke(12, lineWidth: 1, color: .grayPlaceholder)
-             
-             
-
- 
- 
- ZStack {
-     
-     
-     TextEditor(text: Binding(
-         get: { vm.event.message ?? ""},
-         set: { vm.event.message = $0}
-     ))
-     
-     if (vm.event.message ?? "").isEmpty {
-         Text("Write a message here to give some info about the meet-up")
-             .foregroundStyle(Color.grayPlaceholder)
-             .offset(x: 9, y: -19)
-             .allowsHitTesting(false)
-             .font(.body(.regular))
-             .lineSpacing(8)
-     }
- }
- .padding()
- .background(Color.clear)
- .font(.body(18))
- .focused($isFocused)
- .lineSpacing(CGFloat(3))
- .frame(maxWidth: .infinity)
- .frame(height: 130)
- .background (RoundedRectangle(cornerRadius: 12).stroke(Color.grayPlaceholder, lineWidth: 1))
- 
- OkDismissButton()
-}
-.onAppear {
- isFocused = true
-}
-.frame(maxHeight: .infinity, alignment: .top)
-.padding(.top, 72)
-
- */
