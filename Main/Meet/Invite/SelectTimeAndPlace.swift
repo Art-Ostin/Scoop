@@ -145,13 +145,12 @@ extension SelectTimeAndPlace {
     private var InviteTypeRow: some View {
         let event = vm.event
         return HStack {
-            
             //If there is a response in place
             if let type = event.type, let message = event.message {
-                let title = Text(verbatim: " \(type.description.emoji ?? "") \(type.description.label): ")
+                let title = Text(verbatim: "\(type.description.emoji ?? "") \(type.description.label): ")
                     .font(.body(16, .bold))
 
-                let body = Text(verbatim: " " + message)
+                let body = Text(message)
                     .font(.body(12, .italic))
                     .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.grayText)
                 
@@ -162,17 +161,9 @@ extension SelectTimeAndPlace {
                 (title + body + newText)
                     .lineSpacing(6)
                     .contentShape(.rect)
-                    .onTapGesture {
-                        vm.isMessageTap = true
-                        vm.showTypePopup = false
-                        vm.showMessageScreen.toggle()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            vm.isMessageTap = false
-                        }
-                    }
-                    .onLongPressGesture(minimumDuration: 0.1,
-                                        pressing: { vm.isMessageTap = $0 },
-                                        perform: {})
+                    .onTapGesture { openMessageScreen() }
+                    .onLongPressGesture(minimumDuration: 0.1, pressing: { vm.isMessageTap = $0 },perform: {}) //Have no actual pressing
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             //Otherwise have this placeholder
             else if let type = event.type?.description.label, let emoji = event.type?.description.emoji {
@@ -180,11 +171,12 @@ extension SelectTimeAndPlace {
                     Text("\(emoji) \(type)")
                         .font(.body(18))
                     Text("Add a Message")
-                        .foregroundStyle(.accent).font(.body(14))
-                        .onTapGesture {
-                            vm.showTypePopup = false
-                            vm.showMessageScreen.toggle()
-                        }
+                        .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
+                        .font(.body(14))
+                        .onTapGesture { openMessageScreen() }
+                        .onLongPressGesture(minimumDuration: 0.1,
+                                            pressing: { vm.isMessageTap = $0 },
+                                            perform: {})
                 }
             } else {
                 Text("Type").font(.body(20, .bold))
@@ -233,6 +225,15 @@ extension SelectTimeAndPlace {
             Spacer()
             Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
                 .onTapGesture { vm.showMapView.toggle() }
+        }
+    }
+    
+    private func openMessageScreen() {
+        vm.isMessageTap = true
+        vm.showTypePopup = false
+        vm.showMessageScreen.toggle()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            vm.isMessageTap = false
         }
     }
 }
