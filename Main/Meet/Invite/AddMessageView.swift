@@ -21,9 +21,6 @@ struct AddMessageView: View {
         )
     }
 
-    
-    
-    
     var body: some View {
         
         
@@ -37,10 +34,11 @@ struct AddMessageView: View {
                 DropDownView(showOptions: $showTypePopup) {
                     dropdownTitle
                 } dropDown: {
-                    SelectTypeView(vm: vm, selectedType: vm.event.type)
+                    SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
                 }
             }
             .frame(maxWidth: .infinity)
+            .zIndex(1)
             
             TextEditor(text: messageBinding)
                 .padding()
@@ -54,13 +52,19 @@ struct AddMessageView: View {
             
             
             OkDismissButton()
-                .padding(.bottom, 12)
+                .padding(.bottom, 36)
         }
         .padding(.top, 84)
         .padding(.horizontal, 24)
-        .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment: .top)
     }
+    
+    /*
+     .task {
+         await Task.yield()
+         isFocused = true
+     }
+     */
 }
 
 extension AddMessageView {
@@ -74,6 +78,10 @@ extension AddMessageView {
             Text("\(emoji) \(type)")
                 .foregroundStyle(.black)
                 .font(.body(17))
+                .contentShape(.rect)
+                .onTapGesture {
+                    showTypePopup = true
+                }
             
             DropDownButton(isExpanded: $showTypePopup)
         }

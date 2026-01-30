@@ -14,7 +14,7 @@ struct SelectTypeView: View {
     
     let selectedType: EventType?
     
-    
+    @Binding var showTypePopup: Bool
     
     
     var body: some View {
@@ -34,7 +34,7 @@ struct SelectTypeView: View {
                                 vm.showMessageScreen = true
                             }
                             vm.event.type = eventType
-                            vm.showTypePopup.toggle()
+                            showTypePopup.toggle()
                         }
                     if index < EventType.allCases.count - 1 {
                         SoftDivider()

@@ -108,7 +108,7 @@ extension SelectTimeAndPlace {
                 DropDownView(showOptions: $vm.showTypePopup) {
                     InviteTypeRow
                 } dropDown: {
-                    SelectTypeView(vm: vm, selectedType: vm.event.type)
+                    SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
                 }
 
                 Divider()
