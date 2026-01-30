@@ -63,7 +63,13 @@ extension SelectTimeView {
         let isToday = Calendar.current.isDateInToday(day)
         let isSelected = selectedDay == idx
         Button {
-            if !isToday { selectedDay = idx }
+            if !isToday {
+                if selectedDay == idx {
+                    selectedDay = nil
+                } else {
+                    selectedDay = idx
+                }
+            }
         } label : {
             Text(day, format: .dateTime.day())
                 .font(.body(18, isSelected ? .bold : .medium))
@@ -80,7 +86,7 @@ extension SelectTimeView {
     private var timePicker: some View {
         HStack {
             Picker("Hour", selection: $hour) {
-                ForEach(availableHours, id: \.self) { h in
+                ForEach(0..<24, id: \.self) { h in
                     Text(String(format: "%02d", h)).tag(h)
                 }
             }
@@ -94,7 +100,8 @@ extension SelectTimeView {
         .pickerStyle(.wheel)
         .frame(width: 160, height: 130)
         .labelsHidden()
-        .tint(Color.red)
+        .tint(.appRed)
+        .accentColor(.appRed)
     }
 }
 

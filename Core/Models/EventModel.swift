@@ -13,7 +13,7 @@ struct EventDraft: Equatable {
     var recipientId: String?
     var type: EventType?
     var message: String?
-    var time: Date?
+    var proposedTimes: [Date]?
     var location: EventLocation?
     var status: EventStatus = .pending
     var inviteExpiryTime: Date?
@@ -27,15 +27,16 @@ struct Event: Identifiable, Codable {
     var initiatorId: String
     var recipientId: String
     var type: EventType
-    var time: Date
+    var proposedTimes: [Date]
+    var acceptedTime: Date?
     var location: EventLocation
     var status: EventStatus = .pending
     var inviteExpiryTime: Date
     var canText: Bool = false
     var message: String?
+    var timeProposalHistory: [Int: [Date]] = [:]
     var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible to track e.g. how many 'cancel's or 'no shows.
     @ServerTimestamp var date_created: Date?
-    
     enum Field: String {
         case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time, earlyTerminatorID
     }
@@ -48,7 +49,7 @@ extension Event {
             initiatorId: draft.initiatorId ?? "",
             recipientId: draft.recipientId ?? "",
             type: draft.type ?? .custom,
-            time: draft.time ?? Date(),
+            proposedTimes: draft.proposedTimes ?? [Date()],
             location: draft.location ?? EventLocation(mapItem: MKMapItem()),
             status: draft.status,
             inviteExpiryTime:  draft.inviteExpiryTime ?? Date().addingTimeInterval(24 * 60 * 60),
