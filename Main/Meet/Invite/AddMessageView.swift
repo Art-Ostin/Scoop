@@ -18,6 +18,9 @@ struct AddMessageView: View {
     @State var showSaved: Bool = false
     @State var hasEditedThisSession: Bool = false
     @State private var keyPressToken = 0
+    
+    private let messageLimit = 130
+    private let warningThreshold = 25
 
     
     private var messageBinding: Binding<String> {
@@ -45,22 +48,23 @@ struct AddMessageView: View {
             .frame(maxWidth: .infinity)
             .zIndex(1)
             
-            FocusedTextView(
-                text: messageBinding,
-                font: .body(18),
-                lineSpacing: 5,
-                maxLength: 120,
-                placeholder: vm.event.type?.textPlaceholder
-            )
+            FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5,maxLength: messageLimit, placeholder: vm.event.type?.textPlaceholder)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .stroke(12, lineWidth: 1, color: .grayPlaceholder)
-            
-            
+            .overlay(alignment: .bottomTrailing) {
+                let remaining = max(0, messageLimit - (vm.event.message ?? "").count)
+                if remaining <= warningThreshold {
+                    Text("\(remaining)")
+                        .font(.body(14))
+                        .foregroundStyle(Color.warningYellow)
+                        .padding(.trailing, 12)
+                        .padding(.bottom, 10)
+                }
+            }
             
             OkDismissButton()
-//                .padding(.bottom, 36)
         }
         .overlay(alignment: .topTrailing) {
             if showSaved {
@@ -72,6 +76,8 @@ struct AddMessageView: View {
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
         .animation(.easeInOut(duration: 0.2), value: showTypePopup)
+        
+        //All Logic dealing with SavedIcon
         .task(id: vm.event) {
             guard hasEditedThisSession else { return }
             if keyPressToken != 0 {
