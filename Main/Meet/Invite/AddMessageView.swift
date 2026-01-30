@@ -49,6 +49,7 @@ struct AddMessageView: View {
                 text: messageBinding,
                 font: .body(18),
                 lineSpacing: 5,
+                maxLength: 120,
                 placeholder: vm.event.type?.textPlaceholder
             )
             .padding()
