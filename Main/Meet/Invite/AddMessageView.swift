@@ -110,7 +110,18 @@ extension AddMessageView {
                         .padding(.bottom, 10)
                 }
             }
-    }
+            .overlay(alignment: .topTrailing) {
+                    Button {
+                        vm.event.message = ""
+                    } label: {
+                        Image(systemName: "trash")
+                            .padding(5)
+                            .font(.body(14, .bold))
+                            .foregroundStyle(.accent)
+                    }
+                
+                }
+            }
     
     private var headerSection: some View {
         HStack(alignment: .firstTextBaseline) {
@@ -124,6 +135,7 @@ extension AddMessageView {
             } dropDown: {
                 SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
             }
+//            .offset(y: 60) //Optional layout change so below
         }
         .frame(maxWidth: .infinity)
         .zIndex(1)
