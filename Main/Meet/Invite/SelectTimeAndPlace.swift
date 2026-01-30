@@ -49,10 +49,6 @@ struct SelectTimeAndPlace: View {
                         .offset(x: -12, y: -48)
                 }
             
-//            if vm.showTimePopup {
-//                SelectTimeView(vm: vm)
-//                    .offset(y: 164)
-//            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .toolbar(.hidden, for: .tabBar)
@@ -114,10 +110,11 @@ extension SelectTimeAndPlace {
                 Divider()
                 
                 DropDownView(showOptions: $vm.showTimePopup) {
-                    InviteTimeRow
+                    InviteTimeRow(vm: vm)
                         .frame(height: rowHeight)
                 } dropDown: {
                     SelectTimeView(vm: vm)
+                        .zIndex(2)
                 }
                 Divider()
                 InvitePlaceRow
@@ -136,35 +133,16 @@ extension SelectTimeAndPlace {
         .padding(.top, 24)
         .padding([.leading, .trailing, .bottom], 32)
         .frame(width: 365)
-        .background(Color.background)
-        .cornerRadius(30)
-        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+        .background(
+            RoundedRectangle(cornerRadius: 30)
+                .fill(Color.background)
+                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 30)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         )
-    }
-
-    
-    private var InviteTimeRow: some View {
-
-        let time = vm.event.time
-        
-        return HStack {
-            if time != nil { Text(formatTime(date: time)).font(.body(18))
-            } else {Text("Time").font(.body(20, .bold))}
-            
-            Spacer()
-            
-            if vm.showTimePopup {
-                Image(systemName: "chevron.down")
-                    .onTapGesture {vm.showTimePopup.toggle() }
-            } else {
-                Image(time == nil ? "InviteTime" : "EditButton")
-                    .onTapGesture {vm.showTimePopup.toggle() }
-            }
-        }
     }
     
     private var InvitePlaceRow: some View {
@@ -187,3 +165,35 @@ extension SelectTimeAndPlace {
         }
     }
 }
+
+/*
+ 
+ private var InviteTimeRow: some View {
+
+     let time = vm.event.time
+     
+     return HStack {
+         if time != nil { Text(formatTime(date: time)).font(.body(18))
+         } else {Text("Time").font(.body(20, .bold))}
+         
+         Spacer()
+         
+         if vm.showTimePopup {
+             Image(systemName: "chevron.down")
+                 .onTapGesture {vm.showTimePopup.toggle() }
+         } else {
+             Image(time == nil ? "InviteTime" : "EditButton")
+                 .onTapGesture {vm.showTimePopup.toggle() }
+         }
+     }
+ }
+
+ */
+
+/*
+ //            if vm.showTimePopup {
+ //                SelectTimeView(vm: vm)
+ //                    .offset(y: 164)
+ //            }
+
+ */
