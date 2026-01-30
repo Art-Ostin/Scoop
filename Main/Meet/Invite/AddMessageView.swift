@@ -85,7 +85,7 @@ extension AddMessageView {
                 .font(.body(17))
                 .contentShape(.rect)
                 .onTapGesture {
-                    showTypePopup = true
+                    showTypePopup.toggle()
                 }
             
             DropDownButton(isExpanded: $showTypePopup)
@@ -93,7 +93,7 @@ extension AddMessageView {
     }
     
     private var textFieldSection: some View {
-        FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5,maxLength: messageLimit, placeholder: vm.event.type?.textPlaceholder)
+        FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: vm.event.type?.textPlaceholder)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)

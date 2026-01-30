@@ -14,6 +14,7 @@ struct FocusedTextView: UIViewRepresentable {
     @Binding var text: String
     var font: UIFont
     var lineSpacing: CGFloat
+    var placeholderLineSpacing: CGFloat? = nil
     var maxLength: Int? = nil
     var placeholder: String? = nil
     var placeholderColor: UIColor = .placeholderText
@@ -35,7 +36,13 @@ struct FocusedTextView: UIViewRepresentable {
             tv.becomeFirstResponder()
         }
         applyParagraphStyle(to: tv)
-        context.coordinator.configurePlaceholderLabel(in: tv, placeholder: placeholder, font: font, color: placeholderColor)
+        context.coordinator.configurePlaceholderLabel(
+            in: tv,
+            placeholder: placeholder,
+            font: font,
+            color: placeholderColor,
+            lineSpacing: placeholderLineSpacing ?? lineSpacing
+        )
         context.coordinator.updatePlaceholderVisibility(for: tv, placeholder: placeholder)
         return tv
     }
@@ -47,7 +54,13 @@ struct FocusedTextView: UIViewRepresentable {
         if uiView.font != font {
             uiView.font = font
         }
-        context.coordinator.configurePlaceholderLabel(in: uiView, placeholder: placeholder, font: font, color: placeholderColor)
+        context.coordinator.configurePlaceholderLabel(
+            in: uiView,
+            placeholder: placeholder,
+            font: font,
+            color: placeholderColor,
+            lineSpacing: placeholderLineSpacing ?? lineSpacing
+        )
         context.coordinator.updatePlaceholderVisibility(for: uiView, placeholder: placeholder)
         applyParagraphStyle(to: uiView)
     }
@@ -117,7 +130,8 @@ struct FocusedTextView: UIViewRepresentable {
             in textView: UITextView,
             placeholder: String?,
             font: UIFont,
-            color: UIColor
+            color: UIColor,
+            lineSpacing: CGFloat
         ) {
             guard let placeholder else {
                 placeholderLabel?.removeFromSuperview()
@@ -126,6 +140,16 @@ struct FocusedTextView: UIViewRepresentable {
             }
 
             let label = placeholderLabel ?? UILabel()
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineSpacing = lineSpacing
+            label.attributedText = NSAttributedString(
+                string: placeholder,
+                attributes: [
+                    .font: font,
+                    .foregroundColor: color,
+                    .paragraphStyle: paragraph
+                ]
+            )
             label.text = placeholder
             label.textColor = color
             label.font = font
