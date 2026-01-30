@@ -111,7 +111,7 @@ extension SelectTimeAndPlace {
                 
                 DropDownView(showOptions: $vm.showTimePopup) {
                     InviteTimeRow(vm: vm)
-                        .frame(height: rowHeight)
+//                        .frame(height: rowHeight)
                 } dropDown: {
                     SelectTimeView(vm: vm)
                         .zIndex(2)
@@ -133,15 +133,15 @@ extension SelectTimeAndPlace {
         .padding(.top, 24)
         .padding([.leading, .trailing, .bottom], 32)
         .frame(width: 365)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.background)
-                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 30)
-                .inset(by: 0.5)
-                .stroke(Color.grayBackground, lineWidth: 0.5)
+        .background (
+            ZStack { //Background done like this to fix bugs when popping up
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(Color.background)
+                    .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+                RoundedRectangle(cornerRadius: 30)
+                    .inset(by: 0.5)
+                    .stroke(Color.grayBackground, lineWidth: 0.5)
+            }
         )
     }
     
