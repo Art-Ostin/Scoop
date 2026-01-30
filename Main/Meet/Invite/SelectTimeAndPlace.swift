@@ -141,15 +141,17 @@ extension SelectTimeAndPlace {
         )
     }
     
+    @ViewBuilder
     private var InviteTypeRow: some View {
         let event = vm.event
-        return HStack {
+        let trimmedMessage = (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        HStack {
             //If there is a response in place
-            if let type = event.type, let message = event.message {
+            if let type = event.type, !trimmedMessage.isEmpty {
                 let title = Text(verbatim: "\(type.description.emoji ?? "") \(type.description.label): ")
                     .font(.body(16, .bold))
 
-                let body = Text(message)
+                let body = Text(" \(trimmedMessage)")
                     .font(.body(12, .italic))
                     .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.grayText)
                 

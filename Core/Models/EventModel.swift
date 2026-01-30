@@ -97,13 +97,13 @@ enum EventType: String, CaseIterable, Codable, Hashable {
     var textPlaceholder: String {
         switch self {
         case . drink:
-            return "Drink"
+            return "E.g. Lets get a drink"
         case .doubleDate:
-            return "Double Date"
+            return "E.g. Bring your friend along, I'll bring mine. Their instagram is @..."
         case .socialMeet:
-            return "Social"
+            return "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
         case .custom:
-            return "Custom Meet"
+            return "E.g. Throwing a house party on Friday come with your friends"
         }
     }
 }

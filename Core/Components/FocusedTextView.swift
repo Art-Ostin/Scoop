@@ -7,11 +7,16 @@
 
 import SwiftUI
 
+
+//AI Code here 
 struct FocusedTextView: UIViewRepresentable {
     @Binding var text: String
     var font: UIFont
     var lineSpacing: CGFloat
-
+    var placeholder: String? = nil
+    var placeholderColor: UIColor = .placeholderText
+    
+    
     func makeUIView(context: Context) -> UITextView {
         let tv = UITextView()
         tv.delegate = context.coordinator
@@ -26,6 +31,8 @@ struct FocusedTextView: UIViewRepresentable {
             tv.becomeFirstResponder()
         }
         applyParagraphStyle(to: tv)
+        context.coordinator.configurePlaceholderLabel(in: tv, placeholder: placeholder, font: font, color: placeholderColor)
+        context.coordinator.updatePlaceholderVisibility(for: tv, placeholder: placeholder)
         return tv
     }
 
@@ -36,6 +43,8 @@ struct FocusedTextView: UIViewRepresentable {
         if uiView.font != font {
             uiView.font = font
         }
+        context.coordinator.configurePlaceholderLabel(in: uiView, placeholder: placeholder, font: font, color: placeholderColor)
+        context.coordinator.updatePlaceholderVisibility(for: uiView, placeholder: placeholder)
         applyParagraphStyle(to: uiView)
     }
 
@@ -59,10 +68,57 @@ struct FocusedTextView: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var text: String
+        private var placeholderLabel: UILabel?
         init(text: Binding<String>) { _text = text }
 
         func textViewDidChange(_ textView: UITextView) {
             text = textView.text
+            updatePlaceholderVisibility(for: textView, placeholder: placeholderLabel?.text)
+                }
+
+                func configurePlaceholderLabel(
+                    in textView: UITextView,
+                    placeholder: String?,
+                    font: UIFont,
+                    color: UIColor
+                ) {
+                    guard let placeholder else {
+                        placeholderLabel?.removeFromSuperview()
+                        placeholderLabel = nil
+                        return
+                    }
+
+                    let label = placeholderLabel ?? UILabel()
+                    label.text = placeholder
+                    label.textColor = color
+                    label.font = font
+                    label.numberOfLines = 0
+                    label.translatesAutoresizingMaskIntoConstraints = false
+
+                    if placeholderLabel == nil {
+                        textView.addSubview(label)
+                        NSLayoutConstraint.activate([
+                            label.topAnchor.constraint(
+                                equalTo: textView.topAnchor,
+                                constant: textView.textContainerInset.top
+                            ),
+                            label.leadingAnchor.constraint(
+                                equalTo: textView.leadingAnchor,
+                                constant: textView.textContainerInset.left + textView.textContainer.lineFragmentPadding
+                            ),
+                            label.trailingAnchor.constraint(
+                                equalTo: textView.trailingAnchor,
+                                constant: -(textView.textContainerInset.right + textView.textContainer.lineFragmentPadding)
+                            )
+                        ])
+                        placeholderLabel = label
+                    }
+                }
+
+                func updatePlaceholderVisibility(for textView: UITextView, placeholder: String?) {
+                    guard let placeholderLabel else { return }
+                    let hasText = !(textView.text ?? "").isEmpty
+                    placeholderLabel.isHidden = hasText || placeholder?.isEmpty == true
         }
     }
 }

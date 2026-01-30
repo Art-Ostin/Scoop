@@ -48,17 +48,13 @@ struct AddMessageView: View {
             FocusedTextView(
                 text: messageBinding,
                 font: .body(18),
-                lineSpacing: 3
+                lineSpacing: 5,
+                placeholder: vm.event.type?.textPlaceholder
             )
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .stroke(12, lineWidth: 1, color: .grayPlaceholder)
-            .overlay(alignment: .topLeading) {
-                Text("Hello World")
-                    .padding()
-                    .foregroundStyle(Color.grayPlaceholder)
-            }
             
             
             
