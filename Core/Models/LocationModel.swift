@@ -9,7 +9,7 @@
 
 import MapKit
 
-struct EventLocation: Codable {
+struct EventLocation: Equatable, Codable {
     var name: String?
     var latitude: Double
     var longitude: Double

@@ -7,12 +7,18 @@
 
  
 import SwiftUI
+import UIKit
 
 struct AddMessageView: View {
     
     @Binding var vm: TimeAndPlaceViewModel
-    @FocusState var isFocused: Bool
     @State var showTypePopup: Bool = false
+    
+    
+    @State var showSaved: Bool = false
+    @State var hasEditedThisSession: Bool = false
+    @State private var keyPressToken = 0
+
     
     private var messageBinding: Binding<String> {
         Binding(
@@ -34,7 +40,6 @@ struct AddMessageView: View {
                     dropdownTitle
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
-                        .offset(x: -48)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -49,32 +54,38 @@ struct AddMessageView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .stroke(12, lineWidth: 1, color: .grayPlaceholder)
-//
-//            TextEditor(text: messageBinding)
-//                .padding()
-//                .background(Color.clear).zIndex(0)
-//                .font(.body(18))
-//                .focused($isFocused)
-//                .lineSpacing(CGFloat(3))
-//                .frame(maxWidth: .infinity)
-//                .frame(height: 130)
-//                .stroke(12, lineWidth: 1, color: .grayPlaceholder)
-            
-            
             OkDismissButton()
 //                .padding(.bottom, 36)
+        }
+        .overlay(alignment: .topTrailing) {
+            if showSaved {
+                SavedIcon(topPadding: 0, horizontalPadding: 0)
+                    .offset(y: -36)
+            }
         }
         .padding(.top, 84)
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
+        .animation(.easeInOut(duration: 0.2), value: showTypePopup)
+        .task(id: vm.event) {
+            guard hasEditedThisSession else { return }
+            if keyPressToken != 0 {
+                withAnimation(.smooth()) { showSaved = true }
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                withAnimation(.smooth()) { showSaved = false}
+            }
+        }
+        .onAppear {
+            hasEditedThisSession = false
+            showSaved = false
+        }
+        .onChange(of: vm.event) {
+            hasEditedThisSession = true
+            keyPressToken &+= 1
+        }
     }
     
-    /*
-     .task {
-         await Task.yield()
-         isFocused = true
-     }
-     */
+    
 }
 
 extension AddMessageView {
@@ -104,7 +115,19 @@ extension AddMessageView {
 
 /*
  
- 
+ //
+ //            TextEditor(text: messageBinding)
+ //                .padding()
+ //                .background(Color.clear).zIndex(0)
+ //                .font(.body(18))
+ //                .focused($isFocused)
+ //                .lineSpacing(CGFloat(3))
+ //                .frame(maxWidth: .infinity)
+ //                .frame(height: 130)
+ //                .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+             
+             
+
  
  
  ZStack {

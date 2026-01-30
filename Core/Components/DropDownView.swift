@@ -46,23 +46,23 @@ struct DropDownView<Row: View, DropDown: View> : View {
     
     @ViewBuilder
     private var dropdownRevealOverlay: some View {
-                VStack(spacing: 0) {
-                    Color.clear.frame(height: rowHeight)
-                    dropDown()
-                        .padding(24)
-                        .readHeight { menuHeight = $0 }
-                        .offset(y: showOptions ? 0 : -(menuHeight + shadowAllowance * 2))
-                        .mask(alignment: .top) {
-                            Rectangle()
-                                .padding(shadowAllowance)
-                                .frame(height: menuHeight + shadowAllowance * 2,
-                                       alignment: .top)
-                                .offset(y: -shadowAllowance)
-                        }
-                        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
-                        .offset(y: -24)
+        VStack(spacing: 0) {
+            Color.clear.frame(height: rowHeight)
+            dropDown()
+                .padding(24)
+                .readHeight { menuHeight = $0 }
+                .offset(y: showOptions ? 0 : -(menuHeight + shadowAllowance * 2))
+                .mask(alignment: .top) {
+                    Rectangle()
+                        .padding(shadowAllowance)
+                        .frame(height: menuHeight + shadowAllowance * 2,
+                               alignment: .top)
+                        .offset(y: -shadowAllowance)
                 }
-        .frame(maxWidth: .infinity, alignment: .center)
+                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+                .offset(y: -24)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .allowsHitTesting(showOptions)
     }
 }

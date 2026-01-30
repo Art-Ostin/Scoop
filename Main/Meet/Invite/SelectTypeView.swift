@@ -26,8 +26,6 @@ struct SelectTypeView: View {
                             text: eventType.description.label
                         )
                         .foregroundStyle(selectedType == eventType ? .accent : .black)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        
                         .onTapGesture {
                             let message = (vm.event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
                             if eventType == .custom && message.isEmpty {

@@ -8,7 +8,7 @@ import Foundation
 import MapKit
 import FirebaseFirestore
 
-struct EventDraft {
+struct EventDraft: Equatable {
     var initiatorId: String?
     var recipientId: String?
     var type: EventType?
@@ -57,7 +57,7 @@ extension Event {
     }
 }
 
-enum EventStatus: String, Codable { case pending, accepted, declined, declinedTimePassed,pastAccepted, cancelled, neverShowed }
+enum EventStatus: String, Codable, Equatable { case pending, accepted, declined, declinedTimePassed,pastAccepted, cancelled, neverShowed }
 
 enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 
