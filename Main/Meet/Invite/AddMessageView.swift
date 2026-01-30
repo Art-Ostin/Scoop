@@ -6,7 +6,7 @@
 //
 
  
- import SwiftUI
+import SwiftUI
 
 struct AddMessageView: View {
     
@@ -24,8 +24,8 @@ struct AddMessageView: View {
     var body: some View {
         
         
-        VStack(alignment: .leading, spacing: 72) {
-            HStack {
+        VStack(alignment: .leading, spacing: 48) {
+            HStack(alignment: .bottom) {
                 Text("Add Message")
                     .font(.custom("SFProRounded-Bold", size: 24))
                 
@@ -40,19 +40,29 @@ struct AddMessageView: View {
             .frame(maxWidth: .infinity)
             .zIndex(1)
             
-            TextEditor(text: messageBinding)
-                .padding()
-                .background(Color.clear).zIndex(0)
-                .font(.body(18))
-                .focused($isFocused)
-                .lineSpacing(CGFloat(3))
-                .frame(maxWidth: .infinity)
-                .frame(height: 130)
-                .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+            FocusedTextView(
+                text: messageBinding,
+                font: UIFont.systemFont(ofSize: 18),
+                lineSpacing: 3
+            )
+            .padding()
+            .frame(maxWidth: .infinity)
+            .frame(height: 130)
+            .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+//
+//            TextEditor(text: messageBinding)
+//                .padding()
+//                .background(Color.clear).zIndex(0)
+//                .font(.body(18))
+//                .focused($isFocused)
+//                .lineSpacing(CGFloat(3))
+//                .frame(maxWidth: .infinity)
+//                .frame(height: 130)
+//                .stroke(12, lineWidth: 1, color: .grayPlaceholder)
             
             
             OkDismissButton()
-                .padding(.bottom, 36)
+//                .padding(.bottom, 36)
         }
         .padding(.top, 84)
         .padding(.horizontal, 24)
@@ -87,6 +97,68 @@ extension AddMessageView {
         }
     }
 }
+
+
+struct FocusedTextView: UIViewRepresentable {
+    @Binding var text: String
+    var font: UIFont
+    var lineSpacing: CGFloat
+
+    func makeUIView(context: Context) -> UITextView {
+        let tv = UITextView()
+        tv.delegate = context.coordinator
+        tv.backgroundColor = .clear
+        tv.font = font
+        tv.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
+        tv.text = text
+        tv.isScrollEnabled = true
+
+        DispatchQueue.main.async {
+            tv.becomeFirstResponder()
+        }
+
+        applyParagraphStyle(to: tv)
+        return tv
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        if uiView.text != text {
+            uiView.text = text
+        }
+        if uiView.font != font {
+            uiView.font = font
+        }
+        applyParagraphStyle(to: uiView)
+    }
+
+    private func applyParagraphStyle(to textView: UITextView) {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineSpacing = lineSpacing
+
+        let attributed = NSAttributedString(
+            string: textView.text ?? "",
+            attributes: [
+                .font: font,
+                .paragraphStyle: paragraph
+            ]
+        )
+        textView.attributedText = attributed
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text)
+    }
+
+    final class Coordinator: NSObject, UITextViewDelegate {
+        @Binding var text: String
+        init(text: Binding<String>) { _text = text }
+
+        func textViewDidChange(_ textView: UITextView) {
+            text = textView.text
+        }
+    }
+}
+
 
 
 /*
