@@ -561,6 +561,7 @@
 			isa = PBXGroup;
 			children = (
 				65E5C8F92E4EAAE70093410B /* SelectTimeAndPlace.swift */,
+				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 				65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
 				65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */,
@@ -655,7 +656,6 @@
 		6570CAE02F28FDF400CBEA67 /* NewFile */ = {
 			isa = PBXGroup;
 			children = (
-				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 			);
 			path = NewFile;
 			sourceTree = "<group>";

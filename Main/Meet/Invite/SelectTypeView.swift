@@ -29,7 +29,8 @@ struct SelectTypeView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         
                         .onTapGesture {
-                            if eventType == .custom && vm.event.message?.isEmpty == true {
+                            let message = (vm.event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                            if eventType == .custom && message.isEmpty {
                                 vm.showMessageScreen = true
                             }
                             vm.event.type = eventType

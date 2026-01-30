@@ -119,7 +119,7 @@ extension SelectTimeAndPlace {
                 InvitePlaceRow
                     .frame(height: rowHeight)
             }
-            .zIndex(vm.showTypePopup ? 1 : 0)
+            .zIndex(vm.showTypePopup ? 1 : 0) //so pop ups always appear above the Action Button 
             ActionButton(isValid: InviteIsValid, text: vm.text) {
                 if vm.text == "Confirm & Send" {
                     vm.showAlert.toggle()
