@@ -73,6 +73,7 @@ struct FocusedTextView: UIViewRepresentable {
     final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var text: String
         private var placeholderLabel: UILabel?
+        private var placeholderWidthConstraint: NSLayoutConstraint?
         private let maxLength: Int?
 
         init(text: Binding<String>, maxLength: Int?) {
@@ -134,6 +135,13 @@ struct FocusedTextView: UIViewRepresentable {
 
             if placeholderLabel == nil {
                 textView.addSubview(label)
+                let widthConstraint = label.widthAnchor.constraint(
+                        equalTo: textView.widthAnchor,
+                        constant: -(textView.textContainerInset.left
+                                    + textView.textContainerInset.right
+                                    + textView.textContainer.lineFragmentPadding * 2)
+                    )
+                placeholderWidthConstraint = widthConstraint
                 NSLayoutConstraint.activate([
                     label.topAnchor.constraint(
                         equalTo: textView.topAnchor,
@@ -143,10 +151,7 @@ struct FocusedTextView: UIViewRepresentable {
                         equalTo: textView.leadingAnchor,
                         constant: textView.textContainerInset.left + textView.textContainer.lineFragmentPadding
                     ),
-                    label.trailingAnchor.constraint(
-                        equalTo: textView.trailingAnchor,
-                        constant: -(textView.textContainerInset.right + textView.textContainer.lineFragmentPadding)
-                    )
+                    widthConstraint
                 ])
                 placeholderLabel = label
             }

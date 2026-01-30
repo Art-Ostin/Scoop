@@ -33,36 +33,9 @@ struct AddMessageView: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: 48) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Add Message")
-                    .font(.custom("SFProRounded-Bold", size: 24))
-                
-                Spacer()
-                
-                DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
-                    dropdownTitle
-                } dropDown: {
-                    SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .zIndex(1)
+            headerSection
             
-            FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5,maxLength: messageLimit, placeholder: vm.event.type?.textPlaceholder)
-            .padding()
-            .frame(maxWidth: .infinity)
-            .frame(height: 130)
-            .stroke(12, lineWidth: 1, color: .grayPlaceholder)
-            .overlay(alignment: .bottomTrailing) {
-                let remaining = max(0, messageLimit - (vm.event.message ?? "").count)
-                if remaining <= warningThreshold {
-                    Text("\(remaining)")
-                        .font(.body(14))
-                        .foregroundStyle(Color.warningYellow)
-                        .padding(.trailing, 12)
-                        .padding(.bottom, 10)
-                }
-            }
+            textFieldSection
             
             OkDismissButton()
         }
@@ -117,6 +90,41 @@ extension AddMessageView {
             
             DropDownButton(isExpanded: $showTypePopup)
         }
+    }
+    
+    private var textFieldSection: some View {
+        FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5,maxLength: messageLimit, placeholder: vm.event.type?.textPlaceholder)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .frame(height: 130)
+            .stroke(12, lineWidth: 1, color: .grayPlaceholder)
+            .overlay(alignment: .bottomTrailing) {
+                let remaining = max(0, messageLimit - (vm.event.message ?? "").count)
+                if remaining <= warningThreshold {
+                    Text("\(remaining)")
+                        .font(.body(14))
+                        .foregroundStyle(Color.warningYellow)
+                        .padding(.trailing, 12)
+                        .padding(.bottom, 10)
+                }
+            }
+    }
+    
+    private var headerSection: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text("Add Message")
+                .font(.custom("SFProRounded-Bold", size: 24))
+            
+            Spacer()
+            
+            DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
+                dropdownTitle
+            } dropDown: {
+                SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .zIndex(1)
     }
 }
 
