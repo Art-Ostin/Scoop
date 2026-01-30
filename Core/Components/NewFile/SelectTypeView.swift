@@ -21,20 +21,6 @@ struct SelectTypeView: View {
         VStack(spacing: 0) {
             DropDownMenu {
                 ForEach(Array(EventType.allCases.enumerated()), id: \.element) { index, eventType in
-                    
-                    let hasMessage = (vm.event.message?.isEmpty == false)
-                    let isCustom = (eventType == .custom)
-                    
-                    if isCustom && hasMessage {
-                        customRow(image: "✒️", text: "Edit Message")
-                            .foregroundStyle(Color.accent)
-                            .frame(maxWidth: .infinity)
-                            .onTapGesture {
-                                vm.showMessageScreen = true
-                                vm.event.type = eventType
-                                vm.showTypePopup.toggle()
-                            }
-                    } else {
                         customRow(
                             image: eventType.description.emoji ?? "",
                             text: eventType.description.label
@@ -43,11 +29,12 @@ struct SelectTypeView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         
                         .onTapGesture {
-                            if isCustom { vm.showMessageScreen = true }
+                            if eventType == .custom && vm.event.message?.isEmpty == true {
+                                vm.showMessageScreen = true
+                            }
                             vm.event.type = eventType
                             vm.showTypePopup.toggle()
                         }
-                    }
                     if index < EventType.allCases.count - 1 {
                         SoftDivider()
                     }
@@ -57,6 +44,24 @@ struct SelectTypeView: View {
         }
     }
 }
+
+/*
+ let hasMessage = (vm.event.message?.isEmpty == false)
+ let isCustom = (eventType == .custom)
+ 
+ if isCustom && hasMessage {
+     customRow(image: "✒️", text: "Edit Message")
+         .foregroundStyle(Color.accent)
+         .frame(maxWidth: .infinity)
+         .onTapGesture {
+             vm.showMessageScreen = true
+             vm.event.type = eventType
+             vm.showTypePopup.toggle()
+         }
+ } else
+ */
+
+
 
 /*
  

@@ -13,6 +13,7 @@ import MapKit
     var showTimePopup: Bool = false
     var showMapView: Bool = false
     var showAlert: Bool = false
+    var isMessageTap: Bool = false
     
 
     init(text: String, profile: ProfileModel? = nil) {
@@ -145,22 +146,39 @@ extension SelectTimeAndPlace {
         let event = vm.event
         return HStack {
             
+            //If there is a response in place
             if let type = event.type, let message = event.message {
-                (
-                    Text(verbatim: " \(type.description.emoji ?? "") \(type.description.label): ")
-                        .font(.body(16, .bold))
-                    + Text(verbatim: " " + message)
-                        .font(.body(12, .italic))
-                        .foregroundStyle(Color.grayText)
-                )
-            } else if let type = event.type?.description.label, let emoji = event.type?.description.emoji {
+                let title = Text(verbatim: " \(type.description.emoji ?? "") \(type.description.label): ")
+                    .font(.body(16, .bold))
+
+                let body = Text(verbatim: " " + message)
+                    .font(.body(12, .italic))
+                    .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.grayText)
+                
+                let newText = Text("  edit")
+                    .font(.body(12, .italic))
+                    .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
+
+                (title + body + newText)
+                    .lineSpacing(6)
+                    .contentShape(.rect)
+                    .onTapGesture {
+                        vm.isMessageTap = true
+                        vm.showTypePopup = false
+                        vm.showMessageScreen.toggle()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            vm.isMessageTap = false
+                        }
+                    }
+                    .onLongPressGesture(minimumDuration: 0.1,
+                                        pressing: { vm.isMessageTap = $0 },
+                                        perform: {})
+                }
+            //Otherwise have this placeholder
+            else if let type = event.type?.description.label, let emoji = event.type?.description.emoji {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("\(emoji) \(type)")
                         .font(.body(18))
-                        .overlay(alignment: .bottomTrailing) {
-                            Image("EditButton")
-                                .frame(width: 16, height: 16)
-                        }
                     Text("Add a Message")
                         .foregroundStyle(.accent).font(.body(14))
                         .onTapGesture {
@@ -235,5 +253,22 @@ extension SelectTimeAndPlace {
 //                    .transition(.dropDownExpand)
          .zIndex(1)
          .offset(y: 48)
+ }
+ */
+
+/*
+ (
+     Text(verbatim: " \(type.description.emoji ?? "") \(type.description.label): ")
+         .font(.body(16, .bold))
+     + Text(verbatim: " " + message)
+         .font(.body(12, .italic))
+         .foregroundStyle(Color.grayText)
+ )
+ .overlay(alignment: .bottomTrailing) {
+     Image("EditButton")
+         .resizable()
+         .scaledToFit()
+         .frame(width: 10, height: 10)
+         .offset(x: -10, y: 12)
  }
  */
