@@ -11,10 +11,12 @@ struct DropDownMenu<Content: View> : View {
     
     let content: () -> Content
     var width: CGFloat
+    let cornerRadius: CGFloat
     
-    init(width: CGFloat = 325, @ViewBuilder content: @escaping () -> Content){
+    init(width: CGFloat = 325, cornerRadius: CGFloat = 12, @ViewBuilder content: @escaping () -> Content){
         self.width = width
         self.content = content
+        self.cornerRadius = cornerRadius
     }
     
     var body: some View {
@@ -26,7 +28,7 @@ struct DropDownMenu<Content: View> : View {
         .frame(width: width)
         .cornerRadius(12)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(Color.background)
 //                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
         )
