@@ -23,7 +23,7 @@ struct EventSlot: View {
     let locationManager = CLLocationManager()
     
     var body: some View {
-        if let event = profileModel.event {
+        if let event = profileModel.event, let time = event.acceptedTime {
             
             ZStack {
                 
@@ -34,8 +34,8 @@ struct EventSlot: View {
                         imageView
                         
                         VStack(spacing: 24) {
-                            timeAndPlace(event: event)
-                            LargeClockView(targetTime: event.time) {}
+                            timeAndPlace(event: event, time: time)
+                            LargeClockView(targetTime: time) {}
                                 .onTapGesture {
                                     ui.showEventDetails = event
                                 }
@@ -150,9 +150,9 @@ extension EventSlot {
         }
     }
     
-    private func timeAndPlace(event: UserEvent) -> some View {
+    private func timeAndPlace(event: UserEvent, time: Date) -> some View {
         VStack(spacing: 14) {
-            Text(EventFormatting.dayAndTime(event.time))
+            Text(EventFormatting.dayAndTime(time))
 
             Button {
                 Task { await MapsRouting.openMaps(place: event.place)}
@@ -267,11 +267,12 @@ extension EventSlot {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 10) {
                 eventInfoTitle(event: event)
-
-                Text(EventFormatting.dayAndTime(event.time))
-                    .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
-                    .font(.body(16, .regular))
                 
+                if let time = event.acceptedTime {
+                    Text(EventFormatting.dayAndTime(time))
+                        .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
+                        .font(.body(16, .regular))
+                }
                 address(event: event)
             }
             confirmedText

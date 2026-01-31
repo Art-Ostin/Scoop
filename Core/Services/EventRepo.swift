@@ -100,7 +100,7 @@ class EventManager {
         
         let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
         
-        let updates = AsyncThrowingStream<UserEventUpdate, Error> { continuation in
+        let updates = AsyncThrowingStream<UserEventUpdate, Error> { (continuation: AsyncThrowingStream<UserEventUpdate, Error>.Continuation) in
             Task {
                 do {
                     for try await ev in base {
@@ -111,8 +111,8 @@ class EventManager {
                             let e = it.model
                             if e.status == .pending, e.role == .received {
                                 continuation.yield((event: e, kind: .invite))
-                            } else if e.status == .accepted {
-                                if e.time >= plus6h {
+                            } else if e.status == .accepted, let time = e.acceptedTime {
+                                if time >= plus6h {
                                     continuation.yield((event: e, kind: .accepted))
                                 } else {
                                     continuation.yield((event: e, kind: .pastAccepted))
@@ -190,5 +190,4 @@ class EventManager {
         }
     }
 }
-
 

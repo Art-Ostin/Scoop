@@ -33,7 +33,9 @@ struct AcceptInvitePopup: View {
                         Spacer()
                     }
                 }
-                if let event = profileModel.event {EventFormatter(time: event.time, type: event.type, message: event.message, place: event.place) }
+                if let event = profileModel.event, let time = event.acceptedTime {
+                    EventFormatter(time: time, type: event.type, message: event.message, place: event.place)
+                }
                 ActionButton(text: "Accept", isInvite: true, cornerRadius: 12) { showAlert.toggle() }
                     .frame(maxWidth: .infinity, alignment: .center)
             }

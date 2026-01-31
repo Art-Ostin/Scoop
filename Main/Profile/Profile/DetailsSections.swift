@@ -95,8 +95,8 @@ struct ProfileEvent: View {
     let event: UserEvent?
     
     var body: some View {
-        if let event = event {
-            EventFormatter(time: event.time, type: event.type, message: event.message, place: event.place, size: 24)
+        if let event = event, let time = event.acceptedTime {
+            EventFormatter(time: time, type: event.type, message: event.message, place: event.place, size: 24)
         } else if let idealMeet = p.idealMeetUp {
             EventFormatter(time: idealMeet.time, type: idealMeet.type, message: idealMeet.message, isInvite: true, place: idealMeet.place, size: 24)
         }

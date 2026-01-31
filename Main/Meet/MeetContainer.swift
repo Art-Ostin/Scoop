@@ -48,12 +48,6 @@ struct MeetContainer: View {
                         try? await vm.sendInvite(event: event, profileModel: currentProfile)
                     }
                 }
-                if showIdealTime {
-                    SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
-                        try? await vm.saveIdealMeetUp(event: event)
-                        try? await vm.createWeeklyCycle()
-                    }
-                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .sheet(isPresented: $showPendingInvites) {pastInviteView}
@@ -147,3 +141,12 @@ extension MeetContainer {
         .presentationDragIndicator(.visible)
     }
 }
+
+/*
+ if showIdealTime {
+     SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
+         try? await vm.saveIdealMeetUp(event: event)
+         try? await vm.createWeeklyCycle()
+     }
+ }
+ */

@@ -39,16 +39,6 @@ struct ProfileCard : View {
                         .padding(.horizontal)
                     }
             }
-            if let time = profile.event?.time {
-                HStack(spacing: 4) {
-                    Text("Expires in:")
-                    SimpleClockView(targetTime: time) {}
-                }
-                .font(.body(10, .regular))
-                .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.horizontal, 24)
-            }
         }
     }
 }
@@ -112,3 +102,17 @@ extension ProfileCard {
     }
 }
 
+
+//Old Expiry time
+/*
+ if let time = profile.event. {
+     HStack(spacing: 4) {
+         Text("Expires in:")
+         SimpleClockView(targetTime: time) {}
+     }
+     .font(.body(10, .regular))
+     .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
+     .frame(maxWidth: .infinity, alignment: .trailing)
+     .padding(.horizontal, 24)
+ }
+ */

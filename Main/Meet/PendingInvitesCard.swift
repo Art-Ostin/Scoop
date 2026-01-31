@@ -22,8 +22,8 @@ struct PendingInviteCard: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(profile.profile.name)
-                    if let event = profile.event {
-                        EventFormatter(time: event.time, type: event.type, message: event.message, place: event.place, size: 15)
+                    if let event = profile.event, let time = event.acceptedTime  {
+                        EventFormatter(time: time, type: event.type, message: event.message, place: event.place, size: 15)
                     }
                 }
             }
@@ -46,19 +46,22 @@ struct PendingInviteCard: View {
                     }
                 }
             }
-            .overlay {
-                if let time = profile.event?.inviteExpiryTime {
-                    HStack(spacing: 4) {
-                        Text("Auto-declined in:")
-                        SimpleClockView(targetTime: time) {}
-                    }
-                    .font(.body(10, .regular))
-                    .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
-                    .padding(.horizontal, 36)
-                    .padding(.bottom, 8)
-                }
-            }
             .padding(.horizontal, 24)
         }
     }
 }
+
+/*//Removing Auto-decline feature
+ .overlay {
+     if let time = profile.event?.inviteExpiryTime {
+         HStack(spacing: 4) {
+             Text("Auto-declined in:")
+             SimpleClockView(targetTime: time) {}
+         }
+         .font(.body(10, .regular))
+         .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
+         .padding(.horizontal, 36)
+         .padding(.bottom, 8)
+     }
+ }
+ */

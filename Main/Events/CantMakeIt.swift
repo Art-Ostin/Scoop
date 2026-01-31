@@ -18,11 +18,11 @@ struct CantMakeIt: View {
     let event: UserEvent
     
     var fullTime: String {
-        EventFormatting.fullDate(event.time)
+        EventFormatting.fullDate(event.acceptedTime ?? Date())
     }
     
     var hour: String {
-        return event.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+        return event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)) ?? "22"
     }
     
     var body: some View {

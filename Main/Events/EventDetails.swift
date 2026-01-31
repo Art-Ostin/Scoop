@@ -99,14 +99,15 @@ extension EventDetails {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
+    
     func eventMeetingDescription(event: UserEvent) -> some View {
         let name = event.otherUserName
         var place = event.place.name ?? "the venue"
         if place.count > 20 { place = "the venue"}
-        let fullTime = EventFormatting.fullDate(event.time)
+        let fullTime = EventFormatting.fullDate(event.acceptedTime ?? Date())
         let opening = "You’ve both confirmed"
         
-        let hour = event.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+        let hour = event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
         
         var text1 = ""
         var text2 = ""
@@ -116,23 +117,23 @@ extension EventDetails {
         case .socialMeet:
             text1 = "\(opening) you're going to \(place) on \(fullTime)"
             text2 = "each with your friends"
-            text3 = "So head there for \(hour) & meet \(name) & their friends there! Text to find one another :)"
+            text3 = "So head there for \(String(describing: hour)) & meet \(name) & their friends there! Text to find one another :)"
             
            // You’ve both confirmed you’re going to Barbossa on Thursday 15th January, each with your own friends
         case .doubleDate:
             text1 = "\(opening) to meet on \(fullTime) at \(place) "
             text2 = "for a double date"
-            text3 = "Go there with your friend at \(hour) & meet \(name) & their friend there! Text to find each other :)"
+            text3 = "Go there with your friend at \(String(describing: hour)) & meet \(name) & their friend there! Text to find each other :)"
             
         case .drink:
             text1 = "\(opening) to meet on \(fullTime) "
             text2 = "for a drink"
-            text3 = "So just meet \(name) there at \(hour) and share a good evening together! Text to find one another :)"
+            text3 = "So just meet \(name) there at \(String(describing: hour)) and share a good evening together! Text to find one another :)"
             
         case .custom:
             text1 = "\(opening) to meet on \(fullTime) at \(place)"
             text2 = ""
-            text3 = "So just head there for \(hour) & do whatever you've planned! Text to find each other :)"
+            text3 = "So just head there for \(String(describing: hour)) & do whatever you've planned! Text to find each other :)"
         }
         return eventDetailsFormat(text1: text1, text2: text2, text3: text3)
     }
