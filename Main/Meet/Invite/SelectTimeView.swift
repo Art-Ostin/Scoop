@@ -27,10 +27,6 @@ struct SelectTimeView: View {
                 timePicker
             }
         }
-        .onAppear { syncWithEvent() ; updateTime()}
-        .onChange(of: hour) {updateTime()}
-        .onChange(of: minute) {updateTime()}
-        .onChange(of: selectedDay) { updateTime()}
     }
 }
 
@@ -63,13 +59,12 @@ extension SelectTimeView {
         let isToday = Calendar.current.isDateInToday(day)
         let isSelected = selectedDay == idx
         Button {
-            if !isToday {
-                if selectedDay == idx {
-                    selectedDay = nil
-                } else {
-                    selectedDay = idx
-                }
-            }
+            vm.event.proposedTimes.toggle(
+                
+            )
+            
+            
+            
         } label : {
             Text(day, format: .dateTime.day())
                 .font(.body(18, isSelected ? .bold : .medium))
@@ -103,25 +98,6 @@ extension SelectTimeView {
         .tint(.appRed)
         .accentColor(.appRed)
     }
-}
-
-//Functions
-extension SelectTimeView {
-    
-    private func syncWithEvent() {
-        guard let date = vm.event.time else { return }
-
-        let calendar = Calendar.current
-        hour = calendar.component(.hour, from: date)
-        minute = calendar.component(.minute, from: date)
-
-        let startOfToday = calendar.startOfDay(for: Date())
-        let startOfEvent = calendar.startOfDay(for: date)
-        if let days = calendar.dateComponents([.day], from: startOfToday, to: startOfEvent).day,
-           (0..<7).contains(days) {
-            selectedDay = days
-        }
-    }
     
     private func updateTime() {
         let calendar = Calendar.current
@@ -134,4 +110,52 @@ extension SelectTimeView {
         components.minute = minute
         vm.event.time = calendar.date(from: components)
     }
+    
+    
+    Calendar.current
+
 }
+
+//Functions
+
+
+/*
+ 
+ extension SelectTimeView {
+     
+     private func syncWithEvent() {
+         guard let date = vm.event.time else { return }
+
+         let calendar = Calendar.current
+         hour = calendar.component(.hour, from: date)
+         minute = calendar.component(.minute, from: date)
+
+         let startOfToday = calendar.startOfDay(for: Date())
+         let startOfEvent = calendar.startOfDay(for: date)
+         if let days = calendar.dateComponents([.day], from: startOfToday, to: startOfEvent).day,
+            (0..<7).contains(days) {
+             selectedDay = days
+         }
+     }
+     
+     private func updateTime() {
+         let calendar = Calendar.current
+         let baseDate: Date = {
+             guard let selectedDay else { return vm.event.time ?? Date()}
+             return days[selectedDay]
+         }()
+         var components = calendar.dateComponents([.year, .month, .day], from: baseDate)
+         components.hour = hour
+         components.minute = minute
+         vm.event.time = calendar.date(from: components)
+     }
+ }
+
+ 
+ .onAppear { syncWithEvent() ; updateTime()}
+ .onChange(of: hour) {updateTime()}
+ .onChange(of: minute) {updateTime()}
+ .onChange(of: selectedDay) { updateTime()}
+ 
+ 
+ */
