@@ -14,8 +14,8 @@ final class AppDependencies {
     let authService: AuthServicing
     
     let userRepo : UserRepository
-    let eventRepo :
-    let profilesRepo :
+    let eventRepo : EventRepository
+    let profilesRepo : ProfileRepository
     
     let imageLoader : 
     

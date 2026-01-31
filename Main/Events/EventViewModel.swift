@@ -13,12 +13,21 @@ import MapKit
 @MainActor
 @Observable class EventViewModel {
     
-    var cacheManager: CacheManaging
+    var imageLoader: ImageLoading
+    var profileLoader: ProfileLoading
+    
+    init(imageLoader: ImageLoading, profileLoader: ProfileLoading) {
+        self.imageLoader
+        self.profileLoader
+    }
+    
+    
+    
     var eventManager: EventManager
     var sessionManager: SessionManager
     
-    init(cacheManager: CacheManaging, eventManager: EventManager, sessionManager: SessionManager) {
-        self.cacheManager = cacheManager
+    init(imageLoader: imageLoading, eventManager: EventManager, sessionManager: SessionManager) {
+        self.imageLoader = imageLoader
         self.eventManager = eventManager
         self.sessionManager = sessionManager
     }

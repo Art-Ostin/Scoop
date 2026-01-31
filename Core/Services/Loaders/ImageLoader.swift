@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import SwiftUI
 
-
+//Injecting ImageLoader around the app as don't want to have multiple Caches open
 
 class ImageLoader: CacheManaging  {
     

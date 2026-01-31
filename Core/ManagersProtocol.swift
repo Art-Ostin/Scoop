@@ -40,7 +40,7 @@ protocol StorageServicing {
     func deleteImage(path: String) async throws
 }
 
-protocol ImageLoader {
+protocol ImageLoading {
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
     func fetchImage(for url: URL) async throws -> UIImage
@@ -48,3 +48,14 @@ protocol ImageLoader {
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? 
 }
 
+protocol UserRepository {
+    func createUser(draft: DraftProfile) throws -> UserProfile
+    func fetchProfile(userId: String) async throws -> UserProfile
+    func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws
+    func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error>
+}
+
+protocol EventRepository {
+    
+    
+}
