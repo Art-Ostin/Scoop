@@ -16,7 +16,6 @@ final class AppDependencies {
     let userManager: UserManager
     let storageManager: StorageManaging
     let eventManager: EventManager
-    let cycleManager: CycleManager
     let defaultsManager: DefaultsManager
     
     @MainActor
@@ -25,7 +24,6 @@ final class AppDependencies {
             eventManager: eventManager,
             cacheManager: cacheManager,
             userManager: userManager,
-            cycleManager: cycleManager,
             authManager: authManager,
             defaultManager: defaultsManager
         )
@@ -43,14 +41,12 @@ final class AppDependencies {
         let userManager = userManager ?? UserManager(auth: auth, fs: fs)
         let storage = StorageManager()
         let event = EventManager(userManager: userManager, fs: fs)
-        let cycle = CycleManager(cacheManager: cache, userManager: userManager, fs: fs)
         let defaults = DefaultsManager(defaults: .standard)
         
         self.authManager = auth
         self.cacheManager = cache
         self.userManager = userManager
         self.storageManager = storage
-        self.cycleManager = cycle
         self.eventManager = event
         self.defaultsManager = defaults
     }

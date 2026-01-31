@@ -18,7 +18,6 @@ enum showProfilesState {
     private let eventManager: EventManager
     private let cacheManager: CacheManaging
     private let userManager: UserManager
-    private let cycleManager: CycleManager
     private let authManager: AuthManaging
     private let defaultManager: DefaultsManager
     private let profileBuilder: ProfileModelBuilder

@@ -19,7 +19,6 @@ protocol FirestoreService {
     func increment(_ path: String, by deltas: [String: Int64])
     func update(_ path: String, fields: [String : Any]) async throws
     func delete(_ path: String) async throws
-    func updateArray(_ path: String, append: [String: [Any]], remove: [String: [Any]]) async throws
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
     func fetchFromCollection<T: Decodable>( _ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) async throws -> [T]
     func streamCollection<T: Decodable>(_ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) -> AsyncThrowingStream<FSCollectionEvent<T>, Error>
