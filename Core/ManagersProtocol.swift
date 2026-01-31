@@ -42,7 +42,7 @@ protocol StorageManaging {
     func deleteImage(path: String) async throws
 }
 
-protocol CacheManaging {
+protocol ImageLoader {
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
     func fetchImage(for url: URL) async throws -> UIImage

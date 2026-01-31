@@ -22,5 +22,3 @@ struct ProfileModel: Identifiable, Equatable, Hashable {
         hasher.combine(id)
     }
 }
-
-

@@ -17,13 +17,6 @@ final class ProfileModelBuilder {
         self.cache = cache
     }
     
-    @discardableResult
-    private func prewarmCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
-        guard !profiles.isEmpty else { return nil }
-        return Task.detached(priority: .utility) { [cache] in
-            await cache.loadProfileImages(profiles)
-        }
-    }
     
     func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel] {
         var models: [ProfileModel] = []

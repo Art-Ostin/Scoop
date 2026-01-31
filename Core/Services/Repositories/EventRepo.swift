@@ -191,6 +191,5 @@ class EventRepo {
         //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
-
 }
 

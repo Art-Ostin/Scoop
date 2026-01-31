@@ -36,7 +36,6 @@ class CacheManager: CacheManaging  {
         let (data, _) = try await URLSession.shared.data(from: url)
         if let image = UIImage(data: data) {
             cache.setObject(image, forKey: url as NSURL, cost: data.count)
-            print("Image Obtained")
             return image
         }
         return UIImage()
@@ -75,4 +74,13 @@ class CacheManager: CacheManaging  {
         }
         return images.compactMap { $0 }
     }
+    
+    @discardableResult
+    private func prewarmCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
+        guard !profiles.isEmpty else { return nil }
+        return Task.detached(priority: .utility) { [cache] in
+            await cache.loadProfileImages(profiles)
+        }
+    }
 }
+

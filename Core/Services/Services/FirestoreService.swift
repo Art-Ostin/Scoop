@@ -21,7 +21,6 @@ enum FSCollectionEvent<T> {
     case removed(String)
 }
 
-
 struct FSWhere { let field: String; let op: FSOp; let value: Any }
 enum FSOp { case eq, lt, lte, gt, gte }
 struct FSOrder { let field: String; let descending: Bool }
@@ -67,7 +66,6 @@ final class LiveFirestoreService: FirestoreService {
             }
         }
     }
-    
     
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
         AsyncThrowingStream { continuation in

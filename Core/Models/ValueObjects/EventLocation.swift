@@ -5,7 +5,7 @@
 //  Created by Art Ostin on 31/01/2026.
 //
 
-import Foundation
+import MapKit
 
 struct EventLocation: Equatable, Codable {
     var name: String?
