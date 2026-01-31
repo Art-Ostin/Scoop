@@ -33,13 +33,13 @@ class StorageManager: StorageManaging {
         let vPath = variantPath(from: basePath)
         let vRef  = imagePath(vPath)
         try await Task.sleep(nanoseconds: UInt64(1_000_000_000)) //Delay here speeds up image upload
-        for attempt in 0..<15 { // delays: 0.5s, 1s, 2s, 4s, 8s, 16s
+        for attempt in 0..<10 { // delays: 0.5s, 1s, 2s, 4s, 8s, 16s
             do {
                 let url = try await vRef.downloadURL()
                 print(attempt)
                 return (vPath, url)
             } catch {
-                let delaySeconds = 0.5 // pow(2.0, Double(attempt)) Uncomment if want to increase increment to updload
+                let delaySeconds =  pow(2.0, Double(attempt))
                 try await Task.sleep(nanoseconds: UInt64(delaySeconds * 1_000_000_000))
             }
         }

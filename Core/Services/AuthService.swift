@@ -41,10 +41,6 @@ class AuthManager: AuthManaging {
         }
     }
     
-    
-    
-    
-
     func authStateStream() -> AsyncStream<String?> {
         AsyncStream { continuation in
             let handle = Auth.auth().addStateDidChangeListener { _, user in

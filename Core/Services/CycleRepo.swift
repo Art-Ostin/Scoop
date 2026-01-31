@@ -5,6 +5,9 @@
 //  Created by Art Ostin on 16/08/2025.
 //
 
+//Change this to Profiles Repo which recommends the profiles for user (i.e. Delete the Cycle Repos)
+//In Events Have (1) Sent-Declined (2) Received-Declined (3) Invited (4) Sent (5) 
+
 import Foundation
 import Firebase
 import FirebaseFirestore
