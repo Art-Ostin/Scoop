@@ -139,11 +139,11 @@ enum showProfilesState {
     func profilesStream(cycleId: String, onInitialLoad: (() -> Void)? = nil) async {
         profileStreamTask?.cancel()
         profileStreamTask = Task { @MainActor in
+            defer { onInitialLoad?() }
             do {
                 let (initial, updates) = try await cycleManager.profilesTracker(userId: user.id, cycleId: cycleId)
                 let ids = initial.compactMap(\.id)
                 self.profiles = try await profileBuilder.fromIds(ids)
-                onInitialLoad?()
                 for try await update in updates {
                     switch update {
                     case .addProfile(id: let id):
@@ -164,7 +164,7 @@ enum showProfilesState {
     func userEventsStream(onInitialLoad: (() -> Void)? = nil) async {
         eventStreamTask?.cancel()
         eventStreamTask = Task { @MainActor in
-            
+            defer { onInitialLoad?() }
             do {
                 let (initial, updates) = try await eventManager.eventTracker(userId: user.id)
                 
@@ -180,7 +180,6 @@ enum showProfilesState {
                 } catch {
                     print(error)
                 }
-                onInitialLoad?()
                 
                 for try await (event, kind) in updates {
                     switch kind {

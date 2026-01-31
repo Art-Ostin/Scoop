@@ -180,7 +180,7 @@ class EventManager {
         async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
         _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
     }
-    
+
     
     func deleteAllSentPendingInvites(userId: String) async throws {
         let events = try await fetchPendingSentInvites(userId: userId)

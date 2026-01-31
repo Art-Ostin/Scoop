@@ -39,7 +39,6 @@ class StorageManager: StorageManaging {
                 print(attempt)
                 return (vPath, url)
             } catch {
-//                print("THIS IS THE ERROR HERE!!!!!!!!!!!!!!!!! \(error)")
                 let delaySeconds = 0.5 // pow(2.0, Double(attempt)) Uncomment if want to increase increment to updload
                 try await Task.sleep(nanoseconds: UInt64(delaySeconds * 1_000_000_000))
             }
