@@ -13,13 +13,12 @@ struct EventDraft: Equatable {
     var recipientId: String?
     var type: EventType?
     var message: String?
-    var proposedTimes: [Date]?
+    var proposedTimes: ProposedTimes = .init()
     var location: EventLocation?
     var status: EventStatus = .pending
     var inviteExpiryTime: Date?
     var canText: Bool = false
 }
-
 
 struct Event: Identifiable, Codable {
     @DocumentID var _id: String?
@@ -27,7 +26,7 @@ struct Event: Identifiable, Codable {
     var initiatorId: String
     var recipientId: String
     var type: EventType
-    var proposedTimes: [Date]
+    var proposedTimes: ProposedTimes
     var acceptedTime: Date?
     var location: EventLocation
     var status: EventStatus = .pending
@@ -49,7 +48,7 @@ extension Event {
             initiatorId: draft.initiatorId ?? "",
             recipientId: draft.recipientId ?? "",
             type: draft.type ?? .custom,
-            proposedTimes: draft.proposedTimes ?? [Date()],
+            proposedTimes: draft.proposedTimes,
             location: draft.location ?? EventLocation(mapItem: MKMapItem()),
             status: draft.status,
             inviteExpiryTime:  draft.inviteExpiryTime ?? Date().addingTimeInterval(24 * 60 * 60),

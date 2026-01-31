@@ -117,6 +117,7 @@
 		657B8D4D2F2D202F00583ADA /* CustomTextBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D4C2F2D202F00583ADA /* CustomTextBox.swift */; };
 		657B8D4F2F2D3F1C00583ADA /* InviteTypeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D4E2F2D3F1C00583ADA /* InviteTypeRow.swift */; };
 		657B8D532F2D41C300583ADA /* InviteTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D522F2D41C300583ADA /* InviteTimeRow.swift */; };
+		657B8D592F2D73EE00583ADA /* ProposedTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D582F2D73EE00583ADA /* ProposedTimes.swift */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
 		658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */; };
 		658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */; };
@@ -331,6 +332,7 @@
 		657B8D4C2F2D202F00583ADA /* CustomTextBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextBox.swift; sourceTree = "<group>"; };
 		657B8D4E2F2D3F1C00583ADA /* InviteTypeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteTypeRow.swift; sourceTree = "<group>"; };
 		657B8D522F2D41C300583ADA /* InviteTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteTimeRow.swift; sourceTree = "<group>"; };
+		657B8D582F2D73EE00583ADA /* ProposedTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposedTimes.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
 		658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollNavBar.swift; sourceTree = "<group>"; };
@@ -490,10 +492,11 @@
 				654C009A2E35689000FFD504 /* UserProfileRepo.swift */,
 				65BFE7DC2E400D3C00B31A58 /* EventRepo.swift */,
 				65E5C91F2E510BBA0093410B /* CycleRepo.swift */,
-				65E5C9192E50E7700093410B /* SessionManager.swift */,
 				6576B7F12E69082F004217A4 /* ProfileModelBuilder.swift */,
+				65E5C9192E50E7700093410B /* SessionManager.swift */,
 				655F51FC2E3B7CE700E67534 /* CacheManager.swift */,
 				6585043C2E59105D0005C643 /* DefaultsManager.swift */,
+				657B8D552F2D6F8600583ADA /* Helper Services */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -675,6 +678,7 @@
 		6577D7D42E203EF300FFCF82 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				657B8D542F2D6F1A00583ADA /* New Group */,
 				65A070502EE06A59009F798B /* CustomButtons */,
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
 				65FE78D52F293C6C00DC2538 /* DropDownView.swift */,
@@ -689,7 +693,6 @@
 				657B8D4A2F2CFA5F00583ADA /* SaveIcon.swift */,
 				65A0704C2EE0631A009F798B /* pageIndicator.swift */,
 				65CA5E342F2263A600694981 /* EventFormatting.swift */,
-				65CA5E362F226AEA00694981 /* MapsRouting.swift */,
 				65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */,
 				65E5C8F12E4E79550093410B /* TabSelectionKey.swift */,
 				65F450BE2E45567900AE3503 /* ImageModifiers.swift */,
@@ -734,6 +737,22 @@
 				657838432DE773CE00770B49 /* ScoopUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		657B8D542F2D6F1A00583ADA /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
+		657B8D552F2D6F8600583ADA /* Helper Services */ = {
+			isa = PBXGroup;
+			children = (
+				65CA5E362F226AEA00694981 /* MapsRouting.swift */,
+				657B8D582F2D73EE00583ADA /* ProposedTimes.swift */,
+			);
+			path = "Helper Services";
 			sourceTree = "<group>";
 		};
 		659497012E01DD4000880921 /* Main */ = {
@@ -1131,6 +1150,7 @@
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
 				659568242ED26A350091163E /* ClearRectangle.swift in Sources */,
 				65D9D0DA2ED14B7B00F7E5CC /* ScrollViewTest.swift in Sources */,
+				657B8D592F2D73EE00583ADA /* ProposedTimes.swift in Sources */,
 				65CA5E372F226AEA00694981 /* MapsRouting.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				650884162EAD4EA000776620 /* PendingInviteView.swift in Sources */,
