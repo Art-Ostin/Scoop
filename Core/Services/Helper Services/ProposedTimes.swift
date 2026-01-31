@@ -67,6 +67,14 @@ struct ProposedTimes: Codable, Equatable  {
         }
     }
     
+    //Use these dates for seeing the availble dates
+    func getDatesStillAvailble () -> [Date] {
+        return [Date()]
+    }
+    func getExpiredDates () -> [Date] {
+        return [Date()]
+    }
+    
     //Don't worry about understanding Yet
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()

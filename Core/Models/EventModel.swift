@@ -36,10 +36,41 @@ struct Event: Identifiable, Codable {
     var timeProposalHistory: [Int: [Date]] = [:]
     var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible to track e.g. how many 'cancel's or 'no shows.
     @ServerTimestamp var date_created: Date?
+    
     enum Field: String {
         case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time, earlyTerminatorID
     }
+    
+    
 }
+
+enum EdgeRole: String, Codable { case sent, received }
+
+struct UserEvent: Identifiable, Codable {
+
+    @DocumentID var id: String?
+    let otherUserId: String
+    let role: EdgeRole
+    let status: EventStatus
+    let proposedTimes: ProposedTimes
+    var acceptedTime: Date?
+    let type: EventType
+    let message: String?
+    let place: EventLocation
+    let otherUserName: String
+    let otherUserPhoto: String
+    let updatedAt: Date?
+    var canMessage: Bool = false
+    var earlyTerminatorID: String?
+    
+    enum Field: String, Codable {
+        case id, otherUserId, role, status, proposedTimes, acceptedTime, type, message, place, otherUserName, otherUserPhoto, updatedAt, earlyTerminatorID, canMessage
+    }
+}
+
+
+
+
 
 
 extension Event {
@@ -66,6 +97,7 @@ enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 
 //Add the images and functions of event details all here.
 enum EventType: String, CaseIterable, Codable, Hashable {
+    
     case drink, doubleDate, socialMeet, custom
     
     var description: (emoji: String?, label: String) {
@@ -107,6 +139,8 @@ enum EventType: String, CaseIterable, Codable, Hashable {
         }
     }
 }
+
+
 //Before update
 
 

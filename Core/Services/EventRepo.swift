@@ -41,7 +41,6 @@ class EventManager {
         
         draft.initiatorId = user.id
         draft.recipientId = profile.id
-        draft.inviteExpiryTime = getEventExpiryTime(draft: draft)
         
         let event = Event(draft: draft)
         let id = try fs.add("events", value: event)
@@ -53,31 +52,10 @@ class EventManager {
         try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent)
         
         func makeUserEvent(otherProfile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-            UserEvent(otherUserId: otherProfile.id, role: role, status: event.status, time: event.time, type: event.type, message: event.message, place: event.location, otherUserName: otherProfile.name , otherUserPhoto: otherProfile.imagePathURL.first ?? "", updatedAt: nil, inviteExpiryTime: event.inviteExpiryTime)
+            UserEvent(otherUserId: otherProfile.id, role: role, status: event.status, proposedTimes: event.proposedTimes, type: event.type, message: event.message, place: event.location, otherUserName: otherProfile.name , otherUserPhoto: otherProfile.imagePathURL.first ?? "", updatedAt: nil)
         }
     }
-    
-    func getEventExpiryTime(draft: EventDraft) -> Date? {
-        guard let eventTime = draft.proposedTimes.values.first else {return nil}
         
-        let timeUntilEvent = eventTime.timeIntervalSince(Date())
-        
-        let day: TimeInterval = 24*3600
-        let hour: TimeInterval = 3600
-        
-        if  timeUntilEvent > TimeInterval(2*day + 8*hour) {
-            return Date().addingTimeInterval(2 * day)
-        } else if  timeUntilEvent > TimeInterval(day + 8*hour) {
-            return Date().addingTimeInterval(day)
-        } else if timeUntilEvent > TimeInterval(14*hour)  {
-            return Calendar.current.date(byAdding: .hour, value: -6, to: eventTime)
-        } else if timeUntilEvent > TimeInterval(8*hour) {
-            return Calendar.current.date(byAdding: .hour, value: -1, to: eventTime)
-        } else {
-            return eventTime
-        }
-    }
-    
     func eventTracker(userId: String, now: Date = .init()) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
         let path = "users/\(userId)/user_events"
         let plus6h = Calendar.current.date(byAdding: .hour, value: 6, to: now)!
@@ -203,3 +181,37 @@ class EventManager {
         }
     }
 }
+
+/*
+ func getEventExpiryTime(draft: EventDraft) -> Date? {
+     let times = draft.proposedTimes.values
+     
+     guard times.isEmpty else {return nil}
+     
+     
+     
+     
+     guard let eventTimes = draft.proposedTimes.values else { return nil}
+     
+     
+     guard let eventTime = draft.proposedTimes.values.first else {return nil}
+     
+     let timeUntilEvent = eventTime.timeIntervalSince(Date())
+     
+     let day: TimeInterval = 24*3600
+     let hour: TimeInterval = 3600
+     
+     if  timeUntilEvent > TimeInterval(2*day + 8*hour) {
+         return Date().addingTimeInterval(2 * day)
+     } else if  timeUntilEvent > TimeInterval(day + 8*hour) {
+         return Date().addingTimeInterval(day)
+     } else if timeUntilEvent > TimeInterval(14*hour)  {
+         return Calendar.current.date(byAdding: .hour, value: -6, to: eventTime)
+     } else if timeUntilEvent > TimeInterval(8*hour) {
+         return Calendar.current.date(byAdding: .hour, value: -1, to: eventTime)
+     } else {
+         return eventTime
+     }
+ }
+
+ */
