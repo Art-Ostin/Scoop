@@ -16,7 +16,6 @@ struct EventDraft: Equatable {
     var proposedTimes: ProposedTimes = .init()
     var location: EventLocation?
     var status: EventStatus = .pending
-    var inviteExpiryTime: Date?
     var canText: Bool = false
 }
 
@@ -30,9 +29,18 @@ struct Event: Identifiable, Codable {
     var acceptedTime: Date?
     var location: EventLocation
     var status: EventStatus = .pending
-    var inviteExpiryTime: Date
     var canText: Bool = false
     var message: String?
+    var changeLog: [Int: [Any : Any]] = [ : [ :]]
+                        
+                        
+                        
+                        
+                        [Any : [Any]]] = [ : ]
+    
+    
+    
+    
     var timeProposalHistory: [Int: [Date]] = [:]
     var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible to track e.g. how many 'cancel's or 'no shows.
     @ServerTimestamp var date_created: Date?
@@ -41,10 +49,16 @@ struct Event: Identifiable, Codable {
         case id, initiatorId, recipientId, type, message, date_created, time, location, status, invite_expiry_time, earlyTerminatorID
     }
     
-    
+    init(draft: EventDraft) {
+        self.initiatorId = draft.initiatorId ?? ""
+        self.recipientId = draft.recipientId ?? ""
+        self.type = draft.type ?? .custom
+        self.proposedTimes = draft.proposedTimes
+        self.location = draft.location ?? EventLocation(mapItem: MKMapItem())
+        self.status = draft.status
+        self.canText =  draft.canText
+    }
 }
-
-enum EdgeRole: String, Codable { case sent, received }
 
 struct UserEvent: Identifiable, Codable {
 
@@ -68,32 +82,11 @@ struct UserEvent: Identifiable, Codable {
     }
 }
 
-
-
-
-
-
-extension Event {
-    init(draft: EventDraft) {
-        self.init(
-            initiatorId: draft.initiatorId ?? "",
-            recipientId: draft.recipientId ?? "",
-            type: draft.type ?? .custom,
-            proposedTimes: draft.proposedTimes,
-            location: draft.location ?? EventLocation(mapItem: MKMapItem()),
-            status: draft.status,
-            inviteExpiryTime:  draft.inviteExpiryTime ?? Date().addingTimeInterval(24 * 60 * 60),
-            canText: draft.canText
-        )
-    }
-}
-
 enum EventStatus: String, Codable, Equatable { case pending, accepted, declined, declinedTimePassed,pastAccepted, cancelled, neverShowed }
 
 enum EventScope { case upcomingInvited, upcomingAccepted, pastAccepted }
 
-
-
+enum EdgeRole: String, Codable { case sent, received }
 
 //Add the images and functions of event details all here.
 enum EventType: String, CaseIterable, Codable, Hashable {
@@ -139,12 +132,3 @@ enum EventType: String, CaseIterable, Codable, Hashable {
         }
     }
 }
-
-
-//Before update
-
-
-/*
- case .grabFood:
-     return ("🍕", "Grab Food")
- */
