@@ -15,16 +15,14 @@ enum showProfilesState {
 @MainActor
 @Observable class SessionManager {
     
+    let authService: AuthServicing
     
-    private let authService: AuthManaging
+    let userRepo: UserRepository
+    let eventsRepo: EventsRepository
+    let profilesRepo: ProfilesRepository
     
-    
-    
-    private let eventRepo: EventManager
-    private let imageLoader: CacheManaging
-    private let userManager: UserManager
-    private let defaultManager: DefaultsManager
-    private let profileBuilder: ProfileModelBuilder
+    let profileLoader: ProfileLoading
+    let imageLoader: ImageLoading
     
     private(set) var session: Session?
     
@@ -36,28 +34,37 @@ enum showProfilesState {
     
     private var appStateBinding: Binding<AppState>?
     
-    
     var user: UserProfile {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
+    
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
     var events: [ProfileModel] = []
     var pastEvents: [ProfileModel] = []
     
-    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
-        self.eventManager = eventManager
-        self.cacheManager = cacheManager
-        self.userManager = userManager
-        self.authManager = authManager
-        self.defaultManager = defaultManager
-        self.profileBuilder = ProfileModelBuilder(userManager: userManager, cache: cacheManager)
+    init(
+        authService: AuthServicing,
+        userRepo: UserRepository,
+        eventsRepo: EventsRepository,
+        profilesRepo: ProfilesRepository,
+        profileLoader: ProfileLoading,
+        imageLoader: ImageLoading)
+    {
+        self.authService = authService
+        self.userRepo = userRepo
+        self.eventsRepo = eventsRepo
+        self.profilesRepo = profilesRepo
+        self.profileLoader = profileLoader
+        self.imageLoader = imageLoader
     }
-    
+        
+        
+            
     func startSession(user: UserProfile, onReady: (() -> Void)? = nil) async {
-        stopSession() ;
-        session = Session(user: user)
+        stopSession()
+        self.session = Session(user: user)
         
         async let eventsLoaded: Void = withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
             Task { await userEventsStream { cont.resume() } }
