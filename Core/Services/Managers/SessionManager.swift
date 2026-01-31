@@ -23,6 +23,7 @@ enum showProfilesState {
     
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
+    let defaultsManager: DefaultsManaging
     
     private(set) var session: Session?
     
@@ -38,14 +39,10 @@ enum showProfilesState {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
-    
-    var profiles: [ProfileModel] = []
-    var invites: [ProfileModel] = []
-    var events: [ProfileModel] = []
-    var pastEvents: [ProfileModel] = []
-    
+        
     init(
         authService: AuthServicing,
+        defaultsManager: DefaultsManaging,
         userRepo: UserRepository,
         eventsRepo: EventsRepository,
         profilesRepo: ProfilesRepository,
@@ -53,6 +50,7 @@ enum showProfilesState {
         imageLoader: ImageLoading)
     {
         self.authService = authService
+        self.defaultsManager = defaultsManager
         self.userRepo = userRepo
         self.eventsRepo = eventsRepo
         self.profilesRepo = profilesRepo
@@ -66,20 +64,25 @@ enum showProfilesState {
         stopSession()
         self.session = Session(user: user)
         
+        //Fetch the events and set up the Stream (Very fragile code)
         async let eventsLoaded: Void = withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
-            Task { await userEventsStream { cont.resume() } }
+            Task { await eventsStream { cont.resume() } }
         }
-
-        async let profilesLoaded: Void = {
-            if let id = await loadCycle(userId: user.id) {
-                return await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
-                    Task { await profilesStream(cycleId: id) { cont.resume() } }
-                }
-            } else {
-                return ()
-            }
-        }()
-        _ = await (eventsLoaded, profilesLoaded)
+        
+        //Fetch the profiles and start the Stream (Set up later
+        /*
+         async let profilesLoaded: Void = {
+             if let id = await loadCycle(userId: user.id) {
+                 return await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+                     Task { await profilesStream(cycleId: id) { cont.resume() } }
+                 }
+             } else {
+                 return ()
+             }
+         }()
+         */
+        
+        _ = await (eventsLoaded, /*profilesLoaded*/)
         userProfileStream()
         onReady?()
     }
@@ -113,14 +116,14 @@ extension SessionManager  {
     
     func userStream (appState: Binding<AppState>) {
         userStreamTask = Task { @MainActor in
-            for await uid in authManager.authStateStream() {
+            for await uid in authService.authStateStream() {
                 guard let uid else {
                     stopSession()
                     appState.wrappedValue = .login
-                    defaultManager.deleteDefaults()
+                    defaultsManager.deleteDefaults()
                     continue
                 }
-                guard let user = try? await userManager.fetchProfile(userId: uid) else {
+                guard let user = try? await userRepo.fetchProfile(userId: uid) else {
                     appState.wrappedValue = .createAccount
                     session = nil
                     continue
@@ -128,10 +131,30 @@ extension SessionManager  {
                 await startSession(user: user) {
                     self.updateAppState(appState, for: user)
                 }
-                Task { await cacheManager.loadProfileImages([user]) }
+                Task { await imageLoader.loadProfileImages([user]) }
             }
         }
     }
+    
+    func userProfileStream() {
+        userProfileStreamTask?.cancel()
+        userProfileStreamTask = Task { @MainActor in
+            do {
+                for try await change in userManager.userListener(userId: user.id) {
+                    if let change {
+                        session?.user = change
+                        if let appStateBinding {
+                            updateAppState(appStateBinding, for: change)
+                        }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    
     
     func profilesStream(cycleId: String, onInitialLoad: (() -> Void)? = nil) async {
         profileStreamTask?.cancel()
@@ -139,17 +162,17 @@ extension SessionManager  {
             do {
                 let (initial, updates) = try await cycleManager.profilesTracker(userId: user.id, cycleId: cycleId)
                 let ids = initial.compactMap(\.id)
-                self.profiles = try await profileBuilder.fromIds(ids)
+                session.profiles = try await profileBuilder.fromIds(ids)
                 onInitialLoad?()
                 for try await update in updates {
                     switch update {
                     case .addProfile(id: let id):
                         if !profiles.contains(where: {$0.id == id }) {
-                            let profile = try await profileBuilder.fromId(id)
-                            profiles.append(profile)
+                            let profile = try await profileLoader.fromId(id)
+                            session.profiles.append(profile)
                         }
                     case .removeProfile(id: let id):
-                            profiles.removeAll(where: {$0.id == id})
+                        session.profiles.removeAll(where: {$0.id == id})
                     }
                 }
             } catch {
@@ -210,40 +233,13 @@ extension SessionManager  {
     }
 }
 
-
-
-/*
-
- func userProfileStream() {
-     userProfileStreamTask?.cancel()
-     userProfileStreamTask = Task { @MainActor in
-         do {
-             for try await change in userManager.userListener(userId: user.id) {
-                 if let change {
-                     session?.user = change
-                     if let appStateBinding {
-                         updateAppState(appStateBinding, for: change)
-                     }
-                 }
-             }
-         } catch {
-             print(error)
-         }
-     }
- }
- */
-
-
-
-
 struct Session {
     var user: UserProfile
-    var invites: [ProfileModel] = []
     var profiles: [ProfileModel] = []
-    var events: [UserEvent] = []
+    var invites: [ProfileModel] = []
+    var events: [ProfileModel] = []
+    var pastEvents: [ProfileModel] = []
 }
-
-
 
 //Important that this is done of the main Thread, so function not in session Manager
 func buildEvents(_ b: ProfileModelBuilder, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {
@@ -252,3 +248,20 @@ func buildEvents(_ b: ProfileModelBuilder, invites: [UserEvent], accepted: [User
     async let past = b.fromEvents(past)
     return try await (inv, acc, past)
 }
+
+
+/*
+ var profiles: [ProfileModel] = []
+ var invites: [ProfileModel] = []
+ var events: [ProfileModel] = []
+ var pastEvents: [ProfileModel] = []
+ */
+
+/*
+ 
+ /*
+
+  */
+
+
+ */

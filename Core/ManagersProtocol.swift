@@ -75,3 +75,10 @@ protocol ProfileLoading {
     func fromEvent(_ event: UserEvent) async throws -> ProfileModel
     func fromId(_ id: String) async throws -> ProfileModel
 }
+
+protocol DefaultsManaging {
+    func createDraftProfile(user: User)
+    func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T)
+    func deleteDefaults()
+    func advanceOnboarding()
+}
