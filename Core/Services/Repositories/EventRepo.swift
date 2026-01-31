@@ -13,7 +13,7 @@ import FirebaseFirestore
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
-class EventManager {
+class EventRepo {
     
     private let userManager: UserManager
     private let fs: FirestoreService
@@ -64,7 +64,8 @@ class EventManager {
                 updatedAt: nil)
         }
     }
-        
+    
+    
     func eventTracker(userId: String, now: Date = .init()) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
         let path = "users/\(userId)/user_events"
         let plus6h = Calendar.current.date(byAdding: .hour, value: 6, to: now)!
@@ -137,30 +138,7 @@ class EventManager {
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
     }
-    
-    func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws {
-        //1. Update the status and specify who cancelled the event
-        let event = try await fetchEvent(eventId: eventId)
-        let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
         
-        try await updateStatus(eventId: eventId, to: .cancelled)
-        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
-        try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
-        try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
-        print("Succesfully updated Cancelled By user")
-        
-        //2. Update user profile to a frozen account (by updating/adding to those fields) and adding 1 to cancel Count
-        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
-        let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
-        
-        try await userManager.updateUser(userId: cancelledById, values: [.blockedContext : encodedBlockedContext] )
-        try await userManager.updateUser(userId: cancelledById, values: [.frozenUntil : twoWeeksFromNow] )
-        try await userManager.updateUser(userId: cancelledById, values: [.cancelCount: FieldValue.increment(Int64(1))])
-        
-        //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
-        try await deleteAllSentPendingInvites(userId: cancelledById)
-    }
-    
     func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
         let path = "users/\(userId)/user_events"
         typealias F = UserEvent.Field
@@ -188,5 +166,31 @@ class EventManager {
             try await deleteEvent(eventId: eventId)
         }
     }
+    
+    
+    //Should move this somewhere else as not pure event handling
+    func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws {
+        //1. Update the status and specify who cancelled the event
+        let event = try await fetchEvent(eventId: eventId)
+        let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
+        
+        try await updateStatus(eventId: eventId, to: .cancelled)
+        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        print("Succesfully updated Cancelled By user")
+        
+        //2. Update user profile to a frozen account (by updating/adding to those fields) and adding 1 to cancel Count
+        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
+        let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
+        
+        try await userManager.updateUser(userId: cancelledById, values: [.blockedContext : encodedBlockedContext] )
+        try await userManager.updateUser(userId: cancelledById, values: [.frozenUntil : twoWeeksFromNow] )
+        try await userManager.updateUser(userId: cancelledById, values: [.cancelCount: FieldValue.increment(Int64(1))])
+        
+        //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
+        try await deleteAllSentPendingInvites(userId: cancelledById)
+    }
+
 }
 

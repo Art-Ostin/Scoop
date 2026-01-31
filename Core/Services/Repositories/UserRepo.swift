@@ -12,7 +12,7 @@ enum UpdateOp {
     case remove([String])
 }
 
-class UserManager {
+class UserRepo {
     
     private let auth: AuthManaging
     private let fs: FirestoreService

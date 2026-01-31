@@ -5,7 +5,7 @@
 //  Created by Art Ostin on 30/01/2026.
 //
 
-import SwiftUI
+import Foundation
 
 struct ProposedTimes: Codable, Equatable  {
     
@@ -67,7 +67,7 @@ struct ProposedTimes: Codable, Equatable  {
         }
     }
     
-    //Use these dates for seeing the availble dates
+    //Do this later
     func getDatesStillAvailble () -> [Date] {
         return [Date()]
     }
