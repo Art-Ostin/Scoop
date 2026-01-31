@@ -24,9 +24,7 @@ protocol FirestoreService {
     func streamCollection<T: Decodable>(_ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) -> AsyncThrowingStream<FSCollectionEvent<T>, Error>
 }
 
-
-
-protocol AuthManaging {
+protocol AuthServicing {
     func createAuthUser(email: String, password: String) async throws -> AuthDataResult
     func signInAuthUser(email: String, password: String) async throws
     func fetchAuthUser () async -> User?
@@ -35,7 +33,7 @@ protocol AuthManaging {
     func authStateStream() -> AsyncStream<String?>
 }
 
-protocol StorageManaging {
+protocol StorageServicing {
     func imagePath(_ imageId: String) -> StorageReference
     func getImageURL(path: String) async throws -> URL
     func saveImage(data: Data, userId: String) async throws -> (path: String, url: URL)

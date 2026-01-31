@@ -11,7 +11,7 @@ import SwiftUI
 
 
 
-class CacheManager: CacheManaging  {
+class ImageLoader: CacheManaging  {
     
     private let cache: NSCache<NSURL, UIImage>
 

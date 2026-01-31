@@ -11,7 +11,20 @@ import SwiftUI
 
 final class AppDependencies {
     
-    let authManager: AuthManaging
+    let authService: AuthServicing
+    
+    let userRepo : UserRepository
+    let eventRepo :
+    let profilesRepo :
+    
+    let imageLoader : 
+    
+    
+    
+    
+    
+    
+    
     let cacheManager: CacheManaging
     let userManager: UserManager
     let storageManager: StorageManaging

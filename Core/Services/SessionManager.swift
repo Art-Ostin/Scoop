@@ -15,49 +15,96 @@ enum showProfilesState {
 @MainActor
 @Observable class SessionManager {
     
-    private let eventManager: EventManager
-    private let cacheManager: CacheManaging
+    
+    private let authService: AuthManaging
+    
+    
+    
+    private let eventRepo: EventManager
+    private let imageLoader: CacheManaging
     private let userManager: UserManager
-    private let authManager: AuthManaging
     private let defaultManager: DefaultsManager
     private let profileBuilder: ProfileModelBuilder
     
     private(set) var session: Session?
     
+    //Store the streams, so that if the session closes cancel all of them
     private var userStreamTask: Task<Void, Never>?
     private var profileStreamTask: Task<Void, Never>?
     private var eventStreamTask: Task<Void, Never>?
-    private var cycleStreamTask: Task<Void, Never>?
     private var userProfileStreamTask: Task<Void, Never>?
     
-    var showProfilesState: showProfilesState?
     private var appStateBinding: Binding<AppState>?
     
-    var activeCycle: CycleModel? { session?.activeCycle }
     
     var user: UserProfile {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
-    
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
     var events: [ProfileModel] = []
     var pastEvents: [ProfileModel] = []
     
-    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, cycleManager: CycleManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
+    init(eventManager: EventManager, cacheManager: CacheManaging, userManager: UserManager, authManager: AuthManaging, defaultManager: DefaultsManager) {
         self.eventManager = eventManager
         self.cacheManager = cacheManager
         self.userManager = userManager
-        self.cycleManager = cycleManager
         self.authManager = authManager
         self.defaultManager = defaultManager
         self.profileBuilder = ProfileModelBuilder(userManager: userManager, cache: cacheManager)
     }
     
-    //Listener for the User State
+    func startSession(user: UserProfile, onReady: (() -> Void)? = nil) async {
+        stopSession() ;
+        session = Session(user: user)
+        
+        async let eventsLoaded: Void = withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            Task { await userEventsStream { cont.resume() } }
+        }
+
+        async let profilesLoaded: Void = {
+            if let id = await loadCycle(userId: user.id) {
+                return await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+                    Task { await profilesStream(cycleId: id) { cont.resume() } }
+                }
+            } else {
+                return ()
+            }
+        }()
+        _ = await (eventsLoaded, profilesLoaded)
+        userProfileStream()
+        onReady?()
+    }
+
+        
+    func stopSession() {
+        profileStreamTask?.cancel()
+        eventStreamTask?.cancel()
+        userProfileStreamTask?.cancel()
+        profiles.removeAll()
+        invites.removeAll()
+        events.removeAll()
+        pastEvents.removeAll()
+        session = nil
+    }
+    
+    
+    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
+        if user.isBlocked {
+            appState.wrappedValue = .blocked
+        } else if user.frozenUntil != nil {
+            appState.wrappedValue = .frozen
+        } else {
+            appState.wrappedValue = .app
+        }
+    }
+}
+
+//Store the three key streams here
+extension SessionManager  {
+    
     func userStream (appState: Binding<AppState>) {
-        appStateBinding = appState
         userStreamTask = Task { @MainActor in
             for await uid in authManager.authStateStream() {
                 guard let uid else {
@@ -79,7 +126,6 @@ enum showProfilesState {
         }
     }
     
-    //Listener For the Profile State
     func profilesStream(cycleId: String, onInitialLoad: (() -> Void)? = nil) async {
         profileStreamTask?.cancel()
         profileStreamTask = Task { @MainActor in
@@ -105,8 +151,7 @@ enum showProfilesState {
         }
     }
     
-    //Listener for the User's Events
-    func userEventsStream(onInitialLoad: (() -> Void)? = nil) async {
+    func eventsStream(onInitialLoad: (() -> Void)? = nil) async {
         eventStreamTask?.cancel()
         eventStreamTask = Task { @MainActor in
             do {
@@ -156,69 +201,30 @@ enum showProfilesState {
             }
         }
     }
-    
-    func userProfileStream() {
-        userProfileStreamTask?.cancel()
-        userProfileStreamTask = Task { @MainActor in
-            do {
-                for try await change in userManager.userListener(userId: user.id) {
-                    if let change {
-                        session?.user = change
-                        if let appStateBinding {
-                            updateAppState(appStateBinding, for: change)
-                        }
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
-    func stopSession() {
-        profileStreamTask?.cancel()
-        eventStreamTask?.cancel()
-        cycleStreamTask?.cancel()
-        userProfileStreamTask?.cancel()
-        profiles.removeAll()
-        invites.removeAll()
-        events.removeAll()
-        pastEvents.removeAll()
-        session = nil
-    }
-    
-    func startSession(user: UserProfile, onReady: (() -> Void)? = nil) async {
-        stopSession() ;
-        session = Session(user: user)
-        
-        async let eventsLoaded: Void = withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
-            Task { await userEventsStream { cont.resume() } }
-        }
-
-        async let profilesLoaded: Void = {
-            if let id = await loadCycle(userId: user.id) {
-                return await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
-                    Task { await profilesStream(cycleId: id) { cont.resume() } }
-                }
-            } else {
-                return ()
-            }
-        }()
-        _ = await (eventsLoaded, profilesLoaded)
-        userProfileStream()
-        onReady?()
-    }
-    
-    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
-        if user.isBlocked {
-            appState.wrappedValue = .blocked
-        } else if user.frozenUntil != nil {
-            appState.wrappedValue = .frozen
-        } else {
-            appState.wrappedValue = .app
-        }
-    }
 }
+
+
+
+/*
+
+ func userProfileStream() {
+     userProfileStreamTask?.cancel()
+     userProfileStreamTask = Task { @MainActor in
+         do {
+             for try await change in userManager.userListener(userId: user.id) {
+                 if let change {
+                     session?.user = change
+                     if let appStateBinding {
+                         updateAppState(appStateBinding, for: change)
+                     }
+                 }
+             }
+         } catch {
+             print(error)
+         }
+     }
+ }
+ */
 
 
 

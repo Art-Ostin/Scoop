@@ -13,7 +13,7 @@ import FirebaseFirestore
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
-class EventRepo {
+class EventsRepo {
     
     private let userManager: UserManager
     private let fs: FirestoreService
@@ -64,7 +64,6 @@ class EventRepo {
                 updatedAt: nil)
         }
     }
-    
     
     func eventTracker(userId: String, now: Date = .init()) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
         let path = "users/\(userId)/user_events"
@@ -166,7 +165,6 @@ class EventRepo {
             try await deleteEvent(eventId: eventId)
         }
     }
-    
     
     //Should move this somewhere else as not pure event handling
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws {

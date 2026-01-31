@@ -9,7 +9,7 @@ import Foundation
 import FirebaseAuth
 import SwiftUI
 
-class AuthService: AuthManaging {
+class AuthService: AuthService {
 
     func createAuthUser(email: String, password: String ) async throws -> AuthDataResult {
         return try await Auth.auth().createUser(withEmail: email, password: password)

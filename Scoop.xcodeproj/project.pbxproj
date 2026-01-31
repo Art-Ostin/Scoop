@@ -722,7 +722,7 @@
 		6577D7D42E203EF300FFCF82 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				65A070502EE06A59009F798B /* CustomButtons */,
+				65A070502EE06A59009F798B /* Buttons */,
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
 				65FE78D52F293C6C00DC2538 /* DropDownView.swift */,
 				6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */,
@@ -794,7 +794,7 @@
 			path = Main;
 			sourceTree = "<group>";
 		};
-		65A070502EE06A59009F798B /* CustomButtons */ = {
+		65A070502EE06A59009F798B /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
@@ -810,7 +810,7 @@
 				655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 			);
-			path = CustomButtons;
+			path = Buttons;
 			sourceTree = "<group>";
 		};
 		65A39BB22E5FBFBB0049D114 /* Settings */ = {
