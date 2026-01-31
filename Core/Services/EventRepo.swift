@@ -181,7 +181,6 @@ class EventManager {
         _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
     }
 
-    
     func deleteAllSentPendingInvites(userId: String) async throws {
         let events = try await fetchPendingSentInvites(userId: userId)
         let ids = events.compactMap(\.id)

@@ -56,7 +56,7 @@ enum showProfilesState {
         self.profileBuilder = ProfileModelBuilder(userManager: userManager, cache: cacheManager)
     }
     
-    //Listening to the User State and Updating
+    //Listener for the User State
     func userStream (appState: Binding<AppState>) {
         appStateBinding = appState
         userStreamTask = Task { @MainActor in
@@ -80,15 +80,15 @@ enum showProfilesState {
         }
     }
     
-    //The Listener for which profiles recommended to the User Updating live.
+    //Listener For the Profile State
     func profilesStream(cycleId: String, onInitialLoad: (() -> Void)? = nil) async {
         profileStreamTask?.cancel()
         profileStreamTask = Task { @MainActor in
-            defer { onInitialLoad?() }
             do {
                 let (initial, updates) = try await cycleManager.profilesTracker(userId: user.id, cycleId: cycleId)
                 let ids = initial.compactMap(\.id)
                 self.profiles = try await profileBuilder.fromIds(ids)
+                onInitialLoad?()
                 for try await update in updates {
                     switch update {
                     case .addProfile(id: let id):
@@ -106,10 +106,10 @@ enum showProfilesState {
         }
     }
     
+    //Listener for the User's Events
     func userEventsStream(onInitialLoad: (() -> Void)? = nil) async {
         eventStreamTask?.cancel()
         eventStreamTask = Task { @MainActor in
-            defer { onInitialLoad?() }
             do {
                 let (initial, updates) = try await eventManager.eventTracker(userId: user.id)
                 
@@ -219,72 +219,19 @@ enum showProfilesState {
             appState.wrappedValue = .app
         }
     }
-    
-
-    //Replace with new system of just Adding Profiles
-    func loadCycle(userId: String) async -> String? {
-        do {
-            let (status, cycle) = try await cycleManager.fetchCycleStatus(user: user)
-            switch status {
-            case .active, .respond:
-                session?.activeCycle = cycle
-                showProfilesState = (status == .active ? .active : .respond)
-                if let cycleId = cycle?.id {
-                    cycleStream(userId: userId, cycleId: cycleId)
-                    return cycleId
-                }
-            case .closed:
-                showProfilesState = .closed
-                session?.activeCycle = nil
-            }
-        } catch {
-            print(error)
-        }
-        return nil
-    }
-    func beginCycle(withId id: String) async throws {
-        showProfilesState = .active
-        cycleStream(userId: user.id, cycleId: id)
-        do {
-            let model = try await cycleManager.fetchCycleModel(userId: user.id, cycleId: id)
-            session?.activeCycle = model
-            await profilesStream(cycleId: id)
-            try await userManager.updateUser(userId: user.id, values: [UserProfile.Field.activeCycleId: id])
-        } catch {
-            print(error)
-        }
-    }
-    func cycleStream(userId: String, cycleId: String) {
-        cycleStreamTask?.cancel()
-        cycleStreamTask = Task { @MainActor in
-            do {
-                for try await cycle in cycleManager.cycleListener(userId: userId, cycleId: cycleId) {
-                    guard let cycleUpdate = cycle else { return }
-                    switch cycleUpdate.cycleStatus {
-                    case .respond:
-                        showProfilesState = .respond
-                    case .closed:
-                        showProfilesState = .closed
-                        session?.activeCycle = nil
-                        return //Important: Closes the listener on the cycle document when its done
-                    case .active:
-                        continue
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
 }
+
+
+
 
 struct Session {
     var user: UserProfile
     var invites: [ProfileModel] = []
     var profiles: [ProfileModel] = []
     var events: [UserEvent] = []
-    var activeCycle: CycleModel?
 }
+
+
 
 //Important that this is done of the main Thread, so function not in session Manager
 func buildEvents(_ b: ProfileModelBuilder, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {

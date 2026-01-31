@@ -30,16 +30,6 @@ class UserManager {
     func fetchProfile(userId: String) async throws -> UserProfile {
         try await fs.get(userPath(userId))
     }
-
-    func updateUserArray(userId: String, values: [UserProfile.Field : [Any]], add: Bool) async throws {
-        var data: [String: [Any]] = [:]
-        for (key, value) in values { data[key.rawValue] = value}
-        if add {
-            try await fs.updateArray(userPath(userId), append: data, remove: [:])
-        } else {
-            try await fs.updateArray(userPath(userId), append: [:], remove: data)
-        }
-    }
     
     func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws {
         var data: [String: Any] = [:]
