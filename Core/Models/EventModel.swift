@@ -31,17 +31,7 @@ struct Event: Identifiable, Codable {
     var status: EventStatus = .pending
     var canText: Bool = false
     var message: String?
-    var changeLog: [Int: [Any : Any]] = [ : [ :]]
-                        
-                        
-                        
-                        
-                        [Any : [Any]]] = [ : ]
-    
-    
-    
-    
-    var timeProposalHistory: [Int: [Date]] = [:]
+    var changeLog: [ChangeLogEntry] = []
     var earlyTerminatorID: String? // If event status is .cancelled or .neverShowed this field gives who is responsible to track e.g. how many 'cancel's or 'no shows.
     @ServerTimestamp var date_created: Date?
     
@@ -132,3 +122,5 @@ enum EventType: String, CaseIterable, Codable, Hashable {
         }
     }
 }
+
+

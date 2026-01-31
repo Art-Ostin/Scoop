@@ -52,7 +52,16 @@ class EventManager {
         try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent)
         
         func makeUserEvent(otherProfile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-            UserEvent(otherUserId: otherProfile.id, role: role, status: event.status, proposedTimes: event.proposedTimes, type: event.type, message: event.message, place: event.location, otherUserName: otherProfile.name , otherUserPhoto: otherProfile.imagePathURL.first ?? "", updatedAt: nil)
+            UserEvent(
+                otherUserId: otherProfile.id,
+                role: role, status: event.status,
+                proposedTimes: event.proposedTimes,
+                type: event.type,
+                message: event.message,
+                place: event.location,
+                otherUserName: otherProfile.name ,
+                otherUserPhoto: otherProfile.imagePathURL.first ?? "",
+                updatedAt: nil)
         }
     }
         
@@ -68,19 +77,19 @@ class EventManager {
         
         let upcomingAcceptedFilters: [FSWhere] = [
             FSWhere(field: F.status.rawValue, op: .eq,  value: EventStatus.accepted.rawValue),
-            FSWhere(field: F.time.rawValue,   op: .gte, value: plus6h),
+            FSWhere(field: F.acceptedTime.rawValue,   op: .gte, value: plus6h),
         ]
         
         let pastAcceptedFilters: [FSWhere] = [
             FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.accepted.rawValue),
-            FSWhere(field: F.time.rawValue,   op: .lt, value: plus6h),
+            FSWhere(field: F.acceptedTime.rawValue,   op: .lt, value: plus6h),
         ]
         
-        async let invited: [UserEvent] = fs.fetchFromCollection(path, filters: invitedFilters, orderBy: FSOrder(field: F.time.rawValue, descending: false), limit: nil)
+        async let invited: [UserEvent] = fs.fetchFromCollection(path, filters: invitedFilters, orderBy: FSOrder(field: F.proposedTimes.rawValue, descending: false), limit: nil)
         
-        async let upcoming: [UserEvent] = fs.fetchFromCollection(path, filters: upcomingAcceptedFilters, orderBy: FSOrder(field: F.time.rawValue, descending: false), limit: nil)
+        async let upcoming: [UserEvent] = fs.fetchFromCollection(path, filters: upcomingAcceptedFilters, orderBy: FSOrder(field: F.acceptedTime.rawValue, descending: false), limit: nil)
         
-        async let past: [UserEvent] = fs.fetchFromCollection(path, filters: pastAcceptedFilters, orderBy: FSOrder(field: F.time.rawValue, descending: true), limit: nil)
+        async let past: [UserEvent] = fs.fetchFromCollection(path, filters: pastAcceptedFilters, orderBy: FSOrder(field: F.acceptedTime.rawValue, descending: true), limit: nil)
         
         let (inv, upc, pas) = try await (invited, upcoming, past)
         
@@ -100,7 +109,7 @@ class EventManager {
                             continue
                         case .added(let it), .modified(let it):
                             let e = it.model
-                            if e.status == .pending, e.role == .received, now < e.inviteExpiryTime {
+                            if e.status == .pending, e.role == .received {
                                 continuation.yield((event: e, kind: .invite))
                             } else if e.status == .accepted {
                                 if e.time >= plus6h {
@@ -182,36 +191,4 @@ class EventManager {
     }
 }
 
-/*
- func getEventExpiryTime(draft: EventDraft) -> Date? {
-     let times = draft.proposedTimes.values
-     
-     guard times.isEmpty else {return nil}
-     
-     
-     
-     
-     guard let eventTimes = draft.proposedTimes.values else { return nil}
-     
-     
-     guard let eventTime = draft.proposedTimes.values.first else {return nil}
-     
-     let timeUntilEvent = eventTime.timeIntervalSince(Date())
-     
-     let day: TimeInterval = 24*3600
-     let hour: TimeInterval = 3600
-     
-     if  timeUntilEvent > TimeInterval(2*day + 8*hour) {
-         return Date().addingTimeInterval(2 * day)
-     } else if  timeUntilEvent > TimeInterval(day + 8*hour) {
-         return Date().addingTimeInterval(day)
-     } else if timeUntilEvent > TimeInterval(14*hour)  {
-         return Calendar.current.date(byAdding: .hour, value: -6, to: eventTime)
-     } else if timeUntilEvent > TimeInterval(8*hour) {
-         return Calendar.current.date(byAdding: .hour, value: -1, to: eventTime)
-     } else {
-         return eventTime
-     }
- }
 
- */
