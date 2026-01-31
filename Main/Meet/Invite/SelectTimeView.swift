@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct SelectTimeView: View {
     
@@ -13,8 +14,7 @@ struct SelectTimeView: View {
     
     @State private var hour: Int = 22
     @State private var minute: Int = 30
-    @State private var selectedDay: Int? = nil
-    let availableHours = [17, 18, 19, 20, 21, 22, 23, 00, 01, 02]
+
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11 //Meet up, up to 10 days in future, not including today
@@ -27,6 +27,8 @@ struct SelectTimeView: View {
                 timePicker
             }
         }
+        .onChange(of: hour) {vm.event.proposedTimes.updateTime(hour: hour, minute: minute)}
+        .onChange(of: minute) {vm.event.proposedTimes.updateTime(hour: hour, minute: minute)}
     }
 }
 
@@ -57,14 +59,9 @@ extension SelectTimeView {
     private func event(idx: Int) -> some View {
         let day = days[idx]
         let isToday = Calendar.current.isDateInToday(day)
-        let isSelected = selectedDay == idx
+        let isSelected = vm.event.proposedTimes.values.contains(day)
         Button {
-            vm.event.proposedTimes.toggle(
-                
-            )
-            
-            
-            
+            vm.event.proposedTimes.updateDate(day: day, hour: hour, minute: minute)
         } label : {
             Text(day, format: .dateTime.day())
                 .font(.body(18, isSelected ? .bold : .medium))
@@ -98,23 +95,29 @@ extension SelectTimeView {
         .tint(.appRed)
         .accentColor(.appRed)
     }
-    
-    private func updateTime() {
-        let calendar = Calendar.current
-        let baseDate: Date = {
-            guard let selectedDay else { return vm.event.time ?? Date()}
-            return days[selectedDay]
-        }()
-        var components = calendar.dateComponents([.year, .month, .day], from: baseDate)
-        components.hour = hour
-        components.minute = minute
-        vm.event.time = calendar.date(from: components)
-    }
-    
-    
-    Calendar.current
-
 }
+
+
+
+
+
+
+
+
+/*
+ private func updateTime() {
+     let calendar = Calendar.current
+     let baseDate: Date = {
+         guard let selectedDay else { return vm.event.time ?? Date()}
+         return days[selectedDay]
+     }()
+     var components = calendar.dateComponents([.year, .month, .day], from: baseDate)
+     components.hour = hour
+     components.minute = minute
+     vm.event.time = calendar.date(from: components)
+ }
+ */
+
 
 //Functions
 

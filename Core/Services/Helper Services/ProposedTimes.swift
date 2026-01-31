@@ -21,7 +21,6 @@ struct ProposedTimes: Codable, Equatable  {
         self.values = Array(values.prefix(Self.maxCount))
     }
     
-    
     mutating func updateDate(day: Date, hour: Int, minute: Int) {
         //1: Get the date in the correct calendar format
         if let parsedDate = parseDate(day: day, hour: hour, minute: minute) {
@@ -59,6 +58,13 @@ struct ProposedTimes: Codable, Equatable  {
         components.minute = minute
         guard let date = Calendar.current.date(from: components) else { return nil }
         return date
+    }
+    
+    mutating func updateTime(hour: Int, minute: Int) {
+        let calendar = Calendar.current
+        values = values.map { old in
+            calendar.date(bySettingHour: hour, minute: minute, second: 0, of: old) ?? old
+        }
     }
     
     //Don't worry about understanding Yet

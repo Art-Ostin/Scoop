@@ -58,7 +58,7 @@ class EventManager {
     }
     
     func getEventExpiryTime(draft: EventDraft) -> Date? {
-        guard let eventTime = draft.time else {return nil}
+        guard let eventTime = draft.proposedTimes.values.first else {return nil}
         
         let timeUntilEvent = eventTime.timeIntervalSince(Date())
         

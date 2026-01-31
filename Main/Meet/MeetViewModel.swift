@@ -52,18 +52,7 @@ import SwiftUI
     func updateEventStatus(eventId: String, status: EventStatus) async throws {
         try await eventManager.updateStatus(eventId: eventId, to: status)
     }
-    
-    func saveIdealMeetUp(event: EventDraft) async throws {
-        guard
-            let time = event.time,
-            let place = event.location,
-            let type = event.type
-        else { return }
-        let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
-        let encodedMeetUp = try Firestore.Encoder().encode(idealMeetUp)
-        try await userManager.updateUser(userId: s.user.id, values: [.idealMeetUp: encodedMeetUp])
-    }
-    
+        
     func sendInvite(event: EventDraft, profileModel: ProfileModel) async throws {
         let user = s.user
         try await cycleManager.inviteSent(userId: user.id, cycle: s.activeCycle, profileId: profileModel.profile.id)
@@ -89,3 +78,16 @@ import SwiftUI
 enum DismissTransition {
     case standard, actionPerformed
 }
+
+/*
+ func saveIdealMeetUp(event: EventDraft) async throws {
+     guard
+         let time = event.time,
+         let place = event.location,
+         let type = event.type
+     else { return }
+     let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
+     let encodedMeetUp = try Firestore.Encoder().encode(idealMeetUp)
+     try await userManager.updateUser(userId: s.user.id, values: [.idealMeetUp: encodedMeetUp])
+ }
+ */

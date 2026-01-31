@@ -12,7 +12,7 @@ struct InviteTimeRow: View {
     @Bindable var vm: TimeAndPlaceViewModel
     
     var body: some View {
-        let time = vm.event.time
+        let time = vm.event.proposedTimes.values.first
         
         HStack {
             if time != nil { Text(formatTime(date: time)).font(.body(18))
