@@ -40,14 +40,6 @@ protocol StorageServicing {
     func deleteImage(path: String) async throws
 }
 
-protocol ImageLoading {
-    @discardableResult
-    func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
-    func fetchImage(for url: URL) async throws -> UIImage
-    func removeImage(for url: URL)
-    func fetchFirstImage(profile: UserProfile) async throws -> UIImage? 
-}
-
 protocol UserRepository {
     func createUser(draft: DraftProfile) throws -> UserProfile
     func fetchProfile(userId: String) async throws -> UserProfile
@@ -55,7 +47,31 @@ protocol UserRepository {
     func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error>
 }
 
-protocol EventRepository {
+protocol EventsRepository {
+    func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws
+    func eventTracker(userId: String, now: Date) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>)
+    func updateStatus(eventId: String, to newStatus: EventStatus) async throws
+    func fetchPendingSentInvites(userId: String) async throws -> [UserEvent]
+    func deleteAllSentPendingInvites(userId: String) async throws
+    func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
+}
+
+protocol ProfilesRepository {
     
     
+}
+
+protocol ImageLoading {
+    @discardableResult
+    func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
+    func fetchImage(for url: URL) async throws -> UIImage
+    func removeImage(for url: URL)
+    func fetchFirstImage(profile: UserProfile) async throws -> UIImage?
+}
+
+protocol ProfileLoading {
+    func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel]
+    func fromIds(_ ids: [String]) async throws -> [ProfileModel]
+    func fromEvent(_ event: UserEvent) async throws -> ProfileModel
+    func fromId(_ id: String) async throws -> ProfileModel
 }

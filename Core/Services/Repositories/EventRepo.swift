@@ -177,15 +177,7 @@ class EventsRepo {
         try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         print("Succesfully updated Cancelled By user")
-        
-        //2. Update user profile to a frozen account (by updating/adding to those fields) and adding 1 to cancel Count
-        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
-        let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
-        
-        try await userManager.updateUser(userId: cancelledById, values: [.blockedContext : encodedBlockedContext] )
-        try await userManager.updateUser(userId: cancelledById, values: [.frozenUntil : twoWeeksFromNow] )
-        try await userManager.updateUser(userId: cancelledById, values: [.cancelCount: FieldValue.increment(Int64(1))])
-        
+                
         //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
