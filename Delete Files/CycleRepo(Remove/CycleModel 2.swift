@@ -10,7 +10,6 @@ import Foundation
 
 enum CycleStatus: String, Codable, Sendable { case active, closed, respond}
 
-enum ProfileRecStatus: String, Codable, Sendable { case pending, invited, dismiss, accepted }
 
 struct CycleStats: Codable, Sendable {
     var total: Int
@@ -39,14 +38,3 @@ struct CycleModel: Identifiable, Codable, Sendable{
 }
 
 
-struct ProfileRec: Identifiable, Codable, Sendable{
-    @DocumentID var id: String?
-    var profileViews: Int
-    var status: ProfileRecStatus
-    @ServerTimestamp var addedDay: Timestamp?
-    var actedAt: Timestamp?
-    
-    enum Field: String {
-        case id, profileViews, status, addedDay
-    }
-}

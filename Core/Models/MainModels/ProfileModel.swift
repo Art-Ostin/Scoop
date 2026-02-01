@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UIKit
+@preconcurrency import FirebaseFirestore
 
 struct ProfileModel: Identifiable, Equatable, Hashable {
     var event: UserEvent?
@@ -22,3 +22,21 @@ struct ProfileModel: Identifiable, Equatable, Hashable {
         hasher.combine(id)
     }
 }
+
+
+struct ProfileRec: Identifiable, Codable, Sendable{
+    @DocumentID var id: String?
+    var profileViews: Int
+    var status: Status
+    @ServerTimestamp var addedDay: Timestamp?
+    var actedAt: Timestamp?
+    
+    enum Field: String {
+        case id, profileViews, status, addedDay
+    }
+    
+    enum Status: String, Codable, Sendable {
+        case pending, invited, dismiss, accepted
+    }
+}
+

@@ -57,7 +57,7 @@ protocol EventsRepository {
 }
 
 protocol ProfilesRepository {
-    
+    func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>)
     
 }
 
