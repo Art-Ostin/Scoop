@@ -455,15 +455,18 @@
 			path = CustomTabBar;
 			sourceTree = "<group>";
 		};
-		65058E872E1C2935009AD7FD /* Services */ = {
+		65058E872E1C2935009AD7FD /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				654C009D2E35835900FFD504 /* AppDependencies.swift */,
+				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
 				652B15412F2EB69F0042A3E1 /* Managers */,
 				652D3D2A2F2E942900AE491D /* Services */,
 				652D3D2B2F2E96B200AE491D /* Repositories */,
 				652D3D2C2F2E976D00AE491D /* Loaders */,
+				65E820B12E39014E0098CC36 /* Models */,
 			);
-			path = Services;
+			path = Data;
 			sourceTree = "<group>";
 		};
 		65058E8C2E1C4080009AD7FD /* Frameworks */ = {
@@ -539,6 +542,45 @@
 				659496FE2E01DD4000880921 /* AppContainer.swift */,
 			);
 			path = "App\\";
+			sourceTree = "<group>";
+		};
+		652B15492F301E970042A3E1 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				652B154B2F301EAF0042A3E1 /* Styles */,
+				652B154C2F301EC30042A3E1 /* Modifiers */,
+				652B154D2F301ECD0042A3E1 /* Animations */,
+				652B154A2F301EA10042A3E1 /* Components */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		652B154A2F301EA10042A3E1 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		652B154B2F301EAF0042A3E1 /* Styles */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Styles;
+			sourceTree = "<group>";
+		};
+		652B154C2F301EC30042A3E1 /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
+		652B154D2F301ECD0042A3E1 /* Animations */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Animations;
 			sourceTree = "<group>";
 		};
 		652D3D2A2F2E942900AE491D /* Services */ = {
@@ -739,6 +781,7 @@
 				652B15482F301B770042A3E1 /* App\ */,
 				659497012E01DD4000880921 /* Features */,
 				65E820B02E3901080098CC36 /* Shared */,
+				65058E872E1C2935009AD7FD /* Data */,
 				6578383C2DE773CE00770B49 /* ScoopTests */,
 				657838462DE773CE00770B49 /* ScoopUITests */,
 				65058E8C2E1C4080009AD7FD /* Frameworks */,
@@ -800,10 +843,7 @@
 		65E820B02E3901080098CC36 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				654C009D2E35835900FFD504 /* AppDependencies.swift */,
-				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
-				65058E872E1C2935009AD7FD /* Services */,
-				65E820B12E39014E0098CC36 /* Models */,
+				652B15492F301E970042A3E1 /* UI */,
 				6577D7D42E203EF300FFCF82 /* Components */,
 				65E820B72E390F200098CC36 /* Resources */,
 				65E5C91F2E510BBA0093410B /* CycleRepo 2.swift */,
