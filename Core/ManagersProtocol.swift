@@ -67,6 +67,7 @@ protocol ImageLoading {
     func fetchImage(for url: URL) async throws -> UIImage
     func removeImage(for url: URL)
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage?
+    @discardableResult
     func addProfileImagesToCache(for profiles: [UserProfile]) -> Task<Void, Never>?
 }
 

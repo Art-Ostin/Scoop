@@ -17,7 +17,6 @@ final class ProfileLoader: ProfileLoading {
         self.userRepo = userRepo
         self.imageLoader = imageLoader
     }
-
     
     func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel] {
         var models: [ProfileModel] = []
@@ -31,7 +30,7 @@ final class ProfileLoader: ProfileLoading {
             }
             for try await m in group { if let m { models.append(m)} }
         }
-        imageLoader.prewarmCache(for: models.map(\.profile))
+        imageLoader.addProfileImagesToCache(for: models.map(\.profile))
         return models
     }
     
@@ -41,27 +40,27 @@ final class ProfileLoader: ProfileLoading {
             for id in ids {
                 group.addTask {
                     guard let profile = try? await self.userRepo.fetchProfile(userId: id) else { return nil }
-                    let img = try? await self.cache.fetchFirstImage(profile: profile)
+                    let img = try? await self.imageLoader.fetchFirstImage(profile: profile)
                     return ProfileModel(event: nil, profile: profile, image: img)
                 }
             }
             for try await m in group { if let m { models.append(m)} }
         }
-        prewarmCache(for: models.map(\.profile))
+        imageLoader.addProfileImagesToCache(for: models.map(\.profile)) //Check if this is working and images are getting added to Cache
         return models
     }
     
     func fromEvent(_ event: UserEvent) async throws -> ProfileModel {
         let profile = try await userRepo.fetchProfile(userId: event.otherUserId)
-        let img = try? await cache.fetchFirstImage(profile: profile)
-        prewarmCache(for: [profile])
+        let img = try? await imageLoader.fetchFirstImage(profile: profile)
+        imageLoader.addProfileImagesToCache(for: [profile])
         return ProfileModel(event: event, profile: profile, image: img)
     }
     
     func fromId(_ id: String) async throws -> ProfileModel {
         let profile = try await userRepo.fetchProfile(userId: id)
-        let img = try? await cache.fetchFirstImage(profile: profile)
-        prewarmCache(for: [profile])
+        let img = try? await imageLoader.fetchFirstImage(profile: profile)
+        imageLoader.addProfileImagesToCache(for: [profile])
         return ProfileModel(event: nil, profile: profile, image: img)
     }
 }
