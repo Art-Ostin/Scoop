@@ -12,7 +12,7 @@ struct OnboardingContainer: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.flowMode) private var mode
     let vm: OnboardingViewModel
-    let storage: StorageManaging
+    let storage: StorageServicing
     @State private var enlargenStep: Bool = false
     @State private var showSaved: Bool = false
     

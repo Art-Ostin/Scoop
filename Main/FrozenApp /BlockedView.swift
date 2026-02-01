@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct BlockedScreen: View {
+struct BlockedView: View {
     
     let vm: FrozenViewModel
-    let email: String
+    var email: String {vm.sessionManager.user.email}
+    
     @State var showSettings: Bool = false
     @State var showBlockedInfo = false
     
@@ -28,14 +29,14 @@ struct BlockedScreen: View {
                 Image("Monkey")
                     .onTapGesture {
                         showBlockedInfo = true
-                }
+                    }
                 VStack(spacing: 12) {
                     Text("Account blocked for not showing")
                         .font(.body(17, .italic))
                         .foregroundStyle(Color.grayText)
                         .lineSpacing(6)
                         .multilineTextAlignment(.center)
-
+                    
                     BlockedContextView(frozenContext: blockedContext, vm: vm, isBlock: true)
                         .onTapGesture { showBlockedInfo  = true }
                 }
@@ -61,30 +62,3 @@ struct BlockedScreen: View {
         }
     }
 }
-
-//#Preview {
-//    LockedScreen()
-//}
-
-/*
- //            .overlay (alignment: .topTrailing){
- //                TabInfoButton(showScreen: $showWhyBlocked)
- //            }
- //            .sheet(isPresented: $showWhyBlocked) {
- //                LockedInfo()
- //            }
-//     @State var showWhyBlocked: Bool = false
- */
-
-/*
- .overlay(alignment: .topTrailing) {
-     Button {
-         showBlockedInfo = true
-     } label : {
-         Image(systemName: "info.circle")
-             .font(.body(17, .regular))
-             .offset(x: 20, y: -12)
-             .foregroundStyle(.black)
-     }
- }
- */

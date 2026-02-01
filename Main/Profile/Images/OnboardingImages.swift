@@ -24,9 +24,9 @@ struct OnboardingImages: View {
     
     @State var showSavingScreen: Bool = false
     
-    init(vm: OnboardingViewModel, defaults: DefaultsManager, storage: StorageManaging, auth: AuthServicing) {
+    init(vm: OnboardingViewModel, defaultsManager: DefaultsManager, storageService: StorageServicing, authService: AuthServicing) {
         self.vm = vm
-        _imageVM = State(wrappedValue: OnboardingImageViewModel(defaults: defaults, storage: storage, auth: auth))
+        _imageVM = State(wrappedValue: OnboardingImageViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
     }
 
     var body: some View {

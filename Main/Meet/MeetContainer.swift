@@ -8,49 +8,41 @@
 import SwiftUI
 
 //@State var showProfileTest: ProfileModel?
+//@State private var profilePath: [ProfileModel] = []
+
 
 struct MeetContainer: View {
     let vm: MeetViewModel
-    @State private var profilePath: [ProfileModel] = []
-    @State var selectedProfile: ProfileModel? = nil
-    
-    @State var showIdealTime: Bool = false
-    @State var quickInvite: ProfileModel?
-    @State var showPendingInvites = false
-    @State var showInfo: Bool = false
-    
-    @State var openPastInvites = false
+    @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
-        
     @State var profileImages: [String : [UIImage]] = [:]
-    
     @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
     
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
             ZStack {
-                CustomTabPage(page: .Meet,TabAction: $showInfo) {
-                    profileScroller
+                CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
+                    profileRecSection(profiles: vm.profiles)
                     meetInfo
                 }
                 .id(vm.profiles.count)
                 
-                if let profileModel = selectedProfile {
-                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $selectedProfile, dismissOffset: $dismissOffset)
+                if let profileModel = ui.selectedProfile {
+                    ProfileView(vm: ProfileViewModel(profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
                         .id(profileModel.id)
                         .zIndex(1)
                         .transition(.move(edge: .bottom))
                 }
                 
-                if let currentProfile = quickInvite {
-                    SelectTimeAndPlace(profile: currentProfile, onDismiss: { quickInvite = nil}) { event in
-                        try? await vm.sendInvite(event: event, profileModel: currentProfile)
+                if let currentProfile = ui.quickInvite {
+                    SelectTimeAndPlace(profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
+                        try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .sheet(isPresented: $showPendingInvites) {pastInviteView}
+            .sheet(isPresented: $ui.showPendingInvites) {pastInviteView}
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (16 * 2)
@@ -62,22 +54,22 @@ extension MeetContainer {
     
     private var meetInfo: some View {
         VStack(spacing: 60) {
-            MeetSuggestionView(user: vm.user, showIdealMeet: $showIdealTime)
+            MeetSuggestionView(user: vm.user, showIdealMeet: $ui.showIdealTime)
             newProfileTimer
-            DefaultAppButton(image: Image("PastInvites"), size: 25, isPresented: $showPendingInvites)
+            DefaultAppButton(image: Image("PastInvites"), size: 25, isPresented: $ui.showPendingInvites)
                 .offset(y: -12)
         }
     }
     
-    private func profileList(_ items: [ProfileModel]) -> some View {
+    private func profileRecSection(profiles: [ProfileModel]) -> some View {
         LazyVStack(spacing: 72) {
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, profile in
-                ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $quickInvite)
+            ForEach(profiles) { profile in
+                ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $ui.quickInvite)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if selectedProfile == nil {
+                        if ui.selectedProfile == nil {
                             dismissOffset = nil
-                            selectedProfile = profile
+                            ui.selectedProfile = profile
                         }
                     }
                     .task {
@@ -89,7 +81,8 @@ extension MeetContainer {
             }
         }
     }
-    
+            
+
     private var newProfileTimer: some View {
         HStack(spacing: 0) {
             Text("new profiles in: ")
@@ -100,26 +93,6 @@ extension MeetContainer {
         .frame(maxWidth: .infinity, alignment: .center)
     }
     
-    private var profileScroller: some View {
-        VStack(spacing: 72) {
-            profileList(vm.invites)
-            if  vm.showProfilesState != .closed {
-                profileList (vm.profiles)
-            } else {
-                IntroView(vm: vm, showIdealTime: $showIdealTime)
-            }
-        }
-        .padding(.bottom, 36)
-    }
-    
-    @ViewBuilder
-    private var clockView: some View {
-        if let time = vm.endTime, vm.showProfilesState == .active {
-            SimpleClockView(targetTime: time) {}
-        } else if vm.showProfilesState == .respond {
-            Text("Respond to Refresh")
-        }
-    }
     
     private var pastInviteView: some View {
         NavigationStack {
@@ -128,8 +101,8 @@ extension MeetContainer {
                     ForEach(vm.pendingInvites) { profileModel in
                         PendingInviteCard(
                             profile: profileModel,
-                            showPendingInvites: $showPendingInvites,
-                            openPastInvites: $openPastInvites
+                            showPendingInvites: $ui.showPendingInvites,
+                            openPastInvites: $ui.openPastInvites
                         )
                     }
                 }
@@ -141,12 +114,3 @@ extension MeetContainer {
         .presentationDragIndicator(.visible)
     }
 }
-
-/*
- if showIdealTime {
-     SelectTimeAndPlace(text: "Find Profiles", onDismiss: { showIdealTime = false }) { event in
-         try? await vm.saveIdealMeetUp(event: event)
-         try? await vm.createWeeklyCycle()
-     }
- }
- */

@@ -41,9 +41,7 @@ struct FrozenExplainedScreen: View {
                 .padding(.top, 48)
                 .frame(maxWidth: .infinity, alignment: .center)
             
-            
             OkDismissButton()
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal, 24)

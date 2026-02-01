@@ -60,15 +60,8 @@ extension AppContainer {
     }
     
     private var matchesView: some View {
-        MatchesView(vm: MatchesViewModel(
-            userRepo: dep.userRepo,
-            imageLoader: dep.imageLoader,
-            authService: dep.authService,
-            storageManager: dep.storageManager,
-            s: dep.sessionManager,
-            eventRepo: dep.eventRepo,
-            defaultsManager: dep.defaultsManager
-        ))
+        MatchesView(vm: MatchesViewModel(s: dep.sessionManager, storageService: dep.storageService, authService: dep.authService, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
+        )
     }
 }
 

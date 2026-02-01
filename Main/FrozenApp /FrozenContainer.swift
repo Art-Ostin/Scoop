@@ -9,19 +9,16 @@ import SwiftUI
 
 struct FrozenContainer: View {
     @Environment(\.appDependencies) private var dep
-    
-    var body: some View {
-        if dep.sessionManager.events.isEmpty {
-            frozenView
-        } else {
-            FrozenWithEvents(vm: FrozenViewModel(sessionManager: dep.sessionManager, imageLoader: dep.imageLoader, authService: dep.authService, eventRepo: dep.eventRepo))
-        }
+    private var vm: FrozenViewModel {
+        FrozenViewModel(sessionManager: dep.sessionManager, authService: dep.authService, userRepo: dep.userRepo, eventRepo: dep.eventRepo,imageLoader: dep.imageLoader)
     }
-}
-
-extension FrozenContainer {
-    
-    private var frozenView: some View {
-        FrozenView(vm: FrozenViewModel(sessionManager: dep.sessionManager, imageLoader: dep.imageLoader, authService: dep.authService, eventRepo: dep.eventRepo))
+    var body: some View {
+        if dep.sessionManager.user.isBlocked {
+            BlockedView(vm: vm)
+        } else if dep.sessionManager.events.isEmpty {
+            FrozenView(vm: vm)
+        } else {
+            FrozenWithEvents(vm: vm)
+        }
     }
 }

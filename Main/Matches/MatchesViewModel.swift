@@ -11,31 +11,24 @@ import UIKit
 @MainActor
 @Observable class MatchesViewModel {
     
-    var s: SessionManager
+    let s: SessionManager
+    let storageService: StorageServicing
+    let authService: AuthServicing
+    let userRepo: UserRepository
+    let profilesRepo: ProfilesRepository
+    let eventsRepo: EventsRepository
+    let imageLoader: ImageLoading
     
-    
-    
-    
-    var userRepo: userRepo
-    var imageLoader: ImageLoading
-    var authService: AuthServicing
-    var storageManager: StorageManaging
-    var s: SessionManager
-    var defaultsManager: DefaultsManager
-    let eventRepo: eventRepo
-    let cycleManager: CycleManager
-    
-    init(userRepo: userRepo, imageLoader: ImageLoading, authService: AuthServicing, storageManager: StorageManaging, s: SessionManager, eventRepo: eventRepo, cycleManager: CycleManager, defaultsManager: DefaultsManager) {
-        self.userRepo = userRepo
-        self.imageLoader = imageLoader
-        self.authService = authService
-        self.storageManager = storageManager
+    init(s: SessionManager, storageService: StorageServicing, authService: AuthServicing, userRepo: UserRepository, profilesRepo: ProfilesRepository, eventsRepo: EventsRepository, imageLoader: ImageLoading) {
         self.s = s
-        self.defaultsManager = defaultsManager
-        self.eventRepo = eventRepo
-        self.cycleManager = cycleManager
+        self.storageService = storageService
+        self.authService = authService
+        self.userRepo = userRepo
+        self.profilesRepo = profilesRepo
+        self.eventsRepo = eventsRepo
+        self.imageLoader = imageLoader
     }
-    
+        
     func fetchFirstImage() async throws -> UIImage {
         try await imageLoader.fetchFirstImage(profile: user) ?? UIImage()
     }

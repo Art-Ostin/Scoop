@@ -565,6 +565,8 @@
 			isa = PBXGroup;
 			children = (
 				65E5C91F2E510BBA0093410B /* CycleRepo 2.swift */,
+				6577317D2F2677E000B309FC /* BlockedContainer.swift */,
+				65E5C8EE2E4E5CC90093410B /* IntroView.swift */,
 				65E5C91D2E5100FC0093410B /* CycleModel 2.swift */,
 			);
 			path = "CycleRepo(Remove";
@@ -682,7 +684,6 @@
 			children = (
 				65E5C9252E51FBB10093410B /* MeetViewModel.swift */,
 				65F450CA2E463E7900AE3503 /* MeetContainer.swift */,
-				65E5C8EE2E4E5CC90093410B /* IntroView.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				6508840F2EAD23B800776620 /* MeetSuggestionView.swift */,
 				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
@@ -900,14 +901,13 @@
 		65F660BE2F23DBDA00AF791F /* FrozenApp  */ = {
 			isa = PBXGroup;
 			children = (
-				656B31D22F251501008641C1 /* FrozenViewModel.swift */,
 				656B31D42F252E90008641C1 /* FrozenContainer.swift */,
+				65F660C12F23E4B900AF791F /* BlockedView.swift */,
 				653606402F23CBD2006334D6 /* FrozenView.swift */,
 				656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */,
 				65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */,
 				65F660C92F23F46300AF791F /* FrozenContextView.swift */,
-				6577317D2F2677E000B309FC /* BlockedContainer.swift */,
-				65F660C12F23E4B900AF791F /* BlockedView.swift */,
+				656B31D22F251501008641C1 /* FrozenViewModel.swift */,
 			);
 			path = "FrozenApp ";
 			sourceTree = "<group>";

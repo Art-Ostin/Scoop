@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum showProfilesState {
+enum ShowProfilesState {
     case active, closed, respond
 }
 
@@ -117,9 +117,7 @@ enum showProfilesState {
     
     //Checks if user is blocked or frozen before going to main appState
     private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
-        if user.isBlocked {
-            appState.wrappedValue = .blocked
-        } else if user.frozenUntil != nil {
+        if user.isBlocked || user.frozenUntil != nil {
             appState.wrappedValue = .frozen
         } else {
             appState.wrappedValue = .app

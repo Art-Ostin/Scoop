@@ -12,12 +12,12 @@ import FirebaseAuth
 @Observable class OnboardingViewModel {
     
     @ObservationIgnored let authService: AuthServicing
-    @ObservationIgnored let defaultManager: DefaultsManager
+    @ObservationIgnored let defaultManager: DefaultsManaging
     @ObservationIgnored private let sessionManager: SessionManager
     @ObservationIgnored private let userRepo: UserRepository
     
     
-    init(authService: AuthServicing, defaultManager: DefaultsManager, sessionManager: SessionManager, userRepo: UserRepository) {
+    init(authService: AuthServicing, defaultManager: DefaultsManaging, sessionManager: SessionManager, userRepo: UserRepository) {
         self.authService = authService
         self.defaultManager = defaultManager
         self.sessionManager = sessionManager

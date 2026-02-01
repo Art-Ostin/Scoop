@@ -14,12 +14,12 @@ import UIKit
 @Observable final class OnboardingImageViewModel {
     
     private let defaults: DefaultsManager
-    private let storage: StorageManaging
+    private let storageService: StorageServicing
     private let auth: AuthServicing
     
-    init(defaults: DefaultsManager, storage: StorageManaging, auth: AuthServicing) {
+    init(defaults: DefaultsManager, storageService: StorageServicing, auth: AuthServicing) {
         self.defaults = defaults
-        self.storage  = storage
+        self.storageService  = storageService
         self.auth = auth
     }
     
@@ -31,7 +31,7 @@ import UIKit
     func saveAll(images: [UIImage?]) async  {
         guard let userId = await auth.fetchAuthUser()?.uid else { return }
         let items = Array(images.enumerated())
-        let storage = self.storage
+        let storage = self.storageService
         var results: [(index: Int, path: String, url: URL)] = []
         do {
             try await withThrowingTaskGroup(of: (Int, String, URL).self) { group in

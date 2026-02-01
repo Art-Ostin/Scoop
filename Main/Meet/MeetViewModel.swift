@@ -62,3 +62,13 @@ import SwiftUI
 enum DismissTransition {
     case standard, actionPerformed
 }
+
+@Observable final class MeetUIState {
+    var selectedProfile: ProfileModel? = nil
+    var showIdealTime: Bool = false
+    var quickInvite: ProfileModel?
+    var showPendingInvites = false
+    var showInfo: Bool = false
+    var openPastInvites = false
+}
+

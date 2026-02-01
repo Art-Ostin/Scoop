@@ -13,15 +13,15 @@ import FirebaseAuth
 @Observable class VerifyEmailViewModel {
     
     let sessionManager: SessionManager
+    let defaultsManager: DefaultsManaging
     let authService: AuthServicing
-    let userRepo: userRepo
-    let defaultsManager: DefaultsManager
+    let userRepo: UserRepository
     
-    init (sessionManager: SessionManager, authService: AuthServicing, userRepo: userRepo, defaultsManager: DefaultsManager) {
+    init (sessionManager: SessionManager, defaultsManager: DefaultsManager, authService: AuthServicing, userRepo: UserRepository) {
         self.sessionManager = sessionManager
+        self.defaultsManager = defaultsManager
         self.authService = authService
         self.userRepo = userRepo
-        self.defaultsManager = defaultsManager
     }
     
     func isValid(email: String) -> Bool {
