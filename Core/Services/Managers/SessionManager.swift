@@ -60,6 +60,7 @@ enum showProfilesState {
     
     //Tracks if user signed in or not & decides app state on launch
     func userStream (appState: Binding<AppState>) {
+        appStateBinding = appState
         userStreamTask = Task { @MainActor in
             
             for await uid in authService.authStateStream() {

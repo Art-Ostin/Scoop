@@ -58,7 +58,7 @@ protocol EventsRepository {
 
 protocol ProfilesRepository {
     func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>)
-    
+    func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws
 }
 
 protocol ImageLoading {

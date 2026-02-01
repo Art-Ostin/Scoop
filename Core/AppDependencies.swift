@@ -13,28 +13,29 @@ final class AppDependencies {
     
     let authService: AuthServicing
     let storageService: StorageServicing
+    let defaultsManager: DefaultsManaging
     
     let userRepo : UserRepository
     let eventRepo : EventsRepository
     let profilesRepo : ProfilesRepository
     
     let imageLoader : ImageLoading
-    
-    let defaultsManager: DefaultsManager
+    let profileLoader : ProfileLoading
     
     @MainActor
     lazy var sessionManager: SessionManager = {
         SessionManager(
-            eventManager: eventManager,
-            cacheManager: cacheManager,
-            userManager: userManager,
-            authManager: authManager,
-            defaultManager: defaultsManager
-        )
+            authService: authService,
+            defaultsManager: defaultsManager,
+            userRepo: userRepo,
+            eventsRepo: eventRepo,
+            profilesRepo: profilesRepo,
+            profileLoader: profileLoader,
+            imageLoader: imageLoader)
     }()
     
     init(
-        authManager: AuthManaging? = nil,
+        authManager: AuthService? = nil,
         cacheManager: CacheManaging? = nil,
         userManager: UserManager? = nil,
         firestore: FirestoreService? = nil

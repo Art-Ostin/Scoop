@@ -22,17 +22,17 @@ class ProfileRepo {
     init(fs: FirestoreService) {
         self.fs = fs
     }
-    
-    private func profilesFolder(userId: String) -> String {
-        "users/\(userId)/profiles"
+
+    private func profilesFolder(userId: String, subfolder: ProfileSubfolder) -> String {
+        "users/\(userId)/profiles_\(subfolder.rawValue)"
     }
     private func profilePath(userId: String, subfolder: ProfileSubfolder, profileId: String) -> String {
-        "\(profilesFolder(userId: userId))/\(subfolder.rawValue)/\(profileId)"
+        "\(profilesFolder(userId: userId, subfolder: subfolder))/\(profileId)"
     }
     
     //Fetches the initial profiles on Launch and listens for any updates
     func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>) {
-        let path = profilesFolder(userId: userId)
+        let path = profilesFolder(userId: userId, subfolder: .pending)
         let filters: [FSWhere] = [FSWhere(field: ProfileRec.Field.status.rawValue, op: .eq,  value: ProfileRec.Status.pending.rawValue)]
         let initial: [ProfileRec] = try await fs.fetchFromCollection(path, filters: filters, orderBy: nil, limit: nil)
         
