@@ -44,8 +44,8 @@ extension FrozenWithEvents {
     
     private var eventsView: some View {
         EventContainer(vm: EventViewModel(
-            cacheManager: vm.cacheManager,
-            eventManager: vm.eventManager,
+            imageLoader: vm.imageLoader,
+            eventRepo: vm.eventRepo,
             sessionManager: vm.sessionManager
         ), showFrozenInfo: $showFrozenInfo, isFrozenEvent: true)
     }

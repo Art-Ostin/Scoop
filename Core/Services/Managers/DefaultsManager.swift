@@ -9,7 +9,8 @@ import Foundation
 import FirebaseAuth
 
 //Updates & stores a 'Draft Profile' during onboarding which persists between sessions. Also saves user's onboarding stage
-@Observable final class DefaultsManager {
+@Observable
+final class DefaultsManager: DefaultsManaging {
     
     let defaults: UserDefaults
     private enum Keys: String { case draftProfile, onboardingStep}

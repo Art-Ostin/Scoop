@@ -10,7 +10,7 @@ import FirebaseStorage
 import SwiftUI
 
 
-class StorageService: StorageManaging {
+class StorageService: StorageServicing {
     
     private let storage = Storage.storage().reference()
     

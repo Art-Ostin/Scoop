@@ -12,15 +12,15 @@ import Foundation
 class FrozenViewModel {
     
     var sessionManager : SessionManager
-    var cacheManager: CacheManaging
+    var imageLoader: ImageLoading
     var authManager: AuthManaging
-    var eventManager: EventManager
+    var eventRepo: eventRepo
     
-    init(sessionManager: SessionManager, cacheManager: CacheManaging, authManager: AuthManaging, eventManager: EventManager) {
+    init(sessionManager: SessionManager, imageLoader: ImageLoading, authManager: AuthManaging, eventRepo: eventRepo) {
         self.sessionManager = sessionManager
-        self.cacheManager = cacheManager
+        self.imageLoader = imageLoader
         self.authManager = authManager
-        self.eventManager = eventManager
+        self.eventRepo = eventRepo
     }
     
     var user: UserProfile {sessionManager.user}

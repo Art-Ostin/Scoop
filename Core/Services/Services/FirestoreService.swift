@@ -26,7 +26,7 @@ enum FSOp { case eq, lt, lte, gt, gte }
 struct FSOrder { let field: String; let descending: Bool }
 
 
-final class LiveFirestoreService: FirestoreService {    
+final class FirestoreService: FirestoreServicing {    
     
     let db = Firestore.firestore()
     

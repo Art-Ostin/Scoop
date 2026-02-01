@@ -1,5 +1,5 @@
 //
-//  CacheManager.swift
+//  imageLoader.swift
 //  ScoopTest
 //
 //  Created by Art Ostin on 31/07/2025.
@@ -11,7 +11,7 @@ import SwiftUI
 
 //Injecting ImageLoader around the app as don't want to have multiple Caches open
 
-class ImageLoader: CacheManaging  {
+class ImageLoader: ImageLoading  {
     
     private let cache: NSCache<NSURL, UIImage>
 

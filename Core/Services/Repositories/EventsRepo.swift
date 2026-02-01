@@ -1,5 +1,5 @@
 //
-//  EventManager.swift
+//  eventRepo.swift
 //  ScoopTest
 //
 //  Created by Art Ostin on 03/08/2025.
@@ -13,12 +13,12 @@ import FirebaseFirestore
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
-class EventsRepo {
+class EventsRepo: EventsRepository {
     
-    private let userManager: UserManager
+    private let userRepo: UserRepository
     private let fs: FirestoreService
     
-    init(userManager: UserManager, fs: FirestoreService) { self.userManager = userManager ; self.fs = fs }
+    init(userRepo: UserRepository, fs: FirestoreService) { self.userRepo = userRepo ; self.fs = fs }
     
     private func EventPath(eventId: String) -> String {
         "events/\(eventId)"

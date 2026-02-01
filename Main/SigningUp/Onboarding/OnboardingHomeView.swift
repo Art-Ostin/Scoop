@@ -42,7 +42,7 @@ struct OnboardingHomeView: View {
                         authManager: dep.authManager,
                         defaultManager: dep.defaultsManager,
                         sessionManager: dep.sessionManager,
-                        userManager: dep.userManager,
+                        userRepo: dep.userRepo,
                     )
                 }
             }

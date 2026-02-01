@@ -10,7 +10,6 @@ struct AppContainer: View {
     
     @State var tabSelection: TabBarItem = .meet
     @Environment(\.appDependencies) private var dep
-    
         
     var body: some View {
         
@@ -50,28 +49,28 @@ extension AppContainer {
         MeetContainer(vm: MeetViewModel(
             cycleManager: dep.cycleManager,
             s: dep.sessionManager,
-            cacheManager: dep.cacheManager,
-            eventManager: dep.eventManager,
-            userManager: dep.userManager
+            imageLoader: dep.imageLoader,
+            eventRepo: dep.eventRepo,
+            userRepo: dep.userRepo
         ))
     }
     
     private var eventsView: some View {
         EventContainer(vm: EventViewModel(
-            cacheManager: dep.cacheManager,
-            eventManager: dep.eventManager,
+            imageLoader: dep.imageLoader,
+            eventRepo: dep.eventRepo,
             sessionManager: dep.sessionManager
         ))
     }
     
     private var matchesView: some View {
         MatchesView(vm: MatchesViewModel(
-            userManager: dep.userManager,
-            cacheManager: dep.cacheManager,
+            userRepo: dep.userRepo,
+            imageLoader: dep.imageLoader,
             authManager: dep.authManager,
             storageManager: dep.storageManager,
             s: dep.sessionManager,
-            eventManager: dep.eventManager,
+            eventRepo: dep.eventRepo,
             cycleManager: dep.cycleManager,
             defaultsManager: dep.defaultsManager
         ))

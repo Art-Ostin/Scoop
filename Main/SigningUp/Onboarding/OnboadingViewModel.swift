@@ -14,14 +14,14 @@ import FirebaseAuth
     @ObservationIgnored let authManager: AuthManaging
     @ObservationIgnored let defaultManager: DefaultsManager
     @ObservationIgnored private let sessionManager: SessionManager
-    @ObservationIgnored private let userManager: UserManager
+    @ObservationIgnored private let userRepo: userRepo
     
     
-    init(authManager: AuthManaging, defaultManager: DefaultsManager, sessionManager: SessionManager, userManager: UserManager) {
+    init(authManager: AuthManaging, defaultManager: DefaultsManager, sessionManager: SessionManager, userRepo: userRepo) {
         self.authManager = authManager
         self.defaultManager = defaultManager
         self.sessionManager = sessionManager
-        self.userManager = userManager
+        self.userRepo = userRepo
     }
     
     //Method to decide which direction to go if forward or back
@@ -54,7 +54,7 @@ import FirebaseAuth
             print("No draft")
             return
         }
-        let profile = try userManager.createUser(draft: signUpDraft)
+        let profile = try userRepo.createUser(draft: signUpDraft)
         await sessionManager.startSession(user: profile)
     }
     

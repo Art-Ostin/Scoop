@@ -11,26 +11,23 @@ import SwiftUI
 
 @MainActor
 @Observable final class MeetViewModel {
-        
-    let cycleManager: CycleManager
-    let cacheManager: CacheManaging
+
+    let imageLoader: ImageLoading
     let s: SessionManager
-    let eventManager: EventManager
-    let userManager: UserManager
+    let eventRepo: EventsRepository
+    let userRepo: UserRepository
     
-    init(cycleManager: CycleManager, s: SessionManager, cacheManager: CacheManaging, eventManager: EventManager, userManager: UserManager) {
-        self.cycleManager = cycleManager
-        self.cacheManager = cacheManager
+    init(s: SessionManager, imageLoader: ImageLoading, eventRepo: EventsRepository, userRepo: UserRepository) {
+        self.imageLoader = imageLoader
         self.s = s
-        self.eventManager = eventManager
-        self.userManager = userManager
+        self.eventRepo = eventRepo
+        self.userRepo = userRepo
     }
     
-    var activeCycle: CycleModel? { s.activeCycle }
     
-    var invites: [ProfileModel] { s.invites }
+    var invites: [ProfileModel] { s.session?.invites }
     
-    var profiles: [ProfileModel] { s.profiles }
+    var profiles: [ProfileModel] { s.session?.profiles }
     
     var pendingInvites: [ProfileModel] { s.profiles} // Change later
     
@@ -46,17 +43,17 @@ import SwiftUI
     }
     
     func fetchImage(url: URL) async throws -> UIImage {
-        try await cacheManager.fetchImage(for: url)
+        try await imageLoader.fetchImage(for: url)
     }
     
     func updateEventStatus(eventId: String, status: EventStatus) async throws {
-        try await eventManager.updateStatus(eventId: eventId, to: status)
+        try await eventRepo.updateStatus(eventId: eventId, to: status)
     }
         
     func sendInvite(event: EventDraft, profileModel: ProfileModel) async throws {
         let user = s.user
         try await cycleManager.inviteSent(userId: user.id, cycle: s.activeCycle, profileId: profileModel.profile.id)
-        Task { try await eventManager.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
+        Task { try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
     }
     
     func declineProfile(profileModel: ProfileModel) async throws {
@@ -66,11 +63,11 @@ import SwiftUI
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
         guard let event = profileModel.event, let id = event.id else { return }
-        try await eventManager.updateStatus(eventId: id, to: .accepted)
+        try await eventRepo.updateStatus(eventId: id, to: .accepted)
     }
     
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {
-        return await cacheManager.loadProfileImages([profileModel.profile])
+        return await imageLoader.loadProfileImages([profileModel.profile])
     }
     
 }
@@ -78,16 +75,3 @@ import SwiftUI
 enum DismissTransition {
     case standard, actionPerformed
 }
-
-/*
- func saveIdealMeetUp(event: EventDraft) async throws {
-     guard
-         let time = event.time,
-         let place = event.location,
-         let type = event.type
-     else { return }
-     let idealMeetUp = IdealMeetUp(time: time, place: place, type: type, message: event.message)
-     let encodedMeetUp = try Firestore.Encoder().encode(idealMeetUp)
-     try await userManager.updateUser(userId: s.user.id, values: [.idealMeetUp: encodedMeetUp])
- }
- */

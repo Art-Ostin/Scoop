@@ -13,8 +13,8 @@ import FirebaseFirestore
 @MainActor
 @Observable class EditProfileViewModel {
     
-    @ObservationIgnored private let userManager: UserManager
-    @ObservationIgnored let cacheManager: CacheManaging
+    @ObservationIgnored private let userRepo: userRepo
+    @ObservationIgnored let imageLoader: ImageLoading
     @ObservationIgnored private let s: SessionManager
     @ObservationIgnored private let storageManager: StorageManaging
 
@@ -24,10 +24,10 @@ import FirebaseFirestore
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedImages: [Int: Data] = [:]
         
-    init(cacheManager: CacheManaging, s: SessionManager, userManager: UserManager, storageManager: StorageManaging, importedImages: [UIImage]) {
-        self.cacheManager = cacheManager
+    init(imageLoader: ImageLoading, s: SessionManager, userRepo: userRepo, storageManager: StorageManaging, importedImages: [UIImage]) {
+        self.imageLoader = imageLoader
         self.s = s
-        self.userManager = userManager
+        self.userRepo = userRepo
         self.storageManager = storageManager
         self.images = importedImages
         self.draft = s.user
@@ -53,7 +53,7 @@ import FirebaseFirestore
     
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
-        try await userManager.updateUser(userId: user.id, values: updatedFields)
+        try await userRepo.updateUser(userId: user.id, values: updatedFields)
     }
     
     func saveProfileChanges() async throws {
@@ -66,7 +66,7 @@ import FirebaseFirestore
     }
     
     func updateUser(values: [UserProfile.Field : Any]) async throws  {
-        try await userManager.updateUser(userId: user.id, values: values)
+        try await userRepo.updateUser(userId: user.id, values: values)
     }
 }
 
@@ -101,7 +101,7 @@ extension EditProfileViewModel {
                  let oldURLString = urls[index]
                  let oldURL = oldURLString.isEmpty ? nil : URL(string: oldURLString)
                  group.addTask {
-                     if let oldURL { await self.cacheManager.removeImage(for: oldURL) }
+                     if let oldURL { await self.imageLoader.removeImage(for: oldURL) }
                      if let oldPath { try? await self.storageManager.deleteImage(path: oldPath) }
                      let saveResult = try await self.storageManager.saveImage(data: data, userId: userId)
                      let originalPath = saveResult.path
@@ -118,12 +118,12 @@ extension EditProfileViewModel {
              paths[r.index] = r.path
              urls[r.index]  = r.url.absoluteString
          }
-         try await userManager.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
+         try await userRepo.updateUser(userId: user.id, values: [.imagePath: paths, .imagePathURL: urls])
     }
     
     @MainActor
     func loadImages() async {
-        self.images = await cacheManager.loadProfileImages([user])
+        self.images = await imageLoader.loadProfileImages([user])
     }
 }
 
@@ -142,7 +142,7 @@ extension EditProfileViewModel {
      }
      for (field, value, add) in updatedFieldsArray {
          let data: [UserProfile.Field : [String]] = [field: value]
-         try await userManager.updateUserArray(userId: user.id, values: data, add: add)
+         try await userRepo.updateUserArray(userId: user.id, values: data, add: add)
      }
  }
  

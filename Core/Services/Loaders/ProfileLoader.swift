@@ -8,13 +8,14 @@
 import Foundation
 
 
-final class ProfileModelBuilder {
-    private let userManager: UserManager
-    private let cache: CacheManaging
+final class ProfileLoader: ProfileLoading {
     
-    init(userManager: UserManager, cache: CacheManaging) {
-        self.userManager = userManager
-        self.cache = cache
+    private let userRepo: UserRepository
+    private let imageLoader: ImageLoading
+    
+    init(userRepo: UserRepository, imageLoader: ImageLoading) {
+        self.userRepo = userRepo
+        self.imageLoader = imageLoader
     }
     
     
@@ -23,7 +24,7 @@ final class ProfileModelBuilder {
         try await withThrowingTaskGroup(of: ProfileModel?.self) {group in
             for event in events {
                 group.addTask {
-                    guard let profile = try? await self.userManager.fetchProfile(userId: event.otherUserId) else { return nil }
+                    guard let profile = try? await self.userRepo.fetchProfile(userId: event.otherUserId) else { return nil }
                     let img = try? await self.cache.fetchFirstImage(profile: profile)
                     return ProfileModel(event: event, profile: profile, image: img)
                 }
@@ -39,7 +40,7 @@ final class ProfileModelBuilder {
         try await withThrowingTaskGroup(of: ProfileModel?.self) {group in
             for id in ids {
                 group.addTask {
-                    guard let profile = try? await self.userManager.fetchProfile(userId: id) else { return nil }
+                    guard let profile = try? await self.userRepo.fetchProfile(userId: id) else { return nil }
                     let img = try? await self.cache.fetchFirstImage(profile: profile)
                     return ProfileModel(event: nil, profile: profile, image: img)
                 }
@@ -51,14 +52,14 @@ final class ProfileModelBuilder {
     }
     
     func fromEvent(_ event: UserEvent) async throws -> ProfileModel {
-        let profile = try await userManager.fetchProfile(userId: event.otherUserId)
+        let profile = try await userRepo.fetchProfile(userId: event.otherUserId)
         let img = try? await cache.fetchFirstImage(profile: profile)
         prewarmCache(for: [profile])
         return ProfileModel(event: event, profile: profile, image: img)
     }
     
     func fromId(_ id: String) async throws -> ProfileModel {
-        let profile = try await userManager.fetchProfile(userId: id)
+        let profile = try await userRepo.fetchProfile(userId: id)
         let img = try? await cache.fetchFirstImage(profile: profile)
         prewarmCache(for: [profile])
         return ProfileModel(event: nil, profile: profile, image: img)

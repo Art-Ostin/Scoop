@@ -16,15 +16,15 @@ enum ProfileViewType {
 @Observable class ProfileViewModel {
     
     let profileModel: ProfileModel
-    let cacheManager: CacheManaging
+    let imageLoader: ImageLoading
     
     var receivedEvent: UserEvent? { profileModel.event }
     
     var viewProfileType: ProfileViewType
     
-    init(profileModel: ProfileModel, cacheManager: CacheManaging) {
+    init(profileModel: ProfileModel, imageLoader: ImageLoading) {
         self.profileModel = profileModel
-        self.cacheManager = cacheManager
+        self.imageLoader = imageLoader
         
         if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
             self.viewProfileType = .view
@@ -36,7 +36,7 @@ enum ProfileViewType {
     }
     
     func loadImages() async -> [UIImage] {
-        return await cacheManager.loadProfileImages([profileModel.profile])
+        return await imageLoader.loadProfileImages([profileModel.profile])
     }
 }
 enum DragType {

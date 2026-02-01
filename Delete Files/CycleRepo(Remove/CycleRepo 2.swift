@@ -30,12 +30,12 @@
  final class CycleManager {
      
      private var fs: FirestoreService
-     private var cacheManager: CacheManaging
-     private var userManager: UserManager
+     private var imageLoader: ImageLoading
+     private var userRepo: userRepo
      
-     init(cacheManager: CacheManaging, userManager: UserManager, fs: FirestoreService) {
-         self.cacheManager = cacheManager
-         self.userManager = userManager
+     init(imageLoader: ImageLoading, userRepo: userRepo, fs: FirestoreService) {
+         self.imageLoader = imageLoader
+         self.userRepo = userRepo
          self.fs = fs
      }
      

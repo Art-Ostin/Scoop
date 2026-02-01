@@ -12,7 +12,7 @@ import FirebaseStorage
 import UIKit
 
 
-protocol FirestoreService {
+protocol FirestoreServicing {
     func set<T: Encodable> (_ path: String, value: T) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
     func get<T: Decodable>(_ path: String) async throws -> T

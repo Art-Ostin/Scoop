@@ -14,13 +14,13 @@ import FirebaseAuth
     
     let sessionManager: SessionManager
     let authManager: AuthManaging
-    let userManager: UserManager
+    let userRepo: userRepo
     let defaultsManager: DefaultsManager
     
-    init (sessionManager: SessionManager, authManager: AuthManaging, userManager: UserManager, defaultsManager: DefaultsManager) {
+    init (sessionManager: SessionManager, authManager: AuthManaging, userRepo: userRepo, defaultsManager: DefaultsManager) {
         self.sessionManager = sessionManager
         self.authManager = authManager
-        self.userManager = userManager
+        self.userRepo = userRepo
         self.defaultsManager = defaultsManager
     }
     

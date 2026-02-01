@@ -153,7 +153,7 @@
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
 		65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */; };
-		65BFE7DD2E400D3C00B31A58 /* EventRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7DC2E400D3C00B31A58 /* EventRepo.swift */; };
+		65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7DC2E400D3C00B31A58 /* EventsRepo.swift */; };
 		65C4A0322ED0A54C00CA6C1B /* EditSex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C4A0312ED0A54C00CA6C1B /* EditSex.swift */; };
 		65C7D6252E53AB7F00B726B8 /* EventFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */; };
 		65C7D6292E54007000B726B8 /* ProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6282E54007000B726B8 /* ProfileModel.swift */; };
@@ -369,7 +369,7 @@
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
 		65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePhoto.swift; sourceTree = "<group>"; };
-		65BFE7DC2E400D3C00B31A58 /* EventRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRepo.swift; sourceTree = "<group>"; };
+		65BFE7DC2E400D3C00B31A58 /* EventsRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsRepo.swift; sourceTree = "<group>"; };
 		65C4A0312ED0A54C00CA6C1B /* EditSex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSex.swift; sourceTree = "<group>"; };
 		65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatter.swift; sourceTree = "<group>"; };
 		65C7D6282E54007000B726B8 /* ProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModel.swift; sourceTree = "<group>"; };
@@ -584,7 +584,7 @@
 			isa = PBXGroup;
 			children = (
 				654C009A2E35689000FFD504 /* UserRepo.swift */,
-				65BFE7DC2E400D3C00B31A58 /* EventRepo.swift */,
+				65BFE7DC2E400D3C00B31A58 /* EventsRepo.swift */,
 				652D3D282F2E942000AE491D /* ProfilesRepo.swift */,
 			);
 			path = Repositories;
@@ -1224,7 +1224,7 @@
 				651263982EAFBCF0005E6930 /* TabButton.swift in Sources */,
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
 				65E5C8EF2E4E5CC90093410B /* IntroView.swift in Sources */,
-				65BFE7DD2E400D3C00B31A58 /* EventRepo.swift in Sources */,
+				65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */,
 				65E5C9262E51FBB10093410B /* MeetViewModel.swift in Sources */,
 				65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */,
 				65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */,

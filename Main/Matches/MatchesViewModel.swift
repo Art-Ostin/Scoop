@@ -11,28 +11,28 @@ import UIKit
 @MainActor
 @Observable class MatchesViewModel {
 
-    var userManager: UserManager
-    var cacheManager: CacheManaging
+    var userRepo: userRepo
+    var imageLoader: ImageLoading
     var authManager: AuthManaging
     var storageManager: StorageManaging
     var s: SessionManager
     var defaultsManager: DefaultsManager
-    let eventManager: EventManager
+    let eventRepo: eventRepo
     let cycleManager: CycleManager
     
-    init(userManager: UserManager, cacheManager: CacheManaging, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, eventManager: EventManager, cycleManager: CycleManager, defaultsManager: DefaultsManager) {
-        self.userManager = userManager
-        self.cacheManager = cacheManager
+    init(userRepo: userRepo, imageLoader: ImageLoading, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, eventRepo: eventRepo, cycleManager: CycleManager, defaultsManager: DefaultsManager) {
+        self.userRepo = userRepo
+        self.imageLoader = imageLoader
         self.authManager = authManager
         self.storageManager = storageManager
         self.s = s
         self.defaultsManager = defaultsManager
-        self.eventManager = eventManager
+        self.eventRepo = eventRepo
         self.cycleManager = cycleManager
     }
     
     func fetchFirstImage() async throws -> UIImage {
-        try await cacheManager.fetchFirstImage(profile: user) ?? UIImage()
+        try await imageLoader.fetchFirstImage(profile: user) ?? UIImage()
     }
     
     var user: UserProfile {s.user}
@@ -44,6 +44,6 @@ import UIKit
     }
     
     func loadUserImages() async -> [UIImage] {
-        return await cacheManager.loadProfileImages([s.user])
+        return await imageLoader.loadProfileImages([s.user])
     }
 }

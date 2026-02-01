@@ -35,10 +35,15 @@ enum showProfilesState {
     
     private var appStateBinding: Binding<AppState>?
     
+    //Key values need access to throughout App
     var user: UserProfile {
         guard let session else { fatalError("Session not started") }
         return session.user
     }
+    var profiles: [ProfileModel] = []
+    var invites: [ProfileModel] = []
+    var events: [ProfileModel] = []
+    var pastEvents: [ProfileModel] = []
         
     init(
         authService: AuthServicing,

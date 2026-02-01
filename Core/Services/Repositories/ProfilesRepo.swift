@@ -13,15 +13,10 @@ enum UpdateShownProfiles {
     case removeProfile(id: String)
 }
 
-
-
-class ProfileRepo {
+class ProfileRepo: ProfilesRepository {
     
     let fs: FirestoreService
-    
-    init(fs: FirestoreService) {
-        self.fs = fs
-    }
+    init(fs: FirestoreService) {self.fs = fs}
 
     private func profilesFolder(userId: String, subfolder: ProfileSubfolder) -> String {
         "users/\(userId)/profiles_\(subfolder.rawValue)"
