@@ -61,13 +61,11 @@ class ProfileRepo {
         return (initial, updates)
     }
     
-    func declineProfile(userId: String, profileId: String) async throws {
+    func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws {
         let path = profilePath(userId: userId, subfolder: .pending, profileId: profileId)
-        var data: [String: ProfileRec.Status] = [.status : .pending]
-        fs.update(path, fields: data)
+        let data: [String: ProfileRec.Status] = [ProfileRec.Field.status.rawValue: status]
+        try await fs.update(path, fields: data)
     }
-    
-    
 }
 
 

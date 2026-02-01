@@ -36,7 +36,7 @@ struct ProfileRec: Identifiable, Codable, Sendable{
     }
     
     enum Status: String, Codable, Sendable {
-        case pending, invited, dismiss, accepted
+        case pending, invited, declined, accepted
     }
 }
 
