@@ -12,7 +12,7 @@ import FirebaseAuth
 @Observable class OnboardingViewModel {
     
     @ObservationIgnored let authService: AuthServicing
-    @ObservationIgnored let defaultManager: DefaultsManaging
+    @ObservationIgnored var defaultManager: DefaultsManaging
     @ObservationIgnored private let sessionManager: SessionManager
     @ObservationIgnored private let userRepo: UserRepository
     
@@ -82,15 +82,3 @@ import FirebaseAuth
     }
 }
 enum TransitionDirection { case forward, back }
-
-
-/*
- func nextStep() {
-     defaultManager.onboardingStep += 1
- }
- 
- 
- func fetchUser() async throws -> User? {
-     await authService.fetchAuthUser()
- }
- */

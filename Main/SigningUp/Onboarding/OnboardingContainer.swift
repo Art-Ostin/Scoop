@@ -33,7 +33,7 @@ struct OnboardingContainer: View {
             case 9: OnboardingTextField(vm: vm, field: .degree)
             case 10: OnboardingPrompt(vm: vm, promptIndex: 0)
             case 11: OnboardingPrompt(vm: vm, promptIndex: 1)
-            case 12: OnboardingImages(vm: vm, defaults: vm.defaultManager, storage: storage, auth: vm.authService)
+            case 12: OnboardingImages(vm: vm, defaultsManager: vm.defaultManager as! DefaultsManager, storageService: storage, authService: vm.authService)
             default: EmptyView()
         }
     }

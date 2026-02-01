@@ -13,11 +13,11 @@ import UIKit
 @MainActor
 @Observable final class OnboardingImageViewModel {
     
-    private let defaults: DefaultsManager
+    private var defaults: DefaultsManaging
     private let storageService: StorageServicing
     private let auth: AuthServicing
     
-    init(defaults: DefaultsManager, storageService: StorageServicing, auth: AuthServicing) {
+    init(defaults: DefaultsManaging, storageService: StorageServicing, auth: AuthServicing) {
         self.defaults = defaults
         self.storageService  = storageService
         self.auth = auth

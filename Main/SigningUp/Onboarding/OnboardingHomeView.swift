@@ -52,7 +52,7 @@ struct OnboardingHomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
-            if let vm {OnboardingContainer(vm: vm, storage: dep.storageManager)}
+            if let vm {OnboardingContainer(vm: vm, storage: dep.storageService)}
         }
         .alert("Sign Out", isPresented: $showAlert) {
             Button("Cancel", role: .cancel){}
