@@ -135,18 +135,18 @@ extension SessionManager  {
         do {
             let (initial, updates) = try await profilesRepo.profilesListener(userId: user.id)
             let ids = initial.compactMap(\.id)
-            session?.profiles = try await profileLoader.fromIds(ids)   // initial load done here
+            profiles = try await profileLoader.fromIds(ids)   // initial load done here
             profileStreamTask = Task { @MainActor in
                 do {
                     for try await update in updates {
                         switch update {
                         case .addProfile(let id):
-                            if !(session?.profiles.contains(where: { $0.id == id }) ?? false) {
+                            if !profiles.contains(where: { $0.id == id }) {
                                 let model = try await profileLoader.fromId(id)
-                                session?.profiles.append(model)
+                                profiles.append(model)
                             }
                         case .removeProfile(let id):
-                            session?.profiles.removeAll(where: { $0.id == id })
+                            profiles.removeAll(where: { $0.id == id })
                         }
                     }
                 } catch { print(error) }
@@ -161,40 +161,40 @@ extension SessionManager  {
         eventStreamTask?.cancel()
         do {
             let (initial, updates) = try await eventsRepo.eventTracker(userId: user.id, now: now)
-            let invites = initial.filter { $0.kind == .invite }.map(\.event)
+            let invitesReceived = initial.filter { $0.kind == .invite }.map(\.event)
             let accepted = initial.filter { $0.kind == .accepted }.map(\.event)
             let past = initial.filter { $0.kind == .pastAccepted }.map(\.event)
-            let (invModels, accModels, pastModels) = try await buildEvents(profileLoader, invites: invites,accepted: accepted,past: past)
+            let (invModels, accModels, pastModels) = try await buildEvents(profileLoader, invites: invitesReceived, accepted: accepted,past: past)
 
-            session?.invites = invModels
-            session?.events = accModels
-            session?.pastEvents = pastModels   // <- also fixes your `session.pastEvents` bug
+            invites = invModels
+            events = accModels
+            pastEvents = pastModels   // <- also fixes your `session.pastEvents` bug
             eventStreamTask = Task { @MainActor in
                 do {
                     for try await (event, kind) in updates {
                         switch kind {
                         case .invite:
                             if let model = try? await profileLoader.fromEvent(event),
-                               !(session?.invites.contains(where: { $0.id == model.id }) ?? false) {
-                                session?.invites.append(model)
+                               invites.contains(where: { $0.id == model.id }) {
+                                invites.append(model)
                             }
 
                         case .accepted:
                             if let model = try? await profileLoader.fromEvent(event),
-                               !(session?.events.contains(where: { $0.id == model.id }) ?? false) {
-                                session?.events.append(model)
+                               events.contains(where: { $0.id == model.id }) {
+                                events.append(model)
                             }
 
                         case .pastAccepted:
                             if let model = try? await profileLoader.fromEvent(event),
-                               !(session?.pastEvents.contains(where: { $0.id == model.id }) ?? false) {
-                                session?.pastEvents.append(model)
+                               pastEvents.contains(where: { $0.id == model.id }) {
+                                pastEvents.append(model)
                             }
 
                         case .remove:
-                            session?.invites.removeAll { $0.id == event.otherUserId }
-                            session?.events.removeAll { $0.id == event.otherUserId }
-                            session?.pastEvents.removeAll { $0.id == event.otherUserId }
+                            invites.removeAll { $0.id == event.otherUserId }
+                            events.removeAll { $0.id == event.otherUserId }
+                            pastEvents.removeAll { $0.id == event.otherUserId }
                         }
                     }
                 } catch { print(error) }
@@ -226,10 +226,6 @@ extension SessionManager  {
 
 struct Session {
     var user: UserProfile
-    var profiles: [ProfileModel] = []
-    var invites: [ProfileModel] = []
-    var events: [ProfileModel] = []
-    var pastEvents: [ProfileModel] = []
 }
 
 //Important that this is done of the main Thread, so function not in session Manager
