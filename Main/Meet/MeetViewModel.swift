@@ -14,33 +14,25 @@ import SwiftUI
 
     let imageLoader: ImageLoading
     let s: SessionManager
-    let eventRepo: EventsRepository
     let userRepo: UserRepository
-    
-    init(s: SessionManager, imageLoader: ImageLoading, eventRepo: EventsRepository, userRepo: UserRepository) {
+    let profileRepo: ProfilesRepository
+    let eventRepo: EventsRepository
+
+    init(s: SessionManager, imageLoader: ImageLoading, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository) {
         self.imageLoader = imageLoader
         self.s = s
-        self.eventRepo = eventRepo
         self.userRepo = userRepo
+        self.profileRepo = profileRepo
+        self.eventRepo = eventRepo
     }
     
+    var invites: [ProfileModel] { s.invites }
     
-    var invites: [ProfileModel] { s.session?.invites }
-    
-    var profiles: [ProfileModel] { s.session?.profiles }
+    var profiles: [ProfileModel] { s.profiles }
     
     var pendingInvites: [ProfileModel] { s.profiles} // Change later
     
     var user: UserProfile {s.user}
-    
-    var showProfilesState: showProfilesState? { s.showProfilesState }
-    
-    var endTime: Date? { activeCycle?.endsAt}
-    
-    func createWeeklyCycle() async throws {
-        let id = try await cycleManager.createCycle(userId: s.user.id)
-        try await s.beginCycle(withId: id)
-    }
     
     func fetchImage(url: URL) async throws -> UIImage {
         try await imageLoader.fetchImage(for: url)
@@ -50,15 +42,10 @@ import SwiftUI
         try await eventRepo.updateStatus(eventId: eventId, to: status)
     }
         
-    func sendInvite(event: EventDraft, profileModel: ProfileModel) async throws {
+    func updateProfileRec(event: EventDraft, profileModel: ProfileModel, status: ProfileRec.Status) async throws {
         let user = s.user
-        try await cycleManager.inviteSent(userId: user.id, cycle: s.activeCycle, profileId: profileModel.profile.id)
-        Task { try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile) ; print("Finished task") }
-    }
-    
-    func declineProfile(profileModel: ProfileModel) async throws {
-        let user = s.user
-        try await cycleManager.declineProfile(userId: user.id, cycle: s.activeCycle, profileId: profileModel.id)
+        try await profileRepo.updateProfileRec(userId: user.id, profileId: profileModel.profile.id, status: status)
+        if status == .invited {try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile)}
     }
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
@@ -69,7 +56,6 @@ import SwiftUI
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {
         return await imageLoader.loadProfileImages([profileModel.profile])
     }
-    
 }
 
 enum DismissTransition {

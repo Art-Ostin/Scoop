@@ -17,7 +17,7 @@ final class ProfileLoader: ProfileLoading {
         self.userRepo = userRepo
         self.imageLoader = imageLoader
     }
-    
+
     
     func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel] {
         var models: [ProfileModel] = []
@@ -25,13 +25,13 @@ final class ProfileLoader: ProfileLoading {
             for event in events {
                 group.addTask {
                     guard let profile = try? await self.userRepo.fetchProfile(userId: event.otherUserId) else { return nil }
-                    let img = try? await self.cache.fetchFirstImage(profile: profile)
+                    let img = try? await self.imageLoader.fetchFirstImage(profile: profile)
                     return ProfileModel(event: event, profile: profile, image: img)
                 }
             }
             for try await m in group { if let m { models.append(m)} }
         }
-        prewarmCache(for: models.map(\.profile))
+        imageLoader.prewarmCache(for: models.map(\.profile))
         return models
     }
     

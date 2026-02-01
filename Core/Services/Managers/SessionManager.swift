@@ -25,7 +25,8 @@ enum showProfilesState {
     let imageLoader: ImageLoading
     let defaultsManager: DefaultsManaging
     
-    private(set) var session: Session?
+    //Session starts with this variable assigned
+    private var sessionUser: UserProfile?
     
     //Store the streams, so that if the session closes cancel all of them
     private var userStreamTask: Task<Void, Never>?
@@ -35,10 +36,10 @@ enum showProfilesState {
     
     private var appStateBinding: Binding<AppState>?
     
-    //Key values need access to throughout App
+    //Key values need access to throughout App.
     var user: UserProfile {
-        guard let session else { fatalError("Session not started") }
-        return session.user
+        guard let sessionUser else { fatalError("Session not started") }
+        return sessionUser
     }
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
@@ -80,7 +81,7 @@ enum showProfilesState {
                 //2. If no profile fetched go to the onboarding state
                 guard let user = try? await userRepo.fetchProfile(userId: uid) else {
                     appState.wrappedValue = .createAccount
-                    session = nil
+                    sessionUser = nil
                     continue
                 }
                 //3. Otherwise start session with the user inputted which triggers loading up
@@ -95,7 +96,7 @@ enum showProfilesState {
     func startSession(user: UserProfile, onReady: (() -> Void)? = nil) async {
         //1. Stop Previous session, and populate new with the user
         stopSession()
-        self.session = Session(user: user)
+        sessionUser = user
         
         //2. Populate session fields and open up listener for events & profiles
         async let eventsReady: Void = startEventsStream()
@@ -111,7 +112,7 @@ enum showProfilesState {
         profileStreamTask?.cancel()
         eventStreamTask?.cancel()
         userProfileStreamTask?.cancel()
-        session = nil
+        sessionUser = nil
     }
     
     //Checks if user is blocked or frozen before going to main appState
@@ -211,7 +212,7 @@ extension SessionManager  {
             do {
                 for try await change in userRepo.userListener(userId: user.id) {
                     if let change {
-                        session?.user = change
+                        sessionUser = change
                         if let appStateBinding {
                             updateAppState(appStateBinding, for: change)
                         }
@@ -222,10 +223,6 @@ extension SessionManager  {
             }
         }
     }
-}
-
-struct Session {
-    var user: UserProfile
 }
 
 //Important that this is done of the main Thread, so function not in session Manager

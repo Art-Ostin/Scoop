@@ -10,7 +10,12 @@ import UIKit
 
 @MainActor
 @Observable class MatchesViewModel {
-
+    
+    var s: SessionManager
+    
+    
+    
+    
     var userRepo: userRepo
     var imageLoader: ImageLoading
     var authManager: AuthManaging

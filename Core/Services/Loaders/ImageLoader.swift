@@ -76,10 +76,11 @@ class ImageLoader: ImageLoading  {
     }
     
     @discardableResult
-    private func prewarmCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
+    func addProfileImagesToCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
         guard !profiles.isEmpty else { return nil }
-        return Task.detached(priority: .utility) { [cache] in
-            await cache.loadProfileImages(profiles)
+        return Task(priority: .utility) { [weak self] in
+            guard let self else { return }
+            _ = await self.loadProfileImages(profiles)
         }
     }
 }

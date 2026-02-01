@@ -12,12 +12,12 @@ enum UpdateOp {
     case remove([String])
 }
 
-class UserRepo {
+class UserRepo: UserRepository {
     
-    private let auth: AuthManaging
+    private let authService: AuthServicing
     private let fs: FirestoreService
     
-    init(auth: AuthManaging, fs: FirestoreService ) { self.auth = auth ; self.fs = fs }
+    init(authService: AuthServicing, fs: FirestoreService ) { self.authService = authService ; self.fs = fs }
     
     private func userPath(_ id: String) -> String { "users/\(id)" }
     
