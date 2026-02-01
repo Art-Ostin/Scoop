@@ -14,6 +14,7 @@ enum UpdateShownProfiles {
 }
 
 
+
 class ProfileRepo {
     
     let fs: FirestoreService
@@ -22,13 +23,16 @@ class ProfileRepo {
         self.fs = fs
     }
     
-    private func profilesPath(userId: String) -> String {
-        return "users/\(userId)/profiles"
+    private func profilesFolder(userId: String) -> String {
+        "users/\(userId)/profiles"
+    }
+    private func profilePath(userId: String, subfolder: ProfileSubfolder, profileId: String) -> String {
+        "\(profilesFolder(userId: userId))/\(subfolder.rawValue)/\(profileId)"
     }
     
     //Fetches the initial profiles on Launch and listens for any updates
     func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>) {
-        let path = profilesPath(userId: userId)
+        let path = profilesFolder(userId: userId)
         let filters: [FSWhere] = [FSWhere(field: ProfileRec.Field.status.rawValue, op: .eq,  value: ProfileRec.Status.pending.rawValue)]
         let initial: [ProfileRec] = try await fs.fetchFromCollection(path, filters: filters, orderBy: nil, limit: nil)
         
@@ -56,4 +60,19 @@ class ProfileRepo {
         }
         return (initial, updates)
     }
+    
+    func declineProfile(userId: String, profileId: String) async throws {
+        let path = profilePath(userId: userId, subfolder: .pending, profileId: profileId)
+        var data: [String: ProfileRec.Status] = [.status : .pending]
+        fs.update(path, fields: data)
+    }
+    
+    
+}
+
+
+private enum ProfileSubfolder: String {
+    case pending
+    case invited
+    case declined
 }
