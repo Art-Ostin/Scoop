@@ -104,7 +104,7 @@ enum ShowProfilesState {
         _ = await (eventsReady, profilesReady)
         
         //3.
-        userProfileStream()
+//        userProfileStream()
         onReady?()
     }
         
@@ -204,23 +204,23 @@ extension SessionManager  {
     }
     
     //Refreshes the app when user updates their profile (try deleting and test)
-    func userProfileStream() {
-        userProfileStreamTask?.cancel()
-        userProfileStreamTask = Task { @MainActor in
-            do {
-                for try await change in userRepo.userListener(userId: user.id) {
-                    if let change {
-                        sessionUser = change
-                        if let appStateBinding {
-                            updateAppState(appStateBinding, for: change)
-                        }
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
+//    func userProfileStream() {
+//        userProfileStreamTask?.cancel()
+//        userProfileStreamTask = Task { @MainActor in
+//            do {
+//                for try await change in userRepo.userListener(userId: user.id) {
+//                    if let change {
+//                        sessionUser = change
+//                        if let appStateBinding {
+//                            updateAppState(appStateBinding, for: change)
+//                        }
+//                    }
+//                }
+//            } catch {
+//                print(error)
+//            }
+//        }
+//    }
 }
 
 //Important that this is done of the main Thread, so function not in session Manager

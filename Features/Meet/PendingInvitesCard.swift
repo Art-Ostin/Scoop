@@ -51,17 +51,3 @@ struct PendingInviteCard: View {
     }
 }
 
-/*//Removing Auto-decline feature
- .overlay {
-     if let time = profile.event?.inviteExpiryTime {
-         HStack(spacing: 4) {
-             Text("Auto-declined in:")
-             SimpleClockView(targetTime: time) {}
-         }
-         .font(.body(10, .regular))
-         .foregroundColor(Color(red: 0.58, green: 0.58, blue: 0.58))
-         .padding(.horizontal, 36)
-         .padding(.bottom, 8)
-     }
- }
- */
