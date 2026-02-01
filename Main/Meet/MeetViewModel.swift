@@ -12,13 +12,14 @@ import SwiftUI
 @MainActor
 @Observable final class MeetViewModel {
 
-    let imageLoader: ImageLoading
     let s: SessionManager
     let userRepo: UserRepository
     let profileRepo: ProfilesRepository
     let eventRepo: EventsRepository
+    let imageLoader: ImageLoading
+    
 
-    init(s: SessionManager, imageLoader: ImageLoading, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository) {
+    init(s: SessionManager, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.imageLoader = imageLoader
         self.s = s
         self.userRepo = userRepo

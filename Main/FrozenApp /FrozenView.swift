@@ -35,7 +35,7 @@ struct FrozenView: View {
             .background(Color.background)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.sessionManager))
+                    SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.sessionManager))
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: tabSelection)

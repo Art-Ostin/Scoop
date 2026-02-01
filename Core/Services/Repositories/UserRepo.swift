@@ -14,10 +14,8 @@ enum UpdateOp {
 
 class UserRepo: UserRepository {
     
-    private let authService: AuthServicing
     private let fs: FirestoreService
-    
-    init(authService: AuthServicing, fs: FirestoreService ) { self.authService = authService ; self.fs = fs }
+    init(fs: FirestoreService ) {self.fs = fs }
     
     private func userPath(_ id: String) -> String { "users/\(id)" }
     

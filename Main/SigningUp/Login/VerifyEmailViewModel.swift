@@ -13,13 +13,13 @@ import FirebaseAuth
 @Observable class VerifyEmailViewModel {
     
     let sessionManager: SessionManager
-    let authManager: AuthManaging
+    let authService: AuthServicing
     let userRepo: userRepo
     let defaultsManager: DefaultsManager
     
-    init (sessionManager: SessionManager, authManager: AuthManaging, userRepo: userRepo, defaultsManager: DefaultsManager) {
+    init (sessionManager: SessionManager, authService: AuthServicing, userRepo: userRepo, defaultsManager: DefaultsManager) {
         self.sessionManager = sessionManager
-        self.authManager = authManager
+        self.authService = authService
         self.userRepo = userRepo
         self.defaultsManager = defaultsManager
     }
@@ -38,12 +38,12 @@ import FirebaseAuth
 
     
     func createAuthUser (email: String, password: String) async throws {
-        let authData = try await authManager.createAuthUser(email: email, password: password)
+        let authData = try await authService.createAuthUser(email: email, password: password)
         defaultsManager.createDraftProfile(user: authData.user)
     }
     
     func signInUser(email: String, password: String) async throws {
-        try await authManager.signInAuthUser(email: email, password: password)
+        try await authService.signInAuthUser(email: email, password: password)
         print("Signed in User 1")
     }
 }

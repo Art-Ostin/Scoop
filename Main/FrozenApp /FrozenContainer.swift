@@ -14,7 +14,7 @@ struct FrozenContainer: View {
         if dep.sessionManager.events.isEmpty {
             frozenView
         } else {
-            FrozenWithEvents(vm: FrozenViewModel(sessionManager: dep.sessionManager, imageLoader: dep.imageLoader, authManager: dep.authManager, eventRepo: dep.eventRepo))
+            FrozenWithEvents(vm: FrozenViewModel(sessionManager: dep.sessionManager, imageLoader: dep.imageLoader, authService: dep.authService, eventRepo: dep.eventRepo))
         }
     }
 }
@@ -22,6 +22,6 @@ struct FrozenContainer: View {
 extension FrozenContainer {
     
     private var frozenView: some View {
-        FrozenView(vm: FrozenViewModel(sessionManager: dep.sessionManager, imageLoader: dep.imageLoader, authManager: dep.authManager, eventRepo: dep.eventRepo))
+        FrozenView(vm: FrozenViewModel(sessionManager: dep.sessionManager, imageLoader: dep.imageLoader, authService: dep.authService, eventRepo: dep.eventRepo))
     }
 }

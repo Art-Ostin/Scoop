@@ -39,7 +39,7 @@ struct OnboardingHomeView: View {
             if vm == nil {
                 await MainActor.run {
                     vm = OnboardingViewModel(
-                        authManager: dep.authManager,
+                        authService: dep.authService,
                         defaultManager: dep.defaultsManager,
                         sessionManager: dep.sessionManager,
                         userRepo: dep.userRepo,

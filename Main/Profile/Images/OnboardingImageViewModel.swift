@@ -15,9 +15,9 @@ import UIKit
     
     private let defaults: DefaultsManager
     private let storage: StorageManaging
-    private let auth: AuthManaging
+    private let auth: AuthServicing
     
-    init(defaults: DefaultsManager, storage: StorageManaging, auth: AuthManaging) {
+    init(defaults: DefaultsManager, storage: StorageManaging, auth: AuthServicing) {
         self.defaults = defaults
         self.storage  = storage
         self.auth = auth

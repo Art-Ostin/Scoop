@@ -18,17 +18,17 @@ import UIKit
     
     var userRepo: userRepo
     var imageLoader: ImageLoading
-    var authManager: AuthManaging
+    var authService: AuthServicing
     var storageManager: StorageManaging
     var s: SessionManager
     var defaultsManager: DefaultsManager
     let eventRepo: eventRepo
     let cycleManager: CycleManager
     
-    init(userRepo: userRepo, imageLoader: ImageLoading, authManager: AuthManaging, storageManager: StorageManaging, s: SessionManager, eventRepo: eventRepo, cycleManager: CycleManager, defaultsManager: DefaultsManager) {
+    init(userRepo: userRepo, imageLoader: ImageLoading, authService: AuthServicing, storageManager: StorageManaging, s: SessionManager, eventRepo: eventRepo, cycleManager: CycleManager, defaultsManager: DefaultsManager) {
         self.userRepo = userRepo
         self.imageLoader = imageLoader
-        self.authManager = authManager
+        self.authService = authService
         self.storageManager = storageManager
         self.s = s
         self.defaultsManager = defaultsManager
@@ -45,7 +45,7 @@ import UIKit
     var events: [ProfileModel] { s.pastEvents }
     
     func signOut() {
-        try? authManager.signOutAuthUser()
+        try? authService.signOutAuthUser()
     }
     
     func loadUserImages() async -> [UIImage] {

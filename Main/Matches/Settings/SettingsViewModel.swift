@@ -11,19 +11,19 @@ import Foundation
 @MainActor
 @Observable class SettingsViewModel {
     
-    var authManager: AuthManaging
+    var authService: AuthServicing
     var sessionManager: SessionManager
     
     let user: UserProfile
     
-    init(authManager: AuthManaging, sessionManager: SessionManager) {
-        self.authManager = authManager
+    init(authService: AuthServicing, sessionManager: SessionManager) {
+        self.authService = authService
         self.sessionManager = sessionManager
         self.user = sessionManager.user
     }
     
     func signOut() {
-        try? authManager.signOutAuthUser()
+        try? authService.signOutAuthUser()
         sessionManager.stopSession()
     }
 }

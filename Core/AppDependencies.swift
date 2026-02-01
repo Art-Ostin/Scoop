@@ -36,7 +36,7 @@ final class AppDependencies {
         //1. Building the concrete services that app needs. Storing it as variables.
         let auth = AuthService()
         let fs = FirestoreService()
-        let userRepo = UserRepo(auth: auth, fs: fs)
+        let userRepo = UserRepo(fs: fs)
         let imageLoader = ImageLoader()
         
         //2. assigning the variables used through the app with the initialised services
@@ -47,6 +47,7 @@ final class AppDependencies {
         self.profilesRepo = ProfileRepo(fs: fs)
         self.imageLoader = ImageLoader()
         self.profileLoader = ProfileLoader(userRepo: userRepo, imageLoader: imageLoader)
+        self.defaultsManager = DefaultsManager()
     }
 }
 

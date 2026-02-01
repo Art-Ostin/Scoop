@@ -11,14 +11,14 @@ import FirebaseAuth
 
 @Observable class OnboardingViewModel {
     
-    @ObservationIgnored let authManager: AuthManaging
+    @ObservationIgnored let authService: AuthServicing
     @ObservationIgnored let defaultManager: DefaultsManager
     @ObservationIgnored private let sessionManager: SessionManager
-    @ObservationIgnored private let userRepo: userRepo
+    @ObservationIgnored private let userRepo: UserRepository
     
     
-    init(authManager: AuthManaging, defaultManager: DefaultsManager, sessionManager: SessionManager, userRepo: userRepo) {
-        self.authManager = authManager
+    init(authService: AuthServicing, defaultManager: DefaultsManager, sessionManager: SessionManager, userRepo: UserRepository) {
+        self.authService = authService
         self.defaultManager = defaultManager
         self.sessionManager = sessionManager
         self.userRepo = userRepo
@@ -36,12 +36,12 @@ import FirebaseAuth
     }
 
     func signOut() async throws {
-        try await authManager.deleteAuthUser()
+        try await authService.deleteAuthUser()
         defaultManager.deleteDefaults()
     }
         
     func isLoggedIn () async -> Bool {
-        guard let user = await authManager.fetchAuthUser() else { return false }
+        guard let user = await authService.fetchAuthUser() else { return false }
         if defaultManager.signUpDraft == nil {
             defaultManager.deleteDefaults()
             defaultManager.signUpDraft = .init(user: user)
@@ -91,6 +91,6 @@ enum TransitionDirection { case forward, back }
  
  
  func fetchUser() async throws -> User? {
-     await authManager.fetchAuthUser()
+     await authService.fetchAuthUser()
  }
  */

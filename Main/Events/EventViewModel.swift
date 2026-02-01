@@ -15,16 +15,16 @@ import FirebaseFirestore
 @MainActor
 @Observable class EventViewModel {
     
+    let sessionManager: SessionManager
     let userRepo: UserRepository
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
-    let sessionManager: SessionManager
     
-    init(userRepo: UserRepository, eventRepo: EventsRepository, imageLoader: ImageLoading, sessionManager: SessionManager) {
+    init(sessionManager: SessionManager, userRepo: UserRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+        self.sessionManager = sessionManager
         self.userRepo = userRepo
         self.eventRepo = eventRepo
         self.imageLoader = imageLoader
-        self.sessionManager = sessionManager
     }
 
     var events: [ProfileModel] { sessionManager.events}

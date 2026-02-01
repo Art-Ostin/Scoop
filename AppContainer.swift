@@ -47,31 +47,26 @@ extension AppContainer {
     
     private var meetView: some View {
         MeetContainer(vm: MeetViewModel(
-            cycleManager: dep.cycleManager,
             s: dep.sessionManager,
-            imageLoader: dep.imageLoader,
+            userRepo: dep.userRepo,
+            profileRepo: dep.profilesRepo,
             eventRepo: dep.eventRepo,
-            userRepo: dep.userRepo
+            imageLoader: dep.imageLoader
         ))
     }
     
     private var eventsView: some View {
-        EventContainer(vm: EventViewModel(
-            imageLoader: dep.imageLoader,
-            eventRepo: dep.eventRepo,
-            sessionManager: dep.sessionManager
-        ))
+        EventContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, eventRepo: dep.eventRepo, imageLoader: dep.imageLoader))
     }
     
     private var matchesView: some View {
         MatchesView(vm: MatchesViewModel(
             userRepo: dep.userRepo,
             imageLoader: dep.imageLoader,
-            authManager: dep.authManager,
+            authService: dep.authService,
             storageManager: dep.storageManager,
             s: dep.sessionManager,
             eventRepo: dep.eventRepo,
-            cycleManager: dep.cycleManager,
             defaultsManager: dep.defaultsManager
         ))
     }

@@ -91,7 +91,7 @@ extension MatchesView {
     }
     
     private func settingScreen() -> some View {
-        SettingsView(vm: SettingsViewModel(authManager: vm.authManager, sessionManager: vm.s))
+        SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.s))
     }
     
     private func prepareUserImages() async {
