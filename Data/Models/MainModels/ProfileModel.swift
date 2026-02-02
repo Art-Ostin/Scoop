@@ -29,10 +29,10 @@ struct ProfileRec: Identifiable, Codable, Sendable{
     var profileViews: Int
     var status: Status
     @ServerTimestamp var addedDay: Timestamp?
-    var actedAt: Timestamp?
+    var updatedDay: Timestamp?
     
     enum Field: String {
-        case id, profileViews, status, addedDay
+        case id, profileViews, status, addedDay, updatedDay
     }
     
     enum Status: String, Codable, Sendable {

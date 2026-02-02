@@ -24,12 +24,12 @@ def add_profile_recommendations(user_id, profile_id):
         doc_ref.set({
             "status": profile_rec.status,
             "profileViews": profile_rec.profileViews,
-            "added_day": firestore.SERVER_TIMESTAMP,
-            "updated_day": firestore.SERVER_TIMESTAMP,
+            "addedDay": firestore.SERVER_TIMESTAMP,
+            "updatedDay": firestore.SERVER_TIMESTAMP,
         }, merge=True)
 
 
 for profile_id in ids_to_add:
-    add_profile_recommendations("bPGclLONmUWWJUEMAlQ71mFFwrf1", profile_id)
+    add_profile_recommendations("as7GjhMYjGekFlOml8hyz3tITsJ3", profile_id)
 
 

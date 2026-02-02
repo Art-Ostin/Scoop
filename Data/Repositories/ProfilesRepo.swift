@@ -54,6 +54,7 @@ class ProfileRepo: ProfilesRepository {
                 } catch { continuation.finish(throwing: error) }
             }
         }
+        print(initial)
         return (initial, updates)
     }
     
