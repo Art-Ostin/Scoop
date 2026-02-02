@@ -801,15 +801,6 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
-		6577D7D42E203EF300FFCF82 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				65A070502EE06A59009F798B /* Buttons */,
-				65F9E3842EE711F1008A57BD /* CustomTab */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
 		657838232DE773CC00770B49 = {
 			isa = PBXGroup;
 			children = (
@@ -847,13 +838,6 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
-		65A070502EE06A59009F798B /* Buttons */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Buttons;
-			sourceTree = "<group>";
-		};
 		65A39BB22E5FBFBB0049D114 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -867,7 +851,6 @@
 			isa = PBXGroup;
 			children = (
 				652B15492F301E970042A3E1 /* UI */,
-				6577D7D42E203EF300FFCF82 /* Components */,
 				65E820B72E390F200098CC36 /* Resources */,
 				65E5C91F2E510BBA0093410B /* CycleRepo 2.swift */,
 			);
@@ -913,13 +896,6 @@
 				656B31D22F251501008641C1 /* FrozenViewModel.swift */,
 			);
 			path = "Frozen ";
-			sourceTree = "<group>";
-		};
-		65F9E3842EE711F1008A57BD /* CustomTab */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = CustomTab;
 			sourceTree = "<group>";
 		};
 		65F9E38D2EE74259008A57BD /* Login */ = {
