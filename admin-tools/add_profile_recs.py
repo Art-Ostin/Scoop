@@ -9,19 +9,26 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 
-def add_profile_recommendations(user_id,profile_id):
+ids_to_add = []
 
+user_snaps = db.collection('users').limit(10).stream()
+
+for snap in user_snaps:
+    ids_to_add.append(snap.id)
+
+
+def add_profile_recommendations(user_id, profile_id):
     doc_ref = db.collection('users').document(user_id).collection('profiles').document(profile_id)
     profile_rec = profile_rec.ProfileRec()
-
     doc_ref.set({
-        "profileRec": {
             "status": profile_rec.status,
             "profileViews": profile_rec.profileViews,
             "added_day": firestore.SERVER_TIMESTAMP,
             "updated_day": firestore.SERVER_TIMESTAMP,
-        }
-    }, merge=True)
+        }, merge=True)
 
 
-print("hello world")
+for profile_id in ids_to_add:
+    add_profile_recommendations("bPGclLONmUWWJUEMAlQ71mFFwrf1", profile_id)
+
+
