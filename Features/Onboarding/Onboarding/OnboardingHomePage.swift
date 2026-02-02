@@ -42,12 +42,36 @@ struct LimitedAccessPage: View {
         .padding(.horizontal, 24)
         .padding(.top, 60)
         .overlay(alignment: .topTrailing) {
-                SignOutButton{ showLogout = true }
+                signOutButton
                     .padding(.top, 24)
         }
         .background(Color.background)
     }
 }
+
+extension LimitedAccessPage {
+    private var signOutButton: some View {
+        Button {
+            showLogout = true
+        } label: {
+            Text("Sign out")
+                .font(.body(14, .bold))
+                .padding(8)
+                .foregroundStyle(.black)
+                .background (
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white )
+                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                )
+                .overlay (
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(.black, lineWidth: 1)
+                )
+                .padding(.horizontal, 16)
+        }
+    }
+}
+
 
 enum OnboardingPage: CaseIterable {
     
