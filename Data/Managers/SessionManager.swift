@@ -203,24 +203,26 @@ extension SessionManager  {
         }
     }
     
-    //Refreshes the app when user updates their profile (try deleting and test)
-//    func userProfileStream() {
-//        userProfileStreamTask?.cancel()
-//        userProfileStreamTask = Task { @MainActor in
-//            do {
-//                for try await change in userRepo.userListener(userId: user.id) {
-//                    if let change {
-//                        sessionUser = change
-//                        if let appStateBinding {
-//                            updateAppState(appStateBinding, for: change)
-//                        }
-//                    }
-//                }
-//            } catch {
-//                print(error)
-//            }
-//        }
-//    }
+    //The user's profile listener. Changes in firebase instantly updates user
+    func userProfileStream() {
+        userProfileStreamTask?.cancel()
+        userProfileStreamTask = Task { @MainActor in
+            do {
+                for try await change in userRepo.userListener(userId: user.id) {
+                    if let change {
+                        //If profile updated, this ensure 'sessionUser' instantly reflects changes
+                        sessionUser = change
+                        print("Updated")
+                        if let appStateBinding {
+                            updateAppState(appStateBinding, for: change)
+                        }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
 }
 
 //Important that this is done of the main Thread, so function not in session Manager
