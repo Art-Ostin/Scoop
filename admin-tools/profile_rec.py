@@ -17,6 +17,4 @@ class ProfileRec:
         return {
             "status": self.status,
             "profileViews": self.profileViews,
-            "added_day": self.added_day,
-            "acted_at": self.acted_at,
         }

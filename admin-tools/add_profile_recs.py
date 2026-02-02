@@ -1,7 +1,7 @@
 import os
 import firebase_admin
 from firebase_admin import credentials, firestore
-import profile_rec
+from profile_rec import ProfileRec
 
 key_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 cred = credentials.Certificate(key_path) 
@@ -18,9 +18,10 @@ for snap in user_snaps:
 
 
 def add_profile_recommendations(user_id, profile_id):
-    doc_ref = db.collection('users').document(user_id).collection('profiles').document(profile_id)
-    profile_rec = profile_rec.ProfileRec()
-    doc_ref.set({
+    if user_id != profile_id: 
+        doc_ref = db.collection('users').document(user_id).collection('profiles').document(profile_id)
+        profile_rec = ProfileRec()
+        doc_ref.set({
             "status": profile_rec.status,
             "profileViews": profile_rec.profileViews,
             "added_day": firestore.SERVER_TIMESTAMP,
@@ -29,6 +30,6 @@ def add_profile_recommendations(user_id, profile_id):
 
 
 for profile_id in ids_to_add:
-    add_profile_recommendations("bPGclLONmUWWJUEMAlQ71mFFwrf1", profile_id)
+    add_profile_recommendations("kGSjxlpXy4WmgKHZR9GPPVU2xjb2", profile_id)
 
 
