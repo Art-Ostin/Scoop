@@ -521,14 +521,14 @@
 			path = Managers;
 			sourceTree = "<group>";
 		};
-		652B15482F301B770042A3E1 /* App\ */ = {
+		652B15482F301B770042A3E1 /* AppState */ = {
 			isa = PBXGroup;
 			children = (
 				659497172E01DD4000880921 /* ScoopApp.swift */,
 				6561C8B12E035BC6006A72DF /* RootView.swift */,
 				659496FE2E01DD4000880921 /* AppContainer.swift */,
 			);
-			path = "App\\";
+			path = AppState;
 			sourceTree = "<group>";
 		};
 		652B15492F301E970042A3E1 /* UI */ = {
@@ -831,7 +831,7 @@
 		657838232DE773CC00770B49 = {
 			isa = PBXGroup;
 			children = (
-				652B15482F301B770042A3E1 /* App\ */,
+				652B15482F301B770042A3E1 /* AppState */,
 				659497012E01DD4000880921 /* Features */,
 				65E820B02E3901080098CC36 /* Shared */,
 				65058E872E1C2935009AD7FD /* Data */,
@@ -1456,7 +1456,7 @@
 				DEVELOPMENT_TEAM = C92C3V9HUW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(PROJECT_DIR)/Core/Resources/Info.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/Shared/Resources/Info.plist";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location required for meet ups";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1488,7 +1488,7 @@
 				DEVELOPMENT_TEAM = C92C3V9HUW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(PROJECT_DIR)/Core/Resources/Info.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/Shared/Resources/Info.plist";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location required for meet ups";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
