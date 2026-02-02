@@ -22,7 +22,3 @@ def give_user_profile_recs(user_id):
                 "status": "pending",
                 "profileViews": 0
             }, merge=True)
-
-give_user_profile_recs("kGSjxlpXy4WmgKHZR9GPPVU2xjb2")
-
-print("Hello World T")

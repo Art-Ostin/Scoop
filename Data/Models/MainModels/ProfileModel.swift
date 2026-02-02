@@ -38,4 +38,3 @@ struct ProfileRec: Identifiable, Codable, Sendable{
         case pending, invited, declined, invitedDeclined, invitedAccepted
     }
 }
-
