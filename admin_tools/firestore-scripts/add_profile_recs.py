@@ -24,3 +24,5 @@ def give_user_profile_recs(user_id):
             }, merge=True)
 
 give_user_profile_recs("kGSjxlpXy4WmgKHZR9GPPVU2xjb2")
+
+age = int(input("what is your name"))
