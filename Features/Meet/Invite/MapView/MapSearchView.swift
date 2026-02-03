@@ -46,15 +46,13 @@
      
      var body: some View {
          VStack {
-             
-             
              if !service.suggestions.isEmpty && service.showSuggestions {
                  suggestionsCard
              }
          }
-         .frame(maxWidth: .infinity, alignment: .top)
+         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
          .overlay(alignment: .top) {
-             HStack(alignment: .center, spacing: 8) {
+             HStack(alignment: .center, spacing: 12) {
                  searchBar
                      .frame(maxWidth: .infinity, alignment: .leading)
                  
@@ -62,15 +60,12 @@
                      .frame(width: 40)
              }
              .frame(maxWidth: .infinity)
-             .padding(.horizontal, 16)
+             .padding(16)
          }
          .background(Color(.systemGroupedBackground).ignoresSafeArea())
          .onAppear { isFocused = true }
          .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)
          }
-
-
-         
      }
  }
 
@@ -90,13 +85,29 @@
                      .foregroundStyle(.black)
                      .padding(.leading, 12)
              }
+             .overlay(alignment: .trailing) {
+                 if !vm.searchText.isEmpty {
+                     Button {
+                         vm.searchText = ""
+                     } label : {
+                         Image(systemName: "xmark")
+                             .font(.body(12, .bold))
+                             .foregroundStyle(Color.white)
+                             .padding(4)
+                             .background (
+                                Circle()
+                                    .foregroundStyle(Color(red: 0.53, green: 0.53, blue: 0.56))
+                             )
+                             .scaleEffect(0.8)
+                             .padding(.horizontal, 12)
+                     }
+                 }
+             }
              .frame(height: 45)
              .glassIfAvailable(Capsule(), isClear: false)
              .contentShape(Capsule())
              .focused($isFocused)
-             .padding(.top, 16)
              .onSubmit(of: .text) { Task {  await vm.searchPlaces() }}
-
      }
 
      private func searchLocation (suggestion :MKLocalSearchCompletion) async {
@@ -115,7 +126,7 @@
      private var suggestionsCard: some View {
          
          ScrollView {
-             ClearRectangle(size: 60)
+             ClearRectangle(size: 84)
              LazyVStack(spacing: 0) {
                  ForEach(service.suggestions, id: \.self) {suggestion in
                      SearchSuggestionRow(suggestion: suggestion)
@@ -145,11 +156,23 @@
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
 
+    @State private var category: MKPointOfInterestCategory?
+
+    
+    
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(suggestion.title)
-            Text(suggestion.subtitle)
-                .font(.caption)
+        HStack(spacing: 12) {
+            
+            
+            
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(suggestion.title)
+                Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(Color.grayText)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)

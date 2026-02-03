@@ -67,7 +67,9 @@ extension MapView {
     private var pointsOfInterest: [MKPointOfInterestCategory] {
         [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
          .foodMarket, .fairground, .landmark, .park, .musicVenue,
-         .rockClimbing, .skating]
+         .rockClimbing, .skating,
+                 
+        ]
     }
 
 }
