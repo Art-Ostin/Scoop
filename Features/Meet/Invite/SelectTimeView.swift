@@ -11,9 +11,10 @@ import Foundation
 struct SelectTimeView: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
+    @State var clickedMax = false
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
-    private let dayCount = 11 //Meet up, up to 10 days in future, not including today
+    private let dayCount = 11
     
     var body: some View {
         DropDownMenu(cornerRadius: 16) {
@@ -27,6 +28,20 @@ struct SelectTimeView: View {
         .onChange(of: vm.selectedHour) {vm.event.proposedTimes.updateTime(hour: vm.selectedHour, minute: vm.selectedMinute) }
         .onChange(of: vm.selectedMinute) {vm.event.proposedTimes.updateTime(hour: vm.selectedHour, minute: vm.selectedMinute) }
         .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
+        .overlay(alignment: .top) {
+            if clickedMax {
+                Text("Max 2")
+                    .font(.body(12, .medium))
+                    .foregroundStyle(Color.accent)
+                    .offset(y: -14)
+            }
+        }
+        .task(id: clickedMax) {
+            guard clickedMax == true else {return}
+            try? await Task.sleep(for: .seconds(1))
+            clickedMax = false
+        }
+        .animation(.easeInOut(duration: 0.2), value: clickedMax)
     }
 }
 
@@ -59,7 +74,7 @@ extension SelectTimeView {
         let isToday = Calendar.current.isDateInToday(day)
         let isSelected = vm.event.proposedTimes.contains(day: day)
         Button {
-            vm.event.proposedTimes.updateDate(day: day, hour: vm.selectedHour, minute: vm.selectedMinute)
+            clickedMax = vm.event.proposedTimes.updateDate(day: day, hour: vm.selectedHour, minute: vm.selectedMinute)
         } label : {
             Text(day, format: .dateTime.day())
                 .font(.body(18, isSelected ? .bold : .medium))
@@ -105,3 +120,9 @@ extension SelectTimeView {
         }
     }
 }
+
+/*
+ if let clicked = clickedMax {
+     if clicked == true {
+
+ */

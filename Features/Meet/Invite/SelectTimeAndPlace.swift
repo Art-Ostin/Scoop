@@ -43,7 +43,6 @@ struct SelectTimeAndPlace: View {
 
     
     var body: some View {
-        
         ZStack {
             CustomScreenCover {onDismiss()}
             sendInviteScreen
@@ -110,12 +109,12 @@ extension SelectTimeAndPlace {
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
                 }
-
+                
                 Divider()
                 
                 DropDownView(showOptions: $vm.showTimePopup) {
                     InviteTimeRow(vm: vm)
-//                        .frame(height: rowHeight)
+
                 } dropDown: {
                     SelectTimeView(vm: vm)
                         .zIndex(2)
@@ -124,7 +123,23 @@ extension SelectTimeAndPlace {
                 InvitePlaceRow
                     .frame(height: rowHeight)
             }
-            .zIndex(1) //so pop ups always appear above the Action Button 
+            .zIndex(1) //so pop ups always appear above the Action Button
+            .overlay(alignment: .top) {
+                if let type = vm.event.type {
+                    if type == .drink || type == .doubleDate {
+                        if vm.showTimePopup && vm.event.proposedTimes.dates.count < 2 || vm.event.proposedTimes.dates.count == 1 {
+                            Text("Propose at least two days")
+                                .font(.body(12, .regular))
+                                .foregroundStyle(Color.grayText)
+                                .padding(.horizontal)
+                                .background(Color.background)
+                                .padding(.top, 66)
+                                .zIndex(0)
+                        }
+                    }
+                }
+            }
+            
             ActionButton(isValid: InviteIsValid, text: vm.text) {
                 if vm.text == "Confirm & Send" {
                     vm.showAlert.toggle()
@@ -147,6 +162,7 @@ extension SelectTimeAndPlace {
                     .stroke(Color.grayBackground, lineWidth: 0.5)
             }
         )
+        
     }
     
     private var InvitePlaceRow: some View {
@@ -169,35 +185,3 @@ extension SelectTimeAndPlace {
         }
     }
 }
-
-/*
- 
- private var InviteTimeRow: some View {
-
-     let time = vm.event.time
-     
-     return HStack {
-         if time != nil { Text(formatTime(date: time)).font(.body(18))
-         } else {Text("Time").font(.body(20, .bold))}
-         
-         Spacer()
-         
-         if vm.showTimePopup {
-             Image(systemName: "chevron.down")
-                 .onTapGesture {vm.showTimePopup.toggle() }
-         } else {
-             Image(time == nil ? "InviteTime" : "EditButton")
-                 .onTapGesture {vm.showTimePopup.toggle() }
-         }
-     }
- }
-
- */
-
-/*
- //            if vm.showTimePopup {
- //                SelectTimeView(vm: vm)
- //                    .offset(y: 164)
- //            }
-
- */

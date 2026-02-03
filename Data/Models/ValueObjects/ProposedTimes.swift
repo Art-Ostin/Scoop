@@ -23,10 +23,10 @@ struct ProposedTimes: Codable, Equatable  {
             remove(day)
             return false
         }
-        if dates.count >= 2 { return false }
-        guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else { return false }
+        if dates.count >= 2 { return true }
+        guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else { return true }
         dates.append(parsedDate)
-        return true
+        return false
     }
     
     mutating func remove(_ date: Date) {
