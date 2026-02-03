@@ -33,7 +33,7 @@ extension InviteTimeRow {
     private var selectTimeView: some View {
         HStack {
             Text("Select Time")
-                .font(.body(18, .regular))   // use your custom extension
+                .font(.body(18, .bold))
             Spacer()
             DropDownButton(isExpanded: $vm.showTimePopup)
         }
