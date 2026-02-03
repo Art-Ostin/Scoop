@@ -85,18 +85,25 @@ struct MapSearchView: View {
 }
 
 extension MapSearchView {
-    
-    private var MapTextField: some View {
-        TextField("Enter Location", text: $vm.searchText)
-            .padding()
-            .frame(width: 330, height: 50)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.background)
-                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-            )
-            .focused($isFocused)
-            .padding(.top, 36)
-        
-    }
+
+     private var MapTextField: some View {
+
+         TextField(text: $vm.searchText) {
+             HStack(spacing: 6) {
+                 Image(systemName: "magnifyingglass")
+                 Text("Search")
+                 Spacer()
+             }
+             .frame(maxWidth: .infinity)
+             .padding()
+             .background(
+                 Color.grayBackground.opacity(0.9)
+             )
+             .padding()
+             .glassIfAvailable()
+         }
+     }
 }
+
+
+

@@ -35,15 +35,15 @@
              .overlay(alignment: .top) {
                  MapSearchView(vm: vm)
              }
-             .overlay(alignment: .topTrailing) {
+             .overlay(alignment: .bottom) {
+                 GlassSearchBar()
+             }
+             .overlay(alignment: .topLeading) {
                  Button {
                      dismiss()
                  } label: {
                      Image(systemName: "xmark")
-                         .frame(width: 40, height: 40)
-                         .clipShape(Circle())
-                         .background(Color.white)
-                         .padding()
+                         .glassIfAvailable(Circle())
                  }
              }
          
