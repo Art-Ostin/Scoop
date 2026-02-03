@@ -51,17 +51,7 @@
              }
          }
          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-         .overlay(alignment: .top) {
-             HStack(alignment: .center, spacing: 12) {
-                 searchBar
-                     .frame(maxWidth: .infinity, alignment: .leading)
-                 
-                 DismissButton() { vm.showSearch = false }
-                     .frame(width: 40)
-             }
-             .frame(maxWidth: .infinity)
-             .padding(16)
-         }
+         .overlay(alignment: .top) {headerBar}
          .background(Color(.systemGroupedBackground).ignoresSafeArea())
          .onAppear { isFocused = true }
          .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)
@@ -75,6 +65,18 @@
 
  extension MapSearchView {
      
+     private var headerBar: some View {
+         HStack(alignment: .center, spacing: 12) {
+             searchBar
+                 .frame(maxWidth: .infinity, alignment: .leading)
+             
+             DismissButton() { vm.showSearch = false }
+                 .frame(width: 40)
+         }
+         .frame(maxWidth: .infinity)
+         .padding(16)
+     }
+     
      private var searchBar: some View {
          TextField("Search Maps", text: $vm.searchText)
              .padding(.leading, 34)
@@ -85,31 +87,35 @@
                      .foregroundStyle(.black)
                      .padding(.leading, 12)
              }
-             .overlay(alignment: .trailing) {
-                 if !vm.searchText.isEmpty {
-                     Button {
-                         vm.searchText = ""
-                     } label : {
-                         Image(systemName: "xmark")
-                             .font(.body(12, .bold))
-                             .foregroundStyle(Color.white)
-                             .padding(4)
-                             .background (
-                                Circle()
-                                    .foregroundStyle(Color(red: 0.53, green: 0.53, blue: 0.56))
-                             )
-                             .scaleEffect(0.8)
-                             .padding(.horizontal, 12)
-                     }
-                 }
-             }
+             .overlay(alignment: .trailing) {deleteSearchButton}
              .frame(height: 45)
              .glassIfAvailable(Capsule(), isClear: false)
              .contentShape(Capsule())
              .focused($isFocused)
              .onSubmit(of: .text) { Task {  await vm.searchPlaces() }}
      }
+     
+     @ViewBuilder
+     private var deleteSearchButton: some View {
+         if !vm.searchText.isEmpty {
+             Button {
+                 vm.searchText = ""
+             } label : {
+                 Image(systemName: "xmark")
+                     .font(.body(12, .bold))
+                     .foregroundStyle(Color.white)
+                     .padding(4)
+                     .background (
+                        Circle()
+                            .foregroundStyle(Color(red: 0.53, green: 0.53, blue: 0.56))
+                     )
+                     .scaleEffect(0.8)
+                     .padding(.horizontal, 12)
+             }
+         }
 
+     }
+     
      private func searchLocation (suggestion :MKLocalSearchCompletion) async {
          isFocused = false
          vm.searchText = suggestion.title
@@ -122,46 +128,65 @@
          }
      }
      
-     
      private var suggestionsCard: some View {
-         
          ScrollView {
-             ClearRectangle(size: 84)
+             ClearRectangle(size: 75)
              LazyVStack(spacing: 0) {
-                 
-                 
-                 ForEach(service.suggestions, id: \.self) {suggestion in
-                     
-                     
+                 ForEach(service.suggestions.indices, id: \.self) { index in
+                     let suggestion = service.suggestions[index]
                      SearchSuggestionRow(suggestion: suggestion)
                          .onTapGesture {
                              Task { await searchLocation(suggestion: suggestion)}
                          }
-                     
+                     if index != service.suggestions.indices.last {
                          Divider()
                              .padding(.leading, 12)
                      }
                  }
+             }
              .padding(.vertical, 8)
              .background(Color(.systemBackground))
              .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
              .overlay(
-                 RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
              )
              .padding(.horizontal, 16)
-             }
-         .scrollIndicators(.hidden)
          }
+         .scrollIndicators(.hidden)
      }
+}
 
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
 
     @State private var category: MKPointOfInterestCategory?
+    let query: String
+    
+    private var highlightedTitle: AttributedString {
+        var attributed = AttributedString(suggestion.title)
+        attributed.font = .body.weight(.medium)
+
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else { return attributed }
+
+        let lowerTitle = suggestion.title.lowercased()
+        let lowerQuery = trimmedQuery.lowercased()
+        var searchRange = lowerTitle.startIndex..<lowerTitle.endIndex
+
+        while let range = lowerTitle.range(of: lowerQuery, range: searchRange) {
+            if let attrRange = Range(range, in: attributed) {
+                attributed[attrRange].font = .body.weight(.bold)
+            }
+            searchRange = range.upperBound..<lowerTitle.endIndex
+        }
+
+        return attributed
+    }
 
     
     
+        
     var body: some View {
         HStack(spacing: 12) {
             if let category {
@@ -171,8 +196,8 @@ private struct SearchSuggestionRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(suggestion.title)
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
-                    .font(.caption)
-                    .foregroundStyle(Color.grayText)
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color(Color(red: 0.54, green: 0.54, blue: 0.56)))
                     .lineLimit(1)
             }
         }
