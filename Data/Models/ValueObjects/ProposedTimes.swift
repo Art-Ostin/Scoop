@@ -9,6 +9,8 @@ import Foundation
 
 struct ProposedTimes: Codable, Equatable  {
     
+    
+    
     static let maxCount = 3
     
     private(set) var values: [Date]
@@ -22,34 +24,31 @@ struct ProposedTimes: Codable, Equatable  {
     }
     
     mutating func updateDate(day: Date, hour: Int, minute: Int) {
-        //1: Get the date in the correct calendar format
-        if let parsedDate = parseDate(day: day, hour: hour, minute: minute) {
-            
-            //2: If the date already present remove it from the values
-            if values.contains(parsedDate) {
-                remove(parsedDate)
-                
-            //3: If there are less than three dates, add it to the values
-            } else if values.count < Self.maxCount {
-                values.append(parsedDate)
-                
-            //4: If there already 3 values, delete the first date and add the new one
-            } else {
-                addAndDeleteDate(date: parsedDate)
-            }
-        } else {
+        guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else {
             print("Error: Date not updated")
+            return
+        }
+        if let existingIndex = indexOfDay(day),
+           isSameMinute(values[existingIndex], parsedDate) {
+            remove(day)
+            return
+        }
+        remove(day)
+        values.append(parsedDate)
+        if values.count > Self.maxCount {
+            values.removeFirst(values.count - Self.maxCount)
         }
     }
     
     mutating func addAndDeleteDate(date newDate: Date) {
-        guard values.count == 3 else { return }
-        values.removeFirst()
+        if values.count >= Self.maxCount {
+            values.removeFirst()
+        }
         values.append(newDate)
     }
     
     mutating func remove(_ date: Date) {
-        values.removeAll {$0 == date }
+        values.removeAll { Calendar.current.isDate($0, inSameDayAs: date) }
     }
     
     private func parseDate(day: Date, hour: Int, minute: Int) -> Date? {
@@ -67,19 +66,23 @@ struct ProposedTimes: Codable, Equatable  {
         }
     }
     
-    //Do this later
-    func getDatesStillAvailble () -> [Date] {
-        return [Date()]
+    private func indexOfDay(_ day: Date) -> Int? {
+        values.firstIndex { Calendar.current.isDate($0, inSameDayAs: day) }
     }
-    func getExpiredDates () -> [Date] {
-        return [Date()]
+
+    private func isSameMinute(_ lhs: Date, _ rhs: Date) -> Bool {
+        Calendar.current.isDate(lhs, equalTo: rhs, toGranularity: .minute)
+    }
+
+    func contains(day: Date) -> Bool {
+        indexOfDay(day) != nil
     }
     
     //Don't worry about understanding Yet
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let decoded = try container.decode([Date].self)
-        try self.init(from: decoded as! Decoder)
+        self.init(values: decoded)
     }
 
     func encode(to encoder: Encoder) throws {

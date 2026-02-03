@@ -47,11 +47,15 @@ struct EventFormatter: View {
     }
 }
 
-func formatTime(date: Date?) -> String {
+func formatTime(date: Date?, withHour: Bool = true) -> String {
     guard let date = date else { return "" }
     let dayOfMonth = date.formatted(.dateTime.month(.abbreviated).day(.defaultDigits))
     let weekDay = date.formatted(.dateTime.weekday(.wide))
     let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
     
-    return "\(weekDay) (\(dayOfMonth)) \(time)"
+    if withHour {
+        return "\(weekDay) (\(dayOfMonth)) \(time)"
+    } else {
+        return "\(weekDay) (\(dayOfMonth))"
+    }
 }

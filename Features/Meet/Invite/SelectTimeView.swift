@@ -29,6 +29,7 @@ struct SelectTimeView: View {
         }
         .onChange(of: hour) {vm.event.proposedTimes.updateTime(hour: hour, minute: minute)}
         .onChange(of: minute) {vm.event.proposedTimes.updateTime(hour: hour, minute: minute)}
+        .onChange(of: vm.event.proposedTimes.values) { syncTimePickerIfNeeded()}
     }
 }
 
@@ -59,7 +60,7 @@ extension SelectTimeView {
     private func event(idx: Int) -> some View {
         let day = days[idx]
         let isToday = Calendar.current.isDateInToday(day)
-        let isSelected = vm.event.proposedTimes.values.contains(day)
+        let isSelected = vm.event.proposedTimes.contains(day: day)
         Button {
             vm.event.proposedTimes.updateDate(day: day, hour: hour, minute: minute)
         } label : {
@@ -95,6 +96,20 @@ extension SelectTimeView {
         .tint(.appRed)
         .accentColor(.appRed)
     }
+    
+    
+    private func syncTimePickerIfNeeded() {
+        guard let first = vm.event.proposedTimes.values.first else { return }
+        let calendar = Calendar.current
+        let newHour = calendar.component(.hour, from: first)
+        let newMinute = calendar.component(.minute, from: first)
+        if newHour != hour || newMinute != minute {
+            hour = newHour
+            minute = newMinute
+        }
+    }
+    
+    
 }
 
 
