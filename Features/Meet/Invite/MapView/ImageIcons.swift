@@ -24,9 +24,8 @@ extension MKPointOfInterestCategory {
         // Put ONLY the categories you want to use custom app images for (your “10%”)
         private var assetOverrideName: String? {
             switch self {
-            case .nightlife:    return "poi_nightlife"     // example asset
-            case .restaurant:   return "poi_restaurant"    // example asset
             case .winery:       return "poi_winery"        // example asset
+            case .nightlife:    return "DiscoBall"
             default:            return nil
             }
         }
@@ -58,7 +57,6 @@ extension MKPointOfInterestCategory {
             case .movieTheater:     return "film"
             case .museum:           return "building.columns"
             case .nationalPark:     return "leaf"
-            case .nightlife:        return "moon.stars"          // used only if you DON’T override it above
             case .park:             return "tree"
             case .parking:          return "parkingsign"
             case .pharmacy:         return "pills"

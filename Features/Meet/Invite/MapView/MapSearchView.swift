@@ -196,7 +196,8 @@ private struct SearchSuggestionRow: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
-                Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
+                Text(category?.rawValue ?? "No Category") // Just for getting right icons 
+//                Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(Color(Color(red: 0.54, green: 0.54, blue: 0.56)))
                     .lineLimit(1)
