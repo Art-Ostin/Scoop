@@ -9,10 +9,6 @@ import SwiftUI
 
 struct GlassSearchBar: View {
     var body: some View {
-            innerBar
-    }
-
-    private var innerBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 15, weight: .medium))
@@ -36,16 +32,4 @@ struct GlassSearchBar: View {
     }
 }
 
-#Preview {
-    ZStack {
-        LinearGradient(
-            colors: [Color(red: 0.85, green: 0.95, blue: 0.90), Color(red: 0.80, green: 0.88, blue: 0.95)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
 
-        GlassSearchBar()
-            .padding(.horizontal, 24)
-    }
-}
