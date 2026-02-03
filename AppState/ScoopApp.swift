@@ -24,6 +24,9 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
+            
+//            GlassSearchZoomParentView()
+//
              RootView()
                  .appDependencies(dep)
                  .task { dep.sessionManager.userStream(appState: $appState) }

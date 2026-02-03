@@ -46,7 +46,8 @@ struct MapSearchView: View {
     var body: some View {
   
         VStack {
-            GlassSearchBar(text: $vm.searchText, showSheet: $showSheet)
+            MapTextField
+                .focused($isFocused)
                 .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)}
                 .onSubmit(of: .text) {
                     Task {
@@ -74,9 +75,11 @@ struct MapSearchView: View {
                         vm.searchText = suggestion.title
                     }
                 }
+                .background(Color.blue)
             }
         }
         .onAppear { isFocused = true}
+//        .background(Color.background)
     }
 }
 
@@ -85,25 +88,65 @@ struct MapSearchView: View {
 }
 
 extension MapSearchView {
-
-     private var MapTextField: some View {
-
-         TextField(text: $vm.searchText) {
-             HStack(spacing: 6) {
-                 Image(systemName: "magnifyingglass")
-                 Text("Search")
-                 Spacer()
-             }
-             .frame(maxWidth: .infinity)
-             .padding()
-             .background(
-                 Color.grayBackground.opacity(0.9)
-             )
-             .padding()
-             .glassIfAvailable()
-         }
-     }
+    
+    private var MapTextField: some View {
+        TextField("Search Maps", text: $vm.searchText)
+            .padding(.leading, 34)
+            .padding(.trailing, 12)
+            .overlay(alignment: .leading) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(.black)
+                    .padding(.leading, 12)
+            }
+            .frame(height: 40)
+            .glassIfAvailable(Capsule(), isClear: false)
+            .contentShape(Capsule())
+            .padding(.horizontal, 48)
+            .focused($isFocused)
+    }
 }
 
 
+
+
+/*
+ 
+ //
+ //
+ //            .background(Capsule().fill(.ultraThinMaterial))
+ //            .frame(height: 65)
+ //            .padding(.horizontal, 16)
+ //            .contentShape(Capsule())
+ //            .glassIfAvailable(Capsule(), isClear: false)
+ //            .clipShape(Capsule())
+ //            .padding(.horizontal, 36)
+ //            .focused($isFocused)
+ */
+
+
+
+/* Glass search bar when Searching 
+ private var MapTextField: some View {
+     TextField("Search Maps", text: $vm.searchText)
+         .padding(.leading, 34)
+         .padding(.trailing, 12)
+         .overlay(alignment: .leading) {
+             Image(systemName: "magnifyingglass")
+                 .font(.system(size: 15, weight: .medium))
+                 .foregroundStyle(.black)
+                 .padding(.leading, 12)
+         }
+         .frame(height: 35)
+         .background(Capsule().fill(.ultraThinMaterial))
+         .frame(height: 65)
+         .padding(.horizontal, 16)
+         .contentShape(Capsule())
+         .glassIfAvailable(Capsule(), isClear: false)
+         .clipShape(Capsule())
+         .padding(.horizontal, 36)
+         .focused($isFocused)
+ }
+
+ */
 

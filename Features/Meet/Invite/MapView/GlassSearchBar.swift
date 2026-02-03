@@ -9,7 +9,7 @@ import SwiftUI
 
 import SwiftUI
 
-struct GlassSearchBar: View {
+struct GlassSearchBar2: View {
 
     @Binding var text: String
     @Binding var showSheet: Bool
@@ -20,13 +20,14 @@ struct GlassSearchBar: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.black)
-
-                TextField("Search Maps", text: $text)
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.black)
-                    .focused($isFocused)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+            
+            
+            
+            Text("Search Maps")
+                .font(.system(size: 17))
+                .foregroundStyle(Color.black.opacity(0.76))
+            
+//            
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 12)
@@ -35,13 +36,27 @@ struct GlassSearchBar: View {
         .frame(height: 65)
         .padding(.horizontal, 16)
         .contentShape(Capsule())
-        .onTapGesture {
-//            isFocused = true
-            showSheet = true
-        } // taps anywhere focuses the field
         .glassIfAvailable(Capsule(), isClear: false)
         .clipShape(Capsule())
         .padding(.horizontal, 36)
     }
 }
 
+/*
+ //        .onTapGesture {
+ //            showSheet = true
+ //        }
+
+ */
+
+
+/*
+ //            Text("Search Maps")
+ //                TextField("Search Maps", text: $text)
+ //                    .font(.system(size: 17))
+ //                    .foregroundStyle(Color.black)
+ //                    .focused($isFocused)
+ //                    .textInputAutocapitalization(.never)
+ //                    .autocorrectionDisabled()
+
+ */

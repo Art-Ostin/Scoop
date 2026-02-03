@@ -18,43 +18,59 @@ struct MapView: View {
     
     
     var body: some View {
-        
-        Map(position: $vm.cameraPosition, selection: $vm.mapSelection) {
-            UserAnnotation()
-            
-            ForEach(vm.results, id: \.self) { item in
-                let placemark = item.placemark
-                Marker(placemark.name ?? "", coordinate: placemark.coordinate)
-                    .tag(item)
+//        NavigationStack {
+            Map(position: $vm.cameraPosition, selection: $vm.mapSelection) {
+                UserAnnotation()
+                
+                ForEach(vm.results, id: \.self) { item in
+                    let placemark = item.placemark
+                    Marker(placemark.name ?? "", coordinate: placemark.coordinate)
+                        .tag(item)
+                }
             }
-        }
-        .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
-        .overlay(alignment: .bottomTrailing) {
-            MapUserLocationButton()
-                .padding(.bottom, 150)
-        }
-        .overlay(alignment: .topTrailing) { declineButton}
-        .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
-        .overlay(alignment: .bottom) {
-            GlassSearchBar(text: $vm.searchText, showSheet: $vm.showSearch)
-        }
-        .onChange(of: vm.mapSelection) { oldValue, newValue in
-            vm.showDetails = newValue != nil
-        }
-        .sheet(isPresented: $vm.showDetails, content: {
-            MapSelectionView(vm: $vm, selectedPlace: $selectedPlace, vm2: $vm2, onCloseMap: {
-                dismiss()
+            .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
+            .overlay(alignment: .bottomTrailing) {
+                MapUserLocationButton()
+                    .padding(.bottom, 150)
+            }
+            .overlay(alignment: .topTrailing) { declineButton}
+            .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
+            .overlay(alignment: .top) {
+                Text("Hello World")
+                    .onTapGesture {
+                        vm.showSearch = true
+                    }
+                
+                
+                
+            }
+
+
+            
+//        
+//        
+//        
+//            .overlay(alignment: .bottom) {
+//                GlassSearchBar(text: $vm.searchText, showSheet: $vm.showSearch)
+//            }
+            .onChange(of: vm.mapSelection) { oldValue, newValue in
+                vm.showDetails = newValue != nil
+            }
+            .sheet(isPresented: $vm.showDetails, content: {
+                MapSelectionView(vm: $vm, selectedPlace: $selectedPlace, vm2: $vm2, onCloseMap: {
+                    dismiss()
+                })
+                .presentationDetents([.height(340)])
+                .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
+                .presentationCornerRadius(16)
             })
-            .presentationDetents([.height(340)])
-            .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
-            .presentationCornerRadius(16)
-        })
-        .sheet(isPresented: $vm.showSearch) {
-            Text("Hello World")
+            .sheet(isPresented: $vm.showSearch) {
+                MapSearchView(vm: vm)
+            }
+            .tint(Color.blue)
         }
-        .tint(Color.blue)
+//        .navigationBarHidden(true)
     }
-}
 
 extension MapView {
     
@@ -94,4 +110,10 @@ extension MapView {
      MapUserLocationButton()
  }
  */
+
+/*
+ MapSearchView(vm: vm)
+
+ */
+
 
