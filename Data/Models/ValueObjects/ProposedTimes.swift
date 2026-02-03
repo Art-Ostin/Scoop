@@ -9,7 +9,7 @@ import Foundation
 
 struct ProposedTimes: Codable, Equatable  {
 
-    static let maxCount = 3
+    static let maxCount = 2
     private(set) var dates: [Date]
     
     
@@ -17,22 +17,18 @@ struct ProposedTimes: Codable, Equatable  {
         self.dates = Array(values.prefix(Self.maxCount))
     }
     
-    mutating func updateDate(day: Date, hour: Int, minute: Int) {
-        guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else { return }
-
-        if let existingIndex = indexOfDay(day), isSameMinute(dates[existingIndex], parsedDate) {
+    @discardableResult
+    mutating func updateDate(day: Date, hour: Int, minute: Int) -> Bool {
+        if contains(day: day) {
             remove(day)
-            return
+            return false
         }
-        remove(day)
-        
+        if dates.count >= 2 { return false }
+        guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else { return false }
         dates.append(parsedDate)
-        
-        if dates.count > Self.maxCount {
-            dates.removeFirst(dates.count - Self.maxCount)
-        }
+        return true
     }
-        
+    
     mutating func remove(_ date: Date) {
         dates.removeAll { Calendar.current.isDate($0, inSameDayAs: date) }
     }
@@ -55,11 +51,7 @@ struct ProposedTimes: Codable, Equatable  {
     private func indexOfDay(_ day: Date) -> Int? {
         dates.firstIndex { Calendar.current.isDate($0, inSameDayAs: day) }
     }
-
-    private func isSameMinute(_ lhs: Date, _ rhs: Date) -> Bool {
-        Calendar.current.isDate(lhs, equalTo: rhs, toGranularity: .minute)
-    }
-
+    
     func contains(day: Date) -> Bool {
         indexOfDay(day) != nil
     }
@@ -76,3 +68,9 @@ struct ProposedTimes: Codable, Equatable  {
         try container.encode(dates)
     }
 }
+
+/*
+ private func isSameMinute(_ lhs: Date, _ rhs: Date) -> Bool {
+     Calendar.current.isDate(lhs, equalTo: rhs, toGranularity: .minute)
+ }
+ */

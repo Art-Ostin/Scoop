@@ -8,6 +8,10 @@ import MapKit
     var event: EventDraft
     var profile: ProfileModel?
 
+    // Persisted time selection even before any day is picked.
+    var selectedHour: Int = 22
+    var selectedMinute: Int = 30
+
     var showTypePopup: Bool = false
     var showMessageScreen: Bool = false
     var showTimePopup: Bool = false
@@ -76,7 +80,7 @@ struct SelectTimeAndPlace: View {
         }
     }
     private var InviteIsValid: Bool {
-        return (vm.event.type != nil || vm.event.message != nil) && !vm.event.proposedTimes.values.isEmpty && vm.event.location != nil
+        return (vm.event.type != nil || vm.event.message != nil) && !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
     }
 }
 
