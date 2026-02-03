@@ -41,12 +41,12 @@ struct MapSearchView: View {
     @FocusState var isFocused: Bool
     
     @State var vm: MapViewModel
-    
+    @State var showSheet: Bool = false
     
     var body: some View {
   
         VStack {
-            MapTextField
+            GlassSearchBar(text: $vm.searchText, showSheet: $showSheet)
                 .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)}
                 .onSubmit(of: .text) {
                     Task {

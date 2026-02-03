@@ -25,6 +25,7 @@ import MapKit
     var results = [MKMapItem]()
     
     var showDetails: Bool = false
+    var showSearch: Bool = false 
     
     var lookAroundScene: MKLookAroundScene?
     

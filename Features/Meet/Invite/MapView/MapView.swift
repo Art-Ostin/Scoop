@@ -14,6 +14,7 @@ struct MapView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var vm2: TimeAndPlaceViewModel
     @State var selectedPlace: MKMapItem?
+    @FocusState var isFocused: Bool
     
     
     var body: some View {
@@ -24,33 +25,19 @@ struct MapView: View {
             ForEach(vm.results, id: \.self) { item in
                 let placemark = item.placemark
                 Marker(placemark.name ?? "", coordinate: placemark.coordinate)
+                    .tag(item)
             }
         }
-        .mapStyle(.standard(pointsOfInterest: .including([.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery, .foodMarket,.fairground, .landmark, .park, .musicVenue, .rockClimbing, .skating])))
-        
-        
-        
-        .mapControls {
+        .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
+        .overlay(alignment: .bottomTrailing) {
             MapUserLocationButton()
+                .padding(.bottom, 150)
         }
-        .onAppear {
-            vm.locationManager.requestWhenInUseAuthorization()
-        }
-        .overlay(alignment: .top) {
-            MapSearchView(vm: vm)
-        }
+        .overlay(alignment: .topTrailing) { declineButton}
+        .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .bottom) {
-            GlassSearchBar()
+            GlassSearchBar(text: $vm.searchText, showSheet: $vm.showSearch)
         }
-        .overlay(alignment: .topLeading) {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .glassIfAvailable(Circle())
-            }
-        }
-        
         .onChange(of: vm.mapSelection) { oldValue, newValue in
             vm.showDetails = newValue != nil
         }
@@ -62,12 +49,49 @@ struct MapView: View {
             .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
             .presentationCornerRadius(16)
         })
-        
+        .sheet(isPresented: $vm.showSearch) {
+            Text("Hello World")
+        }
         .tint(Color.blue)
-        
     }
 }
 
-// #Preview {
-//     MapView( selectedPlace: .constant(nil))
-// }
+extension MapView {
+    
+    private var declineButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.body(18, .bold))
+                .padding(12)
+                .glassIfAvailable(Circle())
+                .contentShape(Circle())
+                .foregroundStyle(Color.black)
+                .padding(.horizontal)
+//                .padding(.vertical)
+        }
+    }
+    
+    private var pointsOfInterest: [MKPointOfInterestCategory] {
+        [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
+         .foodMarket, .fairground, .landmark, .park, .musicVenue,
+         .rockClimbing, .skating]
+    }
+
+}
+
+
+
+
+//Need Later on
+/*
+ .overlay(alignment: .top) {
+     MapSearchView(vm: vm)
+ }
+
+ .mapControls {
+     MapUserLocationButton()
+ }
+ */
+
