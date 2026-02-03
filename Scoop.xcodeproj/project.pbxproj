@@ -150,6 +150,7 @@
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
 		65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */; };
 		65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E342F2263A600694981 /* EventFormatting.swift */; };
+		65DCFBBC2F327AB600B3EC50 /* DismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DCFBBB2F327AB600B3EC50 /* DismissButton.swift */; };
 		65E1EC9F2F19706D004C9236 /* ImageZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1EC9E2F19706D004C9236 /* ImageZoom.swift */; };
 		65E1ECC12F1A4872004C9236 /* ImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1ECC02F1A4872004C9236 /* ImageEditor.swift */; };
 		65E1ECC62F1A99C0004C9236 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = 65E1ECC52F1A99C0004C9236 /* SwiftyCrop */; };
@@ -345,6 +346,7 @@
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
 		65CA5E202F210CDA00694981 /* OnboardingLoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLoadingScreen.swift; sourceTree = "<group>"; };
 		65CA5E342F2263A600694981 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
+		65DCFBBB2F327AB600B3EC50 /* DismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissButton.swift; sourceTree = "<group>"; };
 		65E1EC9E2F19706D004C9236 /* ImageZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageZoom.swift; sourceTree = "<group>"; };
 		65E1ECC02F1A4872004C9236 /* ImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEditor.swift; sourceTree = "<group>"; };
 		65E5C8F12E4E79550093410B /* TabSelectionKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSelectionKey.swift; sourceTree = "<group>"; };
@@ -592,6 +594,7 @@
 			children = (
 				655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */,
 				650E8E5D2EB82F6F009F5454 /* DeclineButton.swift */,
+				65DCFBBB2F327AB600B3EC50 /* DismissButton.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				6537704F2E0A15270058D225 /* InviteButton.swift */,
 				65F660C32F23E79600AF791F /* InfoButton.swift */,
@@ -1288,6 +1291,7 @@
 				658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */,
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,
 				65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */,
+				65DCFBBC2F327AB600B3EC50 /* DismissButton.swift in Sources */,
 				65A070522EE0705A009F798B /* OnboardingHomePage.swift in Sources */,
 				653606412F23CBD2006334D6 /* FrozenView.swift in Sources */,
 				65F660C22F23E4B900AF791F /* BlockedView.swift in Sources */,

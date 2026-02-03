@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct GlassSearchBar: View {
 
     @Binding var showSheet: Bool
@@ -18,7 +16,6 @@ struct GlassSearchBar: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.black)
-            
             
             
             Text("Search Maps")
@@ -41,22 +38,3 @@ struct GlassSearchBar: View {
         }
     }
 }
-
-/*
- //        .onTapGesture {
- //            showSheet = true
- //        }
-
- */
-
-
-/*
- //            Text("Search Maps")
- //                TextField("Search Maps", text: $text)
- //                    .font(.system(size: 17))
- //                    .foregroundStyle(Color.black)
- //                    .focused($isFocused)
- //                    .textInputAutocapitalization(.never)
- //                    .autocorrectionDisabled()
-
- */

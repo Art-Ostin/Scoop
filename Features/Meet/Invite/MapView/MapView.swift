@@ -15,6 +15,9 @@ struct MapView: View {
     @Binding var vm2: TimeAndPlaceViewModel
     @State var selectedPlace: MKMapItem?
     @FocusState var isFocused: Bool
+    @State private var searchBarFrame: CGRect = .zero
+    @State private var searchIconFrame: CGRect = .zero
+
     
     
     var body: some View {
@@ -33,10 +36,12 @@ struct MapView: View {
                 MapUserLocationButton()
                     .padding(.bottom, 150)
             }
-            .overlay(alignment: .topTrailing) { declineButton}
+            .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
             .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) {
                 GlassSearchBar(showSheet: $vm.showSearch)
+
+//                GlassSearchBar(showSheet: $vm.showSearch)
             }
             .onChange(of: vm.mapSelection) { oldValue, newValue in
                 vm.showDetails = newValue != nil
@@ -58,20 +63,7 @@ struct MapView: View {
 
 extension MapView {
     
-    private var declineButton: some View {
-        Button {
-            dismiss()
-        } label: {
-            Image(systemName: "xmark")
-                .font(.body(18, .bold))
-                .padding(12)
-                .glassIfAvailable(Circle())
-                .contentShape(Circle())
-                .foregroundStyle(Color.black)
-                .padding(.horizontal)
-        }
-    }
-    
+
     private var pointsOfInterest: [MKPointOfInterestCategory] {
         [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
          .foodMarket, .fairground, .landmark, .park, .musicVenue,
@@ -79,6 +71,23 @@ extension MapView {
     }
 
 }
+
+/*
+ private var declineButton: some View {
+     Button {
+         dismiss()
+     } label: {
+         Image(systemName: "xmark")
+             .font(.body(18, .bold))
+             .padding(12)
+             .glassIfAvailable(Circle())
+             .contentShape(Circle())
+             .foregroundStyle(Color.black)
+             .padding(.horizontal)
+     }
+ }
+ 
+ */
 
 
 
