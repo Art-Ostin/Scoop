@@ -128,13 +128,15 @@
          ScrollView {
              ClearRectangle(size: 84)
              LazyVStack(spacing: 0) {
+                 
+                 
                  ForEach(service.suggestions, id: \.self) {suggestion in
+                     
+                     
                      SearchSuggestionRow(suggestion: suggestion)
                          .onTapGesture {
                              Task { await searchLocation(suggestion: suggestion)}
                          }
-                     
-        
                      
                          Divider()
                              .padding(.leading, 12)
@@ -145,7 +147,7 @@
              .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
              .overlay(
                  RoundedRectangle(cornerRadius: 24, style: .continuous)
-                     .stroke(Color.black.opacity(0.05), lineWidth: 1)
+                    .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
              )
              .padding(.horizontal, 16)
              }
@@ -162,9 +164,9 @@ private struct SearchSuggestionRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            
-            
-            
+            if let category {
+                MapImageIcon(category: category)
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(suggestion.title)
@@ -177,6 +179,22 @@ private struct SearchSuggestionRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+        .task(id: suggestion) {
+            await loadCategoryIfNeeded()
+        }
+    }
+    
+    private func loadCategoryIfNeeded() async {
+        guard category == nil else { return }
+        let request = MKLocalSearch.Request(completion: suggestion)
+        do {
+            let response = try await MKLocalSearch(request: request).start()
+            await MainActor.run {
+                category = response.mapItems.first?.pointOfInterestCategory
+            }
+        } catch {
+            await MainActor.run { category = nil }
+        }
     }
 }
 
