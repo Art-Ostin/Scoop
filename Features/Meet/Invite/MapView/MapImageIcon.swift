@@ -30,7 +30,7 @@ struct MapImageIcon: View {
                 )
                 .frame(width: size, height: size)
 
-            Image(systemName: category.image)
+            category.image
                 .symbolRenderingMode(.monochrome)
                 .foregroundStyle(.white)
                 .font(.system(size: size * 0.42, weight: .semibold))

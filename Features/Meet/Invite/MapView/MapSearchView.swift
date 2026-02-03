@@ -40,9 +40,9 @@
      
      @State var service = LocationSearchService()
      @FocusState var isFocused: Bool
-     
      @State var vm: MapViewModel
-
+     
+     
      
      var body: some View {
          VStack {
@@ -129,18 +129,20 @@
      }
      
      private var suggestionsCard: some View {
-         ScrollView {
+         return ScrollView {
              ClearRectangle(size: 75)
+             let suggestions = service.suggestions
              LazyVStack(spacing: 0) {
-                 ForEach(service.suggestions.indices, id: \.self) { index in
-                     let suggestion = service.suggestions[index]
-                     SearchSuggestionRow(suggestion: suggestion)
+                 ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
+                     
+                     SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
                          .onTapGesture {
-                             Task { await searchLocation(suggestion: suggestion)}
+                             Task { await searchLocation(suggestion: suggestion)
+}
                          }
-                     if index != service.suggestions.indices.last {
-                         Divider()
-                             .padding(.leading, 12)
+                     
+                     if index < suggestions.count - 1 {
+                         Divider().padding(.leading, 12)
                      }
                  }
              }
@@ -154,18 +156,20 @@
              .padding(.horizontal, 16)
          }
          .scrollIndicators(.hidden)
+         .customScrollFade(height: 50, showFade: true)
      }
 }
 
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
+    let query: String
 
     @State private var category: MKPointOfInterestCategory?
-    let query: String
     
+    //GPT Did this
     private var highlightedTitle: AttributedString {
         var attributed = AttributedString(suggestion.title)
-        attributed.font = .body.weight(.medium)
+        attributed.font = .body.weight(.regular)
 
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else { return attributed }
@@ -183,9 +187,6 @@ private struct SearchSuggestionRow: View {
 
         return attributed
     }
-
-    
-    
         
     var body: some View {
         HStack(spacing: 12) {
@@ -194,7 +195,7 @@ private struct SearchSuggestionRow: View {
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(suggestion.title)
+                Text(highlightedTitle)
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(Color(Color(red: 0.54, green: 0.54, blue: 0.56)))
@@ -222,177 +223,3 @@ private struct SearchSuggestionRow: View {
         }
     }
 }
-
-
-
-
-
-
-/*
- 
- 
- 
- .onTapGesture {
-     Task {
-         await vm.searchPlaces()
-         
-         if let first = vm.results.first {
-             vm.mapSelection = first
-         }
-     }
-     isFocused = false
-     vm.searchText = suggestion.title
- }
- */
-
-
-
-/*
- 
- @Observable class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
-     
-     var suggestions: [MKLocalSearchCompletion] = []
-     
-     var showSuggestions: Bool = true
-     
-     let completer = MKLocalSearchCompleter()
-     
-     override init () {
-         super.init()
-         completer.delegate = self
-     }
-     
-     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-         suggestions = completer.results
-     }
-     
-     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-         print("Search completer error:", error)
-     }
-     
-     func updateQuery (_ fragment: String) {
-         completer.queryFragment = fragment
-     }
- }
-
- struct MapSearchView: View {
-     
-     @State var service = LocationSearchService()
-     @FocusState var isFocused: Bool
-     
-     @Environment(\.dismiss) private var dismiss
-     @Bindable var vm: MapViewModel
-     
-     var body: some View {
-         VStack(spacing: 16) {
-             header
-
-             if !service.suggestions.isEmpty && service.showSuggestions {
-                 suggestionsCard
-             }
-
-             Spacer(minLength: 0)
-         }
-         .padding(.top, 12)
-         .background(Color(.systemGroupedBackground).ignoresSafeArea())
-         .onAppear { isFocused = true }
-         .onChange(of: vm.searchText) { service.updateQuery(vm.searchText) }
-         .onChange(of: isFocused) { service.showSuggestions = isFocused || !vm.searchText.isEmpty }
-     }
- }
-
- #Preview {
-     MapSearchView(vm: .init())
- }
-
- extension MapSearchView {
-
-     private var header: some View {
-         HStack(spacing: 12) {
-             GlassSearchBar(showSheet: $vm.showSearch)
-             .onSubmit(of: .text) {
-                 Task { await vm.searchPlaces() }
-             }
-
-             Button {
-                 dismiss()
-             } label: {
-                 Image(systemName: "xmark")
-                     .font(.body.weight(.semibold))
-                     .foregroundStyle(Color.primary)
-                     .frame(width: 36, height: 36)
-                     .background(Circle().fill(Color(.secondarySystemBackground)))
-             }
-             .buttonStyle(.plain)
-         }
-         .padding(.horizontal, 16)
-     }
-
-     private var suggestionsCard: some View {
-         ScrollView {
-             LazyVStack(spacing: 0) {
-                 ForEach(service.suggestions.indices, id: \.self) { index in
-                     let suggestion = service.suggestions[index]
-                     SearchSuggestionRow(suggestion: suggestion)
-                         .contentShape(Rectangle())
-                         .onTapGesture {
-                             vm.searchText = suggestion.title
-                             isFocused = false
-                             Task {
-                                 await vm.searchPlaces()
-                                 if let first = vm.results.first {
-                                     vm.mapSelection = first
-                                 }
-                             }
-                         }
-
-                     if index != service.suggestions.indices.last {
-                         Divider()
-                             .padding(.leading, 56)
-                     }
-                 }
-             }
-             .padding(.vertical, 8)
-             .background(Color(.systemBackground))
-             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-             .overlay(
-                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                     .stroke(Color.black.opacity(0.05), lineWidth: 1)
-             )
-             .padding(.horizontal, 16)
-         }
-         .scrollIndicators(.hidden)
-     }
- }
-
- private struct SearchSuggestionRow: View {
-     let suggestion: MKLocalSearchCompletion
-
-     var body: some View {
-         HStack(spacing: 12) {
-             ZStack {
-                 Circle()
-                     .fill(Color.gray.opacity(0.2))
-                     .frame(width: 32, height: 32)
-                 Image(systemName: "magnifyingglass")
-                     .font(.system(size: 14, weight: .semibold))
-                     .foregroundStyle(Color.gray)
-             }
-
-             VStack(alignment: .leading, spacing: 2) {
-                 Text(suggestion.title)
-                     .font(.body.weight(.semibold))
-                     .foregroundStyle(Color.primary)
-                 Text(suggestion.subtitle)
-                     .font(.subheadline)
-                     .foregroundStyle(Color.secondary)
-             }
-
-             Spacer(minLength: 0)
-         }
-         .padding(.horizontal, 16)
-         .padding(.vertical, 10)
-     }
- }
-
- */
