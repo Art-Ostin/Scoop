@@ -35,24 +35,9 @@ struct MapView: View {
             }
             .overlay(alignment: .topTrailing) { declineButton}
             .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
-            .overlay(alignment: .top) {
-                Text("Hello World")
-                    .onTapGesture {
-                        vm.showSearch = true
-                    }
-                
-                
-                
+            .overlay(alignment: .bottom) {
+                GlassSearchBar(showSheet: $vm.showSearch)
             }
-
-
-            
-//        
-//        
-//        
-//            .overlay(alignment: .bottom) {
-//                GlassSearchBar(text: $vm.searchText, showSheet: $vm.showSearch)
-//            }
             .onChange(of: vm.mapSelection) { oldValue, newValue in
                 vm.showDetails = newValue != nil
             }
@@ -69,7 +54,6 @@ struct MapView: View {
             }
             .tint(Color.blue)
         }
-//        .navigationBarHidden(true)
     }
 
 extension MapView {
@@ -85,7 +69,6 @@ extension MapView {
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
                 .padding(.horizontal)
-//                .padding(.vertical)
         }
     }
     
@@ -117,3 +100,13 @@ extension MapView {
  */
 
 
+
+/*
+ //
+ //
+ //
+ //            .overlay(alignment: .bottom) {
+ //                GlassSearchBar(text: $vm.searchText, showSheet: $vm.showSearch)
+ //            }
+
+ */

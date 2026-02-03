@@ -9,12 +9,10 @@ import SwiftUI
 
 import SwiftUI
 
-struct GlassSearchBar2: View {
+struct GlassSearchBar: View {
 
-    @Binding var text: String
     @Binding var showSheet: Bool
-    @FocusState private var isFocused: Bool
-
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
@@ -27,7 +25,6 @@ struct GlassSearchBar2: View {
                 .font(.system(size: 17))
                 .foregroundStyle(Color.black.opacity(0.76))
             
-//            
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 12)
@@ -39,6 +36,9 @@ struct GlassSearchBar2: View {
         .glassIfAvailable(Capsule(), isClear: false)
         .clipShape(Capsule())
         .padding(.horizontal, 36)
+        .onTapGesture {
+            showSheet = true
+        }
     }
 }
 
