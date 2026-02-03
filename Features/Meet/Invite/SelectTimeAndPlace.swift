@@ -125,17 +125,17 @@ extension SelectTimeAndPlace {
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {
-                if let type = vm.event.type {
-                    if type == .drink || type == .doubleDate {
-                        if vm.showTimePopup && vm.event.proposedTimes.dates.count < 2 || vm.event.proposedTimes.dates.count == 1 {
-                            Text("Propose at least two days")
-                                .font(.body(12, .regular))
-                                .foregroundStyle(Color.grayText)
-                                .padding(.horizontal)
-                                .background(Color.background)
-                                .padding(.top, 66)
-                                .zIndex(0)
-                        }
+                if let type = vm.event.type{
+                    if (type == .drink || type == .doubleDate) && !vm.showTypePopup
+                        && ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 2)
+                            || vm.event.proposedTimes.dates.count == 1) {
+                        Text("Propose at least two days")
+                            .font(.body(12, .regular))
+                            .foregroundStyle(Color.grayText)
+                            .padding(.horizontal)
+                            .background(Color.background)
+                            .padding(.top, 66)
+                            .zIndex(0)
                     }
                 }
             }
@@ -162,7 +162,16 @@ extension SelectTimeAndPlace {
                     .stroke(Color.grayBackground, lineWidth: 0.5)
             }
         )
-        
+        .onChange(of: vm.showTypePopup) {
+            if vm.showTypePopup == true {
+                vm.showTimePopup = false
+            }
+        }
+        .onChange(of: vm.showTimePopup) {
+            if vm.showTimePopup == true {
+                vm.showTypePopup = false
+            }
+        }
     }
     
     private var InvitePlaceRow: some View {
