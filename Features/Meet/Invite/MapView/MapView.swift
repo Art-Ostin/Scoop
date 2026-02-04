@@ -15,8 +15,8 @@ struct MapView: View {
     @Binding var vm2: TimeAndPlaceViewModel
     @State var selectedPlace: MKMapItem?
     @FocusState var isFocused: Bool
-    @State private var searchBarFrame: CGRect = .zero
-    @State private var searchIconFrame: CGRect = .zero
+    
+    @Namespace private var ns
 
     
     
@@ -31,12 +31,11 @@ struct MapView: View {
 
                     Annotation(name, coordinate: placemark.coordinate,anchor: .bottom) {
                         if isSelected {
-                            MapAnnotation(
-                                category: category,
-                                type: isSelected ? .selected : .notSelected
-                            )
+                            MapAnnotation(category: category)
+                                .matchedGeometryEffect(id: "annotation", in: ns)
                         } else {
-                            MapImageIcon(category: item.poin)
+                            MapImageIcon(category: category)
+                                .matchedGeometryEffect(id: "annotation", in: ns)
                         }
                     }
                 }

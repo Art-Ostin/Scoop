@@ -10,29 +10,11 @@ import SwiftUI
 import MapKit
 
 
-enum AnnotationType {
-    case selected, notSelected, searchView
-}
-
-
-
-
-
 struct MapAnnotation: View {
     
     let category: MKPointOfInterestCategory
-    let type: AnnotationType
+    let size: CGFloat = 65
     
-    var size: CGFloat {
-        switch type {
-        case .selected:
-            return 65
-        case .notSelected:
-            return 30
-        case .searchView:
-            return 35
-        }
-    }
     private var colorGradient: LinearGradient {
         LinearGradient(
             colors: [
@@ -64,14 +46,12 @@ struct MapAnnotation: View {
                 Circle()
                     .frame(width: size, height: size)
                 
-                if type == .selected {
-                    PinDipShape(curveRatio: dipCurveRatio)
-                        .frame(width: dipWidth, height: dipHeight)
-                        .offset(y: size - 4)
-                    
-                    SmallDot(color: colorGradient)
-                        .offset(y: size + 12)
-                }
+                PinDipShape(curveRatio: dipCurveRatio)
+                    .frame(width: dipWidth, height: dipHeight)
+                    .offset(y: size - 4)
+                
+                SmallDot(color: colorGradient)
+                    .offset(y: size + 12)
             }
             .foregroundStyle(.white)
             .defaultShadow()
@@ -89,7 +69,7 @@ struct MapAnnotation: View {
             .offset(y: ringWidth)
         }
         .frame(width: size, height: totalHeight, alignment: .top)
-//        .offset(y: type == .selected ? -12 : 0)
+        .offset(y: -12)
     }
 }
 
@@ -163,15 +143,6 @@ private struct PinDipShape: Shape {
         path.closeSubpath()
         return path
     }
-}
-
-
-#Preview {
-    VStack(spacing: 24) {
-        MapAnnotation(category: .restaurant, type: .selected)
-    }
-    .padding()
-    .background(Color(red: 0.96, green: 0.96, blue: 0.96))
 }
 
 /*

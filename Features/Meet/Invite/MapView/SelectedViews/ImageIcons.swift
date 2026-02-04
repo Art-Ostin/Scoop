@@ -197,47 +197,6 @@ extension MKPointOfInterestCategory {
 
     }
 }
-/*
- 
- 
- startColor: Color(red: 0.99, green: 0.69, blue: 0.28), endColor: Color(red: 0.96, green: 0.44, blue: 0.18)
- 
- 
- Color(red: 0.99, green: 0.69, blue: 0.28)
- 
- 
- Pink
- Color(red: 0.882, green: 0.478, blue: 0.682)
- Color(red: 0.780, green: 0.306, blue: 0.576)
- 
- Green
- Color(red: 0.529, green: 0.851, blue: 0.486)
- Color(red: 0.310, green: 0.639, blue: 0.318)
- 
- Purple
- Color(red: 0.522, green: 0.510, blue: 0.882)
- Color(red: 0.376, green: 0.361, blue: 0.729)
- 
- Orange
- Color(red: 0.937, green: 0.631, blue: 0.329)
- Color(red: 0.918, green: 0.490, blue: 0.224)
- 
- Reddish (pin)
- Color(red: 245/255, green: 106/255, blue: 135/255)
- Color(red: 212/255, green:  51/255, blue:  82/255)
- 
- Blue
- Color(red:  76/255, green: 141/255, blue: 242/255)
- Color(red:  47/255, green: 106/255, blue: 228/255)
-
- Brown
- Color(red: 166/255, green: 122/255, blue:  93/255)
- Color(red: 108/255, green:  69/255, blue:  51/255)
- 
- Purple
- Color(red: 166/255, green: 111/255, blue: 232/255)
- Color(red: 123/255, green:  67/255, blue: 199/255)
- */
 
 
 enum MapIcons {
