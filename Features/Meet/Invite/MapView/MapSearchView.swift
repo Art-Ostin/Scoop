@@ -163,8 +163,6 @@
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
     let query: String
-
-    @State private var category: MKPointOfInterestCategory?
     
     //GPT Did this
     private var highlightedTitle: AttributedString {
@@ -190,15 +188,11 @@ private struct SearchSuggestionRow: View {
         
     var body: some View {
         HStack(spacing: 12) {
-            if let category {
-                MapImageIcon(category: category)
-            }
+            MapImageIcon(category: category)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
-                Text(category?.rawValue ?? "No Category") // Just for debugging
-
-//                Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
+                Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(Color(Color(red: 0.54, green: 0.54, blue: 0.56)))
                     .lineLimit(1)
@@ -207,21 +201,5 @@ private struct SearchSuggestionRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .task(id: suggestion) {
-            await loadCategoryIfNeeded()
-        }
-    }
-    
-    private func loadCategoryIfNeeded() async {
-        guard category == nil else { return }
-        let request = MKLocalSearch.Request(completion: suggestion)
-        do {
-            let response = try await MKLocalSearch(request: request).start()
-            await MainActor.run {
-                category = response.mapItems.first?.pointOfInterestCategory
-            }
-        } catch {
-            await MainActor.run { category = nil }
-        }
     }
 }

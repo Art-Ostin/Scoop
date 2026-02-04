@@ -21,10 +21,8 @@ struct MapView: View {
     
     
     var body: some View {
-//        NavigationStack {
             Map(position: $vm.cameraPosition, selection: $vm.mapSelection) {
                 UserAnnotation()
-                
                 ForEach(vm.results, id: \.self) { item in
                     let placemark = item.placemark
                     Marker(placemark.name ?? "", coordinate: placemark.coordinate)
