@@ -140,6 +140,9 @@ extension MKPointOfInterestCategory {
 }
 /*
  
+ Color(red: 0.99, green: 0.69, blue: 0.28)
+ 
+ 
  Pink
  Color(red: 0.882, green: 0.478, blue: 0.682)
  Color(red: 0.780, green: 0.306, blue: 0.576)

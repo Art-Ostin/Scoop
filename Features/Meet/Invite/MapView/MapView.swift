@@ -27,11 +27,23 @@ struct MapView: View {
                     let category = item.pointOfInterestCategory
                     let placemark = item.placemark
                     
-                    Marker(coordinate: placemark.coordinate) {
-                        MapImageIcon(category: .restaurant)
+                    Annotation(placemark.name ?? "", coordinate: placemark.coordinate, anchor: .bottom) {
+                        MapForkKnifePinIcon(image: Image(systemName: "fork.knife"), startColor: Color(red: 0.99, green: 0.69, blue: 0.28), endColor: Color(red: 0.96, green: 0.44, blue: 0.18))
                     }
-                    .tint(.accent)
+//                    Annotation(placemark.name ?? "",
+//                               coordinate: placemark.coordinate,
+//                               anchor: .bottom) {
+//                        BalloonPin(size: 34, fill: .indigo) {
+//                            Image("mapImageIcon")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .foregroundStyle(.white)
+//                        }
+//                    }
+                    
+                    
                 }
+                
             }
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
             .overlay(alignment: .bottomTrailing) {
@@ -61,6 +73,18 @@ struct MapView: View {
         }
     }
 
+extension MapView {
+    
+
+    private var pointsOfInterest: [MKPointOfInterestCategory] {
+        [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
+         .foodMarket, .fairground, .landmark, .park, .musicVenue,
+         .rockClimbing, .skating,
+                 
+        ]
+    }
+
+}
 
 /*
  private var declineButton: some View {
@@ -103,3 +127,10 @@ struct MapView: View {
                     
 //                    Marker(placemark.name ?? "", coordinate: placemark.coordinate)
 //                        .tag(item)
+
+//                        .tint(.pink)
+
+
+//Colours that work default (1) Pink - for default (2)
+
+   // .tint(Color.indigo)
