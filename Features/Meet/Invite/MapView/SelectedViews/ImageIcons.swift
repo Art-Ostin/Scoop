@@ -25,7 +25,7 @@ extension MKPointOfInterestCategory {
         private var assetOverrideName: String? {
             switch self {
             case .winery:       return "poi_winery"        // example asset
-            case .nightlife:    return "DiscoBall"
+            case .nightlife:    return "DiscoBallLarge"
             default:            return nil
             }
         }
