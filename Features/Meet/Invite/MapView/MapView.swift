@@ -24,9 +24,13 @@ struct MapView: View {
             Map(position: $vm.cameraPosition, selection: $vm.mapSelection) {
                 UserAnnotation()
                 ForEach(vm.results, id: \.self) { item in
+                    let category = item.pointOfInterestCategory
                     let placemark = item.placemark
-                    Marker(placemark.name ?? "", coordinate: placemark.coordinate)
-                        .tag(item)
+                    
+                    Marker(coordinate: placemark.coordinate) {
+                        MapImageIcon(category: .restaurant)
+                    }
+                    .tint(.accent)
                 }
             }
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
@@ -38,8 +42,6 @@ struct MapView: View {
             .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) {
                 GlassSearchBar(showSheet: $vm.showSearch)
-
-//                GlassSearchBar(showSheet: $vm.showSearch)
             }
             .onChange(of: vm.mapSelection) { oldValue, newValue in
                 vm.showDetails = newValue != nil
@@ -59,18 +61,6 @@ struct MapView: View {
         }
     }
 
-extension MapView {
-    
-
-    private var pointsOfInterest: [MKPointOfInterestCategory] {
-        [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
-         .foodMarket, .fairground, .landmark, .park, .musicVenue,
-         .rockClimbing, .skating,
-                 
-        ]
-    }
-
-}
 
 /*
  private var declineButton: some View {
@@ -103,19 +93,13 @@ extension MapView {
  }
  */
 
-/*
- MapSearchView(vm: vm)
-
- */
-
-
-
-/*
- //
- //
- //
- //            .overlay(alignment: .bottom) {
- //                GlassSearchBar(text: $vm.searchText, showSheet: $vm.showSearch)
- //            }
-
- */
+//
+//                    Marker(coordinate: placemark.coordinate) {
+//
+//                        MapImageIcon(category: .restaurant)
+//
+//                    }
+//
+                    
+//                    Marker(placemark.name ?? "", coordinate: placemark.coordinate)
+//                        .tag(item)

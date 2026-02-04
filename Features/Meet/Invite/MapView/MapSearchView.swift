@@ -188,7 +188,7 @@ private struct SearchSuggestionRow: View {
         
     var body: some View {
         HStack(spacing: 12) {
-            MapImageIcon(category: category)
+            MapImageIcon(category: .restaurant)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
