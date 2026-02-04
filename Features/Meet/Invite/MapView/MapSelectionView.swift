@@ -19,6 +19,9 @@ struct MapSelectionView: View {
     let selectedLocation: (MKMapItem) -> Void
     
     
+    var mapItem: MKMapItem? {
+        selection.value
+    }
     
     var body: some View {
         
@@ -84,9 +87,9 @@ struct MapSelectionView: View {
 
 extension MapSelectionView {
     
-    private var mapItem: MKMapItem? {
-        vm.results.first(where: { MapSelection($0) == selection })
-    }
+//    private var mapItem: MKMapItem? {
+//        vm.selection?.value ?? vm.results.first(where: { MapSelection($0) == selection })
+//    }
     
     
     func fetchLookAround() {

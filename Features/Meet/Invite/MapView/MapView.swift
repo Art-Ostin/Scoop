@@ -43,20 +43,22 @@ struct MapView: View {
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
             .tint(Color.blue)
             .onChange(of: vm.selection) { _, newSelection in
-                if let sel = newSelection,
-                   let item = vm.results.first(where: { MapSelection($0) == sel }) {
+                
+//                print(vm.selection?.value?)
+                
+                
+                if let item = newSelection {
                     vm.showDetails = true
                 } else {
                     vm.showDetails = false
                 }
-                /*
-                 vm.cameraPosition = .region(
-                     MKCoordinateRegion(
-                         center: item.placemark.coordinate,
-                         span: vm.currentSpan
-                     )
-                 )
-                 */
+                
+//                if let sel = newSelection,
+//                   let item = vm.results.first(where: { MapSelection($0) == sel }) {
+//                    vm.showDetails = true
+//                } else {
+//                    vm.showDetails = false
+//                }
 
             }
     }
@@ -81,6 +83,17 @@ extension MapView {
         .presentationCornerRadius(16)
     }
 }
+
+/*
+ //Focuses the camera on the new position
+  vm.cameraPosition = .region(
+      MKCoordinateRegion(
+          center: item.placemark.coordinate,
+          span: vm.currentSpan
+      )
+  )
+
+ */
 
 
 
