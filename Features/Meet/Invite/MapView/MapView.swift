@@ -21,9 +21,9 @@ struct MapView: View {
     
     
     var body: some View {
-            Map(position: $vm.cameraPosition, selection: $vm.appleSelection) {
+            Map(position: $vm.cameraPosition, selection: $vm.selection) {
                 UserAnnotation()
-                
+
                 
                 ForEach(vm.results, id: \.self) {item in
                     let placemark = item.placemark

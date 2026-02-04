@@ -31,6 +31,7 @@ import MapKit
     
     var appleSelection: MapFeature?
     
+    var selection: MapSelection<MKMapItem>?
     
     
     var mapSelection: MKMapItem? {
@@ -53,6 +54,7 @@ import MapKit
         request.naturalLanguageQuery = searchText
         
         let results = try? await MKLocalSearch(request: request).start()
+                
         await MainActor.run {
             self.results = results?.mapItems ?? []
         }

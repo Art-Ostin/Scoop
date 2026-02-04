@@ -119,13 +119,11 @@
      private func searchLocation (suggestion :MKLocalSearchCompletion) async {
          isFocused = false
          vm.searchText = suggestion.title
-         Task {
              await vm.searchPlaces()
              
              if let first = vm.results.first {
-                 vm.mapSelection = first
+                 vm.selection = .init(first)
              }
-         }
      }
      
      private var suggestionsCard: some View {
