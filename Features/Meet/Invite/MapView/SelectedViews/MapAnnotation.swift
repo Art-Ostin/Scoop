@@ -60,7 +60,7 @@ struct MapAnnotation: View {
                 Circle()
                     .fill(colorGradient)
 
-                category.image
+                category.imageLarge
                     .symbolRenderingMode(.monochrome)
                     .foregroundStyle(.white)
                     .font(.system(size: innerSize * 0.46, weight: .semibold))
@@ -69,7 +69,7 @@ struct MapAnnotation: View {
             .offset(y: ringWidth)
         }
         .frame(width: size, height: totalHeight, alignment: .top)
-        .offset(y: -12)
+        .offset(y: -24)
     }
 }
 

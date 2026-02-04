@@ -20,7 +20,7 @@ struct MapImageIcon: View {
         if isSearch {
             return 30
         } else {
-            return 25
+            return 23
         }
     }
     
@@ -49,7 +49,7 @@ struct MapImageIcon: View {
                 )
                 .frame(width: size, height: size)
 
-            category.image
+            category.imageSmall
                 .symbolRenderingMode(.monochrome)
                 .foregroundStyle(.white)
                 .font(.system(size: size * 0.42, weight: .semibold))

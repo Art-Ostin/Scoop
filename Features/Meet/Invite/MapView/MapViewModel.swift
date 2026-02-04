@@ -29,6 +29,10 @@ import MapKit
     
     var lookAroundScene: MKLookAroundScene?
     
+    var appleSelection: MapFeature?
+    
+    
+    
     var mapSelection: MKMapItem? {
         didSet {
             guard let item = mapSelection else { return }
