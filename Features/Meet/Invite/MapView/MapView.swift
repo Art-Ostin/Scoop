@@ -12,7 +12,7 @@ struct MapView: View {
     
     @State var vm = MapViewModel()
     @Environment(\.dismiss) var dismiss
-    @Binding var vm2: TimeAndPlaceViewModel
+    @Binding var eventVM: TimeAndPlaceViewModel
     @State var selectedPlace: MKMapItem?
     @FocusState var isFocused: Bool
         
@@ -33,17 +33,16 @@ struct MapView: View {
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
             .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
-            .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch)}
-            .sheet(isPresented: $vm.showDetails) {mapItemInfoView}
+            .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
+            .sheet(item: $vm.selection) {
+                _ in mapItemInfoView
+            }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
             .tint(Color.blue)
             .onChange(of: vm.selection) { _, newSelection in
                 if let sel = newSelection,
                    let item = vm.results.first(where: { MapSelection($0) == sel }) {
-
                     selectedPlace = item
-
-                    // recenter camera (this replaces mapSelection.didSet)
                     vm.cameraPosition = .region(
                         MKCoordinateRegion(
                             center: item.placemark.coordinate,
@@ -70,7 +69,9 @@ extension MapView {
     }
     
     private var mapItemInfoView: some View {
-        MapSelectionView(vm: $vm, selectedPlace: $selectedPlace, vm2: $vm2) { dismiss()}
+        MapSelectionView(vm: vm, selectedPlace: $selectedPlace) { selectedPlace in
+            eventVM.event.location = EventLocation(mapItem: selectedPlace)
+        }
         .presentationDetents([.height(360)])
         .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
         .presentationCornerRadius(16)

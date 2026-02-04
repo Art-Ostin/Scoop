@@ -11,6 +11,9 @@ struct GlassSearchBar: View {
 
     @Binding var showSheet: Bool
     
+    let text: String
+    
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
@@ -18,7 +21,7 @@ struct GlassSearchBar: View {
                 .foregroundStyle(.black)
             
             
-            Text("Search Maps")
+            Text( text.isEmpty ? "Search Maps" : text)
                 .font(.system(size: 17))
                 .foregroundStyle(Color.black.opacity(0.76))
             

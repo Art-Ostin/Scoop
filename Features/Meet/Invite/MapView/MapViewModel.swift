@@ -32,19 +32,6 @@ import MapKit
     
     var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
     
-    var mapSelection: MKMapItem? {
-        didSet {
-            guard let item = mapSelection else { return }
-            cameraPosition = .region(
-                MKCoordinateRegion(
-                    center: item.placemark.coordinate,
-                    span: currentSpan
-                )
-            )
-        }
-    }
-
-    
     func searchPlaces() async {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchText
@@ -55,10 +42,23 @@ import MapKit
     }
 }
 
+
+
 //Come back to If I need to
 /*
  
- 
+ var mapSelection: MKMapItem? {
+     didSet {
+         guard let item = mapSelection else { return }
+         cameraPosition = .region(
+             MKCoordinateRegion(
+                 center: item.placemark.coordinate,
+                 span: currentSpan
+             )
+         )
+     }
+ }
+
 
  
  */

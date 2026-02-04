@@ -10,12 +10,12 @@ import MapKit
 
 
 struct MapSelectionView: View {
-    
-    @Binding var vm: MapViewModel
+
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var vm: MapViewModel
     @Binding var selectedPlace: MKMapItem?
-    @Binding var vm2: TimeAndPlaceViewModel
     
-    let onCloseMap: () -> Void
+    let selectedLocation: (MKMapItem) -> Void
     
     
     var body: some View {
@@ -51,11 +51,8 @@ struct MapSelectionView: View {
             }
             
             Button {
-                selectedPlace = vm.mapSelection
-                if let item = vm.mapSelection {
-                    vm2.event.location = EventLocation(mapItem: item)
-                }
-                onCloseMap()
+                selectedLocation(selectedPlace)
+                dismiss
             } label: {
                 Text("Add Location")
                     .frame(width: 300, height: 50)
