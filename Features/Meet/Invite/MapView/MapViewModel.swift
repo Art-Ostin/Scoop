@@ -12,7 +12,6 @@ import MapKit
 
 @Observable class MapViewModel {
     
-    
     //Setting Starting Position of CameraView
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
         
@@ -29,10 +28,9 @@ import MapKit
     
     var lookAroundScene: MKLookAroundScene?
     
-    var appleSelection: MapFeature?
-    
     var selection: MapSelection<MKMapItem>?
     
+    var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
     
     var mapSelection: MKMapItem? {
         didSet {
@@ -45,18 +43,22 @@ import MapKit
             )
         }
     }
-    
-    var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    
+
     
     func searchPlaces() async {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchText
-        
         let results = try? await MKLocalSearch(request: request).start()
-                
         await MainActor.run {
             self.results = results?.mapItems ?? []
         }
     }
 }
+
+//Come back to If I need to
+/*
+ 
+ 
+
+ 
+ */

@@ -29,7 +29,7 @@ struct SimplePOIMapView: View {
                 // If you only care about POIs, keep this filter:
                 guard feature.pointOfInterestCategory != nil else { return }
 
-                print(feature.title ?? "<No title>")
+                print(feature ?? "<No title>")
             }
     }
 }

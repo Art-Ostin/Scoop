@@ -13,9 +13,7 @@
  @Observable class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
      
      var suggestions: [MKLocalSearchCompletion] = []
-     
      var showSuggestions: Bool = true
-     
      let completer = MKLocalSearchCompleter()
      
      override init () {
@@ -40,7 +38,7 @@
      
      @State var service = LocationSearchService()
      @FocusState var isFocused: Bool
-     @State var vm: MapViewModel
+     @Bindable var vm: MapViewModel
      
      
      
@@ -92,7 +90,14 @@
              .glassIfAvailable(Capsule(), isClear: false)
              .contentShape(Capsule())
              .focused($isFocused)
-             .onSubmit(of: .text) { Task {  await vm.searchPlaces() }}
+             .onSubmit(of: .text) { Task {
+                 await vm.searchPlaces()
+                 if let first = vm.results.first {
+                     await MainActor.run { vm.showSearch = false }
+                     await MainActor.run { vm.selection = MapSelection(first) }
+                 }
+             }
+        }
      }
      
      @ViewBuilder
@@ -119,12 +124,15 @@
      private func searchLocation (suggestion :MKLocalSearchCompletion) async {
          isFocused = false
          vm.searchText = suggestion.title
-             await vm.searchPlaces()
-             
-             if let first = vm.results.first {
-                 vm.selection = .init(first)
-             }
+         await vm.searchPlaces()
+
+         if let first = vm.results.first {
+             // Close search first so the details sheet can present cleanly.
+             await MainActor.run { vm.showSearch = false }
+             await MainActor.run { vm.selection = MapSelection(first) }
+         }
      }
+     
      
      private var suggestionsCard: some View {
          return ScrollView {
