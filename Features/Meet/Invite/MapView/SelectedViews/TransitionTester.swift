@@ -7,27 +7,48 @@
 
 import SwiftUI
 
+import MapKit
+
+
+
+
 struct TransitionTester: View {
-    @State var showMainAnnotation = false
+    @State private var showMainAnnotation = false
+    @Namespace private var ns
     
-    @Namespace var ns
-    
+    var cameraPosition: MapCameraPosition = .region(
+        MKCoordinateRegion(
+            center:  CLLocationCoordinate2D(latitude: 45.5017, longitude: -73.5673),
+            span: MKCoordinateSpan(latitudeDelta: 0.06, longitudeDelta: 0.08) // city-ish view
+        )
+    )
     var body: some View {
         VStack {
             Text("Hello world")
-            
-            if showMainAnnotation {
-                MapAnnotation(category: .restaurant)
-                    .matchedGeometryEffect(id: "test", in: ns)
-            } else {
-                MapImageIcon(category: .airport)
-                    .matchedGeometryEffect(id: "test", in: ns)
+
+            Map {
+                Annotation("Hello World", coordinate: CLLocationCoordinate2D(latitude: 45.5017, longitude: -73.5673)) {
+                    if showMainAnnotation {
+                        MapAnnotation(category: .restaurant)
+                            .opacity(showMainAnnotation ? 1 : 0)
+                            .scaleEffect(showMainAnnotation ? 1 : 0.92)
+                            .matchedGeometryEffect(id: "container", in: ns)
+                    } else {
+                        MapImageIcon(category: .airport, isSearch: false)
+                            .opacity(showMainAnnotation ? 0 : 1)
+                            .scaleEffect(showMainAnnotation ? 0.92 : 1)
+                            .matchedGeometryEffect(id: "container", in: ns)
+                    }
+                }
+            }
+                    
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showMainAnnotation.toggle()
             }
         }
-        .onTapGesture {
-            showMainAnnotation.toggle()
-        }
-        .animation(.easeInOut(duration: 0.3), value:showMainAnnotation )
     }
 }
 

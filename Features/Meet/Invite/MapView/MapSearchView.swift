@@ -163,6 +163,8 @@
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
     let query: String
+
+    @State private var category: MKPointOfInterestCategory?
     
     //GPT Did this
     private var highlightedTitle: AttributedString {
@@ -188,10 +190,13 @@ private struct SearchSuggestionRow: View {
         
     var body: some View {
         HStack(spacing: 12) {
-            MapImageIcon(category: .nightlife)
+            if let category {
+                MapImageIcon(category: category, isSearch: true)
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
+                
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(Color(Color(red: 0.54, green: 0.54, blue: 0.56)))

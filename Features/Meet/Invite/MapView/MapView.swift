@@ -32,10 +32,8 @@ struct MapView: View {
                     Annotation(name, coordinate: placemark.coordinate,anchor: .bottom) {
                         if isSelected {
                             MapAnnotation(category: category)
-                                .matchedGeometryEffect(id: "annotation", in: ns)
                         } else {
-                            MapImageIcon(category: category)
-                                .matchedGeometryEffect(id: "annotation", in: ns)
+                            MapImageIcon(category: category, isSearch: false)
                         }
                     }
                 }
@@ -79,5 +77,4 @@ extension MapView {
                  
         ]
     }
-
 }

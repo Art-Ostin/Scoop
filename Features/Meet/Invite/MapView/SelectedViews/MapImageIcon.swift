@@ -14,9 +14,28 @@ struct MapImageIcon: View {
 
     let category: MKPointOfInterestCategory
     
-    var size: CGFloat = 30
+    let isSearch: Bool
+    
+    var size: CGFloat {
+        if isSearch {
+            return 30
+        } else {
+            return 25
+        }
+    }
+    
+    
     var body: some View {
         ZStack {
+            
+            if !isSearch {
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: size + 5, height: size + 5)
+                    .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
+            }
+            
+            
             Circle()
                 .fill(
                     LinearGradient(
@@ -40,7 +59,7 @@ struct MapImageIcon: View {
 }
 
 #Preview {
-    MapImageIcon(category: .restaurant)
+    MapImageIcon(category: .restaurant, isSearch: false)
         .padding()
 }
 
