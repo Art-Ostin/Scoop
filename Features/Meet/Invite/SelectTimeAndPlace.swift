@@ -58,7 +58,7 @@ struct SelectTimeAndPlace: View {
         .tabBarHidden(true) // This is custom Tool bar hidden
         .sheet(isPresented: $vm.showMessageScreen) {AddMessageView(vm: $vm)}
         .fullScreenCover(isPresented: $vm.showMapView) {
-            MapView(vm2: $vm)
+            MapView(eventVM: vm)
         }
         .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
         .alert("Event Commitment", isPresented: $vm.showAlert) {

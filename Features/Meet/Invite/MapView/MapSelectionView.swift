@@ -13,26 +13,29 @@ struct MapSelectionView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: MapViewModel
-    @Binding var selectedPlace: MKMapItem?
+    
+    let selection: MapSelection<MKMapItem>
     
     let selectedLocation: (MKMapItem) -> Void
     
     
+    
     var body: some View {
+        
         VStack {
             HStack {
                 VStack{
-                    Text(vm.mapSelection?.name ?? "")
+                    Text(mapItem?.name ?? "")
                         .font(.title2)
                         .fontWeight(.bold)
-                    Text(vm.mapSelection?.placemark.title ?? "")
+                    Text(mapItem?.placemark.title ?? "")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 }
                 Spacer()
                 
                 Button {
-                    vm.mapSelection = nil
+                    vm.selection = nil
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .resizable()
@@ -51,8 +54,9 @@ struct MapSelectionView: View {
             }
             
             Button {
-                selectedLocation(selectedPlace)
-                dismiss
+                guard let mapItem else { return }
+                selectedLocation(mapItem)
+                dismiss()
             } label: {
                 Text("Add Location")
                     .frame(width: 300, height: 50)
@@ -62,11 +66,12 @@ struct MapSelectionView: View {
                     )
                     .foregroundStyle(.white)
             }
+            .disabled(mapItem == nil)
         }
         .onAppear {
             fetchLookAround()
         }
-        .onChange(of: vm.mapSelection) { oldValue, newValue in
+        .onChange(of: vm.selection) { oldValue, newValue in
             fetchLookAround()
         }
         .padding()
@@ -79,14 +84,19 @@ struct MapSelectionView: View {
 
 extension MapSelectionView {
     
+    private var mapItem: MKMapItem? {
+        vm.results.first(where: { MapSelection($0) == selection })
+    }
+    
+    
     func fetchLookAround() {
         
-        if let selection = vm.mapSelection {
+        if let mapItem {
             vm.lookAroundScene = nil
             Task {
-                let request = MKLookAroundSceneRequest(mapItem: selection)
+                let request = MKLookAroundSceneRequest(mapItem: mapItem)
                 vm.lookAroundScene = try? await request.scene
             }
         }
     }
-}
+    }

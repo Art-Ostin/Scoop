@@ -12,8 +12,7 @@ struct MapView: View {
     
     @State var vm = MapViewModel()
     @Environment(\.dismiss) var dismiss
-    @Binding var eventVM: TimeAndPlaceViewModel
-    @State var selectedPlace: MKMapItem?
+    @Bindable var eventVM: TimeAndPlaceViewModel
     @FocusState var isFocused: Bool
         
     var body: some View {
@@ -35,14 +34,13 @@ struct MapView: View {
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
             .sheet(item: $vm.selection) {
-                _ in mapItemInfoView
+                mapItemInfoView(selection: selection)
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
             .tint(Color.blue)
             .onChange(of: vm.selection) { _, newSelection in
                 if let sel = newSelection,
                    let item = vm.results.first(where: { MapSelection($0) == sel }) {
-                    selectedPlace = item
                     vm.cameraPosition = .region(
                         MKCoordinateRegion(
                             center: item.placemark.coordinate,
@@ -51,7 +49,6 @@ struct MapView: View {
                     )
                     vm.showDetails = true
                 } else {
-                    selectedPlace = nil
                     vm.showDetails = false
                 }
             }
@@ -68,9 +65,9 @@ extension MapView {
         ]
     }
     
-    private var mapItemInfoView: some View {
-        MapSelectionView(vm: vm, selectedPlace: $selectedPlace) { selectedPlace in
-            eventVM.event.location = EventLocation(mapItem: selectedPlace)
+    private func mapItemInfoView(selection:  MapSelection<MKMapItem>) -> some View {
+        MapSelectionView(vm: vm, selection: selection) { mapItem in
+            eventVM.event.location = EventLocation(mapItem: mapItem)
         }
         .presentationDetents([.height(360)])
         .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
@@ -112,3 +109,4 @@ extension MapView {
      vm.showDetails = newValue != nil
  }
  */
+
