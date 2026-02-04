@@ -38,6 +38,9 @@ struct MapView: View {
                     }
                 }
             }
+            .onMapCameraChange { context in
+                vm.currentSpan = context.region.span
+            }
             .animation(.easeInOut(duration: 0.3), value: vm.mapSelection)
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
             .overlay(alignment: .bottomTrailing) {

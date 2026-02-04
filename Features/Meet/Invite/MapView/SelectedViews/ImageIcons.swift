@@ -121,36 +121,48 @@ extension MKPointOfInterestCategory {
     var startColor: Color {
         switch self {
             //Pink
-        case .nightlife:
+        case .nightlife, .amusementPark, .aquarium, .movieTheater, .museum, .theater, .winery, .zoo, .bowling, .fairground,.goKart, .miniGolf, .musicVenue, .planetarium:
             return Color(red: 1, green: 0.51, blue: 0.75)
 
             //Green
-        case .park:
-            return  Color(red: 0.529, green: 0.851, blue: 0.486)
+        case .park, .campground, .nationalPark, .baseball, .basketball, .golf, .hiking, .rockClimbing, .rvPark, .skatePark, .soccer, .tennis, .volleyball:
+            return  Color(red: 0.17, green: 0.89, blue: 0.39)
             
             //Purple
-        case .atm:
-            return  Color(red: 0.522, green: 0.510, blue: 0.882)
+        case .hotel, .restroom:
+            return  Color(red: 0.85, green: 0.56, blue: 1)
             
             //Orange
-        case .brewery, .restaurant:
+        case .brewery, .restaurant,.bakery, .cafe, .foodMarket, .distillery:
             return  Color(red: 0.99, green: 0.69, blue: 0.28)
             
             //Red
-        case .airport:
-            return Color(red: 245/255, green: 106/255, blue: 135/255)
+        case .airport, .carRental, .fireStation, .hospital, .pharmacy, .animalService:
+            return Color(red: 1, green: 0.44, blue: 0.63)
 
             //Blue
-        case .bank:
-            return  Color(red:  76/255, green: 141/255, blue: 242/255)
+        case .airport, .gasStation, .parking, .publicTransport :
+            return  Color(red: 0.28, green: 0.69, blue: 1)
             
             //Brown
         case .school, .university:
-            return  Color(red: 166/255, green: 122/255, blue:  93/255)
+            return  Color(red: 0.75, green: 0.53, blue: 0.44)
             
-            //Purple
-        case .baseball:
-            return Color(red: 166/255, green: 111/255, blue: 232/255)
+            //Indigo
+        case .landmark, .stadium, .castle, .fortress, .nationalMonument:
+            return Color(red: 0.6, green: 0.58, blue: 1)
+            
+            //Yellow
+        case .store, .laundry, .beauty, .kayaking, .spa:
+            return Color(red: 0.99, green: 0.87, blue: 0)
+            
+            //Grey
+        case .atm, .bank, .police, .postOffice, .automotiveRepair, .conventionCenter, .mailbox:
+            return Color(red: 0.79, green: 0.82, blue: 0.85)
+            
+            //Teal
+        case .beach, .marina, .fishing, .skating, .skiing, .surfing,  .swimming:
+            return Color(red: 0, green: 0.89, blue: 1)
 
         default:
             return Color(red: 245/255, green: 106/255, blue: 135/255)
@@ -160,37 +172,50 @@ extension MKPointOfInterestCategory {
     var endColor: Color {
         switch self {
             //Pink
-        case .nightlife:
+        case .nightlife,  .amusementPark, .aquarium, .movieTheater, .museum, .theater, .winery, .zoo, .bowling, .fairground, .goKart, .miniGolf, .musicVenue, .planetarium:
             return Color(red: 0.86, green: 0.11, blue: 0.53)
 
             //Green
-        case .park:
-            return Color(red: 0.310, green: 0.639, blue: 0.318)
+        case .park, .campground, .nationalPark, .baseball, .basketball, .golf, .hiking, .rockClimbing, .rvPark, .skatePark, .soccer, .tennis, .volleyball:
+            return Color(red: 0, green: 0.61, blue: 0.21)
             
             //Purple
-        case .atm:
-            return   Color(red: 0.376, green: 0.361, blue: 0.729)
+        case .hotel, .restroom:
+            return   Color(red: 0.51, green: 0.27, blue: 0.76)
             
             //Orange
-        case .brewery, .restaurant:
+        case .brewery, .restaurant, .bakery, .cafe, .foodMarket, .distillery:
             return  Color(red: 0.96, green: 0.44, blue: 0.18)
             
             //Red
-        case .airport:
-            return  Color(red: 212/255, green:  51/255, blue:  82/255)
+        case .airport, .carRental, .fireStation, .hospital, .pharmacy, .animalService:
+            return  Color(red: 0.88, green: 0.04, blue: 0.27)
 
             //Blue
-        case .bank:
-            return  Color(red:  47/255, green: 106/255, blue: 228/255)
+        case .airport, .gasStation, .parking, .publicTransport:
+            return  Color(red: 0, green: 0.36, blue: 0.85)
             
             //Brown
         case .school, .university:
-            return  Color(red: 108/255, green:  69/255, blue:  51/255)
+            return  Color(red: 0.45, green: 0.28, blue: 0.21)
             
-            //Purple
-        case .baseball:
-            return  Color(red: 123/255, green:  67/255, blue: 199/255)
+            //Indigo
+        case .landmark, .stadium, .castle, .fortress, .nationalMonument:
+            return  Color(red: 0.34, green: 0.32, blue: 0.72)
+            
+            //Yellow
+        case .store, .laundry, .beauty, .kayaking, .spa:
+            return Color(red: 0.98, green: 0.53, blue: 0)
+            
+            //Grey
+        case .atm, .bank, .police, .postOffice, .automotiveRepair, .conventionCenter, .mailbox:
+            return Color(red: 0.5, green: 0.5, blue: 0.53)
+            
+            //Teal
+        case .beach, .marina, .fishing, .skating, .skiing, .surfing, .swimming:
+            return Color(red: 0, green: 0.62, blue: 0.72)
 
+            
         default:
             return Color(red: 245/255, green: 106/255, blue: 135/255)
         }

@@ -190,11 +190,10 @@ private struct SearchSuggestionRow: View {
         
     var body: some View {
         HStack(spacing: 12) {
-            if let category {
-                MapImageIcon(category: category, isSearch: true)
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
+            MapImageIcon(category: .restaurant, isSearch: true)
+
+                
+                VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
                 
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)

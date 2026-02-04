@@ -31,11 +31,17 @@ import MapKit
     
     var mapSelection: MKMapItem? {
         didSet {
-            cameraPosition = mapSelection.map { item in
-                .region(MKCoordinateRegion(center: item.placemark.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)))
-            } ?? .userLocation(fallback: .automatic)
+            guard let item = mapSelection else { return }
+            cameraPosition = .region(
+                MKCoordinateRegion(
+                    center: item.placemark.coordinate,
+                    span: currentSpan
+                )
+            )
         }
     }
+    
+    var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
     
     
     func searchPlaces() async {
