@@ -27,21 +27,16 @@ struct MapView: View {
                     let placemark = item.placemark
                     let isSelected = vm.mapSelection == item
                     let name = placemark.name ?? ""
+                    let category = item.pointOfInterestCategory ?? .restaurant
 
-                    
-                    
-                    Annotation("", coordinate: placemark.coordinate,anchor: .bottom) {
-                        MapAnnotation(
-                            category: item.pointOfInterestCategory ?? .restaurant,
-                            type: isSelected ? .selected : .notSelected
-                        )
-                        .accessibilityLabel(Text(name))
-                        .overlay(alignment: .bottom) {
-                            if !name.isEmpty {
-                                Text(name)
-                                    .glowBoarder(color: .black, lineWidth: 1)
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                            }
+                    Annotation(name, coordinate: placemark.coordinate,anchor: .bottom) {
+                        if isSelected {
+                            MapAnnotation(
+                                category: category,
+                                type: isSelected ? .selected : .notSelected
+                            )
+                        } else {
+                            MapImageIcon(category: item.poin)
                         }
                     }
                 }
@@ -86,52 +81,3 @@ extension MapView {
     }
 
 }
-
-/*
- private var declineButton: some View {
-     Button {
-         dismiss()
-     } label: {
-         Image(systemName: "xmark")
-             .font(.body(18, .bold))
-             .padding(12)
-             .glassIfAvailable(Circle())
-             .contentShape(Circle())
-             .foregroundStyle(Color.black)
-             .padding(.horizontal)
-     }
- }
- 
- */
-
-
-
-
-//Need Later on
-/*
- .overlay(alignment: .top) {
-     MapSearchView(vm: vm)
- }
-
- .mapControls {
-     MapUserLocationButton()
- }
- */
-
-//
-//                    Marker(coordinate: placemark.coordinate) {
-//
-//                        MapImageIcon(category: .restaurant)
-//
-//                    }
-//
-                    
-//                    Marker(placemark.name ?? "", coordinate: placemark.coordinate)
-//                        .tag(item)
-
-//                        .tint(.pink)
-
-
-//Colours that work default (1) Pink - for default (2)
-
-   // .tint(Color.indigo)

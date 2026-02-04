@@ -11,7 +11,7 @@ import MapKit
 
 
 enum AnnotationType {
-    case selected, notSelected, SearchView
+    case selected, notSelected, searchView
 }
 
 
@@ -20,23 +20,19 @@ enum AnnotationType {
 
 struct MapAnnotation: View {
     
-    var size: CGFloat = 65
-    var ringWidth: CGFloat = 4
-    var dipWidthRatio: CGFloat = 0.5
-    var dipHeightRatio: CGFloat = 0.17
-    var dipOverlapRatio: CGFloat = 0.25
-    var dipCurveRatio: CGFloat = 0.80
-
-    private var innerSize: CGFloat { max(size - ringWidth * 2, 0) }
-    private var dipWidth: CGFloat { size * dipWidthRatio }
-    private var dipHeight: CGFloat { size * dipHeightRatio }
-    private var dipOverlap: CGFloat { dipHeight * dipOverlapRatio }
-    private var totalHeight: CGFloat { size + dipHeight - dipOverlap }
-
-    
     let category: MKPointOfInterestCategory
     let type: AnnotationType
     
+    var size: CGFloat {
+        switch type {
+        case .selected:
+            return 65
+        case .notSelected:
+            return 30
+        case .searchView:
+            return 35
+        }
+    }
     private var colorGradient: LinearGradient {
         LinearGradient(
             colors: [
@@ -48,18 +44,34 @@ struct MapAnnotation: View {
         )
     }
 
+    
+    var ringWidth: CGFloat = 4
+    var dipWidthRatio: CGFloat = 0.5
+    var dipHeightRatio: CGFloat = 0.17
+    var dipOverlapRatio: CGFloat = 0.25
+    var dipCurveRatio: CGFloat = 0.80
+    
+    private var innerSize: CGFloat { max(size - ringWidth * 2, 0) }
+    private var dipWidth: CGFloat {size * dipWidthRatio }
+    private var dipHeight: CGFloat { size * dipHeightRatio }
+    private var dipOverlap: CGFloat { size * dipOverlapRatio }
+    private var totalHeight: CGFloat { size + dipHeight - dipOverlap }
+    
+
     var body: some View {
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
                 Circle()
                     .frame(width: size, height: size)
-
-                PinDipShape(curveRatio: dipCurveRatio)
-                    .frame(width: dipWidth, height: dipHeight)
-                    .offset(y: size - 4)
-                            
-                SmallDot(color: colorGradient)
-                    .offset(y: size + 12)
+                
+                if type == .selected {
+                    PinDipShape(curveRatio: dipCurveRatio)
+                        .frame(width: dipWidth, height: dipHeight)
+                        .offset(y: size - 4)
+                    
+                    SmallDot(color: colorGradient)
+                        .offset(y: size + 12)
+                }
             }
             .foregroundStyle(.white)
             .defaultShadow()
@@ -77,6 +89,7 @@ struct MapAnnotation: View {
             .offset(y: ringWidth)
         }
         .frame(width: size, height: totalHeight, alignment: .top)
+//        .offset(y: type == .selected ? -12 : 0)
     }
 }
 

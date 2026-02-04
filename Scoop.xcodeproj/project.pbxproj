@@ -138,7 +138,6 @@
 		65AC3F9C2F323B5B00EEB0C6 /* GlassSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AC3F9B2F323B5B00EEB0C6 /* GlassSearchBar.swift */; };
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
 		65B313A32F33784F00D5C27D /* MapAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B313A22F33784F00D5C27D /* MapAnnotation.swift */; };
-		65B313A72F33B0CE00D5C27D /* TextStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B313A62F33B0CE00D5C27D /* TextStroke.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
@@ -339,7 +338,6 @@
 		65AC3F9B2F323B5B00EEB0C6 /* GlassSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSearchBar.swift; sourceTree = "<group>"; };
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
 		65B313A22F33784F00D5C27D /* MapAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapAnnotation.swift; sourceTree = "<group>"; };
-		65B313A62F33B0CE00D5C27D /* TextStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextStroke.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
 		65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePhoto.swift; sourceTree = "<group>"; };
@@ -579,7 +577,6 @@
 			children = (
 				651975942F1FC67E0002F6A2 /* ExpandTapArea.swift */,
 				65F450BE2E45567900AE3503 /* ImageModifiers.swift */,
-				65B313A62F33B0CE00D5C27D /* TextStroke.swift */,
 				65A070572EE09F85009F798B /* CustomViewModifiers.swift */,
 				65B059572EE4CF0F00427B95 /* CustomModifier.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
@@ -1241,7 +1238,6 @@
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
-				65B313A72F33B0CE00D5C27D /* TextStroke.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
 				657B8D532F2D41C300583ADA /* InviteTimeRow.swift in Sources */,
 				65E820A52E382C7F0098CC36 /* InterestsView.swift in Sources */,

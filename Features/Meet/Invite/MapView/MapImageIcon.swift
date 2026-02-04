@@ -11,7 +11,7 @@ import MapKit
 
 
 struct MapImageIcon: View {
-    
+
     let category: MKPointOfInterestCategory
     
     var size: CGFloat = 30
