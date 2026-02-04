@@ -33,7 +33,7 @@ struct MapView: View {
             .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
-            .sheet(item: $vm.selection) {
+            .sheet(item: $vm.selection) { selection in
                 mapItemInfoView(selection: selection)
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
