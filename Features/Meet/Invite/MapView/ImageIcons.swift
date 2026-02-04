@@ -120,25 +120,88 @@ extension MKPointOfInterestCategory {
     
     var startColor: Color {
         switch self {
-            case .restaurant:
-                return  Color(red: 245/255, green: 106/255, blue: 135/255)
+            //Pink
+        case .nightlife:
+            return Color(red: 1, green: 0.51, blue: 0.75)
 
-            default:
-                return Color(red: 245/255, green: 106/255, blue: 135/255)
+            //Green
+        case .park:
+            return  Color(red: 0.529, green: 0.851, blue: 0.486)
+            
+            //Purple
+        case .atm:
+            return  Color(red: 0.522, green: 0.510, blue: 0.882)
+            
+            //Orange
+        case .brewery, .restaurant:
+            return  Color(red: 0.99, green: 0.69, blue: 0.28)
+            
+            //Red
+        case .airport:
+            return Color(red: 245/255, green: 106/255, blue: 135/255)
+
+            //Blue
+        case .bank:
+            return  Color(red:  76/255, green: 141/255, blue: 242/255)
+            
+            //Brown
+        case .school, .university:
+            return  Color(red: 166/255, green: 122/255, blue:  93/255)
+            
+            //Purple
+        case .baseball:
+            return Color(red: 166/255, green: 111/255, blue: 232/255)
+
+        default:
+            return Color(red: 245/255, green: 106/255, blue: 135/255)
         }
     }
     
     var endColor: Color {
         switch self {
-        case .restaurant:
-            return Color(red: 212/255, green:  51/255, blue:  82/255)
+            //Pink
+        case .nightlife:
+            return Color(red: 0.86, green: 0.11, blue: 0.53)
+
+            //Green
+        case .park:
+            return Color(red: 0.310, green: 0.639, blue: 0.318)
             
-        default:
+            //Purple
+        case .atm:
+            return   Color(red: 0.376, green: 0.361, blue: 0.729)
+            
+            //Orange
+        case .brewery, .restaurant:
+            return  Color(red: 0.96, green: 0.44, blue: 0.18)
+            
+            //Red
+        case .airport:
             return  Color(red: 212/255, green:  51/255, blue:  82/255)
+
+            //Blue
+        case .bank:
+            return  Color(red:  47/255, green: 106/255, blue: 228/255)
+            
+            //Brown
+        case .school, .university:
+            return  Color(red: 108/255, green:  69/255, blue:  51/255)
+            
+            //Purple
+        case .baseball:
+            return  Color(red: 123/255, green:  67/255, blue: 199/255)
+
+        default:
+            return Color(red: 245/255, green: 106/255, blue: 135/255)
         }
+
     }
 }
 /*
+ 
+ 
+ startColor: Color(red: 0.99, green: 0.69, blue: 0.28), endColor: Color(red: 0.96, green: 0.44, blue: 0.18)
+ 
  
  Color(red: 0.99, green: 0.69, blue: 0.28)
  

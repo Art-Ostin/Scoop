@@ -23,27 +23,28 @@ struct MapView: View {
     var body: some View {
             Map(position: $vm.cameraPosition, selection: $vm.mapSelection) {
                 UserAnnotation()
-                ForEach(vm.results, id: \.self) { item in
-                    let category = item.pointOfInterestCategory
+                ForEach(vm.results, id: \.self) {item in
                     let placemark = item.placemark
+                    let isSelected = vm.mapSelection == item
+                    let name = placemark.name ?? ""
+
                     
-                    Annotation(placemark.name ?? "", coordinate: placemark.coordinate, anchor: .bottom) {
-                        MapForkKnifePinIcon(image: Image(systemName: "fork.knife"), startColor: Color(red: 0.99, green: 0.69, blue: 0.28), endColor: Color(red: 0.96, green: 0.44, blue: 0.18))
+                    
+                    Annotation("", coordinate: placemark.coordinate,anchor: .bottom) {
+                        MapAnnotation(
+                            category: item.pointOfInterestCategory ?? .restaurant,
+                            type: isSelected ? .selected : .notSelected
+                        )
+                        .accessibilityLabel(Text(name))
+                        .overlay(alignment: .bottom) {
+                            if !name.isEmpty {
+                                Text(name)
+                                    .glowBoarder(color: .black, lineWidth: 1)
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                            }
+                        }
                     }
-//                    Annotation(placemark.name ?? "",
-//                               coordinate: placemark.coordinate,
-//                               anchor: .bottom) {
-//                        BalloonPin(size: 34, fill: .indigo) {
-//                            Image("mapImageIcon")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .foregroundStyle(.white)
-//                        }
-//                    }
-                    
-                    
                 }
-                
             }
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
             .overlay(alignment: .bottomTrailing) {
