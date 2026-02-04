@@ -33,24 +33,31 @@ struct MapView: View {
             .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
-            .sheet(item: $vm.selection) { selection in
-                mapItemInfoView(selection: selection)
+            .sheet(isPresented: $vm.showDetails) {
+                if let selection = vm.selection {
+                    mapItemInfoView(selection: selection)
+                } else {
+                    Text("Hello World")
+                }
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
             .tint(Color.blue)
             .onChange(of: vm.selection) { _, newSelection in
                 if let sel = newSelection,
                    let item = vm.results.first(where: { MapSelection($0) == sel }) {
-                    vm.cameraPosition = .region(
-                        MKCoordinateRegion(
-                            center: item.placemark.coordinate,
-                            span: vm.currentSpan
-                        )
-                    )
                     vm.showDetails = true
                 } else {
                     vm.showDetails = false
                 }
+                /*
+                 vm.cameraPosition = .region(
+                     MKCoordinateRegion(
+                         center: item.placemark.coordinate,
+                         span: vm.currentSpan
+                     )
+                 )
+                 */
+
             }
     }
 }
