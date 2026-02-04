@@ -40,6 +40,7 @@ struct MapView: View {
                     }
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: vm.mapSelection)
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
             .overlay(alignment: .bottomTrailing) {
                 MapUserLocationButton()
