@@ -10,7 +10,6 @@
  import MapKit
 
 
-@MainActor
 @Observable
 final class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
 
@@ -42,27 +41,34 @@ final class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
      @State var service = LocationSearchService()
      @FocusState var isFocused: Bool
      @Bindable var vm: MapViewModel
+     @Binding var currentDetent: PresentationDetent
      
      
      
+     @State var placeholder: Bool = false
      var body: some View {
-         VStack {
-             if !service.suggestions.isEmpty && service.showSuggestions {
-                 suggestionsCard
-             }
-         }
-         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-         .overlay(alignment: .top) {headerBar}
-         .background(Color(.systemGroupedBackground).ignoresSafeArea())
-         .onAppear { isFocused = true }
-         .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)
+             if currentDetent == .fraction(0.1) {
+                Button {
+                    isFocused = true
+                    self.currentDetent = .large
+                } label: {
+                    GlassSearchBar(showSheet: $placeholder, text: "Search Maps")
+                }
+            } else if currentDetent == .large {
+                VStack {
+                    if !service.suggestions.isEmpty && service.showSuggestions {
+                        suggestionsCard
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .overlay(alignment: .top) {headerBar}
+                .background(Color(.systemGroupedBackground).ignoresSafeArea())
+                .onAppear { isFocused = true }
+                .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)}
          }
      }
  }
 
- #Preview {
-     MapSearchView(vm: .init())
- }
 
  extension MapSearchView {
      
@@ -71,7 +77,7 @@ final class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
              searchBar
                  .frame(maxWidth: .infinity, alignment: .leading)
              
-             DismissButton() { vm.showSearch = false }
+             DismissButton() { currentDetent = .fraction(0.1) }
                  .frame(width: 40)
          }
          .frame(maxWidth: .infinity)
@@ -199,9 +205,7 @@ private struct SearchSuggestionRow: View {
         
     var body: some View {
         HStack(spacing: 12) {
-            MapImageIcon(category: .restaurant, isSearch: true)
-
-                
+            MapImageIcon(category: .restaurant, isSearch: true)                
                 VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
                 

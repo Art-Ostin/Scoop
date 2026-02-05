@@ -8,61 +8,75 @@
 import SwiftUI
 import MapKit
 
+
 struct MapView: View {
     
     @State var vm = MapViewModel()
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
     @FocusState var isFocused: Bool
+    
+    
     @State private var selectedDetent: PresentationDetent = .fraction(0.42)
+    @State private var searchBarDetent: PresentationDetent = .fraction(0.1)
+    @State private var searchBarRestaurant: PresentationDetent = .fraction(0.25)
+    
+    @State private var currentDetent: PresentationDetent = .fraction(0.1)
     @State private var selectionTask: Task<Void, Never>?
-
-        
+    
     var body: some View {
-            Map(position: $vm.cameraPosition, selection: $vm.selection) {
-                UserAnnotation()
-                
-                ForEach(vm.results, id: \.self) { item in
+        Map(position: $vm.cameraPosition, selection: $vm.selection) {
+            UserAnnotation()
+            ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
-//                        .tag(MapSelection(item))
-//                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
-                }
+                        .tag(MapSelection(item))
+                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
             }
-            .onMapCameraChange { context in
-                vm.currentSpan = context.region.span
+        }
+        .onMapCameraChange { context in
+            vm.currentSpan = context.region.span
+            vm.currentRegion = context.region
+        }
+        .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
+        .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
+        .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
+        .overlay(alignment: .top) { searchAreaButton }
+        .sheet(isPresented: $vm.showSearch) {
+            mapSearchView
+        }
+        .sheet(isPresented: $vm.showDetails, ) {
+            if let mapItem = vm.selectedMapItem {
+                mapItemInfoView(mapItem: mapItem)
             }
-            .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
-            .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
-            .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
-            .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
-            .sheet(isPresented: $vm.showDetails, ) {
-                if let mapItem = vm.selectedMapItem {
-                    mapItemInfoView(mapItem: mapItem)
-                }
+        }
+        .onChange(of: vm.showDetails) { _, newValue in
+            if newValue == false {
+                vm.showSearch = true
+                    currentDetent = .fraction(0.1)
             }
-            .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
-            .onChange(of: vm.selection) { _, newSelection in
-                Task { @MainActor in
-                    await vm.updateSelectedMapItem(from: newSelection)
-                    guard !Task.isCancelled else { return }
-                    vm.showDetails = vm.selectedMapItem != nil
-                    
-
-                    if let item = vm.selectedMapItem {
-                        let coord = item.placemark.coordinate
-                        let yOffset = vm.currentSpan.latitudeDelta * 0.15 //Gives slight offset
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            vm.cameraPosition = .region(
-                                MKCoordinateRegion(
-                                    center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
-                                                                   longitude: coord.longitude),
-                                    span: vm.currentSpan
-                                )
+        }
+        .onChange(of: vm.selection) { _, newSelection in
+            Task { @MainActor in
+                await vm.updateSelectedMapItem(from: newSelection)
+                guard !Task.isCancelled else { return }
+                vm.showDetails = vm.selectedMapItem != nil
+                
+                
+                if let item = vm.selectedMapItem {
+                    let coord = item.placemark.coordinate
+                    let yOffset = vm.currentSpan.latitudeDelta * 0.15 //Gives slight offset
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        vm.cameraPosition = .region(
+                            MKCoordinateRegion(
+                                center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
+                                                               longitude: coord.longitude),
+                                span: vm.currentSpan
                             )
-                        }
+                        )
                     }
                 }
             }
+        }
     }
 }
 
@@ -76,6 +90,29 @@ extension MapView {
         ]
     }
     
+    private var searchAreaButton: some View {
+        Button {
+            Task { await vm.searchBarsInVisibleRegion() }
+        } label: {
+            Text("Search Area")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.black)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glassIfAvailable(isClear: true, thinMaterial: true)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 12)
+    }
+
+    
+    private var mapSearchView: some View {
+        MapSearchView(vm: vm, currentDetent: $currentDetent)
+            .presentationDetents([searchBarDetent,  .large])
+            .presentationBackgroundInteraction(.enabled(upThrough: searchBarDetent))
+    }
+
+    
     
     private func mapItemInfoView(mapItem: MKMapItem) -> some View {
         
@@ -87,6 +124,7 @@ extension MapView {
         
     }
 }
+
 
 /*
  //Focuses the camera on the new position
@@ -104,21 +142,7 @@ extension MapView {
 //Come back to if I need to.
 /*
  
- ForEach(vm.results, id: \.self) {item in
-     let placemark = item.placemark
-     let isSelected = vm.mapSelection == item
-     let name = placemark.name ?? ""
-     let category = item.pointOfInterestCategory ?? .restaurant
 
-     Annotation(name, coordinate: placemark.coordinate,anchor: .bottom) {
-         if isSelected {
-             MapAnnotation(category: category)
-         } else {
-             MapImageIcon(category: category, isSearch: false)
-         }
-     }
- }
- 
  
  .animation(.easeInOut(duration: 0.3), value: vm.mapSelection)
  

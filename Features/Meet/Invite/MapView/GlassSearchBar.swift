@@ -28,16 +28,23 @@ struct GlassSearchBar: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 12)
-        .frame(height: 35)
+        .frame(height: 45)
         .background(Capsule().fill(.ultraThinMaterial))
-        .frame(height: 65)
-        .padding(.horizontal, 16)
         .contentShape(Capsule())
-        .glassIfAvailable(Capsule(), isClear: false)
-        .clipShape(Capsule())
-        .padding(.horizontal, 36)
-        .onTapGesture {
-            showSheet = true
-        }
+        .padding(.horizontal, 16)
     }
 }
+
+/*
+ .frame(height: 65)
+ .padding(.horizontal, 16)
+
+ */
+
+//        .glassIfAvailable(Capsule(), isClear: false)
+//
+//    .padding(.horizontal, 36)
+//    .onTapGesture {
+//        showSheet = true
+//    }
+

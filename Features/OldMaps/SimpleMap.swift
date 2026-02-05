@@ -32,7 +32,6 @@ struct SimplePOIMapView: View {
                 guard feature.pointOfInterestCategory != nil else { return }
                 
                 
-                
                 print(feature ?? "<No title>")
             }
             .overlay {
