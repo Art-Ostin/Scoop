@@ -20,11 +20,10 @@ import MapKit
     //The Inputted Text by the User
     var searchText: String = ""
     
-    var results = [MKMapItem]()
-    
-    var showDetails: Bool = false
+    var showInfo: Bool = false
     var showSearch: Bool = true
     
+    var results = [MKMapItem]()
     
     var lookAroundScene: MKLookAroundScene?
     
@@ -81,23 +80,8 @@ import MapKit
     }
 }
 
-
-
-//Come back to If I need to
 /*
- 
- var mapSelection: MKMapItem? {
-     didSet {
-         guard let item = mapSelection else { return }
-         cameraPosition = .region(
-             MKCoordinateRegion(
-                 center: item.placemark.coordinate,
-                 span: currentSpan
-             )
-         )
-     }
- }
+ var showDetails: Bool = false
+ var showSearch: Bool = true
 
-
- 
  */

@@ -52,7 +52,7 @@ struct MapSelectionView: View {
                         .frame(height: 200)
                         .cornerRadius(16)
                 } else {
-                    ContentUnavailableView("No Preview", image: "eye.slash")
+                    ContentUnavailableView("No Preview", image: "fork.knife")
                 }
                 
                 Button {

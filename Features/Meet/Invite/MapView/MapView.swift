@@ -8,6 +8,12 @@
 import SwiftUI
 import MapKit
 
+enum SheetState: Equatable {
+    case searchCollapsed
+    case searchExpanded
+    case selection
+}
+
 
 struct MapView: View {
     
@@ -16,13 +22,15 @@ struct MapView: View {
     @Bindable var eventVM: TimeAndPlaceViewModel
     @FocusState var isFocused: Bool
     
-    
-    @State private var selectedDetent: PresentationDetent = .fraction(0.42)
-    @State private var searchBarDetent: PresentationDetent = .fraction(0.1)
-    @State private var searchBarRestaurant: PresentationDetent = .fraction(0.25)
-    
+
     @State private var currentDetent: PresentationDetent = .fraction(0.1)
+    private let searchBarDetent: PresentationDetent = .fraction(0.1)
+    private let selectedDetent: PresentationDetent = .fraction(0.42)
+
+        
     @State private var selectionTask: Task<Void, Never>?
+    
+    @State var showSheet: Bool = true
     
     var body: some View {
         Map(position: $vm.cameraPosition, selection: $vm.selection) {
@@ -33,7 +41,7 @@ struct MapView: View {
                         .tint(Color(red: 0.78, green: 0, blue: 0.35))
             }
         }
-        .onMapCameraChange { context in
+        .onMapCameraChange {context in
             vm.currentSpan = context.region.span
             vm.currentRegion = context.region
         }
@@ -41,40 +49,13 @@ struct MapView: View {
         .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
         .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .top) { searchAreaButton }
-        .sheet(isPresented: $vm.showSearch) {
-            mapSearchView
-        }
-        .sheet(isPresented: $vm.showDetails, ) {
-            if let mapItem = vm.selectedMapItem {
-                mapItemInfoView(mapItem: mapItem)
-            }
-        }
-        .onChange(of: vm.showDetails) { _, newValue in
-            if newValue == false {
-                vm.showSearch = true
-                    currentDetent = .fraction(0.1)
-            }
-        }
-        .onChange(of: vm.selection) { _, newSelection in
-            Task { @MainActor in
-                await vm.updateSelectedMapItem(from: newSelection)
-                guard !Task.isCancelled else { return }
-                vm.showDetails = vm.selectedMapItem != nil
-                
-                
-                if let item = vm.selectedMapItem {
-                    let coord = item.placemark.coordinate
-                    let yOffset = vm.currentSpan.latitudeDelta * 0.15 //Gives slight offset
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        vm.cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
-                                                               longitude: coord.longitude),
-                                span: vm.currentSpan
-                            )
-                        )
-                    }
-                }
+        .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
+        .sheet(isPresented: .constant(true)) {searchView}
+        .sheet(isPresented: $vm.showInfo) {infoView }
+        .onChange(of: vm.showInfo) {
+            if vm.showInfo == false {
+                currentDetent = .fraction(0.1)
+//                vm.showSearch = true
             }
         }
     }
@@ -104,85 +85,97 @@ extension MapView {
         .buttonStyle(.plain)
         .padding(.top, 12)
     }
-
     
-    private var mapSearchView: some View {
+    private var searchView: some View {
         MapSearchView(vm: vm, currentDetent: $currentDetent)
-            .presentationDetents([searchBarDetent,  .large])
+            .presentationDetents([searchBarDetent,  .large], selection: $currentDetent)
             .presentationBackgroundInteraction(.enabled(upThrough: searchBarDetent))
+            .interactiveDismissDisabled(true)
     }
-
     
-    
-    private func mapItemInfoView(mapItem: MKMapItem) -> some View {
-        
-        return MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
-            eventVM.event.location = EventLocation(mapItem: mapItem)
+    @ViewBuilder
+    private var infoView: some View {
+        if let mapItem = vm.selectedMapItem {
+            MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
+                eventVM.event.location = EventLocation(mapItem: mapItem)
+            }
+            .presentationDetents([selectedDetent])
+            .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
         }
-        .presentationDetents([selectedDetent, .large])
-        .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
-        
+    }
+    
+    private func itemSelected(_ newSelection: MapSelection<MKMapItem>?)  {
+        Task { @MainActor in
+            //1. Load selected Item into the selectedMap Item as a MKMapItem
+            await vm.updateSelectedMapItem(from: newSelection)
+            guard !Task.isCancelled else { return }
+            
+            //2. Toggle the UI to show Info and hide search
+            if vm.selectedMapItem != nil {
+//               vm.showSearch = false
+                vm.showInfo = true
+            } else {
+                vm.showSearch = true
+            }
+            
+            //3. Update camera position to new centre (the actual selection dealt with through map)
+            if let item = vm.selectedMapItem {
+                let coord = item.placemark.coordinate
+                let yOffset = vm.currentSpan.latitudeDelta * 0.15
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    vm.cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
+                                                           longitude: coord.longitude),
+                            span: vm.currentSpan
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
 
-/*
- //Focuses the camera on the new position
-  vm.cameraPosition = .region(
-      MKCoordinateRegion(
-          center: item.placemark.coordinate,
-          span: vm.currentSpan
-      )
-  )
 
+
+/*
+ .interactiveDismissDisabled(sheetState != .selection)
  */
 
 
 
-//Come back to if I need to.
+
 /*
- 
-
- 
- .animation(.easeInOut(duration: 0.3), value: vm.mapSelection)
- 
- 
- .overlay(alignment: .bottomTrailing) {
-     MapUserLocationButton()
-         .padding(.bottom, 150)
+ .onChange(of: vm.showDetails) {_, newValue in
+     if newValue == false {
+         vm.showSearch = true
+             currentDetent = .fraction(0.1)
+     }
  }
 
  
- .onChange(of: vm.mapSelection) { oldValue, newValue in
-     vm.showDetails = newValue != nil
+ .sheet(isPresented: $vm.showDetails) {
+     if let mapItem = vm.selectedMapItem {
+         mapItemInfoView(mapItem: mapItem)
+     }
  }
+ 
+ 
+ .sheet(isPresented: $vm.showSearch) { mapSearchView}
+
+
+ .sheet(isPresented: $showSheet) {
+     sheetContent
+         .interactiveDismissDisabled(sheetState != .selection)
+         .presentationDetents(detentsForState, selection: $currentDetent)
+         .presentationBackgroundInteraction(.enabled(upThrough: upThroughDetent))
+         .onChange(of: currentDetent) { _, newDetent in
+             guard sheetState != .selection else { return }
+             sheetState = (newDetent == searchBarDetent) ? .searchCollapsed : .searchExpanded
+         }
+ }
+
+ 
+ 
  */
-
-
-
-private extension MKMapItem {
-    var pointOfInterestTintColor: Color? {
-        let kvcColorKeys = [
-            "markerTintColor",
-            "_markerTintColor",
-            "pointOfInterestColor",
-            "_pointOfInterestColor",
-            "displayColor",
-            "_displayColor"
-        ]
-
-        for key in kvcColorKeys {
-            let selector = NSSelectorFromString(key)
-
-            guard responds(to: selector) else {
-                continue
-            }
-
-            if let uiColor = value(forKey: key) as? UIColor {
-                return Color(uiColor: uiColor)
-            }
-        }
-
-        return nil
-    }
-}
