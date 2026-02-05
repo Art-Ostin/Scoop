@@ -19,6 +19,8 @@ struct SimplePOIMapView: View {
     // This is the key: selecting Apple-rendered map features (POIs, etc.)
     @State private var selection: MapFeature?
     
+    @State private var image: Image? = nil
+    
     
     var body: some View {
         Map(position: $position, selection: $selection)
@@ -28,8 +30,18 @@ struct SimplePOIMapView: View {
 
                 // If you only care about POIs, keep this filter:
                 guard feature.pointOfInterestCategory != nil else { return }
-
+                
+                
+                
                 print(feature ?? "<No title>")
+            }
+            .overlay {
+                if let image {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                }
             }
     }
 }

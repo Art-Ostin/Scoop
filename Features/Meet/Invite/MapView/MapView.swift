@@ -24,8 +24,8 @@ struct MapView: View {
                 
                 ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
-                        .tag(MapSelection(item))
-                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
+//                        .tag(MapSelection(item))
+//                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
                 }
             }
             .onMapCameraChange { context in
