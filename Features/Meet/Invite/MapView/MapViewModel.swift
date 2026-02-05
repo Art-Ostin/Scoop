@@ -20,6 +20,7 @@ import MapKit
     //The Inputted Text by the User
     var searchText: String = ""
     
+        
     var showInfo: Bool = false
     var showSearch: Bool = true
     
