@@ -33,7 +33,7 @@ struct MapView: View {
             .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
-            .sheet(isPresented: $vm.showDetails) {
+            .sheet(isPresented: $vm.showDetails, ) {
                 if let mapItem = vm.selectedMapItem {
                     mapItemInfoView(mapItem: mapItem)
                 } else {
@@ -42,43 +42,27 @@ struct MapView: View {
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
             .tint(Color.blue)
+            .animation(.easeInOut(duration: 0.2), value: vm.selection)
             .onChange(of: vm.selection) { _, newSelection in
                 Task { @MainActor in
                     await vm.updateSelectedMapItem(from: newSelection)
                     vm.showDetails = vm.selectedMapItem != nil
                     
                     if let item = vm.selectedMapItem {
+                        let coord = item.placemark.coordinate
+                        
+                        // Move the map center slightly south so the selected coordinate appears higher.
+                        let yOffset = vm.currentSpan.latitudeDelta * 0.15  // tweak: 0.15–0.40
+                        
                         vm.cameraPosition = .region(
                             MKCoordinateRegion(
-                                center: item.placemark.coordinate,
+                                center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
+                                                               longitude: coord.longitude),
                                 span: vm.currentSpan
                             )
                         )
                     }
                 }
-                
-
-                
-                                
-//                if let sel = newSelection,
-//                   let item = vm.results.first(where: { MapSelection($0) == sel }) {
-//                    vm.showDetails = true
-//                } else {
-//                    vm.showDetails = false
-//                }
-                
-                
-                /*
-                 Task {
-                     let item = MKMapItemRequest(feature: newSelection?.feature!)
-                     
-                     let newItem = item.getMapItem(completionHandler: )
-
-                     
-                 }
-
-                 */
-
             }
     }
 }
@@ -94,12 +78,20 @@ extension MapView {
     }
     
     private func mapItemInfoView(mapItem: MKMapItem) -> some View {
-        MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
+        let peek: PresentationDetent = .fraction(0.42) // tweak: 0.40–0.48 ish
+        
+        return MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
-        .presentationDetents([.height(360)])
-        .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
-        .presentationCornerRadius(16)
+        .presentationDetents([peek, .large])
+        .presentationBackgroundInteraction(.enabled(upThrough: peek))
+        
+        
+//
+//
+//        .presentationDetents([.height(360)])
+//        .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
+//        .presentationCornerRadius(16)
     }
 }
 

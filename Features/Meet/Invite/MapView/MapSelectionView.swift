@@ -77,6 +77,7 @@ struct MapSelectionView: View {
             fetchLookAround()
         }
         .padding()
+        .padding(.top, 12)
     }
 }
 //
