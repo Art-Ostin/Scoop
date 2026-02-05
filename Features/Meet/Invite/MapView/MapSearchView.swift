@@ -10,29 +10,32 @@
  import MapKit
 
 
- @Observable class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
-     
-     var suggestions: [MKLocalSearchCompletion] = []
-     var showSuggestions: Bool = true
-     let completer = MKLocalSearchCompleter()
-     
-     override init () {
-         super.init()
-         completer.delegate = self
-     }
-     
-     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-         suggestions = completer.results
-     }
-     
-     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-         print("Search completer error:", error)
-     }
-     
-     func updateQuery (_ fragment: String) {
-         completer.queryFragment = fragment
-     }
- }
+@MainActor
+@Observable
+final class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
+
+    var suggestions: [MKLocalSearchCompletion] = []
+    var showSuggestions: Bool = true
+
+    private let completer = MKLocalSearchCompleter()
+
+    override init() {
+        super.init()
+        completer.delegate = self
+    }
+
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        suggestions = completer.results
+    }
+
+    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        print("Search completer error:", error)
+    }
+
+    func updateQuery(_ fragment: String) {
+        completer.queryFragment = fragment
+    }
+}
 
  struct MapSearchView: View {
      

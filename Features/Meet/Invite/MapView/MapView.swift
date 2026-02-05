@@ -15,6 +15,8 @@ struct MapView: View {
     @Bindable var eventVM: TimeAndPlaceViewModel
     @FocusState var isFocused: Bool
     @State private var selectedDetent: PresentationDetent = .fraction(0.42)
+    @State private var selectionTask: Task<Void, Never>?
+
         
     var body: some View {
             Map(position: $vm.cameraPosition, selection: $vm.selection) {
@@ -25,8 +27,6 @@ struct MapView: View {
                         .tag(MapSelection(item))
                         .tint(Color(red: 0.78, green: 0, blue: 0.35))
                 }
-                
-                
             }
             .onMapCameraChange { context in
                 vm.currentSpan = context.region.span
@@ -41,10 +41,10 @@ struct MapView: View {
                 }
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
-//            .animation(.easeInOut(duration: 1.5), value: vm.cameraPosition)
             .onChange(of: vm.selection) { _, newSelection in
                 Task { @MainActor in
                     await vm.updateSelectedMapItem(from: newSelection)
+                    guard !Task.isCancelled else { return }
                     vm.showDetails = vm.selectedMapItem != nil
                     
 

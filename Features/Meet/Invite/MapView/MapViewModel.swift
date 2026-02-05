@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 import MapKit
 
-
 @Observable class MapViewModel {
     
     //Setting Starting Position of CameraView
@@ -33,12 +32,17 @@ import MapKit
     
     @MainActor
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
-        guard let selection, let feature = selection.feature else { selectedMapItem = nil ; return}
-        
+        guard let selection else { selectedMapItem = nil; return }
+
         if let value = selection.value {
             selectedMapItem = value
             return
         }
+
+        guard let feature = selection.feature else { selectedMapItem = nil; print("Hello World") ; return }
+
+
+        
         do {
             let request = MKMapItemRequest(feature: feature)
             selectedMapItem = try await request.mapItem
