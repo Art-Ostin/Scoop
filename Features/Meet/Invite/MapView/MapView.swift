@@ -23,6 +23,7 @@ struct MapView: View {
                 ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
                         .tag(MapSelection(item))
+//                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
                 }
                 
                 
@@ -42,8 +43,8 @@ struct MapView: View {
                 }
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
-            .tint(Color.blue)
-            .animation(.easeInOut(duration: 0.2), value: vm.selection)
+//            .tint(Color.blue)
+            .animation(.easeInOut(duration: 1.5), value: vm.cameraPosition)
             .onChange(of: vm.selection) { _, newSelection in
                 Task { @MainActor in
                     await vm.updateSelectedMapItem(from: newSelection)

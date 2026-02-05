@@ -70,7 +70,7 @@ struct SelectTimeAndPlace: View {
         } message : {
             Text("If you don't show, you'll be blocked from Scoop")
         }
-        .tint(.blue)
+//        .tint(.blue)
         .onAppear {
             if vm.event.type == nil {
                 vm.event.type = .drink
