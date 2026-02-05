@@ -34,8 +34,8 @@ struct MapView: View {
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .overlay(alignment: .bottom) { GlassSearchBar(showSheet: $vm.showSearch, text: vm.searchText)}
             .sheet(isPresented: $vm.showDetails) {
-                if let selection = vm.selection {
-                    mapItemInfoView(selection: selection)
+                if let mapItem = vm.selectedMapItem {
+                    mapItemInfoView(mapItem: mapItem)
                 } else {
                     Text("Hello World")
                 }
@@ -43,27 +43,23 @@ struct MapView: View {
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
             .tint(Color.blue)
             .onChange(of: vm.selection) { _, newSelection in
-                
-                print(type(of: newSelection))
-                guard let select = newSelection?.value else { print ("No Item Found") ; return } //Selecting it doesn't make it an MKMapItem need to load up and convert it to an MKMapItem to get it to appear.
-                
-                
-                
-                
-                
-                
-                if let item = newSelection {
-//                    vm.cameraPosition = .region(
-//                        MKCoordinateRegion(
-//                            center: item.placemark.coordinate,
-//                            span: vm.currentSpan
-//                        )
-//                    )
-                    vm.showDetails = true
-                } else {
-                    vm.showDetails = false
+                Task { @MainActor in
+                    await vm.updateSelectedMapItem(from: newSelection)
+                    vm.showDetails = vm.selectedMapItem != nil
+                    
+                    if let item = vm.selectedMapItem {
+                        vm.cameraPosition = .region(
+                            MKCoordinateRegion(
+                                center: item.placemark.coordinate,
+                                span: vm.currentSpan
+                            )
+                        )
+                    }
                 }
                 
+
+                
+                                
 //                if let sel = newSelection,
 //                   let item = vm.results.first(where: { MapSelection($0) == sel }) {
 //                    vm.showDetails = true
@@ -97,8 +93,8 @@ extension MapView {
         ]
     }
     
-    private func mapItemInfoView(selection:  MapSelection<MKMapItem>) -> some View {
-        MapSelectionView(vm: vm, selection: selection) { mapItem in
+    private func mapItemInfoView(mapItem: MKMapItem) -> some View {
+        MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
         .presentationDetents([.height(360)])

@@ -14,24 +14,23 @@ struct MapSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: MapViewModel
     
-    let selection: MapSelection<MKMapItem>
+    let mapItem: MKMapItem
+    
     
     let selectedLocation: (MKMapItem) -> Void
     
     
-    var mapItem: MKMapItem? {
-        selection.value
-    }
+
     
     var body: some View {
         
         VStack {
             HStack {
                 VStack{
-                    Text(mapItem?.name ?? "")
+                    Text(mapItem.name ?? "")
                         .font(.title2)
                         .fontWeight(.bold)
-                    Text(mapItem?.placemark.title ?? "")
+                    Text(mapItem.placemark.title ?? "")
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 }
@@ -57,7 +56,7 @@ struct MapSelectionView: View {
             }
             
             Button {
-                guard let mapItem else { return }
+//                guard let mapItem else { return }
                 selectedLocation(mapItem)
                 dismiss()
             } label: {
@@ -69,7 +68,7 @@ struct MapSelectionView: View {
                     )
                     .foregroundStyle(.white)
             }
-            .disabled(mapItem == nil)
+//            .disabled(mapItem == nil)
         }
         .onAppear {
             fetchLookAround()
@@ -87,19 +86,16 @@ struct MapSelectionView: View {
 
 extension MapSelectionView {
     
-//    private var mapItem: MKMapItem? {
-//        vm.selection?.value ?? vm.results.first(where: { MapSelection($0) == selection })
-//    }
+    //    private var mapItem: MKMapItem? {
+    //        vm.selection?.value ?? vm.results.first(where: { MapSelection($0) == selection })
+    //    }
     
     
     func fetchLookAround() {
-        
-        if let mapItem {
-            vm.lookAroundScene = nil
-            Task {
-                let request = MKLookAroundSceneRequest(mapItem: mapItem)
-                vm.lookAroundScene = try? await request.scene
-            }
+        vm.lookAroundScene = nil
+        Task {
+            let request = MKLookAroundSceneRequest(mapItem: mapItem)
+            vm.lookAroundScene = try? await request.scene
         }
     }
-    }
+}

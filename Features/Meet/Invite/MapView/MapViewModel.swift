@@ -29,9 +29,32 @@ import MapKit
     var lookAroundScene: MKLookAroundScene?
     
     var selection: MapSelection<MKMapItem>?
+    var selectedMapItem: MKMapItem?
+    
+    @MainActor
+    func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
+        guard let selection else {
+            selectedMapItem = nil
+            return
+        }
 
-    
-    
+        if let value = selection.value {
+            selectedMapItem = value
+            return
+        }
+
+        guard let feature = selection.feature else {
+            selectedMapItem = nil
+            return
+        }
+
+        do {
+            let request = MKMapItemRequest(feature: feature)
+            selectedMapItem = try await request.mapItem
+        } catch {
+            selectedMapItem = nil
+        }
+    }
             
     var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
     
