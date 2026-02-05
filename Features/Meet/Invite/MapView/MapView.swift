@@ -23,7 +23,7 @@ struct MapView: View {
                 ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
                         .tag(MapSelection(item))
-//                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
+                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
                 }
                 
                 
@@ -38,33 +38,28 @@ struct MapView: View {
             .sheet(isPresented: $vm.showDetails, ) {
                 if let mapItem = vm.selectedMapItem {
                     mapItemInfoView(mapItem: mapItem)
-                } else {
-                    Text("Hello World")
                 }
             }
             .sheet(isPresented: $vm.showSearch) { MapSearchView(vm: vm) }
-//            .tint(Color.blue)
-            .animation(.easeInOut(duration: 1.5), value: vm.cameraPosition)
+//            .animation(.easeInOut(duration: 1.5), value: vm.cameraPosition)
             .onChange(of: vm.selection) { _, newSelection in
                 Task { @MainActor in
                     await vm.updateSelectedMapItem(from: newSelection)
                     vm.showDetails = vm.selectedMapItem != nil
                     
-                    selectedDetent = peekDetent
-                    
+
                     if let item = vm.selectedMapItem {
                         let coord = item.placemark.coordinate
-                        
-                        // Move the map center slightly south so the selected coordinate appears higher.
-                        let yOffset = vm.currentSpan.latitudeDelta * 0.15  // tweak: 0.15–0.40
-                        
-                        vm.cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
-                                                               longitude: coord.longitude),
-                                span: vm.currentSpan
+                        let yOffset = vm.currentSpan.latitudeDelta * 0.15 //Gives slight offset
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            vm.cameraPosition = .region(
+                                MKCoordinateRegion(
+                                    center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
+                                                                   longitude: coord.longitude),
+                                    span: vm.currentSpan
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
@@ -81,15 +76,14 @@ extension MapView {
         ]
     }
     
-    private var peekDetent: PresentationDetent { .fraction(0.42) }
     
     private func mapItemInfoView(mapItem: MKMapItem) -> some View {
         
         return MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
-        .presentationDetents([peekDetent, .large], selection: $selectedDetent)
-        .presentationBackgroundInteraction(.enabled(upThrough: peekDetent))
+        .presentationDetents([selectedDetent, .large])
+        .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
         
     }
 }
@@ -140,3 +134,31 @@ extension MapView {
  }
  */
 
+
+
+private extension MKMapItem {
+    var pointOfInterestTintColor: Color? {
+        let kvcColorKeys = [
+            "markerTintColor",
+            "_markerTintColor",
+            "pointOfInterestColor",
+            "_pointOfInterestColor",
+            "displayColor",
+            "_displayColor"
+        ]
+
+        for key in kvcColorKeys {
+            let selector = NSSelectorFromString(key)
+
+            guard responds(to: selector) else {
+                continue
+            }
+
+            if let uiColor = value(forKey: key) as? UIColor {
+                return Color(uiColor: uiColor)
+            }
+        }
+
+        return nil
+    }
+}
