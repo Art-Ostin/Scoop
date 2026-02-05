@@ -116,8 +116,6 @@ extension MapSearchView {
                     SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
                         .onTapGesture {
                             vm.showSearch = false
-                            print("show flicked")
-                            print(vm.showSearch)
                             Task { await searchLocation(suggestion: suggestion)}
                         }
                     

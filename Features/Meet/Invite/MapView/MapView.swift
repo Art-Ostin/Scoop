@@ -50,12 +50,12 @@ struct MapView: View {
         .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .top) { searchAreaButton }
         .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
-        .sheet(isPresented: .constant(true)) {searchView}
+        .sheet(isPresented: $vm.showSearch) {searchView}
         .sheet(isPresented: $vm.showInfo) {infoView }
         .onChange(of: vm.showInfo) {
             if vm.showInfo == false {
                 currentDetent = .fraction(0.1)
-//                vm.showSearch = true
+                vm.showSearch = true
             }
         }
     }
@@ -112,7 +112,7 @@ extension MapView {
             
             //2. Toggle the UI to show Info and hide search
             if vm.selectedMapItem != nil {
-//               vm.showSearch = false
+               vm.showSearch = false
                 vm.showInfo = true
             } else {
                 vm.showSearch = true
