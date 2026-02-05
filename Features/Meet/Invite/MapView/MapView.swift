@@ -44,10 +44,21 @@ struct MapView: View {
             .tint(Color.blue)
             .onChange(of: vm.selection) { _, newSelection in
                 
-//                print(vm.selection?.value?)
+                print(type(of: newSelection))
+                guard let select = newSelection?.value else { print ("No Item Found") ; return } //Selecting it doesn't make it an MKMapItem need to load up and convert it to an MKMapItem to get it to appear.
+                
+                
+                
+                
                 
                 
                 if let item = newSelection {
+//                    vm.cameraPosition = .region(
+//                        MKCoordinateRegion(
+//                            center: item.placemark.coordinate,
+//                            span: vm.currentSpan
+//                        )
+//                    )
                     vm.showDetails = true
                 } else {
                     vm.showDetails = false
@@ -59,6 +70,18 @@ struct MapView: View {
 //                } else {
 //                    vm.showDetails = false
 //                }
+                
+                
+                /*
+                 Task {
+                     let item = MKMapItemRequest(feature: newSelection?.feature!)
+                     
+                     let newItem = item.getMapItem(completionHandler: )
+
+                     
+                 }
+
+                 */
 
             }
     }
