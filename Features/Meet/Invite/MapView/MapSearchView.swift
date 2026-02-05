@@ -68,7 +68,6 @@ extension MapSearchView {
             .onSubmit(of: .text) { Task {
                 await vm.searchPlaces()
                 if let first = vm.results.first {
-                    await MainActor.run { vm.showSearch = false }
                     await MainActor.run { vm.selection = MapSelection(first) }
                 }
             }
@@ -115,7 +114,6 @@ extension MapSearchView {
                     
                     SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
                         .onTapGesture {
-                            vm.showSearch = false
                             Task { await searchLocation(suggestion: suggestion)}
                         }
                     

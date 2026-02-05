@@ -8,11 +8,6 @@
 import SwiftUI
 import MapKit
 
-enum SheetState: Equatable {
-    case searchCollapsed
-    case searchExpanded
-    case selection
-}
 
 
 struct MapView: View {
@@ -20,7 +15,6 @@ struct MapView: View {
     @State var vm = MapViewModel()
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
-    @FocusState var isFocused: Bool
     
 
     @State private var currentDetent: PresentationDetent = .fraction(0.1)
@@ -28,9 +22,6 @@ struct MapView: View {
     private let selectedDetent: PresentationDetent = .fraction(0.42)
 
         
-    @State private var selectionTask: Task<Void, Never>?
-    
-    @State var showSheet: Bool = true
     
     var body: some View {
         Map(position: $vm.cameraPosition, selection: $vm.selection) {
@@ -50,12 +41,17 @@ struct MapView: View {
         .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .top) { searchAreaButton }
         .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
-        .sheet(isPresented: $vm.showSearch) {searchView}
-        .sheet(isPresented: $vm.showInfo) {infoView }
-        .onChange(of: vm.showInfo) {
-            if vm.showInfo == false {
-                currentDetent = .fraction(0.1)
-                vm.showSearch = true
+        .sheet(item: $vm.activeSheet, onDismiss: handleSheetDismiss) { sheet in
+            switch sheet {
+            case .search:
+                searchView
+            case .info:
+                infoView
+            }
+        }
+        .onChange(of: vm.activeSheet) {
+            if vm.activeSheet == nil {
+                vm.activeSheet = .search
             }
         }
     }
@@ -104,6 +100,17 @@ extension MapView {
         }
     }
     
+
+    private func handleSheetDismiss() {        
+        vm.selection = nil
+        vm.selectedMapItem = nil
+        currentDetent = searchBarDetent
+
+        DispatchQueue.main.async {
+            vm.activeSheet = .search
+        }
+    }
+    
     private func itemSelected(_ newSelection: MapSelection<MKMapItem>?)  {
         Task { @MainActor in
             //1. Load selected Item into the selectedMap Item as a MKMapItem
@@ -112,10 +119,9 @@ extension MapView {
             
             //2. Toggle the UI to show Info and hide search
             if vm.selectedMapItem != nil {
-               vm.showSearch = false
-                vm.showInfo = true
+                vm.activeSheet = .info
             } else {
-                vm.showSearch = true
+                vm.activeSheet = .search
             }
             
             //3. Update camera position to new centre (the actual selection dealt with through map)
@@ -136,46 +142,3 @@ extension MapView {
     }
 }
 
-
-
-
-/*
- .interactiveDismissDisabled(sheetState != .selection)
- */
-
-
-
-
-/*
- .onChange(of: vm.showDetails) {_, newValue in
-     if newValue == false {
-         vm.showSearch = true
-             currentDetent = .fraction(0.1)
-     }
- }
-
- 
- .sheet(isPresented: $vm.showDetails) {
-     if let mapItem = vm.selectedMapItem {
-         mapItemInfoView(mapItem: mapItem)
-     }
- }
- 
- 
- .sheet(isPresented: $vm.showSearch) { mapSearchView}
-
-
- .sheet(isPresented: $showSheet) {
-     sheetContent
-         .interactiveDismissDisabled(sheetState != .selection)
-         .presentationDetents(detentsForState, selection: $currentDetent)
-         .presentationBackgroundInteraction(.enabled(upThrough: upThroughDetent))
-         .onChange(of: currentDetent) { _, newDetent in
-             guard sheetState != .selection else { return }
-             sheetState = (newDetent == searchBarDetent) ? .searchCollapsed : .searchExpanded
-         }
- }
-
- 
- 
- */

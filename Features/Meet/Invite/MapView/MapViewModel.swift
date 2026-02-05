@@ -9,6 +9,15 @@ import Foundation
 import SwiftUI
 import MapKit
 
+enum MapSheet: String, Identifiable {
+    case search
+    case info
+
+    var id: String { rawValue }
+}
+
+
+
 @Observable class MapViewModel {
     
     //Setting Starting Position of CameraView
@@ -21,8 +30,8 @@ import MapKit
     var searchText: String = ""
     
         
-    var showInfo: Bool = false
-    var showSearch: Bool = true
+    var activeSheet: MapSheet? = .search
+    
     
     var results = [MKMapItem]()
     
@@ -80,9 +89,3 @@ import MapKit
         }
     }
 }
-
-/*
- var showDetails: Bool = false
- var showSearch: Bool = true
-
- */
