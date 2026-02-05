@@ -14,6 +14,7 @@ struct MapView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
     @FocusState var isFocused: Bool
+    @State private var selectedDetent: PresentationDetent = .fraction(0.42)
         
     var body: some View {
             Map(position: $vm.cameraPosition, selection: $vm.selection) {
@@ -48,6 +49,8 @@ struct MapView: View {
                     await vm.updateSelectedMapItem(from: newSelection)
                     vm.showDetails = vm.selectedMapItem != nil
                     
+                    selectedDetent = peekDetent
+                    
                     if let item = vm.selectedMapItem {
                         let coord = item.placemark.coordinate
                         
@@ -77,21 +80,16 @@ extension MapView {
         ]
     }
     
+    private var peekDetent: PresentationDetent { .fraction(0.42) }
+    
     private func mapItemInfoView(mapItem: MKMapItem) -> some View {
-        let peek: PresentationDetent = .fraction(0.42) // tweak: 0.40–0.48 ish
         
         return MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
-        .presentationDetents([peek, .large])
-        .presentationBackgroundInteraction(.enabled(upThrough: peek))
+        .presentationDetents([peekDetent, .large], selection: $selectedDetent)
+        .presentationBackgroundInteraction(.enabled(upThrough: peekDetent))
         
-        
-//
-//
-//        .presentationDetents([.height(360)])
-//        .presentationBackgroundInteraction(.enabled(upThrough: .height(340)))
-//        .presentationCornerRadius(16)
     }
 }
 
