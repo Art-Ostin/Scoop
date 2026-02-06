@@ -24,7 +24,7 @@ struct MapView: View {
         
     
     var body: some View {
-        Map(position: $vm.mapRegion, selection: $vm.selection) {
+        Map(position: $vm.cameraPosition, selection: $vm.selection) {
             UserAnnotation()
             ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
@@ -108,40 +108,3 @@ extension MapView {
         }
     }
 }
-
-
-/*
- 
-//3. Update camera position to new centre (the actual selection dealt with through map)
- if let item = vm.selectedMapItem {
-     let coord = item.placemark.coordinate
-     let yOffset = vm.currentSpan.latitudeDelta * 0.15
-     withAnimation(.easeInOut(duration: 0.3)) {
-         vm.mapRegion = .region(
-             MKCoordinateRegion(
-                 center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
-                                                longitude: coord.longitude),
-                 span: vm.currentSpan
-             )
-         )
-     }
- }
-
- */
-
-
-
-
-/*
- 
- @ViewBuilder
- private var infoView: some View {
-     if let mapItem = vm.selectedMapItem {
-         MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
-             eventVM.event.location = EventLocation(mapItem: mapItem)
-         }
-         .presentationDetents([selectedDetent])
-         .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
-     }
- }
- */

@@ -35,7 +35,7 @@ import MapKit
     
     var selectedMapItem: MKMapItem? {
         didSet {
-            updateMapRegion(mapItem: selectedMapItem)
+            updateCameraRegion(mapItem: selectedMapItem)
         }
     }
     
@@ -56,7 +56,6 @@ import MapKit
         }
     }
     
-    
     func searchPlaces() async {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchText
@@ -67,9 +66,10 @@ import MapKit
     }
         
     func searchBarsInVisibleRegion() async {
+        guard let region = cameraPosition.region else { return }
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = "bar"
-        request.region = currentRegion
+        request.region = region
         request.resultTypes = .pointOfInterest
         request.pointOfInterestFilter = MKPointOfInterestFilter(including: [.nightlife])
         do {
@@ -82,28 +82,25 @@ import MapKit
         }
     }
     
-    var mapRegion: MapCameraPosition = .userLocation(fallback: .automatic)
-        
+    var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
     
-    var currentRegion: MKCoordinateRegion = .init()
-    
-    func updateMapRegion(mapItem: MKMapItem?) {
-        //get the coordinate of new Item and
+    func updateCameraRegion(mapItem: MKMapItem?) {
+        //get the coordinate of new Item and account for offset
         guard let item = mapItem else { return }
         let coordinate = item.placemark.coordinate
         let yOffset = currentSpan.latitudeDelta * 0.15
         
+        //Get the region of new item and assign it to MapCameraPosition
+        let region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: coordinate.latitude - yOffset, longitude: coordinate.longitude),
+            span: currentSpan
+        )
         withAnimation(.easeInOut) {
-            currentRegion = MKCoordinateRegion (
-                center: CLLocationCoordinate2D(latitude: coordinate.latitude - yOffset,
-                                               longitude: coordinate.longitude),
-                span: currentSpan
-            )
+            cameraPosition = .region(region) //Controls what region is in focus
         }
     }
 }
-
 
 
 
