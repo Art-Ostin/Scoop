@@ -40,9 +40,12 @@ struct MapView: View {
         .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .top) { searchAreaButton }
         .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
-        .sheet(isPresented: .constant(true)) {
-            searchView
-        }
+        .animation(.easeInOut(duration: 0.3), value: vm.selection)
+        
+        
+//        .sheet(isPresented: .constant(true)) {
+//            searchView
+//        }
     }
 }
 
