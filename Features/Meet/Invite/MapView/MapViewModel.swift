@@ -8,15 +8,6 @@
 import Foundation
 import SwiftUI
 import MapKit
-//
-//enum MapSheetType: String, Identifiable {
-//    case search
-//    case info
-//
-//    var id: String { rawValue }
-//}
-
-
 
 @Observable class MapViewModel {
     
@@ -96,22 +87,9 @@ import MapKit
             center: CLLocationCoordinate2D(latitude: coordinate.latitude - yOffset, longitude: coordinate.longitude),
             span: currentSpan
         )
-        let animation = cameraAnimation(for: currentSpan)
-        withAnimation(animation) {
+        withAnimation(.easeInOut(duration: 0.3)) {
             cameraPosition = .region(region) //Controls what region is in focus
         }
-    }
-    
-    private func cameraAnimation(for span: MKCoordinateSpan) -> Animation {
-        let minResponse = 0.45
-        let maxResponse = 1.1
-        let maxSpan = 0.2
-        let minSpan = 0.2
-        let clampedSpan = min(max(span.latitudeDelta, minSpan), maxSpan)
-        let t = (maxSpan - clampedSpan) / (maxSpan - minSpan)
-        let response = minResponse + (maxResponse - minResponse) * t
-        let dampingFraction = 0.85
-        return .interactiveSpring(response: response, dampingFraction: dampingFraction, blendDuration: 0.2)
     }
 }
 
