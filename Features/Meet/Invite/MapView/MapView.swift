@@ -27,13 +27,34 @@ struct MapView: View {
         Map(position: $vm.cameraPosition, selection: $vm.selection) {
             UserAnnotation()
             ForEach(vm.results, id: \.self) { item in
-                    Marker(item: item)
-                        .tag(MapSelection(item))
-                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
+                Marker(item: item)
+                    .tag(MapSelection(item))
+                    .tint(Color(red: 0.78, green: 0, blue: 0.35))
             }
         }
-        .onMapCameraChange {context in
-                vm.currentSpan = context.region.span
+        .onMapCameraChange(frequency: .onEnd) { context in
+            vm.currentSpan = context.region.span
+            vm.visibleRegion = context.region
+            vm.currentCamera = context.camera
+        }
+        .mapCameraKeyframeAnimator(trigger: vm.cameraAnimationTrigger) { camera in
+            let target = vm.cameraTarget ?? camera   // if nil, animate to “where we already are”
+
+            KeyframeTrack(\.centerCoordinate) {
+                CubicKeyframe(target.centerCoordinate, duration: vm.cameraAnimationDuration)
+            }
+            KeyframeTrack(\.distance) {
+                CubicKeyframe(target.distance, duration: vm.cameraAnimationDuration)
+            }
+            KeyframeTrack(\.heading) {
+                CubicKeyframe(target.heading, duration: vm.cameraAnimationDuration)
+            }
+            KeyframeTrack(\.pitch) {
+                CubicKeyframe(target.pitch, duration: vm.cameraAnimationDuration)
+            }
+        }
+        .onChange(of: vm.selection) { _, newSelection in
+            itemSelected(newSelection)
         }
         .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
         .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
