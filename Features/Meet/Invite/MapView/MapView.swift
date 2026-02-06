@@ -24,7 +24,7 @@ struct MapView: View {
         
     
     var body: some View {
-        Map(position: $vm.cameraPosition, selection: $vm.selection) {
+        Map(position: $vm.mapRegion, selection: $vm.selection) {
             UserAnnotation()
             ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
@@ -33,8 +33,7 @@ struct MapView: View {
             }
         }
         .onMapCameraChange {context in
-            vm.currentSpan = context.region.span
-            vm.currentRegion = context.region
+                vm.currentSpan = context.region.span
         }
         .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
         .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
@@ -44,27 +43,6 @@ struct MapView: View {
         .sheet(isPresented: .constant(true)) {
             searchView
         }
-        .animation(.easeInOut(duration: 0.3), value: currentDetent)
-        
-        
-//        
-//        .sheet(item: $vm.activeSheet) { sheet in
-//            switch sheet {
-//            case .search:
-//                searchView
-//            case .info:
-//                infoView
-//            }
-//        }
-//        .onChange(of: vm.activeSheet) { oldSheet, newSheet in //When user drags down info sheet this happens
-//            if oldSheet == .info && newSheet == nil {
-//                currentDetent = searchBarDetent
-//                vm.activeSheet = .search
-//            }
-//        }
-//        .onChange(of: vm.activeSheet) {oldSheet, newSheet in
-//            print(newSheet)
-//        }
     }
 }
 
@@ -100,27 +78,15 @@ extension MapView {
         .presentationDetents([searchBarDetent, selectedDetent, .large], selection: $currentDetent)
         .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
         .interactiveDismissDisabled(true)
-        //            .id(currentDetent)
         .onChange(of: currentDetent) {oldValue, newValue in
             if oldValue == selectedDetent {
                 vm.selectedMapItem = nil
+                vm.selection = nil
             } else if oldValue == .large && vm.selectedMapItem == nil {
                 self.currentDetent = searchBarDetent
             } else if oldValue == searchBarDetent && vm.selectedMapItem == nil {
                 self.currentDetent = .large
             }
-        }
-    }
-    
-    
-    @ViewBuilder
-    private var infoView: some View {
-        if let mapItem = vm.selectedMapItem {
-            MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
-                eventVM.event.location = EventLocation(mapItem: mapItem)
-            }
-            .presentationDetents([selectedDetent])
-            .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
         }
     }
     
@@ -139,22 +105,43 @@ extension MapView {
             } else {
                 currentDetent = searchBarDetent
             }
-                        
-            //3. Update camera position to new centre (the actual selection dealt with through map)
-            if let item = vm.selectedMapItem {
-                let coord = item.placemark.coordinate
-                let yOffset = vm.currentSpan.latitudeDelta * 0.15
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    vm.cameraPosition = .region(
-                        MKCoordinateRegion(
-                            center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
-                                                           longitude: coord.longitude),
-                            span: vm.currentSpan
-                        )
-                    )
-                }
-            }
         }
     }
 }
 
+
+/*
+ 
+//3. Update camera position to new centre (the actual selection dealt with through map)
+ if let item = vm.selectedMapItem {
+     let coord = item.placemark.coordinate
+     let yOffset = vm.currentSpan.latitudeDelta * 0.15
+     withAnimation(.easeInOut(duration: 0.3)) {
+         vm.mapRegion = .region(
+             MKCoordinateRegion(
+                 center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
+                                                longitude: coord.longitude),
+                 span: vm.currentSpan
+             )
+         )
+     }
+ }
+
+ */
+
+
+
+
+/*
+ 
+ @ViewBuilder
+ private var infoView: some View {
+     if let mapItem = vm.selectedMapItem {
+         MapSelectionView(vm: vm, mapItem: mapItem) { mapItem in
+             eventVM.event.location = EventLocation(mapItem: mapItem)
+         }
+         .presentationDetents([selectedDetent])
+         .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
+     }
+ }
+ */

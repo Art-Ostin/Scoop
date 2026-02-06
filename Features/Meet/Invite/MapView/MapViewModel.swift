@@ -20,25 +20,24 @@ import MapKit
 
 @Observable class MapViewModel {
     
-    //Setting Starting Position of CameraView
-    var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
-        
+    
     //The Object to Track the User's Location
     let locationManager = CLLocationManager()
     
     //The Inputted Text by the User
     var searchText: String = ""
-    
-        
-//    var activeSheet: MapSheet = .search
-    
-    
+
     var results = [MKMapItem]()
     
     var lookAroundScene: MKLookAroundScene?
     
     var selection: MapSelection<MKMapItem>?
-    var selectedMapItem: MKMapItem?
+    
+    var selectedMapItem: MKMapItem? {
+        didSet {
+            updateMapRegion(mapItem: selectedMapItem)
+        }
+    }
     
     @MainActor
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
@@ -56,8 +55,7 @@ import MapKit
             selectedMapItem = nil
         }
     }
-            
-    var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    
     
     func searchPlaces() async {
         let request = MKLocalSearch.Request()
@@ -67,12 +65,7 @@ import MapKit
             self.results = results?.mapItems ?? []
         }
     }
-    
-    var currentRegion: MKCoordinateRegion = .init(
-        center: CLLocationCoordinate2D(latitude: 0, longitude: 0),
-        span: .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    )
-    
+        
     func searchBarsInVisibleRegion() async {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = "bar"
@@ -85,7 +78,49 @@ import MapKit
                 self.results = response.mapItems
             }
         } catch {
-            print("Search bars error:", error)
+            print(error)
+        }
+    }
+    
+    var mapRegion: MapCameraPosition = .userLocation(fallback: .automatic)
+        
+    var currentSpan: MKCoordinateSpan = .init(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    
+    var currentRegion: MKCoordinateRegion = .init()
+    
+    func updateMapRegion(mapItem: MKMapItem?) {
+        //get the coordinate of new Item and
+        guard let item = mapItem else { return }
+        let coordinate = item.placemark.coordinate
+        let yOffset = currentSpan.latitudeDelta * 0.15
+        
+        withAnimation(.easeInOut) {
+            mapRegion = MapCameraPosition (
+                center: CLLocationCoordinate2D(latitude: coordinate.latitude - yOffset,
+                                               longitude: coordinate.longitude),
+                span: currentSpan
+            )
         }
     }
 }
+
+
+
+
+
+/*
+ if let item = vm.selectedMapItem {
+     let coord = item.placemark.coordinate
+     let yOffset = vm.currentSpan.latitudeDelta * 0.15
+     withAnimation(.easeInOut(duration: 0.3)) {
+         vm.mapRegion = .region(
+             MKCoordinateRegion(
+                 center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
+                                                longitude: coord.longitude),
+                 span: vm.currentSpan
+             )
+         )
+     }
+ }
+
+ */
