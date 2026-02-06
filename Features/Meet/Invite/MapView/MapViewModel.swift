@@ -96,20 +96,22 @@ import MapKit
             center: CLLocationCoordinate2D(latitude: coordinate.latitude - yOffset, longitude: coordinate.longitude),
             span: currentSpan
         )
-        let animationDuration = cameraAnimationDuration(for: currentSpan)
-        withAnimation(.easeInOut(duration: animationDuration)) {
+        let animation = cameraAnimation(for: currentSpan)
+        withAnimation(animation) {
             cameraPosition = .region(region) //Controls what region is in focus
         }
     }
     
-    private func cameraAnimationDuration(for span: MKCoordinateSpan) -> Double {
-        let minDuration = 0.67
-        let maxDuration = 1.2
+    private func cameraAnimation(for span: MKCoordinateSpan) -> Animation {
+        let minResponse = 0.45
+        let maxResponse = 1.1
         let maxSpan = 0.2
-        let minSpan = 0.002
+        let minSpan = 0.2
         let clampedSpan = min(max(span.latitudeDelta, minSpan), maxSpan)
         let t = (maxSpan - clampedSpan) / (maxSpan - minSpan)
-        return minDuration + (maxDuration - minDuration) * t
+        let response = minResponse + (maxResponse - minResponse) * t
+        let dampingFraction = 0.85
+        return .interactiveSpring(response: response, dampingFraction: dampingFraction, blendDuration: 0.2)
     }
 }
 

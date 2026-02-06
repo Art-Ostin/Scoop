@@ -41,11 +41,9 @@ struct MapView: View {
         .overlay(alignment: .top) { searchAreaButton }
         .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
         .animation(.easeInOut(duration: 0.3), value: vm.selection)
-        
-        
-//        .sheet(isPresented: .constant(true)) {
-//            searchView
-//        }
+        .sheet(isPresented: .constant(true)) {
+            searchView
+        }
     }
 }
 
