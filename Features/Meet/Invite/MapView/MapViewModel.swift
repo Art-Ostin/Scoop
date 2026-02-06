@@ -46,12 +46,14 @@ import MapKit
 
     func searchBarsInVisibleRegion() async {
         guard let region = visibleRegion else { return }
-        let req = MKLocalSearch.Request()
-        req.naturalLanguageQuery = "bar"
-        req.region = region
-        req.resultTypes = .pointOfInterest
-        req.pointOfInterestFilter = MKPointOfInterestFilter(including: [.nightlife])
 
+        let req = MKLocalPointsOfInterestRequest(coordinateRegion: region)
+        req.pointOfInterestFilter = MKPointOfInterestFilter(including: [
+            .nightlife,
+            .brewery,
+            .distillery,
+            .winery
+        ])
         do {
             results = try await MKLocalSearch(request: req).start().mapItems
         } catch {

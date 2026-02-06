@@ -19,9 +19,6 @@ struct MapSelectionView: View {
     
     let selectedLocation: (MKMapItem) -> Void
     
-    
-    
-    
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -52,7 +49,7 @@ struct MapSelectionView: View {
 //                        .frame(height: 200)
 //                        .cornerRadius(16)
 //                } else {
-                    ContentUnavailableView("No Preview", image: "eye.slash")
+                    ContentUnavailableView("No Preview", image: "chevron")
                 }
                 
                 Button {

@@ -56,3 +56,27 @@ enum MapsRouting {
         }
     }
 }
+
+/* Need to also install PList for this. 
+ import UIKit
+ import CoreLocation
+
+ func openMaps(to coordinate: CLLocationCoordinate2D, placeName: String? = nil) {
+     let lat = coordinate.latitude
+     let lon = coordinate.longitude
+
+     // Prefer Google Maps app if it’s installed
+     if let googleURL = URL(string: "comgooglemaps://?q=\(lat),\(lon)&center=\(lat),\(lon)&zoom=14"),
+        UIApplication.shared.canOpenURL(googleURL) {
+         UIApplication.shared.open(googleURL)
+         return
+     }
+
+     // Otherwise fall back to Apple Maps
+     let name = (placeName ?? "Destination")
+         .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Destination"
+     let appleURL = URL(string: "http://maps.apple.com/?ll=\(lat),\(lon)&q=\(name)")!
+     UIApplication.shared.open(appleURL)
+ }
+
+ */

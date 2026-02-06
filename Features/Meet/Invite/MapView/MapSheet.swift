@@ -20,13 +20,16 @@ struct MapSheet: View {
     let selectedLocation: (MKMapItem) -> Void
 
     
-    var body: some View {        
+    var body: some View {
+        
         if let mapItem = vm.selectedMapItem {
             MapSelectionView(vm: vm, mapItem: mapItem) { map in
                 selectedLocation(map)
             }
         } else if currentDetent == .fraction(0.1) {
-            searchBarLarge
+            VStack {
+                searchBarLarge
+            }
         } else if currentDetent == .large  {
             VStack {
                 if !service.suggestions.isEmpty && service.showSuggestions {
@@ -38,6 +41,12 @@ struct MapSheet: View {
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .onAppear { isFocused = true }
             .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)}
+        } else if currentDetent == .fraction(0.3) {
+            VStack {
+                searchBarLarge
+                Text("Hello World")
+            }
+            
         }
     }
 }
@@ -78,7 +87,7 @@ extension MapSheet {
                     await MainActor.run { vm.selection = MapSelection(first) }
                 }
             }
-        }
+            }
     }
     
     @ViewBuilder
@@ -144,28 +153,28 @@ extension MapSheet {
     }
     
     private var searchBarLarge: some View {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(.black)
-                
-                Text(vm.searchText.isEmpty ? "Search Maps" : vm.searchText)
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.black.opacity(0.76))
-                
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 12)
-            .frame(height: 45)
-            .background(Capsule().fill(.ultraThinMaterial))
-            .contentShape(Capsule())
-            .padding(.horizontal, 16)
-            .onTapGesture {
-                    isFocused = true
-                    self.currentDetent = .large
-            }
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(.black)
+            
+            Text(vm.searchText.isEmpty ? "Search Maps" : vm.searchText)
+                .font(.system(size: 17))
+                .foregroundStyle(Color.black.opacity(0.76))
+            
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 45)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .contentShape(Capsule())
+        .padding(.horizontal, 16)
+        .onTapGesture {
+            isFocused = true
+            self.currentDetent = .large
         }
     }
+}
 
 
 private struct SearchSuggestionRow: View {
