@@ -95,7 +95,7 @@ import MapKit
         let yOffset = currentSpan.latitudeDelta * 0.15
         
         withAnimation(.easeInOut) {
-            mapRegion = MapCameraPosition (
+            currentRegion = MKCoordinateRegion (
                 center: CLLocationCoordinate2D(latitude: coordinate.latitude - yOffset,
                                                longitude: coordinate.longitude),
                 span: currentSpan
