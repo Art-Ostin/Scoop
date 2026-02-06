@@ -8,13 +8,13 @@
 import Foundation
 import SwiftUI
 import MapKit
-
-enum MapSheet: String, Identifiable {
-    case search
-    case info
-
-    var id: String { rawValue }
-}
+//
+//enum MapSheetType: String, Identifiable {
+//    case search
+//    case info
+//
+//    var id: String { rawValue }
+//}
 
 
 
@@ -30,7 +30,7 @@ enum MapSheet: String, Identifiable {
     var searchText: String = ""
     
         
-    var activeSheet: MapSheet? = .search
+//    var activeSheet: MapSheet = .search
     
     
     var results = [MKMapItem]()

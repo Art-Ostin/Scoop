@@ -41,19 +41,30 @@ struct MapView: View {
         .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .top) { searchAreaButton }
         .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
-        .sheet(item: $vm.activeSheet) { sheet in
-            switch sheet {
-            case .search:
-                searchView
-            case .info:
-                infoView
-            }
+        .sheet(isPresented: .constant(true)) {
+            searchView
         }
-        .onChange(of: vm.activeSheet) { oldSheet, newSheet in //When user drags down info sheet this happens
-            guard oldSheet == .info && newSheet == nil else {return}
-            currentDetent = searchBarDetent
-            vm.activeSheet = .search
-        }
+        .animation(.easeInOut(duration: 0.3), value: currentDetent)
+        
+        
+//        
+//        .sheet(item: $vm.activeSheet) { sheet in
+//            switch sheet {
+//            case .search:
+//                searchView
+//            case .info:
+//                infoView
+//            }
+//        }
+//        .onChange(of: vm.activeSheet) { oldSheet, newSheet in //When user drags down info sheet this happens
+//            if oldSheet == .info && newSheet == nil {
+//                currentDetent = searchBarDetent
+//                vm.activeSheet = .search
+//            }
+//        }
+//        .onChange(of: vm.activeSheet) {oldSheet, newSheet in
+//            print(newSheet)
+//        }
     }
 }
 
@@ -83,11 +94,24 @@ extension MapView {
     }
     
     private var searchView: some View {
-        MapSearchView(vm: vm, currentDetent: $currentDetent)
-            .presentationDetents([searchBarDetent,  .large], selection: $currentDetent)
-            .presentationBackgroundInteraction(.enabled(upThrough: searchBarDetent))
-            .interactiveDismissDisabled(true)
+        MapSheet(vm: vm, currentDetent: $currentDetent) {mapItem in
+            eventVM.event.location = EventLocation(mapItem: mapItem)
+        }
+        .presentationDetents([searchBarDetent, selectedDetent, .large], selection: $currentDetent)
+        .presentationBackgroundInteraction(.enabled(upThrough: selectedDetent))
+        .interactiveDismissDisabled(true)
+        //            .id(currentDetent)
+        .onChange(of: currentDetent) {oldValue, newValue in
+            if oldValue == selectedDetent {
+                vm.selectedMapItem = nil
+            } else if oldValue == .large && vm.selectedMapItem == nil {
+                self.currentDetent = searchBarDetent
+            } else if oldValue == searchBarDetent && vm.selectedMapItem == nil {
+                self.currentDetent = .large
+            }
+        }
     }
+    
     
     @ViewBuilder
     private var infoView: some View {
@@ -106,14 +130,16 @@ extension MapView {
             await vm.updateSelectedMapItem(from: newSelection)
             guard !Task.isCancelled else { return }
             
+            
             //2. Toggle the UI to show Info and hide search
             if vm.selectedMapItem != nil {
-                vm.activeSheet = .info
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    currentDetent = selectedDetent
+                }
             } else {
                 currentDetent = searchBarDetent
-                vm.activeSheet = .search
             }
-            
+                        
             //3. Update camera position to new centre (the actual selection dealt with through map)
             if let item = vm.selectedMapItem {
                 let coord = item.placemark.coordinate

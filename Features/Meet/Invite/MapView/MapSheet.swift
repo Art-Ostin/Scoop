@@ -9,7 +9,7 @@
  import SwiftUI
  import MapKit
 
-struct MapSearchView: View {
+struct MapSheet: View {
     
     @State var service = LocationSearchService()
     @FocusState var isFocused: Bool
@@ -17,8 +17,15 @@ struct MapSearchView: View {
     @Binding var currentDetent: PresentationDetent
     
     
-    var body: some View {
-        if currentDetent == .fraction(0.1) {
+    let selectedLocation: (MKMapItem) -> Void
+
+    
+    var body: some View {        
+        if let mapItem = vm.selectedMapItem {
+            MapSelectionView(vm: vm, mapItem: mapItem) { map in
+                selectedLocation(map)
+            }
+        } else if currentDetent == .fraction(0.1) {
             searchBarLarge
         } else if currentDetent == .large  {
             VStack {
@@ -36,7 +43,7 @@ struct MapSearchView: View {
 }
 
 
-extension MapSearchView {
+extension MapSheet {
     
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -114,6 +121,7 @@ extension MapSearchView {
                     
                     SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
                         .onTapGesture {
+                            currentDetent = .fraction(0.42)
                             Task { await searchLocation(suggestion: suggestion)}
                         }
                     
