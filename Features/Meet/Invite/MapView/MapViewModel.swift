@@ -92,23 +92,3 @@ import MapKit
         }
     }
 }
-
-
-
-
-/*
- if let item = vm.selectedMapItem {
-     let coord = item.placemark.coordinate
-     let yOffset = vm.currentSpan.latitudeDelta * 0.15
-     withAnimation(.easeInOut(duration: 0.3)) {
-         vm.mapRegion = .region(
-             MKCoordinateRegion(
-                 center: CLLocationCoordinate2D(latitude: coord.latitude - yOffset,
-                                                longitude: coord.longitude),
-                 span: vm.currentSpan
-             )
-         )
-     }
- }
-
- */
