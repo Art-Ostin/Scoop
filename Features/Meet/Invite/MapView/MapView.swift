@@ -41,7 +41,7 @@ struct MapView: View {
         .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
         .overlay(alignment: .top) { searchAreaButton }
         .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
-        .sheet(item: $vm.activeSheet, onDismiss: handleSheetDismiss) { sheet in
+        .sheet(item: $vm.activeSheet) { sheet in
             switch sheet {
             case .search:
                 searchView
@@ -49,10 +49,10 @@ struct MapView: View {
                 infoView
             }
         }
-        .onChange(of: vm.activeSheet) {
-            if vm.activeSheet == nil {
-                vm.activeSheet = .search
-            }
+        .onChange(of: vm.activeSheet) { oldSheet, newSheet in //When user drags down info sheet this happens
+            guard oldSheet == .info && newSheet == nil else {return}
+            currentDetent = searchBarDetent
+            vm.activeSheet = .search
         }
     }
 }
@@ -100,17 +100,6 @@ extension MapView {
         }
     }
     
-
-    private func handleSheetDismiss() {        
-        vm.selection = nil
-        vm.selectedMapItem = nil
-        currentDetent = searchBarDetent
-
-        DispatchQueue.main.async {
-            vm.activeSheet = .search
-        }
-    }
-    
     private func itemSelected(_ newSelection: MapSelection<MKMapItem>?)  {
         Task { @MainActor in
             //1. Load selected Item into the selectedMap Item as a MKMapItem
@@ -121,6 +110,7 @@ extension MapView {
             if vm.selectedMapItem != nil {
                 vm.activeSheet = .info
             } else {
+                currentDetent = searchBarDetent
                 vm.activeSheet = .search
             }
             
