@@ -15,7 +15,7 @@ struct MapView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
     
-
+    
     @State private var currentDetent: PresentationDetent = .fraction(0.1)
     private let searchBarDetent: PresentationDetent = .fraction(0.1)
     private let selectedDetent: PresentationDetent = .fraction(0.42)
@@ -27,10 +27,10 @@ struct MapView: View {
     @State private var camTarget: MapCamera?
     @State private var camTrigger: Int = 0
     @State private var camDuration: Double = 0.85
-
     
+    @Namespace private var mapScope
     var body: some View {
-        Map(position: $vm.cameraPosition, selection: $vm.selection) {
+        Map(position: $vm.cameraPosition, selection: $vm.selection, scope: mapScope) {
             UserAnnotation()
             ForEach(vm.results, id: \.self) { item in
                 Marker(item: item)
@@ -38,28 +38,33 @@ struct MapView: View {
                     .tint(Color(red: 0.78, green: 0, blue: 0.35))
             }
         }
+//        .overlay(alignment: .topTrailing) {
+//            VStack(spacing: 10) {
+//                MapCompass(scope: mapScope)
+//                MapUserLocationButton(scope: mapScope)
+//                DismissButton { dismiss() }
+//            }
+//            .padding()
+//        }
         .onMapCameraChange(frequency: .onEnd) { context in
-             lastCamera = context.camera
-             lastSpan = context.region.span
-             vm.visibleRegion = context.region
-         }
-         .mapCameraKeyframeAnimator(trigger: camTrigger) { camera in
-             let t = camTarget ?? camera // no `if` allowed in this result builder
-             KeyframeTrack(\MapCamera.centerCoordinate) {
-                 CubicKeyframe(t.centerCoordinate, duration: camDuration)
-             }
-             KeyframeTrack(\MapCamera.distance) {
-                 CubicKeyframe(t.distance, duration: camDuration)
-             }
-             KeyframeTrack(\MapCamera.heading) {
-                 CubicKeyframe(t.heading, duration: camDuration)
-             }
-             KeyframeTrack(\MapCamera.pitch) {
-                 CubicKeyframe(t.pitch, duration: camDuration)
-             }
-         }
-        .onChange(of: vm.selection) { _, newSelection in
-            itemSelected(newSelection)
+            lastCamera = context.camera
+            lastSpan = context.region.span
+            vm.visibleRegion = context.region
+        }
+        .mapCameraKeyframeAnimator(trigger: camTrigger) { camera in
+            let t = camTarget ?? camera
+            KeyframeTrack(\MapCamera.centerCoordinate) {
+                CubicKeyframe(t.centerCoordinate, duration: camDuration)
+            }
+            KeyframeTrack(\MapCamera.distance) {
+                CubicKeyframe(t.distance, duration: camDuration)
+            }
+            KeyframeTrack(\MapCamera.heading) {
+                CubicKeyframe(t.heading, duration: camDuration)
+            }
+            KeyframeTrack(\MapCamera.pitch) {
+                CubicKeyframe(t.pitch, duration: camDuration)
+            }
         }
         .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
         .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
@@ -122,15 +127,14 @@ extension MapView {
             await vm.updateSelectedMapItem(from: newSelection)
             guard !Task.isCancelled else { return }
 
+            //Animation to update camera Position smoothly
             if let item = vm.selectedMapItem {
-                // build a target that keeps the current zoom/heading/pitch
                 let coord = item.placemark.coordinate
                 let yOffset = lastSpan.latitudeDelta * 0.15
                 let center = CLLocationCoordinate2D(latitude: coord.latitude - yOffset, longitude: coord.longitude)
-
+                
                 let base = lastCamera ?? MapCamera(centerCoordinate: center, distance: 2500, heading: 0, pitch: 0)
                 camTarget = MapCamera(centerCoordinate: center, distance: base.distance, heading: base.heading, pitch: base.pitch)
-
                 camDuration = (base.distance < 1500) ? 1.0 : 0.85
                 camTrigger &+= 1
                 withAnimation(.easeInOut(duration: 0.3)) {
