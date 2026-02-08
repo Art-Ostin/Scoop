@@ -14,44 +14,61 @@ struct MapSheet: View {
     @State var service = LocationSearchService()
     @FocusState var isFocused: Bool
     @Bindable var vm: MapViewModel
+    
     @Binding var currentDetent: PresentationDetent
     
-    
     let selectedLocation: (MKMapItem) -> Void
-
     
     var body: some View {
+        let search = MapSheets.searchBar.detent
+        let optionsAndSearch = MapSheets.optionsAndSearchBar.detent
+        let large = MapSheets.large.detent
         
         if let mapItem = vm.selectedMapItem {
             MapSelectionView(vm: vm, mapItem: mapItem) { map in
                 selectedLocation(map)
             }
-        } else if currentDetent == .fraction(0.1) {
-            VStack {
-                searchBarLarge
-            }
-        } else if currentDetent == .large  {
-            VStack {
-                if !service.suggestions.isEmpty && service.showSuggestions {
-                    suggestionsCard
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .overlay(alignment: .top) {headerBar}
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
-            .onAppear { isFocused = true }
-            .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)}
-        } else if currentDetent == .fraction(0.3) {
-            VStack {
-                searchBarLarge
-                Text("Hello World")
-            }
-            
+        } else if currentDetent == search {
+            searchBar
+                .padding(.horizontal, 16)
+        } else if currentDetent == optionsAndSearch {
+            searchWithOptions
+        } else if currentDetent == large {
+            searchView
         }
     }
 }
 
 
+extension MapSheet {
+        
+    private var searchView: some View {
+        VStack {
+            if !service.suggestions.isEmpty && service.showSuggestions {
+                searchSuggestionsView
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: .top) {headerBar}
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .onAppear { isFocused = true }
+        .onChange(of: vm.searchText) { service.updateQuery(vm.searchText)}
+    }
+        
+    private var searchWithOptions: some View {
+        VStack(spacing: 24) {
+            searchBar
+            mapCategoryIcons
+                .padding(.horizontal, 32)
+        }
+        .padding(.horizontal, 16)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.top, 16)
+    }
+}
+
+
+//View Sections
 extension MapSheet {
     
     private var headerBar: some View {
@@ -66,13 +83,34 @@ extension MapSheet {
         .padding(16)
     }
     
+    
+    private var searchBarUI: some View {
+        TextField("", text: $vm.searchText,
+                  prompt: Text("Search Maps")
+                    .foregroundStyle(Color.black.opacity(0.6))
+                    .font(.system(size: 16, weight: .medium))
+        )
+        
+        
+        
+    }
+    
+    
+    
+    
+        
     private var searchBar: some View {
-        TextField("Search Maps", text: $vm.searchText)
-            .padding(.leading, 34)
+        TextField("",text: $vm.searchText,
+                  prompt: Text("Search Maps")
+                    .foregroundStyle(Color.black.opacity(0.6))
+                    .font(.system(size: 16, weight: .medium))
+        )
+            .padding(.leading, 40)
             .padding(.trailing, 12)
+            .font(.system(size: 17))
             .overlay(alignment: .leading) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(.black)
                     .padding(.leading, 12)
             }
@@ -85,11 +123,15 @@ extension MapSheet {
                 await vm.searchPlaces()
                 if let first = vm.results.first {
                     await MainActor.run { vm.selection = MapSelection(first) }
+                }}
+            }
+            .onTapGesture {
+                if currentDetent != .large {
+                    currentDetent = .large
                 }
             }
-            }
     }
-    
+        
     @ViewBuilder
     private var deleteSearchButton: some View {
         if !vm.searchText.isEmpty {
@@ -108,20 +150,19 @@ extension MapSheet {
                     .padding(.horizontal, 12)
             }
         }
-        
     }
     
-    private func searchLocation (suggestion :MKLocalSearchCompletion) async {
-        isFocused = false
-        vm.searchText = suggestion.title
-        await vm.searchPlaces()
-        
-        if let first = vm.results.first {
-            await MainActor.run { vm.selection = MapSelection(first) }
+    private var mapCategoryIcons: some View {
+        HStack {
+            MapCategoryIcon(style: .drink, isMap: true)
+            Spacer()
+            MapCategoryIcon(style: .food, isMap: true)
+            Spacer()
+            MapCategoryIcon(style: .cafe, isMap: true)
         }
     }
-    
-    private var suggestionsCard: some View {
+        
+    private var searchSuggestionsView: some View {
         return ScrollView {
             ClearRectangle(size: 75)
             let suggestions = service.suggestions
@@ -152,26 +193,13 @@ extension MapSheet {
         .customScrollFade(height: 50, showFade: true)
     }
     
-    private var searchBarLarge: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.black)
-            
-            Text(vm.searchText.isEmpty ? "Search Maps" : vm.searchText)
-                .font(.system(size: 17))
-                .foregroundStyle(Color.black.opacity(0.76))
-            
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 12)
-        .frame(height: 45)
-        .background(Capsule().fill(.ultraThinMaterial))
-        .contentShape(Capsule())
-        .padding(.horizontal, 16)
-        .onTapGesture {
-            isFocused = true
-            self.currentDetent = .large
+    private func searchLocation (suggestion :MKLocalSearchCompletion) async {
+        isFocused = false
+        vm.searchText = suggestion.title
+        await vm.searchPlaces()
+        
+        if let first = vm.results.first {
+            await MainActor.run { vm.selection = MapSelection(first) }
         }
     }
 }
@@ -223,3 +251,29 @@ private struct SearchSuggestionRow: View {
     }
 }
 
+
+/*
+ private var searchBarLarge: some View {
+     HStack(spacing: 8) {
+         Image(systemName: "magnifyingglass")
+             .font(.system(size: 15, weight: .medium))
+             .foregroundStyle(.black)
+         
+         Text(vm.searchText.isEmpty ? "Search Maps" : vm.searchText)
+             .font(.system(size: 17))
+             .foregroundStyle(Color.black.opacity(0.86))
+         
+         Spacer(minLength: 0)
+     }
+     .padding(.horizontal, 12)
+     .frame(height: 45)
+     .background(Capsule().fill(.ultraThinMaterial))
+     .contentShape(Capsule())
+     .padding(.horizontal, 16)
+     .onTapGesture {
+         isFocused = true
+         self.currentDetent = .large
+     }
+ }
+
+ */

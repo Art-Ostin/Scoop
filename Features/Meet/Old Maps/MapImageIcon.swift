@@ -5,8 +5,6 @@
 //  Created by Art Ostin on 03/02/2026.
 //
 
-/*
- 
  import SwiftUI
  import MapKit
 
@@ -28,35 +26,40 @@
      
      
      var body: some View {
-         ZStack {
-             
-             if !isSearch {
+         VStack() {
+             ZStack {
+                 if !isSearch {
+                     Circle()
+                         .fill(Color.white)
+                         .frame(width: size + 5, height: size + 5)
+                         .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
+                 }
                  Circle()
-                     .fill(Color.white)
-                     .frame(width: size + 5, height: size + 5)
-                     .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
-             }
-             
-             
-             Circle()
-                 .fill(
-                     LinearGradient(
-                         colors: [
-                             category.startColor,
-                             category.endColor
-                         ],
-                         startPoint: .top,
-                         endPoint: .bottom
+                     .fill(
+                         LinearGradient(
+                             colors: [
+                                 category.startColor,
+                                 category.endColor
+                             ],
+                             startPoint: .top,
+                             endPoint: .bottom
+                         )
                      )
-                 )
-                 .frame(width: size, height: size)
+                     .frame(width: size, height: size)
 
-             category.imageSmall
-                 .symbolRenderingMode(.monochrome)
-                 .foregroundStyle(.white)
-                 .font(.system(size: size * 0.42, weight: .semibold))
+                 category.imageSmall
+                     .symbolRenderingMode(.monochrome)
+                     .foregroundStyle(.white)
+                     .font(.system(size: size * 0.42, weight: .semibold))
+             }
+             .frame(width: size, height: size)
+
+             
+             
+             
          }
-         .frame(width: size, height: size)
+         
+         
      }
  }
 
@@ -96,8 +99,4 @@
           .frame(width: size, height: size)
       }
   }
-
-  */
-
- */
-
+*/

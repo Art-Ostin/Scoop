@@ -5,9 +5,6 @@
 //  Created by Art Ostin on 03/02/2026.
 //
 
-/*
- 
- 
  
  import SwiftUI
  import MapKit
@@ -241,10 +238,6 @@
          
      }
  }
- */
-
-
-
 
 
 
