@@ -11,6 +11,8 @@ import MapKit
 struct MapSearchView: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
+    @FocusState.Binding var isFocused: Bool
+
     @State var service = LocationSearchService()
 
     var body: some View {
@@ -30,8 +32,8 @@ extension MapSearchView {
     
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 12) {
-            MapSearchBar(vm: vm)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             DismissButton() { sheet = .optionsAndSearchBar }
                 .frame(width: 40)

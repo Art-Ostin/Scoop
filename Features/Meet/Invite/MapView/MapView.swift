@@ -19,7 +19,21 @@ struct MapView: View {
     @State private var sheet: MapSheets = .optionsAndSearchBar
     
     private var detentSelection: Binding<PresentationDetent> {
-        Binding( get: { sheet.detent }, set: { sheet = MapSheets.from(detent: $0) } )
+        Binding(
+            get: { sheet.detent },
+            set: { newDetent in
+                let newSheet = MapSheets.from(detent: newDetent)
+                
+                // Skip `.selected` when nothing is selected:
+                if sheet == .optionsAndSearchBar,
+                   newSheet == .selected,
+                   vm.selectedMapItem == nil {
+                    sheet = .large
+                } else {
+                    sheet = newSheet
+                }
+            }
+        )
     }
     
     //Deals with Camera Updates
@@ -93,7 +107,33 @@ extension MapView {
         .presentationDetents(MapSheets.detents, selection: detentSelection)
         .presentationBackgroundInteraction(.enabled(upThrough: MapSheets.selected.detent))
         .interactiveDismissDisabled(true)
+        .onChange(of: sheet) { oldValue, newValue in
+            //If swipe down - deselects item
+            if oldValue == .selected {
+                vm.selectedMapItem = nil
+                vm.selection = nil
+            } else if oldValue == .large && vm.selectedMapItem == nil {
+                sheet = .optionsAndSearchBar
+            }
+            
+            
+//            } else if oldValue == .large && vm.selectedMapItem == nil {
+//                sheet = .optionsAndSearchBar
+//            } else if oldValue == .optionsAndSearchBar && vm.selectedMapItem == nil {
+//                
+//                ///HERE
+//            }
+//            
+            
+            
+//            } else if oldValue == .large && vm.selectedMapItem == nil {
+//                self.sheet = .optionsAndSearchBar
+//            } else if oldValue == .optionsAndSearchBar && vm.selectedMapItem == nil {
+//                self.sheet = .large
+//            }
+        }
     }
+    
     
     private func itemSelected(_ newSelection: MapSelection<MKMapItem>?) {
         Task { @MainActor in
@@ -130,21 +170,6 @@ extension MapView {
 
 
 
-
-
-
-/*
-//        .onChange(of: currentDetent) {oldValue, newValue in
-//            if oldValue == selected {
-//                vm.selectedMapItem = nil
-//                vm.selection = nil
-//            } else if oldValue == .large && vm.selectedMapItem == nil {
-//                self.currentDetent = search
-//            } else if oldValue == search && vm.selectedMapItem == nil {
-//                self.currentDetent = optionsAndSearch
-//            }
-//        }
- */
 
 
 /*

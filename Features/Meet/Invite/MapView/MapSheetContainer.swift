@@ -13,21 +13,35 @@ struct MapSheetContainer: View {
     @Binding var sheet: MapSheets
     let selectedLocation: (MKMapItem) -> Void
 
-    @ViewBuilder
+    @FocusState private var searchFocused: Bool
+
     var body: some View {
-        if let mapItem = vm.selectedMapItem {
-            MapSelectionView(vm: vm, mapItem: mapItem) { selectedLocation($0) }
-        } else {
-            switch sheet {
-            case .searchBar:
-                MapSearchBar(vm: vm)
+        Group {
+            if let mapItem = vm.selectedMapItem {
+                MapSelectionView(vm: vm, mapItem: mapItem) { selectedLocation($0) }
+            } else {
+                switch sheet {
+                case .searchBar:
+                    MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                        .padding(.horizontal)
 
-            case .optionsAndSearchBar:
-                MapOptionsView(vm: vm)
+                case .large:
+                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused)
 
-            case .selected, .large:
-                MapSearchView(vm: vm, sheet: $sheet) // change MapSearchView signature similarly
+                default:
+                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet)
+                }
             }
+        }
+        // Keep keyboard + focus “linked” to large search mode.
+        .task(id: sheet) {
+            await MainActor.run { searchFocused = false }
+            guard sheet == .large, vm.selectedMapItem == nil else { return }
+            await Task.yield()
+            await MainActor.run { searchFocused = true }
+        }
+        .onChange(of: vm.selectedMapItem) { _, newValue in
+            if newValue != nil { searchFocused = false }
         }
     }
 }

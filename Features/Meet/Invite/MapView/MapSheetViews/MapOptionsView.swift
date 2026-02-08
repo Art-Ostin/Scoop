@@ -10,10 +10,12 @@ import SwiftUI
 struct MapOptionsView: View {
 
     @Bindable var vm: MapViewModel
+    @FocusState.Binding var isFocused: Bool
+    @Binding var sheet: MapSheets
     
     var body: some View {
         VStack(spacing: 24) {
-            MapSearchBar(vm: vm)
+            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
             mapCategoryIcons
                 .padding(.horizontal, 32)
         }

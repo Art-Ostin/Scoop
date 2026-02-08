@@ -9,23 +9,27 @@ import SwiftUI
 import MapKit
 
 struct MapSearchBar: View {
-    
+    @FocusState.Binding var isFocused: Bool
     @Bindable var vm: MapViewModel
+    @Binding var sheet: MapSheets
     
     var body: some View {
-        TextField("",text: $vm.searchText, prompt: searchPrompt)
-            .padding(.horizontal, 40)
-            .font(.system(size: 17))
-            .overlay(alignment: .leading) { searchIcon }
-            .overlay(alignment: .trailing) {deleteSearchButton}
-            .frame(height: 45)
-            .glassIfAvailable(Capsule(), isClear: false)
-            .contentShape(Capsule())
-//            .focused($isFocused)
-            .onSubmit(of: .text) { Task { await searchAndSelectFirst() } }
+            TextField("",text: $vm.searchText, prompt: searchPrompt)
+                .padding(.horizontal, 40)
+                .font(.system(size: 17))
+                .overlay(alignment: .leading) { searchIcon }
+                .overlay(alignment: .trailing) {deleteSearchButton}
+                .frame(height: 45)
+                .glassIfAvailable(Capsule(), isClear: false)
+                .contentShape(Capsule())
+                .focused($isFocused)
+                .simultaneousGesture(TapGesture().onEnded {
+                    sheet = .large
+                    isFocused = true
+                })
+                .onSubmit(of: .text) { Task { await searchAndSelectFirst() } }
+        }
     }
-}
-
 extension MapSearchBar {
     
     private var searchPrompt: Text {
