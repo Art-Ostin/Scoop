@@ -70,12 +70,12 @@ struct MapCategoryIcon: View {
     
     @Bindable var vm: MapViewModel
     
-    var isSelected: Bool { vm.categorySearch == style.description }
+    var isSelected: Bool { vm.categorySearchText == style.description }
 
     var body: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.3)) {
-                vm.categorySearch = style.description
+                vm.categorySearchText = style.description
             }
         } label : {
             VStack(spacing: 12) {

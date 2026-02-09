@@ -27,7 +27,6 @@ import MapKit
             selectedMapItem = value
             return
         }
-        
         guard let feature = selection.feature else { selectedMapItem = nil; return }
 
         do {
@@ -45,38 +44,42 @@ import MapKit
     }
     
     
-    var categorySearch: String? {
+    var categorySearchText: String? {
         didSet {
             categorySearchTask?.cancel()
-            guard let search = categorySearch?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
+            guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
             results.removeAll()
             categorySearchTask = Task { [weak self] in
-                await self?.searchCategoryInVisibleRegion(category: search)
+                print("search called")
+                await self?.searchCategory(category: search)
             }
         }
     }
 
-    func searchCategoryInVisibleRegion(category: String) async {
-        guard let region = visibleRegion else { return }
-
-        let spec = Self.categorySpec(for: category)
+    func searchCategory(category: String) async {
+        guard let region = cameraPosition.region else { return } // Get Current Camera Position
+        let spec = Self.categorySpec(for: category) //Get the specifics to search
         let plans = [SearchPlan(query: nil, categories: spec.categories)] +
             spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
             spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
-
         results = await Self.search(region: region, plans: plans)
     }
-
-    func searchInVisibleRegion(query: String) async {
-        guard let region = visibleRegion else { return }
-
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty else { results = []; return }
-        results = await Self.search(region: region, plans: [.init(query: q, categories: nil, pointOfInterestOnly: false)])
+    
+    private static func categorySpec(for rawCategory: String) -> (categories: [MKPointOfInterestCategory], queries: [String]) {
+        switch rawCategory.lowercased() {
+        case "food":
+            return ([.restaurant, .foodMarket, .cafe], ["restaurant", "food", "dining", "eat"])
+        case "drinks":
+            return ([.nightlife, .brewery, .distillery], ["bar", "cocktail", "pub", "drinks"])
+        case "cafes", "cafe":
+            return ([.cafe], ["cafe", "coffee", "espresso", "tea"])
+        default:
+            return ([.restaurant, .foodMarket, .cafe, .nightlife, .brewery, .distillery], [rawCategory])
+        }
     }
-
+    
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
-        let region = cameraPosition.region
+        let region = region
         return await withTaskGroup(of: [MKMapItem].self) { group in
             for plan in plans {
                 group.addTask {
@@ -91,7 +94,6 @@ import MapKit
                     return (try? await MKLocalSearch(request: request).start().mapItems) ?? []
                 }
             }
-
             var aggregated: [MKMapItem] = []
             for await items in group {
                 aggregated.append(contentsOf: items)
@@ -99,20 +101,6 @@ import MapKit
             return deduplicated(aggregated)
         }
     }
-
-    private static func categorySpec(for rawCategory: String) -> (categories: [MKPointOfInterestCategory], queries: [String]) {
-        switch rawCategory.lowercased() {
-        case "food":
-            return ([.restaurant, .foodMarket, .cafe], ["restaurant", "food", "dining", "eat"])
-        case "drinks":
-            return ([.nightlife, .brewery, .distillery], ["bar", "cocktail", "pub", "drinks"])
-        case "cafes", "cafe":
-            return ([.cafe], ["cafe", "coffee", "espresso", "tea"])
-        default:
-            return ([.restaurant, .foodMarket, .cafe, .nightlife, .brewery, .distillery], [rawCategory])
-        }
-    }
-    
     
     private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
         var seen = Set<String>()
