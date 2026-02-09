@@ -92,6 +92,7 @@ struct MapView: View {
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
             .animation(.easeInOut(duration: 0.3), value: vm.selection)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {userLocationButton}
         }
