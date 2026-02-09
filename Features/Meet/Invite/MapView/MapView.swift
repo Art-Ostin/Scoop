@@ -63,7 +63,7 @@ struct MapView: View {
                 }
             }
             .mapControlVisibility(.visible)
-            .onMapCameraChange(frequency: .continuous) { context in
+            .onMapCameraChange(frequency: .onEnd) { context in
                 lastCamera = context.camera
                 lastSpan = context.region.span
                 vm.visibleRegion = context.region

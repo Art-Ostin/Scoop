@@ -11,6 +11,8 @@ import MapKit
 @Observable class MapViewModel {
 
     let locationManager = CLLocationManager()
+    private static let minimumPlaceCount = 25
+    private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
     var searchText: String = ""
     var results: [MKMapItem] = []
     var selection: MapSelection<MKMapItem>?
@@ -40,12 +42,14 @@ import MapKit
             results = []
             return
         }
-        let req = MKLocalSearch.Request()
-        req.region = region
-        req.naturalLanguageQuery = searchText
-        let res = try? await MKLocalSearch(request: req).start()
-        let scopedItems = Self.items(in: region, from: res?.mapItems ?? [])
-        results = Self.deduplicated(scopedItems)
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        results = await Self.searchWithExpandedRegions(from: region, minimumCount: Self.minimumPlaceCount) { searchRegion in
+            let request = MKLocalSearch.Request()
+            request.region = searchRegion
+            request.naturalLanguageQuery = query
+            let items = (try? await MKLocalSearch(request: request).start().mapItems) ?? []
+            return Self.items(in: searchRegion, from: items)
+        }
     }
     
     var categorySearchText: String? {
@@ -81,27 +85,57 @@ import MapKit
     }
     
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
-        return await withTaskGroup(of: [MKMapItem].self) { group in
-            for plan in plans {
-                group.addTask {
-                    guard !Task.isCancelled else { return [] }
-                    let request = MKLocalSearch.Request()
-                    request.region = region
-                    request.naturalLanguageQuery = plan.query
-                    if plan.pointOfInterestOnly { request.resultTypes = .pointOfInterest }
-                    if let categories = plan.categories, !categories.isEmpty {
-                        request.pointOfInterestFilter = MKPointOfInterestFilter(including: categories)
+        return await searchWithExpandedRegions(from: region, minimumCount: minimumPlaceCount) { searchRegion in
+            await withTaskGroup(of: [MKMapItem].self) { group in
+                for plan in plans {
+                    group.addTask {
+                        guard !Task.isCancelled else { return [] }
+                        let request = MKLocalSearch.Request()
+                        request.region = searchRegion
+                        request.naturalLanguageQuery = plan.query
+                        if plan.pointOfInterestOnly { request.resultTypes = .pointOfInterest }
+                        if let categories = plan.categories, !categories.isEmpty {
+                            request.pointOfInterestFilter = MKPointOfInterestFilter(including: categories)
+                        }
+                        return (try? await MKLocalSearch(request: request).start().mapItems) ?? []
                     }
-                    return (try? await MKLocalSearch(request: request).start().mapItems) ?? []
                 }
+                var aggregated: [MKMapItem] = []
+                for await items in group {
+                    aggregated.append(contentsOf: items)
+                }
+                let deduped = deduplicated(aggregated)
+                return items(in: searchRegion, from: deduped)
             }
-            var aggregated: [MKMapItem] = []
-            for await items in group {
-                aggregated.append(contentsOf: items)
-            }
-            let deduped = deduplicated(aggregated)
-            return items(in: region, from: deduped)
         }
+    }
+
+    private static func searchWithExpandedRegions(
+        from baseRegion: MKCoordinateRegion,
+        minimumCount: Int,
+        search: (MKCoordinateRegion) async -> [MKMapItem]
+    ) async -> [MKMapItem] {
+        var aggregated: [MKMapItem] = []
+        for scale in searchRegionScaleSteps {
+            guard !Task.isCancelled else { break }
+            let searchRegion = scaledRegion(baseRegion, by: scale)
+            let items = await search(searchRegion)
+            aggregated = deduplicated(aggregated + items)
+            if aggregated.count >= minimumCount {
+                break
+            }
+        }
+        return aggregated
+    }
+
+    private static func scaledRegion(_ region: MKCoordinateRegion, by scale: CLLocationDegrees) -> MKCoordinateRegion {
+        MKCoordinateRegion(
+            center: region.center,
+            span: MKCoordinateSpan(
+                latitudeDelta: min(region.span.latitudeDelta * scale, 180),
+                longitudeDelta: min(region.span.longitudeDelta * scale, 360)
+            )
+        )
     }
     
     private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
