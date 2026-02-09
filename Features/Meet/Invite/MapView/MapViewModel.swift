@@ -76,7 +76,7 @@ import MapKit
     }
 
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
-        let region = searchRegion(region)
+        let region = cameraPosition.region
         return await withTaskGroup(of: [MKMapItem].self) { group in
             for plan in plans {
                 group.addTask {
@@ -112,17 +112,8 @@ import MapKit
             return ([.restaurant, .foodMarket, .cafe, .nightlife, .brewery, .distillery], [rawCategory])
         }
     }
-
-    private static func searchRegion(_ region: MKCoordinateRegion) -> MKCoordinateRegion {
-        let verticalCoverage: CLLocationDegrees = 0.72
-        let minDelta: CLLocationDegrees = 0.002
-        let latitudeDelta = max(region.span.latitudeDelta * verticalCoverage, minDelta)
-        let longitudeDelta = max(region.span.longitudeDelta, minDelta)
-        let centerLatitude = max(min(region.center.latitude + (region.span.latitudeDelta - latitudeDelta) * 0.5, 90), -90)
-        return .init(center: .init(latitude: centerLatitude, longitude: region.center.longitude),
-                     span: .init(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta))
-    }
-
+    
+    
     private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
         var seen = Set<String>()
         return items.filter {
