@@ -52,7 +52,8 @@ extension MapSearchView {
                     ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                         SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
                             .onTapGesture {
-                                sheet = .searchBar
+                                vm.selectedMapCategory = nil //Removes any category previously selected
+                                sheet = .searchBar //Instantly dismisses screen good animation
                                 Task { await searchLocation(suggestion: suggestion) }
                             }
 

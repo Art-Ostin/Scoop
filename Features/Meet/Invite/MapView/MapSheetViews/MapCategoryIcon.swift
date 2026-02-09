@@ -66,6 +66,10 @@ enum MapIconStyle: CaseIterable, Identifiable {
 
 struct MapCategoryIcon: View {
     
+    @State var hitMaxSearches: Bool = false
+    
+    var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
+    
     let style: MapIconStyle
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 30 }
@@ -77,6 +81,7 @@ struct MapCategoryIcon: View {
     var isSelected: Bool { vm.selectedMapCategory == style }
     
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
+    
     
     var body: some View {
         Button {
@@ -99,10 +104,14 @@ struct MapCategoryIcon: View {
                 
                 
                 Group {
-                    if shouldShowSearchArea && !showLoading{ // If the user has moved location on the map sufficiently
+                    if shouldShowSearchArea && !showLoading && !showHitMaxSearch { // If the user has moved map location sufficiently
                         Text ("Search Area")
                     } else {
-                        Text(style.description)
+                        if showHitMaxSearch {
+                            Text("Wait 30s")
+                        } else {
+                            Text(style.description)
+                        }
                     }
                 }
                 .font(.body(12, .bold))
@@ -110,6 +119,17 @@ struct MapCategoryIcon: View {
                 .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
                 .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
                 .animation(.easeInOut(duration: 0.3), value: showLoading)
+                .task(id: vm.selectedMapCategory) {
+                    try? await Task.sleep(for: .seconds(1.5))
+                    guard !Task.isCancelled,
+                          vm.selectedMapCategory != nil,
+                          vm.results.isEmpty
+                    else { return }
+                    hitMaxSearches = true
+                    try? await Task.sleep(for: .seconds(3))
+                    vm.selectedMapCategory = nil
+                    hitMaxSearches = false
+                }
             }
             .overlay(alignment: .center) {
                 if showLoading {

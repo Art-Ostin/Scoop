@@ -15,7 +15,7 @@ import UIKit
     let locationManager = CLLocationManager()
     private static let minimumPlaceCount = 25
     private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
-    private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.5
+    private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.6
 
     var searchText: String = ""
     var results: [MKMapItem] = []
@@ -57,7 +57,6 @@ import UIKit
         req.naturalLanguageQuery = searchText
         let res = try? await MKLocalSearch(request: req).start()
         results = res?.mapItems ?? []
-        selectedMapCategory = nil
     }
     
     private func onCategorySelect() {
@@ -67,13 +66,16 @@ import UIKit
             isLoadingCategory = true
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategory(category: category.description)
+                self?.searchText = category.description
             }
         } else {
             //If set to nil remove all the values
             isLoadingCategory = false
-            withAnimation(.easeInOut(duration: 0.3)) {
-                print("Removing All")
-                results.removeAll()
+            if results.count > 2 { //I.e. Only remove if a category is selected -> I.e. many
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    print("Removing All")
+                    results.removeAll()
+                }
             }
         }
     }
