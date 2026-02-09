@@ -64,18 +64,21 @@ enum MapSheets: CaseIterable, Equatable {
         }
     }
 
-    static var detents: Set<PresentationDetent> {
-        [searchDetent, optionsDetent, selectedDetent, largeDetent]
+    static func detents(hasSelection: Bool) -> Set<PresentationDetent> {
+        if hasSelection {
+            return [searchDetent, optionsDetent, selectedDetent, largeDetent]
+        } else {
+            return [searchDetent, optionsDetent, largeDetent]
+        }
     }
 
-    static func from(detent: PresentationDetent) -> Self {
+    static func from(detent: PresentationDetent, hasSelection: Bool = true) -> Self {
         switch detent {
         case searchDetent:  return .searchBar
         case optionsDetent: return .optionsAndSearchBar
-        case selectedDetent:return .selected
+        case selectedDetent:return hasSelection ? .selected : .optionsAndSearchBar
         default:            return .large
         }
     }
 }
-
 

@@ -20,30 +20,30 @@ struct MapView: View {
     
     private var detentSelection: Binding<PresentationDetent> {
         Binding(
-            get: { sheet.detent },
-            set: { newDetent in
+            get: {
+                if sheet == .selected, vm.selectedMapItem == nil {
+                    return MapSheets.optionsDetent
+                }
+                return sheet.detent
+            }, set: { newDetent in
                 
-                // if change remove selectedMapItem
-                if sheet == .selected {
+                let hasSelection = vm.selectedMapItem != nil
+                let previousSheet = sheet
+                let requestedSheet = MapSheets.from(detent: newDetent, hasSelection: hasSelection)
+                
+                if requestedSheet == .selected, !hasSelection {
+                    sheet = .optionsAndSearchBar
+                    return
+                }
+                
+                if previousSheet == .selected, requestedSheet != .selected {
                     vm.selectedMapItem = nil
                     vm.selection = nil
+                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
+                    return
                 }
+                sheet = requestedSheet
                 
-                let newSheet = MapSheets.from(detent: newDetent)
-                
-                //Skips out option bar these lines
-                if sheet == .optionsAndSearchBar, newSheet == .selected, vm.selectedMapItem == nil {
-                    print("Skipped from option bar")
-                    sheet = .large
-                } else if sheet == .large, newSheet == .selected, vm.selectedMapItem == nil {
-                    print("Skipped from large")
-                    sheet = .optionsAndSearchBar
-                } else if sheet == .searchBar, newSheet == .selected, vm.selection == nil {
-                    print("Went to searchBar instead")
-                    sheet = .optionsAndSearchBar
-                } else {
-                    sheet = newSheet
-                }
             }
         )
     }
@@ -116,8 +116,8 @@ extension MapView {
         MapSheetContainer(vm: vm, sheet: $sheet) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
-        .presentationDetents(MapSheets.detents, selection: detentSelection)
-        .presentationBackgroundInteraction(.enabled(upThrough: MapSheets.selected.detent))
+        .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil), selection: detentSelection)
+        .presentationBackgroundInteraction(.enabled(upThrough: vm.selectedMapItem == nil ? MapSheets.optionsDetent : MapSheets.selected.detent))
         .interactiveDismissDisabled(true)
     }
     
