@@ -44,20 +44,17 @@ import MapKit
         results = res?.mapItems ?? []
     }
 
-    func searchBarsInVisibleRegion() async {
+    func searchInVisibleRegion(query: String) async {
         guard let region = visibleRegion else { return }
 
-        let req = MKLocalPointsOfInterestRequest(coordinateRegion: region)
-        req.pointOfInterestFilter = MKPointOfInterestFilter(including: [
-            .nightlife,
-            .brewery,
-            .distillery,
-            .winery
-        ])
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = q
+        request.region = region
         do {
-            results = try await MKLocalSearch(request: req).start().mapItems
+            results = try await MKLocalSearch(request: request).start().mapItems
         } catch {
-            print(error)
+            print("Local search error:", error)
         }
     }
 }

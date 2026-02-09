@@ -67,28 +67,30 @@ struct MapCategoryIcon: View {
     let style: MapIconStyle
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 30 }
+    
+    @Bindable var vm: MapViewModel
 
     var body: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(style.gradient)
-                    .frame(width: size, height: size)
+        Button {
+            Task { await vm.searchInVisibleRegion(query: style.description) }
+        } label : {
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(style.gradient)
+                        .frame(width: size, height: size)
 
-                (isMap ? style.imageLarge : style.imageSmall)
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(.white)
-                    .font(.system(size: size * 0.55, weight: .semibold))
-                    .scaleEffect(isMap ? 0.95 : 1)
+                    (isMap ? style.imageLarge : style.imageSmall)
+                        .symbolRenderingMode(.monochrome)
+                        .foregroundStyle(.white)
+                        .font(.system(size: size * 0.55, weight: .semibold))
+                        .scaleEffect(isMap ? 0.95 : 1)
+                }
+
+                Text(style.description)
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.grayText.opacity(0.8))
             }
-
-            Text(style.description)
-                .font(.body(12, .bold))
-                .foregroundStyle(Color.grayText.opacity(0.8))
         }
     }
-}
-
-#Preview {
-    MapCategoryIcon(style: .cafe, isMap: true)
 }
