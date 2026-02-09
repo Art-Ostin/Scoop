@@ -89,10 +89,16 @@ struct MapCategoryIcon: View {
                         .scaleEffect(isMap ? 0.95 : 0.55)
                 }
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
-
-                Text(style.description)
-                    .font(.body(12, .bold))
-                    .foregroundStyle(isSelected ? .accent : Color.grayText.opacity(0.8))
+                
+                Group {
+                    if true { // If the user has moved location on the map sufficiently
+                        Text ("Search Area")
+                    } else {
+                        Text(style.description)
+                    }
+                }
+                .font(.body(12, .bold))
+                .foregroundStyle(isSelected ? .accent : Color.grayText.opacity(0.8))
             }
         }
         .id(vm.selectedMapCategory)

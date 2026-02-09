@@ -48,18 +48,10 @@ import UIKit
     }
     
     func searchPlaces() async {
-        guard let region = visibleRegion else {
-            results = []
-            return
-        }
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        results = await Self.searchWithExpandedRegions(from: region, minimumCount: Self.minimumPlaceCount) { searchRegion in
-            let request = MKLocalSearch.Request()
-            request.region = searchRegion
-            request.naturalLanguageQuery = query
-            let items = (try? await MKLocalSearch(request: request).start().mapItems) ?? []
-            return Self.items(in: searchRegion, from: items)
-        }
+        let req = MKLocalSearch.Request()
+        req.naturalLanguageQuery = searchText
+        let res = try? await MKLocalSearch(request: req).start()
+        results = res?.mapItems ?? []
     }
     
     private func onCategorySelect() {
@@ -235,4 +227,21 @@ import UIKit
      await self?.searchCategory(category: search)
  }
 
+ */
+
+/*
+ func searchPlaces() async {
+     guard let region = visibleRegion else {
+         results = []
+         return
+     }
+     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+     results = await Self.searchWithExpandedRegions(from: region, minimumCount: Self.minimumPlaceCount) { searchRegion in
+         let request = MKLocalSearch.Request()
+         request.region = searchRegion
+         request.naturalLanguageQuery = query
+         let items = (try? await MKLocalSearch(request: request).start().mapItems) ?? []
+         return Self.items(in: searchRegion, from: items)
+     }
+ }
  */

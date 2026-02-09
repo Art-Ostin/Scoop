@@ -21,7 +21,7 @@ struct ClearIcon: View {
     
     var body: some View {
         Button {
-            if let type {
+            if type != nil {
                 vm.selectedMapCategory = nil
             } else {
                 print("Random Place Here")
@@ -40,7 +40,14 @@ struct ClearIcon: View {
                     if let type {
                         labelClear(type: type)
                     } else {
-                        Image("RandomPlace")
+                        VStack(spacing: 2) {
+                            Image("RandomPlace")
+                                .scaleEffect(0.90)
+                            Text("Random")
+                                .font(.body(8, .medium))
+                                .foregroundStyle(Color.black.opacity(0.85))
+                        }
+                        .offset(y: -1)
                     }
                 }
             }
@@ -62,10 +69,6 @@ extension ClearIcon {
                 .font(.body(10, .medium))
                 .offset(y: -2)
         }
-    }
-    
-    private func randomSearch(type: MapIconStyle) -> some View {
-            Image("RandomPlace")
     }
 }
 
