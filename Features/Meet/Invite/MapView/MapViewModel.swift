@@ -11,7 +11,6 @@ import MapKit
 @Observable class MapViewModel {
 
     let locationManager = CLLocationManager()
-
     var searchText: String = ""
     var results: [MKMapItem] = []
     var selection: MapSelection<MKMapItem>?
@@ -42,6 +41,14 @@ import MapKit
         req.naturalLanguageQuery = searchText
         let res = try? await MKLocalSearch(request: req).start()
         results = res?.mapItems ?? []
+    }
+    
+    var categorySearch: String? {
+        didSet {
+            if let search = categorySearch, !search.isEmpty {
+                Task { await searchInVisibleRegion(query: search) }
+            }
+        }
     }
 
     func searchInVisibleRegion(query: String) async {

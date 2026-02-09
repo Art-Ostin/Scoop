@@ -69,10 +69,14 @@ struct MapCategoryIcon: View {
     var size: CGFloat { isMap ? 60 : 30 }
     
     @Bindable var vm: MapViewModel
+    
+    var isSelected: Bool { vm.categorySearch == style.description }
 
     var body: some View {
         Button {
-            Task { await vm.searchInVisibleRegion(query: style.description) }
+            withAnimation(.easeInOut(duration: 0.3)) {
+                vm.categorySearch = style.description
+            }
         } label : {
             VStack(spacing: 12) {
                 ZStack {
@@ -86,10 +90,11 @@ struct MapCategoryIcon: View {
                         .font(.system(size: size * 0.55, weight: .semibold))
                         .scaleEffect(isMap ? 0.95 : 1)
                 }
+                .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
 
                 Text(style.description)
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.grayText.opacity(0.8))
+                    .foregroundStyle(isSelected ? .accent : Color.grayText.opacity(0.8))
             }
         }
     }
