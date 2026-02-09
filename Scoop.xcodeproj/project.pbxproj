@@ -11,6 +11,9 @@
 		6501358A2E4C06DF00630CF3 /* EventSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650135892E4C06DF00630CF3 /* EventSlot.swift */; };
 		650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */; };
 		650383E32E6B89C90053DDB2 /* CustomTabBarContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */; };
+		6503D5EE2F3A963100D9290D /* ModernMiniLoader.json in Resources */ = {isa = PBXBuildFile; fileRef = 6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */; };
+		6503D5F02F3A96B600D9290D /* LottieTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503D5EF2F3A96B600D9290D /* LottieTester.swift */; };
+		6503D5F22F3A980B00D9290D /* ModernMiniLoaderBlue.json in Resources */ = {isa = PBXBuildFile; fileRef = 6503D5F12F3A980B00D9290D /* ModernMiniLoaderBlue.json */; };
 		65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 65058E8D2E1C4080009AD7FD /* FirebaseFirestore */; };
 		650884102EAD23B800776620 /* MeetSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6508840F2EAD23B800776620 /* MeetSuggestionView.swift */; };
 		650884122EAD475E00776620 /* PendingInvitesCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650884112EAD475E00776620 /* PendingInvitesCard.swift */; };
@@ -220,6 +223,9 @@
 		650135892E4C06DF00630CF3 /* EventSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlot.swift; sourceTree = "<group>"; };
 		650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarView.swift; sourceTree = "<group>"; };
 		650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarContainerView.swift; sourceTree = "<group>"; };
+		6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ModernMiniLoader.json; sourceTree = "<group>"; };
+		6503D5EF2F3A96B600D9290D /* LottieTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieTester.swift; sourceTree = "<group>"; };
+		6503D5F12F3A980B00D9290D /* ModernMiniLoaderBlue.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ModernMiniLoaderBlue.json; sourceTree = "<group>"; };
 		6508840F2EAD23B800776620 /* MeetSuggestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetSuggestionView.swift; sourceTree = "<group>"; };
 		650884112EAD475E00776620 /* PendingInvitesCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInvitesCard.swift; sourceTree = "<group>"; };
 		6509DCEA2F1D78C000455AB5 /* Languages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Languages.swift; sourceTree = "<group>"; };
@@ -601,8 +607,10 @@
 			children = (
 				659568252ED28BBA0091163E /* ShakeEffect.swift */,
 				6519758B2F1EFCE90002F6A2 /* SandyLoading.json */,
+				6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */,
 				6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */,
 				651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */,
+				6503D5F12F3A980B00D9290D /* ModernMiniLoaderBlue.json */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -919,6 +927,7 @@
 				65A93D4B2F393B28003F6410 /* MapOptionsView.swift */,
 				65A93D472F39379E003F6410 /* MapSearchBar.swift */,
 				6555178D2F38F3F6000783FB /* MapCategoryIcon.swift */,
+				6503D5EF2F3A96B600D9290D /* LottieTester.swift */,
 			);
 			path = MapSheetViews;
 			sourceTree = "<group>";
@@ -1152,10 +1161,12 @@
 				6561C8C92E0444EC006A72DF /* ModernEra-Medium.ttf in Resources */,
 				658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */,
 				6561C8CA2E0444EC006A72DF /* ModernEra-MediumItalic.ttf in Resources */,
+				6503D5EE2F3A963100D9290D /* ModernMiniLoader.json in Resources */,
 				6519758C2F1EFCE90002F6A2 /* SandyLoading.json in Resources */,
 				6561C8CB2E0444EC006A72DF /* ModernEra-Regular.ttf in Resources */,
 				653BAF872E0B846600C1AB9E /* GoogleService-Info.plist in Resources */,
 				6561C8CC2E0444EC006A72DF /* NewYorkLarge-Bold.otf in Resources */,
+				6503D5F22F3A980B00D9290D /* ModernMiniLoaderBlue.json in Resources */,
 				651975842F1EF2CA0002F6A2 /* LoadingAnimation.json in Resources */,
 				6561C8CD2E0444EC006A72DF /* NewYorkMedium-Medium.otf in Resources */,
 				653BAFBC2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf in Resources */,
@@ -1270,6 +1281,7 @@
 				65F9E3832EE70F6B008A57BD /* CustomTabPage.swift in Sources */,
 				65DCFBBE2F329CDD00B3EC50 /* ImageIcons.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
+				6503D5F02F3A96B600D9290D /* LottieTester.swift in Sources */,
 				655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,

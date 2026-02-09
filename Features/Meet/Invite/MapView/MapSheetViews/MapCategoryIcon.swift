@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Lottie
+
 
 enum MapIconStyle: CaseIterable, Identifiable {
     
@@ -75,6 +77,7 @@ struct MapCategoryIcon: View {
     
     var isSelected: Bool { vm.selectedMapCategory == style }
     
+    @State var showLoadingScreen: Bool = true
     
     var body: some View {
         Button {
@@ -88,8 +91,17 @@ struct MapCategoryIcon: View {
                         .fill(style.gradient)
                         .frame(width: size, height: size)
                     
-                    style.image
-                        .scaleEffect(isMap ? 0.95 : 0.55)
+                    if showLoadingScreen {
+                        LottieView(animation: .named("ModernMiniLoaderBlue.json"))
+                            .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .foregroundStyle(Color.accent)
+                    } else {
+                        style.image
+                            .scaleEffect(isMap ? 0.95 : 0.55)
+                    }
                 }
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 

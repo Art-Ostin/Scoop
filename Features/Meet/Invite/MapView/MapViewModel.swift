@@ -200,6 +200,7 @@ import UIKit
     }
     
     
+    //Functionality to check if moved enough to refresh screen
     var hasMovedEnoughToRefreshSearch: Bool {
         guard selectedMapCategory != nil,
               let currentRegion = visibleRegion,
