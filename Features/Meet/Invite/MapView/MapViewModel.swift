@@ -15,15 +15,23 @@ import UIKit
     let locationManager = CLLocationManager()
     private static let minimumPlaceCount = 25
     private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
+    private static let searchAreaPanThresholdFraction: CLLocationDegrees = 0.8
+    private static let searchAreaMinimumPanDelta: CLLocationDegrees = 0.004
+    private static let searchAreaZoomThresholdFraction: CLLocationDegrees = 0.5
+    private static let searchAreaZoomInThresholdFraction: CLLocationDegrees = 0.15
+    private static let searchAreaZoomOutThresholdFraction: CLLocationDegrees = 0.45
+
+    
     var searchText: String = ""
     var results: [MKMapItem] = []
     var selection: MapSelection<MKMapItem>?
     var selectedMapItem: MKMapItem?
 
     var visibleRegion: MKCoordinateRegion?
+    private(set) var lastCategorySearchRegion: MKCoordinateRegion?
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     private var categorySearchTask: Task<Void, Never>?
-    
+        
     var markerTint: Color {
         selectedMapCategory?.mainColor ?? Color.appColorTint
     }
@@ -34,7 +42,7 @@ import UIKit
     
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
         guard let selection else { selectedMapItem = nil; return }
-
+        
         if let value = selection.value {
             selectedMapItem = value
             return
@@ -72,7 +80,10 @@ import UIKit
         let plans = [SearchPlan(query: nil, categories: spec.categories)] +
             spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
             spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
-        results = await Self.search(region: region, plans: plans)
+        let foundItems = await Self.search(region: region, plans: plans)
+        guard !Task.isCancelled else { return }
+        results = foundItems
+        lastCategorySearchRegion = region
     }
     
     private static func categorySpec(for rawCategory: String) -> (categories: [MKPointOfInterestCategory], queries: [String]) {
@@ -191,6 +202,44 @@ import UIKit
             self.pointOfInterestOnly = pointOfInterestOnly
         }
     }
+    
+    
+    var hasMovedEnoughToRefreshSearch: Bool {
+        guard selectedMapCategory != nil,
+              let currentRegion = visibleRegion,
+              let searchedRegion = lastCategorySearchRegion else {
+            return false
+        }
+        
+        let minimumLatitudePan = max(
+            searchedRegion.span.latitudeDelta * Self.searchAreaPanThresholdFraction,
+            Self.searchAreaMinimumPanDelta
+        )
+        let minimumLongitudePan = max(
+            searchedRegion.span.longitudeDelta * Self.searchAreaPanThresholdFraction,
+            Self.searchAreaMinimumPanDelta
+        )
+        
+        let latitudePan = abs(currentRegion.center.latitude - searchedRegion.center.latitude)
+        let longitudePan = abs(Self.normalizedLongitude(currentRegion.center.longitude - searchedRegion.center.longitude))
+        if latitudePan >= minimumLatitudePan || longitudePan >= minimumLongitudePan {
+            return true
+        }
+        
+        let latitudeZoomIn = max(searchedRegion.span.latitudeDelta - currentRegion.span.latitudeDelta, 0)
+        let longitudeZoomIn = max(searchedRegion.span.longitudeDelta - currentRegion.span.longitudeDelta, 0)
+        let zoomedInEnough =
+            latitudeZoomIn >= searchedRegion.span.latitudeDelta * Self.searchAreaZoomInThresholdFraction ||
+            longitudeZoomIn >= searchedRegion.span.longitudeDelta * Self.searchAreaZoomInThresholdFraction
+
+        let latitudeZoomOut = max(currentRegion.span.latitudeDelta - searchedRegion.span.latitudeDelta, 0)
+        let longitudeZoomOut = max(currentRegion.span.longitudeDelta - searchedRegion.span.longitudeDelta, 0)
+        let zoomedOutEnough =
+            latitudeZoomOut >= searchedRegion.span.latitudeDelta * Self.searchAreaZoomOutThresholdFraction ||
+            longitudeZoomOut >= searchedRegion.span.longitudeDelta * Self.searchAreaZoomOutThresholdFraction
+
+        return zoomedInEnough || zoomedOutEnough
+    }
 }
 
 
@@ -215,6 +264,7 @@ import UIKit
      }
  }
 
+ 
  */
 
 

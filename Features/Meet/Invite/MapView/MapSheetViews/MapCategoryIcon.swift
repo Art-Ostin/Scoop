@@ -64,10 +64,13 @@ enum MapIconStyle: CaseIterable, Identifiable {
 }
 
 struct MapCategoryIcon: View {
+    
     let style: MapIconStyle
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 30 }
     
+    var shouldShowSearchArea: Bool { isSelected && vm.hasMovedEnoughToRefreshSearch }
+
     @Bindable var vm: MapViewModel
     
     var isSelected: Bool { vm.selectedMapCategory == style }
@@ -91,7 +94,7 @@ struct MapCategoryIcon: View {
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 
                 Group {
-                    if true { // If the user has moved location on the map sufficiently
+                    if shouldShowSearchArea { // If the user has moved location on the map sufficiently
                         Text ("Search Area")
                     } else {
                         Text(style.description)
@@ -99,6 +102,7 @@ struct MapCategoryIcon: View {
                 }
                 .font(.body(12, .bold))
                 .foregroundStyle(isSelected ? .accent : Color.grayText.opacity(0.8))
+                .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
             }
         }
         .id(vm.selectedMapCategory)
