@@ -32,12 +32,12 @@ struct MapView: View {
                 let requestedSheet = MapSheets.from(detent: newDetent, hasSelection: hasSelection)
                 
                 if requestedSheet == .selected, !hasSelection {
-                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
                     sheet = .optionsAndSearchBar
                     return
                 }
                 
                 if previousSheet == .selected {
+                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
                     vm.selectedMapItem = nil
                     vm.selection = nil
                     return
@@ -151,3 +151,39 @@ extension MapView {
             .offset(y: -48)
     }
 }
+
+/*
+ 
+//        .onChange(of: sheet) { oldValue, newValue in
+//            //If swipe down - deselects item
+//            if oldValue == .selected {
+//                vm.selectedMapItem = nil
+//                vm.selection = nil
+//                print("Hello World")
+//            } else if oldValue == .large && vm.selectedMapItem == nil {
+//                sheet = .optionsAndSearchBar
+//            }
+//        }
+ */
+
+
+
+
+/*
+ private var searchAreaButton: some View {
+     Button {
+         print("Tapped")
+         Task { await vm.searchBarsInVisibleRegion() }
+     } label: {
+         Text("Search Area")
+             .font(.system(size: 12, weight: .bold))
+             .foregroundStyle(Color.black)
+             .padding(.horizontal, 14)
+             .padding(.vertical, 8)
+             .contentShape(Rectangle())
+             .glassIfAvailable(isClear: true, thinMaterial: true)
+     }
+     .buttonStyle(.plain)
+     .padding(.top, 12)
+ }
+ */

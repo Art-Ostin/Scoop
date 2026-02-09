@@ -24,7 +24,6 @@ struct MapSheetContainer: View {
                 case .searchBar:
                     MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
                         .padding(.horizontal)
-                    
                 case .large:
                     MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused)
 
