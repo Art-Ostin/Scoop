@@ -13,7 +13,6 @@ struct MapSearchBar: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     
-    @FocusState var newFocus: Bool
     
     var body: some View {
             TextField("",text: $vm.searchText, prompt: searchPrompt)
@@ -26,8 +25,7 @@ struct MapSearchBar: View {
                 .contentShape(Capsule())
                 .focused($isFocused)
                 .simultaneousGesture(TapGesture().onEnded {
-                    sheet = .large
-                    isFocused = true
+                    if sheet != .large { sheet = .large }
                 })
                 .onSubmit(of: .text) { Task { await searchAndSelectFirst() } }
         }

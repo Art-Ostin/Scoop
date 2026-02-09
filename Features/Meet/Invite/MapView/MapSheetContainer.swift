@@ -35,10 +35,12 @@ struct MapSheetContainer: View {
         }
         // Keep keyboard + focus “linked” to large search mode.
         .task(id: sheet) {
-            await MainActor.run { searchFocused = false }
-            guard sheet == .large, vm.selectedMapItem == nil else { return }
-            await Task.yield()
-            await MainActor.run { searchFocused = true }
+            if sheet == .large, vm.selectedMapItem == nil {
+                await Task.yield()                 // wait until large content is in hierarchy
+                await MainActor.run { searchFocused = true }
+            } else {
+                await MainActor.run { searchFocused = false }
+            }
         }
         .onChange(of: vm.selectedMapItem) { _, newValue in
             if newValue != nil { searchFocused = false }
