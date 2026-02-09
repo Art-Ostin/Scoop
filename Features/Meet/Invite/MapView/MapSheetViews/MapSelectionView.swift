@@ -44,14 +44,6 @@ struct MapSelectionView: View {
                     }
                 }
                 
-//                if let lookAround = vm.lookAroundScene {
-//                    LookAroundPreview(scene: .constant(lookAround))
-//                        .frame(height: 200)
-//                        .cornerRadius(16)
-//                } else {
-                    ContentUnavailableView("No Preview", image: "chevron")
-                }
-                
                 Button {
                     selectedLocation(mapItem)
                     dismiss()
@@ -71,32 +63,8 @@ struct MapSelectionView: View {
                 .frame(maxWidth: .infinity, alignment: .top)
             }
             .scrollIndicators(.hidden)
-            .padding(24)            
-//            .onAppear {
-//                fetchLookAround()
-//            }
-//            .onChange(of: vm.selection) { oldValue, newValue in
-//                fetchLookAround()
-//            }
+            .padding(24)
+            
         }
     }
-//
-//#Preview {
-//    MapSelectionView(vm: .constant(.init()), selectedPlace: .constant(nil), onCloseMap: {})
-//}
-
-extension MapSelectionView {
-    
-    //    private var mapItem: MKMapItem? {
-    //        vm.selection?.value ?? vm.results.first(where: { MapSelection($0) == selection })
-    //    }
-    
-    
-//    func fetchLookAround() {
-//        vm.lookAroundScene = nil
-//        Task {
-//            let request = MKLookAroundSceneRequest(mapItem: mapItem)
-//            vm.lookAroundScene = try? await request.scene
-//        }
-//    }
 }

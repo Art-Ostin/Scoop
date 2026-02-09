@@ -13,6 +13,8 @@ struct MapSearchBar: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     
+    @FocusState var newFocus: Bool
+    
     var body: some View {
             TextField("",text: $vm.searchText, prompt: searchPrompt)
                 .padding(.horizontal, 40)

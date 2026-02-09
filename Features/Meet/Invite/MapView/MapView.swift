@@ -22,13 +22,25 @@ struct MapView: View {
         Binding(
             get: { sheet.detent },
             set: { newDetent in
+                
+                // if change remove selectedMapItem
+                if sheet == .selected {
+                    vm.selectedMapItem = nil
+                    vm.selection = nil
+                }
+                
                 let newSheet = MapSheets.from(detent: newDetent)
                 
-                // Skip `.selected` when nothing is selected:
-                if sheet == .optionsAndSearchBar,
-                   newSheet == .selected,
-                   vm.selectedMapItem == nil {
+                //Skips out option bar these lines
+                if sheet == .optionsAndSearchBar, newSheet == .selected, vm.selectedMapItem == nil {
+                    print("Skipped from option bar")
                     sheet = .large
+                } else if sheet == .large, newSheet == .selected, vm.selectedMapItem == nil {
+                    print("Skipped from large")
+                    sheet = .optionsAndSearchBar
+                } else if sheet == .searchBar, newSheet == .selected, vm.selection == nil {
+                    print("Went to searchBar instead")
+                    sheet = .optionsAndSearchBar
                 } else {
                     sheet = newSheet
                 }
@@ -107,31 +119,6 @@ extension MapView {
         .presentationDetents(MapSheets.detents, selection: detentSelection)
         .presentationBackgroundInteraction(.enabled(upThrough: MapSheets.selected.detent))
         .interactiveDismissDisabled(true)
-        .onChange(of: sheet) { oldValue, newValue in
-            //If swipe down - deselects item
-            if oldValue == .selected {
-                vm.selectedMapItem = nil
-                vm.selection = nil
-            } else if oldValue == .large && vm.selectedMapItem == nil {
-                sheet = .optionsAndSearchBar
-            }
-            
-            
-//            } else if oldValue == .large && vm.selectedMapItem == nil {
-//                sheet = .optionsAndSearchBar
-//            } else if oldValue == .optionsAndSearchBar && vm.selectedMapItem == nil {
-//                
-//                ///HERE
-//            }
-//            
-            
-            
-//            } else if oldValue == .large && vm.selectedMapItem == nil {
-//                self.sheet = .optionsAndSearchBar
-//            } else if oldValue == .optionsAndSearchBar && vm.selectedMapItem == nil {
-//                self.sheet = .large
-//            }
-        }
     }
     
     
@@ -168,6 +155,19 @@ extension MapView {
     }
 }
 
+/*
+ 
+//        .onChange(of: sheet) { oldValue, newValue in
+//            //If swipe down - deselects item
+//            if oldValue == .selected {
+//                vm.selectedMapItem = nil
+//                vm.selection = nil
+//                print("Hello World")
+//            } else if oldValue == .large && vm.selectedMapItem == nil {
+//                sheet = .optionsAndSearchBar
+//            }
+//        }
+ */
 
 
 
