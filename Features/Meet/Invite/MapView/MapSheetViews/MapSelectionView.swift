@@ -35,7 +35,9 @@ struct MapSelectionView: View {
                     Spacer()
                     
                     Button {
-                        vm.selection = nil
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            vm.selection = nil
+                        }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .resizable()

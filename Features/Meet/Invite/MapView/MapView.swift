@@ -31,9 +31,10 @@ struct MapView: View {
                     if newDetent != MapSheets.selectedDetent {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             sheet = (newDetent == MapSheets.largeDetent) ? .large : .optionsAndSearchBar
+                            
+                            vm.selectedMapItem = nil
+                            vm.selection = nil
                         }
-                        vm.selectedMapItem = nil
-                        vm.selection = nil
                     }
                     return
                 }
