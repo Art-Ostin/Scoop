@@ -17,7 +17,6 @@ import UIKit
     private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
     private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.4
 
-    
     var searchText: String = ""
     var results: [MKMapItem] = []
     var selection: MapSelection<MKMapItem>?
@@ -27,6 +26,8 @@ import UIKit
     private(set) var lastCategorySearchRegion: MKCoordinateRegion?
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     private var categorySearchTask: Task<Void, Never>?
+    
+    var isLoadingCategory: Bool = false
     
     var markerTint: Color {
         selectedMapCategory?.mainColor ?? Color.appColorTint
@@ -59,18 +60,24 @@ import UIKit
     }
     
     private func onCategorySelect() {
+        categorySearchTask?.cancel()
+
         if let category = selectedMapCategory {
-            categorySearchTask?.cancel()
+            isLoadingCategory = true
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategory(category: category.description)
             }
         } else {
             //If set to nil remove all the values
+            isLoadingCategory = false
             results.removeAll()
         }
     }
     
     private func searchCategory(category: String) async {
+        defer {
+            if !Task.isCancelled { isLoadingCategory = false }
+        }
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(for: category) //Get the specifics to search
         let plans = [SearchPlan(query: nil, categories: spec.categories)] +

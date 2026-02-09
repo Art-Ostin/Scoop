@@ -8,7 +8,6 @@
 import SwiftUI
 import Lottie
 
-
 enum MapIconStyle: CaseIterable, Identifiable {
     
     case drink, food, cafe
@@ -77,7 +76,7 @@ struct MapCategoryIcon: View {
     
     var isSelected: Bool { vm.selectedMapCategory == style }
     
-    @State var showLoadingScreen: Bool = true
+    var showLoading: Bool { isSelected && vm.isLoadingCategory}
     
     var body: some View {
         Button {
@@ -91,14 +90,7 @@ struct MapCategoryIcon: View {
                         .fill(style.gradient)
                         .frame(width: size, height: size)
                     
-                    if showLoadingScreen {
-                        LottieView(animation: .named("ModernMiniLoaderBlue.json"))
-                            .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 80, height: 80)
-                            .foregroundStyle(Color.accent)
-                    } else {
+                    if !showLoading {
                         style.image
                             .scaleEffect(isMap ? 0.95 : 0.55)
                     }
@@ -106,17 +98,29 @@ struct MapCategoryIcon: View {
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 
                 Group {
-                    if shouldShowSearchArea { // If the user has moved location on the map sufficiently
+                    if shouldShowSearchArea && !showLoading{ // If the user has moved location on the map sufficiently
                         Text ("Search Area")
                     } else {
                         Text(style.description)
                     }
                 }
                 .font(.body(12, .bold))
-                .foregroundStyle(isSelected ? .accent : Color.grayText.opacity(0.8))
+                .foregroundStyle(isSelected && !showLoading ? .accent : Color.grayText.opacity(0.8))
                 .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
+                .animation(.easeInOut(duration: 0.3), value: showLoading)
+            }
+            .overlay(alignment: .center) {
+                if showLoading {
+                    LottieView(animation: .named("ModernMiniLoaderBlue.json"))
+                        .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .offset(y: -12)
+                }
             }
         }
         .id(vm.selectedMapCategory)
     }
 }
+
