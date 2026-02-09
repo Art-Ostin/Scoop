@@ -32,18 +32,17 @@ struct MapView: View {
                 let requestedSheet = MapSheets.from(detent: newDetent, hasSelection: hasSelection)
                 
                 if requestedSheet == .selected, !hasSelection {
+                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
                     sheet = .optionsAndSearchBar
                     return
                 }
                 
-                if previousSheet == .selected, requestedSheet != .selected {
-                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
+                if previousSheet == .selected {
                     vm.selectedMapItem = nil
                     vm.selection = nil
                     return
                 }
                 sheet = requestedSheet
-                
             }
         )
     }
@@ -140,8 +139,6 @@ extension MapView {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     sheet = .selected
                 }
-            } else {
-                sheet = .searchBar
             }
         }
     }
