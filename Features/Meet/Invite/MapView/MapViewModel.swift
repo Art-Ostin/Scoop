@@ -11,31 +11,27 @@ import UIKit
 
 @MainActor
 @Observable class MapViewModel {
-
+    
     let locationManager = CLLocationManager()
     private static let minimumPlaceCount = 25
     private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
-    private static let searchAreaPanThresholdFraction: CLLocationDegrees = 0.8
-    private static let searchAreaMinimumPanDelta: CLLocationDegrees = 0.004
-    private static let searchAreaZoomThresholdFraction: CLLocationDegrees = 0.5
-    private static let searchAreaZoomInThresholdFraction: CLLocationDegrees = 0.15
-    private static let searchAreaZoomOutThresholdFraction: CLLocationDegrees = 0.45
+    private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.4
 
     
     var searchText: String = ""
     var results: [MKMapItem] = []
     var selection: MapSelection<MKMapItem>?
     var selectedMapItem: MKMapItem?
-
+    
     var visibleRegion: MKCoordinateRegion?
     private(set) var lastCategorySearchRegion: MKCoordinateRegion?
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     private var categorySearchTask: Task<Void, Never>?
-        
+    
     var markerTint: Color {
         selectedMapCategory?.mainColor ?? Color.appColorTint
     }
-
+    
     var selectedMapCategory: MapIconStyle? {
         didSet {onCategorySelect()}
     }
@@ -78,8 +74,8 @@ import UIKit
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(for: category) //Get the specifics to search
         let plans = [SearchPlan(query: nil, categories: spec.categories)] +
-            spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
-            spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
+        spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
+        spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
         let foundItems = await Self.search(region: region, plans: plans)
         guard !Task.isCancelled else { return }
         results = foundItems
@@ -124,7 +120,7 @@ import UIKit
             }
         }
     }
-
+    
     private static func searchWithExpandedRegions(
         from baseRegion: MKCoordinateRegion,
         minimumCount: Int,
@@ -142,7 +138,7 @@ import UIKit
         }
         return aggregated
     }
-
+    
     private static func scaledRegion(_ region: MKCoordinateRegion, by scale: CLLocationDegrees) -> MKCoordinateRegion {
         MKCoordinateRegion(
             center: region.center,
@@ -161,7 +157,7 @@ import UIKit
             return seen.insert(key).inserted
         }
     }
-
+    
     private static func normalized(_ value: String) -> String {
         value
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
@@ -169,33 +165,33 @@ import UIKit
     }
     
     private static func items(in region: MKCoordinateRegion, from items: [MKMapItem]) -> [MKMapItem] {
-         items.filter { contains($0.placemark.coordinate, in: region) }
-     }
-
+        items.filter { contains($0.placemark.coordinate, in: region) }
+    }
+    
     private static func contains(_ coordinate: CLLocationCoordinate2D, in region: MKCoordinateRegion) -> Bool {
         let halfLatitude = region.span.latitudeDelta / 2
         let maximumLatitude = region.center.latitude + halfLatitude
         let searchableHeight = region.span.latitudeDelta * 0.75
         let searchableMinimumLatitude = maximumLatitude - searchableHeight
         guard coordinate.latitude >= searchableMinimumLatitude && coordinate.latitude <= maximumLatitude else { return false }
-
+        
         let halfLongitude = region.span.longitudeDelta / 2
         let longitudeDifference = normalizedLongitude(coordinate.longitude - region.center.longitude)
         return abs(longitudeDifference) <= halfLongitude
     }
-
+    
     private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
         var value = longitude.truncatingRemainder(dividingBy: 360)
         if value > 180 { value -= 360 }
         if value < -180 { value += 360 }
         return value
     }
-
+    
     private struct SearchPlan {
         let query: String?
         let categories: [MKPointOfInterestCategory]?
         let pointOfInterestOnly: Bool
-
+        
         init(query: String?, categories: [MKPointOfInterestCategory]?, pointOfInterestOnly: Bool = true) {
             self.query = query
             self.categories = categories
@@ -211,34 +207,84 @@ import UIKit
             return false
         }
         
-        let minimumLatitudePan = max(
-            searchedRegion.span.latitudeDelta * Self.searchAreaPanThresholdFraction,
-            Self.searchAreaMinimumPanDelta
+        let overlapFraction = Self.overlapFraction(of: currentRegion, with: searchedRegion)
+        return overlapFraction <= Self.searchAreaMaximumOverlapFraction
+    }
+    
+    private static func overlapFraction(of newRegion: MKCoordinateRegion, with oldRegion: MKCoordinateRegion) -> CLLocationDegrees {
+        let newLatitudeRange = latitudeRange(for: newRegion)
+        let oldLatitudeRange = latitudeRange(for: oldRegion)
+        let latitudeOverlap = overlapLength(
+            minA: newLatitudeRange.min,
+            maxA: newLatitudeRange.max,
+            minB: oldLatitudeRange.min,
+            maxB: oldLatitudeRange.max
         )
-        let minimumLongitudePan = max(
-            searchedRegion.span.longitudeDelta * Self.searchAreaPanThresholdFraction,
-            Self.searchAreaMinimumPanDelta
-        )
+        guard latitudeOverlap > 0 else { return 0 }
         
-        let latitudePan = abs(currentRegion.center.latitude - searchedRegion.center.latitude)
-        let longitudePan = abs(Self.normalizedLongitude(currentRegion.center.longitude - searchedRegion.center.longitude))
-        if latitudePan >= minimumLatitudePan || longitudePan >= minimumLongitudePan {
-            return true
+        let longitudeOverlap = longitudeOverlapLength(newRegion: newRegion, oldRegion: oldRegion)
+        guard longitudeOverlap > 0 else { return 0 }
+        
+        let newLatitudeHeight = max(newLatitudeRange.max - newLatitudeRange.min, 0)
+        let newLongitudeWidth = clampedLongitudeWidth(for: newRegion)
+        let newArea = newLatitudeHeight * newLongitudeWidth
+        guard newArea > 0 else { return 0 }
+        
+        let overlapArea = latitudeOverlap * longitudeOverlap
+        return min(max(overlapArea / newArea, 0), 1)
+    }
+    
+    private static func latitudeRange(for region: MKCoordinateRegion) -> (min: CLLocationDegrees, max: CLLocationDegrees) {
+        let halfLatitude = max(region.span.latitudeDelta, 0) / 2
+        let minimumLatitude = max(region.center.latitude - halfLatitude, -90)
+        let maximumLatitude = min(region.center.latitude + halfLatitude, 90)
+        return (minimumLatitude, maximumLatitude)
+    }
+    
+    private static func longitudeOverlapLength(newRegion: MKCoordinateRegion, oldRegion: MKCoordinateRegion) -> CLLocationDegrees {
+        let newLongitudeWidth = clampedLongitudeWidth(for: newRegion)
+        guard newLongitudeWidth > 0 else { return 0 }
+        
+        let oldLongitudeWidth = clampedLongitudeWidth(for: oldRegion)
+        guard oldLongitudeWidth > 0 else { return 0 }
+        
+        let newHalfLongitude = newLongitudeWidth / 2
+        let oldHalfLongitude = oldLongitudeWidth / 2
+        
+        let newMinLongitude = newRegion.center.longitude - newHalfLongitude
+        let newMaxLongitude = newRegion.center.longitude + newHalfLongitude
+        
+        let alignedOldCenter = newRegion.center.longitude + normalizedLongitude(oldRegion.center.longitude - newRegion.center.longitude)
+        var bestOverlap: CLLocationDegrees = 0
+        
+        for offset in [-360.0, 0.0, 360.0] {
+            let oldCenter = alignedOldCenter + offset
+            let oldMinLongitude = oldCenter - oldHalfLongitude
+            let oldMaxLongitude = oldCenter + oldHalfLongitude
+            
+            let overlap = overlapLength(
+                minA: newMinLongitude,
+                maxA: newMaxLongitude,
+                minB: oldMinLongitude,
+                maxB: oldMaxLongitude
+            )
+            bestOverlap = max(bestOverlap, overlap)
         }
         
-        let latitudeZoomIn = max(searchedRegion.span.latitudeDelta - currentRegion.span.latitudeDelta, 0)
-        let longitudeZoomIn = max(searchedRegion.span.longitudeDelta - currentRegion.span.longitudeDelta, 0)
-        let zoomedInEnough =
-            latitudeZoomIn >= searchedRegion.span.latitudeDelta * Self.searchAreaZoomInThresholdFraction ||
-            longitudeZoomIn >= searchedRegion.span.longitudeDelta * Self.searchAreaZoomInThresholdFraction
-
-        let latitudeZoomOut = max(currentRegion.span.latitudeDelta - searchedRegion.span.latitudeDelta, 0)
-        let longitudeZoomOut = max(currentRegion.span.longitudeDelta - searchedRegion.span.longitudeDelta, 0)
-        let zoomedOutEnough =
-            latitudeZoomOut >= searchedRegion.span.latitudeDelta * Self.searchAreaZoomOutThresholdFraction ||
-            longitudeZoomOut >= searchedRegion.span.longitudeDelta * Self.searchAreaZoomOutThresholdFraction
-
-        return zoomedInEnough || zoomedOutEnough
+        return min(bestOverlap, newLongitudeWidth)
+    }
+    
+    private static func clampedLongitudeWidth(for region: MKCoordinateRegion) -> CLLocationDegrees {
+        min(max(region.span.longitudeDelta, 0), 360)
+    }
+    
+    private static func overlapLength(
+        minA: CLLocationDegrees,
+        maxA: CLLocationDegrees,
+        minB: CLLocationDegrees,
+        maxB: CLLocationDegrees
+    ) -> CLLocationDegrees {
+        max(0, min(maxA, maxB) - max(minA, minB))
     }
 }
 

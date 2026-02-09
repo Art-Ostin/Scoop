@@ -52,6 +52,7 @@ struct ClearIcon: View {
                 }
             }
         }
+        .scaleEffect(0.95)
     }
 }
 
