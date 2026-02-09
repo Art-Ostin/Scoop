@@ -97,6 +97,7 @@ struct MapCategoryIcon: View {
                 }
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 
+                
                 Group {
                     if shouldShowSearchArea && !showLoading{ // If the user has moved location on the map sufficiently
                         Text ("Search Area")
@@ -105,13 +106,14 @@ struct MapCategoryIcon: View {
                     }
                 }
                 .font(.body(12, .bold))
-                .foregroundStyle(isSelected && !showLoading ? .accent : Color.grayText.opacity(0.8))
+                .frame(width: 75)
+                .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
                 .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
                 .animation(.easeInOut(duration: 0.3), value: showLoading)
             }
             .overlay(alignment: .center) {
                 if showLoading {
-                    LottieView(animation: .named("ModernMiniLoaderBlue.json"))
+                    LottieView(animation: .named("ModernMiniLoader.json"))
                         .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
                         .resizable()
                         .scaledToFit()

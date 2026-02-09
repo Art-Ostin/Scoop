@@ -15,7 +15,7 @@ import UIKit
     let locationManager = CLLocationManager()
     private static let minimumPlaceCount = 25
     private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
-    private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.4
+    private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.5
 
     var searchText: String = ""
     var results: [MKMapItem] = []
@@ -57,6 +57,7 @@ import UIKit
         req.naturalLanguageQuery = searchText
         let res = try? await MKLocalSearch(request: req).start()
         results = res?.mapItems ?? []
+        selectedMapCategory = nil
     }
     
     private func onCategorySelect() {
@@ -70,7 +71,10 @@ import UIKit
         } else {
             //If set to nil remove all the values
             isLoadingCategory = false
-            results.removeAll()
+            withAnimation(.easeInOut(duration: 0.3)) {
+                print("Removing All")
+                results.removeAll()
+            }
         }
     }
     
@@ -296,56 +300,3 @@ import UIKit
     }
 }
 
-
-/* // Come back to
- func searchPlaces() async {
-     let req = MKLocalSearch.Request()
-     req.naturalLanguageQuery = searchText
-     let res = try? await MKLocalSearch(request: req).start()
-     results = res?.mapItems ?? []
- }
- 
- */
-
-/*
- var categorySearchText: String? {
-     didSet {
-         categorySearchTask?.cancel()
-         guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
-         categorySearchTask = Task { [weak self] in
-             await self?.searchCategory(category: search)
-         }
-     }
- }
-
- 
- */
-
-
-/*
- 
- categorySearchText = selectedMapCategory.description
- categorySearchTask?.cancel()
- guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
- categorySearchTask = Task { [weak self] in
-     await self?.searchCategory(category: search)
- }
-
- */
-
-/*
- func searchPlaces() async {
-     guard let region = visibleRegion else {
-         results = []
-         return
-     }
-     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-     results = await Self.searchWithExpandedRegions(from: region, minimumCount: Self.minimumPlaceCount) { searchRegion in
-         let request = MKLocalSearch.Request()
-         request.region = searchRegion
-         request.naturalLanguageQuery = query
-         let items = (try? await MKLocalSearch(request: request).start().mapItems) ?? []
-         return Self.items(in: searchRegion, from: items)
-     }
- }
- */

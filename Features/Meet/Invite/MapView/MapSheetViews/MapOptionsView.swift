@@ -22,7 +22,7 @@ struct MapOptionsView: View {
             }
 //            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
             mapCategoryIcons
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 24) //Adjusted as require wide frame for updating 
         }
         .padding(.horizontal, 16)
         .frame(maxHeight: .infinity, alignment: .top)

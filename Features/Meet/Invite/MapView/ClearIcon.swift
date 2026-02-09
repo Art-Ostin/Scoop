@@ -22,7 +22,9 @@ struct ClearIcon: View {
     var body: some View {
         Button {
             if type != nil {
-                vm.selectedMapCategory = nil
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    vm.selectedMapCategory = nil
+                }
             } else {
                 print("Random Place Here")
             }
