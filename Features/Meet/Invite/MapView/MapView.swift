@@ -37,9 +37,9 @@ struct MapView: View {
                 }
                 
                 if previousSheet == .selected, requestedSheet != .selected {
+                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
                     vm.selectedMapItem = nil
                     vm.selection = nil
-                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
                     return
                 }
                 sheet = requestedSheet
