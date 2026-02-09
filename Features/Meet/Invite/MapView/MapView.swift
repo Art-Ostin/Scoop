@@ -49,11 +49,24 @@ struct MapView: View {
     @State private var camTrigger: Int = 0
     @State private var camDuration: Double = 0.85
     
+    //Delete when tests are done
+    @State private var visibleRegionOutline: [CLLocationCoordinate2D] = []
+    private let visibleRegionTimer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
+    
     @Namespace private var mapScope
     var body: some View {
         ZStack {
             Map(position: $vm.cameraPosition, selection: $vm.selection, scope: mapScope) {
                 UserAnnotation()
+                
+                //Delete when test are done
+                if !visibleRegionOutline.isEmpty {
+                    MapPolygon(coordinates: visibleRegionOutline)
+                        .foregroundStyle(.orange.opacity(0.10))
+                    MapPolyline(coordinates: visibleRegionOutline)
+                        .stroke(.orange, lineWidth: 1)
+                }
+                
                 ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
                         .tag(MapSelection(item))
@@ -61,7 +74,7 @@ struct MapView: View {
                 }
             }
             .mapControlVisibility(.visible)
-            .onMapCameraChange(frequency: .onEnd) { context in
+            .onMapCameraChange(frequency: .continuous) { context in
                 lastCamera = context.camera
                 lastSpan = context.region.span
                 vm.visibleRegion = context.region
@@ -90,6 +103,14 @@ struct MapView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {userLocationButton}
+            
+            //Delete when tests done
+            .onAppear {
+                  refreshVisibleRegionOverlay()
+              }
+            .onReceive(visibleRegionTimer) { _ in
+                refreshVisibleRegionOverlay()
+            }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
@@ -143,4 +164,37 @@ extension MapView {
             .padding(.bottom, 96)
             .offset(y: -48)
     }
+    
+    
+    //Delete when test done
+    private func refreshVisibleRegionOverlay() {
+        guard let region = vm.visibleRegion else { return }
+        visibleRegionOutline = visibleRegionCoordinates(for: region)
+    }
+    private func visibleRegionCoordinates(for region: MKCoordinateRegion) -> [CLLocationCoordinate2D] {
+        let latOffset = region.span.latitudeDelta / 2
+        let lonOffset = region.span.longitudeDelta / 2
+
+        let topLeft = CLLocationCoordinate2D(
+            latitude: region.center.latitude + latOffset,
+            longitude: region.center.longitude - lonOffset
+        )
+        let topRight = CLLocationCoordinate2D(
+            latitude: region.center.latitude + latOffset,
+            longitude: region.center.longitude + lonOffset
+        )
+        let bottomRight = CLLocationCoordinate2D(
+            latitude: region.center.latitude - latOffset,
+            longitude: region.center.longitude + lonOffset
+        )
+        let bottomLeft = CLLocationCoordinate2D(
+            latitude: region.center.latitude - latOffset,
+            longitude: region.center.longitude - lonOffset
+        )
+
+        return [topLeft, topRight, bottomRight, bottomLeft, topLeft]
+    }
+
+
+
 }
