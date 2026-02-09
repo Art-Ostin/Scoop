@@ -165,23 +165,75 @@ import MapKit
     }
 
     private static func expandedRegion(_ region: MKCoordinateRegion) -> MKCoordinateRegion {
-        .init(
-            center: region.center,
-            span: .init(
-                latitudeDelta: min(region.span.latitudeDelta * 1.25, 180),
-                longitudeDelta: min(region.span.longitudeDelta * 1.25, 360)
-            )
-        )
+        let verticalCoverage: CLLocationDegrees = 0.72
+           let horizontalCoverage: CLLocationDegrees = 1.0
+           let minDelta: CLLocationDegrees = 0.002
+
+           let latitudeDelta = Swift.min(Swift.max(region.span.latitudeDelta * verticalCoverage, minDelta), 180)
+           let longitudeDelta = Swift.min(Swift.max(region.span.longitudeDelta * horizontalCoverage, minDelta), 360)
+           let northShift = (region.span.latitudeDelta - latitudeDelta) * 0.5
+           let centeredLatitude = Swift.max(Swift.min(region.center.latitude + northShift, 90), -90)
+
+           return .init(
+               center: .init(latitude: centeredLatitude, longitude: region.center.longitude),
+               span: .init(
+                   latitudeDelta: latitudeDelta,
+                   longitudeDelta: longitudeDelta
+               )
+           )
     }
 
     private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
-        var seen = Set<MKMapItem>()
-        return items.filter { seen.insert($0).inserted }
+        var seen = Set<MapItemKey>()
+        var unique: [MKMapItem] = []
+
+        for item in items {
+            let key = mapItemKey(for: item)
+            if seen.insert(key).inserted {
+                unique.append(item)
+            }
+        }
+        return unique
+    }
+
+    private static func mapItemKey(for item: MKMapItem) -> MapItemKey {
+        let coordinate = item.placemark.coordinate
+        return .init(
+            name: normalized(item.name ?? item.placemark.title ?? ""),
+            latitudeBucket: coordinateBucket(for: coordinate.latitude),
+            longitudeBucket: coordinateBucket(for: coordinate.longitude),
+            street: normalized(item.placemark.thoroughfare ?? ""),
+            number: normalized(item.placemark.subThoroughfare ?? ""),
+            city: normalized(item.placemark.locality ?? ""),
+            postalCode: normalized(item.placemark.postalCode ?? "")
+        )
+    }
+
+    private static func coordinateBucket(for value: CLLocationDegrees) -> Int {
+        Int((value * 100_000).rounded())
+    }
+
+    private static func normalized(_ value: String) -> String {
+        value
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+
     }
 
     private struct CategorySearchStrategy {
         let categories: [MKPointOfInterestCategory]
         let queries: [String]
         let minimumResultsForFilteredSearch: Int
+    }
+    
+    private struct MapItemKey: Hashable {
+        let name: String
+        let latitudeBucket: Int
+        let longitudeBucket: Int
+        let street: String
+        let number: String
+        let city: String
+        let postalCode: String
     }
 }
