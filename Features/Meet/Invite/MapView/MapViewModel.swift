@@ -43,21 +43,19 @@ import MapKit
         results = res?.mapItems ?? []
     }
     
-    
     var categorySearchText: String? {
         didSet {
             categorySearchTask?.cancel()
             guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
             results.removeAll()
             categorySearchTask = Task { [weak self] in
-                print("search called")
                 await self?.searchCategory(category: search)
             }
         }
     }
 
     func searchCategory(category: String) async {
-        guard let region = cameraPosition.region else { return } // Get Current Camera Position
+        guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(for: category) //Get the specifics to search
         let plans = [SearchPlan(query: nil, categories: spec.categories)] +
             spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
