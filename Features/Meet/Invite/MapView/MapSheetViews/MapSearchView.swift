@@ -52,7 +52,6 @@ extension MapSearchView {
                     ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                         SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
                             .onTapGesture {
-                                sheet = .selected
                                 Task { await searchLocation(suggestion: suggestion) }
                             }
 

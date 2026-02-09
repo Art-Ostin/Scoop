@@ -21,28 +21,25 @@ struct MapView: View {
     private var detentSelection: Binding<PresentationDetent> {
         Binding(
             get: {
-                if sheet == .selected, vm.selectedMapItem == nil {
-                    return MapSheets.optionsDetent
+                if vm.selectedMapItem != nil {
+                    return MapSheets.selectedDetent
                 }
                 return sheet.detent
             }, set: { newDetent in
                 
-                let hasSelection = vm.selectedMapItem != nil
-                let previousSheet = sheet
-                let requestedSheet = MapSheets.from(detent: newDetent, hasSelection: hasSelection)
-                
-                if requestedSheet == .selected, !hasSelection {
-                    sheet = .optionsAndSearchBar
+                if vm.selectedMapItem != nil {
+                    if newDetent != MapSheets.selectedDetent {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            sheet = (newDetent == MapSheets.largeDetent) ? .large : .optionsAndSearchBar
+                        }
+                        vm.selectedMapItem = nil
+                        vm.selection = nil
+                    }
                     return
                 }
-                
-                if previousSheet == .selected {
-                    sheet = requestedSheet == .large ? .large : .optionsAndSearchBar
-                    vm.selectedMapItem = nil
-                    vm.selection = nil
-                    return
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    sheet = MapSheets.from(detent: newDetent)
                 }
-                sheet = requestedSheet
             }
         )
     }
@@ -137,9 +134,6 @@ extension MapView {
                 camTarget = MapCamera(centerCoordinate: center, distance: base.distance, heading: base.heading, pitch: base.pitch)
                 camDuration = (base.distance < 1500) ? 1.0 : 0.85
                 camTrigger &+= 1
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    sheet = .selected
-                }
             }
         }
     }

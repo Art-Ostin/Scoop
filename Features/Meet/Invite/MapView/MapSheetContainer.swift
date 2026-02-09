@@ -49,7 +49,8 @@ struct MapSheetContainer: View {
 
 
 enum MapSheets: CaseIterable, Equatable {
-    case searchBar, optionsAndSearchBar, selected, large
+    case searchBar, optionsAndSearchBar, large
+
 
     static let searchDetent: PresentationDetent = .fraction(0.10)
     static let optionsDetent: PresentationDetent = .fraction(0.22)
@@ -60,7 +61,6 @@ enum MapSheets: CaseIterable, Equatable {
         switch self {
         case .searchBar:           Self.searchDetent
         case .optionsAndSearchBar: Self.optionsDetent
-        case .selected:            Self.selectedDetent
         case .large:               Self.largeDetent
         }
     }
@@ -73,11 +73,11 @@ enum MapSheets: CaseIterable, Equatable {
         }
     }
 
-    static func from(detent: PresentationDetent, hasSelection: Bool = true) -> Self {
+    static func from(detent: PresentationDetent) -> Self {
         switch detent {
         case searchDetent:  return .searchBar
         case optionsDetent: return .optionsAndSearchBar
-        case selectedDetent:return hasSelection ? .selected : .optionsAndSearchBar
+        case selectedDetent:return .optionsAndSearchBar
         default:            return .large
         }
     }
