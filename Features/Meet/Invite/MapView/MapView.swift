@@ -116,7 +116,7 @@ extension MapView {
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
         .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil), selection: detentSelection)
-        .presentationBackgroundInteraction(.enabled(upThrough: vm.selectedMapItem == nil ? MapSheets.optionsDetent : MapSheets.selected.detent))
+        .presentationBackgroundInteraction(.enabled(upThrough: .large))
         .interactiveDismissDisabled(true)
     }
     
@@ -151,39 +151,3 @@ extension MapView {
             .offset(y: -48)
     }
 }
-
-/*
- 
-//        .onChange(of: sheet) { oldValue, newValue in
-//            //If swipe down - deselects item
-//            if oldValue == .selected {
-//                vm.selectedMapItem = nil
-//                vm.selection = nil
-//                print("Hello World")
-//            } else if oldValue == .large && vm.selectedMapItem == nil {
-//                sheet = .optionsAndSearchBar
-//            }
-//        }
- */
-
-
-
-
-/*
- private var searchAreaButton: some View {
-     Button {
-         print("Tapped")
-         Task { await vm.searchBarsInVisibleRegion() }
-     } label: {
-         Text("Search Area")
-             .font(.system(size: 12, weight: .bold))
-             .foregroundStyle(Color.black)
-             .padding(.horizontal, 14)
-             .padding(.vertical, 8)
-             .contentShape(Rectangle())
-             .glassIfAvailable(isClear: true, thinMaterial: true)
-     }
-     .buttonStyle(.plain)
-     .padding(.top, 12)
- }
- */
