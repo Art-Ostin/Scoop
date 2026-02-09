@@ -6,6 +6,8 @@
 
 import SwiftUI
 import MapKit
+import UIKit
+
 
 @MainActor
 @Observable class MapViewModel {
@@ -21,7 +23,15 @@ import MapKit
     var visibleRegion: MKCoordinateRegion?
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     private var categorySearchTask: Task<Void, Never>?
+    
+    var markerTint: Color {
+        selectedMapCategory?.mainColor ?? Color.appColorTint
+    }
 
+    var selectedMapCategory: MapIconStyle? {
+        didSet {onCategorySelect()}
+    }
+    
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
         guard let selection else { selectedMapItem = nil; return }
 
@@ -30,13 +40,13 @@ import MapKit
             return
         }
         guard let feature = selection.feature else { selectedMapItem = nil; return }
-
         do {
             selectedMapItem = try await MKMapItemRequest(feature: feature).mapItem
         } catch {
             selectedMapItem = nil
         }
     }
+    
     func searchPlaces() async {
         guard let region = visibleRegion else {
             results = []
@@ -52,17 +62,19 @@ import MapKit
         }
     }
     
-    var categorySearchText: String? {
-        didSet {
+    private func onCategorySelect() {
+        if let category = selectedMapCategory {
             categorySearchTask?.cancel()
-            guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
             categorySearchTask = Task { [weak self] in
-                await self?.searchCategory(category: search)
+                await self?.searchCategory(category: category.description)
             }
+        } else {
+            //If set to nil remove all the values
+            results.removeAll()
         }
     }
-
-    func searchCategory(category: String) async {
+    
+    private func searchCategory(category: String) async {
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(for: category) //Get the specifics to search
         let plans = [SearchPlan(query: nil, categories: spec.categories)] +
@@ -153,30 +165,28 @@ import MapKit
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
-    
     private static func items(in region: MKCoordinateRegion, from items: [MKMapItem]) -> [MKMapItem] {
          items.filter { contains($0.placemark.coordinate, in: region) }
      }
 
-     private static func contains(_ coordinate: CLLocationCoordinate2D, in region: MKCoordinateRegion) -> Bool {
-         let halfLatitude = region.span.latitudeDelta / 2
-         let maximumLatitude = region.center.latitude + halfLatitude
-         let searchableHeight = region.span.latitudeDelta * 0.75
-         let searchableMinimumLatitude = maximumLatitude - searchableHeight
-         guard coordinate.latitude >= searchableMinimumLatitude && coordinate.latitude <= maximumLatitude else { return false }
+    private static func contains(_ coordinate: CLLocationCoordinate2D, in region: MKCoordinateRegion) -> Bool {
+        let halfLatitude = region.span.latitudeDelta / 2
+        let maximumLatitude = region.center.latitude + halfLatitude
+        let searchableHeight = region.span.latitudeDelta * 0.75
+        let searchableMinimumLatitude = maximumLatitude - searchableHeight
+        guard coordinate.latitude >= searchableMinimumLatitude && coordinate.latitude <= maximumLatitude else { return false }
 
-         let halfLongitude = region.span.longitudeDelta / 2
-         let longitudeDifference = normalizedLongitude(coordinate.longitude - region.center.longitude)
-         return abs(longitudeDifference) <= halfLongitude
-     }
+        let halfLongitude = region.span.longitudeDelta / 2
+        let longitudeDifference = normalizedLongitude(coordinate.longitude - region.center.longitude)
+        return abs(longitudeDifference) <= halfLongitude
+    }
 
-     private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
-         var value = longitude.truncatingRemainder(dividingBy: 360)
-         if value > 180 { value -= 360 }
-         if value < -180 { value += 360 }
-         return value
-     }
-
+    private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
+        var value = longitude.truncatingRemainder(dividingBy: 360)
+        if value > 180 { value -= 360 }
+        if value < -180 { value += 360 }
+        return value
+    }
 
     private struct SearchPlan {
         let query: String?
@@ -200,4 +210,29 @@ import MapKit
      results = res?.mapItems ?? []
  }
  
+ */
+
+/*
+ var categorySearchText: String? {
+     didSet {
+         categorySearchTask?.cancel()
+         guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
+         categorySearchTask = Task { [weak self] in
+             await self?.searchCategory(category: search)
+         }
+     }
+ }
+
+ */
+
+
+/*
+ 
+ categorySearchText = selectedMapCategory.description
+ categorySearchTask?.cancel()
+ guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
+ categorySearchTask = Task { [weak self] in
+     await self?.searchCategory(category: search)
+ }
+
  */

@@ -16,8 +16,8 @@ enum MapIconStyle: CaseIterable, Identifiable {
     struct Spec {
         let startColor: Color
         let endColor: Color
-        let imageLarge: Image
-        let imageSmall: Image
+        let mainColor: Color
+        let image: Image
         let description: String
     }
     
@@ -27,8 +27,8 @@ enum MapIconStyle: CaseIterable, Identifiable {
             return .init(
                 startColor: Color(red: 1, green: 0.51, blue: 0.75),
                 endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
-                imageLarge: Image("CocktailIcon"),
-                imageSmall: Image("DiscoBall"),
+                mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
+                image: Image("CocktailIcon"),
                 description: "Drinks"
             )
             
@@ -36,8 +36,8 @@ enum MapIconStyle: CaseIterable, Identifiable {
             return .init(
                 startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
                 endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
-                imageLarge: Image("ForkSpoon"),
-                imageSmall: Image(systemName: "fork.knife"),
+                mainColor: Color(red: 1, green: 0.28, blue: 0),
+                image: Image("ForkSpoon"),
                 description: "Food"
             )
             
@@ -45,8 +45,8 @@ enum MapIconStyle: CaseIterable, Identifiable {
             return .init(
                 startColor: Color(red: 0.28, green: 0.69, blue: 1),
                 endColor:   Color(red: 0, green: 0.36, blue: 0.85),
-                imageLarge: Image("CafeIcon"),
-                imageSmall: Image(systemName: "cup.and.saucer.fill"),
+                mainColor:  Color(.blue),
+                image: Image("CafeIcon"),
                 description: "Cafes"
             )
         }
@@ -54,8 +54,8 @@ enum MapIconStyle: CaseIterable, Identifiable {
     
     var startColor: Color { spec.startColor }
     var endColor: Color { spec.endColor }
-    var imageLarge: Image { spec.imageLarge }
-    var imageSmall: Image { spec.imageSmall }
+    var mainColor: Color {spec.mainColor}
+    var image: Image { spec.image }
     var description: String { spec.description }
 
     var gradient: LinearGradient {
@@ -70,12 +70,13 @@ struct MapCategoryIcon: View {
     
     @Bindable var vm: MapViewModel
     
-    var isSelected: Bool { vm.categorySearchText == style.description }
-
+    var isSelected: Bool { vm.selectedMapCategory == style }
+    
+    
     var body: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.3)) {
-                vm.categorySearchText = style.description
+                vm.selectedMapCategory = style
             }
         } label : {
             VStack(spacing: 12) {
@@ -83,12 +84,9 @@ struct MapCategoryIcon: View {
                     Circle()
                         .fill(style.gradient)
                         .frame(width: size, height: size)
-
-                    (isMap ? style.imageLarge : style.imageSmall)
-                        .symbolRenderingMode(.monochrome)
-                        .foregroundStyle(.white)
-                        .font(.system(size: size * 0.55, weight: .semibold))
-                        .scaleEffect(isMap ? 0.95 : 1)
+                    
+                    style.image
+                        .scaleEffect(isMap ? 0.95 : 0.55)
                 }
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
 
@@ -97,5 +95,6 @@ struct MapCategoryIcon: View {
                     .foregroundStyle(isSelected ? .accent : Color.grayText.opacity(0.8))
             }
         }
+        .id(vm.selectedMapCategory)
     }
 }

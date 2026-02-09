@@ -59,7 +59,7 @@ struct MapView: View {
                 ForEach(vm.results, id: \.self) { item in
                     Marker(item: item)
                         .tag(MapSelection(item))
-                        .tint(Color(red: 0.78, green: 0, blue: 0.35))
+                        .tint(vm.markerTint)
                 }
             }
             .mapControlVisibility(.visible)
@@ -146,3 +146,21 @@ extension MapView {
             .padding(.horizontal, 16)
     }
 }
+
+
+
+// Different Gradients
+
+
+//App color Gradient
+//.tint(Color(red: 0.78, green: 0, blue: 0.35))
+
+//Maybe pink
+//Pink.tint(Color(red: 0.89, green: 0.09, blue: 0.55))
+
+
+//Cafe System Blue
+//.tint(Color(.blue))
+
+//Best Orange I have
+//Color(red: 1, green: 0.28, blue: 0)

@@ -13,9 +13,14 @@ struct MapOptionsView: View {
     @FocusState.Binding var isFocused: Bool
     @Binding var sheet: MapSheets
     
+    
     var body: some View {
         VStack(spacing: 24) {
-            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+            HStack(spacing: 6) {
+                MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+                ClearIcon(vm: vm)
+            }
+//            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
             mapCategoryIcons
                 .padding(.horizontal, 32)
         }

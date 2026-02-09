@@ -47,6 +47,8 @@ extension Color {
     static let dangerRed = Color(red: 0.94, green: 0.08, blue: 0.24)
     
     static let warningYellow = Color(red: 1, green: 0.75, blue: 0.03)
+    
+    static let appColorTint = Color(red: 0.78, green: 0, blue: 0.35)
 }
 
 
