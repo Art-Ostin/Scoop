@@ -3,7 +3,7 @@
 //  ScoopTest
 //
 //  Created by Art Ostin on 02/07/2025.
-//
+
 import SwiftUI
 import MapKit
 
@@ -44,12 +44,12 @@ import MapKit
         results = res?.mapItems ?? []
     }
     
+    
     var categorySearch: String? {
         didSet {
             categorySearchTask?.cancel()
-            guard let search = categorySearch?.trimmingCharacters(in: .whitespacesAndNewlines),
-                  !search.isEmpty else { return }
-
+            guard let search = categorySearch?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
+            results.removeAll()
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategoryInVisibleRegion(category: search)
             }
@@ -59,71 +59,36 @@ import MapKit
     func searchCategoryInVisibleRegion(category: String) async {
         guard let region = visibleRegion else { return }
 
-        let strategy = Self.categorySearchStrategy(for: category)
-        let filteredQueries: [String?] = [nil] + strategy.queries.map { Optional($0) }
-        var aggregated = await Self.runCategorySearches(
-            region: region,
-            categories: strategy.categories,
-            queries: filteredQueries
-        )
+        let spec = Self.categorySpec(for: category)
+        let plans = [SearchPlan(query: nil, categories: spec.categories)] +
+            spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
+            spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
 
-        if aggregated.count < strategy.minimumResultsForFilteredSearch {
-            let fallbackQueries = strategy.queries.prefix(2).map { Optional($0) }
-            let fallbackResults = await Self.runCategorySearches(
-                region: region,
-                categories: nil,
-                queries: fallbackQueries
-            )
-            aggregated.append(contentsOf: fallbackResults)
-        }
-
-        guard !Task.isCancelled else { return }
-        results = Self.deduplicated(aggregated)
+        results = await Self.search(region: region, plans: plans)
     }
 
     func searchInVisibleRegion(query: String) async {
         guard let region = visibleRegion else { return }
 
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = q
-        request.region = region
-        do {
-            results = try await MKLocalSearch(request: request).start().mapItems
-        } catch {
-            print("Local search error:", error)
-        }
+        guard !q.isEmpty else { results = []; return }
+        results = await Self.search(region: region, plans: [.init(query: q, categories: nil, pointOfInterestOnly: false)])
     }
 
-    private static func runCategorySearch(
-        region: MKCoordinateRegion,
-        query: String?,
-        categories: [MKPointOfInterestCategory]?
-    ) async throws -> [MKMapItem] {
-        let request = MKLocalSearch.Request()
-        request.region = expandedRegion(region)
-        request.resultTypes = .pointOfInterest
-        if let categories, !categories.isEmpty {
-            request.pointOfInterestFilter = MKPointOfInterestFilter(including: categories)
-        }
-        request.naturalLanguageQuery = query
-        return try await MKLocalSearch(request: request).start().mapItems
-    }
-
-    private static func runCategorySearches(
-        region: MKCoordinateRegion,
-        categories: [MKPointOfInterestCategory]?,
-        queries: [String?]
-    ) async -> [MKMapItem] {
-        await withTaskGroup(of: [MKMapItem].self) { group in
-            for query in queries {
+    private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
+        let region = searchRegion(region)
+        return await withTaskGroup(of: [MKMapItem].self) { group in
+            for plan in plans {
                 group.addTask {
                     guard !Task.isCancelled else { return [] }
-                    do {
-                        return try await runCategorySearch(region: region, query: query, categories: categories)
-                    } catch {
-                        return []
+                    let request = MKLocalSearch.Request()
+                    request.region = region
+                    request.naturalLanguageQuery = plan.query
+                    if plan.pointOfInterestOnly { request.resultTypes = .pointOfInterest }
+                    if let categories = plan.categories, !categories.isEmpty {
+                        request.pointOfInterestFilter = MKPointOfInterestFilter(including: categories)
                     }
+                    return (try? await MKLocalSearch(request: request).start().mapItems) ?? []
                 }
             }
 
@@ -131,109 +96,57 @@ import MapKit
             for await items in group {
                 aggregated.append(contentsOf: items)
             }
-            return aggregated
+            return deduplicated(aggregated)
         }
     }
 
-    private static func categorySearchStrategy(for rawCategory: String) -> CategorySearchStrategy {
+    private static func categorySpec(for rawCategory: String) -> (categories: [MKPointOfInterestCategory], queries: [String]) {
         switch rawCategory.lowercased() {
         case "food":
-            return .init(
-                categories: [.restaurant, .foodMarket, .cafe],
-                queries: ["restaurant", "food", "dining", "eat"],
-                minimumResultsForFilteredSearch: 12
-            )
+            return ([.restaurant, .foodMarket, .cafe], ["restaurant", "food", "dining", "eat"])
         case "drinks":
-            return .init(
-                categories: [.nightlife, .brewery, .distillery],
-                queries: ["bar", "cocktail", "pub", "drinks"],
-                minimumResultsForFilteredSearch: 10
-            )
+            return ([.nightlife, .brewery, .distillery], ["bar", "cocktail", "pub", "drinks"])
         case "cafes", "cafe":
-            return .init(
-                categories: [.cafe],
-                queries: ["cafe", "coffee", "espresso", "tea"],
-                minimumResultsForFilteredSearch: 8
-            )
+            return ([.cafe], ["cafe", "coffee", "espresso", "tea"])
         default:
-            return .init(
-                categories: [.restaurant, .foodMarket, .cafe, .nightlife, .brewery, .distillery],
-                queries: [rawCategory],
-                minimumResultsForFilteredSearch: 8
-            )
+            return ([.restaurant, .foodMarket, .cafe, .nightlife, .brewery, .distillery], [rawCategory])
         }
     }
 
-    private static func expandedRegion(_ region: MKCoordinateRegion) -> MKCoordinateRegion {
+    private static func searchRegion(_ region: MKCoordinateRegion) -> MKCoordinateRegion {
         let verticalCoverage: CLLocationDegrees = 0.72
-           let horizontalCoverage: CLLocationDegrees = 1.0
-           let minDelta: CLLocationDegrees = 0.002
-
-           let latitudeDelta = Swift.min(Swift.max(region.span.latitudeDelta * verticalCoverage, minDelta), 180)
-           let longitudeDelta = Swift.min(Swift.max(region.span.longitudeDelta * horizontalCoverage, minDelta), 360)
-           let northShift = (region.span.latitudeDelta - latitudeDelta) * 0.5
-           let centeredLatitude = Swift.max(Swift.min(region.center.latitude + northShift, 90), -90)
-
-           return .init(
-               center: .init(latitude: centeredLatitude, longitude: region.center.longitude),
-               span: .init(
-                   latitudeDelta: latitudeDelta,
-                   longitudeDelta: longitudeDelta
-               )
-           )
+        let minDelta: CLLocationDegrees = 0.002
+        let latitudeDelta = max(region.span.latitudeDelta * verticalCoverage, minDelta)
+        let longitudeDelta = max(region.span.longitudeDelta, minDelta)
+        let centerLatitude = max(min(region.center.latitude + (region.span.latitudeDelta - latitudeDelta) * 0.5, 90), -90)
+        return .init(center: .init(latitude: centerLatitude, longitude: region.center.longitude),
+                     span: .init(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta))
     }
 
     private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
-        var seen = Set<MapItemKey>()
-        var unique: [MKMapItem] = []
-
-        for item in items {
-            let key = mapItemKey(for: item)
-            if seen.insert(key).inserted {
-                unique.append(item)
-            }
+        var seen = Set<String>()
+        return items.filter {
+            let coordinate = $0.placemark.coordinate
+            let key = "\(normalized($0.name ?? $0.placemark.title ?? ""))|\(Int((coordinate.latitude * 100_000).rounded()))|\(Int((coordinate.longitude * 100_000).rounded()))"
+            return seen.insert(key).inserted
         }
-        return unique
-    }
-
-    private static func mapItemKey(for item: MKMapItem) -> MapItemKey {
-        let coordinate = item.placemark.coordinate
-        return .init(
-            name: normalized(item.name ?? item.placemark.title ?? ""),
-            latitudeBucket: coordinateBucket(for: coordinate.latitude),
-            longitudeBucket: coordinateBucket(for: coordinate.longitude),
-            street: normalized(item.placemark.thoroughfare ?? ""),
-            number: normalized(item.placemark.subThoroughfare ?? ""),
-            city: normalized(item.placemark.locality ?? ""),
-            postalCode: normalized(item.placemark.postalCode ?? "")
-        )
-    }
-
-    private static func coordinateBucket(for value: CLLocationDegrees) -> Int {
-        Int((value * 100_000).rounded())
     }
 
     private static func normalized(_ value: String) -> String {
         value
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-
-
     }
 
-    private struct CategorySearchStrategy {
-        let categories: [MKPointOfInterestCategory]
-        let queries: [String]
-        let minimumResultsForFilteredSearch: Int
-    }
-    
-    private struct MapItemKey: Hashable {
-        let name: String
-        let latitudeBucket: Int
-        let longitudeBucket: Int
-        let street: String
-        let number: String
-        let city: String
-        let postalCode: String
+    private struct SearchPlan {
+        let query: String?
+        let categories: [MKPointOfInterestCategory]?
+        let pointOfInterestOnly: Bool
+
+        init(query: String?, categories: [MKPointOfInterestCategory]?, pointOfInterestOnly: Bool = true) {
+            self.query = query
+            self.categories = categories
+            self.pointOfInterestOnly = pointOfInterestOnly
+        }
     }
 }

@@ -76,7 +76,6 @@ extension MapSearchView {
     
     
     private func searchLocation (suggestion :MKLocalSearchCompletion) async {
-//        isFocused = false
         vm.searchText = suggestion.title
         await vm.searchPlaces()
         
