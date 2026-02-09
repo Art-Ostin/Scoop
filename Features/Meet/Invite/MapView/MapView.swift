@@ -161,8 +161,8 @@ extension MapView {
         MapUserLocationButton(scope: mapScope)
             .buttonBorderShape(.circle)
             .tint(.blue)
-            .padding(.bottom, 96)
-            .offset(y: -48)
+            .padding(.bottom, 144)
+            .padding(.horizontal, 16)
     }
     
     

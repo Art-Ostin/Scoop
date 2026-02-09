@@ -77,7 +77,6 @@ import MapKit
     }
     
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
-        let region = region
         return await withTaskGroup(of: [MKMapItem].self) { group in
             for plan in plans {
                 group.addTask {
