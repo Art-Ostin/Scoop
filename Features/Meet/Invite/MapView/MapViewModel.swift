@@ -35,19 +35,23 @@ import MapKit
             selectedMapItem = nil
         }
     }
-
     func searchPlaces() async {
+        guard let region = visibleRegion else {
+            results = []
+            return
+        }
         let req = MKLocalSearch.Request()
+        req.region = region
         req.naturalLanguageQuery = searchText
         let res = try? await MKLocalSearch(request: req).start()
-        results = res?.mapItems ?? []
+        let scopedItems = Self.items(in: region, from: res?.mapItems ?? [])
+        results = Self.deduplicated(scopedItems)
     }
     
     var categorySearchText: String? {
         didSet {
             categorySearchTask?.cancel()
             guard let search = categorySearchText?.trimmingCharacters(in: .whitespacesAndNewlines), !search.isEmpty else { return }
-            results.removeAll()
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategory(category: search)
             }
@@ -95,7 +99,8 @@ import MapKit
             for await items in group {
                 aggregated.append(contentsOf: items)
             }
-            return deduplicated(aggregated)
+            let deduped = deduplicated(aggregated)
+            return items(in: region, from: deduped)
         }
     }
     
@@ -113,6 +118,31 @@ import MapKit
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
+    
+    
+    private static func items(in region: MKCoordinateRegion, from items: [MKMapItem]) -> [MKMapItem] {
+         items.filter { contains($0.placemark.coordinate, in: region) }
+     }
+
+     private static func contains(_ coordinate: CLLocationCoordinate2D, in region: MKCoordinateRegion) -> Bool {
+         let halfLatitude = region.span.latitudeDelta / 2
+         let maximumLatitude = region.center.latitude + halfLatitude
+         let searchableHeight = region.span.latitudeDelta * 0.75
+         let searchableMinimumLatitude = maximumLatitude - searchableHeight
+         guard coordinate.latitude >= searchableMinimumLatitude && coordinate.latitude <= maximumLatitude else { return false }
+
+         let halfLongitude = region.span.longitudeDelta / 2
+         let longitudeDifference = normalizedLongitude(coordinate.longitude - region.center.longitude)
+         return abs(longitudeDifference) <= halfLongitude
+     }
+
+     private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
+         var value = longitude.truncatingRemainder(dividingBy: 360)
+         if value > 180 { value -= 360 }
+         if value < -180 { value += 360 }
+         return value
+     }
+
 
     private struct SearchPlan {
         let query: String?
@@ -126,3 +156,14 @@ import MapKit
         }
     }
 }
+
+
+/* // Come back to
+ func searchPlaces() async {
+     let req = MKLocalSearch.Request()
+     req.naturalLanguageQuery = searchText
+     let res = try? await MKLocalSearch(request: req).start()
+     results = res?.mapItems ?? []
+ }
+ 
+ */
