@@ -52,14 +52,24 @@ struct MapView: View {
     
     @Namespace private var mapScope
     var body: some View {
+        
         ZStack {
             Map(position: $vm.cameraPosition, selection: $vm.selection, scope: mapScope) {
                 UserAnnotation()
                 
                 ForEach(vm.results, id: \.self) { item in
-                    Marker(item: item)
-                        .tag(MapSelection(item))
-                        .tint(vm.markerTint)
+                    let isSelected = vm.selectedMapItem == item
+                    
+                    Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {
+                        CustomMapAnnotation(vm: vm, item: item, category: .food, isSelected: isSelected)
+                            .id(vm.selectedMapItem)
+                    }
+                    
+                    /*
+                     Marker(item: item)
+                         .tag(MapSelection(item))
+                         .tint(vm.markerTint)
+                     */
                 }
             }
             .mapControlVisibility(.visible)

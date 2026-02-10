@@ -72,7 +72,7 @@ import MapKit
      }
  }
 
- private struct SmallDot: View {
+struct SmallDot: View {
      let color: LinearGradient
 
      var body: some View {
@@ -92,7 +92,7 @@ import MapKit
 
 
 
- private struct PinDipShape: Shape {
+struct PinDipShape: Shape {
      var curveRatio: CGFloat
      var tipRadiusRatio: CGFloat = 0.25 // increase for rounder tip
 
