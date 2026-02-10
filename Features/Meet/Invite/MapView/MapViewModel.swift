@@ -40,7 +40,6 @@ import UIKit
             lastSearchRegion = nil
             return
         }
-        lastSearchRegion = visibleRegion
         
         if let value = selection.value {
             selectedMapItem = value
@@ -98,6 +97,7 @@ import UIKit
         let foundItems = await Self.search(region: region, plans: plans)
         guard !Task.isCancelled else { return }
         results = Self.applyCategoryFilter(foundItems, spec: spec)
+        lastSearchRegion = region
     }
 
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {

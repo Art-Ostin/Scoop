@@ -18,15 +18,18 @@ struct MapCategoryIcon: View {
     let category: MapCategory
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 35 }
-    
 
     @Bindable var vm: MapViewModel
     
     var isSelected: Bool { vm.selectedMapCategory == category }
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
     
-    var showSearchArea: Bool { isSelected && vm.hasMovedSinceSearch() }
-    
+    private var showSearchArea: Bool {
+        isMap
+        && isSelected
+        && vm.lastSearchRegion != nil
+        && vm.hasMovedSinceSearch()
+    }
     var body: some View {
         Button {
             if !isMap {sheet = .searchBar}
