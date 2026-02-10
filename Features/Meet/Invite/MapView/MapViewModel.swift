@@ -200,7 +200,7 @@ import UIKit
                 categories: [.nightlife, .distillery, .winery],
                 queries: ["bar", "cocktail", "drinks", "lounge"],
                 excludedCategories: exclusions,
-                excludedKeywords: excludedKeywords + ["pub"]
+                excludedKeywords: excludedKeywords + ["pub", "cafe"]
             )
         case .pub:
             return .init(
@@ -219,9 +219,12 @@ import UIKit
         case .park:
             return .init(
                 categories: [.park, .nationalPark, .beach, .campground],
-                queries: ["park", "outdoors", "nature", "trail"],
-                excludedCategories: exclusions,
-                excludedKeywords: excludedKeywords
+                queries: ["public park", "city park", "state park", "nature reserve", "trail"],
+                excludedCategories: exclusions.union([.parking, .carRental, .gasStation, .evCharger, .automotiveRepair]),
+                excludedKeywords: excludedKeywords + [
+                    "parking", "parking lot", "parking garage", "car park", "carpark",
+                    "park and ride", "park&ride", "parkade", "valet"
+                ]
             )
         case .activity:
             return .init(
@@ -254,7 +257,7 @@ import UIKit
     
     func hasMovedSinceSearch() -> Bool {
         guard let lastCenter = lastSearchRegion?.center,
-              let currentCenter = visibleRegion?.center else { return true }
+              let currentCenter = visibleRegion?.center else { return false }
 
         let last = CLLocation(latitude: lastCenter.latitude, longitude: lastCenter.longitude)
         let current = CLLocation(latitude: currentCenter.latitude, longitude: currentCenter.longitude)

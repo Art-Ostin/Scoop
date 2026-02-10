@@ -70,8 +70,7 @@
 
 
 
-  struct ForkKnifeBadge: View {
-      
+struct ForkKnifeBadge: View {
       
       var size: CGFloat = 30
 
