@@ -31,11 +31,11 @@ struct MapOptionsView: View {
     
     private var mapCategoryIcons: some View {
         HStack {
-            MapCategoryIcon(style: .drink, isMap: true, vm: vm)
+            MapCategoryIcon(sheet: $sheet, style: .drink, isMap: true, vm: vm)
             Spacer()
-            MapCategoryIcon(style: .food, isMap: true, vm: vm)
+            MapCategoryIcon(sheet: $sheet, style: .food, isMap: true, vm: vm)
             Spacer()
-            MapCategoryIcon(style: .cafe, isMap: true, vm: vm)
+            MapCategoryIcon(sheet: $sheet, style: .cafe, isMap: true, vm: vm)
         }
     }
 }

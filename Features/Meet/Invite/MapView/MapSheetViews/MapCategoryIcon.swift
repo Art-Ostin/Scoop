@@ -67,12 +67,13 @@ enum MapIconStyle: CaseIterable, Identifiable {
 struct MapCategoryIcon: View {
     
     @State var hitMaxSearches: Bool = false
+    @Binding var sheet: MapSheets
     
     var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
     
     let style: MapIconStyle
     let isMap: Bool
-    var size: CGFloat { isMap ? 60 : 30 }
+    var size: CGFloat { isMap ? 60 : 35 }
     
     var shouldShowSearchArea: Bool { isSelected && vm.hasMovedEnoughToRefreshSearch }
 
@@ -85,9 +86,8 @@ struct MapCategoryIcon: View {
     
     var body: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                vm.selectedMapCategory = style
-            }
+            if !isMap {sheet = .searchBar}
+            vm.selectedMapCategory = style
         } label : {
             VStack(spacing: 12) {
                 ZStack {
@@ -102,42 +102,35 @@ struct MapCategoryIcon: View {
                 }
                 .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 
-                
-                Group {
-                    if shouldShowSearchArea && !showLoading && !showHitMaxSearch { // If the user has moved map location sufficiently
-                        Text ("Search Area")
-                    } else {
-                        if showHitMaxSearch {
-                            Text("Wait 30s")
+                if isMap {
+                    Group {
+                        if shouldShowSearchArea && !showLoading && !showHitMaxSearch { // If the user has moved map location sufficiently
+                            Text ("Search Area")
                         } else {
-                            Text(style.description)
+                            if showHitMaxSearch {
+                                Text("Wait 30s")
+                            } else {
+                                Text(style.description)
+                            }
                         }
                     }
-                }
-                .font(.body(12, .bold))
-                .frame(width: 75)
-                .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
-                .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
-                .animation(.easeInOut(duration: 0.3), value: showLoading)
-                .task(id: vm.selectedMapCategory) {
-                    try? await Task.sleep(for: .seconds(3))
-                    guard !Task.isCancelled,
-                          vm.selectedMapCategory != nil,
-                          vm.results.isEmpty
-                    else { return }
-                    hitMaxSearches = true
-                    try? await Task.sleep(for: .seconds(25))
-                    hitMaxSearches = false
+                    .font(.body(12, .bold))
+                    .frame(width: 75)
+                    .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
+                    .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
+                    .animation(.easeInOut(duration: 0.3), value: showLoading)
                 }
             }
             .overlay(alignment: .center) {
-                if showLoading {
-                    LottieView(animation: .named("ModernMiniLoader.json"))
-                        .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .offset(y: -12)
+                if isMap {
+                    if showLoading {
+                        LottieView(animation: .named("ModernMiniLoader.json"))
+                            .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .offset(y: -12)
+                    }
                 }
             }
         }

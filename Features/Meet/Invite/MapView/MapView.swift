@@ -62,9 +62,6 @@ struct MapView: View {
                             .tag(MapSelection(item))
                             .tint(vm.markerTint)
                     }
-                } else {
-                    ForEach(vm.results, id: \.self) { item in
-                        MapAnnotation(category: .restaurant)
                 }
             }
             .mapControlVisibility(.visible)

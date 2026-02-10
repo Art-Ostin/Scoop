@@ -12,15 +12,31 @@ struct MapSearchView: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @FocusState.Binding var isFocused: Bool
+    var showSuggestions: Bool {!service.suggestions.isEmpty && service.showSuggestions && vm.searchText.isEmpty}
 
     @State var service = LocationSearchService()
-
+    
     var body: some View {
-        VStack {
-            if !service.suggestions.isEmpty && service.showSuggestions {
-                searchSuggestionsView
+        ScrollView {
+            ClearRectangle(size: 75)
+            LazyVStack(spacing: 0) {
+                if showSuggestions {
+                    searchSuggestionList
+                } else {
+                    searchCategoriesList
+                }
             }
+            .padding(.vertical, 8)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
+            )
+            .padding(.horizontal, 16)
         }
+        .scrollIndicators(.hidden)
+        .customScrollFade(height: 50, showFade: true)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay(alignment: .top) { headerBar }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
@@ -33,8 +49,8 @@ extension MapSearchView {
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 12) {
             MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
             DismissButton() { sheet = .optionsAndSearchBar }
                 .frame(width: 40)
         }
@@ -42,56 +58,57 @@ extension MapSearchView {
         .padding(16)
     }
     
-    
-    private var searchSuggestionsView: some View {
-            ScrollView {
-                ClearRectangle(size: 75)
-                let suggestions = service.suggestions
-
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
-                        SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
-                            .onTapGesture {
-                                vm.selectedMapCategory = nil //Removes any category previously selected
-                                sheet = .searchBar //Instantly dismisses screen good animation
-                                Task { await searchLocation(suggestion: suggestion) }
-                            }
-
-                        if index < suggestions.count - 1 {
-                            Divider().padding(.leading, 12)
-                        }
-                    }
-                }
-                .padding(.vertical, 8)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
-                )
-                .padding(.horizontal, 16)
+    private var searchSuggestionList: some View {
+        ForEach(Array(service.suggestions.enumerated()), id: \.offset) { index, suggestion in
+            SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
+                .onTapGesture { Task { await searchLocation(suggestion: suggestion)}}
+            
+            if index < service.suggestions.count - 1 {
+                Divider().padding(.leading, 16)
             }
-            .scrollIndicators(.hidden)
-            .customScrollFade(height: 50, showFade: true)
         }
+    }
     
+    private var searchCategoriesList: some View {
+        ForEach(MapIconStyle.allCases) { style in
+            searchNearbyRow(style: style)
+        }
+    }
     
-    private func searchLocation (suggestion :MKLocalSearchCompletion) async {
+    private func searchNearbyRow (style: MapIconStyle) -> some View {
+        VStack(spacing: 0){
+            HStack(spacing: 12) {
+                MapCategoryIcon(sheet: $sheet, style: style, isMap: false, vm: vm)
+                Text(style.description)
+                    .font(.body(18, .medium))
+                Spacer()
+            }
+            .padding(16)
+            if style != MapIconStyle.allCases.last {
+                Divider()
+                    .padding(.leading, 144)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func searchLocation(suggestion :MKLocalSearchCompletion) async {
+        //1. Logic to dismiss screen - gives snappy feel
+        vm.selectedMapCategory = nil
+        sheet = .searchBar
+        
+        //2. Actually search the location in Maps
         vm.searchText = suggestion.title
         await vm.searchPlaces()
-        
         if let first = vm.results.first {
             await MainActor.run { vm.selection = MapSelection(first) }
         }
     }
 }
 
-
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
     let query: String
-
-    @State private var category: MKPointOfInterestCategory?
     
     //GPT Did this
     private var highlightedTitle: AttributedString {
@@ -132,3 +149,33 @@ private struct SearchSuggestionRow: View {
         .padding(.vertical, 10)
     }
 }
+
+
+/*
+ private var searchSuggestionsView: some View {
+     ScrollView {
+         ClearRectangle(size: 75)
+         let suggestions = service.suggestions
+         
+         LazyVStack(spacing: 0) {
+             
+             if showSuggestions {
+                 searchSuggestionList
+             } else {
+                 
+             }
+         }
+         .padding(.vertical, 8)
+         .background(Color(.systemBackground))
+         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+         .overlay(
+             RoundedRectangle(cornerRadius: 24, style: .continuous)
+                 .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
+         )
+         .padding(.horizontal, 16)
+     }
+     .scrollIndicators(.hidden)
+     .customScrollFade(height: 50, showFade: true)
+ }
+
+ */
