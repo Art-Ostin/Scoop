@@ -120,14 +120,13 @@ struct MapCategoryIcon: View {
                 .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
                 .animation(.easeInOut(duration: 0.3), value: showLoading)
                 .task(id: vm.selectedMapCategory) {
-                    try? await Task.sleep(for: .seconds(1.5))
+                    try? await Task.sleep(for: .seconds(3))
                     guard !Task.isCancelled,
                           vm.selectedMapCategory != nil,
                           vm.results.isEmpty
                     else { return }
                     hitMaxSearches = true
-                    try? await Task.sleep(for: .seconds(3))
-                    vm.selectedMapCategory = nil
+                    try? await Task.sleep(for: .seconds(25))
                     hitMaxSearches = false
                 }
             }

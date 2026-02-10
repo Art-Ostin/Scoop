@@ -73,8 +73,8 @@ import UIKit
             isLoadingCategory = false
             if results.count > 2 { //I.e. Only remove if a category is selected -> I.e. many
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    print("Removing All")
                     results.removeAll()
+                    searchText = ""
                 }
             }
         }
