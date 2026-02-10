@@ -19,13 +19,11 @@ struct MapCategoryIcon: View {
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 35 }
     
-    var shouldShowSearchArea: Bool { isSelected && vm.hasMovedEnoughToRefreshSearch }
 
     @Bindable var vm: MapViewModel
     
     var isSelected: Bool { vm.selectedMapCategory == category }
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
-    var showSearchArea: Bool { isSelected && vm.hasMovedEnoughToRefreshSearch}
     
     
     var body: some View {
@@ -46,22 +44,15 @@ struct MapCategoryIcon: View {
                     }
                 }
                 .shadow(color: isSelected && isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
-                .foregroundStyle(Color.white) //For Climbing Icon
-                .font(.body(20)) //For Climbing Icon
+                .foregroundStyle(Color.white) //For the systemNameIcons
+                .font(.body(20))
 
                 if isMap {
-                    Group {
-                        if showSearchArea { // If the user has moved map location sufficiently
-                            Text ("Search Area")
-                        } else {
-                            Text(category.description)
-                        }
-                    }
-                    .font(.body(12, .bold))
-                    .frame(width: 75)
-                    .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
-                    .animation(.easeInOut(duration: 0.3), value: shouldShowSearchArea)
-                    .animation(.easeInOut(duration: 0.3), value: showLoading)
+                    Text(category.description)
+                        .font(.body(12, .bold))
+                        .frame(width: 75)
+                        .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
+                        .animation(.easeInOut(duration: 0.3), value: showLoading)
                 }
             }
             .overlay(alignment: .center) {
