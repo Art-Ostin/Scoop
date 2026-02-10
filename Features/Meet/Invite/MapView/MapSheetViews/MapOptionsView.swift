@@ -45,8 +45,15 @@ struct MapOptionsView: View {
                 }
                 .offset(x: -12)
             }
-            .onChange(of: vm.selectedMapCategory) { _, newValue in
-                proxy.scrollTo(newValue)
+            .onAppear {
+                guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else { print("Nope") ; return }
+                proxy.scrollTo(selected, anchor: .center)
+            }
+            .onChange(of: vm.selectedMapCategory) { _, newCategory in
+                guard let newCategory, MapCategory.allCases.contains(newCategory) else { return }
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    proxy.scrollTo(newCategory, anchor: .center)
+                }
             }
             .scrollIndicators(.never)
             .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
