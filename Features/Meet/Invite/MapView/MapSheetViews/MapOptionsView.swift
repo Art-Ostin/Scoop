@@ -16,17 +16,12 @@ struct MapOptionsView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            HStack(spacing: 6) {
-                MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
-                if vm.selectedMapCategory != nil {
-                    ClearIcon(vm: vm)
-                }
-            }
-//            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+                .padding(.horizontal, 16)
+            
             mapCategoryIcons
                 .padding(.horizontal, 24) //Adjusted as require wide frame for updating 
         }
-        .padding(.horizontal, 16)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 16)
     }
@@ -53,6 +48,13 @@ struct MapOptionsView: View {
      MapCategoryIcon(sheet: $sheet, style: .food, isMap: true, vm: vm)
      Spacer()
      MapCategoryIcon(sheet: $sheet, style: .cafe, isMap: true, vm: vm)
+ }
+
+ */
+
+/*
+ if vm.selectedMapCategory != nil {
+     ClearIcon(vm: vm)
  }
 
  */
