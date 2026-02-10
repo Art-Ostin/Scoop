@@ -42,6 +42,7 @@ struct MapCategoryIcon: View {
                     if !showLoading {
                         category.image
                             .scaleEffect(isMap ? 0.95 : 0.55)
+                            .offset(x: category == .pub ? 1 : 0)
                     }
                 }
                 .shadow(color: isSelected && !isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)

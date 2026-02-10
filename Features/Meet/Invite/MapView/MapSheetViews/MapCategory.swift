@@ -62,7 +62,7 @@ enum MapCategory: CaseIterable, Identifiable {
                 startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
                 endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
                 mainColor: Color(red: 1, green: 0.28, blue: 0),
-                image: Image("BeerDrink"),
+                image: Image("BeerIcon"),
                 description: "Pubs"
             )
             

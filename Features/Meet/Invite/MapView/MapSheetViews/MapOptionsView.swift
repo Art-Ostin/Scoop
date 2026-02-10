@@ -32,10 +32,12 @@ struct MapOptionsView: View {
     
     private var mapCategoryIcons: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 48) {
+            HStack(spacing: 36) {
                 ClearRectangle(size: 0)
                 ForEach(MapCategory.allCases) { category in
-                    MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm)
+                    if category != .park {
+                        MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm)
+                    }
                 }
                 ClearRectangle(size: 0)
             }
@@ -50,6 +52,7 @@ struct MapOptionsView: View {
     private var deleteSearchButton: some View {
         Button {
             vm.searchText = ""
+            vm.selectedMapCategory = nil
         } label: {
             Image(systemName: "xmark")
                 .font(.body(18, .bold))
