@@ -8,7 +8,6 @@
 
 import SwiftUI
 import MapKit
-/*
  
  struct MapAnnotation: View {
      
@@ -144,8 +143,6 @@ import MapKit
          return path
      }
  }
-
- */
 
 /*
  MapAnnotation(image: Image(systemName: "fork.knife"), startColor: Color(red: 0.99, green: 0.69, blue: 0.28), endColor: Color(red: 0.96, green: 0.44, blue: 0.18))

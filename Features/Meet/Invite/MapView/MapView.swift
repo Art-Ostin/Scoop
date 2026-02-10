@@ -55,11 +55,16 @@ struct MapView: View {
         ZStack {
             Map(position: $vm.cameraPosition, selection: $vm.selection, scope: mapScope) {
                 UserAnnotation()
-                                
-                ForEach(vm.results, id: \.self) { item in
-                    Marker(item: item)
-                        .tag(MapSelection(item))
-                        .tint(vm.markerTint)
+                
+                if vm.selectedMapCategory != .food {
+                    ForEach(vm.results, id: \.self) { item in
+                        Marker(item: item)
+                            .tag(MapSelection(item))
+                            .tint(vm.markerTint)
+                    }
+                } else {
+                    ForEach(vm.results, id: \.self) { item in
+                        MapAnnotation(category: .restaurant)
                 }
             }
             .mapControlVisibility(.visible)
