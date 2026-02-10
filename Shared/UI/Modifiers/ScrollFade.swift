@@ -34,4 +34,20 @@ extension View {
     func customScrollFade(height: CGFloat, showFade: Bool) -> some View {
         self.modifier(CustomScrollFade(height: height, showFade: showFade))
     }
+    
+    
+    func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true) -> some View {
+        self.overlay(alignment: fromLeading ? .leading : .trailing) {
+            if showFade {
+                LinearGradient(
+                    colors: [.background, .background.opacity(0.9), .background.opacity(0.6), .background.opacity(0.25), .background.opacity(0.0)],
+                    startPoint: fromLeading ? .leading : .trailing,
+                    endPoint: fromLeading ? .trailing : .leading
+                )
+                .frame(maxHeight: .infinity)
+                .frame(width: width)
+                .allowsHitTesting(false)
+            }
+        }
+    }
 }

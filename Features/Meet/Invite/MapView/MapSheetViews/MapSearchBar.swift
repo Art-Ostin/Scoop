@@ -47,7 +47,7 @@ extension MapSearchBar {
         
     @ViewBuilder
     private var deleteSearchButton: some View {
-        if !vm.searchText.isEmpty {
+        if !vm.searchText.isEmpty && sheet == .large {
             Button {
                 vm.searchText = ""
             } label : {

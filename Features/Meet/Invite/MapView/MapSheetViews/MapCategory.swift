@@ -28,8 +28,8 @@ enum MapCategory: CaseIterable, Identifiable {
         //Yellow
         case .restaurant:
             return .init(
-                startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
-                endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
+                startColor: Color(red: 0.99, green: 0.87, blue: 0),
+                endColor:   Color(red: 0.98, green: 0.53, blue: 0),
                 mainColor:  Color(red: 1, green: 0.28, blue: 0),
                 image: Image("ForkSpoon"),
                 description: "Food"
@@ -62,7 +62,7 @@ enum MapCategory: CaseIterable, Identifiable {
                 startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
                 endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
                 mainColor: Color(red: 1, green: 0.28, blue: 0),
-                image: Image("ForkSpoon"),
+                image: Image("BeerDrink"),
                 description: "Pubs"
             )
             
@@ -79,8 +79,8 @@ enum MapCategory: CaseIterable, Identifiable {
         //Green
         case .park:
             return .init(
-                startColor: Color(red: 1, green: 0.51, blue: 0.75),
-                endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
+                startColor: Color(red: 0.17, green: 0.89, blue: 0.39),
+                endColor:    Color(red: 0, green: 0.61, blue: 0.21),
                 mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
                 image: Image("TreeIcon"),
                 description: "Parks"
@@ -93,7 +93,7 @@ enum MapCategory: CaseIterable, Identifiable {
                 startColor: Color(red: 0, green: 0.89, blue: 1),
                 endColor:   Color(red: 0, green: 0.62, blue: 0.72),
                 mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
-                image: Image("figure.climbing"),
+                image: Image(systemName: "figure.climbing"),
                 description: "Activities"
             )
         }

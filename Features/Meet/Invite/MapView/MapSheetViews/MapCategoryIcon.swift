@@ -24,8 +24,8 @@ struct MapCategoryIcon: View {
     @Bindable var vm: MapViewModel
     
     var isSelected: Bool { vm.selectedMapCategory == category }
-    
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
+    var showSearchArea: Bool { isSelected && vm.hasMovedEnoughToRefreshSearch}
     
     
     var body: some View {
@@ -45,17 +45,15 @@ struct MapCategoryIcon: View {
                     }
                 }
                 .shadow(color: isSelected && !isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
-                
+                .foregroundStyle(Color.white) //For Climbing Icon
+                .font(.body(20)) //For Climbing Icon
+
                 if isMap {
                     Group {
-                        if shouldShowSearchArea && !showLoading && !showHitMaxSearch { // If the user has moved map location sufficiently
+                        if showSearchArea { // If the user has moved map location sufficiently
                             Text ("Search Area")
                         } else {
-                            if showHitMaxSearch {
-                                Text("Wait 30s")
-                            } else {
-                                Text(category.description)
-                            }
+                            Text(category.description)
                         }
                     }
                     .font(.body(12, .bold))

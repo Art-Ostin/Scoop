@@ -16,11 +16,15 @@ struct MapOptionsView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
-                .padding(.horizontal, 16)
+            HStack(spacing: 6) {
+                MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+                
+                if !vm.searchText.isEmpty { deleteSearchButton }
+            }
+            .padding(.horizontal, 16)
             
             mapCategoryIcons
-                .padding(.horizontal, 24) //Adjusted as require wide frame for updating 
+
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 16)
@@ -28,12 +32,31 @@ struct MapOptionsView: View {
     
     private var mapCategoryIcons: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 64) {
-                ClearRectangle(size: 36)
+            HStack(spacing: 48) {
+                ClearRectangle(size: 0)
                 ForEach(MapCategory.allCases) { category in
                     MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm)
                 }
+                ClearRectangle(size: 0)
             }
+            .offset(x: -12)
+        }
+        .scrollIndicators(.never)
+        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
+        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: false)
+
+    }
+    
+    private var deleteSearchButton: some View {
+        Button {
+            vm.searchText = ""
+        } label: {
+            Image(systemName: "xmark")
+                .font(.body(18, .bold))
+                .frame(width: 45, height: 45)
+                .glassIfAvailable(Circle())
+                .contentShape(Circle())
+                .foregroundStyle(Color.black)
         }
     }
 }
