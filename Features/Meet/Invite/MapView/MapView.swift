@@ -58,18 +58,19 @@ struct MapView: View {
                 UserAnnotation()
                 
                 ForEach(vm.results, id: \.self) { item in
-                    let isSelected = vm.selectedMapItem == item
                     
-                    Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {
-                        CustomMapAnnotation(vm: vm, item: item, category: .food, isSelected: isSelected)
-                            .id(vm.selectedMapItem)
+                    if vm.selectedMapCategory == .food  {
+                        let isSelected = vm.selectedMapItem == item
+                        Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {
+                            CustomMapAnnotation(vm: vm, item: item, category: .food, isSelected: isSelected)
+                        }
+                        .tag(MapSelection(item))
+                    } else {
+                        Marker(item: item)
+                            .tag(MapSelection(item))
+                            .tint(vm.markerTint)
                     }
-                    
-                    /*
-                     Marker(item: item)
-                         .tag(MapSelection(item))
-                         .tint(vm.markerTint)
-                     */
+
                 }
             }
             .mapControlVisibility(.visible)

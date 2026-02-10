@@ -57,8 +57,10 @@ struct CustomMapAnnotation: View {
                     .frame(width: dipWidth, height: dipHeight)
                     .offset(y: size - 4)
                 
-                SmallDot(color: colorGradient)
-                    .offset(y: size + 12)
+                if isSelected {
+                    SmallDot(color: colorGradient)
+                        .offset(y: size + 12)
+                }
             }
             .foregroundStyle(.white)
             .defaultShadow()
@@ -78,11 +80,13 @@ struct CustomMapAnnotation: View {
         .frame(width: size, height: totalHeight, alignment: .top)
         .offset(y: -24)
         .onTapGesture {
-            withAnimation (.easeInOut(duration: 0.3)) {
+            withAnimation (.easeInOut(duration: 0.1)) {
                 vm.selectedMapItem = item
+                vm.selection = MapSelection(item)
             }
         }
         .scaleEffect(isSelected ? 1 : 0.5)
+        .animation(.easeInOut(duration: 0.1), value: isSelected)
     }
 }
 //
