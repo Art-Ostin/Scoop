@@ -11,7 +11,7 @@ struct ClearIcon: View {
     
     @Bindable var vm: MapViewModel
     
-    var type: MapIconStyle? {
+    var type: MapCategory? {
         vm.selectedMapCategory
     }
     
@@ -38,7 +38,7 @@ struct ClearIcon: View {
 
                 VStack(spacing: 0) {
                     if let type {
-                        labelClear(type: type)
+                        labelClear(category: type)
                     } else {
                         VStack(spacing: 2) {
                             Image("RandomPlace")
@@ -58,9 +58,9 @@ struct ClearIcon: View {
 
 extension ClearIcon {
     
-    private func labelClear(type: MapIconStyle) -> some View {
+    private func labelClear(category: MapCategory) -> some View {
         VStack(spacing: 0) {
-            type.image
+            category.image
                 .renderingMode(.template)
                 .foregroundStyle(.black.opacity(0.8))
                 .scaleEffect(0.6)

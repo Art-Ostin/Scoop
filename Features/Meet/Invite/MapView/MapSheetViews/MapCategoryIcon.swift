@@ -8,9 +8,9 @@
 import SwiftUI
 import Lottie
 
-enum MapIconStyle: CaseIterable, Identifiable {
+enum MapCategory: CaseIterable, Identifiable {
     
-    case drink, food, cafe, parks, clubs
+    case restaurant, cafe, bar, pub, club, park, activity
     
     var id: Self { self }
     
@@ -24,24 +24,18 @@ enum MapIconStyle: CaseIterable, Identifiable {
     
     private var spec: Spec {
         switch self {
-        case .drink:
+            
+        //Yellow
+        case .restaurant:
             return .init(
                 startColor: Color(red: 1, green: 0.51, blue: 0.75),
                 endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
                 mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
-                image: Image("CocktailIcon"),
-                description: "Drinks"
-            )
-            
-        case .food:
-            return .init(
-                startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
-                endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
-                mainColor: Color(red: 1, green: 0.28, blue: 0),
                 image: Image("ForkSpoon"),
-                description: "Food"
+                description: "Restaurant"
             )
             
+        //Blue DONE
         case .cafe:
             return .init(
                 startColor: Color(red: 0.28, green: 0.69, blue: 1),
@@ -51,16 +45,50 @@ enum MapIconStyle: CaseIterable, Identifiable {
                 description: "Cafes"
             )
             
-        case .parks:
+            
+        //purple DONE
+        case .bar:
             return .init(
-                startColor: Color(red: 0.17, green: 0.89, blue: 0.39),
-                endColor:   Color(red: 0, green: 0.61, blue: 0.21),
-                mainColor:  Color(.systemGreen),
-                image: Image(systemName: "map"),
-                description: "TreeIcon"
+                startColor: Color(red: 1, green: 0.51, blue: 0.75),
+                endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
+                mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
+                image: Image("CocktailIcon"),
+                description: "Drinks"
             )
             
-        case .clubs:
+        //Orange DONE
+        case .pub:
+            return .init(
+                startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
+                endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
+                mainColor: Color(red: 1, green: 0.28, blue: 0),
+                image: Image("ForkSpoon"),
+                description: "Food"
+            )
+            
+        //Purple DONE
+        case .club:
+            return .init(
+                startColor: Color(red: 1, green: 0.51, blue: 0.75),
+                endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
+                mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
+                image: Image("DiscoBallLarge"),
+                description: "Clubs"
+            )
+            
+        //Green
+        case .park:
+            return .init(
+                startColor: Color(red: 1, green: 0.51, blue: 0.75),
+                endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
+                mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
+                image: Image("DiscoBallLarge"),
+                description: "Clubs"
+            )
+
+
+        //Blue (dark)
+        case .activity:
             return .init(
                 startColor: Color(red: 1, green: 0.51, blue: 0.75),
                 endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
@@ -89,7 +117,7 @@ struct MapCategoryIcon: View {
     
     var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
     
-    let style: MapIconStyle
+    let category: MapCategory
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 35 }
     
@@ -97,7 +125,7 @@ struct MapCategoryIcon: View {
 
     @Bindable var vm: MapViewModel
     
-    var isSelected: Bool { vm.selectedMapCategory == style }
+    var isSelected: Bool { vm.selectedMapCategory == category }
     
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
     
@@ -105,16 +133,16 @@ struct MapCategoryIcon: View {
     var body: some View {
         Button {
             if !isMap {sheet = .searchBar}
-            vm.selectedMapCategory = style
+            vm.selectedMapCategory = category
         } label : {
             VStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(style.gradient)
+                        .fill(category.gradient)
                         .frame(width: size, height: size)
                     
                     if !showLoading {
-                        style.image
+                        category.image
                             .scaleEffect(isMap ? 0.95 : 0.55)
                     }
                 }
@@ -128,7 +156,7 @@ struct MapCategoryIcon: View {
                             if showHitMaxSearch {
                                 Text("Wait 30s")
                             } else {
-                                Text(style.description)
+                                Text(category.description)
                             }
                         }
                     }
@@ -142,7 +170,7 @@ struct MapCategoryIcon: View {
             .overlay(alignment: .center) {
                 if isMap {
                     if showLoading {
-                        LottieView(animation: .named("ModernMiniLoader.json"))
+                        LottieView(animation: .named("ModernMiniLoaderBlue.json"))
                             .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
                             .resizable()
                             .scaledToFit()
@@ -155,4 +183,3 @@ struct MapCategoryIcon: View {
         .id(vm.selectedMapCategory)
     }
 }
-

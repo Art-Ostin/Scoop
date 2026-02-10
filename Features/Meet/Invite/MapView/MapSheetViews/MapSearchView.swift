@@ -31,7 +31,7 @@ struct MapSearchView: View {
                 if showSuggestions {
                     searchSuggestionList
                 } else {
-                    searchCategoriesList
+                    ForEach(MapCategory.allCases) {categoryRow(category: $0)}
                 }
             }
             .padding(.vertical, 8)
@@ -77,27 +77,21 @@ extension MapSearchView {
         }
     }
     
-    private var searchCategoriesList: some View {
-        ForEach(MapIconStyle.allCases) { style in
-            searchNearbyRow(style: style)
-        }
-    }
     
-    private func searchNearbyRow (style: MapIconStyle) -> some View {
-        
+    private func categoryRow (category: MapCategory) -> some View {
         Button {
             sheet = .searchBar
-            vm.selectedMapCategory = style
+            vm.selectedMapCategory = category
         } label: {
             VStack(spacing: 0){
                 HStack(spacing: 12) {
-                    MapCategoryIcon(sheet: $sheet, style: style, isMap: false, vm: vm)
-                    Text(style.description)
+                    MapCategoryIcon(sheet: $sheet, category: category, isMap: false, vm: vm)
+                    Text(category.description)
                         .font(.body(17, .bold))
                     Spacer()
                 }
                 .padding(16)
-                if style != MapIconStyle.allCases.last {
+                if category != MapCategory.allCases.last {
                     Divider()
                         .padding(.leading, 64)
                 }

@@ -32,12 +32,27 @@ struct MapOptionsView: View {
     }
     
     private var mapCategoryIcons: some View {
-        HStack {
-            MapCategoryIcon(sheet: $sheet, style: .drink, isMap: true, vm: vm)
-            Spacer()
-            MapCategoryIcon(sheet: $sheet, style: .food, isMap: true, vm: vm)
-            Spacer()
-            MapCategoryIcon(sheet: $sheet, style: .cafe, isMap: true, vm: vm)
+        ScrollView(.horizontal) {
+            HStack(spacing: 64) {
+                ClearRectangle(size: 36)
+                ForEach(MapCategory.allCases) { category in
+                    MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm)
+                }
+            }
         }
     }
 }
+
+/*
+ 
+ 
+ 
+ HStack {
+     MapCategoryIcon(sheet: $sheet, style: .drink, isMap: true, vm: vm)
+     Spacer()
+     MapCategoryIcon(sheet: $sheet, style: .food, isMap: true, vm: vm)
+     Spacer()
+     MapCategoryIcon(sheet: $sheet, style: .cafe, isMap: true, vm: vm)
+ }
+
+ */

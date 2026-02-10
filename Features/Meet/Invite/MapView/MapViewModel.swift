@@ -33,7 +33,7 @@ import UIKit
         selectedMapCategory?.mainColor ?? Color.appColorTint
     }
     
-    var selectedMapCategory: MapIconStyle? {
+    var selectedMapCategory: MapCategory? {
         didSet {onCategorySelect()}
     }
     

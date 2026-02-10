@@ -56,12 +56,10 @@ struct MapView: View {
             Map(position: $vm.cameraPosition, selection: $vm.selection, scope: mapScope) {
                 UserAnnotation()
                 
-                if vm.selectedMapCategory != .food {
-                    ForEach(vm.results, id: \.self) { item in
-                        Marker(item: item)
-                            .tag(MapSelection(item))
-                            .tint(vm.markerTint)
-                    }
+                ForEach(vm.results, id: \.self) { item in
+                    Marker(item: item)
+                        .tag(MapSelection(item))
+                        .tint(vm.markerTint)
                 }
             }
             .mapControlVisibility(.visible)
