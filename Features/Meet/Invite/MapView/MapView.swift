@@ -59,7 +59,7 @@ struct MapView: View {
                 
                 ForEach(vm.results, id: \.self) { item in
                     
-                    if vm.selectedMapCategory == .food || vm.selectedMapCategory == .pub  {
+                    if vm.selectedMapCategory == .food || vm.selectedMapCategory == .pub || vm.selectedMapCategory == .park  {
                         let isSelected = vm.selectedMapItem == item
                         if let category = vm.selectedMapCategory  {
                             Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {

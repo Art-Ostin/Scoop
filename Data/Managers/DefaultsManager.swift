@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import MapKit
 
 //Updates & stores a 'Draft Profile' during onboarding which persists between sessions. Also saves user's onboarding stage
 @Observable
@@ -20,6 +21,8 @@ final class DefaultsManager: DefaultsManaging {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
     
+    var recentSearches: [RecentPlace] = [RecentPlace(title: "Barbossa", town: "Montreal")]
+
     //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
     var signUpDraft: DraftProfile? {
         didSet {
@@ -53,4 +56,25 @@ final class DefaultsManager: DefaultsManaging {
     }
     
     func advanceOnboarding() { onboardingStep += 1 }
+        
+    
+    func updateRecentPlace(title: String, town: String) {
+        if !(recentSearches.count < 5) { recentSearches.removeFirst()}
+        recentSearches.append(RecentPlace(title: title, town: town))
+    }
+    
+    func removeRecentPlace(title: String) {
+        recentSearches.removeAll { $0.title == title }
+    }
+}
+
+//For recent for maps
+struct RecentPlace: Codable, Equatable, Hashable {
+    let title: String
+    let town: String
+}
+
+struct savedEventDraft: Equatable {
+    let id: String
+    let eventDraft: EventDraft
 }

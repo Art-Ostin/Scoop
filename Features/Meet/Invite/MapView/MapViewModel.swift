@@ -12,6 +12,8 @@ import UIKit
 @MainActor
 @Observable class MapViewModel {
     
+    let defaults: DefaultsManaging
+    
     let locationManager = CLLocationManager()
     var searchText: String = ""
     var results: [MKMapItem] = []
@@ -33,6 +35,13 @@ import UIKit
     }
     
     var lastSearchRegion: MKCoordinateRegion?
+    
+    var recentSearches: [RecentPlace] { defaults.recentPlace }
+    
+    
+    init(defaults: DefaultsManaging) {
+        self.defaults = defaults
+    }
     
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
         guard let selection else {
@@ -226,7 +235,7 @@ import UIKit
                 excludedCategories: exclusions.union([.parking, .carRental, .gasStation, .evCharger, .automotiveRepair]),
                 excludedKeywords: excludedKeywords + [
                     "parking", "parking lot", "parking garage", "car park", "carpark",
-                    "park and ride", "park&ride", "parkade", "valet"
+                    "park and ride", "park&ride", "parkade", "valet", "mcLean"
                 ]
             )
         case .activity:
@@ -266,7 +275,6 @@ import UIKit
         let current = CLLocation(latitude: currentCenter.latitude, longitude: currentCenter.longitude)
         return last.distance(from: current) > 600
     }
-    
 }
 
 

@@ -79,8 +79,8 @@ enum MapCategory: CaseIterable, Identifiable {
         //Green
         case .park:
             return .init(
-                startColor: Color(red: 0.17, green: 0.89, blue: 0.39),
-                endColor:    Color(red: 0, green: 0.61, blue: 0.21),
+                startColor: Color(red: 0, green: 0.89, blue: 0.36),
+                endColor:    Color(red: 0, green: 0.64, blue: 0.21),
                 mainColor:  Color(.systemGreen),
                 image: Image("TreeIcon"),
                 description: "Parks"

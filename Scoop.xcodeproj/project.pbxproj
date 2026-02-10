@@ -890,7 +890,6 @@
 			isa = PBXGroup;
 			children = (
 				65DCFBBD2F329CDD00B3EC50 /* ImageIcons.swift */,
-				651D09BE2F3BC64F008773E8 /* CustomMapAnnotation.swift */,
 				65DCFBBF2F32A37A00B3EC50 /* MapImageIcon.swift */,
 				65B313A22F33784F00D5C27D /* MapAnnotation.swift */,
 			);
@@ -928,6 +927,7 @@
 				65A93D472F39379E003F6410 /* MapSearchBar.swift */,
 				6555178D2F38F3F6000783FB /* MapCategory.swift */,
 				6523E5332F3B8F0100271C8F /* MapCategoryIcon.swift */,
+				651D09BE2F3BC64F008773E8 /* CustomMapAnnotation.swift */,
 			);
 			path = MapSheetViews;
 			sourceTree = "<group>";

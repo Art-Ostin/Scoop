@@ -101,6 +101,55 @@ extension MapSearchView {
         }
     }
     
+    
+    @ViewBuilder
+    private var recentSearchView: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(vm.recentSearches.enumerated()), id: \.element.id) { index, search in
+                recentSearchRow(search: search)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+
+                if index < vm.recentSearches.count - 1 {
+                    Divider()
+                        .padding(.leading, 68)
+                        .padding(.trailing, 16)
+                }
+            }
+        }
+    }
+    
+    
+    @ViewBuilder
+    func recentSearchRow(search: RecentPlace) -> some View {
+        let searchText = search.title + search.town
+        Button {
+            Task {
+                vm.searchText = searchText
+                await vm.searchPlaces()
+                if let first = vm.results.first {
+                    await MainActor.run { vm.selection = MapSelection(first) }
+                }
+            }
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.grayText)
+                    .padding(.leading, 12)
+
+                (
+                    Text(search.title.count > 16 ? String(search.title.prefix(16)) + "…" : search.title).foregroundStyle(.black) +
+                    Text(" · \(search.town)").foregroundStyle(Color.grayText)
+                )
+                .font(.body(17, .regular))
+                
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+    
     private func searchLocation(suggestion :MKLocalSearchCompletion) async {
         //1. Logic to dismiss screen - gives snappy feel
         vm.selectedMapCategory = nil
@@ -114,6 +163,10 @@ extension MapSearchView {
         }
     }
 }
+
+
+
+
 
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
@@ -160,31 +213,3 @@ private struct SearchSuggestionRow: View {
 }
 
 
-/*
- private var searchSuggestionsView: some View {
-     ScrollView {
-         ClearRectangle(size: 75)
-         let suggestions = service.suggestions
-         
-         LazyVStack(spacing: 0) {
-             
-             if showSuggestions {
-                 searchSuggestionList
-             } else {
-                 
-             }
-         }
-         .padding(.vertical, 8)
-         .background(Color(.systemBackground))
-         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-         .overlay(
-             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                 .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
-         )
-         .padding(.horizontal, 16)
-     }
-     .scrollIndicators(.hidden)
-     .customScrollFade(height: 50, showFade: true)
- }
-
- */
