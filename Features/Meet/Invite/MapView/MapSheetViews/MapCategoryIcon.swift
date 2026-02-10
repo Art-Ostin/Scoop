@@ -45,7 +45,7 @@ struct MapCategoryIcon: View {
                             .offset(x: category == .pub ? 1 : 0)
                     }
                 }
-                .shadow(color: isSelected && !isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
+                .shadow(color: isSelected && isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 .foregroundStyle(Color.white) //For Climbing Icon
                 .font(.body(20)) //For Climbing Icon
 

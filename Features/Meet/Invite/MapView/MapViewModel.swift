@@ -65,7 +65,7 @@ import UIKit
         if let category = selectedMapCategory {
             isLoadingCategory = true
             categorySearchTask = Task { [weak self] in
-                await self?.searchCategory(category: category.description)
+                await self?.searchCategory(category: category)
                 self?.searchText = category.description
             }
         } else {
@@ -80,13 +80,12 @@ import UIKit
         }
     }
     
-    private func searchCategory(category: String) async {
-        if category != "Parks" || category != "Clubs"  {
+    private func searchCategory(category: MapCategory) async {
             defer {
                 if !Task.isCancelled { isLoadingCategory = false }
             }
             guard let region = visibleRegion else { return }
-            let spec = Self.categorySpec(for: category) //Get the specifics to search
+            let spec = Self.categorySpec(category: category) //Get the specifics to search
             let plans = [SearchPlan(query: nil, categories: spec.categories)] +
             spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
             spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
@@ -94,25 +93,8 @@ import UIKit
             guard !Task.isCancelled else { return }
             results = foundItems
             lastCategorySearchRegion = region
-        } else {
-            searchText = category
-            await searchPlaces()
         }
-    }
-    
-    private static func categorySpec(for rawCategory: String) -> (categories: [MKPointOfInterestCategory], queries: [String]) {
-        switch rawCategory.lowercased() {
-        case "food":
-            return ([.restaurant, .foodMarket, .cafe], ["restaurant", "food", "dining", "eat"])
-        case "drinks":
-            return ([.nightlife, .brewery, .distillery], ["bar", "cocktail", "pub", "drinks"])
-        case "cafes", "cafe":
-            return ([.cafe], ["cafe", "coffee", "espresso", "tea"])
-        default:
-            return ([.restaurant, .foodMarket, .cafe, .nightlife, .brewery, .distillery], [rawCategory])
-        }
-    }
-    
+        
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
         return await searchWithExpandedRegions(from: region, minimumCount: minimumPlaceCount) { searchRegion in
             await withTaskGroup(of: [MKMapItem].self) { group in
@@ -139,6 +121,74 @@ import UIKit
         }
     }
     
+    private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
+        var seen = Set<String>()
+        return items.filter {
+            let coordinate = $0.placemark.coordinate
+            let key = "\(normalized($0.name ?? $0.placemark.title ?? ""))|\(Int((coordinate.latitude * 100_000).rounded()))|\(Int((coordinate.longitude * 100_000).rounded()))"
+            return seen.insert(key).inserted
+        }
+    }
+    
+    private static func normalized(_ value: String) -> String {
+        value
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+        
+    private static func items(in region: MKCoordinateRegion, from items: [MKMapItem]) -> [MKMapItem] {
+        items.filter { contains($0.placemark.coordinate, in: region) }
+    }
+
+    
+    //What to search specifically for Each one
+    private static func categorySpec(category: MapCategory) -> (categories: [MKPointOfInterestCategory], queries: [String]) {
+        switch category {
+        case .food:
+            return ([.restaurant, .foodMarket, .cafe], ["restaurant", "food", "dining", "eat"])
+        case .cafe:
+            return ([.cafe], ["cafe", "coffee", "espresso", "tea"])
+        case .bar:
+            return ([.nightlife, .distillery, .winery], ["bar", "cocktail", "drinks", "lounge"])
+        case .pub:
+            return ( [.brewery], [ "pub", "Microbrasserie", "tavern", "alehouse", "beer"])
+        case .club:
+            return ([.nightlife, .musicVenue], ["nightclub", "dance", "dj", "music"])
+        case .park:
+            return ([.park, .nationalPark, .beach, .campground], ["park", "outdoors", "nature", "trail"])
+        case .activity:
+            return (
+                [.amusementPark, .fairground, .landmark, .movieTheater, .museum, .musicVenue, .rockClimbing, .skating, .stadium],
+                ["activity", "things to do", "fun", "attractions"]
+            )
+        }
+    }
+    
+    private struct SearchPlan {
+        let query: String?
+        let categories: [MKPointOfInterestCategory]?
+        let pointOfInterestOnly: Bool
+        
+        init(query: String?, categories: [MKPointOfInterestCategory]?, pointOfInterestOnly: Bool = true) {
+            self.query = query
+            self.categories = categories
+            self.pointOfInterestOnly = pointOfInterestOnly
+        }
+    }
+    
+    
+    //Functionality to check if moved enough to refresh screen
+    
+    private static func scaledRegion(_ region: MKCoordinateRegion, by scale: CLLocationDegrees) -> MKCoordinateRegion {
+        MKCoordinateRegion(
+            center: region.center,
+            span: MKCoordinateSpan(
+                latitudeDelta: min(region.span.latitudeDelta * scale, 180),
+                longitudeDelta: min(region.span.longitudeDelta * scale, 360)
+            )
+        )
+    }
+    
     private static func searchWithExpandedRegions(
         from baseRegion: MKCoordinateRegion,
         minimumCount: Int,
@@ -156,34 +206,12 @@ import UIKit
         }
         return aggregated
     }
-    
-    private static func scaledRegion(_ region: MKCoordinateRegion, by scale: CLLocationDegrees) -> MKCoordinateRegion {
-        MKCoordinateRegion(
-            center: region.center,
-            span: MKCoordinateSpan(
-                latitudeDelta: min(region.span.latitudeDelta * scale, 180),
-                longitudeDelta: min(region.span.longitudeDelta * scale, 360)
-            )
-        )
-    }
-    
-    private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
-        var seen = Set<String>()
-        return items.filter {
-            let coordinate = $0.placemark.coordinate
-            let key = "\(normalized($0.name ?? $0.placemark.title ?? ""))|\(Int((coordinate.latitude * 100_000).rounded()))|\(Int((coordinate.longitude * 100_000).rounded()))"
-            return seen.insert(key).inserted
-        }
-    }
-    
-    private static func normalized(_ value: String) -> String {
-        value
-            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    
-    private static func items(in region: MKCoordinateRegion, from items: [MKMapItem]) -> [MKMapItem] {
-        items.filter { contains($0.placemark.coordinate, in: region) }
+
+    private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
+        var value = longitude.truncatingRemainder(dividingBy: 360)
+        if value > 180 { value -= 360 }
+        if value < -180 { value += 360 }
+        return value
     }
     
     private static func contains(_ coordinate: CLLocationCoordinate2D, in region: MKCoordinateRegion) -> Bool {
@@ -198,27 +226,6 @@ import UIKit
         return abs(longitudeDifference) <= halfLongitude
     }
     
-    private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
-        var value = longitude.truncatingRemainder(dividingBy: 360)
-        if value > 180 { value -= 360 }
-        if value < -180 { value += 360 }
-        return value
-    }
-    
-    private struct SearchPlan {
-        let query: String?
-        let categories: [MKPointOfInterestCategory]?
-        let pointOfInterestOnly: Bool
-        
-        init(query: String?, categories: [MKPointOfInterestCategory]?, pointOfInterestOnly: Bool = true) {
-            self.query = query
-            self.categories = categories
-            self.pointOfInterestOnly = pointOfInterestOnly
-        }
-    }
-    
-    
-    //Functionality to check if moved enough to refresh screen
     var hasMovedEnoughToRefreshSearch: Bool {
         guard selectedMapCategory != nil,
               let currentRegion = visibleRegion,

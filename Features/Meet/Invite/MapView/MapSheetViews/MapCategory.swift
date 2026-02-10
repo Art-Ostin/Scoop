@@ -10,7 +10,7 @@ import Lottie
 
 enum MapCategory: CaseIterable, Identifiable {
     
-    case restaurant, cafe, bar, pub, club, park, activity
+    case food, cafe, bar, club, pub, park, activity
     
     var id: Self { self }
     
@@ -26,7 +26,7 @@ enum MapCategory: CaseIterable, Identifiable {
         switch self {
             
         //Yellow
-        case .restaurant:
+        case .food:
             return .init(
                 startColor: Color(red: 0.99, green: 0.87, blue: 0),
                 endColor:   Color(red: 0.98, green: 0.53, blue: 0),
