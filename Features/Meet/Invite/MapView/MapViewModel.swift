@@ -37,7 +37,6 @@ import UIKit
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
         guard let selection else {
             selectedMapItem = nil
-            lastSearchRegion = nil
             return
         }
         

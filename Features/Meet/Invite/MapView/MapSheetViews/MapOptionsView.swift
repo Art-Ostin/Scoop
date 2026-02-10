@@ -47,7 +47,7 @@ struct MapOptionsView: View {
             }
             .onAppear {
                 guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else { print("Nope") ; return }
-                proxy.scrollTo(selected, anchor: .leading)
+                proxy.scrollTo(selected, anchor: .center)
                 print("scrolled to there")
             }
             .scrollIndicators(.never)
@@ -71,32 +71,3 @@ struct MapOptionsView: View {
         }
     }
 }
-/*
- .onChange(of: vm.selectedMapCategory) { _, newCategory in
-     guard let newCategory, MapCategory.allCases.contains(newCategory) else { return }
-     withAnimation(.easeInOut(duration: 0.25)) {
-         proxy.scrollTo(newCategory, anchor: .center)
-     }
- }
- */
-
-/*
- 
- 
- 
- HStack {
-     MapCategoryIcon(sheet: $sheet, style: .drink, isMap: true, vm: vm)
-     Spacer()
-     MapCategoryIcon(sheet: $sheet, style: .food, isMap: true, vm: vm)
-     Spacer()
-     MapCategoryIcon(sheet: $sheet, style: .cafe, isMap: true, vm: vm)
- }
-
- */
-
-/*
- if vm.selectedMapCategory != nil {
-     ClearIcon(vm: vm)
- }
-
- */
