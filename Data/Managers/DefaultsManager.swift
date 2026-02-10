@@ -13,6 +13,7 @@ import MapKit
 @Observable
 final class DefaultsManager: DefaultsManaging {
     
+    
     let defaults: UserDefaults
     private enum Keys: String { case draftProfile, onboardingStep}
     
@@ -21,7 +22,7 @@ final class DefaultsManager: DefaultsManaging {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
     
-    var recentSearches: [RecentPlace] = [RecentPlace(title: "Barbossa", town: "Montreal")]
+    var recentMapSearches: [RecentPlace] = [RecentPlace(title: "Barbossa", town: "Montreal")]
 
     //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
     var signUpDraft: DraftProfile? {
@@ -58,13 +59,13 @@ final class DefaultsManager: DefaultsManaging {
     func advanceOnboarding() { onboardingStep += 1 }
         
     
-    func updateRecentPlace(title: String, town: String) {
-        if !(recentSearches.count < 5) { recentSearches.removeFirst()}
-        recentSearches.append(RecentPlace(title: title, town: town))
+    func updateRecentMapSearches(title: String, town: String) {
+        if !(recentMapSearches.count < 5) { recentMapSearches.removeFirst()}
+        recentMapSearches.append(RecentPlace(title: title, town: town))
     }
     
-    func removeRecentPlace(title: String) {
-        recentSearches.removeAll { $0.title == title }
+    func removeFromRecentMapSearches(title: String) {
+        recentMapSearches.removeAll { $0.title == title }
     }
 }
 

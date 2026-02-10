@@ -31,6 +31,10 @@ struct MapSearchView: View {
                 if showSuggestions {
                     searchSuggestionList
                 } else {
+                    if !vm.recentMapSearches.isEmpty {
+                        recentSearchView
+                    }
+                    
                     ForEach(MapCategory.allCases) {categoryRow(category: $0)}
                 }
             }
@@ -105,12 +109,12 @@ extension MapSearchView {
     @ViewBuilder
     private var recentSearchView: some View {
         VStack(spacing: 0) {
-            ForEach(Array(vm.recentSearches.enumerated()), id: \.element.id) { index, search in
+            ForEach(Array(vm.recentMapSearches.enumerated()), id: \.offset) { index, search in
                 recentSearchRow(search: search)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
 
-                if index < vm.recentSearches.count - 1 {
+                if index < vm.recentMapSearches.count - 1 {
                     Divider()
                         .padding(.leading, 68)
                         .padding(.trailing, 16)
@@ -119,10 +123,9 @@ extension MapSearchView {
         }
     }
     
-    
     @ViewBuilder
     func recentSearchRow(search: RecentPlace) -> some View {
-        let searchText = search.title + search.town
+        let searchText = "\(search.title) \(search.town)"
         Button {
             Task {
                 vm.searchText = searchText
@@ -160,6 +163,13 @@ extension MapSearchView {
         await vm.searchPlaces()
         if let first = vm.results.first {
             await MainActor.run { vm.selection = MapSelection(first) }
+            
+            //Save it to Defaults
+            if let title = first.placemark.title, let town = first.placemark.locality  {
+                if !title.isEmpty && !town.isEmpty {
+                    vm.addSearchToDefaults(title: title, town: town)
+                }
+            }
         }
     }
 }

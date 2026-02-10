@@ -36,7 +36,7 @@ import UIKit
     
     var lastSearchRegion: MKCoordinateRegion?
     
-    var recentSearches: [RecentPlace] { defaults.recentPlace }
+    var recentMapSearches: [RecentPlace] { defaults.recentMapSearches }
     
     
     init(defaults: DefaultsManaging) {
@@ -274,6 +274,10 @@ import UIKit
         let last = CLLocation(latitude: lastCenter.latitude, longitude: lastCenter.longitude)
         let current = CLLocation(latitude: currentCenter.latitude, longitude: currentCenter.longitude)
         return last.distance(from: current) > 600
+    }
+    
+    func addSearchToDefaults(title: String, town: String) {
+        defaults.updateRecentMapSearches(title: title, town: town)
     }
 }
 
