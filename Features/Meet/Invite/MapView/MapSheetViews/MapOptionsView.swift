@@ -47,13 +47,8 @@ struct MapOptionsView: View {
             }
             .onAppear {
                 guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else { print("Nope") ; return }
-                proxy.scrollTo(selected, anchor: .center)
-            }
-            .onChange(of: vm.selectedMapCategory) { _, newCategory in
-                guard let newCategory, MapCategory.allCases.contains(newCategory) else { return }
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    proxy.scrollTo(newCategory, anchor: .center)
-                }
+                proxy.scrollTo(selected, anchor: .leading)
+                print("scrolled to there")
             }
             .scrollIndicators(.never)
             .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
@@ -76,6 +71,14 @@ struct MapOptionsView: View {
         }
     }
 }
+/*
+ .onChange(of: vm.selectedMapCategory) { _, newCategory in
+     guard let newCategory, MapCategory.allCases.contains(newCategory) else { return }
+     withAnimation(.easeInOut(duration: 0.25)) {
+         proxy.scrollTo(newCategory, anchor: .center)
+     }
+ }
+ */
 
 /*
  

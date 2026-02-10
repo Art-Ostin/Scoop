@@ -78,7 +78,7 @@ struct MapCategoryIcon: View {
                 }
             }
         }
-        .id(vm.selectedMapCategory)
+//        .id(vm.selectedMapCategory)
     }
 }
 
