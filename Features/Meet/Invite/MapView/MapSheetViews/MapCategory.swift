@@ -90,9 +90,9 @@ enum MapCategory: CaseIterable, Identifiable {
         //Teal
         case .activity:
             return .init(
-                startColor: Color(red: 0, green: 0.89, blue: 1),
-                endColor:   Color(red: 0, green: 0.62, blue: 0.72),
-                mainColor:  Color(.systemCyan),
+                startColor: Color(red: 0.5, green: 0.46, blue: 1),
+                endColor:   Color(red: 0.28, green: 0.18, blue: 0.98),
+                mainColor: Color(.systemIndigo), // Color(.systemCyan),
                 image: Image(systemName: "figure.climbing"),
                 description: "Activities"
             )
