@@ -98,6 +98,10 @@ import UIKit
         guard !Task.isCancelled else { return }
         results = Self.applyCategoryFilter(foundItems, spec: spec)
         lastSearchRegion = region
+        //If I ever want to select it when clicked
+//        if let random = results.randomElement() {
+//            await MainActor.run { selection = MapSelection(random)}
+//        }
     }
 
     private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {

@@ -80,7 +80,7 @@ extension MapSearchView {
     
     private func categoryRow (category: MapCategory) -> some View {
         Button {
-            sheet = .searchBar
+            sheet = .optionsAndSearchBar
             vm.selectedMapCategory = category
         } label: {
             VStack(spacing: 0){
@@ -119,7 +119,7 @@ private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
     let query: String
     
-    //GPT Did this
+    //GPT Did this Be careful
     private var highlightedTitle: AttributedString {
         var attributed = AttributedString(suggestion.title)
         attributed.font = .body.weight(.regular)

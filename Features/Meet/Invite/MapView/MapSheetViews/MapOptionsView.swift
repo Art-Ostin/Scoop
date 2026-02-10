@@ -31,22 +31,28 @@ struct MapOptionsView: View {
     }
     
     private var mapCategoryIcons: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 36) {
-                ClearRectangle(size: 0)
-                ForEach(MapCategory.allCases) { category in
-                    if category != .park {
-                        MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: 36) {
+                    ClearRectangle(size: 0)
+                    ForEach(MapCategory.allCases) { category in
+                        if category != .park {
+                            MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm)
+                                .id(category)
+                        }
                     }
+                    ClearRectangle(size: 0)
                 }
-                ClearRectangle(size: 0)
+                .offset(x: -12)
             }
-            .offset(x: -12)
+            .onChange(of: vm.selectedMapCategory) { _, newValue in
+                proxy.scrollTo(newValue)
+            }
+            .scrollIndicators(.never)
+            .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
+            .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: false)
+            
         }
-        .scrollIndicators(.never)
-        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
-        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: false)
-
     }
     
     private var deleteSearchButton: some View {
