@@ -10,7 +10,7 @@ import Lottie
 
 enum MapCategory: CaseIterable, Identifiable {
     
-    case food, cafe, bar, club, pub, park, activity
+    case food, cafe, bar, pub, club, park, activity
     
     var id: Self { self }
     

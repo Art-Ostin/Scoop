@@ -25,6 +25,7 @@ struct MapCategoryIcon: View {
     var isSelected: Bool { vm.selectedMapCategory == category }
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
     
+    var showSearchArea: Bool { isSelected && vm.hasMovedSinceSearch() }
     
     var body: some View {
         Button {
@@ -48,11 +49,17 @@ struct MapCategoryIcon: View {
                 .font(.body(20))
 
                 if isMap {
-                    Text(category.description)
-                        .font(.body(12, .bold))
-                        .frame(width: 75)
-                        .foregroundStyle(isSelected && !showLoading ? Color.black : Color.grayText.opacity(0.8))
-                        .animation(.easeInOut(duration: 0.3), value: showLoading)
+                    Group {
+                        if showSearchArea {
+                            Text("Search Area")
+                        } else {
+                            Text(category.description)
+                        }
+                    }
+                    .font(.body(12, .bold))
+                    .frame(width: 75)
+                    .foregroundStyle(isSelected && !showLoading ? Color.accent : Color.grayText.opacity(0.8))
+                    .animation(.easeInOut(duration: 0.3), value: showLoading)
                 }
             }
             .overlay(alignment: .center) {
