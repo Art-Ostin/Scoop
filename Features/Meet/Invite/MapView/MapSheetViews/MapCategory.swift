@@ -28,8 +28,8 @@ enum MapCategory: CaseIterable, Identifiable {
         //Yellow
         case .food:
             return .init(
-                startColor: Color(red: 0.99, green: 0.87, blue: 0),
-                endColor:   Color(red: 0.98, green: 0.53, blue: 0),
+                startColor: Color(red: 1, green: 0.87, blue: 0),
+                endColor:   Color(red: 0.97, green: 0.53, blue: 0),
                 mainColor:  Color(.systemYellow),
                 image: Image("ForkSpoon"),
                 description: "Food"
@@ -59,8 +59,8 @@ enum MapCategory: CaseIterable, Identifiable {
         //Orange DONE
         case .pub:
             return .init(
-                startColor: Color(red: 0.99, green: 0.69, blue: 0.28),
-                endColor:   Color(red: 0.96, green: 0.44, blue: 0.18),
+                startColor: Color(red: 1, green: 0.65, blue: 0.18),
+                endColor:   Color(red: 1, green: 0.38, blue: 0),
                 mainColor: Color(red: 1, green: 0.28, blue: 0),
                 image: Image("BeerIcon"),
                 description: "Pubs"

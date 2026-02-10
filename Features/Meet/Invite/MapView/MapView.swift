@@ -64,8 +64,10 @@ struct MapView: View {
                         if let category = vm.selectedMapCategory  {
                             Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {
                                 CustomMapAnnotation(vm: vm, item: item, category: category, isSelected: isSelected)
+                                    .zIndex(isSelected ? 1000 : -100)
                             }
                             .tag(MapSelection(item))
+                            
                         }
                     } else {
                         Marker(item: item)
