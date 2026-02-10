@@ -11,12 +11,18 @@ import MapKit
 
 struct MapView: View {
     
-    @State var vm = MapViewModel()
+    
+    @State var  vm: MapViewModel
+    
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
-
-    
     @State private var sheet: MapSheets = .optionsAndSearchBar
+    
+    
+    init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
+        self._vm = State(initialValue: MapViewModel(defaults: defaults))
+        self._eventVM = Bindable(wrappedValue: eventVM)
+    }
     
     private var detentSelection: Binding<PresentationDetent> {
         Binding(

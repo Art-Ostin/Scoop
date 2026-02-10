@@ -36,7 +36,7 @@ struct MeetContainer: View {
                 }
                 
                 if let currentProfile = ui.quickInvite {
-                    SelectTimeAndPlace(profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
+                    SelectTimeAndPlace(defaults: vm.s.defaultsManager, profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
                         try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }

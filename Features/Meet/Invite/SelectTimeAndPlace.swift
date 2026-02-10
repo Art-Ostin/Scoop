@@ -8,6 +8,8 @@ import MapKit
     var event: EventDraft
     var profile: ProfileModel?
 
+    let defaults: DefaultsManaging
+    
     // Persisted time selection even before any day is picked.
     var selectedHour: Int = 22
     var selectedMinute: Int = 30
@@ -19,7 +21,8 @@ import MapKit
     var showAlert: Bool = false
     var isMessageTap: Bool = false
     
-    init(text: String, profile: ProfileModel? = nil) {
+    init(defaults: DefaultsManaging, text: String, profile: ProfileModel? = nil) {
+        self.defaults = defaults
         self.text = text
         self.profile = profile
         self.event = EventDraft()
@@ -35,8 +38,8 @@ struct SelectTimeAndPlace: View {
     
     let rowHeight = CGFloat(60)
     
-    init(profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
-        _vm = .init(initialValue: .init(text: text, profile: profile))
+    init(defaults: DefaultsManaging, profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
+        _vm = .init(initialValue: .init(defaults: defaults, text: text, profile: profile))
         self.onDismiss = onDismiss
         self.onSubmit = onSubmit
     }
@@ -58,7 +61,7 @@ struct SelectTimeAndPlace: View {
         .tabBarHidden(true) // This is custom Tool bar hidden
         .sheet(isPresented: $vm.showMessageScreen) {AddMessageView(vm: $vm)}
         .fullScreenCover(isPresented: $vm.showMapView) {
-            MapView(eventVM: vm)
+            MapView(defaults: vm.defaults, eventVM: vm)
         }
         .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
         .alert("Event Commitment", isPresented: $vm.showAlert) {
