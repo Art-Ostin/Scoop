@@ -12,13 +12,21 @@ struct MapSearchView: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @FocusState.Binding var isFocused: Bool
-    var showSuggestions: Bool {!service.suggestions.isEmpty && service.showSuggestions && vm.searchText.isEmpty}
+    var showSuggestions: Bool {!service.suggestions.isEmpty && service.showSuggestions && !vm.searchText.isEmpty}
 
     @State var service = LocationSearchService()
     
     var body: some View {
         ScrollView {
-            ClearRectangle(size: 75)
+            ClearRectangle(size: showSuggestions ? 75 : 84)
+            
+            if !showSuggestions {
+                Text("Find Nearby")
+                    .font(.system(size: 20, weight: .semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+            }
+            
             LazyVStack(spacing: 0) {
                 if showSuggestions {
                     searchSuggestionList
@@ -76,20 +84,27 @@ extension MapSearchView {
     }
     
     private func searchNearbyRow (style: MapIconStyle) -> some View {
-        VStack(spacing: 0){
-            HStack(spacing: 12) {
-                MapCategoryIcon(sheet: $sheet, style: style, isMap: false, vm: vm)
-                Text(style.description)
-                    .font(.body(18, .medium))
-                Spacer()
+        
+        Button {
+            sheet = .searchBar
+            vm.selectedMapCategory = style
+        } label: {
+            VStack(spacing: 0){
+                HStack(spacing: 12) {
+                    MapCategoryIcon(sheet: $sheet, style: style, isMap: false, vm: vm)
+                    Text(style.description)
+                        .font(.body(17, .bold))
+                    Spacer()
+                }
+                .padding(16)
+                if style != MapIconStyle.allCases.last {
+                    Divider()
+                        .padding(.leading, 64)
+                }
             }
-            .padding(16)
-            if style != MapIconStyle.allCases.last {
-                Divider()
-                    .padding(.leading, 144)
-            }
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func searchLocation(suggestion :MKLocalSearchCompletion) async {

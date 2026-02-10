@@ -10,7 +10,7 @@ import Lottie
 
 enum MapIconStyle: CaseIterable, Identifiable {
     
-    case drink, food, cafe
+    case drink, food, cafe, parks, clubs
     
     var id: Self { self }
     
@@ -49,6 +49,24 @@ enum MapIconStyle: CaseIterable, Identifiable {
                 mainColor:  Color(.blue),
                 image: Image("CafeIcon"),
                 description: "Cafes"
+            )
+            
+        case .parks:
+            return .init(
+                startColor: Color(red: 0.17, green: 0.89, blue: 0.39),
+                endColor:   Color(red: 0, green: 0.61, blue: 0.21),
+                mainColor:  Color(.systemGreen),
+                image: Image(systemName: "map"),
+                description: "TreeIcon"
+            )
+            
+        case .clubs:
+            return .init(
+                startColor: Color(red: 1, green: 0.51, blue: 0.75),
+                endColor:   Color(red: 0.86, green: 0.11, blue: 0.53),
+                mainColor:  Color(red: 0.89, green: 0.09, blue: 0.55),
+                image: Image("DiscoBallLarge"),
+                description: "Clubs"
             )
         }
     }
@@ -100,7 +118,7 @@ struct MapCategoryIcon: View {
                             .scaleEffect(isMap ? 0.95 : 0.55)
                     }
                 }
-                .shadow(color: isSelected ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
+                .shadow(color: isSelected && !isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 
                 if isMap {
                     Group {

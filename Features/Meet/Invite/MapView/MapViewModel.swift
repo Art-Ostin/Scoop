@@ -16,7 +16,7 @@ import UIKit
     private static let minimumPlaceCount = 25
     private static let searchRegionScaleSteps: [CLLocationDegrees] = [1.0, 1.8, 3.2, 5.6, 10.0, 18.0]
     private static let searchAreaMaximumOverlapFraction: CLLocationDegrees = 0.6
-
+    
     var searchText: String = ""
     var results: [MKMapItem] = []
     var selection: MapSelection<MKMapItem>?
@@ -61,7 +61,7 @@ import UIKit
     
     private func onCategorySelect() {
         categorySearchTask?.cancel()
-
+        
         if let category = selectedMapCategory {
             isLoadingCategory = true
             categorySearchTask = Task { [weak self] in
@@ -81,18 +81,23 @@ import UIKit
     }
     
     private func searchCategory(category: String) async {
-        defer {
-            if !Task.isCancelled { isLoadingCategory = false }
+        if category != "Parks" || category != "Clubs"  {
+            defer {
+                if !Task.isCancelled { isLoadingCategory = false }
+            }
+            guard let region = visibleRegion else { return }
+            let spec = Self.categorySpec(for: category) //Get the specifics to search
+            let plans = [SearchPlan(query: nil, categories: spec.categories)] +
+            spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
+            spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
+            let foundItems = await Self.search(region: region, plans: plans)
+            guard !Task.isCancelled else { return }
+            results = foundItems
+            lastCategorySearchRegion = region
+        } else {
+            searchText = category
+            await searchPlaces()
         }
-        guard let region = visibleRegion else { return }
-        let spec = Self.categorySpec(for: category) //Get the specifics to search
-        let plans = [SearchPlan(query: nil, categories: spec.categories)] +
-        spec.queries.map { SearchPlan(query: $0, categories: spec.categories) } +
-        spec.queries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
-        let foundItems = await Self.search(region: region, plans: plans)
-        guard !Task.isCancelled else { return }
-        results = foundItems
-        lastCategorySearchRegion = region
     }
     
     private static func categorySpec(for rawCategory: String) -> (categories: [MKPointOfInterestCategory], queries: [String]) {

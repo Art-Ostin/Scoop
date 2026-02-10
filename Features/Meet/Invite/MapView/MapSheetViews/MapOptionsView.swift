@@ -18,7 +18,9 @@ struct MapOptionsView: View {
         VStack(spacing: 24) {
             HStack(spacing: 6) {
                 MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
-                ClearIcon(vm: vm)
+                if vm.selectedMapCategory != nil {
+                    ClearIcon(vm: vm)
+                }
             }
 //            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
             mapCategoryIcons
