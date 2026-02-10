@@ -13,13 +13,14 @@ struct CustomMapAnnotation: View {
     @Bindable var vm: MapViewModel
     
     let item: MKMapItem
-    
-    let category: MapCategory
-    
+    var category: MapCategory
     let isSelected: Bool
-
     let size: CGFloat = 65
     
+    private var displayName: String { item.placemark.name ?? item.name ?? "" }
+
+
+
     private var colorGradient: LinearGradient {
         LinearGradient(
             colors: [
@@ -43,8 +44,6 @@ struct CustomMapAnnotation: View {
     private var dipHeight: CGFloat { size * dipHeightRatio }
     private var dipOverlap: CGFloat { size * dipOverlapRatio }
     private var totalHeight: CGFloat { size + dipHeight - dipOverlap }
-    
-    
     
     
     var body: some View {
@@ -78,15 +77,17 @@ struct CustomMapAnnotation: View {
             .offset(y: ringWidth)
         }
         .frame(width: size, height: totalHeight, alignment: .top)
-        .offset(y: -24)
+        .offset(y: isSelected ? -24 : 0)
+
         .onTapGesture {
-            withAnimation (.easeInOut(duration: 0.1)) {
+            withAnimation (.easeInOut(duration: 0.2)) {
                 vm.selectedMapItem = item
                 vm.selection = MapSelection(item)
             }
         }
-        .scaleEffect(isSelected ? 1 : 0.5)
-        .animation(.easeInOut(duration: 0.1), value: isSelected)
+        .scaleEffect(isSelected ? 1 : 0.5, anchor: .bottom)
+        .zIndex(isSelected ? 1 : 0)
+        .animation(.easeInOut(duration: 0.2), value: isSelected)
     }
 }
 //

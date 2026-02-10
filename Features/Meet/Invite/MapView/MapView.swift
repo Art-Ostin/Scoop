@@ -59,12 +59,14 @@ struct MapView: View {
                 
                 ForEach(vm.results, id: \.self) { item in
                     
-                    if vm.selectedMapCategory == .food  {
+                    if vm.selectedMapCategory == .food || vm.selectedMapCategory == .pub  {
                         let isSelected = vm.selectedMapItem == item
-                        Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {
-                            CustomMapAnnotation(vm: vm, item: item, category: .food, isSelected: isSelected)
+                        if let category = vm.selectedMapCategory  {
+                            Annotation(item.placemark.name ?? "", coordinate: item.placemark.coordinate) {
+                                CustomMapAnnotation(vm: vm, item: item, category: category, isSelected: isSelected)
+                            }
+                            .tag(MapSelection(item))
                         }
-                        .tag(MapSelection(item))
                     } else {
                         Marker(item: item)
                             .tag(MapSelection(item))
