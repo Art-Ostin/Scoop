@@ -45,10 +45,19 @@ struct MapSelectionView: View {
                     } label: {
                         Text("Open Apple Maps")
                     }
-
                     
                     
-
+                    Button {
+                        MapsRouter.openGoogleMaps(item: mapItem)
+                    } label: {
+                        Text("Open Google Maps 2")
+                    }
+                    
+                    Button {
+                        MapsRouter.openAppleMaps(item: mapItem)
+                    } label: {
+                        Text("Open Apple Maps 2")
+                    }
                     
                     
                     Button {

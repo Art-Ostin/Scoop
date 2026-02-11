@@ -25,11 +25,11 @@ struct ScoopApp: App {
     var body: some Scene {
         WindowGroup {
             
-//            SimplePOIMapView()
-             RootView()
-                 .appDependencies(dep)
-                 .task { dep.sessionManager.userStream(appState: $appState) }
-                 .environment(\.appState, $appState)
+            MapAnnotationExample()
+//             RootView()
+//                 .appDependencies(dep)
+//                 .task { dep.sessionManager.userStream(appState: $appState) }
+//                 .environment(\.appState, $appState)
         }
     }
 }

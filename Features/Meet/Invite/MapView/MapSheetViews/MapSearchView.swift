@@ -55,7 +55,7 @@ extension MapSearchView {
                     .padding(.vertical, 4)
 
                 if index < vm.recentMapSearches.count - 1 {
-                    mapDivider
+                    MapDivider()
                         .padding(.leading, 53)
                         .padding(.trailing, 16)
                 }
@@ -69,7 +69,7 @@ extension MapSearchView {
                 .onTapGesture { Task { await searchLocation(suggestion: suggestion)}}
             
             if index < service.suggestions.count - 1 {
-                mapDivider.padding(.horizontal, 16)
+                MapDivider().padding(.horizontal, 16)
             }
         }
     }
@@ -123,7 +123,7 @@ extension MapSearchView {
                 }
                 .padding(16)
                 if category != MapCategory.allCases.last {
-                    mapDivider
+                    MapDivider()
                         .padding(.leading, 64)
                         .padding(.trailing, 16)
                 }
@@ -191,13 +191,6 @@ extension MapSearchView {
             }
         }
         .foregroundStyle(Color.black)
-    }
-    
-    private var mapDivider: some View {
-        Rectangle()
-            .foregroundStyle(Color(red: 0.91, green: 0.91, blue: 0.91))
-            .frame(height: 1)
-            .frame(maxWidth: .infinity)
     }
 }
 
@@ -281,37 +274,11 @@ private struct SearchSuggestionRow: View {
 
 
 
-
-
-
-
-/*
- 
- 
- if !showSuggestions {
-     Text("Find Nearby")
-         .font(.system(size: 20, weight: .semibold))
-         .frame(maxWidth: .infinity, alignment: .leading)
-         .padding(.horizontal, 20)
- }
- 
- LazyVStack(spacing: 0) {
-     if showSuggestions {
-         searchSuggestionList
-     } else {
-         if !vm.recentMapSearches.isEmpty {
-             recentSearchView
-         }
-         
-         ForEach(MapCategory.allCases) {categoryRow(category: $0)}
-     }
- }
- .padding(.vertical, 8)
- .background(Color(.systemBackground))
- .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
- .overlay(
-     RoundedRectangle(cornerRadius: 24, style: .continuous)
-         .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
- )
- .padding(.horizontal, 16)
- */
+struct MapDivider: View {
+    var body: some View {
+        Rectangle()
+            .foregroundStyle(Color(red: 0.91, green: 0.91, blue: 0.91))
+            .frame(height: 1)
+            .frame(maxWidth: .infinity)
+    }
+}
