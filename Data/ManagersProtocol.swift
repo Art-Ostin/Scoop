@@ -81,7 +81,7 @@ protocol ProfileLoading {
 protocol DefaultsManaging {
     var onboardingStep: Int { get set }
     var signUpDraft: DraftProfile? { get set }
-    var recentMapSearches: [RecentPlace] { get set }
+    var recentMapSearches: [RecentPlace] { get }
     func createDraftProfile(user: User)
     func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T)
     func deleteDefaults()

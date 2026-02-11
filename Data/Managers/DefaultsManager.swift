@@ -15,14 +15,25 @@ final class DefaultsManager: DefaultsManaging {
     
     
     let defaults: UserDefaults
-    private enum Keys: String { case draftProfile, onboardingStep}
+    private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches}
+    private let maxRecentMapSearches = 5
     
     //Using the 'didSet' everytime I update the onboardingStep or signUpDraft it saves the change to defaults
     var onboardingStep: Int {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
     
-    var recentMapSearches: [RecentPlace] = [RecentPlace(title: "Barbossa", town: "Montreal")]
+    private(set) var recentMapSearches: [RecentPlace] = [] {
+        didSet {
+            if let data = try? JSONEncoder().encode(recentMapSearches) {
+                defaults.set(data, forKey: Keys.recentMapSearches.rawValue)
+            } else {
+                defaults.removeObject(forKey: Keys.recentMapSearches.rawValue)
+            }
+        }
+    }
+    
+
 
     //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
     var signUpDraft: DraftProfile? {
@@ -38,7 +49,14 @@ final class DefaultsManager: DefaultsManaging {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.onboardingStep = defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0
-        if let data = defaults.data(forKey: Keys.draftProfile.rawValue) { signUpDraft = try? JSONDecoder().decode(DraftProfile.self, from: data)}
+        
+        if let data = defaults.data(forKey: Keys.draftProfile.rawValue) {
+            signUpDraft = try? JSONDecoder().decode(DraftProfile.self, from: data)
+        }
+        if let data = defaults.data(forKey: Keys.recentMapSearches.rawValue),
+           let recents = try? JSONDecoder().decode([RecentPlace].self, from: data) {
+            recentMapSearches = recents
+        }
     }
     
     func createDraftProfile(user: User) {
@@ -54,14 +72,26 @@ final class DefaultsManager: DefaultsManaging {
     func deleteDefaults() {
         signUpDraft = nil
         onboardingStep = 0
+        recentMapSearches = []
     }
     
     func advanceOnboarding() { onboardingStep += 1 }
         
     
     func updateRecentMapSearches(title: String, town: String) {
-        if !(recentMapSearches.count < 5) { recentMapSearches.removeFirst()}
-        recentMapSearches.append(RecentPlace(title: title, town: town))
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTown = town.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty, !trimmedTown.isEmpty else { return }
+        
+        recentMapSearches.removeAll {
+            $0.title.caseInsensitiveCompare(trimmedTitle) == .orderedSame &&
+            $0.town.caseInsensitiveCompare(trimmedTown) == .orderedSame
+        }
+        recentMapSearches.append(RecentPlace(title: trimmedTitle, town: trimmedTown))
+        
+        if recentMapSearches.count > maxRecentMapSearches {
+            recentMapSearches.removeFirst(recentMapSearches.count - maxRecentMapSearches)
+        }
     }
     
     func removeFromRecentMapSearches(title: String) {

@@ -36,11 +36,12 @@ import UIKit
     
     var lastSearchRegion: MKCoordinateRegion?
     
-    var recentMapSearches: [RecentPlace] { defaults.recentMapSearches }
+    var recentMapSearches: [RecentPlace]
     
     
     init(defaults: DefaultsManaging) {
         self.defaults = defaults
+        self.recentMapSearches = defaults.recentMapSearches
     }
     
     func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
@@ -278,6 +279,7 @@ import UIKit
     
     func addSearchToDefaults(title: String, town: String) {
         defaults.updateRecentMapSearches(title: title, town: town)
+        recentMapSearches = defaults.recentMapSearches
     }
 }
 
