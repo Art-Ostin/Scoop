@@ -6,6 +6,8 @@
 //
 
 import MapKit
+import UIKit
+
 
 struct EventLocation: Equatable, Codable {
     var name: String?
@@ -55,7 +57,19 @@ enum MapsRouting {
             ])
         }
     }
+
 }
+
+
+
+@MainActor
+func OpenGoogleMaps(location: String? = nil) {
+    let q = location?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    let urlString = q.map { "comgooglemaps://?q=\($0)" } ?? "comgooglemaps://"
+    guard let url = URL(string: urlString) else { return }
+    UIApplication.shared.open(url)
+}
+
 
 /* Need to also install PList for this. 
  import UIKit

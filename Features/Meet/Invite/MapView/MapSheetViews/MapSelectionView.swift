@@ -35,6 +35,23 @@ struct MapSelectionView: View {
                     Spacer()
                     
                     Button {
+                        MapsRouter.openGoogleMaps(item: mapItem)
+                    } label: {
+                        Text("Open Google Maps")
+                    }
+                    
+                    Button {
+                        MapsRouter.openAppleMaps(item: mapItem)
+                    } label: {
+                        Text("Open Apple Maps")
+                    }
+
+                    
+                    
+
+                    
+                    
+                    Button {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             vm.selection = nil
                         }

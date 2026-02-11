@@ -115,6 +115,15 @@ struct MapView: View {
             .overlay(alignment: .bottomTrailing) {userLocationButton}
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
+        .overlay(alignment: .center) {
+            Button {
+                OpenGoogleMaps()
+            } label: {
+                Text("Open Google Maps")
+            }
+
+
+        }
     }
 }
 
@@ -125,7 +134,6 @@ extension MapView {
         [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
          .foodMarket, .fairground, .landmark, .park, .musicVenue,
          .rockClimbing, .skating,
-                 
         ]
     }
     
