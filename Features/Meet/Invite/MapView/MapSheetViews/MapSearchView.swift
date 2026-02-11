@@ -92,7 +92,7 @@ extension MapSearchView {
                     .foregroundStyle(Color.grayText)
 
                 (
-                    Text(search.title.count > 16 ? String(search.title.prefix(16)) + "…" : search.title).foregroundStyle(.black) +
+                    Text(search.title.count > 18 ? String(search.title.prefix(18)) + "…" : search.title).foregroundStyle(.black) +
                     Text(" · \(search.town)").foregroundStyle(Color.grayText)
                 )
                 .font(.body(17, .regular))
@@ -163,7 +163,7 @@ extension MapSearchView {
             await MainActor.run { vm.selection = MapSelection(first) }
             
             //Save it to Defaults
-            if let title = first.placemark.title, let town = first.placemark.locality  {
+            if let title = first.name, let town = first.placemark.locality  {
                 if !title.isEmpty && !town.isEmpty {
                     vm.addSearchToDefaults(title: title, town: town)
                 }
