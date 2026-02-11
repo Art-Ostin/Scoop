@@ -21,11 +21,11 @@ struct MapSearchView: View {
     
     var body: some View {
         ScrollView {
-            ClearRectangle(size: showSuggestions ? 70 : 80 )
+            ClearRectangle(size: showSuggestions ? 68 : 80 )
             if showSuggestions {
                 MapSearchBox { searchSuggestionList }
             } else {
-                VStack(spacing: 32) {
+                VStack(spacing: 28) {
                     if showRecentSearches {
                         MapSearchBox(text: "Recents") {recentSearchView }
                     }
@@ -55,7 +55,7 @@ extension MapSearchView {
                     .padding(.vertical, 4)
 
                 if index < vm.recentMapSearches.count - 1 {
-                    Divider()
+                    mapDivider
                         .padding(.leading, 53)
                         .padding(.trailing, 16)
                 }
@@ -69,7 +69,7 @@ extension MapSearchView {
                 .onTapGesture { Task { await searchLocation(suggestion: suggestion)}}
             
             if index < service.suggestions.count - 1 {
-                Divider().padding(.leading, 16)
+                mapDivider.padding(.horizontal, 16)
             }
         }
     }
@@ -123,8 +123,9 @@ extension MapSearchView {
                 }
                 .padding(16)
                 if category != MapCategory.allCases.last {
-                    Divider()
+                    mapDivider
                         .padding(.leading, 64)
+                        .padding(.trailing, 16)
                 }
             }
             .foregroundStyle(.black)
@@ -142,7 +143,8 @@ extension MapSearchView {
                 .frame(width: 40)
         }
         .frame(maxWidth: .infinity)
-        .padding(16)
+        .padding(.vertical, 15)
+        .padding(.horizontal, 16)
     }
     
     private func searchLocation(suggestion :MKLocalSearchCompletion) async {
@@ -190,6 +192,13 @@ extension MapSearchView {
         }
         .foregroundStyle(Color.black)
     }
+    
+    private var mapDivider: some View {
+        Rectangle()
+            .foregroundStyle(Color(red: 0.91, green: 0.91, blue: 0.91))
+            .frame(height: 1)
+            .frame(maxWidth: .infinity)
+    }
 }
 
 private struct MapSearchBox<Content: View>: View {
@@ -204,7 +213,7 @@ private struct MapSearchBox<Content: View>: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading)  {
+        VStack(alignment: .leading, spacing: 8)  {
             if let text {
                 Text(text)
                     .font(.system(size: 20, weight: .semibold))
@@ -214,7 +223,7 @@ private struct MapSearchBox<Content: View>: View {
             LazyVStack(spacing: 0) {
                 content
             }
-            .padding(.vertical, 8)
+//            .padding(.vertical, 8)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
