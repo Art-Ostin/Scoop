@@ -16,7 +16,7 @@ final class DefaultsManager: DefaultsManaging {
     
     let defaults: UserDefaults
     private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches}
-    private let maxRecentMapSearches = 5
+    private let maxRecentMapSearches = 4
     
     //Using the 'didSet' everytime I update the onboardingStep or signUpDraft it saves the change to defaults
     var onboardingStep: Int {
