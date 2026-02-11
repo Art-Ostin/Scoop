@@ -25,11 +25,13 @@ struct MapSearchView: View {
             if showSuggestions {
                 MapSearchBox { searchSuggestionList }
             } else {
-                if showRecentSearches {
-                    MapSearchBox(text: "Recents") {recentSearchView }
-                }
-                MapSearchBox(text: "Find Nearby") {
-                    ForEach(MapCategory.allCases) {categoryRow(category: $0)}
+                VStack(spacing: 24) {
+                    if showRecentSearches {
+                        MapSearchBox(text: "Recents") {recentSearchView }
+                    }
+                    MapSearchBox(text: "Find Nearby") {
+                        ForEach(MapCategory.allCases) {categoryRow(category: $0)}
+                    }
                 }
             }
         }
@@ -86,9 +88,8 @@ extension MapSearchView {
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Color.grayText)
-                    .padding(.leading, 12)
 
                 (
                     Text(search.title.count > 16 ? String(search.title.prefix(16)) + "…" : search.title).foregroundStyle(.black) +
@@ -97,8 +98,21 @@ extension MapSearchView {
                 .font(.body(17, .regular))
                 
                 Spacer(minLength: 0)
+                
+                Button {
+                    print("Hello World")
+                } label: {
+                    HStack(spacing: 3) {
+                        ForEach(0..<3) {_ in
+                            Circle()
+                                .frame(width: 4, height: 4)
+                                .foregroundStyle(Color.black)
+                        }
+                    }
+                }
             }
-            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, 6)
         }
     }
     
@@ -177,16 +191,17 @@ private struct MapSearchBox<Content: View>: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 20)
             }
-            
-            content
-                .padding(.vertical, 8)
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
-                )
-                .padding(.horizontal, 16)
+            LazyVStack(spacing: 0) {
+                content
+            }
+            .padding(.vertical, 8)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
+            )
+            .padding(.horizontal, 16)
         }
     }
 }
