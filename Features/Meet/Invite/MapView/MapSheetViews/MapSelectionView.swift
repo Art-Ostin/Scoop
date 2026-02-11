@@ -16,6 +16,7 @@ struct MapSelectionView: View {
     
     let mapItem: MKMapItem
     
+    @Binding var showMapAction: Bool
     
     let selectedLocation: (MKMapItem) -> Void
     
@@ -35,7 +36,10 @@ struct MapSelectionView: View {
                     Spacer()
                     
                     Button {
-                        
+                        let didUpdate = MapsRouter.openMaps(defaults: vm.defaults, item: mapItem)
+                        if didUpdate == false {
+                            showMapAction = true
+                        }
                         
                         
                     } label: {

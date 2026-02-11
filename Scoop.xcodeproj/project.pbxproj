@@ -44,7 +44,6 @@
 		652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D282F2E942000AE491D /* ProfilesRepo.swift */; };
 		652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D2E2F2E9A0600AE491D /* EventLocation.swift */; };
 		652D6FB02F3D022900B08F6F /* MapsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D6FAF2F3D022900B08F6F /* MapsRouter.swift */; };
-		652D6FB22F3D1BC700B08F6F /* MapAnnotationExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D6FB12F3D1BC700B08F6F /* MapAnnotationExample.swift */; };
 		652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652FC9722E1AD7360034A387 /* AuthService.swift */; };
 		6536063D2F238077006334D6 /* EventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063C2F238077006334D6 /* EventDetails.swift */; };
 		6536063F2F239E02006334D6 /* CantMakeIt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063E2F239E02006334D6 /* CantMakeIt.swift */; };
@@ -256,7 +255,6 @@
 		652D3D282F2E942000AE491D /* ProfilesRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesRepo.swift; sourceTree = "<group>"; };
 		652D3D2E2F2E9A0600AE491D /* EventLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLocation.swift; sourceTree = "<group>"; };
 		652D6FAF2F3D022900B08F6F /* MapsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapsRouter.swift; sourceTree = "<group>"; };
-		652D6FB12F3D1BC700B08F6F /* MapAnnotationExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapAnnotationExample.swift; sourceTree = "<group>"; };
 		652FC9722E1AD7360034A387 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		6536063C2F238077006334D6 /* EventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetails.swift; sourceTree = "<group>"; };
 		6536063E2F239E02006334D6 /* CantMakeIt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantMakeIt.swift; sourceTree = "<group>"; };
@@ -933,7 +931,6 @@
 				6555178D2F38F3F6000783FB /* MapCategory.swift */,
 				6523E5332F3B8F0100271C8F /* MapCategoryIcon.swift */,
 				651D09BE2F3BC64F008773E8 /* CustomMapAnnotation.swift */,
-				652D6FB12F3D1BC700B08F6F /* MapAnnotationExample.swift */,
 			);
 			path = MapSheetViews;
 			sourceTree = "<group>";
@@ -1231,7 +1228,6 @@
 				654982BC2E2E66A500CA335F /* VerifyEmailViewModel.swift in Sources */,
 				65A070582EE09F85009F798B /* CustomViewModifiers.swift in Sources */,
 				65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */,
-				652D6FB22F3D1BC700B08F6F /* MapAnnotationExample.swift in Sources */,
 				65E5C8FA2E4EAAE70093410B /* SelectTimeAndPlace.swift in Sources */,
 				654982D82E3152C000CA335F /* ProfileImages.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,

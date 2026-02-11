@@ -17,6 +17,7 @@ struct MapView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
     @State private var sheet: MapSheets = .optionsAndSearchBar
+    @State var showMapAction: Bool = false
     
     
     init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
@@ -79,7 +80,7 @@ struct MapView: View {
                             .tag(MapSelection(item))
                             .tint(vm.markerTint)
                     }
-
+                    
                 }
             }
             .mapControlVisibility(.visible)
@@ -112,24 +113,11 @@ struct MapView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {userLocationButton}
+            .sheet(isPresented: $showMapAction) {chooseMapSheet}
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
 }
-
-/*
- .overlay(alignment: .center) {
-     Button {
-         OpenGoogleMaps()
-     } label: {
-         Text("Open Google Maps")
-     }
-
-
- }
- 
- */
-
 
 extension MapView {
     
@@ -142,7 +130,7 @@ extension MapView {
     
     @ViewBuilder
     private var mapSheet: some View {
-        MapSheetContainer(vm: vm, sheet: $sheet) { mapItem in
+        MapSheetContainer(vm: vm, sheet: $sheet, showMapAction: $showMapAction) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
         }
         .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil), selection: detentSelection)
@@ -177,6 +165,23 @@ extension MapView {
             .padding(.bottom, 144)
             .padding(.horizontal, 16)
     }
+    
+    private var chooseMapSheet: some View {
+        VStack(spacing: 24) {
+            Button("Google Maps") {
+                MapsRouter.openGoogleMaps(item: nil)
+            }
+            
+            MapDivider()
+            
+            Button("Apple Maps") {
+                MapsRouter.openAppleMaps(item: nil)
+            }
+        }
+        .font(.body(17, .bold)) // your default text
+        .padding(20)
+        .presentationDetents([.height(120)])
+    }
 }
 
 
@@ -196,3 +201,4 @@ extension MapView {
 
 //Best Orange I have
 //Color(red: 1, green: 0.28, blue: 0)
+

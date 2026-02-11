@@ -11,6 +11,7 @@ import MapKit
 struct MapSheetContainer: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
+    @Binding var showMapAction: Bool
     let selectedLocation: (MKMapItem) -> Void
 
     @FocusState private var searchFocused: Bool
@@ -18,7 +19,7 @@ struct MapSheetContainer: View {
     var body: some View {
         Group {
             if let mapItem = vm.selectedMapItem {
-                MapSelectionView(vm: vm, mapItem: mapItem) { selectedLocation($0) }
+                MapSelectionView(vm: vm, mapItem: mapItem, showMapAction: $showMapAction) { selectedLocation($0) }
             } else {
                 switch sheet {
                 case .searchBar:
