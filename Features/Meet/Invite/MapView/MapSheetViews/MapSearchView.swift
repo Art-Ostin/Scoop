@@ -92,24 +92,41 @@ extension MapSearchView {
                     .foregroundStyle(Color.grayText)
 
                 (
-                    Text(search.title.count > 18 ? String(search.title.prefix(18)) + "…" : search.title).foregroundStyle(.black) +
+                    Text(search.title).foregroundStyle(.black) +
                     Text(" · \(search.town)").foregroundStyle(Color.grayText)
                 )
                 .font(.body(17, .regular))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 
-                Spacer(minLength: 0)
                 
-                Button {
-                    print("Hello World")
-                } label: {
-                    HStack(spacing: 3) {
-                        ForEach(0..<3) {_ in
-                            Circle()
-                                .frame(width: 4, height: 4)
-                                .foregroundStyle(Color.black)
-                        }
+                Menu {
+                    Button {
+                        print("hello world")
+                    } label: {
+                        Text("Hello World")
                     }
+
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundStyle(Color.black)
+                        .font(.system(size: 20, weight: .medium))
+                        .customExpandTapArea()
                 }
+//                .customExpandTapArea()
+
+//                Button {
+//                    print("Hello World")
+//                } label: {
+//                    HStack(spacing: 3) {
+//                        ForEach(0..<3) {_ in
+//                            Circle()
+//                                .frame(width: 4, height: 4)
+//                                .foregroundStyle(Color.black)
+//                        }
+//                    }
+//                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 6)
