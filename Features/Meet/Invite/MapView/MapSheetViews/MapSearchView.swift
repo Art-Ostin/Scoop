@@ -21,11 +21,11 @@ struct MapSearchView: View {
     
     var body: some View {
         ScrollView {
-            ClearRectangle(size: showSuggestions ? 75 : 84)
+            ClearRectangle(size: showSuggestions ? 70 : 80 )
             if showSuggestions {
                 MapSearchBox { searchSuggestionList }
             } else {
-                VStack(spacing: 24) {
+                VStack(spacing: 32) {
                     if showRecentSearches {
                         MapSearchBox(text: "Recents") {recentSearchView }
                     }
@@ -52,11 +52,11 @@ extension MapSearchView {
             ForEach(Array(vm.recentMapSearches.enumerated()), id: \.offset) { index, search in
                 recentSearchRow(search: search)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, 4)
 
                 if index < vm.recentMapSearches.count - 1 {
                     Divider()
-                        .padding(.leading, 68)
+                        .padding(.leading, 53)
                         .padding(.trailing, 16)
                 }
             }
@@ -76,7 +76,7 @@ extension MapSearchView {
 
     @ViewBuilder
     func recentSearchRow(search: RecentPlace) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             Button { searchRecentPlace(place: search) } label: {
                 HStack(spacing: 12) {
                     
@@ -85,7 +85,7 @@ extension MapSearchView {
                         .foregroundStyle(Color.grayText)
                     
                     (
-                    Text(search.title).foregroundStyle(.black) +
+                        Text(search.title).foregroundStyle(.black).font(.body(17, .medium)) +
                     Text(" · \(search.town)").foregroundStyle(Color.grayText)
                     )
                     .font(.body(17, .regular))
@@ -101,10 +101,8 @@ extension MapSearchView {
                 Image(systemName: "ellipsis")
                     .foregroundStyle(Color.black)
                     .font(.system(size: 20, weight: .medium))
-                    .padding(24)
                     .contentShape(Rectangle())
-                    .padding(-24)
-//                    .frame(width: 44, height: 44)
+                    .frame(width: 44, height: 44, alignment: .trailing)
                     .contentShape(Rectangle())
             }
         }
@@ -190,6 +188,7 @@ extension MapSearchView {
                 Text("Clear")
             }
         }
+        .foregroundStyle(Color.black)
     }
 }
 
