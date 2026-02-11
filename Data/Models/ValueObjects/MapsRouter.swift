@@ -6,6 +6,22 @@
 //
 
 
+/*
+ static func open(item: MKMapItem, target: MapTarget = .googleThenApple) {
+     switch target {
+     case .googleOnly:
+         _ = openGoogleMaps(item: item)
+     case .appleOnly:
+         openAppleMaps(item: item)
+     case .googleThenApple:
+         if !openGoogleMaps(item: item) {
+             openAppleMaps(item: item)
+         }
+     }
+ }
+ */
+
+
 
 import MapKit
 import UIKit
@@ -18,19 +34,19 @@ enum MapTarget {
 
 enum MapsRouter {
     
-    static func open(item: MKMapItem, target: MapTarget = .googleThenApple) {
-        switch target {
-        case .googleOnly:
-            _ = openGoogleMaps(item: item)
-        case .appleOnly:
-            openAppleMaps(item: item)
-        case .googleThenApple:
-            if !openGoogleMaps(item: item) {
-                openAppleMaps(item: item)
+    @discardableResult
+    func openMaps(defaults: DefaultsManaging, item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
+        if let preferredMapType = defaults.preferredMapType {
+            if preferredMapType == .appleMaps {
+                MapsRouter.openAppleMaps(item: item, withDirections: withDirections)
+            } else if preferredMapType == .googleMaps {
+                MapsRouter.openGoogleMaps(item: item, withDirections: withDirections)
             }
+        } else {
+            return false
         }
     }
-
+    
     @discardableResult
     static func openGoogleMaps(item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
         if let item {
@@ -84,8 +100,10 @@ enum MapsRouter {
             return nil
         }
         if withDirections {
+            let destination = googleDirectionsDestination(for: item, fallbackCoordinates: coords)
+
             components.queryItems = [
-                URLQueryItem(name: "daddr", value: coords),
+                URLQueryItem(name: "daddr", value: destination),
                 URLQueryItem(name: "directionsmode", value: "walking")
             ]
         } else {
@@ -96,6 +114,11 @@ enum MapsRouter {
             ]
         }
         return components.url
+    }
+    
+    private static func googleDirectionsDestination(for item: MKMapItem, fallbackCoordinates: String) -> String {
+        let query = googleQuery(for: item, fallbackCoordinates: "")
+        return query.isEmpty ? fallbackCoordinates : query
     }
 
     private static func googleQuery(for item: MKMapItem, fallbackCoordinates: String) -> String {

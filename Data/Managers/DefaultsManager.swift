@@ -15,14 +15,14 @@ final class DefaultsManager: DefaultsManaging {
     
     
     let defaults: UserDefaults
-    private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches}
     private let maxRecentMapSearches = 4
+    private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches, preferredMapType}
     
-    //Using the 'didSet' everytime I update the onboardingStep or signUpDraft it saves the change to defaults
+    
+    
     var onboardingStep: Int {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
-    
     private(set) var recentMapSearches: [RecentPlace] = [] {
         didSet {
             if let data = try? JSONEncoder().encode(recentMapSearches) {
@@ -33,8 +33,6 @@ final class DefaultsManager: DefaultsManaging {
         }
     }
     
-
-
     //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
     var signUpDraft: DraftProfile? {
         didSet {
@@ -45,6 +43,9 @@ final class DefaultsManager: DefaultsManaging {
             }
         }
     }
+    
+    var preferredMapType: PreferredMapType?
+        
     
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -97,10 +98,18 @@ final class DefaultsManager: DefaultsManaging {
     func removeFromRecentMapSearches(place: RecentPlace) {
         recentMapSearches.removeAll { $0 == place }
     }
-
+    
+    func updatePreferredMapType(mapType: PreferredMapType) {
+        preferredMapType = mapType
+    }
 }
 
-//For recent for maps
+
+enum PreferredMapType {
+    case appleMaps, googleMaps
+}
+
+
 struct RecentPlace: Codable, Equatable, Hashable {
     let title: String
     let town: String

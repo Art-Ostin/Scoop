@@ -32,7 +32,6 @@ struct MapView: View {
                 }
                 return sheet.detent
             }, set: { newDetent in
-                
                 if vm.selectedMapItem != nil {
                     if newDetent != MapSheets.selectedDetent {
                         withAnimation(.easeInOut(duration: 0.3)) {
@@ -115,17 +114,21 @@ struct MapView: View {
             .overlay(alignment: .bottomTrailing) {userLocationButton}
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
-        .overlay(alignment: .center) {
-            Button {
-                OpenGoogleMaps()
-            } label: {
-                Text("Open Google Maps")
-            }
-
-
-        }
     }
 }
+
+/*
+ .overlay(alignment: .center) {
+     Button {
+         OpenGoogleMaps()
+     } label: {
+         Text("Open Google Maps")
+     }
+
+
+ }
+ 
+ */
 
 
 extension MapView {
