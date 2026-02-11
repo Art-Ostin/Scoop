@@ -76,53 +76,39 @@ extension MapSearchView {
 
     @ViewBuilder
     func recentSearchRow(search: RecentPlace) -> some View {
-        let searchText = "\(search.title) \(search.town)"
-        Button {
-            Task {
-                vm.searchText = searchText
-                await vm.searchPlaces()
-                if let first = vm.results.first {
-                    await MainActor.run { vm.selection = MapSelection(first) }
-                }
-            }
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(Color.grayText)
-
-                (
+        HStack(spacing: 12) {
+            Button { searchRecentPlace(place: search) } label: {
+                HStack(spacing: 12) {
+                    
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(Color.grayText)
+                    
+                    (
                     Text(search.title).foregroundStyle(.black) +
                     Text(" · \(search.town)").foregroundStyle(Color.grayText)
-                )
-                .font(.body(17, .regular))
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Menu {
-                    Button {
-                        vm.deleteSearchFromDefaults(place: search)
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "minus.circle")
-                                .foregroundStyle(Color.black)
-                            
-                            Text("Clear")
-                        }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundStyle(Color.black)
-                        .font(.system(size: 20, weight: .medium))
-                        .padding(24)
-                        .contentShape(Rectangle())
-                        .padding(-24)
+                    )
+                    .font(.body(17, .regular))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.trailing, 6)
+            
+            Menu {
+                clearRecentSeachButton(place: search)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .foregroundStyle(Color.black)
+                    .font(.system(size: 20, weight: .medium))
+                    .padding(24)
+                    .contentShape(Rectangle())
+                    .padding(-24)
+//                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func categoryRow (category: MapCategory) -> some View {
@@ -147,6 +133,7 @@ extension MapSearchView {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+    
     
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -176,6 +163,31 @@ extension MapSearchView {
                 if !title.isEmpty && !town.isEmpty {
                     vm.addSearchToDefaults(title: title, town: town)
                 }
+            }
+        }
+    }
+    
+    private func searchRecentPlace(place: RecentPlace) {
+        let searchText = "\(place.title) \(place.town)"
+        sheet = .searchBar
+        Task {
+            vm.searchText = searchText
+            await vm.searchPlaces()
+            if let first = vm.results.first {
+                await MainActor.run { vm.selection = MapSelection(first) }
+            }
+        }
+    }
+    
+    private func clearRecentSeachButton(place: RecentPlace) -> some View {
+        Button {
+            vm.deleteSearchFromDefaults(place: place)
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "minus.circle")
+                    .foregroundStyle(Color.black)
+                
+                Text("Clear")
             }
         }
     }
