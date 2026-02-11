@@ -13,18 +13,20 @@ import SwiftUI
 @Observable final class MeetViewModel {
 
     let s: SessionManager
+    let defaults: DefaultsManaging
     let userRepo: UserRepository
     let profileRepo: ProfilesRepository
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
     
 
-    init(s: SessionManager, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(s: SessionManager, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.imageLoader = imageLoader
         self.s = s
         self.userRepo = userRepo
         self.profileRepo = profileRepo
         self.eventRepo = eventRepo
+        self.defaults = defaults
     }
     
     var invites: [ProfileModel] { s.invites }

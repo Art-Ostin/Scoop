@@ -41,7 +41,7 @@ struct EventView: View {
             .background(Color.background)
             
             if let profile = ui.selectedProfile {
-                ProfileView(vm: ProfileViewModel(profileModel: profile, imageLoader: vm.imageLoader), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
+                ProfileView(vm: ProfileViewModel(defaults: vm.defaults, profileModel: profile, imageLoader: vm.imageLoader), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
                     .id(profile.id)
                     .zIndex(1)
                     .transition(.move(edge: .bottom))

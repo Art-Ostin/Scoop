@@ -12,13 +12,15 @@ import Foundation
 class FrozenViewModel {
     
     let sessionManager : SessionManager
+    let defaults: DefaultsManaging
     let authService: AuthServicing
     let userRepo: UserRepository
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
     
-    init(sessionManager: SessionManager, authService: AuthServicing, userRepo: UserRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(sessionManager: SessionManager, defaults: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.sessionManager = sessionManager
+        self.defaults = defaults
         self.authService = authService
         self.userRepo = userRepo
         self.eventRepo = eventRepo

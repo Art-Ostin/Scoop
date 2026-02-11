@@ -98,7 +98,7 @@ extension ProfileView {
                 }
             }
         } else if let meetVM {
-            SelectTimeAndPlace(profile: vm.profileModel, onDismiss: { ui.showInvitePopup = false }) { event in
+            SelectTimeAndPlace(defaults: vm.defaults, profile: vm.profileModel, onDismiss: { ui.showInvitePopup = false }) { event in
                 try? await meetVM.updateProfileRec(event: event, profileModel: vm.profileModel, status: .invited)
                 selectedProfile = nil
             }

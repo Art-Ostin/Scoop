@@ -47,7 +47,7 @@ extension AppContainer {
     
     private var meetView: some View {
         MeetContainer(vm: MeetViewModel(
-            s: dep.sessionManager,
+            s: dep.sessionManager, defaults: dep.defaultsManager,
             userRepo: dep.userRepo,
             profileRepo: dep.profilesRepo,
             eventRepo: dep.eventRepo,
@@ -56,11 +56,11 @@ extension AppContainer {
     }
     
     private var eventsView: some View {
-        EventContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, eventRepo: dep.eventRepo, imageLoader: dep.imageLoader))
+        EventContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, imageLoader: dep.imageLoader))
     }
     
     private var matchesView: some View {
-        MatchesView(vm: MatchesViewModel(s: dep.sessionManager, storageService: dep.storageService, authService: dep.authService, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
+        MatchesView(vm: MatchesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
         )
     }
 }

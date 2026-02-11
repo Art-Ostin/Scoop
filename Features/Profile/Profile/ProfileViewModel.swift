@@ -18,13 +18,16 @@ enum ProfileViewType {
     let profileModel: ProfileModel
     let imageLoader: ImageLoading
     
+    let defaults: DefaultsManaging
+    
     var receivedEvent: UserEvent? { profileModel.event }
     
     var viewProfileType: ProfileViewType
     
-    init(profileModel: ProfileModel, imageLoader: ImageLoading) {
+    init(defaults: DefaultsManaging, profileModel: ProfileModel, imageLoader: ImageLoading) {
         self.profileModel = profileModel
         self.imageLoader = imageLoader
+        self.defaults = defaults
         
         if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
             self.viewProfileType = .view

@@ -10,7 +10,7 @@ import SwiftUI
 struct FrozenContainer: View {
     @Environment(\.appDependencies) private var dep
     private var vm: FrozenViewModel {
-        FrozenViewModel(sessionManager: dep.sessionManager, authService: dep.authService, userRepo: dep.userRepo, eventRepo: dep.eventRepo,imageLoader: dep.imageLoader)
+        FrozenViewModel(sessionManager: dep.sessionManager, defaults: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo, eventRepo: dep.eventRepo,imageLoader: dep.imageLoader)
     }
     var body: some View {
         if dep.sessionManager.user.isBlocked {

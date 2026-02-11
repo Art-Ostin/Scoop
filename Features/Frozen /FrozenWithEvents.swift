@@ -43,7 +43,7 @@ struct FrozenWithEvents: View {
 extension FrozenWithEvents {
     
     private var eventsView: some View {
-        EventContainer(vm: EventViewModel(sessionManager: vm.sessionManager, userRepo: vm.userRepo, eventRepo: vm.eventRepo, imageLoader: vm.imageLoader), showFrozenInfo: $showFrozenInfo, isFrozenEvent: true)
+        EventContainer(vm: EventViewModel(sessionManager: vm.sessionManager, userRepo: vm.userRepo, defaults: vm.defaults, eventRepo: vm.eventRepo, imageLoader: vm.imageLoader), showFrozenInfo: $showFrozenInfo, isFrozenEvent: true)
     }
     
     private var frozenView: some View {

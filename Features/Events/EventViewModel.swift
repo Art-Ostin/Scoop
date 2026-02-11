@@ -17,14 +17,16 @@ import FirebaseFirestore
     
     let sessionManager: SessionManager
     let userRepo: UserRepository
+    let defaults: DefaultsManaging
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
     
-    init(sessionManager: SessionManager, userRepo: UserRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(sessionManager: SessionManager, userRepo: UserRepository, defaults: DefaultsManaging, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.sessionManager = sessionManager
         self.userRepo = userRepo
         self.eventRepo = eventRepo
         self.imageLoader = imageLoader
+        self.defaults = defaults
     }
 
     var events: [ProfileModel] { sessionManager.events}
