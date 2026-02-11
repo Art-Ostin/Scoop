@@ -94,9 +94,10 @@ final class DefaultsManager: DefaultsManaging {
         }
     }
     
-    func removeFromRecentMapSearches(title: String) {
-        recentMapSearches.removeAll { $0.title == title }
+    func removeFromRecentMapSearches(place: RecentPlace) {
+        recentMapSearches.removeAll { $0 == place }
     }
+
 }
 
 //For recent for maps

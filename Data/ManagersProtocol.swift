@@ -87,4 +87,5 @@ protocol DefaultsManaging {
     func deleteDefaults()
     func advanceOnboarding()
     func updateRecentMapSearches(title: String, town: String)
+    func removeFromRecentMapSearches(place: RecentPlace)
 }

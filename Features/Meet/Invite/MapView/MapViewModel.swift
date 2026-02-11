@@ -281,6 +281,11 @@ import UIKit
         defaults.updateRecentMapSearches(title: title, town: town)
         recentMapSearches = defaults.recentMapSearches
     }
+    
+    func deleteSearchFromDefaults(place: RecentPlace) {
+        defaults.removeFromRecentMapSearches(place: place)
+        recentMapSearches = defaults.recentMapSearches
+    }
 }
 
 

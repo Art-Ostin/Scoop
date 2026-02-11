@@ -100,35 +100,25 @@ extension MapSearchView {
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                
                 Menu {
                     Button {
-                        print("hello world")
+                        vm.deleteSearchFromDefaults(place: search)
                     } label: {
-                        Text("Hello World")
+                        HStack(spacing: 8) {
+                            Image(systemName: "minus.circle")
+                                .foregroundStyle(Color.black)
+                            
+                            Text("Clear")
+                        }
                     }
-
                 } label: {
                     Image(systemName: "ellipsis")
                         .foregroundStyle(Color.black)
                         .font(.system(size: 20, weight: .medium))
+                        .padding(24)
+                        .contentShape(Rectangle())
+                        .padding(-24)
                 }
-                
-                
-                
-//                .customExpandTapArea()
-
-//                Button {
-//                    print("Hello World")
-//                } label: {
-//                    HStack(spacing: 3) {
-//                        ForEach(0..<3) {_ in
-//                            Circle()
-//                                .frame(width: 4, height: 4)
-//                                .foregroundStyle(Color.black)
-//                        }
-//                    }
-//                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 6)
