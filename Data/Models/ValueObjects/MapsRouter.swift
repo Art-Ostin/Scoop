@@ -32,7 +32,7 @@ enum MapsRouter {
     }
 
     @discardableResult
-    static func openGoogleMaps(item: MKMapItem?, withDirections: Bool = false) -> Bool {
+    static func openGoogleMaps(item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
         if let item {
             guard let url = googleURL(for: item, withDirections: withDirections),
                   UIApplication.shared.canOpenURL(url) else {
@@ -53,7 +53,7 @@ enum MapsRouter {
         return false
     }
 
-    static func openAppleMaps(item: MKMapItem?, withDirections: Bool = false) {
+    static func openAppleMaps(item: MKMapItem? = nil, withDirections: Bool = false) {
         if let item {
             if withDirections  {
                 item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
@@ -74,7 +74,7 @@ enum MapsRouter {
         }
     }
 
-    private static func googleURL(for item: MKMapItem) -> URL? {
+    private static func googleURL(for item: MKMapItem, withDirections: Bool) -> URL? {
         let lat = item.placemark.coordinate.latitude
         let lon = item.placemark.coordinate.longitude
         let coords = "\(lat),\(lon)"
@@ -83,11 +83,18 @@ enum MapsRouter {
         guard var components = URLComponents(string: "comgooglemaps://") else {
             return nil
         }
-        components.queryItems = [
-            URLQueryItem(name: "q", value: query),
-            URLQueryItem(name: "center", value: coords),
-            URLQueryItem(name: "zoom", value: "15")
-        ]
+        if withDirections {
+            components.queryItems = [
+                URLQueryItem(name: "daddr", value: coords),
+                URLQueryItem(name: "directionsmode", value: "walking")
+            ]
+        } else {
+            components.queryItems = [
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "center", value: coords),
+                URLQueryItem(name: "zoom", value: "15")
+            ]
+        }
         return components.url
     }
 

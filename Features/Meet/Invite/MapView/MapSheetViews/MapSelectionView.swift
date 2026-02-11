@@ -35,28 +35,21 @@ struct MapSelectionView: View {
                     Spacer()
                     
                     Button {
-                        MapsRouter.openGoogleMaps(item: mapItem)
+                        MapsRouter.openGoogleMaps(item: mapItem, withDirections: true)
                     } label: {
-                        Text("Open Google Maps")
+                        Text("Google Maps Directions")
                     }
-                    
-                    Button {
-                        MapsRouter.openAppleMaps(item: mapItem)
-                    } label: {
-                        Text("Open Apple Maps")
-                    }
-                    
                     
                     Button {
                         MapsRouter.openGoogleMaps(item: mapItem)
                     } label: {
-                        Text("Open Google Maps 2")
+                        Text("Google Maps Place")
                     }
                     
                     Button {
-                        MapsRouter.openAppleMaps(item: mapItem)
+                        MapsRouter.openGoogleMaps()
                     } label: {
-                        Text("Open Apple Maps 2")
+                        Text("Google Maps")
                     }
                     
                     
