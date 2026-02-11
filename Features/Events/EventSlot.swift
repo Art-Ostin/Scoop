@@ -155,7 +155,7 @@ extension EventSlot {
             Text(EventFormatting.dayAndTime(time))
 
             Button {
-                Task { await MapsRouting.openMaps(place: event.place)}
+                openEventInPreferredMaps(event)
             } label :  {
                 Text(EventFormatting.placeName(event.place))
                     .foregroundStyle(.accent)
@@ -168,7 +168,7 @@ extension EventSlot {
     
     private func eventAddress(event: UserEvent) -> some View {
         Button {
-            Task { await MapsRouting.openMaps(place: event.place) }
+            openEventInPreferredMaps(event)
         } label: {
             Text(event.place.address ?? "")
                 .font(.body(12, .medium))
@@ -208,7 +208,7 @@ extension EventSlot {
     
     private func address(event: UserEvent) -> some View {
         Button {
-            Task { await MapsRouting.openMaps(place: event.place) }
+            openEventInPreferredMaps(event)
         } label: {
             Text(removingTrailingCountry(from: EventFormatting.placeFullAddress(place: event.place)))
                 .font(.body(12, .regular))
@@ -287,9 +287,7 @@ extension EventSlot {
     @ViewBuilder
     private func openInMapsButton(event: UserEvent) -> some View {
         Button {
-            Task {
-                await MapsRouting.openMaps(place: event.place)
-            }
+            openEventInPreferredMaps(event)
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "map")
@@ -306,5 +304,9 @@ extension EventSlot {
             .padding(.horizontal)
             .padding(.vertical, 10)
         }
+    }
+    @discardableResult
+    private func openEventInPreferredMaps(_ event: UserEvent) -> Bool {
+        MapsRouter.openMaps(defaults: vm.defaults, item: event.place.mapItem, withDirections: true)
     }
 }

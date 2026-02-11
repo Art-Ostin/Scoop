@@ -31,6 +31,7 @@ struct EventLocation: Equatable, Codable {
     }
 }
 
+/*
  enum MapsRouting {
      
      @MainActor
@@ -69,10 +70,9 @@ struct EventLocation: Equatable, Codable {
      UIApplication.shared.open(url)
  }
  
- 
  */
-
-
+ 
+ 
 
 
 

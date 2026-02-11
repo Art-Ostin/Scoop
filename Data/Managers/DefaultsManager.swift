@@ -44,8 +44,18 @@ final class DefaultsManager: DefaultsManaging {
         }
     }
     
-    var preferredMapType: PreferredMapType?
-        
+    var preferredMapType: PreferredMapType? {
+        didSet {
+            if let preferredMapType {
+                defaults.set(preferredMapType.rawValue, forKey: Keys.preferredMapType.rawValue)
+            } else {
+                defaults.removeObject(forKey: Keys.preferredMapType.rawValue)
+            }
+        }
+    }
+
+
+
     
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -57,6 +67,10 @@ final class DefaultsManager: DefaultsManaging {
         if let data = defaults.data(forKey: Keys.recentMapSearches.rawValue),
            let recents = try? JSONDecoder().decode([RecentPlace].self, from: data) {
             recentMapSearches = recents
+        }
+        
+        if let rawMapType = defaults.string(forKey: Keys.preferredMapType.rawValue) {
+            preferredMapType = PreferredMapType(rawValue: rawMapType)
         }
     }
     
@@ -99,15 +113,16 @@ final class DefaultsManager: DefaultsManaging {
         recentMapSearches.removeAll { $0 == place }
     }
     
-    func updatePreferredMapType(mapType: PreferredMapType) {
+    func updatePreferredMapType(mapType: PreferredMapType?) {
         preferredMapType = mapType
     }
 }
 
 
-enum PreferredMapType {
+enum PreferredMapType: String, Codable {
     case appleMaps, googleMaps
 }
+
 
 
 struct RecentPlace: Codable, Equatable, Hashable {

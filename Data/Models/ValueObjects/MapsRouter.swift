@@ -5,45 +5,21 @@
 //  Created by Art Ostin on 11/02/2026.
 //
 
-
-/*
- static func open(item: MKMapItem, target: MapTarget = .googleThenApple) {
-     switch target {
-     case .googleOnly:
-         _ = openGoogleMaps(item: item)
-     case .appleOnly:
-         openAppleMaps(item: item)
-     case .googleThenApple:
-         if !openGoogleMaps(item: item) {
-             openAppleMaps(item: item)
-         }
-     }
- }
- */
-
-
-
 import MapKit
 import UIKit
-
-enum MapTarget {
-    case googleOnly
-    case appleOnly
-    case googleThenApple
-}
 
 enum MapsRouter {
     
     @discardableResult
-    func openMaps(defaults: DefaultsManaging, item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
-        if let preferredMapType = defaults.preferredMapType {
-            if preferredMapType == .appleMaps {
-                MapsRouter.openAppleMaps(item: item, withDirections: withDirections)
-            } else if preferredMapType == .googleMaps {
-                MapsRouter.openGoogleMaps(item: item, withDirections: withDirections)
-            }
-        } else {
-            return false
+    static func openMaps(defaults: DefaultsManaging, item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
+        
+        guard let preferredMapType = defaults.preferredMapType else { return false }
+        
+        switch preferredMapType {
+        case .appleMaps:
+            return openAppleMaps(item: item, withDirections: withDirections)
+        case .googleMaps:
+            return openGoogleMaps(item: item, withDirections: withDirections)
         }
     }
     
@@ -69,24 +45,31 @@ enum MapsRouter {
         return false
     }
 
-    static func openAppleMaps(item: MKMapItem? = nil, withDirections: Bool = false) {
+    @discardableResult
+    static func openAppleMaps(item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
         if let item {
-            if withDirections  {
-                item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+            if withDirections {
+                return item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
             }
+
             let coordinate = item.placemark.coordinate
             let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
 
-            item.openInMaps(launchOptions: [
+            return item.openInMaps(launchOptions: [
                 MKLaunchOptionsMapCenterKey: NSValue(mkCoordinate: coordinate),
                 MKLaunchOptionsMapSpanKey: NSValue(mkCoordinateSpan: span)
             ])
+
         } else {
             if let appURL = URL(string: "maps://"), UIApplication.shared.canOpenURL(appURL) {
                 UIApplication.shared.open(appURL)
-            } else if let webURL = URL(string: "https://maps.apple.com/") {
-                UIApplication.shared.open(webURL)
+                return true
             }
+            if let webURL = URL(string: "https://maps.apple.com/") {
+                UIApplication.shared.open(webURL)
+                return true
+            }
+            return false
         }
     }
 
