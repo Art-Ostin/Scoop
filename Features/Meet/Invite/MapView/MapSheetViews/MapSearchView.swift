@@ -9,43 +9,29 @@ import SwiftUI
 import MapKit
 
 struct MapSearchView: View {
+    
+    @State var service = LocationSearchService()
+    
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @FocusState.Binding var isFocused: Bool
     var showSuggestions: Bool {!service.suggestions.isEmpty && service.showSuggestions && !vm.searchText.isEmpty}
+    var showRecentSearches: Bool { !vm.recentMapSearches.isEmpty  }
 
-    @State var service = LocationSearchService()
     
     var body: some View {
         ScrollView {
             ClearRectangle(size: showSuggestions ? 75 : 84)
-            
-            if !showSuggestions {
-                Text("Find Nearby")
-                    .font(.system(size: 20, weight: .semibold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-            }
-            
-            LazyVStack(spacing: 0) {
-                if showSuggestions {
-                    searchSuggestionList
-                } else {
-                    if !vm.recentMapSearches.isEmpty {
-                        recentSearchView
-                    }
-                    
+            if showSuggestions {
+                MapSearchBox { searchSuggestionList }
+            } else {
+                if showRecentSearches {
+                    MapSearchBox(text: "Recents") {recentSearchView }
+                }
+                MapSearchBox(text: "Find Nearby") {
                     ForEach(MapCategory.allCases) {categoryRow(category: $0)}
                 }
             }
-            .padding(.vertical, 8)
-            .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
-            )
-            .padding(.horizontal, 16)
         }
         .scrollIndicators(.hidden)
         .customScrollFade(height: 50, showFade: true)
@@ -57,54 +43,6 @@ struct MapSearchView: View {
 }
 
 extension MapSearchView {
-    
-    private var headerBar: some View {
-        HStack(alignment: .center, spacing: 12) {
-            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            DismissButton() { sheet = .optionsAndSearchBar }
-                .frame(width: 40)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(16)
-    }
-    
-    private var searchSuggestionList: some View {
-        ForEach(Array(service.suggestions.enumerated()), id: \.offset) { index, suggestion in
-            SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
-                .onTapGesture { Task { await searchLocation(suggestion: suggestion)}}
-            
-            if index < service.suggestions.count - 1 {
-                Divider().padding(.leading, 16)
-            }
-        }
-    }
-    
-    
-    private func categoryRow (category: MapCategory) -> some View {
-        Button {
-            sheet = .optionsAndSearchBar
-            vm.selectedMapCategory = category
-        } label: {
-            VStack(spacing: 0){
-                HStack(spacing: 12) {
-                    MapCategoryIcon(sheet: $sheet, category: category, isMap: false, vm: vm)
-                    Text(category.description)
-                        .font(.body(17, .bold))
-                    Spacer()
-                }
-                .padding(16)
-                if category != MapCategory.allCases.last {
-                    Divider()
-                        .padding(.leading, 64)
-                }
-            }
-            .foregroundStyle(.black)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    
     
     @ViewBuilder
     private var recentSearchView: some View {
@@ -122,7 +60,18 @@ extension MapSearchView {
             }
         }
     }
-    
+
+    private var searchSuggestionList: some View {
+        ForEach(Array(service.suggestions.enumerated()), id: \.offset) { index, suggestion in
+            SearchSuggestionRow(suggestion: suggestion, query: vm.searchText)
+                .onTapGesture { Task { await searchLocation(suggestion: suggestion)}}
+            
+            if index < service.suggestions.count - 1 {
+                Divider().padding(.leading, 16)
+            }
+        }
+    }
+
     @ViewBuilder
     func recentSearchRow(search: RecentPlace) -> some View {
         let searchText = "\(search.title) \(search.town)"
@@ -153,6 +102,41 @@ extension MapSearchView {
         }
     }
     
+    private func categoryRow (category: MapCategory) -> some View {
+        Button {
+            sheet = .optionsAndSearchBar
+            vm.selectedMapCategory = category
+        } label: {
+            VStack(spacing: 0){
+                HStack(spacing: 12) {
+                    MapCategoryIcon(sheet: $sheet, category: category, isMap: false, vm: vm)
+                    Text(category.description)
+                        .font(.body(17, .bold))
+                    Spacer()
+                }
+                .padding(16)
+                if category != MapCategory.allCases.last {
+                    Divider()
+                        .padding(.leading, 64)
+                }
+            }
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+    
+    private var headerBar: some View {
+        HStack(alignment: .center, spacing: 12) {
+            MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            DismissButton() { sheet = .optionsAndSearchBar }
+                .frame(width: 40)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(16)
+    }
+    
     private func searchLocation(suggestion :MKLocalSearchCompletion) async {
         //1. Logic to dismiss screen - gives snappy feel
         vm.selectedMapCategory = nil
@@ -174,9 +158,38 @@ extension MapSearchView {
     }
 }
 
-
-
-
+private struct MapSearchBox<Content: View>: View {
+    
+    let text: String?
+    
+    let content: Content
+    
+    init(text: String? = nil, @ViewBuilder content: () -> Content) {
+        self.text = text
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading)  {
+            if let text {
+                Text(text)
+                    .font(.system(size: 20, weight: .semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+            }
+            
+            content
+                .padding(.vertical, 8)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
+                )
+                .padding(.horizontal, 16)
+        }
+    }
+}
 
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
@@ -223,3 +236,38 @@ private struct SearchSuggestionRow: View {
 }
 
 
+
+
+
+
+
+/*
+ 
+ 
+ if !showSuggestions {
+     Text("Find Nearby")
+         .font(.system(size: 20, weight: .semibold))
+         .frame(maxWidth: .infinity, alignment: .leading)
+         .padding(.horizontal, 20)
+ }
+ 
+ LazyVStack(spacing: 0) {
+     if showSuggestions {
+         searchSuggestionList
+     } else {
+         if !vm.recentMapSearches.isEmpty {
+             recentSearchView
+         }
+         
+         ForEach(MapCategory.allCases) {categoryRow(category: $0)}
+     }
+ }
+ .padding(.vertical, 8)
+ .background(Color(.systemBackground))
+ .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+ .overlay(
+     RoundedRectangle(cornerRadius: 24, style: .continuous)
+         .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
+ )
+ .padding(.horizontal, 16)
+ */

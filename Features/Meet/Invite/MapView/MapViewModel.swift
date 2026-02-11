@@ -198,7 +198,7 @@ import UIKit
                 categories: [.restaurant, .foodMarket, .cafe],
                 queries: ["restaurant", "food", "dining", "eat"],
                 excludedCategories: [.cafe],
-                excludedKeywords: ["cafe", "café"]
+                excludedKeywords: ["cafe", "café", "bar"]
             )
         case .cafe:
             return .init(
