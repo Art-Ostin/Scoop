@@ -112,8 +112,10 @@ extension MapSearchView {
                     Image(systemName: "ellipsis")
                         .foregroundStyle(Color.black)
                         .font(.system(size: 20, weight: .medium))
-                        .customExpandTapArea()
                 }
+                
+                
+                
 //                .customExpandTapArea()
 
 //                Button {

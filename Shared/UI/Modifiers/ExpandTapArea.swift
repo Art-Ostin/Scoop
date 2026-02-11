@@ -9,10 +9,14 @@ import SwiftUI
 
 //Expands the tap area of the view, by adding 16 padding around it, but without affecting the layout
 extension View {
-    func customExpandTapArea(inset: CGFloat = 16) -> some View {
+    func customExpandTapArea(inset: CGFloat = 16, onTap: @escaping () -> Void) -> some View {
         self
             .padding(inset)
             .contentShape(Rectangle())
+            .onTapGesture {
+                onTap()
+            }
             .padding(-inset)
     }
 }
+
