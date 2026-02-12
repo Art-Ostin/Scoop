@@ -105,8 +105,36 @@ import UIKit
         guard !Task.isCancelled else { return }
         results = Self.applyCategoryFilter(foundItems, spec: spec)
         lastSearchRegion = region
-        if let random = results.randomElement() {
-            await MainActor.run { selection = MapSelection(random)}
+        if let nearest = nearestMapItem(from: results) {
+            selection = MapSelection(nearest)
+        }
+    }
+    
+    //Go to the nearest Location Not a Random Map 
+    private func nearestMapItem(from items: [MKMapItem]) -> MKMapItem? {
+        guard !items.isEmpty else { return nil }
+        guard let origin = preferredSelectionOrigin() else { return items.first }
+        
+        let originLocation = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
+        
+        return items.min { lhs, rhs in
+            let lhsCoordinate = lhs.placemark.coordinate
+            let rhsCoordinate = rhs.placemark.coordinate
+            
+            let lhsDistance = originLocation.distance(from: CLLocation(latitude: lhsCoordinate.latitude, longitude: lhsCoordinate.longitude))
+            let rhsDistance = originLocation.distance(from: CLLocation(latitude: rhsCoordinate.latitude, longitude: rhsCoordinate.longitude))
+            return lhsDistance < rhsDistance
+        }
+    }
+    private func preferredSelectionOrigin() -> CLLocationCoordinate2D? {
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            if let coordinate = locationManager.location?.coordinate {
+                return coordinate
+            }
+            return visibleRegion?.center
+        default:
+            return visibleRegion?.center
         }
     }
 
