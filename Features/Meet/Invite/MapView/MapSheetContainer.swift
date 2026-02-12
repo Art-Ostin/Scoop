@@ -20,14 +20,9 @@ struct MapSheetContainer: View {
     var body: some View {
         Group {
             if let mapItem =  vm.selectedMapItem {
-                MapSelectionView(
-                    vm: vm,
-                    mapItem: mapItem,
-                    onExitSelection: onExitSelection
-                ) { selectedLocation($0)}
+                MapSelectionView(vm: vm, mapItem: mapItem,onExitSelection: onExitSelection) { selectedLocation($0)}
                     .transition(.opacity)
-
-            } else if useSelectedDetent && sheet != .large {
+            } else if useSelectedDetent || vm.isLoadingCategory {
                 selectedLoadingScreen
             } else {
                     //Powerful way to flick between content use again (I.e. in ZStack and animate).

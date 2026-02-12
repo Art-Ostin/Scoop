@@ -111,6 +111,9 @@ extension MapSearchView {
     
     private func categoryRow (category: MapCategory) -> some View {
         Button {
+            print("This just printed")
+            sheet = .optionsAndSearchBar //Makes it dismiss straight away then goes to selected screen
+            print("now this")
             useSelectedDetent = true
             vm.selectedMapCategory = category
         } label: {
@@ -132,7 +135,6 @@ extension MapSearchView {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-    
     
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 12) {
