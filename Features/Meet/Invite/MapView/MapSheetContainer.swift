@@ -23,22 +23,18 @@ struct MapSheetContainer: View {
             } else if useSelectedDetent {
                 selectedLoadingScreen
             } else {
-                if sheet == .searchBar  {
-                    HStack(spacing: 6) {
-                        MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
-                        if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
-                    }
-                    .padding(.horizontal)
-                } else {
-                    ZStack(alignment: .top) {
-                        MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
-                            .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
-                            .allowsHitTesting(sheet == .optionsAndSearchBar)
-                        
-                        MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-                            .opacity(sheet == .large ? 1 : 0)
-                            .allowsHitTesting(sheet == .large)
-                    }
+                ZStack(alignment: .top) {
+                    mapSearchBar
+                        .opacity(sheet == .searchBar ? 1 : 0)
+                        .allowsHitTesting(sheet == .searchBar)
+                    
+                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                        .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
+                        .allowsHitTesting(sheet == .optionsAndSearchBar)
+                    
+                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
+                        .opacity(sheet == .large ? 1 : 0)
+                        .allowsHitTesting(sheet == .large)
                 }
             }
         }
@@ -60,11 +56,17 @@ struct MapSheetContainer: View {
 
 extension MapSheetContainer {
     
+    private var mapSearchBar: some View {
+        HStack(spacing: 6) {
+            MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+            if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
+        }
+    }
+    
     private var selectedLoadingScreen: some View {
         VStack(spacing: 120) {
             HStack(spacing: 6) {
                 MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
-                
                 
                 if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
             }
