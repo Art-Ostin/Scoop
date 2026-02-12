@@ -82,9 +82,9 @@ extension MapSelectionView {
         } label: {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
-                .frame(width: 35, height: 35)
+                .frame(width: 35, height: 35, alignment: .top)
                 .contentShape(Circle())
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.accent)
         }
     }
     
@@ -220,7 +220,7 @@ private struct MapSelectionAction<Icon: View>: View {
         .frame(maxWidth: .infinity)
         .frame(height: 35)
         .foregroundStyle(isEnabled ? Color.blue : Color.gray)
-        .stroke(16, lineWidth: 1.5, color: .black.opacity(0.7))
+        .stroke(16, lineWidth: 1.2, color: Color(red: 0.82, green: 0.82, blue: 0.82))
         .disabled(!isEnabled)
     }
 }
