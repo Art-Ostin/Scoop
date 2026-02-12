@@ -86,9 +86,9 @@ import UIKit
     
     private func onCategorySelect() {
         categorySearchTask?.cancel()
+        isLoadingCategory = true
         
         if let category = selectedMapCategory {
-            isLoadingCategory = true
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategory(category: category, query: nil)
                 self?.searchText = category.description

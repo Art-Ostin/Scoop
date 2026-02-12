@@ -110,13 +110,7 @@ extension MapSearchView {
     
     private func categoryRow (category: MapCategory) -> some View {
         Button {
-            vm.selectedMapCategory = category
             useSelectedDetent = true
-            print("This just printed")
-//
-//            sheet = .optionsAndSearchBar //Makes it dismiss straight away then goes to selected screen
-//            print("now this")
-//            useSelectedDetent = true
 //            vm.selectedMapCategory = category
         } label: {
             VStack(spacing: 0){
