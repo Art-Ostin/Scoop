@@ -190,6 +190,7 @@ extension MapSelectionView {
     private var dismissButton: some View {
         Button {
             onExitSelection(.optionsAndSearchBar)
+            vm.searchText = ""
         } label: {
             Image(systemName: "xmark")
                 .font(.body(15, .medium))

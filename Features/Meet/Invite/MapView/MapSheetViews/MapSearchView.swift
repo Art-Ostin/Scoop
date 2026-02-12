@@ -148,7 +148,7 @@ extension MapSearchView {
     private func searchLocation(suggestion :MKLocalSearchCompletion) async {
         //1. Logic to dismiss screen - gives snappy feel
         vm.selectedMapCategory = nil
-        sheet = .searchBar
+        useSelectedDetent = true
         
         //2. Actually search the location in Maps
         vm.searchText = suggestion.title
@@ -167,8 +167,8 @@ extension MapSearchView {
     
     private func searchRecentPlace(place: RecentPlace) {
         let searchText = "\(place.title) \(place.town)"
+//        vm.selectedMapCategory = nil
         useSelectedDetent = true
-        print("Hello World")
         Task {
             vm.searchText = searchText
             await vm.searchPlaces()

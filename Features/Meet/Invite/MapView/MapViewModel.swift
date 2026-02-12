@@ -13,7 +13,7 @@ import UIKit
 @Observable class MapViewModel {
     
     let defaults: DefaultsManaging
-    
+
     let locationManager = CLLocationManager()
     var searchText: String = ""
     var results: [MKMapItem] = []
@@ -33,7 +33,6 @@ import UIKit
     private var categorySearchTask: Task<Void, Never>?
     
     var showAnimation = false
-    var isLoadingCategory = false
     
     var markerTint: Color {
         selectedMapCategory?.mainColor ?? Color.appColorTint
@@ -92,21 +91,14 @@ import UIKit
                 self?.searchText = category.description
             }
         } else {
-            //If set to nil remove all the values
-            if results.count > 2 { //I.e. Only remove if a category is selected -> I.e. many
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    results.removeAll()
-                    searchText = ""
-                }
-            }
+            //If categorySelect set to nil, delete all the existing values
+            results.removeAll()
+            searchText = ""
         }
     }
     
     //Search and assign all the categories
     private func searchCategory(category: MapCategory, query: String?) async {
-        isLoadingCategory = true
-        defer { isLoadingCategory = false }
-        
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(category: category)
         let plans = Self.makeSearchPlans(from: spec, with: query)
@@ -153,6 +145,7 @@ import UIKit
             return seen.insert(key).inserted
         }
     }
+    
     private static func normalized(_ value: String) -> String {
         value
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
