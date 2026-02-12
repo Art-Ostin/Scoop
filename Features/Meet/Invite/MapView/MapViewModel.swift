@@ -33,6 +33,7 @@ import UIKit
     private var categorySearchTask: Task<Void, Never>?
     
     var showAnimation = false
+    var isLoadingCategory = false
     
     var markerTint: Color {
         selectedMapCategory?.mainColor ?? Color.appColorTint
@@ -103,6 +104,9 @@ import UIKit
     
     //Search and assign all the categories
     private func searchCategory(category: MapCategory, query: String?) async {
+        isLoadingCategory = true
+        defer { isLoadingCategory = false }
+        
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(category: category)
         let plans = Self.makeSearchPlans(from: spec, with: query)
