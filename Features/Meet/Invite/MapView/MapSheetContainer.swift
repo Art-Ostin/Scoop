@@ -18,31 +18,31 @@ struct MapSheetContainer: View {
 
     var body: some View {
         Group {
-            if let mapItem =  vm.selectedMapItem  {
-                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
+            if let mapItem =  vm.selectedMapItem {
+                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem, useSelectedDetent: $useSelectedDetent) { selectedLocation($0)}
+                    .transition(.opacity)
+
             } else if useSelectedDetent {
                 selectedLoadingScreen
             } else {
-                    //Powerful way to flick between content use again!
+                    //Powerful way to flick between content use again (I.e. in ZStack and animate).
                     ZStack(alignment: .top) {
-                        
-                        MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
-                            .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
-                            .allowsHitTesting(sheet == .optionsAndSearchBar)
-                        
-                        MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-                            .opacity(sheet == .large ? 1 : 0)
-                            .allowsHitTesting(sheet == .large)
-                        
-                        mapSearchBar
-                            .foregroundStyle(Color.black)
-                            .opacity(sheet == .searchBar ? 1 : 0)
-                            .allowsHitTesting(sheet == .searchBar)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        if sheet == .searchBar {
+                            mapSearchBar
+                        }
+                        if sheet == .optionsAndSearchBar {
+                            MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                        }
+                        if sheet == .large {
+                            MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
+                        }
                     }
+                    .transition(.opacity)
+
                 }
             }
         .animation(.easeInOut(duration: 0.16), value: sheet)
+        .animation(.easeInOut(duration: 0.22), value: vm.selectedMapItem != nil)
         // Keep keyboard + focus “linked” to large search mode.
         .task(id: sheet) {
             if sheet == .large, vm.selectedMapItem == nil {
@@ -128,22 +128,20 @@ enum MapSheets: CaseIterable, Equatable {
     }
 }
 
-
 /*
  
- switch sheet {
- case .searchBar:
-     HStack(spacing: 6) {
-         MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
-         if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
-     }
-     .padding(.horizontal)
-     
- default:
-     
+ MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+     .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
+     .allowsHitTesting(sheet == .optionsAndSearchBar)
+ 
+ MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
+     .opacity(sheet == .large ? 1 : 0)
+     .allowsHitTesting(sheet == .large)
+ 
+ mapSearchBar
+     .foregroundStyle(Color.black)
+     .opacity(sheet == .searchBar ? 1 : 0)
+     .allowsHitTesting(sheet == .searchBar)
+     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
-     MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-
-     MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
- }
  */

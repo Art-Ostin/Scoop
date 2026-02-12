@@ -14,14 +14,17 @@ struct MapSelectionView: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     let mapItem: MKMapItem
+    @Binding var useSelectedDetent: Bool
     let selectedLocation: (MKMapItem) -> Void
     @Environment(\.openURL) private var openURL
     
     @State private var lookAroundScene: MKLookAroundScene?
     @State private var isLoadingLookAround = false
+    
+    
     var body: some View {
         
-        //HAve overlay topLeft scoop Logo when done
+        //Have overlay topLeft scoop Logo when done
         VStack(alignment: .center, spacing: 12) {
             VStack(spacing: 8) {
                 title
@@ -189,8 +192,11 @@ extension MapSelectionView {
     private var dismissButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.3)) {
-                vm.selection = nil
-                sheet = .large
+                sheet = .optionsAndSearchBar
+//               Dis
+//                useSelectedDetent = false
+//                vm.selection = nil
+//                sheet = .optionsAndSearchBar
             }
         } label: {
             Image(systemName: "xmark")
