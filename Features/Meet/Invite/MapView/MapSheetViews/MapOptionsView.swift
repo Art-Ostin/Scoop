@@ -19,7 +19,7 @@ struct MapOptionsView: View {
             HStack(spacing: 6) {
                 MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 
-                if !vm.searchText.isEmpty { deleteSearchButton }
+                if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
             }
             .padding(.horizontal, 16)
             
@@ -56,8 +56,13 @@ struct MapOptionsView: View {
             
         }
     }
+}
+
+struct DeleteSearchButton: View {
     
-    private var deleteSearchButton: some View {
+    @Bindable var vm: MapViewModel
+    
+    var body: some View {
         Button {
             vm.searchText = ""
             vm.selectedMapCategory = nil

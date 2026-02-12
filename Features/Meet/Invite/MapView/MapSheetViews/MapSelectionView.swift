@@ -29,18 +29,21 @@ struct MapSelectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .topTrailing) {dismissButton}
         .padding(24)
+        .task(id: lookAroundRequestID) {
+            await loadLookAroundScene()
+        }
     }
 }
 
 extension MapSelectionView {
     
     private var title: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .center, spacing: 4) {
             Text(mapItem.name ?? "")
                 .font(.title2)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.leading)
-            Text(mapItem.placemark.title ?? "")
+            Text(mapItem.pointOfInterestCategory?.rawValue ?? mapItem.placemark.title ?? "")
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
@@ -69,10 +72,12 @@ extension MapSelectionView {
                 vm.selection = nil
             }
         } label: {
-            Image(systemName: "xmark.circle.fill")
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(.gray, Color(.systemGray6))
+            Image(systemName: "xmark")
+                .font(.body(18, .bold))
+                .frame(width: 45, height: 45)
+                .glassIfAvailable(Circle())
+                .contentShape(Circle())
+                .foregroundStyle(Color.black)
         }
     }
     
@@ -90,56 +95,45 @@ extension MapSelectionView {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+    
+    private var locationActions: some View {
+        HStack(spacing: 16) {
+            test
+            test
+            test
+        }
+    }
+    
+    private var test: some View {
+        VStack {
+            Image(systemName: "safari")
+            Text("Website")
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 55)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(Color.accent.opacity(0.3))
+        )
+        
+    }
+    
+    private var lookAroundRequestID: String {
+        let coordinate = mapItem.placemark.coordinate
+        return "\(mapItem.name ?? "")-\(coordinate.latitude)-\(coordinate.longitude)"
+    }
+
+    @MainActor
+    private func loadLookAroundScene() async {
+        lookAroundScene = nil
+        isLoadingLookAround = true
+        defer { isLoadingLookAround = false }
+        
+        do {
+            lookAroundScene = try await MKLookAroundSceneRequest(mapItem: mapItem).scene
+        } catch {
+            lookAroundScene = nil
+        }
+    }
 }
 
-
-/*
- 
- 
- ScrollView {
-     VStack(spacing: 16) {
-         HStack(alignment: .top) {
-             VStack(alignment: .leading, spacing: 4) {
-                 Text(mapItem.name ?? "")
-                     .font(.title2)
-                     .fontWeight(.bold)
-                     .multilineTextAlignment(.leading)
-                 Text(mapItem.placemark.title ?? "")
-                     .font(.footnote)
-                     .foregroundStyle(.gray)
-             }
-             
-             
-             
-             
-         }
-         
-     }
-     .scrollIndicators(.hidden)
-     .padding(24)
-
- */
-
-
-
-
-/*
- Button {
-     selectedLocation(mapItem)
-     dismiss()
- } label:   {
-     Text("Add Location")
-         .frame(maxWidth: .infinity)
-         .frame(height: 50)
-         .background(
-             RoundedRectangle(cornerRadius: 12)
-                 .fill(Color.accent)
-         )
-         .foregroundStyle(.white)
- }
- .padding(.horizontal)
- .padding(.top, 24)
- .padding(.bottom)
- .frame(maxWidth: .infinity, alignment: .top)
-
- */

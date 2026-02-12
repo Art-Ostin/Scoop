@@ -22,8 +22,12 @@ struct MapSheetContainer: View {
             } else {
                 switch sheet {
                 case .searchBar:
-                    MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
-                        .padding(.horizontal)
+                    HStack(spacing: 6) {
+                        MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                        if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
+                    }
+                    .padding(.horizontal)
+
                 case .large:
                     MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused)
 
