@@ -34,10 +34,10 @@ struct MapSelectionView: View {
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
         .overlay(alignment: .topLeading) { searchButton}
-        .padding(.top, 24)
-        .padding(.bottom, 16)
+        .padding(.vertical, 16)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
+        .animation(.easeInOut(duration: 0.3), value: isLoadingLookAround)
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
@@ -81,8 +81,8 @@ extension MapSelectionView {
                 vm.selection = nil
             }
         } label: {
-            Image(systemName: "xmark")
-                .font(.body(15, .medium))
+            Image(systemName: "magnifyingglass")
+                .font(.body(17, .bold))
                 .frame(width: 35, height: 35)
                 .glassIfAvailable(Circle())
                 .contentShape(Circle())
