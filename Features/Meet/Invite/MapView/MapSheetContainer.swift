@@ -27,7 +27,7 @@ struct MapSheetContainer: View {
                 ) { selectedLocation($0)}
                     .transition(.opacity)
 
-            } else if useSelectedDetent {
+            } else if useSelectedDetent && sheet != .large {
                 selectedLoadingScreen
             } else {
                     //Powerful way to flick between content use again (I.e. in ZStack and animate).
@@ -49,8 +49,8 @@ struct MapSheetContainer: View {
         .animation(.easeInOut(duration: 0.16), value: sheet)
         .animation(.easeInOut(duration: 0.22), value: vm.selectedMapItem != nil)
         // Keep keyboard + focus “linked” to large search mode.
-        .task(id: sheet) {
-            if sheet == .large, vm.selectedMapItem == nil {
+        .task(id: shouldAutoFocusSearch) {
+            if shouldAutoFocusSearch {
                 await Task.yield()                 // wait until large content is in hierarchy
                 await MainActor.run { searchFocused = true }
             } else {
@@ -64,6 +64,9 @@ struct MapSheetContainer: View {
 }
 
 extension MapSheetContainer {
+    private var shouldAutoFocusSearch: Bool {
+        sheet == .large && vm.selectedMapItem == nil
+    }
     
     private var mapSearchBar: some View {
         HStack(spacing: 6) {
