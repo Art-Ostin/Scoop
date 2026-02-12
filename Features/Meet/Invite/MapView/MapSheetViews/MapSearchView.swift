@@ -19,8 +19,6 @@ struct MapSearchView: View {
     var showRecentSearches: Bool { !vm.recentMapSearches.isEmpty  }
     
     @Binding var useSelectedDetent: Bool
-
-    
     var body: some View {
         ScrollView {
             ClearRectangle(size: showSuggestions ? 68 : 80 )
@@ -113,7 +111,7 @@ extension MapSearchView {
     
     private func categoryRow (category: MapCategory) -> some View {
         Button {
-            sheet = .optionsAndSearchBar
+            useSelectedDetent = true
             vm.selectedMapCategory = category
         } label: {
             VStack(spacing: 0){

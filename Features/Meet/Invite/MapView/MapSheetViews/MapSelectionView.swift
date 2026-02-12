@@ -55,6 +55,8 @@ extension MapSelectionView {
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
     }
     
     private var addLocationButton: some View {
