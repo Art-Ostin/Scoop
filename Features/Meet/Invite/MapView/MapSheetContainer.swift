@@ -41,7 +41,7 @@ extension MapSheetContainer {
     private var sheetContent: some View {
         if let mapItem = vm.selectedMapItem {
             MapSelectionView(vm: vm, mapItem: mapItem, onExitSelection: onExitSelection, selectedLocation: selectedLocation)
-        } else if useSelectedDetent {
+        } else if useSelectedDetent /*&& sheet != .large*/ {
             selectedLoadingScreen
         } else {
             // Powerful way to flick between content use again (I.e. in ZStack and animate).

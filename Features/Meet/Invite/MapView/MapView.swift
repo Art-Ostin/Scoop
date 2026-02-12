@@ -45,6 +45,7 @@ struct MapView: View {
                     }
                     return
                 }
+                
                 if useSelectedDetent && newDetent != MapSheets.selectedDetent {
                     useSelectedDetent = false
                 }
