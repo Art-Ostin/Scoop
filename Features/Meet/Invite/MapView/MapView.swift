@@ -19,6 +19,10 @@ struct MapView: View {
     @State private var sheet: MapSheets = .optionsAndSearchBar
     
     @State var useSelectedDetent =  false
+    @State private var isExitingSelectedSheet = false
+    @State private var selectedSheetExitTask: Task<Void, Never>?
+    
+    private let selectedSheetTransitionDuration: TimeInterval = 0.3
     
     init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
         self._vm = State(initialValue: MapViewModel(defaults: defaults))
@@ -28,19 +32,16 @@ struct MapView: View {
     private var detentSelection: Binding<PresentationDetent> {
         Binding(
             get: {
-                if vm.selectedMapItem != nil || useSelectedDetent {
+                if !isExitingSelectedSheet, (vm.selectedMapItem != nil || useSelectedDetent) {
                     return MapSheets.selectedDetent
                 }
                 return sheet.detent
             }, set: { newDetent in
                 if vm.selectedMapItem != nil {
                     if newDetent != MapSheets.selectedDetent {
-                        useSelectedDetent = false
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            sheet = (newDetent == MapSheets.largeDetent) ? .large : .optionsAndSearchBar
-                            vm.selectedMapItem = nil
-                            vm.selection = nil
-                        }
+                        transitionFromSelectedSheet(
+                            to: (newDetent == MapSheets.largeDetent) ? .large : .optionsAndSearchBar
+                        )
                     }
                     return
                 }
@@ -112,11 +113,19 @@ struct MapView: View {
             .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
-            .onChange(of: vm.selectedMapCategory) { _, newCategory in
-                if newCategory == nil {
+            .onChange(of: vm.selectedMapItem) { _, newItem in
+                if newItem != nil {
+                    selectedSheetExitTask?.cancel()
+                    isExitingSelectedSheet = false
                     useSelectedDetent = false
                 }
             }
+            .onChange(of: vm.selectedMapCategory) { _, newCategory in
+                if newCategory == nil, !isExitingSelectedSheet {
+                    useSelectedDetent = false
+                }
+            }
+            .onDisappear { selectedSheetExitTask?.cancel() }
             .animation(.easeInOut(duration: 0.3), value: vm.selection)
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
@@ -139,13 +148,41 @@ extension MapView {
     
     @ViewBuilder
     private var mapSheet: some View {
-        MapSheetContainer(vm: vm, sheet: $sheet, useSelectedDetent: $useSelectedDetent) { mapItem in
+        MapSheetContainer(
+            vm: vm,
+            sheet: $sheet,
+            useSelectedDetent: $useSelectedDetent,
+            onExitSelection: transitionFromSelectedSheet
+        ) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
             dismiss()
         }
         .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil || useSelectedDetent), selection: detentSelection)
         .presentationBackgroundInteraction(.enabled(upThrough: .large))
         .interactiveDismissDisabled(true)
+    }
+    
+    private func transitionFromSelectedSheet(to destination: MapSheets) {
+        selectedSheetExitTask?.cancel()
+
+        withAnimation(.easeInOut(duration: selectedSheetTransitionDuration)) {
+            isExitingSelectedSheet = true
+            useSelectedDetent = true
+            sheet = destination
+            vm.selection = nil
+            vm.selectedMapItem = nil
+        }
+        
+        let delay = UInt64((selectedSheetTransitionDuration * 100_000_000).rounded())
+        selectedSheetExitTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: delay)
+            guard !Task.isCancelled else { return }
+            
+            withAnimation(.easeInOut(duration: 0.12)) {
+                useSelectedDetent = false
+                isExitingSelectedSheet = false
+            }
+        }
     }
     
     
@@ -203,4 +240,3 @@ extension MapView {
             .tint(.blue)
     }
 }
-

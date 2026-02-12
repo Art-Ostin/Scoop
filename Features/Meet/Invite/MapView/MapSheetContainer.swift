@@ -13,13 +13,18 @@ struct MapSheetContainer: View {
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @Binding var useSelectedDetent: Bool
+    let onExitSelection: (MapSheets) -> Void
     let selectedLocation: (MKMapItem) -> Void
 
 
     var body: some View {
         Group {
             if let mapItem =  vm.selectedMapItem {
-                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem, useSelectedDetent: $useSelectedDetent) { selectedLocation($0)}
+                MapSelectionView(
+                    vm: vm,
+                    mapItem: mapItem,
+                    onExitSelection: onExitSelection
+                ) { selectedLocation($0)}
                     .transition(.opacity)
 
             } else if useSelectedDetent {
