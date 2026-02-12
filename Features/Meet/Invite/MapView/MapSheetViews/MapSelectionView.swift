@@ -74,7 +74,7 @@ extension MapSelectionView {
         }
     }
     
-    private var dismissButton: some View {
+    private var searchButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.3)) {
                 sheet = .optionsAndSearchBar
@@ -84,7 +84,6 @@ extension MapSelectionView {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
                 .frame(width: 35, height: 35)
-                .glassIfAvailable(Circle())
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
         }
@@ -185,7 +184,7 @@ extension MapSelectionView {
             ?? ""
     }
     
-    private var searchButton: some View {
+    private var dismissButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.3)) {
                 vm.selection = nil
