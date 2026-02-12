@@ -47,7 +47,10 @@ struct MapView: View {
                 if useSelectedDetent && newDetent != MapSheets.selectedDetent {
                     useSelectedDetent = false
                 }
-                sheet = MapSheets.from(detent: newDetent)
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    sheet = MapSheets.from(detent: newDetent)
+                }
+//                sheet = MapSheets.from(detent: newDetent)
             }
         )
     }
@@ -120,9 +123,13 @@ struct MapView: View {
             .animation(.easeInOut(duration: 0.3), value: vm.selection)
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
-            .overlay(alignment: .bottomTrailing) {actionMenu}
             .animation(.easeInOut(duration: 0.3), value: useSelectedDetent)
-            .animation(.easeInOut(duration: 0.2), value: sheet)
+            .overlay(alignment: .bottomTrailing) {
+                GeometryReader { proxy in
+                    actionMenu(containerHeight: proxy.size.height, bottomSafeArea: proxy.safeAreaInsets.bottom)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                }
+            }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
@@ -168,14 +175,15 @@ extension MapView {
         }
     }
     
-    private var actionMenu: some View {
+    private func actionMenu(containerHeight: CGFloat, bottomSafeArea: CGFloat) -> some View {
         HStack {
             mapsButton
             Spacer()
             userLocationButton
         }
-        .padding(.bottom, sheet == .searchBar ? 64 :  184)
+        .padding(.bottom, actionMenuBottomPadding(containerHeight: containerHeight, bottomSafeArea: bottomSafeArea))
         .padding(.horizontal, 16)
+        .animation(.easeInOut(duration: 0.2), value: sheet)
     }
     
     private var mapsButton: some View {
@@ -195,6 +203,21 @@ extension MapView {
             .glassIfAvailable(Circle(), isClear: false)
         }
     }
+    
+    
+    private func actionMenuBottomPadding(containerHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
+        let visibleHeight = containerHeight + bottomSafeArea
+
+        switch sheet {
+        case .searchBar:
+            return (visibleHeight * 0.05) + 24
+        case .optionsAndSearchBar:
+            return (visibleHeight * 0.17) + 48
+        case .large:
+            return 184
+        }
+    }
+
     
     
     private var userLocationButton: some View {
