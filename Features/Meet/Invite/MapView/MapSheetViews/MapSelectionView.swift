@@ -21,14 +21,17 @@ struct MapSelectionView: View {
     @State private var isLoadingLookAround = false
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .center, spacing: 16) {
             title
+            locationActions
             locationLookAround
+            
             addLocationButton
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
-        .padding(24)
+        .padding(.vertical, 24)
+        .padding(.horizontal)
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
@@ -43,7 +46,7 @@ extension MapSelectionView {
                 .font(.title2)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.leading)
-            Text(mapItem.pointOfInterestCategory?.rawValue ?? mapItem.placemark.title ?? "")
+            Text(pointOfInterestText())
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
@@ -73,8 +76,8 @@ extension MapSelectionView {
             }
         } label: {
             Image(systemName: "xmark")
-                .font(.body(18, .bold))
-                .frame(width: 45, height: 45)
+                .font(.body(15, .medium))
+                .frame(width: 35, height: 35)
                 .glassIfAvailable(Circle())
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
@@ -85,12 +88,12 @@ extension MapSelectionView {
     private var locationLookAround: some View {
         if let lookAroundScene {
             LookAroundPreview(initialScene: lookAroundScene)
-                .frame(height: 190)
+                .frame(maxHeight: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         } else if isLoadingLookAround {
             ProgressView()
                 .frame(maxWidth: .infinity)
-                .frame(height: 190)
+                .frame(maxHeight: .infinity)
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
@@ -105,17 +108,17 @@ extension MapSelectionView {
     }
     
     private var test: some View {
-        VStack {
+        VStack(spacing: 6) {
             Image(systemName: "safari")
+                .font(.body(14, .medium))
+    
             Text("Website")
+                .font(.body(14, .bold))
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 55)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(Color.accent.opacity(0.3))
-        )
-        
+        .frame(height: 45)
+        .foregroundStyle(Color.black)
+        .stroke(16, lineWidth: 1, color: .black)
     }
     
     private var lookAroundRequestID: String {
@@ -134,6 +137,19 @@ extension MapSelectionView {
         } catch {
             lookAroundScene = nil
         }
+    }
+    
+    private func pointOfInterestText() -> String {
+            mapItem.pointOfInterestCategory?
+                .rawValue
+                .replacingOccurrences(of: "MKPOICategory", with: "")
+                .replacingOccurrences(
+                    of: "([a-z])([A-Z])",
+                    with: "$1 $2",
+                    options: .regularExpression
+                )
+            ?? mapItem.placemark.title
+            ?? ""
     }
 }
 
