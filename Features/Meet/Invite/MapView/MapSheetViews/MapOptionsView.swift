@@ -13,7 +13,7 @@ struct MapOptionsView: View {
     @FocusState.Binding var isFocused: Bool
     @Binding var sheet: MapSheets
     
-    let onMapOptionTap: () -> Void
+    @Binding var  useSelectedDetent: Bool
     
     var body: some View {
         VStack(spacing: 24) {
@@ -38,7 +38,7 @@ struct MapOptionsView: View {
                     ClearRectangle(size: 0)
                     ForEach(MapCategory.allCases) { category in
                         if category != .park {
-                            MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm, onTap: onMapOptionTap)
+                            MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm, useSelectedDetent: $useSelectedDetent)
                                 .id(category)
                         }
                     }

@@ -12,16 +12,16 @@ struct MapSheetContainer: View {
     @FocusState private var searchFocused: Bool
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
-    let shouldUseSelectedDetent: Bool
+    @Binding var useSelectedDetent: Bool
     let selectedLocation: (MKMapItem) -> Void
-    let onMapOptionsTap: () -> Void
+
 
     var body: some View {
         Group {
             
             if let mapItem =  vm.selectedMapItem  {
                 MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
-            } else if shouldUseSelectedDetent {
+            } else if useSelectedDetent {
                 selectedLoadingScreen
             } else {
                 switch sheet {
@@ -33,10 +33,10 @@ struct MapSheetContainer: View {
                     .padding(.horizontal)
 
                 case .large:
-                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused)
+                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
 
                 default:
-                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, onMapOptionTap: onMapOptionsTap)
+                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
                 }
             }
         }

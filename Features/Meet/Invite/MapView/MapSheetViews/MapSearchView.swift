@@ -17,6 +17,8 @@ struct MapSearchView: View {
     @FocusState.Binding var isFocused: Bool
     var showSuggestions: Bool {!service.suggestions.isEmpty && service.showSuggestions && !vm.searchText.isEmpty}
     var showRecentSearches: Bool { !vm.recentMapSearches.isEmpty  }
+    
+    @Binding var useSelectedDetent: Bool
 
     
     var body: some View {
@@ -116,7 +118,7 @@ extension MapSearchView {
         } label: {
             VStack(spacing: 0){
                 HStack(spacing: 12) {
-                    MapCategoryIcon(sheet: $sheet, category: category, isMap: false, vm: vm)
+                    MapCategoryIcon(sheet: $sheet, category: category, isMap: false, vm: vm, useSelectedDetent: $useSelectedDetent)
                     Text(category.description)
                         .font(.body(17, .bold))
                     Spacer()
@@ -169,7 +171,7 @@ extension MapSearchView {
     
     private func searchRecentPlace(place: RecentPlace) {
         let searchText = "\(place.title) \(place.town)"
-        sheet = .searchBar
+        useSelectedDetent = true
         Task {
             vm.searchText = searchText
             await vm.searchPlaces()

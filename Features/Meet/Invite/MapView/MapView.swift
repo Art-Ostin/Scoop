@@ -18,7 +18,7 @@ struct MapView: View {
     @Bindable var eventVM: TimeAndPlaceViewModel
     @State private var sheet: MapSheets = .optionsAndSearchBar
     
-    @State var shouldUseSelectedDetent =  false
+    @State var useSelectedDetent =  false
     
     init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
         self._vm = State(initialValue: MapViewModel(defaults: defaults))
@@ -28,14 +28,14 @@ struct MapView: View {
     private var detentSelection: Binding<PresentationDetent> {
         Binding(
             get: {
-                if vm.selectedMapItem != nil || shouldUseSelectedDetent {
+                if vm.selectedMapItem != nil || useSelectedDetent {
                     return MapSheets.selectedDetent
                 }
                 return sheet.detent
             }, set: { newDetent in
                 if vm.selectedMapItem != nil {
                     if newDetent != MapSheets.selectedDetent {
-                        shouldUseSelectedDetent = false
+                        useSelectedDetent = false
                         withAnimation(.easeInOut(duration: 0.3)) {
                             sheet = (newDetent == MapSheets.largeDetent) ? .large : .optionsAndSearchBar
                             vm.selectedMapItem = nil
@@ -44,8 +44,8 @@ struct MapView: View {
                     }
                     return
                 }
-                if shouldUseSelectedDetent && newDetent != MapSheets.selectedDetent {
-                    shouldUseSelectedDetent = false
+                if useSelectedDetent && newDetent != MapSheets.selectedDetent {
+                    useSelectedDetent = false
                 }
                 sheet = MapSheets.from(detent: newDetent)
             }
@@ -114,7 +114,7 @@ struct MapView: View {
             .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
             .onChange(of: vm.selectedMapCategory) { _, newCategory in
                 if newCategory == nil {
-                    shouldUseSelectedDetent = false
+                    useSelectedDetent = false
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: vm.selection)
@@ -137,13 +137,11 @@ extension MapView {
     
     @ViewBuilder
     private var mapSheet: some View {
-        MapSheetContainer(vm: vm, sheet: $sheet, shouldUseSelectedDetent: shouldUseSelectedDetent) { mapItem in
+        MapSheetContainer(vm: vm, sheet: $sheet, useSelectedDetent: $useSelectedDetent) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
             dismiss()
-        } onMapOptionsTap: {
-            shouldUseSelectedDetent = true
         }
-        .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil || shouldUseSelectedDetent), selection: detentSelection)
+        .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil || useSelectedDetent), selection: detentSelection)
         .presentationBackgroundInteraction(.enabled(upThrough: .large))
         .interactiveDismissDisabled(true)
     }

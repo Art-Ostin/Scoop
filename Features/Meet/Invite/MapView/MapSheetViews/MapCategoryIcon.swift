@@ -19,7 +19,7 @@ struct MapCategoryIcon: View {
     var size: CGFloat { isMap ? 60 : 35 }
 
     @Bindable var vm: MapViewModel
-    var onTap: (() -> Void)? = nil
+    @Binding var useSelectedDetent: Bool
     
     var isSelected: Bool { vm.selectedMapCategory == category }
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
@@ -35,7 +35,7 @@ struct MapCategoryIcon: View {
         Button {
             vm.selectedMapCategory = category
             if isMap {
-               onTap?()
+               useSelectedDetent = true 
             } else {
                 sheet = .searchBar
             }
