@@ -22,7 +22,6 @@ struct MapCategoryIcon: View {
     @Binding var useSelectedDetent: Bool
     
     var isSelected: Bool { vm.selectedMapCategory == category }
-    var showLoading: Bool { isSelected && vm.isLoadingCategory}
     
     
     private var showSearchArea: Bool {
@@ -42,11 +41,10 @@ struct MapCategoryIcon: View {
                         .fill(category.gradient)
                         .frame(width: size, height: size)
                     
-                    if !showLoading {
                         category.image
                             .scaleEffect(isMap ? 0.95 : 0.55)
                             .offset(x: category == .pub ? 1 : 0)
-                    }
+
                 }
                 .shadow(color: isSelected && isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
                 .foregroundStyle(Color.white) //For the systemNameIcons
@@ -62,24 +60,10 @@ struct MapCategoryIcon: View {
                     }
                     .font(.body(12, .bold))
                     .frame(width: 75)
-                    .foregroundStyle(isSelected && !showLoading ? Color.accent : Color.grayText.opacity(0.8))
-                    .animation(.easeInOut(duration: 0.3), value: showLoading)
-                }
-            }
-            .overlay(alignment: .center) {
-                if isMap {
-                    if showLoading {
-                        LottieView(animation: .named("ModernMiniLoaderBlue.json"))
-                            .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 80, height: 80)
-                            .offset(y: -12)
-                    }
+                    .foregroundStyle(isSelected ? Color.accent : Color.grayText.opacity(0.8))
                 }
             }
         }
-//        .id(vm.selectedMapCategory)
     }
 }
 

@@ -111,7 +111,7 @@ extension MapSearchView {
     private func categoryRow (category: MapCategory) -> some View {
         Button {
             useSelectedDetent = true
-//            vm.selectedMapCategory = category
+            vm.selectedMapCategory = category
         } label: {
             VStack(spacing: 0){
                 HStack(spacing: 12) {

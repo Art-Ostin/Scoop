@@ -33,8 +33,6 @@ import UIKit
     private var categorySearchTask: Task<Void, Never>?
     
     var showAnimation = false
-
-    var isLoadingCategory: Bool = false
     
     var markerTint: Color {
         selectedMapCategory?.mainColor ?? Color.appColorTint
@@ -86,7 +84,6 @@ import UIKit
     
     private func onCategorySelect() {
         categorySearchTask?.cancel()
-        isLoadingCategory = true
         
         if let category = selectedMapCategory {
             categorySearchTask = Task { [weak self] in
@@ -95,7 +92,6 @@ import UIKit
             }
         } else {
             //If set to nil remove all the values
-            isLoadingCategory = false
             if results.count > 2 { //I.e. Only remove if a category is selected -> I.e. many
                 withAnimation(.easeInOut(duration: 0.3)) {
                     results.removeAll()
@@ -107,9 +103,6 @@ import UIKit
     
     //Search and assign all the categories
     private func searchCategory(category: MapCategory, query: String?) async {
-        defer {
-            if !Task.isCancelled { isLoadingCategory = false }
-        }
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(category: category)
         let plans = Self.makeSearchPlans(from: spec, with: query)
