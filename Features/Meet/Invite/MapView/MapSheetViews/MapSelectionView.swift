@@ -12,9 +12,8 @@ import MapKit
 struct MapSelectionView: View {
         
     @Bindable var vm: MapViewModel
-    @Binding var sheet: MapSheets
     let mapItem: MKMapItem
-    @Binding var useSelectedDetent: Bool
+    let onExitSelection: (MapSheets) -> Void
     let selectedLocation: (MKMapItem) -> Void
     @Environment(\.openURL) private var openURL
     
@@ -80,7 +79,7 @@ extension MapSelectionView {
     
     private var searchButton: some View {
         Button {
-            transitionFromSelection(to: .large)
+            onExitSelection(.large)
         } label: {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
@@ -188,7 +187,7 @@ extension MapSelectionView {
     
     private var dismissButton: some View {
         Button {
-            transitionFromSelection(to: .optionsAndSearchBar)
+            onExitSelection(.optionsAndSearchBar)
         } label: {
             Image(systemName: "xmark")
                 .font(.body(15, .medium))
@@ -199,14 +198,6 @@ extension MapSelectionView {
         }
     }
     
-    private func transitionFromSelection(to destination: MapSheets) {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            useSelectedDetent = false
-            vm.selection = nil
-            vm.selectedMapItem = nil
-            sheet = destination
-        }
-    }
 }
 
 
@@ -233,4 +224,3 @@ private struct MapSelectionAction<Icon: View>: View {
         .disabled(!isEnabled)
     }
 }
-
