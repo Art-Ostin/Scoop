@@ -195,8 +195,8 @@ extension MapSelectionView {
     private var dismissButton: some View {
         Button {
             onExitSelection(.optionsAndSearchBar)
-            //Only remove text if it is not a category (i.e. if more than 3 selected) 
-            if vm.results.count > 3  {
+            //Only remove text if it is not a category (i.e. if more than 3 selected)
+            if !(vm.results.count > 3) {
                 vm.searchText = ""
             }
         } label: {
