@@ -16,21 +16,26 @@ struct MapSelectionView: View {
     @Binding var sheet: MapSheets
     let mapItem: MKMapItem
     let selectedLocation: (MKMapItem) -> Void
+    @Environment(\.openURL) private var openURL
     
     @State private var lookAroundScene: MKLookAroundScene?
     @State private var isLoadingLookAround = false
     var body: some View {
         
-        VStack(alignment: .center, spacing: 14) {
-            title
-            locationActions
+        //HAve overlay topLeft scoop Logo when done
+        VStack(alignment: .center, spacing: 12) {
+            VStack(spacing: 8) {
+                title
+                locationActions
+            }
             locationLookAround
-            
             addLocationButton
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
-        .padding(.vertical, 24)
+        .overlay(alignment: .topLeading) { searchButton}
+        .padding(.top, 24)
+        .padding(.bottom, 16)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
         .task(id: lookAroundRequestID) {
@@ -102,31 +107,52 @@ extension MapSelectionView {
     
     @ViewBuilder
     private var locationActions: some View {
-        let googleImage = Image("GoogleMapsIcon").scaleEffect(0.9)
-        let safariImage = Image(systemName: "safari.fill").font(.body(14, .bold))
-        let phoneImage = Image(systemName: "phone").font(.body(14, .bold))
-        
         
         HStack(spacing: 16) {
-            MapSelectionAction(text: "Maps", image: googleImage as! Image) { MapsRouter.openGoogleMaps(item: mapItem)}
-            MapSelectionAction(text: "Website", image:  safariImage as! Image) { }
-            MapSelectionAction(text: "Website", image:  phoneImage as! Image) { mapItem.phoneNumber ?? ""}
+            MapSelectionAction(text: "Reviews") {
+                 MapsRouter.openGoogleMaps(item: mapItem)
+             } icon: {
+                 Image("GoogleMapsIcon")
+                     .scaleEffect(0.9)
+             }
+             
+             MapSelectionAction(text: "Website", isEnabled: websiteURL != nil) {
+                 openWebsite()
+             } icon: {
+                 Image(systemName: "safari.fill")
+                     .font(.body(14, .bold))
+             }
+             
+             MapSelectionAction(text: "Call", isEnabled: phoneURL != nil) {
+                 callLocation()
+             } icon: {
+                 Image(systemName: "phone.fill")
+                     .font(.body(14, .bold))
+             }
+            
         }
     }
     
-    private var test: some View {
-        VStack(spacing: 5) {
-            Image(systemName: "safari")
-                .font(.body(14, .medium))
-    
-            Text("Website")
-                .font(.body(14, .bold))
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 45)
-        .foregroundStyle(Color.accent)
-        .stroke(16, lineWidth: 1, color: .black)
+    private var websiteURL: URL? {
+        mapItem.url
     }
+    
+    private var phoneURL: URL? {
+        guard let phoneNumber = mapItem.phoneNumber else { return nil }
+        let sanitized = phoneNumber.filter { $0.isNumber || $0 == "+" }
+        guard !sanitized.isEmpty else { return nil }
+        return URL(string: "tel://\(sanitized)")
+    }
+    
+    private func openWebsite() {
+        guard let website = mapItem.url else { return }
+        openURL(website)
+    }
+    
+    private func callLocation() {
+         guard let phoneURL else { return }
+         openURL(phoneURL)
+     }
     
     private var lookAroundRequestID: String {
         let coordinate = mapItem.placemark.coordinate
@@ -158,29 +184,46 @@ extension MapSelectionView {
             ?? mapItem.placemark.title
             ?? ""
     }
+    
+    private var searchButton: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                vm.selection = nil
+                sheet = .large
+            }
+        } label: {
+            Image(systemName: "xmark")
+                .font(.body(15, .medium))
+                .frame(width: 35, height: 35)
+                .glassIfAvailable(Circle())
+                .contentShape(Circle())
+                .foregroundStyle(Color.black)
+        }
+    }
 }
 
 
-private struct MapSelectionAction: View {
+private struct MapSelectionAction<Icon: View>: View {
     let text: String
-    let image: Image
-    
-    let onTap: () -> ()
+
+    var isEnabled = true
+    let onTap: () -> Void
+    @ViewBuilder let icon: () -> Icon
+
     
     var body: some View {
-        Button {
-           onTap()
-        } label: {
-            HStack(spacing: 5) {
-                image
+        Button(action: onTap) {
+            HStack(spacing: 6) {
+                icon()
                 Text(text)
                     .font(.body(14, .bold))
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 40)
-            .foregroundStyle(Color.blue)
-            .stroke(16, lineWidth: 1, color: .black)
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 35)
+        .foregroundStyle(isEnabled ? Color.blue : Color.gray)
+        .stroke(16, lineWidth: 1, color: .black)
+        .disabled(!isEnabled)
     }
 }
 
