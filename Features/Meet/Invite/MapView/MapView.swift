@@ -121,6 +121,9 @@ struct MapView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {actionMenu}
+            .onChange(of: sheet) {
+                print(sheet)
+            }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }

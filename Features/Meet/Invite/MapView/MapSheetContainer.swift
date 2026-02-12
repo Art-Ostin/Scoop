@@ -23,21 +23,25 @@ struct MapSheetContainer: View {
             } else if useSelectedDetent {
                 selectedLoadingScreen
             } else {
-                ZStack(alignment: .top) {
-                    mapSearchBar
-                        .opacity(sheet == .searchBar ? 1 : 0)
-                        .allowsHitTesting(sheet == .searchBar)
-                    
-                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
-                        .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
-                        .allowsHitTesting(sheet == .optionsAndSearchBar)
-                    
-                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-                        .opacity(sheet == .large ? 1 : 0)
-                        .allowsHitTesting(sheet == .large)
+                    //Powerful way to flick between content use again!
+                    ZStack(alignment: .top) {
+                        
+                        MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                            .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
+                            .allowsHitTesting(sheet == .optionsAndSearchBar)
+                        
+                        MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
+                            .opacity(sheet == .large ? 1 : 0)
+                            .allowsHitTesting(sheet == .large)
+                        
+                        mapSearchBar
+                            .foregroundStyle(Color.black)
+                            .opacity(sheet == .searchBar ? 1 : 0)
+                            .allowsHitTesting(sheet == .searchBar)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    }
                 }
             }
-        }
         .animation(.easeInOut(duration: 0.16), value: sheet)
         // Keep keyboard + focus “linked” to large search mode.
         .task(id: sheet) {
@@ -61,6 +65,7 @@ extension MapSheetContainer {
             MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
             if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
         }
+        .padding(.horizontal, 16)
     }
     
     private var selectedLoadingScreen: some View {
