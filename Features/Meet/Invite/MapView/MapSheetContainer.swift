@@ -18,8 +18,31 @@ struct MapSheetContainer: View {
     var body: some View {
         Group {
             
+            
             if let mapItem = vm.selectedMapItem {
-                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
+                
+                VStack(spacing: 96) {
+                    HStack(spacing: 6) {
+                        MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                        
+                        
+                        if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
+                    }
+                    .padding(.horizontal)
+
+                    VStack {
+                        ProgressView()
+                            .foregroundStyle(Color.grayText)
+                        
+                        Text("Searching...")
+                            .font(.body(17, .medium))
+                    }
+                }
+                .foregroundStyle(Color.grayText)
+                
+                
+                
+//                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
             } else {
                 switch sheet {
                 case .searchBar:

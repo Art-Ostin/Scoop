@@ -82,9 +82,10 @@ extension MapSelectionView {
         } label: {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
-                .frame(width: 35, height: 35, alignment: .top)
+                .frame(width: 35, height: 35, alignment: .center)
+                .offset(y: -4)
                 .contentShape(Circle())
-                .foregroundStyle(Color.accent)
+                .foregroundStyle(Color.black)
         }
     }
     
@@ -211,7 +212,7 @@ private struct MapSelectionAction<Icon: View>: View {
     
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 6) {
+            HStack(spacing: 10) {
                 icon()
                 Text(text)
                     .font(.body(14, .bold))
@@ -219,8 +220,8 @@ private struct MapSelectionAction<Icon: View>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 35)
-        .foregroundStyle(isEnabled ? Color.blue : Color.gray)
-        .stroke(16, lineWidth: 1.2, color: Color(red: 0.82, green: 0.82, blue: 0.82))
+        .foregroundStyle(isEnabled ? Color(red: 0, green: 0.09, blue: 0.72) : Color.gray)
+        .stroke(16, lineWidth: 1.2, color: isEnabled ?  Color(red: 0.82, green: 0.82, blue: 0.82) : Color(red: 0.92, green: 0.92, blue: 0.92) )
         .disabled(!isEnabled)
     }
 }
