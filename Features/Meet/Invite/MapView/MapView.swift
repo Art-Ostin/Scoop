@@ -17,7 +17,6 @@ struct MapView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
     @State private var sheet: MapSheets = .optionsAndSearchBar
-    @State var showMapAction: Bool = false
     
     
     init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
@@ -113,7 +112,6 @@ struct MapView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {actionMenu}
-            .sheet(isPresented: $showMapAction) {chooseMapSheet}
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
@@ -130,8 +128,9 @@ extension MapView {
     
     @ViewBuilder
     private var mapSheet: some View {
-        MapSheetContainer(vm: vm, sheet: $sheet, showMapAction: $showMapAction) { mapItem in
+        MapSheetContainer(vm: vm, sheet: $sheet) { mapItem in
             eventVM.event.location = EventLocation(mapItem: mapItem)
+            dismiss()
         }
         .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil), selection: detentSelection)
         .presentationBackgroundInteraction(.enabled(upThrough: .large))
@@ -192,25 +191,31 @@ extension MapView {
             .buttonBorderShape(.circle)
             .tint(.blue)
     }
-    
-    private var chooseMapSheet: some View {
-        VStack(spacing: 24) {
-            Button("Google Maps") {
-                MapsRouter.openGoogleMaps(item: nil)
-            }
-            
-            MapDivider()
-            
-            Button("Apple Maps") {
-                MapsRouter.openAppleMaps(item: nil)
-            }
-        }
-        .font(.body(17, .bold)) // your default text
-        .padding(20)
-        .presentationDetents([.height(120)])
-    }
 }
 
+
+
+/*
+ //            .sheet(isPresented: $showMapAction) {chooseMapSheet}
+
+ private var chooseMapSheet: some View {
+     VStack(spacing: 24) {
+         Button("Google Maps") {
+             MapsRouter.openGoogleMaps(item: nil)
+         }
+         
+         MapDivider()
+         
+         Button("Apple Maps") {
+             MapsRouter.openAppleMaps(item: nil)
+         }
+     }
+     .font(.body(17, .bold)) // your default text
+     .padding(20)
+     .presentationDetents([.height(120)])
+ }
+
+ */
 
 
 // Different Gradients
