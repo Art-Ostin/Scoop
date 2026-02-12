@@ -9,18 +9,20 @@ import SwiftUI
 import MapKit
 
 struct MapSheetContainer: View {
+    @FocusState private var searchFocused: Bool
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
+    let shouldUseSelectedDetent: Bool
     let selectedLocation: (MKMapItem) -> Void
-
-    @FocusState private var searchFocused: Bool
+    let onMapOptionsTap: () -> Void
 
     var body: some View {
         Group {
             
-            
-            if let mapItem = vm.selectedMapItem {
+            if let mapItem =  vm.selectedMapItem  {
                 MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
+            } else if shouldUseSelectedDetent {
+                selectedLoadingScreen
             } else {
                 switch sheet {
                 case .searchBar:
@@ -34,7 +36,7 @@ struct MapSheetContainer: View {
                     MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused)
 
                 default:
-                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet)
+                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, onMapOptionTap: onMapOptionsTap)
                 }
             }
         }

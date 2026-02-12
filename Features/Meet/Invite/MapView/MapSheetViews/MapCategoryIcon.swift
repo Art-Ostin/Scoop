@@ -19,7 +19,7 @@ struct MapCategoryIcon: View {
     var size: CGFloat { isMap ? 60 : 35 }
 
     @Bindable var vm: MapViewModel
-    let onTap: (() -> Void)? = nil
+    var onTap: (() -> Void)? = nil
     
     var isSelected: Bool { vm.selectedMapCategory == category }
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
