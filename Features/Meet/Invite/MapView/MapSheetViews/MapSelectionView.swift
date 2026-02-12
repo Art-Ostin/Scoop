@@ -21,7 +21,7 @@ struct MapSelectionView: View {
     @State private var isLoadingLookAround = false
     var body: some View {
         
-        VStack(alignment: .center, spacing: 16) {
+        VStack(alignment: .center, spacing: 14) {
             title
             locationActions
             locationLookAround
@@ -32,6 +32,7 @@ struct MapSelectionView: View {
         .overlay(alignment: .topTrailing) {dismissButton}
         .padding(.vertical, 24)
         .padding(.horizontal)
+        .ignoresSafeArea(.container, edges: .bottom)
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
@@ -99,16 +100,22 @@ extension MapSelectionView {
         }
     }
     
+    @ViewBuilder
     private var locationActions: some View {
+        let googleImage = Image("GoogleMapsIcon").scaleEffect(0.9)
+        let safariImage = Image(systemName: "safari.fill").font(.body(14, .bold))
+        let phoneImage = Image(systemName: "phone").font(.body(14, .bold))
+        
+        
         HStack(spacing: 16) {
-            test
-            test
-            test
+            MapSelectionAction(text: "Maps", image: googleImage as! Image) { MapsRouter.openGoogleMaps(item: mapItem)}
+            MapSelectionAction(text: "Website", image:  safariImage as! Image) { }
+            MapSelectionAction(text: "Website", image:  phoneImage as! Image) { mapItem.phoneNumber ?? ""}
         }
     }
     
     private var test: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 5) {
             Image(systemName: "safari")
                 .font(.body(14, .medium))
     
@@ -117,7 +124,7 @@ extension MapSelectionView {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 45)
-        .foregroundStyle(Color.black)
+        .foregroundStyle(Color.accent)
         .stroke(16, lineWidth: 1, color: .black)
     }
     
@@ -150,6 +157,30 @@ extension MapSelectionView {
                 )
             ?? mapItem.placemark.title
             ?? ""
+    }
+}
+
+
+private struct MapSelectionAction: View {
+    let text: String
+    let image: Image
+    
+    let onTap: () -> ()
+    
+    var body: some View {
+        Button {
+           onTap()
+        } label: {
+            HStack(spacing: 5) {
+                image
+                Text(text)
+                    .font(.body(14, .bold))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 40)
+            .foregroundStyle(Color.blue)
+            .stroke(16, lineWidth: 1, color: .black)
+        }
     }
 }
 
