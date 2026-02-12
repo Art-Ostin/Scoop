@@ -79,7 +79,6 @@ extension MapSearchView {
         HStack(spacing: 0) {
             Button { searchRecentPlace(place: search) } label: {
                 HStack(spacing: 12) {
-                    
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundStyle(Color.grayText)
@@ -111,11 +110,14 @@ extension MapSearchView {
     
     private func categoryRow (category: MapCategory) -> some View {
         Button {
-            print("This just printed")
-            sheet = .optionsAndSearchBar //Makes it dismiss straight away then goes to selected screen
-            print("now this")
-            useSelectedDetent = true
             vm.selectedMapCategory = category
+            useSelectedDetent = true
+            print("This just printed")
+//
+//            sheet = .optionsAndSearchBar //Makes it dismiss straight away then goes to selected screen
+//            print("now this")
+//            useSelectedDetent = true
+//            vm.selectedMapCategory = category
         } label: {
             VStack(spacing: 0){
                 HStack(spacing: 12) {
@@ -172,6 +174,7 @@ extension MapSearchView {
     private func searchRecentPlace(place: RecentPlace) {
         let searchText = "\(place.title) \(place.town)"
         useSelectedDetent = true
+        print("Hello World")
         Task {
             vm.searchText = searchText
             await vm.searchPlaces()

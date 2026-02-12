@@ -34,11 +34,7 @@ struct MapCategoryIcon: View {
     var body: some View {
         Button {
             vm.selectedMapCategory = category
-            if isMap {
-               useSelectedDetent = true 
-            } else {
-                sheet = .searchBar
-            }
+            useSelectedDetent = true
         } label : {
             VStack(spacing: 12) {
                 ZStack {

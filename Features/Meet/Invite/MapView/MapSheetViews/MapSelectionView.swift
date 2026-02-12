@@ -52,10 +52,12 @@ extension MapSelectionView {
             Text(mapItem.name ?? "")
                 .font(.title2)
                 .fontWeight(.bold)
-                .multilineTextAlignment(.leading)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
             Text(pointOfInterestText())
                 .font(.footnote)
                 .foregroundStyle(.gray)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 24)
