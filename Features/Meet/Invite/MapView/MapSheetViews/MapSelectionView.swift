@@ -60,7 +60,7 @@ extension MapSelectionView {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 36)
     }
     
     private var addLocationButton: some View {
@@ -104,6 +104,8 @@ extension MapSelectionView {
                 .frame(maxHeight: .infinity)
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            ClearRectangle(size: 60)
         }
     }
     
