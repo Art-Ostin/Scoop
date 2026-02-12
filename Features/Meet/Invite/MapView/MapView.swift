@@ -114,6 +114,23 @@ struct MapView: View {
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {userLocationButton}
             .sheet(isPresented: $showMapAction) {chooseMapSheet}
+            .overlay(alignment: .center) {
+                Button {
+                    MapsRouter.openGoogleMaps()
+                }
+                label: {
+                    VStack(spacing: 0) {
+                        Image("GoogleMapsIcon")
+                            .scaleEffect(0.2)
+                        
+                        Text("Google Maps")
+                            .font(.body(10, .medium))
+                            .foregroundStyle(Color.black.opacity(0.9))
+                    }
+                    .frame(width: 45, height: 45)
+                    .glassIfAvailable(Circle(), isClear: true)
+                }
+            }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
@@ -162,7 +179,7 @@ extension MapView {
         MapUserLocationButton(scope: mapScope)
             .buttonBorderShape(.circle)
             .tint(.blue)
-            .padding(.bottom, 144)
+            .padding(.bottom, 184)
             .padding(.horizontal, 16)
     }
     
