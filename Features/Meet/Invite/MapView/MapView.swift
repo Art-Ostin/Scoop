@@ -112,25 +112,8 @@ struct MapView: View {
             .animation(.easeInOut(duration: 0.3), value: vm.selection)
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
-            .overlay(alignment: .bottomTrailing) {userLocationButton}
+            .overlay(alignment: .bottomTrailing) {actionMenu}
             .sheet(isPresented: $showMapAction) {chooseMapSheet}
-            .overlay(alignment: .center) {
-                Button {
-                    MapsRouter.openGoogleMaps()
-                }
-                label: {
-                    VStack(spacing: 0) {
-                        Image("GoogleMapsIcon")
-                            .scaleEffect(0.2)
-                        
-                        Text("Google Maps")
-                            .font(.body(10, .medium))
-                            .foregroundStyle(Color.black.opacity(0.9))
-                    }
-                    .frame(width: 45, height: 45)
-                    .glassIfAvailable(Circle(), isClear: true)
-                }
-            }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
@@ -175,12 +158,39 @@ extension MapView {
         }
     }
     
+    private var actionMenu: some View {
+        HStack {
+            mapsButton
+            Spacer()
+            userLocationButton
+        }
+        .padding(.bottom, 184)
+        .padding(.horizontal, 16)
+    }
+    
+    private var mapsButton: some View {
+        Button {
+            MapsRouter.openGoogleMaps()
+        }
+        label: {
+            VStack(spacing: 3) {
+                Image("GoogleMapsIcon")
+
+                Text("Maps")
+                    .font(.body(9, .bold))
+                    .foregroundStyle(Color.black.opacity(0.9))
+            }
+            .frame(width: 45, height: 45, alignment: .center)
+            .offset(y: -1)
+            .glassIfAvailable(Circle(), isClear: false)
+        }
+    }
+    
+    
     private var userLocationButton: some View {
         MapUserLocationButton(scope: mapScope)
             .buttonBorderShape(.circle)
             .tint(.blue)
-            .padding(.bottom, 184)
-            .padding(.horizontal, 16)
     }
     
     private var chooseMapSheet: some View {
