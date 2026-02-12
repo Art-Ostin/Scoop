@@ -122,6 +122,7 @@ struct MapView: View {
             .sheet(isPresented: .constant(true)) { mapSheet }
             .overlay(alignment: .bottomTrailing) {actionMenu}
             .animation(.easeInOut(duration: 0.3), value: useSelectedDetent)
+            .animation(.easeInOut(duration: 0.2), value: sheet)
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
     }
@@ -173,7 +174,7 @@ extension MapView {
             Spacer()
             userLocationButton
         }
-        .padding(.bottom, 184)
+        .padding(.bottom, sheet == .searchBar ? 64 :  184)
         .padding(.horizontal, 16)
     }
     

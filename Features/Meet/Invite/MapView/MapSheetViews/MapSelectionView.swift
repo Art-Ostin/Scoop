@@ -80,10 +80,7 @@ extension MapSelectionView {
     
     private var searchButton: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                sheet = .large
-                vm.selection = nil
-            }
+            transitionFromSelection(to: .large)
         } label: {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
@@ -191,13 +188,7 @@ extension MapSelectionView {
     
     private var dismissButton: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                sheet = .optionsAndSearchBar
-//               Dis
-//                useSelectedDetent = false
-//                vm.selection = nil
-//                sheet = .optionsAndSearchBar
-            }
+            transitionFromSelection(to: .optionsAndSearchBar)
         } label: {
             Image(systemName: "xmark")
                 .font(.body(15, .medium))
@@ -205,6 +196,15 @@ extension MapSelectionView {
                 .glassIfAvailable(Circle())
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
+        }
+    }
+    
+    private func transitionFromSelection(to destination: MapSheets) {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            useSelectedDetent = false
+            vm.selection = nil
+            vm.selectedMapItem = nil
+            sheet = destination
         }
     }
 }
