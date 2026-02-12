@@ -17,8 +17,16 @@ import UIKit
     let locationManager = CLLocationManager()
     var searchText: String = ""
     var results: [MKMapItem] = []
-    var selection: MapSelection<MKMapItem>?
-    var selectedMapItem: MKMapItem?
+    var selection: MapSelection<MKMapItem>? {
+        didSet {
+            showAnimation = oldValue != nil && selection != nil
+        }
+    }
+    var selectedMapItem: MKMapItem? {
+        didSet {
+            showAnimation = oldValue != nil && selection != nil
+        }
+    }
     
     var visibleRegion: MKCoordinateRegion?
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)

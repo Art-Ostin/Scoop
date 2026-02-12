@@ -10,9 +10,7 @@ import MapKit
 
 
 struct MapSelectionView: View {
-    
-    let showAnimation: Bool
-    
+        
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     let mapItem: MKMapItem
@@ -38,7 +36,7 @@ struct MapSelectionView: View {
         .padding(.vertical, 16)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
-        .animation(.easeInOut(duration: 0.3), value: showAnimation ?  isLoadingLookAround : nil)
+        .animation(.easeInOut(duration: 0.3), value: vm.showAnimation ?  isLoadingLookAround : nil)
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
@@ -222,7 +220,7 @@ private struct MapSelectionAction<Icon: View>: View {
         .frame(maxWidth: .infinity)
         .frame(height: 35)
         .foregroundStyle(isEnabled ? Color.blue : Color.gray)
-        .stroke(16, lineWidth: 1, color: .black)
+        .stroke(16, lineWidth: 1.5, color: .black.opacity(0.7))
         .disabled(!isEnabled)
     }
 }

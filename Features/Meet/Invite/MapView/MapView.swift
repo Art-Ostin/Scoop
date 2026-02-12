@@ -78,7 +78,6 @@ struct MapView: View {
                             .tag(MapSelection(item))
                             .tint(vm.markerTint)
                     }
-                    
                 }
             }
             .mapControlVisibility(.visible)
