@@ -11,6 +11,7 @@ import MapKit
 
 struct MapSelectionView: View {
     
+    let showAnimation: Bool
     
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
@@ -37,7 +38,7 @@ struct MapSelectionView: View {
         .padding(.vertical, 16)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
-        .animation(.easeInOut(duration: 0.3), value: isLoadingLookAround)
+        .animation(.easeInOut(duration: 0.3), value: showAnimation ?  isLoadingLookAround : nil)
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
@@ -77,7 +78,7 @@ extension MapSelectionView {
     private var searchButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.3)) {
-                sheet = .optionsAndSearchBar
+                sheet = .large
                 vm.selection = nil
             }
         } label: {

@@ -24,6 +24,8 @@ import UIKit
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     private var categorySearchTask: Task<Void, Never>?
     
+    var showAnimation = false
+
     var isLoadingCategory: Bool = false
     
     var markerTint: Color {

@@ -17,6 +17,7 @@ struct MapSheetContainer: View {
 
     var body: some View {
         Group {
+            
             if let mapItem = vm.selectedMapItem {
                 MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
             } else {

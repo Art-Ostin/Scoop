@@ -18,7 +18,6 @@ struct MapView: View {
     @Bindable var eventVM: TimeAndPlaceViewModel
     @State private var sheet: MapSheets = .optionsAndSearchBar
     
-    
     init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
         self._vm = State(initialValue: MapViewModel(defaults: defaults))
         self._eventVM = Bindable(wrappedValue: eventVM)
@@ -192,45 +191,4 @@ extension MapView {
             .tint(.blue)
     }
 }
-
-
-
-/*
- //            .sheet(isPresented: $showMapAction) {chooseMapSheet}
-
- private var chooseMapSheet: some View {
-     VStack(spacing: 24) {
-         Button("Google Maps") {
-             MapsRouter.openGoogleMaps(item: nil)
-         }
-         
-         MapDivider()
-         
-         Button("Apple Maps") {
-             MapsRouter.openAppleMaps(item: nil)
-         }
-     }
-     .font(.body(17, .bold)) // your default text
-     .padding(20)
-     .presentationDetents([.height(120)])
- }
-
- */
-
-
-// Different Gradients
-
-
-//App color Gradient
-//.tint(Color(red: 0.78, green: 0, blue: 0.35))
-
-//Maybe pink
-//Pink.tint(Color(red: 0.89, green: 0.09, blue: 0.55))
-
-
-//Cafe System Blue
-//.tint(Color(.blue))
-
-//Best Orange I have
-//Color(red: 1, green: 0.28, blue: 0)
 
