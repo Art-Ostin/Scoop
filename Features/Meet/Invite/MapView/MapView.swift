@@ -202,10 +202,13 @@ extension MapView {
             //Animation to update camera Position smoothly
             if let item = vm.selectedMapItem {
                 let coord = item.placemark.coordinate
-                let yOffset = lastSpan.latitudeDelta * 0.15
-                let center = CLLocationCoordinate2D(latitude: coord.latitude - yOffset, longitude: coord.longitude)
                 
-                let base = lastCamera ?? MapCamera(centerCoordinate: center, distance: 2500, heading: 0, pitch: 0)
+                let base = lastCamera ?? MapCamera(centerCoordinate: coord, distance: 2500, heading: 0, pitch: 0)
+                let center = offsetCenter(for: coord, heading: base.heading)
+                // Exit user-follow mode before centering the selected place.
+                vm.cameraPosition = .camera(base)
+
+
                 camTarget = MapCamera(centerCoordinate: center, distance: base.distance, heading: base.heading, pitch: base.pitch)
                 camDuration = (base.distance < 1500) ? 1.0 : 0.85
                 camTrigger &+= 1
@@ -254,6 +257,18 @@ extension MapView {
         case .large:
             return 184
         }
+    }
+    
+    private func offsetCenter(for coordinate: CLLocationCoordinate2D, heading: CLLocationDirection) -> CLLocationCoordinate2D {
+        let offsetRatio = 0.15
+        let headingRadians = heading * .pi / 180
+        let latitudeOffset = lastSpan.latitudeDelta * offsetRatio
+        let longitudeOffset = lastSpan.longitudeDelta * offsetRatio
+        
+        return CLLocationCoordinate2D(
+            latitude: coordinate.latitude - (latitudeOffset * cos(headingRadians)),
+            longitude: coordinate.longitude - (longitudeOffset * sin(headingRadians))
+        )
     }
 
     
