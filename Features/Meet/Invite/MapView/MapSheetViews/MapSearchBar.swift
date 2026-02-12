@@ -4,7 +4,7 @@
 //
 //  Created by Art Ostin on 08/02/2026.
 //
-
+//Seeing if this gets overwritte
 import SwiftUI
 import MapKit
 
@@ -12,9 +12,11 @@ struct MapSearchBar: View {
     @FocusState.Binding var isFocused: Bool
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
+    var promoteToLargeOnTap: Bool = false
     
     
     var body: some View {
+        //Seeing if this gets overwritten
             TextField("",text: $vm.searchText, prompt: searchPrompt)
                 .padding(.horizontal, 40)
                 .font(.system(size: 17))
@@ -25,6 +27,7 @@ struct MapSearchBar: View {
                 .contentShape(Capsule())
                 .focused($isFocused)
                 .simultaneousGesture(TapGesture().onEnded {
+                    guard promoteToLargeOnTap else { return }
                     if sheet != .large { sheet = .large }
                 })
                 .onSubmit(of: .text) { Task { await searchAndSelectFirst() } }

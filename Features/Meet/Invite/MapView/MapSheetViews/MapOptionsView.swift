@@ -18,7 +18,7 @@ struct MapOptionsView: View {
     var body: some View {
         VStack(spacing: 24) {
             HStack(spacing: 6) {
-                MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
+                MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet, promoteToLargeOnTap: true)
                 
                 if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
             }

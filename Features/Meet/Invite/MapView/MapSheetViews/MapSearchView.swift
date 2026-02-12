@@ -10,7 +10,7 @@ import MapKit
 
 struct MapSearchView: View {
     
-    @State var service = LocationSearchService()
+    @Bindable var service: LocationSearchService
     
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
@@ -141,7 +141,10 @@ extension MapSearchView {
             MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            DismissButton() { sheet = .optionsAndSearchBar }
+            DismissButton() {
+                isFocused = false
+                sheet = .optionsAndSearchBar
+            }
                 .frame(width: 40)
         }
         .frame(maxWidth: .infinity)

@@ -7,9 +7,13 @@
 
 import SwiftUI
 import MapKit
+import UIKit
 
 struct MapSheetContainer: View {
-    @FocusState private var searchFocused: Bool
+    @FocusState private var compactSearchFocused: Bool
+    @FocusState private var largeSearchFocused: Bool
+    @State private var searchService = LocationSearchService()
+    @State private var focusTask: Task<Void, Never>?
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @Binding var useSelectedDetent: Bool
@@ -27,40 +31,75 @@ struct MapSheetContainer: View {
                 switch sheet {
                 case .searchBar:
                     HStack(spacing: 6) {
-                        MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                        MapSearchBar(isFocused: $compactSearchFocused, vm: vm, sheet: $sheet, promoteToLargeOnTap: true)
                         if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
                     }
                     .padding(.horizontal)
-
-                case .large:
-                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-
                 default:
-                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                    ZStack(alignment: .top) {
+                        
+                        MapSearchView(service: searchService, vm: vm, sheet: $sheet, isFocused: $largeSearchFocused, useSelectedDetent: $useSelectedDetent)
+                            .opacity(sheet == .large ? 1 : 0)
+                            .allowsHitTesting(sheet == .large)
+
+                        
+                        
+                        MapOptionsView(vm: vm, isFocused: $compactSearchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                            .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
+                            .allowsHitTesting(sheet == .optionsAndSearchBar)
+
+                    }
                 }
             }
         }
-        // Keep keyboard + focus “linked” to large search mode.
-        .task(id: sheet) {
-            if sheet == .large, vm.selectedMapItem == nil {
-                await Task.yield()                 // wait until large content is in hierarchy
-                await MainActor.run { searchFocused = true }
-            } else {
-                await MainActor.run { searchFocused = false }
-            }
+        .animation(.easeInOut(duration: 0.16), value: sheet)
+        // Keep keyboard + focus “linked” to large search mode without stalling the detent snap.
+        .onChange(of: sheet) { _, newSheet in
+            setFocus(for: newSheet)
         }
         .onChange(of: vm.selectedMapItem) { _, newValue in
-            if newValue != nil { searchFocused = false }
+            if newValue != nil {
+                focusTask?.cancel()
+                compactSearchFocused = false
+                largeSearchFocused = false
+            }
+        }
+        .onDisappear {
+            focusTask?.cancel()
         }
     }
 }
 
 extension MapSheetContainer {
+    private func setFocus(for newSheet: MapSheets) {
+        focusTask?.cancel()
+        guard newSheet == .large, vm.selectedMapItem == nil, !useSelectedDetent else {
+            dismissKeyboard()
+            compactSearchFocused = false
+            largeSearchFocused = false
+            return
+        }
+
+        compactSearchFocused = false
+        focusTask = Task {
+            try? await Task.sleep(nanoseconds: 120_000_000)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                guard sheet == .large, vm.selectedMapItem == nil else { return }
+                largeSearchFocused = true
+            }
+        }
+    }
+
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
     
     private var selectedLoadingScreen: some View {
         VStack(spacing: 120) {
             HStack(spacing: 6) {
-                MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                MapSearchBar(isFocused: $compactSearchFocused, vm: vm, sheet: $sheet, promoteToLargeOnTap: true)
                 
                 
                 if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
@@ -81,7 +120,6 @@ extension MapSheetContainer {
         }
     }
 }
-
 
 enum MapSheets: CaseIterable, Equatable {
     case searchBar, optionsAndSearchBar, large
@@ -117,4 +155,3 @@ enum MapSheets: CaseIterable, Equatable {
         }
     }
 }
-
