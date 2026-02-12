@@ -180,7 +180,7 @@ extension MapView {
             vm.selectedMapItem = nil
         }
         
-        let delay = UInt64((selectedSheetTransitionDuration * 1_000_000_000).rounded())
+        let delay = UInt64((selectedSheetTransitionDuration * 100_000_000).rounded())
         selectedSheetExitTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay)
             guard !Task.isCancelled else { return }
