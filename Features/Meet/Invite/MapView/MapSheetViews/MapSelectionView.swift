@@ -24,10 +24,11 @@ struct MapSelectionView: View {
     var body: some View {
         
         //Have overlay topLeft scoop Logo when done
-        VStack(alignment: .center, spacing: 12) {
+        VStack(alignment: .center, spacing: 16) {
             VStack(spacing: 8) {
                 title
                 locationActions
+                    .padding(.horizontal, 4)
             }
             locationLookAround
             addLocationButton
@@ -97,13 +98,13 @@ extension MapSelectionView {
         if let lookAroundScene {
             LookAroundPreview(initialScene: lookAroundScene)
                 .frame(maxHeight: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 24))
         } else if isLoadingLookAround {
             ProgressView()
                 .frame(maxWidth: .infinity)
                 .frame(maxHeight: .infinity)
                 .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 24))
         } else {
             ClearRectangle(size: 60)
         }
@@ -225,7 +226,7 @@ private struct MapSelectionAction<Icon: View>: View {
         .frame(maxWidth: .infinity)
         .frame(height: 35)
         .foregroundStyle(isEnabled ? Color(red: 0, green: 0.09, blue: 0.72) : Color.gray)
-        .stroke(16, lineWidth: 1.2, color: isEnabled ?  Color(red: 0.82, green: 0.82, blue: 0.82) : Color(red: 0.92, green: 0.92, blue: 0.92) )
+        .stroke(24, lineWidth: 1.2, color: isEnabled ?  Color(red: 0.82, green: 0.82, blue: 0.82) : Color(red: 0.92, green: 0.92, blue: 0.92) )
         .disabled(!isEnabled)
     }
 }

@@ -63,7 +63,7 @@ extension MapSheetContainer {
     
     
     private var shouldAutoFocusSearch: Bool {
-        sheet == .large && vm.selectedMapItem == nil
+        sheet == .large && vm.selectedMapItem == nil && !useSelectedDetent
     }
     
     private var mapSearchBar: some View {
@@ -105,7 +105,7 @@ enum MapSheets: CaseIterable, Equatable {
 
     static let searchDetent: PresentationDetent = .fraction(0.10)
     static let optionsDetent: PresentationDetent = .fraction(0.22)
-    static let selectedDetent: PresentationDetent = .fraction(0.42)
+    static let selectedDetent: PresentationDetent = .fraction(0.46)
     static let largeDetent: PresentationDetent = .large
 
     var detent: PresentationDetent {

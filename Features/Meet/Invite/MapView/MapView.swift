@@ -22,7 +22,7 @@ struct MapView: View {
     @State private var isExitingSelectedSheet = false
     @State private var selectedSheetExitTask: Task<Void, Never>?
     
-    private let selectedSheetTransitionDuration: TimeInterval = 0.2
+    private let selectedSheetTransitionDuration: TimeInterval = 0.12
     
     init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
         self._vm = State(initialValue: MapViewModel(defaults: defaults))
@@ -172,16 +172,16 @@ extension MapView {
     
     private func transitionFromSelectedSheet(to destination: MapSheets) {
         selectedSheetExitTask?.cancel()
-
+        
         withAnimation(.easeInOut(duration: selectedSheetTransitionDuration)) {
+            vm.selection = nil
+            vm.selectedMapItem = nil
             isExitingSelectedSheet = true
             useSelectedDetent = true
             sheet = destination
-            vm.selection = nil
-            vm.selectedMapItem = nil
         }
         
-        let delay = UInt64((selectedSheetTransitionDuration * 100_000_000).rounded())
+        let delay = UInt64((selectedSheetTransitionDuration * 200_000_000).rounded())
         selectedSheetExitTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay)
             guard !Task.isCancelled else { return }
