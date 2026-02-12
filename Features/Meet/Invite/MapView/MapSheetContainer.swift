@@ -18,27 +18,7 @@ struct MapSheetContainer: View {
 
 
     var body: some View {
-        Group {
-            if let mapItem = vm.selectedMapItem {
-                MapSelectionView( vm: vm, mapItem: mapItem, onExitSelection: onExitSelection, selectedLocation: selectedLocation)
-            } else if useSelectedDetent || vm.isLoadingCategory {
-                selectedLoadingScreen
-            } else {
-                //Powerful way to flick between content use again (I.e. in ZStack and animate).
-                ZStack(alignment: .top) {
-                    if sheet == .searchBar {
-                        mapSearchBar
-                    }
-                    if sheet == .optionsAndSearchBar {
-                        MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
-                    }
-                    if sheet == .large {
-                        MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-                    }
-                }
-                .transition(.opacity)
-            }
-        }
+        sheetContent
         .animation(.easeInOut(duration: 0.16), value: sheet)
         .animation(.easeInOut(duration: 0.22), value: vm.selectedMapItem != nil)
         // Keep keyboard + focus “linked” to large search mode.
@@ -57,6 +37,31 @@ struct MapSheetContainer: View {
 }
 
 extension MapSheetContainer {
+    @ViewBuilder
+    private var sheetContent: some View {
+        if let mapItem = vm.selectedMapItem {
+            MapSelectionView(vm: vm, mapItem: mapItem, onExitSelection: onExitSelection, selectedLocation: selectedLocation)
+        } else if useSelectedDetent {
+            selectedLoadingScreen
+        } else {
+            // Powerful way to flick between content use again (I.e. in ZStack and animate).
+            ZStack(alignment: .top) {
+                if sheet == .searchBar {
+                    mapSearchBar
+                }
+                if sheet == .optionsAndSearchBar {
+                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                }
+                if sheet == .large {
+                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
+                }
+            }
+            .transition(.opacity)
+        }
+    }
+
+    
+    
     private var shouldAutoFocusSearch: Bool {
         sheet == .large && vm.selectedMapItem == nil
     }

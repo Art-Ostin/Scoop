@@ -84,7 +84,6 @@ import UIKit
     
     private func onCategorySelect() {
         categorySearchTask?.cancel()
-        
         if let category = selectedMapCategory {
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategory(category: category, query: nil)
@@ -288,60 +287,3 @@ import UIKit
 }
 
 
-
-/*
- 
- private static func scaledRegion(_ region: MKCoordinateRegion, by scale: CLLocationDegrees) -> MKCoordinateRegion {
-     MKCoordinateRegion(
-         center: region.center,
-         span: MKCoordinateSpan(
-             latitudeDelta: min(region.span.latitudeDelta * scale, 180),
-             longitudeDelta: min(region.span.longitudeDelta * scale, 360)
-         )
-     )
- }
- 
- private static func searchWithExpandedRegions(
-     from baseRegion: MKCoordinateRegion,
-     minimumCount: Int,
-     search: (MKCoordinateRegion) async -> [MKMapItem]
- ) async -> [MKMapItem] {
-     var aggregated: [MKMapItem] = []
-     for scale in searchRegionScaleSteps {
-         guard !Task.isCancelled else { break }
-         let searchRegion = scaledRegion(baseRegion, by: scale)
-         let items = await search(searchRegion)
-         aggregated = deduplicated(aggregated + items)
-         if aggregated.count >= minimumCount {
-             break
-         }
-     }
-     return aggregated
- }
-
- private static func normalizedLongitude(_ longitude: CLLocationDegrees) -> CLLocationDegrees {
-     var value = longitude.truncatingRemainder(dividingBy: 360)
-     if value > 180 { value -= 360 }
-     if value < -180 { value += 360 }
-     return value
- }
-
- 
- 
- private static func items(in region: MKCoordinateRegion, from items: [MKMapItem]) -> [MKMapItem] {
-     items.filter { contains($0.placemark.coordinate, in: region) }
- }
- 
- private static func contains(_ coordinate: CLLocationCoordinate2D, in region: MKCoordinateRegion) -> Bool {
-     let halfLatitude = region.span.latitudeDelta / 2
-     let maximumLatitude = region.center.latitude + halfLatitude
-     let searchableHeight = region.span.latitudeDelta * 0.75
-     let searchableMinimumLatitude = maximumLatitude - searchableHeight
-     guard coordinate.latitude >= searchableMinimumLatitude && coordinate.latitude <= maximumLatitude else { return false }
-     
-     let halfLongitude = region.span.longitudeDelta / 2
-     let longitudeDifference = normalizedLongitude(coordinate.longitude - region.center.longitude)
-     return abs(longitudeDifference) <= halfLongitude
- }
-
- */

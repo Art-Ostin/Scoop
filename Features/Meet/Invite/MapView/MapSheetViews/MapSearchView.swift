@@ -167,7 +167,7 @@ extension MapSearchView {
     
     private func searchRecentPlace(place: RecentPlace) {
         let searchText = "\(place.title) \(place.town)"
-//        vm.selectedMapCategory = nil
+        vm.selectedMapCategory = nil
         useSelectedDetent = true
         Task {
             vm.searchText = searchText
