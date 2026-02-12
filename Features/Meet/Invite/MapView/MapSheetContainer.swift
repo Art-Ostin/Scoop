@@ -20,29 +20,7 @@ struct MapSheetContainer: View {
             
             
             if let mapItem = vm.selectedMapItem {
-                
-                VStack(spacing: 96) {
-                    HStack(spacing: 6) {
-                        MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
-                        
-                        
-                        if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
-                    }
-                    .padding(.horizontal)
-
-                    VStack {
-                        ProgressView()
-                            .foregroundStyle(Color.grayText)
-                        
-                        Text("Searching...")
-                            .font(.body(17, .medium))
-                    }
-                }
-                .foregroundStyle(Color.grayText)
-                
-                
-                
-//                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
+                MapSelectionView(vm: vm, sheet: $sheet, mapItem: mapItem) { selectedLocation($0)}
             } else {
                 switch sheet {
                 case .searchBar:
@@ -71,6 +49,33 @@ struct MapSheetContainer: View {
         }
         .onChange(of: vm.selectedMapItem) { _, newValue in
             if newValue != nil { searchFocused = false }
+        }
+    }
+}
+
+extension MapSheetContainer {
+    
+    private var selectedLoadingScreen: some View {
+        VStack(spacing: 120) {
+            HStack(spacing: 6) {
+                MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                
+                
+                if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
+            }
+            .padding(.horizontal)
+            .padding(.top, 48)
+
+            VStack {
+                ProgressView()
+                    .tint(Color.grayText)
+                
+                Text("Searching...")
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.grayText)
+            }
+            
+            Spacer()
         }
     }
 }

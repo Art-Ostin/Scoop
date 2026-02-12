@@ -14,15 +14,16 @@ struct MapCategoryIcon: View {
     @Binding var sheet: MapSheets
     
     var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
-    
     let category: MapCategory
     let isMap: Bool
     var size: CGFloat { isMap ? 60 : 35 }
 
     @Bindable var vm: MapViewModel
+    let onTap: (() -> Void)? = nil
     
     var isSelected: Bool { vm.selectedMapCategory == category }
     var showLoading: Bool { isSelected && vm.isLoadingCategory}
+    
     
     private var showSearchArea: Bool {
         isMap
@@ -32,8 +33,12 @@ struct MapCategoryIcon: View {
     }
     var body: some View {
         Button {
-            if !isMap {sheet = .searchBar}
             vm.selectedMapCategory = category
+            if isMap {
+               onTap?()
+            } else {
+                sheet = .searchBar
+            }
         } label : {
             VStack(spacing: 12) {
                 ZStack {

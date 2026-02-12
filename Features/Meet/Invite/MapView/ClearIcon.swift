@@ -66,7 +66,7 @@ extension ClearIcon {
                 .scaleEffect(0.6)
             
             Text("Clear")
-                .foregroundStyle(Color.gray)
+                .tint(Color.gray)
                 .font(.body(10, .medium))
                 .offset(y: -2)
         }
