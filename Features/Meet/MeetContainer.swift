@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-//@State var showProfileTest: ProfileModel?
-//@State private var profilePath: [ProfileModel] = []
-
 
 struct MeetContainer: View {
     let vm: MeetViewModel
@@ -24,59 +21,26 @@ struct MeetContainer: View {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
                     profileRecSection(profiles: vm.profiles)
-                    meetInfo
+                    
+                    MeetInfoView(vm: vm, ui: ui)
                 }
                 .id(vm.profiles.count)
                 
-                if let profileModel = ui.selectedProfile {
-                    ProfileView(
-                        vm: ProfileViewModel(
-                            defaults: vm.defaults,
-                            sessionManager: vm.s,
-                            profileModel: profileModel,
-                            imageLoader: vm.imageLoader),
-                        meetVM: vm,
-                        profileImages: profileImages[profileModel.id] ?? [],
-                        selectedProfile: $ui.selectedProfile,
-                        dismissOffset: $dismissOffset,
-                        showRespondToProfile: $ui.showSentInvite,
-                    )
-                        .id(profileModel.id)
-                        .zIndex(1)
-                        .transition(.move(edge: .bottom))
+                if let profileRec = ui.selectedProfile {
+                    profile(profile: profileRec)
                 }
                 
-                if let currentProfile = ui.quickInvite {
-                    SelectTimeAndPlace(
-                        defaults: vm.defaults,
-                        sessionManager: vm.s,
-                        profile: currentProfile,
-                        onDismiss: { ui.quickInvite = nil}
-                    ) { event in
-                        ui.showSentInvite = true
-                        Task { @MainActor in
-                            async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-                            
-                            try? await Task.sleep(nanoseconds: 450_000_000)
-                            
-                            ui.quickInvite = nil
-                            
-                            try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
-                            
-                            try? await minDelay
-                            
-                            ui.showSentInvite = nil
-                        }
-                    }
+                if let quickInviteProfile = ui.quickInvite {
+                    quickInviteView(profile: quickInviteProfile)
                 }
                 
-                if let response = ui.showSentInvite {
-                    RespondToProfileView(isInvite: response)
+                if let profileResponse = ui.showSentInvite {
+                    RespondToProfileView(isInvite: profileResponse)
                 }
             }
             .transition(.opacity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .sheet(isPresented: $ui.showPendingInvites) {pastInviteView}
+            .sheet(isPresented: $ui.showPendingInvites) {PastInviteView(vm: vm, ui: ui)}
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (16 * 2)
@@ -85,14 +49,6 @@ struct MeetContainer: View {
 }
 
 extension MeetContainer {
-    
-    private var meetInfo: some View {
-        VStack(spacing: 60) {
-            newProfileTimer
-            DefaultAppButton(image: Image("PastInvites"), size: 25, isPresented: $ui.showPendingInvites)
-                .offset(y: -12)
-        }
-    }
     
     private func profileRecSection(profiles: [ProfileModel]) -> some View {
         LazyVStack(spacing: 72) {
@@ -115,35 +71,36 @@ extension MeetContainer {
         }
     }
             
-
-    private var newProfileTimer: some View {
-        HStack(spacing: 0) {
-            Text("new profiles in: ")
-                .foregroundStyle(Color.grayText)
-            SimpleClockView(targetTime: Calendar.current.date(byAdding: .day, value: 3, to: .now)!) {}
-        }
-        .font(.body(14))
-        .frame(maxWidth: .infinity, alignment: .center)
+    private func profile(profile: ProfileModel) -> some View {
+        ProfileView(
+            vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: profile, imageLoader: vm.imageLoader), meetVM: vm,
+            profileImages: profileImages[profile.id] ?? [],
+            selectedProfile: $ui.selectedProfile,
+            dismissOffset: $dismissOffset,
+            showRespondToProfile: $ui.showSentInvite,
+        )
+        .id(profile.id)
+        .zIndex(1)
+        .transition(.move(edge: .bottom))
     }
     
-    
-    private var pastInviteView: some View {
-        NavigationStack {
-            ScrollView(.vertical) {
-                LazyVStack(spacing: 48) {
-                    ForEach(vm.pendingInvites) { profileModel in
-                        PendingInviteCard(
-                            profile: profileModel,
-                            showPendingInvites: $ui.showPendingInvites,
-                            openPastInvites: $ui.openPastInvites
-                        )
-                    }
-                }
-            }
-            .navigationTitle("Your Pending Invites")
-            .navigationBarTitleDisplayMode(.inline)
+    private func quickInviteView(profile: ProfileModel) ->  some View {
+        SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, onDismiss: { ui.quickInvite = nil}) { event in
+            Task{ @MainActor in await sendQuickInvite(event: event, profile: profile)}
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+    }
+    
+    func sendQuickInvite(event: EventDraft, profile: ProfileModel) async {
+        ui.showSentInvite = true
+        async let minDelay: Void = Task.sleep(for: .milliseconds(750))
+
+        try? await Task.sleep(nanoseconds: 450_000_000)
+        ui.quickInvite = nil
+        
+        try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
+        
+        try? await minDelay
+        
+        ui.showSentInvite = nil
     }
 }

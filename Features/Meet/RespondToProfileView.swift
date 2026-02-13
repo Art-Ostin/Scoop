@@ -24,6 +24,8 @@ struct RespondToProfileView: View {
                     .font(.body(16, .bold))
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
         .zIndex(10)
         .transition(.opacity.animation(.easeInOut(duration: 0.18)))
     }
