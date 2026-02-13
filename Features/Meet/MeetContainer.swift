@@ -37,21 +37,28 @@ struct MeetContainer: View {
                 
                 if let currentProfile = ui.quickInvite {
                     SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
-                        try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
+                        ui.showSentInvite = true
+                        ui.quickInvite = nil
+//                        try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }
                 
                 if ui.showSentInvite != nil {
                     Text("")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.white)
+                        .transition(.opacity)
                         .onAppear {
                             Task {
-                                try? await Task.sleep(for: .seconds(2))
-                                ui.showSentInvite = nil
+                                try? await Task.sleep(for: .seconds(1.2))
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    ui.showSentInvite = nil
+                                }
                             }
                         }
                 }
             }
+            .transition(.opacity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .sheet(isPresented: $ui.showPendingInvites) {pastInviteView}
             .measure(key: ImageSizeKey.self) { $0.size.width }

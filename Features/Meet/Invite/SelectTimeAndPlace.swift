@@ -39,13 +39,9 @@ struct SelectTimeAndPlace: View {
         }
         .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
         .customAlert(isPresented: $vm.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-            print("Hello World")
+            inviteSent()
         }
         .tint(.blue)
-        .onAppear {
-            print("Hello World")
-            print(vm.event)
-        }
         .sheet(isPresented: $showInfoScreen) {
             Text("Info screen here")
         }
@@ -56,7 +52,6 @@ struct SelectTimeAndPlace: View {
 }
 
 extension SelectTimeAndPlace {
-    
     
     private var sendInviteScreen: some View {
         VStack(spacing: 20) {
@@ -107,11 +102,7 @@ extension SelectTimeAndPlace {
                 }
             }
             ActionButton(isValid: !vm.showAlert && InviteIsValid, text: vm.text) {
-                if vm.text == "Confirm & Send" {
-                    vm.showAlert.toggle()
-                } else {
-                    Task { await onSubmit(vm.event) }
-                }
+                vm.showAlert.toggle()
             }
         }
         .frame(alignment: .top)
@@ -161,12 +152,16 @@ extension SelectTimeAndPlace {
                 }
             } label:  {
                 Image("InvitePlace")
-                //                Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
-
             }
         }
     }
+    
+    private func inviteSent() {
+        Task { await onSubmit(vm.event)}
+    }
 }
+
+
 
 /*
  
