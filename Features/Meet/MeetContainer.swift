@@ -18,6 +18,10 @@ struct MeetContainer: View {
     @State var profileImages: [String : [UIImage]] = [:]
     @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
     
+    
+    @Namespace private var inviteZoomNamespace
+    @State private var respondProfileID: String? = nil
+
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
@@ -37,8 +41,19 @@ struct MeetContainer: View {
                 
                 if let currentProfile = ui.quickInvite {
                     SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
-                        ui.showSentInvite = true
-                        ui.quickInvite = nil
+                        
+                        // STEP 1: set the ID you’ll zoom to, then show respond
+                        respondProfileID = currentProfile.id
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                            ui.showSentInvite = true
+                        }
+
+                        // STEP 1: keep the popup alive briefly so there is a “from” view to zoom from
+                        Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 450_000_000) // ~0.45s
+                            ui.quickInvite = nil
+                        }
+                        
 //                        try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }

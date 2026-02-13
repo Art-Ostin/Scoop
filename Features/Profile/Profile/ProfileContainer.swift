@@ -13,7 +13,7 @@ struct ProfileView: View {
     @Binding private var dismissOffset: CGFloat?
     @Binding var showRespondToProfile: Bool?
     @Binding private var selectedProfile: ProfileModel?
-
+    
     @State private var ui = ProfileUIState()
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = ui.detailsOpenOffset - 80

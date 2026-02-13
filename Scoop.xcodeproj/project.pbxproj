@@ -789,6 +789,7 @@
 				65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
 				65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */,
+				65E963D32F3F6DA80022595F /* ContentTransitionTest.swift */,
 				653A78C22E15DB810098747F /* MapView */,
 			);
 			path = Invite;
@@ -836,7 +837,6 @@
 				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
 				65E963D52F3F7C090022595F /* RespondToProfileView.swift */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
-				657E61502F35326600262821 /* Old Maps */,
 			);
 			path = Meet;
 			sourceTree = "<group>";
@@ -900,17 +900,6 @@
 				657838432DE773CE00770B49 /* ScoopUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		657E61502F35326600262821 /* Old Maps */ = {
-			isa = PBXGroup;
-			children = (
-				65DCFBBD2F329CDD00B3EC50 /* ImageIcons.swift */,
-				65DCFBBF2F32A37A00B3EC50 /* MapImageIcon.swift */,
-				65B313A22F33784F00D5C27D /* MapAnnotation.swift */,
-				65E963D32F3F6DA80022595F /* ContentTransitionTest.swift */,
-			);
-			path = "Old Maps";
 			sourceTree = "<group>";
 		};
 		659497012E01DD4000880921 /* Features */ = {
@@ -986,6 +975,9 @@
 		65E963D72F3F7EAB0022595F /* To Delete */ = {
 			isa = PBXGroup;
 			children = (
+				65DCFBBD2F329CDD00B3EC50 /* ImageIcons.swift */,
+				65DCFBBF2F32A37A00B3EC50 /* MapImageIcon.swift */,
+				65B313A22F33784F00D5C27D /* MapAnnotation.swift */,
 				6508840F2EAD23B800776620 /* MeetSuggestionView.swift */,
 			);
 			path = "To Delete";

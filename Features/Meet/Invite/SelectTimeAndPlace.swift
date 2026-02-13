@@ -12,10 +12,30 @@ struct SelectTimeAndPlace: View {
     
     let rowHeight = CGFloat(60)
     
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
+    // STEP 2: add these
+    let zoomNamespace: Namespace.ID?
+    let zoomID: String?
+
+    // STEP 2: helper so the matched id is identical everywhere
+    private var zoomKey: String? {
+        zoomID.map { "inviteZoom-\($0)" }
+    }
+
+    init(
+        defaults: DefaultsManaging,
+        sessionManager: SessionManager,
+        profile: ProfileModel? = nil,
+        text: String = "Confirm & Send",
+        zoomNamespace: Namespace.ID? = nil,
+        zoomID: String? = nil,
+        onDismiss: @escaping () -> Void,
+        onSubmit: @escaping (EventDraft) async -> ()
+    ) {
         _vm = .init(initialValue: .init(defaults: defaults, sessionManager: sessionManager, text: text, profile: profile))
         self.onDismiss = onDismiss
         self.onSubmit = onSubmit
+        self.zoomNamespace = zoomNamespace
+        self.zoomID = zoomID
     }
 
     
@@ -28,6 +48,8 @@ struct SelectTimeAndPlace: View {
                         .scaleEffect(0.9)
                         .offset(x: -12, y: -48)
                 }
+                .matchedInviteZoom(id: zoomKey, in: zoomNamespace, isSource: true)
+
             
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -158,6 +180,21 @@ extension SelectTimeAndPlace {
     
     private func inviteSent() {
         Task { await onSubmit(vm.event)}
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func matchedInviteZoom(
+        id: String?,
+        in namespace: Namespace.ID?,
+        isSource: Bool
+    ) -> some View {
+        if let id, let namespace {
+            self.matchedGeometryEffect(id: id, in: namespace, isSource: isSource)
+        } else {
+            self
+        }
     }
 }
 

@@ -10,6 +10,8 @@
  import MapKit
 
 
+/*
+ 
  extension MKPointOfInterestCategory {
      
      
@@ -238,6 +240,8 @@
          
      }
  }
+
+ */
 
 
 

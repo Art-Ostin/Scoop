@@ -14,6 +14,8 @@ struct RespondToProfileView: View {
     
     let isSent: Bool
     
+    let inviteZoomNS: Namespace
+    
     var body: some View {
         ZStack {
             if isSent {
