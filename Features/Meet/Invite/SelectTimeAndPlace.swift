@@ -165,8 +165,15 @@ extension SelectTimeAndPlace {
                     .font(.body(20, .bold))
             }
             Spacer()
-            Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
-                .onTapGesture { vm.showMapView.toggle() }
+            Button {
+                withAnimation(.snappy) {
+                    vm.showMapView.toggle()
+                }
+            } label:  {
+                Image("InvitePlace")
+                //                Image(vm.event.location == nil ? "InvitePlace" : "EditButton")
+
+            }
         }
     }
 }

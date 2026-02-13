@@ -17,6 +17,8 @@ struct InviteTypeRow: View {
     
     var body: some View {
         let trimmedMessage = (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let showOverlayEdit = trimmedMessage.count > 65
+        
         HStack {
             //If there is a response in place
             if !trimmedMessage.isEmpty {
@@ -27,7 +29,7 @@ struct InviteTypeRow: View {
                     .font(.body(12, .italic))
                     .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.grayText)
                 
-                let newText = Text("  edit")
+                let newText = Text(showOverlayEdit ? "" : "  edit")
                     .font(.body(12, .italic))
                     .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
                 
@@ -57,6 +59,14 @@ struct InviteTypeRow: View {
             Spacer()
             
             DropDownButton(isExpanded: $vm.showTypePopup)
+        }
+        .overlay(alignment: .topTrailing) {
+            if showOverlayEdit {
+                Text("Edit")
+                .font(.body(12, .italic))
+                .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
+                .offset(x: -28, y: -12)
+            }
         }
     }
 }
