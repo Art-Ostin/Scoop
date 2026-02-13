@@ -31,6 +31,7 @@ import UIKit
     var visibleRegion: MKCoordinateRegion?
     var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     private var categorySearchTask: Task<Void, Never>?
+    private var categorySelectionFromSearchArea = false
     
     var showAnimation = false
     
@@ -81,12 +82,20 @@ import UIKit
         let res = try? await MKLocalSearch(request: req).start()
         results = res?.mapItems ?? []
     }
+
+    func selectCategory(_ category: MapCategory, fromSearchArea: Bool = false) {
+        categorySelectionFromSearchArea = fromSearchArea
+        selectedMapCategory = category
+    }
     
     private func onCategorySelect() {
         categorySearchTask?.cancel()
+        let fromSearchArea = categorySelectionFromSearchArea
+        categorySelectionFromSearchArea = false
+
         if let category = selectedMapCategory {
             categorySearchTask = Task { [weak self] in
-                await self?.searchCategory(category: category, query: nil)
+                await self?.searchCategory(category: category, query: nil, fromSearchArea: fromSearchArea)
                 self?.searchText = category.description
             }
         } else {
@@ -97,7 +106,7 @@ import UIKit
     }
     
     //Search and assign all the categories
-    private func searchCategory(category: MapCategory, query: String?) async {
+    private func searchCategory(category: MapCategory, query: String?, fromSearchArea: Bool = false) async {
         guard let region = visibleRegion else { return }
         let spec = Self.categorySpec(category: category)
         let plans = Self.makeSearchPlans(from: spec, with: query)
@@ -105,15 +114,16 @@ import UIKit
         guard !Task.isCancelled else { return }
         results = Self.applyCategoryFilter(foundItems, spec: spec)
         lastSearchRegion = region
-        if let nearest = nearestMapItem(from: results) {
+        let origin = fromSearchArea ? region.center : preferredSelectionOrigin()
+        if let nearest = nearestMapItem(from: results, origin: origin) {
             selection = MapSelection(nearest)
         }
     }
     
     //Go to the nearest Location Not a Random Map 
-    private func nearestMapItem(from items: [MKMapItem]) -> MKMapItem? {
+    private func nearestMapItem(from items: [MKMapItem], origin: CLLocationCoordinate2D?) -> MKMapItem? {
         guard !items.isEmpty else { return nil }
-        guard let origin = preferredSelectionOrigin() else { return items.first }
+        guard let origin else { return items.first }
         
         let originLocation = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
         
@@ -313,5 +323,4 @@ import UIKit
         recentMapSearches = defaults.recentMapSearches
     }
 }
-
 

@@ -32,7 +32,7 @@ struct MapCategoryIcon: View {
     }
     var body: some View {
         Button {
-            vm.selectedMapCategory = category
+            vm.selectCategory(category, fromSearchArea: showSearchArea)
             useSelectedDetent = true
         } label : {
             VStack(spacing: 12) {
@@ -66,4 +66,3 @@ struct MapCategoryIcon: View {
         }
     }
 }
-
