@@ -20,6 +20,10 @@ struct ProfileView: View {
         return ui.detailsOpen ? (-85 ... -limit) : (limit ... 85)
     }
     let profileImages: [UIImage]
+    
+    let inviteZoomNamespace: Namespace.ID?
+    @Binding private var respondProfileID: String?
+
 
     //Functionality to do with draftProfile to display
     let draftProfile: UserProfile?
@@ -29,7 +33,17 @@ struct ProfileView: View {
         draftProfile ?? vm.profileModel.profile
     }
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, showRespondToProfile: Binding<Bool?> = .constant(nil), draftProfile: UserProfile? = nil) {
+    init(
+        vm: ProfileViewModel,
+        meetVM: MeetViewModel? = nil,
+        profileImages: [UIImage],
+        selectedProfile: Binding<ProfileModel?>,
+        dismissOffset: Binding<CGFloat?>,
+        showRespondToProfile: Binding<Bool?> = .constant(nil),
+        draftProfile: UserProfile? = nil,
+        inviteZoomNamespace: Namespace.ID? = nil,
+        respondProfileID: Binding<String?> = .constant(nil)
+    ) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
         self.profileImages = profileImages
@@ -37,6 +51,8 @@ struct ProfileView: View {
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
         self._showRespondToProfile = showRespondToProfile
+        self.inviteZoomNamespace = inviteZoomNamespace
+        self._respondProfileID = respondProfileID
     }
     
     var body: some View {
@@ -100,7 +116,14 @@ extension ProfileView {
                 }
             }
         } else {
-            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profileModel, onDismiss: { ui.showInvitePopup = false }) { event in
+            SelectTimeAndPlace(
+                defaults: vm.defaults,
+                sessionManager: vm.s,
+                profile: vm.profileModel,
+                zoomNamespace: inviteZoomNamespace,
+                zoomID: vm.profileModel.id,
+                onDismiss: { ui.showInvitePopup = false },
+            ){ event in
                 dismissProfileWithAction(invited: true, event: event)
             }
         }
@@ -254,7 +277,11 @@ extension ProfileView {
     }
     
     private func dismissProfileWithAction(invited: Bool, event: EventDraft? = nil) {
-        showRespondToProfile = invited
+        
+        respondProfileID = vm.profileModel.id
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+            showRespondToProfile = invited
+        }
         
         Task { @MainActor in
             //1. Set up 625 millisecond minimum time for dismiss screen to show
@@ -285,6 +312,12 @@ extension ProfileView {
             }
             //4. If at least 625 milliseconds have past, dismiss the screenCover
             try? await minDelay //ensures at least 625 milliseconds have past
+            
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showRespondToProfile = nil
+                respondProfileID = nil
+            }
+
             withAnimation(.easeInOut(duration: 0.2)) {showRespondToProfile = nil}
         }
     }

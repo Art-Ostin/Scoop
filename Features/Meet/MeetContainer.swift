@@ -33,7 +33,21 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = ui.selectedProfile {
-                    ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset, showRespondToProfile: $ui.showSentInvite)
+                    ProfileView(
+                        vm: ProfileViewModel(
+                            defaults: vm.defaults,
+                            sessionManager: vm.s,
+                            profileModel: profileModel,
+                            imageLoader: vm.imageLoader),
+                        meetVM: vm,
+                        profileImages: profileImages[profileModel.id] ?? [],
+                        selectedProfile: $ui.selectedProfile,
+                        dismissOffset: $dismissOffset,
+                        showRespondToProfile: $ui.showSentInvite,
+                        
+                        inviteZoomNamespace: inviteZoomNamespace,
+                        respondProfileID: $respondProfileID
+                    )
                         .id(profileModel.id)
                         .zIndex(1)
                         .transition(.move(edge: .bottom))
@@ -59,7 +73,12 @@ struct MeetContainer: View {
                 }
                 
                 if let response = ui.showSentInvite {
-                    RespondToProfileView(showRespondToProfile: $ui.showSentInvite, isSent: response)
+                    RespondToProfileView(
+                        showRespondToProfile: $ui.showSentInvite,
+                        isSent: response,
+                        zoomNamespace: inviteZoomNamespace,
+                        zoomID: respondProfileID
+                    )
                 }
             }
             .transition(.opacity)
