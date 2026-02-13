@@ -17,10 +17,10 @@ struct RespondToProfileView: View {
         ZStack {
             if isSent {
                 VStack(alignment: .center, spacing: 36) {
-                    Image("Monkey")
+                    Image("CoolGuys")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 200, height: 200)
+                        .frame(width: 250, height: 250)
                     
                     Text("Invite Sent")
                         .font(.body(16, .bold))

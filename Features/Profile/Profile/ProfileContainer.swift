@@ -258,11 +258,17 @@ extension ProfileView {
         
         Task { @MainActor in
             //1. Set up 625 millisecond minimum time for dismiss screen to show
-            async let minDelay: Void = Task.sleep(for: .milliseconds(625))
+            async let minDelay: Void = Task.sleep(for: .milliseconds(725))
             
+            var t = Transaction()
+            t.disablesAnimations = true
+            
+
             //2.Dismiss profile in background after 250 milliseconds
-            try? await Task.sleep(for: .milliseconds(100))
-            selectedProfile = nil
+            try? await Task.sleep(for: .milliseconds(250))
+            withTransaction(t) { ui.showInvitePopup = false}
+            withTransaction(t) { selectedProfile = nil}
+
             
             //3.Either Invite or decline the profile (Uncomment when actual done
             if invited {
