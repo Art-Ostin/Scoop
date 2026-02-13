@@ -11,6 +11,8 @@ struct CustomAlertCard: View {
     let title: String
     let message: String
     let showTwoButtons: Bool
+    let isConfirmInvite: Bool
+
     let onCancel: () -> Void
     let onOK: () -> Void
     let cancelTitle: String
@@ -20,6 +22,7 @@ struct CustomAlertCard: View {
     var isDanger: Bool {
         cancelTitle == "Back"
     }
+    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -40,7 +43,7 @@ struct CustomAlertCard: View {
 extension CustomAlertCard {
     
     private var titleAndMessage: some View {
-        VStack(alignment: showTwoButtons ? .leading : .center, spacing: 24) {
+        VStack(alignment: showTwoButtons ? .leading : .center, spacing: isConfirmInvite ? 16 : 24) {
             Text("\(title)  \(emoji)")
                 .font(.body(20, .bold))
             
@@ -75,7 +78,7 @@ extension CustomAlertCard {
                 .font(.body(17, .bold))
                 .foregroundStyle(isCancel ? (isDanger ? Color.white : Color.black) : (isDanger ? Color.black : Color.white))
                 .padding(.vertical, 14)
-                .frame(width: 100)
+                .frame(width: isConfirmInvite ? 125 : 100)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
                         .foregroundStyle(isCancel ? (isDanger ? Color.accent : Color.background) : (isDanger ? Color.background : Color.accent) )
@@ -97,15 +100,18 @@ struct CustomAlertModifier: ViewModifier {
     let okTitle: String
     let emoji: String
     
-    
+    let isConfirmInvite: Bool
+
     let onOK: () -> Void
+    
+    
     
     func body(content: Content) -> some View {
         content
             .overlay {
                 if isPresented {
                     ZStack {
-                        Color.black.opacity(0.45)
+                        Color.black.opacity(isConfirmInvite ? 0.3 : 0.42)
                             .ignoresSafeArea()
                             .onTapGesture {
                                 // Optional: tap outside to dismiss
@@ -116,12 +122,14 @@ struct CustomAlertModifier: ViewModifier {
                             title: title,
                             message: message,
                             showTwoButtons: showTwoButtons,
+                            isConfirmInvite: isConfirmInvite,
                             onCancel: { isPresented = false },
                             onOK: {
                                 onOK()
                                 isPresented = false
                             }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
                         )
+                        .offset(y: isConfirmInvite ? 48 : 0)
                     }
                     .transition(.opacity)
                     .zIndex(999)
@@ -133,7 +141,7 @@ struct CustomAlertModifier: ViewModifier {
 }
 
 extension View {
-    func customAlert(isPresented: Binding<Bool>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, onOK: @escaping () -> Void) -> some View {
-        modifier(CustomAlertModifier(isPresented: isPresented, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, onOK: onOK))
+    func customAlert(isPresented: Binding<Bool>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, isConfirmInvite: Bool = false, onOK: @escaping () -> Void) -> some View {
+        modifier(CustomAlertModifier(isPresented: isPresented, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, isConfirmInvite: isConfirmInvite, onOK: onOK))
     }
 }

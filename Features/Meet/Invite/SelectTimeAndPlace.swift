@@ -38,14 +38,8 @@ struct SelectTimeAndPlace: View {
             MapView(defaults: vm.defaults, eventVM: vm)
         }
         .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
-        .alert("Event Commitment", isPresented: $vm.showAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button ("I Understand") {
-                onDismiss()
-                Task { await onSubmit(vm.event)}
-            }
-        } message : {
-            Text("If you don't show, you'll be blocked from Scoop")
+        .customAlert(isPresented: $vm.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            print("Hello World")
         }
         .tint(.blue)
         .onAppear {
@@ -82,7 +76,6 @@ extension SelectTimeAndPlace {
                 DropDownView(showOptions: $vm.showTypePopup) {
                     InviteTypeRow(vm: vm)
                         .frame(height: 50)
-//                        .background(Color.blue)
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
                 }
@@ -91,7 +84,6 @@ extension SelectTimeAndPlace {
                 DropDownView(showOptions: $vm.showTimePopup) {
                     InviteTimeRow(vm: vm)
                         .frame(height: 50)
-//                        .background(Color.blue)
                 } dropDown: {
                     SelectTimeView(vm: vm)
                         .zIndex(2)
@@ -99,7 +91,6 @@ extension SelectTimeAndPlace {
                 Divider()
                 InvitePlaceRow
                     .frame(height: 50)
-//                    .background(Color.blue)
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {
@@ -115,8 +106,7 @@ extension SelectTimeAndPlace {
                             .zIndex(0)
                 }
             }
-            
-            ActionButton(isValid: InviteIsValid, text: vm.text) {
+            ActionButton(isValid: !vm.showAlert && InviteIsValid, text: vm.text) {
                 if vm.text == "Confirm & Send" {
                     vm.showAlert.toggle()
                 } else {
@@ -177,3 +167,17 @@ extension SelectTimeAndPlace {
         }
     }
 }
+
+/*
+ 
+ .alert("Event Commitment", isPresented: $vm.showAlert) {
+     Button("Cancel", role: .cancel) { }
+     Button ("I Understand") {
+         onDismiss()
+         Task { await onSubmit(vm.event)}
+     }
+ } message : {
+     Text("If you don't show, you'll be blocked from Scoop")
+ }
+
+ */
