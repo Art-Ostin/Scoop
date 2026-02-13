@@ -19,8 +19,8 @@ struct InviteTypeRow: View {
         let trimmedMessage = (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         HStack {
             //If there is a response in place
-            if let type = event.type, !trimmedMessage.isEmpty {
-                let title = Text(verbatim: "\(type.description.emoji ?? "") \(type.description.label): ")
+            if !trimmedMessage.isEmpty {
+                let title = Text(verbatim: "\(event.type.description.emoji ?? "") \(event.type.description.label): ")
                     .font(.body(16, .bold))
                 
                 let body = Text(" \(trimmedMessage)")
@@ -39,9 +39,11 @@ struct InviteTypeRow: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             //Otherwise have this placeholder
-            else if let type = event.type?.description.label, let emoji = event.type?.description.emoji {
+            let type = event.type.description.label
+            let emoji = event.type.description.emoji
+            
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("\(emoji) \(type)")
+                    Text("\(String(describing: emoji)) \(type)")
                         .font(.body(18))
                     Text("Add a Message")
                         .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
@@ -51,9 +53,6 @@ struct InviteTypeRow: View {
                                             pressing: { vm.isMessageTap = $0 },
                                             perform: {})
                 }
-            } else {
-                Text("Type").font(.body(20, .bold))
-            }
             
             Spacer()
             

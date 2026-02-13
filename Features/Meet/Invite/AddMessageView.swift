@@ -78,8 +78,8 @@ extension AddMessageView {
     
     @ViewBuilder
     private var dropdownTitle: some View {
-        let emoji = vm.event.type?.description.emoji ?? ""
-        let type = vm.event.type?.description.label ?? "Select"
+        let emoji = vm.event.type.description.emoji ?? ""
+        let type = vm.event.type.description.label
         
         HStack(spacing: 10) {
             Text("\(emoji) \(type)")
@@ -95,7 +95,7 @@ extension AddMessageView {
     }
     
     private var textFieldSection: some View {
-        FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: vm.event.type?.textPlaceholder)
+        FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: vm.event.type.textPlaceholder)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)

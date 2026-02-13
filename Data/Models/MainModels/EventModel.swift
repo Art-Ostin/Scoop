@@ -9,14 +9,12 @@ import MapKit
 import FirebaseFirestore
 
 struct EventDraft: Equatable {
-    var initiatorId: String?
-    var recipientId: String?
-    var type: EventType?
+    var initiatorId: String
+    var recipientId: String
+    var type: EventType
     var message: String?
     var proposedTimes: ProposedTimes = .init()
     var location: EventLocation?
-    var status: EventStatus = .pending
-    var canText: Bool = false
 }
 
 struct Event: Identifiable, Codable {
@@ -40,13 +38,14 @@ struct Event: Identifiable, Codable {
     }
     
     init(draft: EventDraft) {
-        self.initiatorId = draft.initiatorId ?? ""
-        self.recipientId = draft.recipientId ?? ""
-        self.type = draft.type ?? .custom
+        self.initiatorId = draft.initiatorId
+        self.recipientId = draft.recipientId
+        self.type = draft.type
         self.proposedTimes = draft.proposedTimes
         self.location = draft.location ?? EventLocation(mapItem: MKMapItem())
-        self.status = draft.status
-        self.canText =  draft.canText
+        //Starting Values
+        self.status = .pending
+        self.canText = false
     }
 }
 

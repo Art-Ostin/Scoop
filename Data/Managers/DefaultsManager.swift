@@ -54,8 +54,6 @@ final class DefaultsManager: DefaultsManaging {
         }
     }
 
-
-
     
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -124,13 +122,16 @@ enum PreferredMapType: String, Codable {
 }
 
 
+struct savedEventDraft:Equatable {
+    
+    var id: String { event.recipientId }
+    
+    let event: EventDraft
+}
+
+
 
 struct RecentPlace: Codable, Equatable, Hashable {
     let title: String
     let town: String
-}
-
-struct savedEventDraft: Equatable {
-    let id: String
-    let eventDraft: EventDraft
 }

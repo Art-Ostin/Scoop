@@ -86,7 +86,7 @@ extension MatchesView {
     private func editProfileScreen() -> some View {
         EditProfileContainer(
             vm: EditProfileViewModel(s: vm.s, storageService: vm.storageService, userRepo: vm.userRepo, imageLoader: vm.imageLoader, importedImages: userProfileImages),
-            profileVM: ProfileViewModel(defaults: vm.defaults, profileModel: ProfileModel(profile: vm.user), imageLoader: vm.imageLoader),
+            profileVM: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: ProfileModel(profile: vm.user), imageLoader: vm.imageLoader),
             selectedProfile: nil)
     }
     

@@ -1,33 +1,7 @@
 import SwiftUI
 import MapKit
 
-@MainActor
-@Observable class TimeAndPlaceViewModel {
-    
-    let text: String
-    var event: EventDraft
-    var profile: ProfileModel?
 
-    let defaults: DefaultsManaging
-    
-    // Persisted time selection even before any day is picked.
-    var selectedHour: Int = 22
-    var selectedMinute: Int = 30
-
-    var showTypePopup: Bool = false
-    var showMessageScreen: Bool = false
-    var showTimePopup: Bool = false
-    var showMapView: Bool = false
-    var showAlert: Bool = false
-    var isMessageTap: Bool = false
-    
-    init(defaults: DefaultsManaging, text: String, profile: ProfileModel? = nil) {
-        self.defaults = defaults
-        self.text = text
-        self.profile = profile
-        self.event = EventDraft()
-    }
-}
 
 struct SelectTimeAndPlace: View {
     
@@ -38,8 +12,8 @@ struct SelectTimeAndPlace: View {
     
     let rowHeight = CGFloat(60)
     
-    init(defaults: DefaultsManaging, profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
-        _vm = .init(initialValue: .init(defaults: defaults, text: text, profile: profile))
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: ProfileModel? = nil, text: String = "Confirm & Send", onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
+        _vm = .init(initialValue: .init(defaults: defaults, sessionManager: sessionManager, text: text, profile: profile))
         self.onDismiss = onDismiss
         self.onSubmit = onSubmit
     }
@@ -75,16 +49,14 @@ struct SelectTimeAndPlace: View {
         }
         .tint(.blue)
         .onAppear {
-            if vm.event.type == nil {
-                vm.event.type = .drink
-            }
+            print(vm.event)
         }
         .sheet(isPresented: $showInfoScreen) {
             Text("Info screen here")
         }
     }
     private var InviteIsValid: Bool {
-        return (vm.event.type != nil || vm.event.message != nil) && !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
+        return !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
     }
 }
 
@@ -130,9 +102,8 @@ extension SelectTimeAndPlace {
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {
-                if let type = vm.event.type{
-                    if (type == .drink || type == .doubleDate) && !vm.showTypePopup
-                        && ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 2)
+                if (vm.event.type == .drink || vm.event.type == .doubleDate) && !vm.showTypePopup
+                        && ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 3)
                             || vm.event.proposedTimes.dates.count == 1) {
                         Text("Propose at least two days")
                             .font(.body(12, .regular))
@@ -141,7 +112,6 @@ extension SelectTimeAndPlace {
                             .background(Color.background)
                             .padding(.top, 66)
                             .zIndex(0)
-                    }
                 }
             }
             

@@ -29,14 +29,14 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = ui.selectedProfile {
-                    ProfileView(vm: ProfileViewModel(defaults: vm.defaults, profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
+                    ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
                         .id(profileModel.id)
                         .zIndex(1)
                         .transition(.move(edge: .bottom))
                 }
                 
                 if let currentProfile = ui.quickInvite {
-                    SelectTimeAndPlace(defaults: vm.defaults, profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
+                    SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
                         try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }
