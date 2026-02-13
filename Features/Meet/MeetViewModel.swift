@@ -45,10 +45,13 @@ import SwiftUI
         try await eventRepo.updateStatus(eventId: eventId, to: status)
     }
         
-    func updateProfileRec(event: EventDraft, profileModel: ProfileModel, status: ProfileRec.Status) async throws {
+    func updateProfileRec(event: EventDraft? = nil, profileModel: ProfileModel, status: ProfileRec.Status) async throws {
         let user = s.user
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profileModel.profile.id, status: status)
-        if status == .invited {try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile)}
+        if status == .invited {
+            guard let event else {return}
+            try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile)
+        }
         defaults.deleteEventDraft(profileId: profileModel.profile.id) //Delete it from draft once done
     }
     
@@ -68,7 +71,6 @@ enum DismissTransition {
 
 @Observable final class MeetUIState {
     var selectedProfile: ProfileModel? = nil
-    var showIdealTime: Bool = false
     var quickInvite: ProfileModel?
     var showPendingInvites = false
     var showInfo: Bool = false

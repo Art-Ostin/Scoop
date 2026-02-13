@@ -11,6 +11,7 @@ struct ProfileView: View {
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
     @Binding private var dismissOffset: CGFloat?
+    @Binding var showRespondToProfile: Bool?
     @Binding private var selectedProfile: ProfileModel?
 
     @State private var ui = ProfileUIState()
@@ -23,17 +24,19 @@ struct ProfileView: View {
     //Functionality to do with draftProfile to display
     let draftProfile: UserProfile?
     var isUserProfile: Bool { draftProfile != nil }
+    
     private var displayProfile: UserProfile {
         draftProfile ?? vm.profileModel.profile
     }
     
-    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, draftProfile: UserProfile? = nil) {
+    init(vm: ProfileViewModel, meetVM: MeetViewModel? = nil, profileImages: [UIImage], selectedProfile: Binding<ProfileModel?>, dismissOffset: Binding<CGFloat?>, showRespondToProfile: Binding<Bool?> = .constant(nil), draftProfile: UserProfile? = nil) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
+        self._showRespondToProfile = showRespondToProfile
     }
     
     var body: some View {
@@ -51,7 +54,7 @@ struct ProfileView: View {
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                         
-                        ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { onDecline() }
+                        ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { dismissProfileWithAction(invited: false)}
                             .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                             .offset(y: detailsSectionOffset())
                             .onTapGesture { ui.detailsOpen.toggle() }
@@ -73,7 +76,6 @@ struct ProfileView: View {
             }
         }
         .overlay {if ui.showInvitePopup {invitePopup}}
-        .overlay { if ui.showDeclineScreen { declineScreen} }
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
     }
@@ -97,14 +99,9 @@ extension ProfileView {
                     }
                 }
             }
-        } else if let meetVM {
+        } else {
             SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profileModel, onDismiss: { ui.showInvitePopup = false }) { event in
-                
-                selectedProfile = nil
-                
-                
-//                try? await meetVM.updateProfileRec(event: event, profileModel: vm.profileModel, status: .invited)
-//                selectedProfile = nil
+                dismissProfileWithAction(invited: true, event: event)
             }
         }
     }
@@ -138,24 +135,6 @@ extension ProfileView {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity)
-    }
-    
-    private var declineScreen: some View {
-        ZStack  {
-            VStack(alignment: .center, spacing: 36) {
-                Image("Monkey")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
-                
-                Text("Declined")
-                    .font(.body(16, .bold))
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .background(Color.background)
-        .onTapGesture { ui.showDeclineScreen.toggle() }
-        .transition(.opacity.animation(.easeInOut(duration: 0.18)))
     }
 }
 
@@ -255,6 +234,7 @@ extension ProfileView {
 
 //Dismissing Profile
 extension ProfileView {
+    
     private var activeProfileOffset: CGFloat {
         dismissOffset ?? profileOffset
     }
@@ -273,14 +253,35 @@ extension ProfileView {
         }
     }
     
-    private func onDecline() {
-        ui.showDeclineScreen = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {ui.hideProfileScreen = true}
-        Task {
-            //       try await meetVM?.declineProfile(profileModel: pModel)
-            try await Task.sleep(nanoseconds: 750_000_000)
-            await MainActor.run { withAnimation(.easeInOut(duration: 0.3)) {selectedProfile = nil}
+    private func dismissProfileWithAction(invited: Bool, event: EventDraft? = nil) {
+        showRespondToProfile = invited
+        
+        Task { @MainActor in
+            //1. Set up 625 millisecond minimum time for dismiss screen to show
+            async let minDelay: Void = Task.sleep(for: .milliseconds(625))
+            
+            //2.Dismiss profile in background after 250 milliseconds
+            try? await Task.sleep(for: .milliseconds(100))
+            selectedProfile = nil
+            
+            //3.Either Invite or decline the profile (Uncomment when actual done
+            if invited {
+                guard let event else {return}
+                print("Would have invited")
+                /*
+                 try? await meetVM?.updateProfileRec(event: event, profileModel: vm.profileModel, status: .invited)
+                 */
+            } else {
+                print("Would have declined")
+                /*
+                 try? await meetVM?.updateProfileRec(profileModel: vm.profileModel, status: .declined)
+                 */
             }
+            //4. If at least 625 milliseconds have past, dismiss the screenCover
+            try? await minDelay //ensures at least 625 milliseconds have past
+            withAnimation(.easeInOut(duration: 0.2)) {showRespondToProfile = nil}
         }
     }
 }
+
+

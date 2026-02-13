@@ -29,7 +29,7 @@ struct MeetContainer: View {
                 .id(vm.profiles.count)
                 
                 if let profileModel = ui.selectedProfile {
-                    ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
+                    ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: profileModel, imageLoader: vm.imageLoader),meetVM: vm, profileImages: profileImages[profileModel.id] ?? [],selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset, showRespondToProfile: $ui.showSentInvite)
                         .id(profileModel.id)
                         .zIndex(1)
                         .transition(.move(edge: .bottom))
@@ -43,21 +43,8 @@ struct MeetContainer: View {
                     }
                 }
                 
-                if ui.showSentInvite != nil {
-                    Text("")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .ignoresSafeArea()
-                        .zIndex(10)
-                        .background(Color.white)
-                        .transition(.opacity)
-                        .onAppear {
-                            Task { @MainActor in
-                                try? await Task.sleep(for: .seconds(1.2))
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    ui.showSentInvite = nil
-                                }
-                            }
-                        }
+                if let response = ui.showSentInvite {
+                    RespondToProfileView(showRespondToProfile: $ui.showSentInvite, isSent: response)
                 }
             }
             .transition(.opacity)
@@ -74,7 +61,6 @@ extension MeetContainer {
     
     private var meetInfo: some View {
         VStack(spacing: 60) {
-            MeetSuggestionView(user: vm.user, showIdealMeet: $ui.showIdealTime)
             newProfileTimer
             DefaultAppButton(image: Image("PastInvites"), size: 25, isPresented: $ui.showPendingInvites)
                 .offset(y: -12)

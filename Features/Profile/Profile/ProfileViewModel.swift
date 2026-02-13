@@ -51,7 +51,7 @@ enum DragType {
 
 @Observable final class ProfileUIState {
     var showInvitePopup = false
-    var showDeclineScreen = false
+//    var showDeclineScreen = false
     var detailsOpen = false
     var dragType: DragType? = nil
     var isTopOfScroll = true

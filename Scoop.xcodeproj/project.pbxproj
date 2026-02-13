@@ -179,6 +179,7 @@
 		65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */; };
 		65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */; };
 		65E963D42F3F6DA80022595F /* ContentTransitionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E963D32F3F6DA80022595F /* ContentTransitionTest.swift */; };
+		65E963D62F3F7C090022595F /* RespondToProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E963D52F3F7C090022595F /* RespondToProfileView.swift */; };
 		65EA17492E4DFDB300EF38DC /* AcceptInvitePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */; };
 		65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */; };
 		65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E072F1E82CB008BF4DA /* PreferencesView.swift */; };
@@ -389,6 +390,7 @@
 		65E820D22E3958CF0098CC36 /* EditProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileContainer.swift; sourceTree = "<group>"; };
 		65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceViewModel.swift; sourceTree = "<group>"; };
 		65E963D32F3F6DA80022595F /* ContentTransitionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTransitionTest.swift; sourceTree = "<group>"; };
+		65E963D52F3F7C090022595F /* RespondToProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondToProfileView.swift; sourceTree = "<group>"; };
 		65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptInvitePopup.swift; sourceTree = "<group>"; };
 		65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		65F28E072F1E82CB008BF4DA /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
@@ -824,9 +826,9 @@
 			children = (
 				65E5C9252E51FBB10093410B /* MeetViewModel.swift */,
 				65F450CA2E463E7900AE3503 /* MeetContainer.swift */,
-				6508840F2EAD23B800776620 /* MeetSuggestionView.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
+				65E963D52F3F7C090022595F /* RespondToProfileView.swift */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 				657E61502F35326600262821 /* Old Maps */,
 			);
@@ -958,6 +960,7 @@
 				652D3D302F2E9D4800AE491D /* MainModels */,
 				652D3D1F2F2E39AC00AE491D /* ChangeLogModel.swift */,
 				65F660C72F23EBF000AF791F /* BlockedContextModel.swift */,
+				65E963D72F3F7EAB0022595F /* To Delete */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -972,6 +975,14 @@
 				65376D792E05A7AF0058D225 /* DefaultParameters.swift */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		65E963D72F3F7EAB0022595F /* To Delete */ = {
+			isa = PBXGroup;
+			children = (
+				6508840F2EAD23B800776620 /* MeetSuggestionView.swift */,
+			);
+			path = "To Delete";
 			sourceTree = "<group>";
 		};
 		65F660BE2F23DBDA00AF791F /* Frozen  */ = {
@@ -1294,6 +1305,7 @@
 				655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
+				65E963D62F3F7C090022595F /* RespondToProfileView.swift in Sources */,
 				65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
