@@ -11,13 +11,16 @@ import SwiftUI
 @Observable class TimeAndPlaceViewModel {
     
     let text: String
-    var event: EventDraft
+    var event: EventDraft {
+        didSet { persistDraft() }
+    }
+    
     var profile: ProfileModel?
 
     let defaults: DefaultsManaging
     let s: SessionManager
     
-    // Persisted time selection even before any day is picked.
+    //Change this
     var selectedHour: Int = 22
     var selectedMinute: Int = 30
 
@@ -43,11 +46,11 @@ import SwiftUI
         }
     }
     
-    func updateEventDraft() {
-        if let profileId = profile?.profile.id {
-            defaults.updateEventDraft(profileId: profileId, eventDraft: event)
-        }
+    func persistDraft() {
+        guard let profileId = profile?.profile.id else { return }
+        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
     }
 }
+
 
 //Delete Event Draft on decline, or accepted from defaults

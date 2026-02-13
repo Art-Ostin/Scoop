@@ -49,6 +49,7 @@ import SwiftUI
         let user = s.user
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profileModel.profile.id, status: status)
         if status == .invited {try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile)}
+        defaults.deleteEventDraft(profileId: profileModel.profile.id) //Delete it from draft once done
     }
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {

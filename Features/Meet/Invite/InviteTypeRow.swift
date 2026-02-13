@@ -37,23 +37,23 @@ struct InviteTypeRow: View {
                     .onTapGesture { openMessageScreen() }
                     .onLongPressGesture(minimumDuration: 0.1, pressing: { vm.isMessageTap = $0 },perform: {}) //Have no actual pressing
                     .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                //Otherwise have this placeholder
+                let type = event.type.description.label
+                let emoji = event.type.description.emoji ?? ""
+                
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("\(emoji) \(type)")
+                            .font(.body(18))
+                        Text("Add a Message")
+                            .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
+                            .font(.body(14))
+                            .onTapGesture { openMessageScreen() }
+                            .onLongPressGesture(minimumDuration: 0.1,
+                                                pressing: { vm.isMessageTap = $0 },
+                                                perform: {})
+                    }
             }
-            //Otherwise have this placeholder
-            let type = event.type.description.label
-            let emoji = event.type.description.emoji ?? ""
-            
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\(emoji) \(type)")
-                        .font(.body(18))
-                    Text("Add a Message")
-                        .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
-                        .font(.body(14))
-                        .onTapGesture { openMessageScreen() }
-                        .onLongPressGesture(minimumDuration: 0.1,
-                                            pressing: { vm.isMessageTap = $0 },
-                                            perform: {})
-                }
-            
             Spacer()
             
             DropDownButton(isExpanded: $vm.showTypePopup)

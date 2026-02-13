@@ -19,10 +19,10 @@ final class DefaultsManager: DefaultsManaging {
     private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches, preferredMapType, eventDrafts}
     
     
-    
-    var onboardingStep: Int {
+    var onboardingStep: Int = 0 {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
+
     private(set) var recentMapSearches: [RecentPlace] = [] {
         didSet {
             if let data = try? JSONEncoder().encode(recentMapSearches) {
@@ -149,11 +149,6 @@ enum PreferredMapType: String, Codable {
     case appleMaps, googleMaps
 }
 
-
-struct SavedEventDraft: Codable, Equatable {
-    var id: String { event.recipientId }
-    let event: EventDraft
-}
 
 struct RecentPlace: Codable, Equatable, Hashable {
     let title: String
