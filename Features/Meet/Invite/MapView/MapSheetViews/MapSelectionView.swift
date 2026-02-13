@@ -38,9 +38,6 @@ struct MapSelectionView: View {
             locationLookAround
             addLocationButton
             
-//            if shouldPinContentToTop  {
-//                Spacer()
-//            }
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
@@ -110,7 +107,7 @@ extension MapSelectionView {
     private var locationLookAround: some View {
         if let lookAroundScene {
             LookAroundPreview(initialScene: lookAroundScene)
-                .frame(maxHeight: .infinity)
+                .frame(height: 200, alignment: .bottom)
                 .clipShape(RoundedRectangle(cornerRadius: 24))
         } else if isLoadingLookAround {
             ProgressView()
