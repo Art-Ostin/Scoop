@@ -34,6 +34,9 @@ struct MapSelectionView: View {
             locationLookAround
             addLocationButton
             
+            if noPreview  {
+                Spacer()
+            }
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
@@ -109,6 +112,9 @@ extension MapSelectionView {
                 .clipShape(RoundedRectangle(cornerRadius: 24))
         } else {
             ClearRectangle(size: 60)
+                .onAppear {
+                     noPreview = true
+                }
         }
     }
     
