@@ -73,5 +73,6 @@ enum DismissTransition {
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false
+    var showSentInvite: Bool?
 }
 

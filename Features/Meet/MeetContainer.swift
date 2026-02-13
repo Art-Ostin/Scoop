@@ -40,6 +40,17 @@ struct MeetContainer: View {
                         try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }
+                
+                if ui.showSentInvite != nil {
+                    Text("")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .onAppear {
+                            Task {
+                                try? await Task.sleep(for: .seconds(2))
+                                ui.showSentInvite = nil
+                            }
+                        }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .sheet(isPresented: $ui.showPendingInvites) {pastInviteView}
