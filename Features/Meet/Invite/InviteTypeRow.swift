@@ -40,10 +40,10 @@ struct InviteTypeRow: View {
             }
             //Otherwise have this placeholder
             let type = event.type.description.label
-            let emoji = event.type.description.emoji
+            let emoji = event.type.description.emoji ?? ""
             
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("\(String(describing: emoji)) \(type)")
+                    Text("\(emoji) \(type)")
                         .font(.body(18))
                     Text("Add a Message")
                         .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)

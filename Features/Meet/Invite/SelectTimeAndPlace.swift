@@ -48,7 +48,12 @@ struct SelectTimeAndPlace: View {
             Text("If you don't show, you'll be blocked from Scoop")
         }
         .tint(.blue)
+        .onChange(of: vm.event) {
+            vm.updateEventDraft()
+            print(vm.event)
+        }        
         .onAppear {
+            print("Hello World")
             print(vm.event)
         }
         .sheet(isPresented: $showInfoScreen) {

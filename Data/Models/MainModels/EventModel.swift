@@ -8,7 +8,7 @@ import Foundation
 import MapKit
 import FirebaseFirestore
 
-struct EventDraft: Equatable {
+struct EventDraft: Codable, Equatable {
     var initiatorId: String
     var recipientId: String
     var type: EventType

@@ -16,7 +16,7 @@ final class DefaultsManager: DefaultsManaging {
     
     let defaults: UserDefaults
     private let maxRecentMapSearches = 4
-    private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches, preferredMapType}
+    private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches, preferredMapType, eventDrafts}
     
     
     
@@ -29,6 +29,16 @@ final class DefaultsManager: DefaultsManaging {
                 defaults.set(data, forKey: Keys.recentMapSearches.rawValue)
             } else {
                 defaults.removeObject(forKey: Keys.recentMapSearches.rawValue)
+            }
+        }
+    }
+    
+    private(set) var eventDrafts: [String : EventDraft] = [:] {
+        didSet {
+            if let data = try? JSONEncoder().encode(eventDrafts) {
+                defaults.set(data, forKey: Keys.eventDrafts.rawValue)
+            } else {
+                defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
             }
         }
     }
@@ -53,10 +63,13 @@ final class DefaultsManager: DefaultsManaging {
             }
         }
     }
-
     
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        loadFromDefaults()
+    }
+    
+    func loadFromDefaults() {
         self.onboardingStep = defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0
         
         if let data = defaults.data(forKey: Keys.draftProfile.rawValue) {
@@ -69,6 +82,11 @@ final class DefaultsManager: DefaultsManaging {
         
         if let rawMapType = defaults.string(forKey: Keys.preferredMapType.rawValue) {
             preferredMapType = PreferredMapType(rawValue: rawMapType)
+        }
+        
+        if let data = defaults.data(forKey: Keys.eventDrafts.rawValue),
+           let drafts = try? JSONDecoder().decode([String : EventDraft].self, from: data) {
+            eventDrafts = drafts
         }
     }
     
@@ -89,7 +107,6 @@ final class DefaultsManager: DefaultsManaging {
     }
     
     func advanceOnboarding() { onboardingStep += 1 }
-        
     
     func updateRecentMapSearches(title: String, town: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -114,6 +131,17 @@ final class DefaultsManager: DefaultsManaging {
     func updatePreferredMapType(mapType: PreferredMapType?) {
         preferredMapType = mapType
     }
+    
+    func updateEventDraft(profileId: String, eventDraft: EventDraft) {
+        self.eventDrafts[profileId] = eventDraft
+    }
+    
+    func fetchEventDraft(profileId: String) -> EventDraft? {
+        return self.eventDrafts[profileId]
+    }
+    func deleteEventDraft(profileId: String) {
+        eventDrafts.removeValue(forKey: profileId)
+    }
 }
 
 
@@ -122,14 +150,10 @@ enum PreferredMapType: String, Codable {
 }
 
 
-struct savedEventDraft:Equatable {
-    
+struct SavedEventDraft: Codable, Equatable {
     var id: String { event.recipientId }
-    
     let event: EventDraft
 }
-
-
 
 struct RecentPlace: Codable, Equatable, Hashable {
     let title: String

@@ -33,6 +33,21 @@ import SwiftUI
         self.text = text
         self.profile = profile
         self.s = sessionManager
-        self.event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profile?.profile.id ?? "", type: .drink)
+        
+        //Fetch event Draft if one has been created, or create one if not
+        let profileId = profile?.profile.id
+        if let profileId, let storedEvent = defaults.fetchEventDraft(profileId: profileId) {
+            self.event = storedEvent
+        } else {
+            event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId ?? "", type: .drink)
+        }
+    }
+    
+    func updateEventDraft() {
+        if let profileId = profile?.profile.id {
+            defaults.updateEventDraft(profileId: profileId, eventDraft: event)
+        }
     }
 }
+
+//Delete Event Draft on decline, or accepted from defaults
