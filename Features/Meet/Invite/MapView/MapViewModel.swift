@@ -35,9 +35,11 @@ import UIKit
     
     var showAnimation = false
     
-    var markerTint: Color {
-        selectedMapCategory?.mainColor ?? Color.appColorTint
-    }
+    var markerTint: Color = Color.appColorTint
+    
+//    {
+//        selectedMapCategory?.mainColor ?? Color.appColorTint
+//    }
     
     var selectedMapCategory: MapCategory? {
         didSet {onCategorySelect()}
@@ -97,11 +99,13 @@ import UIKit
             categorySearchTask = Task { [weak self] in
                 await self?.searchCategory(category: category, query: nil, fromSearchArea: fromSearchArea)
                 self?.searchText = category.description
+                self?.markerTint = category.mainColor
             }
         } else {
             //If categorySelect set to nil, delete all the existing values
             results.removeAll()
             searchText = ""
+            markerTint = .accent
         }
     }
     

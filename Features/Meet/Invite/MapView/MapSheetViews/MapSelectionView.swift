@@ -20,9 +20,9 @@ struct MapSelectionView: View {
     @State private var lookAroundScene: MKLookAroundScene?
     @State private var isLoadingLookAround = false
     
-    private var shouldPinContentToTop: Bool {
-        lookAroundScene == nil && !isLoadingLookAround
-    }
+//    private var shouldPinContentToTop: Bool {
+//        lookAroundScene == nil && !isLoadingLookAround
+//    }
     
     var body: some View {
         
@@ -36,9 +36,9 @@ struct MapSelectionView: View {
             locationLookAround
             addLocationButton
             
-            if shouldPinContentToTop  {
-                Spacer()
-            }
+//            if shouldPinContentToTop  {
+//                Spacer()
+//            }
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
@@ -50,6 +50,7 @@ struct MapSelectionView: View {
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
+//        .animation(.easeInOut(duration: 0.3), value: shouldPinContentToTop)
     }
 }
 
@@ -113,7 +114,14 @@ extension MapSelectionView {
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 24))
         } else {
-            ClearRectangle(size: 60)
+            //Replace with cool design when made
+            ClearRectangle(size: 140)
+                .frame(maxHeight: .infinity)
+                .overlay(alignment: .center) {
+                    Text("No Preview Available")
+                        .font(.body(13, .bold))
+                        .foregroundStyle(Color.black)
+                }
         }
     }
     
