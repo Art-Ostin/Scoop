@@ -18,10 +18,6 @@ struct MeetContainer: View {
     @State var profileImages: [String : [UIImage]] = [:]
     @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
     
-    
-    @Namespace private var inviteZoomNamespace
-    @State private var respondProfileID: String? = nil
-
     init(vm: MeetViewModel) { self.vm = vm }
     
     var body: some View {
@@ -44,9 +40,6 @@ struct MeetContainer: View {
                         selectedProfile: $ui.selectedProfile,
                         dismissOffset: $dismissOffset,
                         showRespondToProfile: $ui.showSentInvite,
-                        
-                        inviteZoomNamespace: inviteZoomNamespace,
-                        respondProfileID: $respondProfileID
                     )
                         .id(profileModel.id)
                         .zIndex(1)
@@ -54,31 +47,31 @@ struct MeetContainer: View {
                 }
                 
                 if let currentProfile = ui.quickInvite {
-                    SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: currentProfile, onDismiss: { ui.quickInvite = nil}) { event in
-                        
-                        // STEP 1: set the ID you’ll zoom to, then show respond
-                        respondProfileID = currentProfile.id
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                            ui.showSentInvite = true
-                        }
-
-                        // STEP 1: keep the popup alive briefly so there is a “from” view to zoom from
+                    SelectTimeAndPlace(
+                        defaults: vm.defaults,
+                        sessionManager: vm.s,
+                        profile: currentProfile,
+                        onDismiss: { ui.quickInvite = nil}
+                    ) { event in
+                        ui.showSentInvite = true
                         Task { @MainActor in
-                            try? await Task.sleep(nanoseconds: 450_000_000) // ~0.45s
+                            async let minDelay: Void = Task.sleep(for: .milliseconds(750))
+                            
+                            try? await Task.sleep(nanoseconds: 450_000_000)
+                            
                             ui.quickInvite = nil
+                            
+                            try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
+                            
+                            try? await minDelay
+                            
+                            ui.showSentInvite = nil
                         }
-                        
-//                        try? await vm.updateProfileRec(event: event, profileModel: currentProfile, status: .invited)
                     }
                 }
                 
                 if let response = ui.showSentInvite {
-                    RespondToProfileView(
-                        showRespondToProfile: $ui.showSentInvite,
-                        isSent: response,
-                        zoomNamespace: inviteZoomNamespace,
-                        zoomID: respondProfileID
-                    )
+                    RespondToProfileView(isInvite: response)
                 }
             }
             .transition(.opacity)

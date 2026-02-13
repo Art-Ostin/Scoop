@@ -21,9 +21,6 @@ struct ProfileView: View {
     }
     let profileImages: [UIImage]
     
-    let inviteZoomNamespace: Namespace.ID?
-    @Binding private var respondProfileID: String?
-
 
     //Functionality to do with draftProfile to display
     let draftProfile: UserProfile?
@@ -40,9 +37,7 @@ struct ProfileView: View {
         selectedProfile: Binding<ProfileModel?>,
         dismissOffset: Binding<CGFloat?>,
         showRespondToProfile: Binding<Bool?> = .constant(nil),
-        draftProfile: UserProfile? = nil,
-        inviteZoomNamespace: Namespace.ID? = nil,
-        respondProfileID: Binding<String?> = .constant(nil)
+        draftProfile: UserProfile? = nil
     ) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
@@ -51,8 +46,6 @@ struct ProfileView: View {
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
         self._showRespondToProfile = showRespondToProfile
-        self.inviteZoomNamespace = inviteZoomNamespace
-        self._respondProfileID = respondProfileID
     }
     
     var body: some View {
@@ -120,8 +113,6 @@ extension ProfileView {
                 defaults: vm.defaults,
                 sessionManager: vm.s,
                 profile: vm.profileModel,
-                zoomNamespace: inviteZoomNamespace,
-                zoomID: vm.profileModel.id,
                 onDismiss: { ui.showInvitePopup = false },
             ){ event in
                 dismissProfileWithAction(invited: true, event: event)
@@ -278,24 +269,18 @@ extension ProfileView {
     
     private func dismissProfileWithAction(invited: Bool, event: EventDraft? = nil) {
         
-        respondProfileID = vm.profileModel.id
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-            showRespondToProfile = invited
-        }
+        showRespondToProfile = invited
+        
         
         Task { @MainActor in
-            //1. Set up 625 millisecond minimum time for dismiss screen to show
-            async let minDelay: Void = Task.sleep(for: .milliseconds(2400))
-            
+            async let minDelay: Void = Task.sleep(for: .milliseconds(750))
             var t = Transaction()
             t.disablesAnimations = true
-            
 
             //2.Dismiss profile in background after 250 milliseconds
-            try? await Task.sleep(for: .milliseconds(250))
+            try? await Task.sleep(for: .milliseconds(450))
             withTransaction(t) { ui.showInvitePopup = false}
             withTransaction(t) { selectedProfile = nil}
-
             
             //3.Either Invite or decline the profile (Uncomment when actual done
             if invited {
@@ -311,14 +296,8 @@ extension ProfileView {
                  */
             }
             //4. If at least 625 milliseconds have past, dismiss the screenCover
-            try? await minDelay //ensures at least 625 milliseconds have past
-            
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showRespondToProfile = nil
-                respondProfileID = nil
-            }
-
-            withAnimation(.easeInOut(duration: 0.2)) {showRespondToProfile = nil}
+            try? await minDelay
+            showRespondToProfile = nil
         }
     }
 }
