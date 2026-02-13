@@ -180,6 +180,8 @@
 		65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */; };
 		65E963D42F3F6DA80022595F /* ContentTransitionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E963D32F3F6DA80022595F /* ContentTransitionTest.swift */; };
 		65E963D62F3F7C090022595F /* RespondToProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E963D52F3F7C090022595F /* RespondToProfileView.swift */; };
+		65E963D92F3F8DDD0022595F /* SendAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 65E963D82F3F8DDD0022595F /* SendAnimation.json */; };
+		65E963DB2F3F8FC30022595F /* Celebrations.json in Resources */ = {isa = PBXBuildFile; fileRef = 65E963DA2F3F8FC30022595F /* Celebrations.json */; };
 		65EA17492E4DFDB300EF38DC /* AcceptInvitePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */; };
 		65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */; };
 		65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E072F1E82CB008BF4DA /* PreferencesView.swift */; };
@@ -391,6 +393,8 @@
 		65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceViewModel.swift; sourceTree = "<group>"; };
 		65E963D32F3F6DA80022595F /* ContentTransitionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTransitionTest.swift; sourceTree = "<group>"; };
 		65E963D52F3F7C090022595F /* RespondToProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondToProfileView.swift; sourceTree = "<group>"; };
+		65E963D82F3F8DDD0022595F /* SendAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SendAnimation.json; sourceTree = "<group>"; };
+		65E963DA2F3F8FC30022595F /* Celebrations.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Celebrations.json; sourceTree = "<group>"; };
 		65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptInvitePopup.swift; sourceTree = "<group>"; };
 		65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		65F28E072F1E82CB008BF4DA /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
@@ -615,7 +619,9 @@
 			children = (
 				659568252ED28BBA0091163E /* ShakeEffect.swift */,
 				6519758B2F1EFCE90002F6A2 /* SandyLoading.json */,
+				65E963D82F3F8DDD0022595F /* SendAnimation.json */,
 				6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */,
+				65E963DA2F3F8FC30022595F /* Celebrations.json */,
 				6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */,
 				651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */,
 				6503D5F12F3A980B00D9290D /* ModernMiniLoaderBlue.json */,
@@ -1178,10 +1184,12 @@
 				6561C8C82E0444EC006A72DF /* ModernEra-Bold.ttf in Resources */,
 				653BAFC02E0D930900C1AB9E /* SFCompactRounded-Regular.otf in Resources */,
 				6519758E2F1EFFD80002F6A2 /* ScoopLoading.json in Resources */,
+				65E963DB2F3F8FC30022595F /* Celebrations.json in Resources */,
 				6561C8C92E0444EC006A72DF /* ModernEra-Medium.ttf in Resources */,
 				658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */,
 				6561C8CA2E0444EC006A72DF /* ModernEra-MediumItalic.ttf in Resources */,
 				6503D5EE2F3A963100D9290D /* ModernMiniLoader.json in Resources */,
+				65E963D92F3F8DDD0022595F /* SendAnimation.json in Resources */,
 				6519758C2F1EFCE90002F6A2 /* SandyLoading.json in Resources */,
 				6561C8CB2E0444EC006A72DF /* ModernEra-Regular.ttf in Resources */,
 				653BAF872E0B846600C1AB9E /* GoogleService-Info.plist in Resources */,

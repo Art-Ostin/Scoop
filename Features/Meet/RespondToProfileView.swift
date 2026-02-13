@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct RespondToProfileView: View {
     
@@ -17,11 +18,9 @@ struct RespondToProfileView: View {
         ZStack {
             if isSent {
                 VStack(alignment: .center, spacing: 36) {
-                    Image("CoolGuys")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 250, height: 250)
                     
+                    Image("Cool Guys")
+
                     Text("Invite Sent")
                         .font(.body(16, .bold))
                 }
@@ -42,17 +41,20 @@ struct RespondToProfileView: View {
         .zIndex(10)
         .transition(.opacity.animation(.easeInOut(duration: 0.18)))
         .background(Color.background)
-//        .onAppear {
-//            Task { @MainActor in
-//                try? await Task.sleep(for: .seconds(1.2))
-//                withAnimation(.easeInOut(duration: 0.2)) {
-//                    showRespondToProfile = nil
-//                }
-//            }
-//        }
     }
 }
 
 #Preview {
     RespondToProfileView(showRespondToProfile: .constant(true), isSent: true)
 }
+
+/*
+ 
+ LottieView(animation: .named("SendAnimation.json"))
+     .playbackMode(.playing(.toProgress(1, loopMode: .playOnce)))
+     .resizable()
+     .scaledToFit()
+     .frame(maxWidth: .infinity)
+     .frame(height: 250)
+     .offset(y: -24)
+ */

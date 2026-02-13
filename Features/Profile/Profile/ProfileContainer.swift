@@ -258,7 +258,7 @@ extension ProfileView {
         
         Task { @MainActor in
             //1. Set up 625 millisecond minimum time for dismiss screen to show
-            async let minDelay: Void = Task.sleep(for: .milliseconds(725))
+            async let minDelay: Void = Task.sleep(for: .milliseconds(2400))
             
             var t = Transaction()
             t.disablesAnimations = true
