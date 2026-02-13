@@ -20,7 +20,6 @@ struct ProfileView: View {
         return ui.detailsOpen ? (-85 ... -limit) : (limit ... 85)
     }
     let profileImages: [UIImage]
-    
 
     //Functionality to do with draftProfile to display
     let draftProfile: UserProfile?
@@ -274,13 +273,11 @@ extension ProfileView {
         
         Task { @MainActor in
             async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-            var t = Transaction()
-            t.disablesAnimations = true
 
             //2.Dismiss profile in background after 250 milliseconds
-            try? await Task.sleep(for: .milliseconds(450))
-            withTransaction(t) { ui.showInvitePopup = false}
-            withTransaction(t) { selectedProfile = nil}
+            try? await Task.sleep(for: .milliseconds(250))
+            ui.showInvitePopup = false
+            selectedProfile = nil
             
             //3.Either Invite or decline the profile (Uncomment when actual done
             if invited {
@@ -301,5 +298,3 @@ extension ProfileView {
         }
     }
 }
-
-

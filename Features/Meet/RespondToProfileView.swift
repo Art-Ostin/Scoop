@@ -15,19 +15,20 @@ struct RespondToProfileView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 36) {
             if isInvite {
-                Image("Cool Guys")
+                Image("CoolGuys")
                 Text("Invite Sent")
                     .font(.body(16, .bold))
             } else {
                 Image("Monkey")
-                Text("Invite Sent")
+                Text("Declined")
                     .font(.body(16, .bold))
             }
         }
+        .transition(.opacity.animation(.easeInOut(duration: 0.18)))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
         .background(Color.background)
         .zIndex(10)
-        .transition(.opacity.animation(.easeInOut(duration: 0.18)))
     }
 }
 

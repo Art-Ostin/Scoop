@@ -92,15 +92,16 @@ extension MeetContainer {
     
     func sendQuickInvite(event: EventDraft, profile: ProfileModel) async {
         ui.showSentInvite = true
+        
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
 
-        try? await Task.sleep(nanoseconds: 450_000_000)
+        try? await Task.sleep(for: .milliseconds(750))
         ui.quickInvite = nil
         
-        try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
+//        try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
         
         try? await minDelay
-        
+
         ui.showSentInvite = nil
     }
 }
