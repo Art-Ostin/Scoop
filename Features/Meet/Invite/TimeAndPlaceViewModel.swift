@@ -50,6 +50,12 @@ import SwiftUI
         guard let profileId = profile?.profile.id else { return }
         defaults.updateEventDraft(profileId: profileId, eventDraft: event)
     }
+    
+    func deleteEventDefault() {
+        guard let profileId = profile?.profile.id else { return }
+        defaults.deleteEventDraft(profileId: profileId)
+        event = EventDraft(initiatorId: s.user.id, recipientId: profileId, type: .drink)
+    }
 }
 
 

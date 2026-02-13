@@ -17,6 +17,8 @@ struct InviteTypeRow: View {
     
     var body: some View {
         let trimmedMessage = (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let parsedMessage = trimmedMessage.count > 65 ? "\(trimmedMessage.prefix(65))..." : trimmedMessage
+        
         let showOverlayEdit = trimmedMessage.count > 65
         
         HStack {
@@ -25,11 +27,11 @@ struct InviteTypeRow: View {
                 let title = Text(verbatim: "\(event.type.description.emoji ?? "") \(event.type.description.label): ")
                     .font(.body(16, .bold))
                 
-                let body = Text(" \(trimmedMessage)")
+                let body = Text(" \(parsedMessage)")
                     .font(.body(12, .italic))
                     .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.grayText)
                 
-                let newText = Text(showOverlayEdit ? "" : "  edit")
+                let newText = Text(" edit")
                     .font(.body(12, .italic))
                     .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
                 
@@ -60,14 +62,6 @@ struct InviteTypeRow: View {
             
             DropDownButton(isExpanded: $vm.showTypePopup)
         }
-        .overlay(alignment: .topTrailing) {
-            if showOverlayEdit {
-                Text("Edit")
-                .font(.body(12, .italic))
-                .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
-                .offset(x: -28, y: -12)
-            }
-        }
     }
 }
 
@@ -82,3 +76,15 @@ extension InviteTypeRow {
         }
     }
 }
+
+/*
+ .overlay(alignment: .topTrailing) {
+     if showOverlayEdit {
+         Text("Edit")
+         .font(.body(12, .italic))
+         .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
+         .offset(x: -28, y: -12)
+     }
+ }
+
+ */

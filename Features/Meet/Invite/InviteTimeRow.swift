@@ -32,10 +32,21 @@ struct InviteTimeRow: View {
                     .font(.body(18, .bold))
             } else {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("\(formatTime(date: times.first, withHour: false, wideWeek: false)) or \(formatTime(date: times.last, withHour: false, wideWeek: false)) ")
-                        .font(.body(16, .medium))
+                    (
+                        Text(formatTime(date: times.first, withHour: false, wideWeek: false))
+                            .font(.body(17, .bold))
+                            .foregroundStyle(.black)
+                        +
+                        Text(" or ")
+                            .font(.body(16, .medium))
+                            .foregroundStyle(Color.grayText)
+                        +
+                        Text(formatTime(date: times.last, withHour: false, wideWeek: false))
+                            .font(.body(17, .bold))
+                            .foregroundStyle(.black)
+                    )
                     Text(hourText)
-                        .font(.body(18, .bold))
+                        .font(.body(16, .regular))
                 }
             }
             Spacer()

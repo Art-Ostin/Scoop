@@ -134,6 +134,22 @@ extension SelectTimeAndPlace {
                 vm.showTypePopup = false
             }
         }
+        .overlay(alignment: .topLeading) {
+            Button {
+                
+                vm.deleteEventDefault()
+            } label: {
+                if !vm.event.proposedTimes.dates.isEmpty || vm.event.location != nil || vm.event.type != .drink || vm.event.message != nil {
+                    Text("Clear")
+                        .font(.body(12, .regular))
+                        .foregroundStyle(Color.grayText)
+                        .padding()
+                        .padding()
+                        .offset(x: -7)
+                        .offset(y: -7)
+                }
+            }
+        }
     }
     
     private var InvitePlaceRow: some View {
@@ -142,7 +158,7 @@ extension SelectTimeAndPlace {
                 VStack(alignment: .leading) {
                     Text(location.name ?? "")
                         .font(.body(18, .bold))
-                    Text(location.address ?? "")
+                    Text(addressWithoutCountry(location.address))
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 }
@@ -160,6 +176,14 @@ extension SelectTimeAndPlace {
             }
         }
     }
+    
+    func addressWithoutCountry(_ address: String?) -> String {
+        let parts = (address ?? "")
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        return parts.dropLast().joined(separator: ", ")
+    }
+    
     private func inviteSent() {
         Task { await onSubmit(vm.event)}
     }
