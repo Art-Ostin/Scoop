@@ -65,7 +65,7 @@ extension SelectTimeAndPlace {
     
     
     private var sendInviteScreen: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             if vm.text == "Confirm & Send" {
                 HStack(spacing: 16) {
                     CirclePhoto(image: vm.profile?.image ?? UIImage())
@@ -76,30 +76,30 @@ extension SelectTimeAndPlace {
                             .font(.custom("SFProRounded-Bold", size: 24))
                     }
                 }
-            } else {
-                Text ("Your Time & Place")
-                    .font(.title(24))
             }
 
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 DropDownView(showOptions: $vm.showTypePopup) {
                     InviteTypeRow(vm: vm)
+                        .frame(height: 50)
+//                        .background(Color.blue)
                 } dropDown: {
                     SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
                 }
                 
                 Divider()
-                
                 DropDownView(showOptions: $vm.showTimePopup) {
                     InviteTimeRow(vm: vm)
-
+                        .frame(height: 50)
+//                        .background(Color.blue)
                 } dropDown: {
                     SelectTimeView(vm: vm)
                         .zIndex(2)
                 }
                 Divider()
                 InvitePlaceRow
-                    .frame(height: rowHeight)
+                    .frame(height: 50)
+//                    .background(Color.blue)
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {
