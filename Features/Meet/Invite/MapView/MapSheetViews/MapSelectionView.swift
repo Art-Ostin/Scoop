@@ -20,6 +20,8 @@ struct MapSelectionView: View {
     @State private var lookAroundScene: MKLookAroundScene?
     @State private var isLoadingLookAround = false
     
+    @State private var writeMaps = false
+    
 //    private var shouldPinContentToTop: Bool {
 //        lookAroundScene == nil && !isLoadingLookAround
 //    }
@@ -95,7 +97,6 @@ extension MapSelectionView {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
                 .frame(width: 35, height: 35, alignment: .center)
-                .offset(y: -4)
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
         }
@@ -129,7 +130,7 @@ extension MapSelectionView {
     private var locationActions: some View {
         
         HStack(spacing: 16) {
-            MapSelectionAction(text: "Reviews") {
+            MapSelectionAction(text: writeMaps ? "Maps" : "Reviews") {
                  MapsRouter.openGoogleMaps(item: mapItem)
              } icon: {
                  Image("GoogleMapsIcon")
@@ -139,14 +140,14 @@ extension MapSelectionView {
              MapSelectionAction(text: "Website", isEnabled: websiteURL != nil) {
                  openWebsite()
              } icon: {
-                 Image(systemName: "safari.fill")
+                 Image("InternetSymbol")
                      .font(.body(14, .bold))
              }
              
              MapSelectionAction(text: "Call", isEnabled: phoneURL != nil) {
                  callLocation()
              } icon: {
-                 Image(systemName: "phone.fill")
+                 Text("📞")
                      .font(.body(14, .bold))
              }
             
@@ -194,16 +195,12 @@ extension MapSelectionView {
     }
     
     private func pointOfInterestText() -> String {
-            mapItem.pointOfInterestCategory?
-                .rawValue
-                .replacingOccurrences(of: "MKPOICategory", with: "")
-                .replacingOccurrences(
-                    of: "([a-z])([A-Z])",
-                    with: "$1 $2",
-                    options: .regularExpression
-                )
-            ?? mapItem.placemark.title
-            ?? ""
+        if let itemName = mapItem.pointOfInterestCategory?.rawValue.replacingOccurrences(of: "MKPOICategory", with: "") .replacingOccurrences(of: "([a-z])([A-Z])", with: "$1 $2", options: .regularExpression) {
+            return itemName
+        } else {
+            writeMaps = true
+            return mapItem.placemark.title ?? ""
+        }
     }
     
     private var dismissButton: some View {
@@ -244,8 +241,10 @@ private struct MapSelectionAction<Icon: View>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 35)
-        .foregroundStyle(isEnabled ? Color(red: 0, green: 0.09, blue: 0.72) : Color.gray)
+        .foregroundStyle(isEnabled ? Color.blue : Color.gray)
         .stroke(24, lineWidth: 1.2, color: isEnabled ?  Color(red: 0.82, green: 0.82, blue: 0.82) : Color(red: 0.92, green: 0.92, blue: 0.92) )
         .disabled(!isEnabled)
     }
 }
+
+// Color(red: 0, green: 0.09, blue: 0.72)
