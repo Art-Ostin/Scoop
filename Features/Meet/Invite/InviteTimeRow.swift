@@ -18,11 +18,13 @@ struct InviteTimeRow: View {
         vm.event.proposedTimes.dates
     }
     var hour: String? {
-         times.first?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
+        times.first?.formatted(
+            .dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
     }
     
     var body: some View {
         let hourText = hour ?? ""
+        
         HStack {
             if times.isEmpty {
                 Text("Select Time")
@@ -47,10 +49,14 @@ struct InviteTimeRow: View {
                     )
                     Text(hourText)
                         .font(.body(16, .regular))
+                        .kerning(0.7)
                 }
             }
             Spacer()
             DropDownButton(isExpanded: $vm.showTimePopup)
+        }
+        .onAppear {
+            print(hour)
         }
     }
 }

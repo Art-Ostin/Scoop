@@ -42,7 +42,6 @@ struct SelectTimeAndPlace: View {
         .fullScreenCover(isPresented: $vm.showMapView) {
             MapView(defaults: vm.defaults, eventVM: vm)
         }
-        .animation(.easeInOut(duration: 0.2), value: vm.showTypePopup)
         .customAlert(isPresented: $vm.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
             inviteSent()
         }

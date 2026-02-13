@@ -100,6 +100,7 @@ extension SelectTimeView {
         let isToday = Calendar.current.isDateInToday(day)
         let isSelected = vm.event.proposedTimes.contains(day: day)
         Button {
+            if isToday { return }
             clickedMax = vm.event.proposedTimes.updateDate(day: day, hour: vm.selectedHour, minute: vm.selectedMinute)
         } label : {
             Text(day, format: .dateTime.day())
