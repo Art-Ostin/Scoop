@@ -52,6 +52,9 @@ struct MapSelectionView: View {
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
+        .onAppear {
+            writeMaps = mapItem.pointOfInterestCategory == nil
+        }
 //        .animation(.easeInOut(duration: 0.3), value: shouldPinContentToTop)
     }
 }
@@ -97,6 +100,7 @@ extension MapSelectionView {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
                 .frame(width: 35, height: 35, alignment: .center)
+//                .offset(y: -2)
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
         }
@@ -195,12 +199,16 @@ extension MapSelectionView {
     }
     
     private func pointOfInterestText() -> String {
-        if let itemName = mapItem.pointOfInterestCategory?.rawValue.replacingOccurrences(of: "MKPOICategory", with: "") .replacingOccurrences(of: "([a-z])([A-Z])", with: "$1 $2", options: .regularExpression) {
-            return itemName
-        } else {
-            writeMaps = true
-            return mapItem.placemark.title ?? ""
-        }
+            mapItem.pointOfInterestCategory?
+                .rawValue
+                .replacingOccurrences(of: "MKPOICategory", with: "")
+                .replacingOccurrences(
+                    of: "([a-z])([A-Z])",
+                    with: "$1 $2",
+                    options: .regularExpression
+                )
+            ?? mapItem.placemark.title
+            ?? ""
     }
     
     private var dismissButton: some View {
