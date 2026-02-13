@@ -16,7 +16,7 @@ struct MapView: View {
     
     @Environment(\.dismiss) var dismiss
     @Bindable var eventVM: TimeAndPlaceViewModel
-    @State private var sheet: MapSheets = .optionsAndSearchBar
+    @State private var sheet: MapSheets = .large
     
     @State var useSelectedDetent =  false
     @State private var isExitingSelectedSheet = false

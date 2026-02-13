@@ -37,7 +37,6 @@ struct MapSelectionView: View {
             }
             locationLookAround
             addLocationButton
-            
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
@@ -45,7 +44,7 @@ struct MapSelectionView: View {
         .padding(.vertical, 16)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
-        .animation(.easeInOut(duration: 0.3), value: vm.showAnimation ?  isLoadingLookAround : nil)
+        .animation(.easeInOut(duration: 0.3), value: vm.showAnimation ?  isLoadingLookAround : nil) //Fixes Bug -> fades in when transition but not when first selected
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
@@ -107,7 +106,7 @@ extension MapSelectionView {
     private var locationLookAround: some View {
         if let lookAroundScene {
             LookAroundPreview(initialScene: lookAroundScene)
-                .frame(height: 200, alignment: .bottom)
+                .frame(maxHeight: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: 24))
         } else if isLoadingLookAround {
             ProgressView()
