@@ -105,7 +105,7 @@ import UIKit
             //If categorySelect set to nil, delete all the existing values
             results.removeAll()
             searchText = ""
-            markerTint = .accent
+            markerTint = .appColorTint
         }
     }
     
@@ -319,12 +319,12 @@ import UIKit
     
     func addSearchToDefaults(title: String, town: String) {
         defaults.updateRecentMapSearches(title: title, town: town)
-        recentMapSearches = defaults.recentMapSearches
+        recentMapSearches = defaults.recentMapSearches.reversed() // So most recent appears at the top.
     }
     
     func deleteSearchFromDefaults(place: RecentPlace) {
         defaults.removeFromRecentMapSearches(place: place)
-        recentMapSearches = defaults.recentMapSearches
+        recentMapSearches = defaults.recentMapSearches.reversed() // So most recent appears at the top
     }
 }
 

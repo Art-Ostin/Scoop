@@ -5,6 +5,8 @@
 //  Created by Art Ostin on 03/02/2026.
 //
 
+/*
+ 
  import SwiftUI
  import MapKit
 
@@ -34,6 +36,7 @@
                          .frame(width: size + 5, height: size + 5)
                          .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
                  }
+ 
                  Circle()
                      .fill(
                          LinearGradient(
@@ -95,3 +98,7 @@ struct ForkKnifeBadge: View {
           .frame(width: size, height: size)
       }
   }
+
+ 
+ */
+

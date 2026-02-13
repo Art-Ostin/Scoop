@@ -69,7 +69,9 @@ extension MapSearchView {
                 .onTapGesture { Task { await searchLocation(suggestion: suggestion)}}
             
             if index < service.suggestions.count - 1 {
-                MapDivider().padding(.horizontal, 16)
+                MapDivider()
+                    .padding(.leading, 62)
+                    .padding(.trailing, 16)
             }
         }
     }
@@ -227,6 +229,10 @@ private struct MapSearchBox<Content: View>: View {
     }
 }
 
+
+
+
+
 private struct SearchSuggestionRow: View {
     let suggestion: MKLocalSearchCompletion
     let query: String
@@ -255,8 +261,8 @@ private struct SearchSuggestionRow: View {
         
     var body: some View {
         HStack(spacing: 12) {
-//            MapImageIcon(category: .restaurant, isSearch: true)
-                VStack(alignment: .leading, spacing: 4) {
+            searchImageIcon
+            VStack(alignment: .leading, spacing: 4) {
                 Text(highlightedTitle)
                 
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
@@ -268,6 +274,29 @@ private struct SearchSuggestionRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+    }
+    
+    private var searchImageIcon: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1, green: 0, blue: 0.44),
+                            Color(red: 0.67, green: 0, blue: 0.27)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            Image(systemName: "mappin")
+                .symbolRenderingMode(.monochrome)
+                .foregroundStyle(.white)
+                .font(.system(size: 33 * 0.42, weight: .semibold))
+
+        }
+        .frame(width: 33, height: 33)
     }
 }
 
