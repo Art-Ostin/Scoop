@@ -32,7 +32,9 @@ struct SelectTypeView: View {
                                 vm.showMessageScreen = true
                             }
                             vm.event.type = eventType
-                            showTypePopup.toggle()
+                            withAnimation(.easeInOut(duration: 0.24)) {
+                                showTypePopup.toggle()
+                            }
                         }
                     if index < EventType.allCases.count - 1 {
                         SoftDivider()

@@ -85,7 +85,7 @@ extension SelectTimeAndPlace {
                     InviteTimeRow(vm: vm)
                         .frame(height: 50)
                 } dropDown: {
-                    SelectTimeView(vm: vm)
+                    SelectTimeView(vm: vm, showTimePopup: $vm.showTimePopup)
                         .zIndex(2)
                 }
                 Divider()
@@ -102,12 +102,13 @@ extension SelectTimeAndPlace {
                             .foregroundStyle(Color.grayText)
                             .padding(.horizontal)
                             .background(Color.background)
-                            .padding(.top, 66)
+                            .padding(.top, 65)
                             .zIndex(0)
                 }
             }
             ActionButton(isValid: !vm.showAlert && InviteIsValid, text: vm.text) {
-                vm.showAlert.toggle()
+                vm.showTimePopup = true
+//                vm.showAlert.toggle()
             }
         }
         .frame(alignment: .top)
@@ -136,13 +137,12 @@ extension SelectTimeAndPlace {
         }
         .overlay(alignment: .topLeading) {
             Button {
-                
                 vm.deleteEventDefault()
             } label: {
                 if !vm.event.proposedTimes.dates.isEmpty || vm.event.location != nil || vm.event.type != .drink || vm.event.message != nil {
                     Text("Clear")
                         .font(.body(12, .regular))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
                         .padding()
                         .padding()
                         .offset(x: -7)

@@ -12,16 +12,21 @@ struct SelectTimeView: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
     @State var clickedMax = false
+    @Binding var showTimePopup: Bool
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
     
     var body: some View {
         DropDownMenu(cornerRadius: 16) {
-            VStack(spacing: 12) {
-                dayPicker
-                Divider()
-                timePicker
+            ZStack {
+                VStack(spacing: 12) {
+                    dayPicker
+                    Divider()
+                    timePicker
+                }
+                doneButton
+                    .position(x: 260, y: 140)
             }
         }
         .onAppear { syncTimePickerIfNeeded() }
@@ -48,6 +53,7 @@ struct SelectTimeView: View {
 //Views
 extension SelectTimeView {
     
+
     private var days: [Date] {
         let calendar = Calendar.current
         let startOfToday = calendar.startOfDay(for: Date())
@@ -66,6 +72,26 @@ extension SelectTimeView {
                 event(idx: idx)
             }
         }
+    }
+    
+    private var doneButton: some View {
+        
+            ZStack {
+                Image("TickButton")
+                    .scaleEffect(0.9)
+                Circle()
+                    .stroke(Color.black, lineWidth: 1)
+                    .scaleEffect(0.8)
+            }
+            .padding(3)                 // hit area / breathing room
+            .background(Color.background)
+            .frame(width: 40, height: 40)
+            .contentShape(Circle())
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    vm.showTimePopup.toggle()
+                }
+            }
     }
 
     @ViewBuilder
