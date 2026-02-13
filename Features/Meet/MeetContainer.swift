@@ -46,10 +46,12 @@ struct MeetContainer: View {
                 if ui.showSentInvite != nil {
                     Text("")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                        .zIndex(10)
                         .background(Color.white)
                         .transition(.opacity)
                         .onAppear {
-                            Task {
+                            Task { @MainActor in
                                 try? await Task.sleep(for: .seconds(1.2))
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     ui.showSentInvite = nil
