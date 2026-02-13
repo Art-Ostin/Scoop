@@ -20,7 +20,9 @@ struct MapSelectionView: View {
     @State private var lookAroundScene: MKLookAroundScene?
     @State private var isLoadingLookAround = false
     
-    @State private var noPreview = false
+    private var shouldPinContentToTop: Bool {
+        lookAroundScene == nil && !isLoadingLookAround
+    }
     
     var body: some View {
         
@@ -34,7 +36,7 @@ struct MapSelectionView: View {
             locationLookAround
             addLocationButton
             
-            if noPreview  {
+            if shouldPinContentToTop  {
                 Spacer()
             }
         }
@@ -112,9 +114,6 @@ extension MapSelectionView {
                 .clipShape(RoundedRectangle(cornerRadius: 24))
         } else {
             ClearRectangle(size: 60)
-                .onAppear {
-                     noPreview = true
-                }
         }
     }
     
@@ -145,6 +144,7 @@ extension MapSelectionView {
             
         }
     }
+    
     
     private var websiteURL: URL? {
         mapItem.url
