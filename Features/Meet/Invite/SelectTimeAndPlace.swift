@@ -55,6 +55,7 @@ struct SelectTimeAndPlace: View {
         .sheet(isPresented: $showInfoScreen) {
             Text("Info screen here")
         }
+        
     }
     private var InviteIsValid: Bool {
         return !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
@@ -120,7 +121,7 @@ extension SelectTimeAndPlace {
                 .zIndex(0)
 
             }
-            ActionButton(isValid: !vm.showAlert && InviteIsValid, text: vm.text) {
+            ActionButton(isValid: !vm.showAlert && InviteIsValid && !showProposeTwoDays, text: vm.text) {
                 vm.showAlert.toggle()
             }
         }

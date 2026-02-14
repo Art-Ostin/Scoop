@@ -37,17 +37,16 @@ struct SelectTimeView: View {
         .onChange(of: vm.selectedMinute) {vm.event.proposedTimes.updateTime(hour: vm.selectedHour, minute: vm.selectedMinute) }
         .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
         .overlay(alignment: .top) {
-            if clickedMax {
-                Text("Max 3")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(Color.accent)
-                    .offset(y: -18)
-            } else if clickedUnavailbleDay {
-                Text("Unavailable")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(Color.warningYellow)
-                    .offset(y: -18)
+            Group {
+                if clickedMax {
+                    Text("Max 3")
+                } else if clickedUnavailbleDay {
+                    Text("Day Unavailable")
+                }
             }
+            .font(.body(12, .bold))
+            .foregroundStyle(Color.warningYellow)
+            .offset(y: -18)
         }
         .task(id: clickedMax) {
             guard clickedMax == true else {return}
@@ -55,11 +54,12 @@ struct SelectTimeView: View {
             clickedMax = false
         }
         .task(id: clickedUnavailbleDay) {
-            guard clickedMax == true else {return}
+            guard clickedUnavailbleDay == true else {return}
             try? await Task.sleep(for: .seconds(1))
-            clickedMax = false
+            clickedUnavailbleDay = false
         }
         .animation(.easeInOut(duration: 0.2), value: clickedMax)
+        .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
     }
 }
 

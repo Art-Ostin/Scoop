@@ -37,7 +37,7 @@ struct SelectTypeView: View {
                             }
                         }
                     if index < EventType.allCases.count - 1 {
-                        SoftDivider()
+                        MapDivider()
                     }
                 }
                 
