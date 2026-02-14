@@ -24,6 +24,9 @@ struct ProfileModel: Identifiable, Equatable, Hashable {
 }
 
 struct ProfileRec: Identifiable, Codable, Sendable{
+    
+    
+    
     @DocumentID var id: String?
     var profileViews: Int
     var status: Status
