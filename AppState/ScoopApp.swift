@@ -24,17 +24,16 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AcceptInviteTest()
-//            
-//             RootView()
-//                 .appDependencies(dep)
-//                 .task { dep.sessionManager.userStream(appState: $appState) }
-//                 .environment(\.appState, $appState)
+//            AcceptInviteTest()
+             RootView()
+                 .appDependencies(dep)
+                 .task { dep.sessionManager.userStream(appState: $appState) }
+                 .environment(\.appState, $appState)
         }
     }
 }
 /*
- RootView()
+ RootView()"S
  */
 
 //CustomKeyboardTest()/

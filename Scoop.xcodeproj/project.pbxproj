@@ -143,6 +143,7 @@
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
+		65A904842F40C35400BBCAB6 /* SendingModern.json in Resources */ = {isa = PBXBuildFile; fileRef = 65A904832F40C35400BBCAB6 /* SendingModern.json */; };
 		65A93D482F39379E003F6410 /* MapSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D472F39379E003F6410 /* MapSearchBar.swift */; };
 		65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D492F393809003F6410 /* MapSearchView.swift */; };
 		65A93D4C2F393B28003F6410 /* MapOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D4B2F393B28003F6410 /* MapOptionsView.swift */; };
@@ -359,6 +360,7 @@
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
+		65A904832F40C35400BBCAB6 /* SendingModern.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SendingModern.json; sourceTree = "<group>"; };
 		65A93D472F39379E003F6410 /* MapSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchBar.swift; sourceTree = "<group>"; };
 		65A93D492F393809003F6410 /* MapSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchView.swift; sourceTree = "<group>"; };
 		65A93D4B2F393B28003F6410 /* MapOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapOptionsView.swift; sourceTree = "<group>"; };
@@ -625,6 +627,7 @@
 				6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */,
 				65E963DA2F3F8FC30022595F /* Celebrations.json */,
 				6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */,
+				65A904832F40C35400BBCAB6 /* SendingModern.json */,
 				651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */,
 				6503D5F12F3A980B00D9290D /* ModernMiniLoaderBlue.json */,
 			);
@@ -1192,6 +1195,7 @@
 				6503D5F22F3A980B00D9290D /* ModernMiniLoaderBlue.json in Resources */,
 				651975842F1EF2CA0002F6A2 /* LoadingAnimation.json in Resources */,
 				6561C8CD2E0444EC006A72DF /* NewYorkMedium-Medium.otf in Resources */,
+				65A904842F40C35400BBCAB6 /* SendingModern.json in Resources */,
 				653BAFBC2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf in Resources */,
 				6565FF792E6732AA0075C8CF /* SFProRounded-Bold.otf in Resources */,
 				6561C8CE2E0444EC006A72DF /* NewYorkMedium-Semibold.otf in Resources */,

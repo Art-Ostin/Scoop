@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Lottie
 
 enum MapCategory: CaseIterable, Identifiable {
     
