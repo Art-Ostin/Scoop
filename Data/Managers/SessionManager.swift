@@ -167,7 +167,7 @@ extension SessionManager  {
 
             invites = invModels
             events = accModels
-            pastEvents = pastModels   // <- also fixes your `session.pastEvents` bug
+            pastEvents = pastModels
             eventStreamTask = Task { @MainActor in
                 do {
                     for try await (event, kind) in updates {

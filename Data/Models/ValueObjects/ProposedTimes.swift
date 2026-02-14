@@ -7,14 +7,21 @@
 
 import Foundation
 
+
+struct ProposedTime: Codable, Equatable {
+    var date: Date
+    var stillAvailable: Bool = true
+}
+
+
 struct ProposedTimes: Codable, Equatable  {
 
     static let maxCount = 3
-    private(set) var dates: [Date]
     
+    private(set) var dates: [ProposedTime]
     
-    init(values: [Date] = []) {
-        self.dates = Array(values.sorted(by: >).prefix(Self.maxCount))
+    init(items: [ProposedTime] = []) {
+        self.dates = Array(items.sorted { $0.date > $1.date }.prefix(Self.maxCount))
     }
     
     @discardableResult
@@ -25,14 +32,14 @@ struct ProposedTimes: Codable, Equatable  {
         }
         if dates.count >= Self.maxCount { return true }
         guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else { return true }
-        dates.append(parsedDate)
-        dates.sort(by: >)
+        dates.append(ProposedTime(date: parsedDate))
+        dates.sort { $0.date > $1.date }
         dates = Array(dates.prefix(Self.maxCount))
         return false
     }
     
     mutating func remove(_ date: Date) {
-        dates.removeAll { Calendar.current.isDate($0, inSameDayAs: date) }
+        dates.removeAll { Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
     
     private func parseDate(day: Date, hour: Int, minute: Int) -> Date? {
@@ -46,28 +53,15 @@ struct ProposedTimes: Codable, Equatable  {
     mutating func updateTime(hour: Int, minute: Int) {
         let calendar = Calendar.current
         dates = dates.map { old in
-            calendar.date(bySettingHour: hour, minute: minute, second: 0, of: old) ?? old
+            var copy = old
+            copy.date = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: old.date) ?? old.date
+            return copy
         }
-        dates.sort(by: >)
-    }
-    
-    private func indexOfDay(_ day: Date) -> Int? {
-        dates.firstIndex { Calendar.current.isDate($0, inSameDayAs: day) }
+        dates.sort { $0.date > $1.date }
     }
     
     func contains(day: Date) -> Bool {
-        indexOfDay(day) != nil
-    }
-    
-    //Don't worry about understanding Yet
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let decoded = try container.decode([Date].self)
-        self.init(values: decoded)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(dates)
+        let number = dates.firstIndex { Calendar.current.isDate($0.date, inSameDayAs: day) }
+        return number != nil
     }
 }

@@ -282,15 +282,10 @@ extension ProfileView {
             //3.Either Invite or decline the profile (Uncomment when actual done
             if invited {
                 guard let event else {return}
-                print("Would have invited")
-                /*
                  try? await meetVM?.updateProfileRec(event: event, profileModel: vm.profileModel, status: .invited)
-                 */
             } else {
                 print("Would have declined")
-                /*
-                 try? await meetVM?.updateProfileRec(profileModel: vm.profileModel, status: .declined)
-                 */
+                try? await meetVM?.updateProfileRec(profileModel: vm.profileModel, status: .declined)
             }
             //4. If at least 625 milliseconds have past, dismiss the screenCover
             try? await minDelay

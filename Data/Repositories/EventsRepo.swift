@@ -37,10 +37,13 @@ class EventsRepo: EventsRepository {
     }
     
     func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
+
         var draft = draft
         
-        draft.initiatorId = user.id
-        draft.recipientId = profile.id
+        let encodedProposedTimes = try Firestore.Encoder().encode(draft.proposedTimes)
+        
+        
+//         draft.proposedTimes = try Firestore.Encoder().encode(draft.proposedTimes)
         
         let event = Event(draft: draft)
         let id = try fs.add("events", value: event)

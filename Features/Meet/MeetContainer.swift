@@ -97,11 +97,8 @@ extension MeetContainer {
 
         try? await Task.sleep(for: .milliseconds(750))
         ui.quickInvite = nil
-        
-//        try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
-        
+        try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
         try? await minDelay
-
         ui.showSentInvite = nil
     }
 }

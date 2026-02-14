@@ -144,6 +144,7 @@
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
 		65A904842F40C35400BBCAB6 /* SendingModern.json in Resources */ = {isa = PBXBuildFile; fileRef = 65A904832F40C35400BBCAB6 /* SendingModern.json */; };
+		65A904862F40E04000BBCAB6 /* CodableTesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A904852F40E04000BBCAB6 /* CodableTesting.swift */; };
 		65A93D482F39379E003F6410 /* MapSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D472F39379E003F6410 /* MapSearchBar.swift */; };
 		65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D492F393809003F6410 /* MapSearchView.swift */; };
 		65A93D4C2F393B28003F6410 /* MapOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D4B2F393B28003F6410 /* MapOptionsView.swift */; };
@@ -361,6 +362,7 @@
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		65A904832F40C35400BBCAB6 /* SendingModern.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SendingModern.json; sourceTree = "<group>"; };
+		65A904852F40E04000BBCAB6 /* CodableTesting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableTesting.swift; sourceTree = "<group>"; };
 		65A93D472F39379E003F6410 /* MapSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchBar.swift; sourceTree = "<group>"; };
 		65A93D492F393809003F6410 /* MapSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchView.swift; sourceTree = "<group>"; };
 		65A93D4B2F393B28003F6410 /* MapOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapOptionsView.swift; sourceTree = "<group>"; };
@@ -754,6 +756,7 @@
 			isa = PBXGroup;
 			children = (
 				657B8D582F2D73EE00583ADA /* ProposedTimes.swift */,
+				65A904852F40E04000BBCAB6 /* CodableTesting.swift */,
 				652D3D2E2F2E9A0600AE491D /* EventLocation.swift */,
 				652D6FAF2F3D022900B08F6F /* MapsRouter.swift */,
 			);
@@ -1387,6 +1390,7 @@
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,
 				65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */,
 				65DCFBBC2F327AB600B3EC50 /* DismissButton.swift in Sources */,
+				65A904862F40E04000BBCAB6 /* CodableTesting.swift in Sources */,
 				65A070522EE0705A009F798B /* OnboardingHomePage.swift in Sources */,
 				653606412F23CBD2006334D6 /* FrozenView.swift in Sources */,
 				652D6FB02F3D022900B08F6F /* MapsRouter.swift in Sources */,
