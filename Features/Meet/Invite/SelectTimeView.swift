@@ -13,6 +13,9 @@ struct SelectTimeView: View {
     @Bindable var vm: TimeAndPlaceViewModel
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
+    @State private var shakeTicksByDay: [Date: Int] = [:]
+    @State private var clickedUnavailbleDay = false
+
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
@@ -36,12 +39,22 @@ struct SelectTimeView: View {
         .overlay(alignment: .top) {
             if clickedMax {
                 Text("Max 3")
-                    .font(.body(12, .medium))
+                    .font(.body(12, .bold))
                     .foregroundStyle(Color.accent)
-                    .offset(y: -14)
+                    .offset(y: -18)
+            } else if clickedUnavailbleDay {
+                Text("Unavailable")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.warningYellow)
+                    .offset(y: -18)
             }
         }
         .task(id: clickedMax) {
+            guard clickedMax == true else {return}
+            try? await Task.sleep(for: .seconds(1))
+            clickedMax = false
+        }
+        .task(id: clickedUnavailbleDay) {
             guard clickedMax == true else {return}
             try? await Task.sleep(for: .seconds(1))
             clickedMax = false
@@ -52,7 +65,6 @@ struct SelectTimeView: View {
 
 //Views
 extension SelectTimeView {
-    
 
     private var days: [Date] {
         let calendar = Calendar.current
@@ -65,7 +77,7 @@ extension SelectTimeView {
     private var dayPicker: some View {
         return LazyVGrid(columns: columns, spacing: 12) {
             ForEach(0..<7) {idx in
-                Text(days[idx], format: .dateTime.weekday(.narrow))
+                Text(days[idx], format: .dateTime.weekday(.abbreviated))
                     .font(.body(12, .bold))
             }
             ForEach(days.indices, id: \.self) { idx in
@@ -99,19 +111,48 @@ extension SelectTimeView {
         let day = days[idx]
         let isToday = Calendar.current.isDateInToday(day)
         let isSelected = vm.event.proposedTimes.contains(day: day)
+        
+        
+        let keyDay = Calendar.current.startOfDay(for: day)
+        let shakeValue = shakeTicksByDay[keyDay, default: 0]
+        
+        
         Button {
-            if isToday { return }
-            clickedMax = vm.event.proposedTimes.updateDate(day: day, hour: vm.selectedHour, minute: vm.selectedMinute)
-        } label : {
+            if isToday {
+                shakeTicksByDay[keyDay, default: 0] += 1
+                clickedUnavailbleDay.toggle()
+                return
+            }
+            
+            withAnimation(.easeInOut(duration: 0.2)) {
+                let hitMax = vm.event.proposedTimes.updateDate(day: day, hour: vm.selectedHour, minute: vm.selectedMinute)
+                if hitMax {
+                    shakeTicksByDay[keyDay, default: 0] += 1   // <- triggers shake
+                    clickedMax.toggle()
+                }
+            }
+            }label: {
             Text(day, format: .dateTime.day())
                 .font(.body(18, isSelected ? .bold : .medium))
-                .foregroundStyle(isToday ? Color.grayPlaceholder : .black)
+                .foregroundStyle(isToday ? Color.grayPlaceholder : isSelected ? .accent : .black)
                 .frame(width: 30, height: 30)
                 .background(
-                    Circle()
-                        .foregroundStyle(isSelected ? Color.accent.opacity(0.2) : Color.clear)
+                       Circle()
+                        .offset(y: -1)
+                        .strokeBorder(.black, lineWidth: isSelected ? 1 : 0)
+                        .transaction { $0.animation = .linear(duration: 0.03) }
                 )
                 .contentShape(.rect)
+        }
+        .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
+        .animation(shakeValue > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeValue)
+        .task(id: shakeValue) {
+            guard shakeValue > 0 else { return }
+            let captured = shakeValue
+            try? await Task.sleep(for: .seconds(1))
+            if shakeTicksByDay[keyDay, default: 0] == captured {
+                withAnimation { shakeTicksByDay[keyDay] = 0 } // stop shaking
+            }
         }
     }
     

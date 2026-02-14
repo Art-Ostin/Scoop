@@ -11,6 +11,12 @@ struct SelectTimeAndPlace: View {
     @State var showInfoScreen: Bool = false
     
     let rowHeight = CGFloat(60)
+    
+    var showProposeTwoDays: Bool {
+        (vm.event.type == .drink || vm.event.type == .doubleDate) &&
+        !vm.showTypePopup &&
+        ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
+    }
 
     init(
         defaults: DefaultsManaging,
@@ -93,17 +99,26 @@ extension SelectTimeAndPlace {
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {
-                if (vm.event.type == .drink || vm.event.type == .doubleDate) && !vm.showTypePopup
-                        && ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 3)
-                            || vm.event.proposedTimes.dates.count == 1) {
+                Group {
+                    if showProposeTwoDays {
                         Text("Propose at least two days")
-                            .font(.body(12, .regular))
-                            .foregroundStyle(Color.grayText)
-                            .padding(.horizontal)
-                            .background(Color.background)
-                            .padding(.top, 65)
-                            .zIndex(0)
+                    }
+                    else if vm.showTimePopup && vm.event.proposedTimes.dates.count > 1 {
+                        (
+                            Text("They only accept ")
+                            +
+                            Text("one day")
+                                .font(.body(12, .bold))
+                        )
+                    }
                 }
+                .font(.body(12, .regular))
+                .foregroundStyle(Color.grayText)
+                .padding(.horizontal)
+                .background(Color.background)
+                .padding(.top, 64)
+                .zIndex(0)
+
             }
             ActionButton(isValid: !vm.showAlert && InviteIsValid, text: vm.text) {
                 vm.showAlert.toggle()
@@ -199,5 +214,10 @@ extension SelectTimeAndPlace {
  } message : {
      Text("If you don't show, you'll be blocked from Scoop")
  }
+
+ */
+
+/*
+ else if ((vm.event.type == .drink || vm.event.type == .doubleDate) | && vm.showTimePopup && vm.event.proposedTimes.dates.count > 1)   || ((vm.event.type == .custom || vm.event.type == .socialMeet) && vm.showTimePopup && vm.event.proposedTimes.dates.count > 1) {
 
  */
