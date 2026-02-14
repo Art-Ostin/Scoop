@@ -13,7 +13,7 @@ struct DropDownButton: View {
         
     var body: some View {
         Button {
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.9)) {
+            withAnimation(.easeInOut(duration: 0.25)) {
                 isExpanded.toggle()
             }
         } label: {

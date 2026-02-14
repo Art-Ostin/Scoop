@@ -32,7 +32,7 @@ struct SelectTypeView: View {
                                 vm.showMessageScreen = true
                             }
                             vm.event.type = eventType
-                            withAnimation(.easeInOut(duration: 0.24)) {
+                            withAnimation(.easeInOut(duration: 0.25)) {
                                 showTypePopup.toggle()
                             }
                         }

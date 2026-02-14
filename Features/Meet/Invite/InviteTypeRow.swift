@@ -19,7 +19,6 @@ struct InviteTypeRow: View {
         let trimmedMessage = (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let parsedMessage = trimmedMessage.count > 65 ? "\(trimmedMessage.prefix(65))..." : trimmedMessage
         
-        let showOverlayEdit = trimmedMessage.count > 65
         
         HStack {
             //If there is a response in place
@@ -45,7 +44,6 @@ struct InviteTypeRow: View {
                 //Otherwise have this placeholder
                 let type = event.type.description.label
                 let emoji = event.type.description.emoji ?? ""
-                
                     VStack(alignment: .leading, spacing: 6) {
                         Text("\(emoji) \(type)")
                             .font(.body(18))
@@ -76,15 +74,3 @@ extension InviteTypeRow {
         }
     }
 }
-
-/*
- .overlay(alignment: .topTrailing) {
-     if showOverlayEdit {
-         Text("Edit")
-         .font(.body(12, .italic))
-         .foregroundStyle(vm.isMessageTap ? Color.grayPlaceholder : Color.accent)
-         .offset(x: -28, y: -12)
-     }
- }
-
- */

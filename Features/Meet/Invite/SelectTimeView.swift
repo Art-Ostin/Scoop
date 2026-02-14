@@ -35,7 +35,7 @@ struct SelectTimeView: View {
         .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
         .overlay(alignment: .top) {
             if clickedMax {
-                Text("Max 2")
+                Text("Max 3")
                     .font(.body(12, .medium))
                     .foregroundStyle(Color.accent)
                     .offset(y: -14)

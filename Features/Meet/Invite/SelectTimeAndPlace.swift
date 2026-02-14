@@ -106,8 +106,7 @@ extension SelectTimeAndPlace {
                 }
             }
             ActionButton(isValid: !vm.showAlert && InviteIsValid, text: vm.text) {
-                vm.showTimePopup = true
-//                vm.showAlert.toggle()
+                vm.showAlert.toggle()
             }
         }
         .frame(alignment: .top)

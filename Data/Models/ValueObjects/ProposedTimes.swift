@@ -9,12 +9,12 @@ import Foundation
 
 struct ProposedTimes: Codable, Equatable  {
 
-    static let maxCount = 2
+    static let maxCount = 3
     private(set) var dates: [Date]
     
     
     init(values: [Date] = []) {
-        self.dates = Array(values.prefix(Self.maxCount))
+        self.dates = Array(values.sorted(by: >).prefix(Self.maxCount))
     }
     
     @discardableResult
@@ -23,9 +23,11 @@ struct ProposedTimes: Codable, Equatable  {
             remove(day)
             return false
         }
-        if dates.count >= 2 { return true }
+        if dates.count >= Self.maxCount { return true }
         guard let parsedDate = parseDate(day: day, hour: hour, minute: minute) else { return true }
         dates.append(parsedDate)
+        dates.sort(by: >)
+        dates = Array(dates.prefix(Self.maxCount))
         return false
     }
     
@@ -46,6 +48,7 @@ struct ProposedTimes: Codable, Equatable  {
         dates = dates.map { old in
             calendar.date(bySettingHour: hour, minute: minute, second: 0, of: old) ?? old
         }
+        dates.sort(by: >)
     }
     
     private func indexOfDay(_ day: Date) -> Int? {
@@ -68,9 +71,3 @@ struct ProposedTimes: Codable, Equatable  {
         try container.encode(dates)
     }
 }
-
-/*
- private func isSameMinute(_ lhs: Date, _ rhs: Date) -> Bool {
-     Calendar.current.isDate(lhs, equalTo: rhs, toGranularity: .minute)
- }
- */
