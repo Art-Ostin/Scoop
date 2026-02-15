@@ -33,15 +33,15 @@ final class DefaultsManager: DefaultsManaging {
         }
     }
     
-    private(set) var eventDrafts: [String : EventDraft] = [:] {
-        didSet {
-            if let data = try? JSONEncoder().encode(eventDrafts) {
-                defaults.set(data, forKey: Keys.eventDrafts.rawValue)
-            } else {
-                defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
-            }
-        }
-    }
+//    private(set) var eventDrafts: [String : EventDraft] = [:] {
+//        didSet {
+//            if let data = try? JSONEncoder().encode(eventDrafts) {
+//                defaults.set(data, forKey: Keys.eventDrafts.rawValue)
+//            } else {
+//                defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
+//            }
+//        }
+//    }
     
     //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
     var signUpDraft: DraftProfile? {
@@ -84,10 +84,10 @@ final class DefaultsManager: DefaultsManaging {
             preferredMapType = PreferredMapType(rawValue: rawMapType)
         }
         
-        if let data = defaults.data(forKey: Keys.eventDrafts.rawValue),
-           let drafts = try? JSONDecoder().decode([String : EventDraft].self, from: data) {
-            eventDrafts = drafts
-        }
+//        if let data = defaults.data(forKey: Keys.eventDrafts.rawValue),
+//           let drafts = try? JSONDecoder().decode([String : EventDraft].self, from: data) {
+//            eventDrafts = drafts
+//        }
     }
     
     func createDraftProfile(user: User) {
@@ -132,16 +132,16 @@ final class DefaultsManager: DefaultsManaging {
         preferredMapType = mapType
     }
     
-    func updateEventDraft(profileId: String, eventDraft: EventDraft) {
-        self.eventDrafts[profileId] = eventDraft
-    }
-    
-    func fetchEventDraft(profileId: String) -> EventDraft? {
-        return self.eventDrafts[profileId]
-    }
-    func deleteEventDraft(profileId: String) {
-        eventDrafts.removeValue(forKey: profileId)
-    }
+//    func updateEventDraft(profileId: String, eventDraft: EventDraft) {
+//        self.eventDrafts[profileId] = eventDraft
+//    }
+//    
+//    func fetchEventDraft(profileId: String) -> EventDraft? {
+//        return self.eventDrafts[profileId]
+//    }
+//    func deleteEventDraft(profileId: String) {
+//        eventDrafts.removeValue(forKey: profileId)
+//    }
 }
 
 

@@ -151,7 +151,7 @@ extension SelectTimeAndPlace {
         }
         .overlay(alignment: .topLeading) {
             Button {
-                vm.deleteEventDefault()
+//                vm.deleteEventDefault()
             } label: {
                 if !vm.event.proposedTimes.dates.isEmpty || vm.event.location != nil || vm.event.type != .drink || vm.event.message != nil {
                     Text("Clear")

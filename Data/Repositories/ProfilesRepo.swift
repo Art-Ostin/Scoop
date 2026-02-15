@@ -60,7 +60,7 @@ class ProfileRepo: ProfilesRepository {
     
     func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws {
         let path = profilePath(userId: userId, profileId: profileId)
-        let data: [String: ProfileRec.Status] = [ProfileRec.Field.status.rawValue: status]
+        let data: [String: Any] = [ProfileRec.Field.status.rawValue: status.rawValue]
         try await fs.update(path, fields: data)
     }
 }

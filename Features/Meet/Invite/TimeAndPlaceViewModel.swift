@@ -11,9 +11,11 @@ import SwiftUI
 @Observable class TimeAndPlaceViewModel {
     
     let text: String
-    var event: EventDraft {
-        didSet { persistDraft() }
-    }
+    var event: EventDraft
+    
+//    {
+////        didSet { persistDraft() }
+//    }
     
     var profile: ProfileModel?
 
@@ -36,26 +38,29 @@ import SwiftUI
         self.text = text
         self.profile = profile
         self.s = sessionManager
+        self.event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profile?.profile.id ?? "" , type: .drink)
         
         //Fetch event Draft if one has been created, or create one if not
-        let profileId = profile?.profile.id
-        if let profileId, let storedEvent = defaults.fetchEventDraft(profileId: profileId) {
-            self.event = storedEvent
-        } else {
-            event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId ?? "", type: .drink)
-        }
+//        let profileId = profile?.profile.id
+//        event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId ?? "", type: .drink)
+//
+//        if let profileId, let storedEvent = defaults.fetchEventDraft(profileId: profileId) {
+//            self.event = storedEvent
+//        } else {
+//            event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId ?? "", type: .drink)
+//        }
     }
     
-    func persistDraft() {
-        guard let profileId = profile?.profile.id else { return }
-        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
-    }
-    
-    func deleteEventDefault() {
-        guard let profileId = profile?.profile.id else { return }
-        defaults.deleteEventDraft(profileId: profileId)
-        event = EventDraft(initiatorId: s.user.id, recipientId: profileId, type: .drink)
-    }
+//    func persistDraft() {
+//        guard let profileId = profile?.profile.id else { return }
+//        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
+//    }
+//    
+//    func deleteEventDefault() {
+//        guard let profileId = profile?.profile.id else { return }
+//        defaults.deleteEventDraft(profileId: profileId)
+//        event = EventDraft(initiatorId: s.user.id, recipientId: profileId, type: .drink)
+//    }
 }
 
 

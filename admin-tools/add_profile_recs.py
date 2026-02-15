@@ -12,6 +12,7 @@ db = firestore.client()
 ids_to_add = []
 
 user_snaps = db.collection('users').limit(10).stream()
+print("IDs fetched:", len(ids_to_add), ids_to_add)
 
 for snap in user_snaps:
     ids_to_add.append(snap.id)
@@ -30,6 +31,7 @@ def add_profile_recommendations(user_id, profile_id):
 
 
 for profile_id in ids_to_add:
-    add_profile_recommendations("as7GjhMYjGekFlOml8hyz3tITsJ3", profile_id)
+    print("Starting…")
+    add_profile_recommendations("CCxE4PaDPBRtQIMkNrSBIRgdTbq1", profile_id)
 
 

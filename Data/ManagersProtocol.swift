@@ -83,7 +83,7 @@ protocol DefaultsManaging {
     var signUpDraft: DraftProfile? { get set }
     var recentMapSearches: [RecentPlace] { get }
     var preferredMapType: PreferredMapType? { get }
-    var eventDrafts: [String : EventDraft] { get }
+//    var eventDrafts: [String : EventDraft] { get }
     func createDraftProfile(user: User)
     func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T)
     func deleteDefaults()
@@ -91,8 +91,8 @@ protocol DefaultsManaging {
     func updateRecentMapSearches(title: String, town: String)
     func removeFromRecentMapSearches(place: RecentPlace)
     func updatePreferredMapType(mapType: PreferredMapType?)
-    func updateEventDraft(profileId: String, eventDraft: EventDraft)
-    func fetchEventDraft(profileId: String) -> EventDraft?
-    func deleteEventDraft(profileId: String)
+//    func updateEventDraft(profileId: String, eventDraft: EventDraft)
+//    func fetchEventDraft(profileId: String) -> EventDraft?
+//    func deleteEventDraft(profileId: String)
 }
 
