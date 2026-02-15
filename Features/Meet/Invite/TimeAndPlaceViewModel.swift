@@ -13,7 +13,7 @@ import SwiftUI
     let text: String
     var event: EventDraft {
         didSet {
-            persistDraft()
+            persistDraft(event)
         }
     }
     
@@ -38,11 +38,7 @@ import SwiftUI
         self.text = text
         self.profile = profile
         self.s = sessionManager
-        
-        //Fetch event Draft if one has been created, or create one if not
         let profileId = profile?.profile.id
-        event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId ?? "", type: .drink)
-
         if let profileId, let storedEvent = defaults.fetchEventDraft(profileId: profileId) {
             self.event = storedEvent
         } else {
@@ -50,9 +46,9 @@ import SwiftUI
         }
     }
     
-    func persistDraft() {
+    func persistDraft(_ draft: EventDraft) {
         guard let profileId = profile?.profile.id else { return }
-        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
+        defaults.updateEventDraft(profileId: profileId, eventDraft: draft)
     }
     
     func deleteEventDefault() {
@@ -61,6 +57,3 @@ import SwiftUI
         event = EventDraft(initiatorId: s.user.id, recipientId: profileId, type: .drink)
     }
 }
-
-
-//Delete Event Draft on decline, or accepted from defaults
