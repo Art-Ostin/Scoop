@@ -11,7 +11,7 @@ import UIKit
 
 struct AddMessageView: View {
     
-    @Binding var vm: TimeAndPlaceViewModel
+    @Bindable var vm: TimeAndPlaceViewModel
     @State var showTypePopup: Bool = false
     
     

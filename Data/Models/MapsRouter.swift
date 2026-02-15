@@ -8,6 +8,7 @@
 import MapKit
 import UIKit
 
+@MainActor
 enum MapsRouter {
     
     @discardableResult

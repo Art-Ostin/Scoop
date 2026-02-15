@@ -47,7 +47,7 @@ final class AppDependencies {
         self.profilesRepo = ProfileRepo(fs: fs)
         self.imageLoader = ImageLoader()
         self.profileLoader = ProfileLoader(userRepo: userRepo, imageLoader: imageLoader)
-        self.defaultsManager = DefaultsManager()
+        self.defaultsManager = MainActor.assumeIsolated { DefaultsManager() }
     }
 }
 

@@ -33,7 +33,11 @@ struct SignUpView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
         .background(Color.background)
         .fullScreenCover(isPresented: $showCover) {
-            EnterEmailView(vm: VerifyEmailViewModel(sessionManager: dep.sessionManager, defaultsManager: dep.defaultsManager as! DefaultsManager, authService: dep.authService, userRepo: dep.userRepo))
+            EnterEmailView(vm: VerifyEmailViewModel(sessionManager: dep.sessionManager, defaultsManager: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo))
+
+
+
+
         }
     }
 }

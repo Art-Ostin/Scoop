@@ -44,7 +44,7 @@ struct SelectTimeAndPlace: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .toolbar(.hidden, for: .tabBar)
         .tabBarHidden(true) // This is custom Tool bar hidden
-        .sheet(isPresented: $vm.showMessageScreen) {AddMessageView(vm: $vm)}
+        .sheet(isPresented: $vm.showMessageScreen) {AddMessageView(vm: vm)}
         .fullScreenCover(isPresented: $vm.showMapView) {
             MapView(defaults: vm.defaults, eventVM: vm)
         }
