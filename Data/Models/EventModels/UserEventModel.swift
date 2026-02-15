@@ -10,6 +10,10 @@ import FirebaseFirestore
 
 //Event stored in user's profile with all Info they require about event (Check if not better to just store reference to event instead)
 struct UserEvent: Identifiable, Codable {
+    
+    enum EdgeRole: String, Codable {
+        case sent, received
+    }
 
     //1. Event Identifier
     @DocumentID var id: String?
@@ -18,7 +22,7 @@ struct UserEvent: Identifiable, Codable {
     let otherUserId: String
     let otherUserName: String
     let otherUserPhoto: String
-    let role: Event.EdgeRole
+    let role: EdgeRole
     
     //3. Event Information
     var type: Event.EventType
@@ -28,12 +32,26 @@ struct UserEvent: Identifiable, Codable {
     var message: String?
     
     //4. Event Updatable Information
-    var status: Event.EventStatus
+    var status: Event.EventStatus = .pending
     var canText: Bool = false
 
     //5. MetaData
-    let updatedAt: Date?
-    var earlyTerminatorID: String?
+    var updatedAt: Date? = nil
+    var earlyTerminatorID: String? = nil
+    
+    
+    init(otherProfile: UserProfile, role: EdgeRole, event: Event) {
+        otherUserId = otherProfile.id
+        otherUserName = otherProfile.name
+        otherUserPhoto = otherProfile.imagePathURL.first ?? ""
+        self.role = role
+        
+        type = event.type
+        proposedTimes = event.proposedTimes
+        acceptedTime = event.acceptedTime
+        location = event.location
+        message = event.message
+    }
 }
 
 extension UserEvent {

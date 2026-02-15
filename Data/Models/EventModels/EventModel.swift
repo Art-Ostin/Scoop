@@ -17,11 +17,7 @@ struct Event: Identifiable, Codable {
     enum EventScope: String, Codable {
         case upcomingInvited, upcomingAccepted, pastAccepted
     }
-    
-    enum EdgeRole: String, Codable {
-        case sent, received
-    }
-    
+        
     enum EventType: String, CaseIterable, Codable, Hashable {
         case drink, doubleDate, socialMeet, custom
     }
@@ -104,6 +100,3 @@ extension Event.EventType {
             }
         }
     }
-
-
-

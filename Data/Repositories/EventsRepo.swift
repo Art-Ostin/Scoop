@@ -37,36 +37,19 @@ class EventsRepo: EventsRepository {
     }
     
     func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
-
-        var draft = draft
-        
-        let encodedProposedTimes = try Firestore.Encoder().encode(draft.proposedTimes)
-        
-        
-//         draft.proposedTimes = try Firestore.Encoder().encode(draft.proposedTimes)
-        
+        //1. Create the event, and add it to the collection 'events'
         let event = Event(draft: draft)
         let id = try fs.add("events", value: event)
         
-        let initiatorUserEvent = makeUserEvent(otherProfile: profile, role: .sent, event: event)
-        let recipientUserEvent = makeUserEvent(otherProfile: user, role: .received, event: event)
+        //2 Create the two UserEvents
+        let initiatorUserEvent = UserEvent(otherProfile: profile, role: .sent, event: event)
+        let recipientUserEvent = UserEvent(otherProfile: user, role: .received, event: event)
         
+        //3. Update the event Paths
         try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent)
         try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent)
-        
-        func makeUserEvent(otherProfile: UserProfile, role: EdgeRole, event: Event) -> UserEvent  {
-            UserEvent(
-                otherUserId: otherProfile.id,
-                role: role, status: event.status,
-                proposedTimes: event.proposedTimes,
-                type: event.type,
-                message: event.message,
-                place: event.location,
-                otherUserName: otherProfile.name ,
-                otherUserPhoto: otherProfile.imagePathURL.first ?? "",
-                updatedAt: nil)
-        }
     }
+    
     
     func eventTracker(userId: String, now: Date = .init()) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
         let path = "users/\(userId)/user_events"
@@ -74,17 +57,17 @@ class EventsRepo: EventsRepository {
         typealias F = UserEvent.Field
         
         let invitedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq,  value: EventStatus.pending.rawValue),
-            FSWhere(field: F.role.rawValue,   op: .eq,  value: EdgeRole.received.rawValue),
+            FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.pending.rawValue),
+            FSWhere(field: F.role.rawValue,   op: .eq,  value: UserEvent.EdgeRole.received.rawValue),
         ]
         
         let upcomingAcceptedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq,  value: EventStatus.accepted.rawValue),
+            FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.accepted.rawValue),
             FSWhere(field: F.acceptedTime.rawValue,   op: .gte, value: plus6h),
         ]
         
         let pastAcceptedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.accepted.rawValue),
+            FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.accepted.rawValue),
             FSWhere(field: F.acceptedTime.rawValue,   op: .lt, value: plus6h),
         ]
         
@@ -134,7 +117,7 @@ class EventsRepo: EventsRepository {
         return (initial, updates)
     }
     
-    func updateStatus(eventId: String, to newStatus: EventStatus) async throws {
+    func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
@@ -146,8 +129,8 @@ class EventsRepo: EventsRepository {
         typealias F = UserEvent.Field
         
         let pendingSentFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq, value: EventStatus.pending.rawValue),
-            FSWhere(field: F.role.rawValue, op: .eq, value: EdgeRole.sent.rawValue),
+            FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.pending.rawValue),
+            FSWhere(field: F.role.rawValue, op: .eq, value: UserEvent.EdgeRole.sent.rawValue),
         ]
         return try await fs.fetchFromCollection(path, filters: pendingSentFilters, orderBy: nil, limit: nil)
     }
