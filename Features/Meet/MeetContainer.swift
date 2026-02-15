@@ -21,13 +21,30 @@ struct MeetContainer: View {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
                     
+                    Text("Invites")
+                        .font(.body(12, .bold))
+                        .underline(color: Color.appGreen)
+                        .foregroundStyle(Color.appGreen)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .padding(.trailing, 24)
+                    
+                    
                     profileInviteSection(profiles: vm.invites)
                          
                     
-                    Divider()
-                        .padding(.horizontal)
+                    MapDivider()
+                        .padding(.horizontal, 36)
+                    
+                    Text("Profiles")
+                        .font(.body(12, .bold))
+                        .underline(color: Color.accent)
+                        .foregroundStyle(Color.accent)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.trailing, 16)
+
                     
                     profileRecSection(profiles: vm.profiles)
+                        .padding(.top, 8) //Offset the shadow
 
                     MeetInfoView(vm: vm, ui: ui)
                 }
@@ -67,11 +84,13 @@ extension MeetContainer {
         ScrollView(.horizontal) {
             HStack(spacing: 16) {
                 ClearRectangle(size: 0)
-                profileCardSection(profiles: profiles)
-                    .scaleEffect(0.9)
+                HStack(spacing: 12) {
+                    profileCardSection(profiles: profiles)
+                }
+                ClearRectangle(size: 0)
             }
+            .frame(height: imageSize + 8, alignment: .top)
         }
-        .frame(height: imageSize + 36, alignment: .top) //Gives space for shadow to appear below image
     }
     
     
