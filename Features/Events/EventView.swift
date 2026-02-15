@@ -47,6 +47,9 @@ struct EventView: View {
                     .transition(.move(edge: .bottom))
             }
         }
+        .onAppear {
+            print("Events are: \(vm.events)")
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(item: $ui.showMessageScreen) {profileModel in
             Text(profileModel.id)

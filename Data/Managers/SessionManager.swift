@@ -163,11 +163,14 @@ extension SessionManager  {
             let invitesReceived = initial.filter { $0.kind == .invite }.map(\.event)
             let accepted = initial.filter { $0.kind == .accepted }.map(\.event)
             let past = initial.filter { $0.kind == .pastAccepted }.map(\.event)
+                        
+            
             let (invModels, accModels, pastModels) = try await buildEvents(profileLoader, invites: invitesReceived, accepted: accepted,past: past)
 
             invites = invModels
             events = accModels
             pastEvents = pastModels
+            
             eventStreamTask = Task { @MainActor in
                 do {
                     for try await (event, kind) in updates {

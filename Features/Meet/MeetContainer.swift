@@ -20,8 +20,15 @@ struct MeetContainer: View {
     var body: some View {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
-                    profileRecSection(profiles: vm.profiles)
                     
+                    profileInviteSection(profiles: vm.invites)
+                         
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    profileRecSection(profiles: vm.profiles)
+
                     MeetInfoView(vm: vm, ui: ui)
                 }
                 .id(vm.profiles.count)
@@ -44,7 +51,7 @@ struct MeetContainer: View {
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {screenSize in
                 imageSize = screenSize - (16 * 2)
-            }        
+            }
     }
 }
 
@@ -52,24 +59,41 @@ extension MeetContainer {
     
     private func profileRecSection(profiles: [ProfileModel]) -> some View {
         LazyVStack(spacing: 72) {
-            ForEach(profiles) { profile in
-                ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $ui.quickInvite)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        if ui.selectedProfile == nil {
-                            dismissOffset = nil
-                            ui.selectedProfile = profile
-                        }
-                    }
-                    .task {
-                        let loadedImages = await vm.loadImages(profileModel: profile)
-                        await MainActor.run {
-                            profileImages[profile.id] = loadedImages
-                        }
-                    }
-            }
+            profileCardSection(profiles: profiles)
         }
     }
+    
+    private func profileInviteSection(profiles: [ProfileModel]) -> some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 16) {
+                ClearRectangle(size: 0)
+                profileCardSection(profiles: profiles)
+                    .scaleEffect(0.9)
+            }
+        }
+        .frame(height: imageSize + 36, alignment: .top) //Gives space for shadow to appear below image
+    }
+    
+    
+    private func profileCardSection(profiles: [ProfileModel]) -> some View {
+        ForEach(profiles) { profile in
+            ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $ui.quickInvite)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if ui.selectedProfile == nil {
+                        dismissOffset = nil
+                        ui.selectedProfile = profile
+                    }
+                }
+                .task {
+                    let loadedImages = await vm.loadImages(profileModel: profile)
+                    await MainActor.run {
+                        profileImages[profile.id] = loadedImages
+                    }
+                }
+        }
+    }
+    
             
     private func profile(profile: ProfileModel) -> some View {
         ProfileView(

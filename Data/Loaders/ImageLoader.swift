@@ -62,6 +62,7 @@ class ImageLoader: ImageLoading  {
                         let image = try await self.fetchImage(for: url)
                         return (index, image)
                     } catch {
+//                        print(error)
                         print("unable to add images to cache")
                         return (index, nil)
                     }

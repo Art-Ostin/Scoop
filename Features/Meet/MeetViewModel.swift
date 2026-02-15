@@ -52,7 +52,7 @@ import SwiftUI
             guard let event else {return}
             try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile)
         }
-//        defaults.deleteEventDraft(profileId: profileModel.profile.id) //Delete it from draft once done
+        defaults.deleteEventDraft(profileId: profileModel.profile.id)
     }
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {

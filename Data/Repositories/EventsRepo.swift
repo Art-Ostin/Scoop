@@ -63,6 +63,7 @@ class EventsRepo: EventsRepository {
         let upcomingAcceptedFilters: [FSWhere] = [
             FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.accepted.rawValue)
         ]
+        
         let pastAcceptedFilters: [FSWhere] = [
             FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.pastAccepted.rawValue)
         ]
@@ -75,6 +76,8 @@ class EventsRepo: EventsRepository {
         async let past: [UserEvent] = fs.fetchFromCollection(path, filters: pastAcceptedFilters, orderBy: FSOrder(field: F.acceptedTime.rawValue, descending: true), limit: nil)
         
         let (inv, upc, pas) = try await (invited, upcoming, past)
+        
+        print("UPCOMING EVENTS ARE \(upc)")
         
         let initial: [UserEventUpdate] =
             inv.map { (event: $0, kind: .invite) }
