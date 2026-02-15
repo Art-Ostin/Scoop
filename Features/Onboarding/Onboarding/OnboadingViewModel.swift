@@ -44,7 +44,7 @@ import FirebaseAuth
         guard let user = await authService.fetchAuthUser() else { return false }
         if defaultManager.signUpDraft == nil {
             defaultManager.deleteDefaults()
-            defaultManager.signUpDraft = .init(user: user)
+            defaultManager.createDraftProfile(user: user)
         }
         return true
     }
@@ -69,7 +69,7 @@ import FirebaseAuth
     
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
         direction = .forward
-        if !updateOnly { withAnimation(.easeInOut) {defaultManager.onboardingStep += 1 }}
+        if !updateOnly { withAnimation(.easeInOut) { defaultManager.advanceOnboarding() } }
         defaultManager.update(kp, to: value)
     }
     
@@ -77,7 +77,7 @@ import FirebaseAuth
         guard defaultManager.onboardingStep > 0 else { return }
         direction = .back
         withAnimation(.easeInOut) {
-            defaultManager.onboardingStep -= 1
+            defaultManager.retreatOnboarding()
         }
     }
 }

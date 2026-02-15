@@ -50,9 +50,9 @@ import UIKit
             }
         } catch {print(error) }
         let sorted = results.sorted { $0.index < $1.index }
-        await MainActor.run {
-            defaults.signUpDraft?.imagePath = sorted.map { $0.path }
-            defaults.signUpDraft?.imagePathURL = sorted.map { $0.url.absoluteString }
+        defaults.mutateSignUpDraft { draft in
+            draft.imagePath = sorted.map { $0.path }
+            draft.imagePathURL = sorted.map { $0.url.absoluteString }
         }
     }
     
@@ -83,4 +83,3 @@ import UIKit
         return rendered.jpegData(compressionQuality: 1.0)
     }
 }
-

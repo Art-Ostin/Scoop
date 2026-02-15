@@ -79,15 +79,18 @@ protocol ProfileLoading {
 }
 
 @MainActor
-protocol DefaultsManaging {
-    var onboardingStep: Int { get set }
-    var signUpDraft: DraftProfile? { get set }
+protocol DefaultsManaging: AnyObject {
+    var onboardingStep: Int { get }
+    var signUpDraft: DraftProfile? { get }
     var recentMapSearches: [RecentPlace] { get }
     var preferredMapType: PreferredMapType? { get }
     func createDraftProfile(user: User)
+    func clearSignUpDraft()
+    func mutateSignUpDraft(_ mutation: (inout DraftProfile) -> Void)
     func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T)
     func deleteDefaults()
     func advanceOnboarding()
+    func retreatOnboarding()
     func updateRecentMapSearches(title: String, town: String)
     func removeFromRecentMapSearches(place: RecentPlace)
     func updatePreferredMapType(mapType: PreferredMapType?)
@@ -95,4 +98,3 @@ protocol DefaultsManaging {
     func fetchEventDraft(profileId: String) -> EventDraft?
     func deleteEventDraft(profileId: String)
 }
-
