@@ -180,8 +180,8 @@ extension SelectTimeView {
     private func syncTimePickerIfNeeded() {
         guard let first = vm.event.proposedTimes.dates.first else { return }
         let calendar = Calendar.current
-        let newHour = calendar.component(.hour, from: first)
-        let newMinute = calendar.component(.minute, from: first)
+        let newHour = calendar.component(.hour, from: first.date)
+        let newMinute = calendar.component(.minute, from: first.date)
         if newHour != vm.selectedHour || newMinute != vm.selectedMinute {
             vm.selectedHour = newHour
             vm.selectedMinute = newMinute

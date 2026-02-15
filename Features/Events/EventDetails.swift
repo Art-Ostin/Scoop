@@ -102,7 +102,7 @@ extension EventDetails {
     
     func eventMeetingDescription(event: UserEvent) -> some View {
         let name = event.otherUserName
-        var place = event.place.name ?? "the venue"
+        var place = event.location.name ?? "the venue"
         if place.count > 20 { place = "the venue"}
         let fullTime = EventFormatting.fullDate(event.acceptedTime ?? Date())
         let opening = "You’ve both confirmed"

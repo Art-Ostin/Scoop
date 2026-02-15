@@ -16,6 +16,7 @@ struct ProposedTimes: Codable, Equatable  {
     static let maxCount = 3
     private(set) var dates: [ProposedTime]
     
+    
     init(items: [ProposedTime] = []) {
         self.dates = items
         normalize()

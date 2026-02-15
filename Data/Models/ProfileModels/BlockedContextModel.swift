@@ -12,5 +12,5 @@ struct BlockedContext: Codable, Hashable {
     let eventPlace: String
     let eventTime: String
     let eventMessage: String?
-    let eventType: EventType
+    let eventType: Event.EventType
 }

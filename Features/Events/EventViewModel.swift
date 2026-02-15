@@ -31,7 +31,7 @@ import FirebaseFirestore
 
     var events: [ProfileModel] { sessionManager.events}
     
-    func updateEventStatus(eventId: String, status: EventStatus) async throws {
+    func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
         try await eventRepo.updateStatus(eventId: eventId, to: status)
     }
     
@@ -44,7 +44,7 @@ import FirebaseFirestore
         guard let acceptedTime = event.acceptedTime, let eventId = event.id else { return }
         let profileName = event.otherUserName
         let eventTime = "\(EventFormatting.expandedDate(acceptedTime)) · \(EventFormatting.hourTime(acceptedTime))"
-        let eventPlace = event.place.name ?? event.place.address.map { String($0.suffix(10)) }  ?? ""
+        let eventPlace = event.location.name ?? event.location.address.map { String($0.suffix(10)) }  ?? ""
         let blockedContext = BlockedContext(profileImage: event.otherUserPhoto, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
         let userId = sessionManager.user.id
         

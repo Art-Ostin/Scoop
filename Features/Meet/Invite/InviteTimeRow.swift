@@ -15,7 +15,7 @@ struct InviteTimeRow: View {
     @State var isTwoTest = false
     
     var times: [Date] {
-        vm.event.proposedTimes.dates.sorted()
+        vm.event.proposedTimes.dates.map(\.date)
     }
     
     var hour: String? {

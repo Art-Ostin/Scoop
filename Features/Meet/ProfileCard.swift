@@ -51,20 +51,8 @@ extension ProfileCard {
                 Text(profile.profile.name)
                     .font(.body(24, .bold))
             }
-            if let meet = profile.profile.idealMeetUp {
-                let weekDay = meet.time.formatted(.dateTime.weekday(.wide))
-                let hour = meet.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
-                HStack {
-                    Text(weekDay + " " + hour)
-                    Text("|")
-                        .foregroundStyle(Color.grayPlaceholder)
-                    
-                    Text(meet.type.description.label)
-                }
-                .font(.body(16, .regular))
-                
-            } else {
-                HStack(spacing: 6) {
+            
+            HStack(spacing: 6) {
                     Text(profile.profile.hometown)
                     
                     Text("|")
@@ -81,7 +69,6 @@ extension ProfileCard {
                 .font(.body(16, .regular))
             }
         }
-    }
     
     private var inviteButton: some View {
         Button {
@@ -115,4 +102,22 @@ extension ProfileCard {
      .frame(maxWidth: .infinity, alignment: .trailing)
      .padding(.horizontal, 24)
  }
+ */
+
+/*
+ 
+//            if let meet = profile.profile.idealMeetUp {
+//                let weekDay = meet.time.formatted(.dateTime.weekday(.wide))
+//                let hour = meet.time.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
+//                HStack {
+//                    Text(weekDay + " " + hour)
+//                    Text("|")
+//                        .foregroundStyle(Color.grayPlaceholder)
+//
+//                    Text(meet.type.description.label)
+//                }
+//                .font(.body(16, .regular))
+//
+//            } else {
+
  */

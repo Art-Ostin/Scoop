@@ -41,7 +41,7 @@ import SwiftUI
         try await imageLoader.fetchImage(for: url)
     }
     
-    func updateEventStatus(eventId: String, status: EventStatus) async throws {
+    func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
         try await eventRepo.updateStatus(eventId: eventId, to: status)
     }
         

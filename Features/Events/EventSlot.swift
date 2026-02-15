@@ -130,13 +130,13 @@ extension EventSlot {
     
     @ViewBuilder
     func mapView(event: UserEvent) ->  some View {
-        let coord = CLLocationCoordinate2D(latitude: event.place.latitude, longitude: event.place.longitude)
+        let coord = CLLocationCoordinate2D(latitude: event.location.latitude, longitude: event.location .longitude)
         
         ZStack(alignment: .bottomTrailing) {
             
             
             Map(initialPosition: .camera(.init(centerCoordinate: coord, distance: 800))) {
-                Marker(event.place.name ?? "",systemImage: "mappin", coordinate: coord)
+                Marker(event.location.name ?? "",systemImage: "mappin", coordinate: coord)
                     .tint(.red)
                 
                 UserAnnotation()
@@ -157,7 +157,7 @@ extension EventSlot {
             Button {
                 openEventInPreferredMaps(event)
             } label :  {
-                Text(EventFormatting.placeName(event.place))
+                Text(EventFormatting.placeName(event.location))
                     .foregroundStyle(.accent)
             }
         }
@@ -170,7 +170,7 @@ extension EventSlot {
         Button {
             openEventInPreferredMaps(event)
         } label: {
-            Text(event.place.address ?? "")
+            Text(event.location.address ?? "")
                 .font(.body(12, .medium))
                 .underline(color: .black.opacity(0.6))
                 .foregroundStyle(Color.black.opacity(0.6))
@@ -210,7 +210,7 @@ extension EventSlot {
         Button {
             openEventInPreferredMaps(event)
         } label: {
-            Text(removingTrailingCountry(from: EventFormatting.placeFullAddress(place: event.place)))
+            Text(removingTrailingCountry(from: EventFormatting.placeFullAddress(place: event.location)))
                 .font(.body(12, .regular))
                 .underline(color: .grayText)
                 .foregroundStyle(Color.grayText)
@@ -307,6 +307,6 @@ extension EventSlot {
     }
     @discardableResult
     private func openEventInPreferredMaps(_ event: UserEvent) -> Bool {
-        MapsRouter.openMaps(defaults: vm.defaults, item: event.place.mapItem, withDirections: true)
+        MapsRouter.openMaps(defaults: vm.defaults, item: event.location.mapItem, withDirections: true)
     }
 }

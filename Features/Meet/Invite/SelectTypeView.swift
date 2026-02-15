@@ -9,10 +9,9 @@ import SwiftUI
 
 struct SelectTypeView: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel   // if your VM is @Observable
-    // If your VM is not @Observable, tell me what it is (ObservableObject?), and I’ll adjust.
+    @Bindable var vm: TimeAndPlaceViewModel
     
-    let selectedType: EventType?
+    let selectedType: Event.EventType?
     
     @Binding var showTypePopup: Bool
     
@@ -20,7 +19,7 @@ struct SelectTypeView: View {
     var body: some View {
         VStack(spacing: 0) {
             DropDownMenu {
-                ForEach(Array(EventType.allCases.enumerated()), id: \.element) { index, eventType in
+                ForEach(Array(Event.EventType.allCases.enumerated()), id: \.element) { index, eventType in
                         customRow(
                             image: eventType.description.emoji ?? "",
                             text: eventType.description.label
@@ -36,7 +35,7 @@ struct SelectTypeView: View {
                                 showTypePopup.toggle()
                             }
                         }
-                    if index < EventType.allCases.count - 1 {
+                    if index < Event.EventType.allCases.count - 1 {
                         MapDivider()
                     }
                 }

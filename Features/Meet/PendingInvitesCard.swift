@@ -23,7 +23,7 @@ struct PendingInviteCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(profile.profile.name)
                     if let event = profile.event, let time = event.acceptedTime  {
-                        EventFormatter(time: time, type: event.type, message: event.message, place: event.place, size: 15)
+                        EventFormatter(time: time, type: event.type, message: event.message, place: event.location, size: 15)
                     }
                 }
             }

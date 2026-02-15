@@ -10,13 +10,13 @@ import SwiftUI
 struct EventFormatter: View {
 
     let time: Date
-    let type: EventType
+    let type: Event.EventType
     let message: String?
     let place: EventLocation
     let isInvite: Bool
     let size: CGFloat
     
-    init(time: Date, type: EventType, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
+    init(time: Date, type: Event.EventType, message: String?, isInvite: Bool = true, place: EventLocation, size: CGFloat = 22) {
         self.time = time
         self.type = type
         self.message = message
