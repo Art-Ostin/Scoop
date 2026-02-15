@@ -8,7 +8,6 @@
 import Foundation
 import FirebaseAuth
 
-@MainActor
 @Observable
 final class DefaultsManager: DefaultsManaging {
 
@@ -118,7 +117,7 @@ extension DefaultsManager {
     }
 
     func fetchEventDraft(profileId: String) -> EventDraft? {
-        eventDrafts[profileId]
+        return eventDrafts[profileId]
     }
 
     func deleteEventDraft(profileId: String) {

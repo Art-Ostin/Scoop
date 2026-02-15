@@ -13,7 +13,7 @@ import SwiftUI
     let text: String
     var event: EventDraft {
         didSet {
-            persistDraft(event)
+            persistDraft()
         }
     }
     
@@ -46,9 +46,9 @@ import SwiftUI
         }
     }
     
-    func persistDraft(_ draft: EventDraft) {
+    func persistDraft() {
         guard let profileId = profile?.profile.id else { return }
-        defaults.updateEventDraft(profileId: profileId, eventDraft: draft)
+        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
     }
     
     func deleteEventDefault() {
