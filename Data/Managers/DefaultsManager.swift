@@ -21,8 +21,8 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var signUpDraft: DraftProfile?
     private(set) var recentMapSearches: [RecentPlace] = []
     private(set) var preferredMapType: PreferredMapType?
+    private(set) var eventDrafts: [String: EventDraft] = [:]
 
-    @ObservationIgnored private var eventDrafts: [String: EventDraft] = [:]
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
