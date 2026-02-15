@@ -8,7 +8,6 @@
 import SwiftUI
 import FirebaseAuth
 
-@MainActor
 @Observable class OnboardingViewModel {
     
     @ObservationIgnored let authService: AuthServicing

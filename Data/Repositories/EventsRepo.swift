@@ -53,24 +53,21 @@ class EventsRepo: EventsRepository {
     
     func eventTracker(userId: String, now: Date = .init()) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
         let path = "users/\(userId)/user_events"
-        let plus6h = Calendar.current.date(byAdding: .hour, value: 6, to: now)!
         typealias F = UserEvent.Field
         
+        //1. Construct the correct filters to specify what I want to retrieve
         let invitedFilters: [FSWhere] = [
             FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.pending.rawValue),
             FSWhere(field: F.role.rawValue,   op: .eq,  value: UserEvent.EdgeRole.received.rawValue),
         ]
-        
         let upcomingAcceptedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.accepted.rawValue),
-            FSWhere(field: F.acceptedTime.rawValue,   op: .gte, value: plus6h),
+            FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.accepted.rawValue)
         ]
-        
         let pastAcceptedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.accepted.rawValue),
-            FSWhere(field: F.acceptedTime.rawValue,   op: .lt, value: plus6h),
+            FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.pastAccepted.rawValue)
         ]
         
+        //2. Actually fetch the events from the collection
         async let invited: [UserEvent] = fs.fetchFromCollection(path, filters: invitedFilters, orderBy: FSOrder(field: F.proposedTimes.rawValue, descending: false), limit: nil)
         
         async let upcoming: [UserEvent] = fs.fetchFromCollection(path, filters: upcomingAcceptedFilters, orderBy: FSOrder(field: F.acceptedTime.rawValue, descending: false), limit: nil)
@@ -97,12 +94,10 @@ class EventsRepo: EventsRepository {
                             let e = it.model
                             if e.status == .pending, e.role == .received {
                                 continuation.yield((event: e, kind: .invite))
-                            } else if e.status == .accepted, let time = e.acceptedTime {
-                                if time >= plus6h {
-                                    continuation.yield((event: e, kind: .accepted))
-                                } else {
-                                    continuation.yield((event: e, kind: .pastAccepted))
-                                }
+                            } else if e.status == .accepted {
+                                continuation.yield((event: e, kind: .accepted))
+                            } else if e.status == .pastAccepted {
+                                continuation.yield((event: e, kind: .pastAccepted))
                             } else {
                                 continuation.yield((event: e, kind: .remove))
                             }

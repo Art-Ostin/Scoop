@@ -78,7 +78,6 @@ protocol ProfileLoading {
     func fromId(_ id: String) async throws -> ProfileModel
 }
 
-@MainActor
 protocol DefaultsManaging: AnyObject {
     var onboardingStep: Int { get }
     var signUpDraft: DraftProfile? { get }

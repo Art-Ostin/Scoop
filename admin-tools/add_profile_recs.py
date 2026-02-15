@@ -32,6 +32,6 @@ def add_profile_recommendations(user_id, profile_id):
 
 for profile_id in ids_to_add:
     print("Starting…")
-    add_profile_recommendations("VweZmx8DUoOuNG3EEsv5qOUbQ1i1", profile_id)
+    add_profile_recommendations("0yRfng9F4FfrEo30K3JEgi7Uje33", profile_id)
 
 
