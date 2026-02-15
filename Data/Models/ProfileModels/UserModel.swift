@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseAuth
 
 
 struct UserProfile: Codable, Identifiable, Equatable, Hashable {

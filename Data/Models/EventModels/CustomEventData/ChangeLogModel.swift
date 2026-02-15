@@ -23,12 +23,13 @@ struct ChangeItem: Codable {
 }
 
 enum ChangeValue: Codable, Equatable {
+    
     case string(String)
     case int(Int)
     case double(Double)
     case bool(Bool)
     case date(Date)
-    case eventType(EventType)
+    case eventType(Event.EventType)
     case eventLocation(EventLocation)
     case stringArray([String])
     case null
@@ -47,7 +48,7 @@ enum ChangeValue: Codable, Equatable {
         case .double: self = .double(try container.decode(Double.self, forKey: .value))
         case .bool: self = .bool(try container.decode(Bool.self, forKey: .value))
         case .date: self = .date(try container.decode(Date.self, forKey: .value))
-        case .eventType: self = .eventType(try container.decode(EventType.self, forKey: .value))
+        case .eventType: self = .eventType(try container.decode(Event.EventType.self, forKey: .value))
         case .eventLocation: self = .eventLocation(try container.decode(EventLocation.self, forKey: .value))
         case .stringArray: self = .stringArray(try container.decode([String].self, forKey: .value))
         case .null: self = .null

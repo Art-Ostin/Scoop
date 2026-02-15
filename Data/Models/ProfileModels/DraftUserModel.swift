@@ -4,8 +4,10 @@
 //
 //  Created by Art Ostin on 14/02/2026.
 //
+import Foundation
+import FirebaseAuth
 
-
+//Data stored in Defaults during the onboarding so no 'profile' created in backend until completed onboarding
 struct DraftProfile: Codable {
     let id: String
     let email: String
