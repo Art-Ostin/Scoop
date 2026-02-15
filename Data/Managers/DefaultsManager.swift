@@ -9,59 +9,33 @@ import Foundation
 import FirebaseAuth
 import MapKit
 
-//Updates & stores a 'Draft Profile' during onboarding which persists between sessions. Also saves user's onboarding stage
+//Method: Have variables referenced throughout code. When these values updated, save the new value to defaults (with the didSet functionality).
+
 @MainActor
 @Observable
-final class DefaultsManager: DefaultsManaging {
-    
-    private enum Keys: String {
-        case draftProfile, onboardingStep, recentMapSearches, preferredMapType, eventDrafts
-    }
-    
-    
+final class DefaultsManager {
     
     @ObservationIgnored let defaults: UserDefaults
     private let maxRecentMapSearches = 4
     
+    private(set) var onboardingStep: Int = 0 {
+        didSet { saveOnboardingStepToDefaults() }
+    }
     
-    var onboardingStep: Int = 0 {
-        didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
+    private(set) var signUpDraft: DraftProfile? {
+        didSet { saveSignUpDraftToDefaults() }
     }
     
     private(set) var recentMapSearches: [RecentPlace] = [] {
-        didSet {
-            if let data = try? JSONEncoder().encode(recentMapSearches) {
-                defaults.set(data, forKey: Keys.recentMapSearches.rawValue)
-            } else {
-                defaults.removeObject(forKey: Keys.recentMapSearches.rawValue)
-            }
-        }
+        didSet { saveRecentMapSearchesToDefaults()}
     }
     
-    @ObservationIgnored
-    private var eventDraftsByProfileId: [String : EventDraft] = [:]
-    
-    
-    
-    //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
-    var signUpDraft: DraftProfile? {
-        didSet {
-            if let draft = signUpDraft, let data = try? JSONEncoder().encode(draft) {
-                defaults.set(data, forKey: Keys.draftProfile.rawValue)
-            } else {
-                defaults.removeObject(forKey: Keys.draftProfile.rawValue) // clear when nil
-            }
-        }
+    private(set) var preferredMapType: PreferredMapType? {
+        didSet { savePreferredMapToDefaults() }
     }
     
-    var preferredMapType: PreferredMapType? {
-        didSet {
-            if let preferredMapType {
-                defaults.set(preferredMapType.rawValue, forKey: Keys.preferredMapType.rawValue)
-            } else {
-                defaults.removeObject(forKey: Keys.preferredMapType.rawValue)
-            }
-        }
+    private(set) var eventDrafts: [String : EventDraft] = [:] {
+        didSet { saveEventDraftsToDefaults() }
     }
     
     init(defaults: UserDefaults = .standard) {
@@ -86,29 +60,28 @@ final class DefaultsManager: DefaultsManaging {
         
         if let data = defaults.data(forKey: Keys.eventDrafts.rawValue),
            let drafts = try? JSONDecoder().decode([String : EventDraft].self, from: data) {
-            eventDraftsByProfileId = drafts
+            eventDrafts = drafts
         }
     }
     
-    func createDraftProfile(user: User) {
-        signUpDraft = DraftProfile(user: user)
-    }
-    
-    func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T) {
-        guard var d = signUpDraft else { return }
-        d[keyPath: keyPath] = value
-        signUpDraft = d
-    }
-    
     func deleteDefaults() {
+        // remove values in UserDefaults
+        for key in Keys.allCases {
+            defaults.removeObject(forKey: key.rawValue)
+        }
+        
+        //remove in-memory values
         signUpDraft = nil
         onboardingStep = 0
         recentMapSearches = []
-        eventDraftsByProfileId.removeAll()
-        defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
+        preferredMapType = nil
+        eventDrafts.removeAll()
     }
-    
-    func advanceOnboarding() { onboardingStep += 1 }
+        
+}
+
+//Map Related Defaults
+extension DefaultsManager {
     
     func updateRecentMapSearches(title: String, town: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -134,31 +107,75 @@ final class DefaultsManager: DefaultsManaging {
         preferredMapType = mapType
     }
     
+    private func saveRecentMapSearchesToDefaults() {
+        if let data = try? JSONEncoder().encode(recentMapSearches) {
+            defaults.set(data, forKey: Keys.recentMapSearches.rawValue)
+        }
+    }
+    
+    private func savePreferredMapToDefaults() {
+        if let data = try? JSONEncoder().encode(preferredMapType) {
+            defaults.set(data, forKey: Keys.preferredMapType.rawValue)
+        }
+    }
+}
+
+//Draft Events related Defaults
+extension DefaultsManager {
     func updateEventDraft(profileId: String, eventDraft: EventDraft) {
-        eventDraftsByProfileId[profileId] = eventDraft
-        persistEventDrafts()
+        eventDrafts[profileId] = eventDraft
     }
     
     func fetchEventDraft(profileId: String) -> EventDraft? {
-        eventDraftsByProfileId[profileId]
+        eventDrafts[profileId]
     }
     
     func deleteEventDraft(profileId: String) {
-        eventDraftsByProfileId.removeValue(forKey: profileId)
-        persistEventDrafts()
+        eventDrafts.removeValue(forKey: profileId)
+    }
+        
+    private func saveEventDraftsToDefaults() {
+        if let data = try? JSONEncoder().encode(eventDrafts) {
+            defaults.set(data, forKey: Keys.eventDrafts.rawValue)
+        }
+    }
+}
+
+//Draft Profile related Defaults
+extension DefaultsManager {
+    
+    func createDraftProfile(user: User) {
+        signUpDraft = DraftProfile(user: user)
     }
     
-    private func persistEventDrafts() {
-        if eventDraftsByProfileId.isEmpty {
-            defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
-            return
+    func advanceOnboarding() { onboardingStep += 1 }
+
+    func update<T>(_ keyPath: WritableKeyPath<DraftProfile, T>, to value: T) {
+        guard var d = signUpDraft else { return }
+        d[keyPath: keyPath] = value
+        signUpDraft = d
+    }
+    
+    func saveOnboardingStepToDefaults() {
+        defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue)
+    }
+    
+    private func saveSignUpDraftToDefaults() {
+        if let draft = signUpDraft, let data = try? JSONEncoder().encode(draft) {
+            defaults.set(data, forKey: Keys.draftProfile.rawValue)
         }
-        
-        if let data = try? JSONEncoder().encode(eventDraftsByProfileId) {
-            defaults.set(data, forKey: Keys.eventDrafts.rawValue)
-        } else {
-            defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
-        }
+    }
+}
+
+
+
+extension DefaultsManager {
+    private enum Keys: String, CaseIterable {
+        case draftProfile,
+             onboardingStep,
+             recentMapSearches,
+             preferredMapType,
+             eventDrafts
     }
 }
 
@@ -172,3 +189,19 @@ struct RecentPlace: Codable, Equatable, Hashable {
     let title: String
     let town: String
 }
+
+
+/*
+ private func persistEventDrafts() {
+     if eventDraftsByProfileId.isEmpty {
+         defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
+         return
+     }
+     
+     if let data = try? JSONEncoder().encode(eventDraftsByProfileId) {
+         defaults.set(data, forKey: Keys.eventDrafts.rawValue)
+     } else {
+         defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
+     }
+ }
+ */
