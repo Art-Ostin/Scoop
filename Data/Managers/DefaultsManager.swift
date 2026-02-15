@@ -14,16 +14,20 @@ import MapKit
 @Observable
 final class DefaultsManager: DefaultsManaging {
     
+    private enum Keys: String {
+        case draftProfile, onboardingStep, recentMapSearches, preferredMapType, eventDrafts
+    }
+    
+    
     
     @ObservationIgnored let defaults: UserDefaults
     private let maxRecentMapSearches = 4
-    private enum Keys: String { case draftProfile, onboardingStep, recentMapSearches, preferredMapType, eventDrafts}
     
     
     var onboardingStep: Int = 0 {
         didSet { defaults.set(onboardingStep, forKey: Keys.onboardingStep.rawValue) }
     }
-
+    
     private(set) var recentMapSearches: [RecentPlace] = [] {
         didSet {
             if let data = try? JSONEncoder().encode(recentMapSearches) {
@@ -36,9 +40,9 @@ final class DefaultsManager: DefaultsManaging {
     
     @ObservationIgnored
     private var eventDraftsByProfileId: [String : EventDraft] = [:]
-
-
-
+    
+    
+    
     //A local copy (created on init) stored and referenced in code changes to it triggers changes to defaults
     var signUpDraft: DraftProfile? {
         didSet {
@@ -95,7 +99,7 @@ final class DefaultsManager: DefaultsManaging {
         d[keyPath: keyPath] = value
         signUpDraft = d
     }
-        
+    
     func deleteDefaults() {
         signUpDraft = nil
         onboardingStep = 0
@@ -156,8 +160,6 @@ final class DefaultsManager: DefaultsManaging {
             defaults.removeObject(forKey: Keys.eventDrafts.rawValue)
         }
     }
-
-
 }
 
 
