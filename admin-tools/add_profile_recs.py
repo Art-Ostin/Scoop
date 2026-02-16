@@ -8,16 +8,16 @@ cred = credentials.Certificate(key_path)
 firebase_admin.initialize_app(cred)                      
 db = firestore.client()
 
-
+#For testing reasons this just gets all the profiles in Scoop in ids_to_add Instead -> should carefully choose which Ids to add
 ids_to_add = []
-
 user_snaps = db.collection('users').limit(10).stream()
 print("IDs fetched:", len(ids_to_add), ids_to_add)
-
 for snap in user_snaps:
     ids_to_add.append(snap.id)
 
 
+#Adds a profile recommendation to the user's 'profiles' collection (then appears in app in the recommended screen) 
+#Unlikely (but possible) that this needs to be modified
 def add_profile_recommendations(user_id, profile_id):
     if user_id != profile_id: 
         doc_ref = db.collection('users').document(user_id).collection('profiles').document(profile_id)
@@ -30,6 +30,7 @@ def add_profile_recommendations(user_id, profile_id):
         }, merge=True)
 
 
+#Manually adding all the profiles to the user's recommendation. At the moment copy and pasted user id from firebase to choose 'which profile' to add recs to
 for profile_id in ids_to_add:
     print("Starting…")
     add_profile_recommendations("K1djO28I2LT27J4cBmIdSOIhKli1", profile_id)

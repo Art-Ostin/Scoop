@@ -20,32 +20,34 @@ struct MeetContainer: View {
     var body: some View {
             ZStack {
                 CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
-                    
-                    Text("Invites")
-                        .font(.body(12, .bold))
-                        .underline(color: Color.appGreen)
-                        .foregroundStyle(Color.appGreen)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 24)
-                    
-                    
-                    profileInviteSection(profiles: vm.invites)
-                         
-                    
-                    MapDivider()
-                        .padding(.horizontal, 36)
-                    
-                    Text("Profiles")
-                        .font(.body(12, .bold))
-                        .underline(color: Color.accent)
-                        .foregroundStyle(Color.accent)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.trailing, 16)
+                    if !vm.invites.isEmpty  {
+                        VStack(spacing: 24) {
+                            
+                            
+                            VStack(spacing: 24) {
+                                sectionTitle(text: "Invites")
+                                    
+                                profileInviteSection(profiles: vm.invites)
+                            }
+                                 
+                            
+                            MapDivider()
+                                .padding(.horizontal, 36)
+                            
+                            VStack(spacing: 24) {
+                                sectionTitle(text: "Profiles")
+                                
 
+                                
+                                profileRecSection(profiles: vm.profiles)
+                            }
+                            .padding(.top, 4)
+                        }
+                    } else {
+                        profileRecSection(profiles: vm.profiles)
+                    }
                     
-                    profileRecSection(profiles: vm.profiles)
-                        .padding(.top, 8) //Offset the shadow
-
+                    
                     MeetInfoView(vm: vm, ui: ui)
                 }
                 .id(vm.profiles.count)
@@ -73,6 +75,21 @@ struct MeetContainer: View {
 }
 
 extension MeetContainer {
+    
+    
+    private func sectionTitle(text: String) -> some View {
+        Text(text)
+            .font(.body(12, .italic))
+            .foregroundStyle(.black)
+            .fixedSize(horizontal: true, vertical: false)   
+            .overlay(alignment: .bottomLeading) {
+                RoundedRectangle(cornerRadius: 16)
+                    .frame(height: 1)
+                    .offset(y: 3)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 24)
+    }
     
     private func profileRecSection(profiles: [ProfileModel]) -> some View {
         LazyVStack(spacing: 72) {

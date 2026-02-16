@@ -16,6 +16,7 @@ struct ProfileCard : View {
     var isInvite: Bool { profile.event != nil }
     
     
+    
     var body: some View {
         VStack {
             if let image = profile.image {
@@ -28,9 +29,10 @@ struct ProfileCard : View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(profile.profile.name)
                                     .font(.body(22, .bold))
-                                Text("\(profile.profile.year) | \(profile.profile.degree) | \(profile.profile.hometown)")
+                                infoSection
                                     .font(.body(14, .medium))
                             }
+                            
                             .foregroundStyle(.white)
                             Spacer()
                             inviteButton
@@ -38,38 +40,78 @@ struct ProfileCard : View {
                         .padding(.vertical, 16)
                         .padding(.horizontal)
                     }
+                    }
             }
         }
     }
-}
 
 extension ProfileCard {
 
+    @ViewBuilder
     private var infoSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 12) {
-                Text(profile.profile.name)
-                    .font(.body(24, .bold))
-            }
+        if let event = profile.event {
+            let dates = event.proposedTimes.dates
+                .filter(\.stillAvailable)
+                .map(\.date)
             
-            HStack(spacing: 6) {
-                    Text(profile.profile.hometown)
-                    
-                    Text("|")
-                        .foregroundStyle(Color.grayPlaceholder)
-                    
-                    Text(profile.profile.degree)
-                    
-                    Text("|")
-                        .foregroundStyle(Color.grayPlaceholder)
-                    
-                    Text(profile.profile.year)
-                    
+            if !dates.isEmpty {
+                eventInfoView(dates: dates)
+                    .overlay(alignment: .topTrailing) {
+                        (
+                            Text(event.type.description.emoji ?? "")
+                                .font(.body(15, .medium))
+                            
+                            +
+                            Text(" \(event.type.description.label)")
+                                .font(.body(16, .medium))
+                        )
+                        .offset(y: -28)
+
+                    }
+            } else {
+                profileInfoView
+            }
+        } else {
+            profileInfoView
+        }
+    }
+    
+    @ViewBuilder
+    private func eventInfoView(dates: [Date]) -> some View {
+        Group {
+            if dates.count == 1 {
+                Text(formatTime(date: dates.first))
+            } else if dates.count == 2 {
+                (
+                    Text(formatTime(date: dates.first, withHour: false, wideWeek: false))
+                    +
+                    Text(" | ")
+                    +
+                    Text(formatTime(date: dates.last, withHour: false, wideWeek: false))
+                    + Text ( " · ")
+                    +
+                    Text(formatTime(date: dates.first, onlyHour: true))
+                )
+            } else if dates.count == 3 {
+                HStack(spacing: 0) {
+                    ForEach(Array(dates.enumerated()), id: \.element) { index, date in
+                        let suffix = (index < dates.count - 1) ? ", " : " · "
+                        Text(formatTime(date: date, withHour: false, wideWeek: false) + suffix)
+                    }
+                    if let first = dates.first {
+                        Text(formatTime(date: first, onlyHour: true))
+                    }
                 }
-                .font(.body(16, .regular))
             }
         }
+    }
+        
     
+    private var profileInfoView: some View {
+        Text("\(profile.profile.year) | \(profile.profile.degree) | \(profile.profile.hometown)")
+            .font(.body(14, .medium))
+    }
+        
     private var inviteButton: some View {
         Button {
             quickInvite = profile
