@@ -73,7 +73,7 @@ struct MeetContainer: View {
                 }
                 
                 if let profileResponse = ui.showSentInvite {
-                    RespondToProfileView(isInvite: profileResponse, isAccepted: false)
+                    RespondToProfileView(response: profileResponse)
                 }
             }
             .transition(.opacity)
@@ -163,7 +163,7 @@ extension MeetContainer {
     }
     
     func sendQuickInvite(event: EventDraft, profile: ProfileModel) async {
-        ui.showSentInvite = true
+        ui.showSentInvite = .invite
         
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
 
