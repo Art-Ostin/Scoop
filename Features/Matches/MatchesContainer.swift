@@ -20,7 +20,7 @@ struct MatchesView: View {
     
     var body: some View {
         CustomTabPage(page: .Matches, TabAction: $showSettingsView) {
-            Text("Hello World")
+            matchesView
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
         .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
@@ -32,6 +32,25 @@ struct MatchesView: View {
 //Additonal Views
 extension MatchesView {
     
+    
+    private var matchesView: some View {
+        
+        VStack {
+            ForEach(0..<10) {_ in
+                if let img = userProfileImages.first, img.size != .zero {
+                    ChatRowView(image: img, person: "Arthur", text: "Want to Meet", isBold: false)
+                }
+                MapDivider()
+                    .padding(-12)
+            }
+        }
+        
+    }
+    
+    
+    
+    
+    
     private var tabSection: some View {
         HStack(alignment: .top) {
             TabButton(page: .Matches, isPresented: $showSettingsView)
@@ -39,7 +58,6 @@ extension MatchesView {
         }
         .padding(.top, 48)
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 24)
     }
     
     private var noMatchesView: some View {
