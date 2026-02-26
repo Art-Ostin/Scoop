@@ -9,33 +9,26 @@ import SwiftUI
 
 struct ChatRowView: View {
     
-    let image: UIImage
     
-    
-    let person: String
-    
-    
-    let text: String
-    
-    let isBold: Bool
+    let dummyData: DummyMessage
 
     
     var body: some View {
         
         HStack(spacing: 24) {
-            Image(uiImage: image)
+            Image(uiImage: dummyData.image)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 65, height: 65)
                 .clipShape(Circle())
             
             VStack(alignment: .leading, spacing: 6) {
-                Text(person)
+                Text(dummyData.person)
                     .font(.body(20, .bold))
                 
-                Text(text)
-                    .font(.body(15, isBold ? .bold : .regular))
-                    .foregroundStyle(isBold ? .black : .grayText)
+                Text(dummyData.text)
+                    .font(.body(15, dummyData.isBold ? .bold : .regular))
+                    .foregroundStyle(dummyData.isBold ? .black : .grayText)
             }
         }
         .frame(height: 90, alignment: .center)

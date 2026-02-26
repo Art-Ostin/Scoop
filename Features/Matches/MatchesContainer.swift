@@ -33,15 +33,24 @@ struct MatchesView: View {
 extension MatchesView {
     
     
+    @ViewBuilder
     private var matchesView: some View {
         
         VStack(spacing: 0) {
-            ForEach(0..<10) {_ in
+            ForEach(0..<10) {idx in
+                
                 if let img = userProfileImages.first, img.size != .zero {
-                    ChatRowView(image: img, person: "Arthur", text: "Want to Meet", isBold: false)
+                    let dummyMessage = DummyMessage(
+                        image: img,
+                        person: willowNames[idx],
+                        text: willowMessages[idx],
+                        isBold: Bool.random()
+                    )
+                    ChatRowView(dummyData: dummyMessage)
+
+                    MapDivider()
+                        .padding(.horizontal, -16)                    
                 }
-                MapDivider()
-                    .padding(.horizontal, -16)
             }
         }
         
