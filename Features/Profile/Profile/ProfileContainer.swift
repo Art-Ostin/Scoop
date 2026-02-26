@@ -285,8 +285,14 @@ extension ProfileView {
             } else if isAccepted {
                 guard let acceptedEvent else {return}
                 print("Is accepted")
-                try? await meetVM?.acceptInvite(profileModel: vm.profileModel, userEvent: acceptedEvent)
-                tabSelection.wrappedValue = 1
+                do {
+                    try await meetVM?.acceptInvite(profileModel: vm.profileModel, userEvent: acceptedEvent)
+                    withAnimation {
+                        tabSelection.wrappedValue = .events
+                    }
+                } catch {
+                    print("Failed accepting invite: \(error)")
+                }
             } else {
                 print("Would have declined")
                 try? await meetVM?.updateProfileRec(profileModel: vm.profileModel, status: .declined)
@@ -294,7 +300,7 @@ extension ProfileView {
             
             //4. If at least 625 milliseconds have past, dismiss the screenCover
             try? await minDelay
-            showRespondToProfile = nil
+            showRespondToProfile = isAccepted ? nil : invited
         }
     }
 }
@@ -308,7 +314,7 @@ extension ProfileView {
              Task {
                  do {
                      try await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event)
-                     await MainActor.run { withAnimation { tabSelection.wrappedValue = 1 } }
+                     await MainActor.run { withAnimation { tabSelection.wrappedValue = .events } }
                  } catch {
                      print("Error sending invite: \(error)")
                  }

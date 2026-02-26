@@ -73,7 +73,7 @@ struct MeetContainer: View {
                 }
                 
                 if let profileResponse = ui.showSentInvite {
-                    RespondToProfileView(isInvite: profileResponse)
+                    RespondToProfileView(isInvite: profileResponse, isAccepted: false)
                 }
             }
             .transition(.opacity)

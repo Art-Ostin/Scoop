@@ -23,7 +23,7 @@ struct EventSlot: View {
     let locationManager = CLLocationManager()
     
     var body: some View {
-        if let event = profileModel.event, let time = event.acceptedTime {
+        if let event = profileModel.event, let time = event.acceptedTime ?? event.proposedTimes.dates.first?.date {
             
             ZStack {
                 
@@ -287,7 +287,8 @@ extension EventSlot {
     @ViewBuilder
     private func openInMapsButton(event: UserEvent) -> some View {
         Button {
-            openEventInPreferredMaps(event)
+            MapsRouter.openAppleMaps(item: event.location.mapItem)
+//            openEventInPreferredMaps(event)
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "map")

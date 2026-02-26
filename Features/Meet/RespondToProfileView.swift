@@ -11,12 +11,19 @@ struct RespondToProfileView: View {
 
     let isInvite: Bool
     
+    let isAccepted: Bool
+    
     var body: some View {
         VStack(alignment: .center, spacing: 36) {
             if isInvite {
                 Image("CoolGuys")
                 Text("Invite Sent")
                     .font(.body(16, .bold))
+            } else if isAccepted {
+                Image("Cats")
+                Text("Accepted")
+                    .font(.body(16, .bold))
+                    .foregroundStyle(Color(Color.appGreen))
             } else {
                 Image("Monkey")
                 Text("Declined")

@@ -12,34 +12,36 @@ struct AppContainer: View {
     @Environment(\.appDependencies) private var dep
         
     var body: some View {
-        
-        if #available(iOS 26.0, *) {
-            TabView(selection: $tabSelection) {
-                meetView
-                    .tag(TabBarItem.meet)
-                    .tabItem {
-                        Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")
-                    }
-                
-                eventsView
-                    .tag(TabBarItem.events)
-                    .tabItem {
-                        Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
-                    }
-                matchesView
-                    .tag(TabBarItem.matches)
-                    .tabItem {
-                        Label("", image: tabSelection == .matches ? "BlackMessage" : "MessageIcon")
-                    }
-            }
-            .tint(.black)
-        } else {
-            CustomTabBarContainerView(selection: $tabSelection) {
-                meetView .tabBarItem(.meet, selection: $tabSelection)
-                eventsView.tabBarItem(.events, selection: $tabSelection)
-                matchesView.tabBarItem(.matches, selection: $tabSelection)
+        Group {
+            if #available(iOS 26.0, *) {
+                TabView(selection: $tabSelection) {
+                    meetView
+                        .tag(TabBarItem.meet)
+                        .tabItem {
+                            Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")
+                        }
+                    
+                    eventsView
+                        .tag(TabBarItem.events)
+                        .tabItem {
+                            Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
+                        }
+                    matchesView
+                        .tag(TabBarItem.matches)
+                        .tabItem {
+                            Label("", image: tabSelection == .matches ? "BlackMessage" : "MessageIcon")
+                        }
+                }
+                .tint(.black)
+            } else {
+                CustomTabBarContainerView(selection: $tabSelection) {
+                    meetView .tabBarItem(.meet, selection: $tabSelection)
+                    eventsView.tabBarItem(.events, selection: $tabSelection)
+                    matchesView.tabBarItem(.matches, selection: $tabSelection)
+                }
             }
         }
+        .environment(\.tabSelection, $tabSelection)
     }
 }
 
