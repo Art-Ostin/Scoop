@@ -24,7 +24,7 @@ struct RespondToProfileView: View {
                 Text("Invite Sent")
                     .font(.body(16, .bold))
             case .accepted:
-                Image("Cats")
+                Image("DancingCats")
                 Text("Accepted")
                     .font(.body(16, .bold))
                     .foregroundStyle(Color(Color.appGreen))
