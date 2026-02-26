@@ -69,9 +69,9 @@ extension MatchesView {
     
     private var messagesAppearHereView: some View {
         
-        VStack(spacing: 144) {
+        VStack(spacing: 96) {
             Text("Message your past matches here")
-                .font(.title(16, .medium))
+                .font(.title(20, .medium))
                 .frame(maxWidth: .infinity, alignment: .center)
             
             Image("CoolGuys")
@@ -81,6 +81,7 @@ extension MatchesView {
                 .frame(maxWidth: .infinity)
                 .frame(width: 250, height: 250)
         }
+        .padding(.top, 72)
     }
     
     

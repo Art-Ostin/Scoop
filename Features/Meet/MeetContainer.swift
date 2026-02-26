@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Lottie
+
 
 
 struct MeetContainer: View {
@@ -44,11 +46,20 @@ struct MeetContainer: View {
                             .padding(.top, 4)
                         }
                     } else {
-                        profileRecSection(profiles: vm.profiles)
+                        
+                        if vm.profiles.isEmpty {
+                            loadingProfilesView
+                                .padding(.top, 72)
+
+                        } else {
+                            profileRecSection(profiles: vm.profiles)
+                        }
+                        
                     }
                     
-                    
-                    MeetInfoView(vm: vm, ui: ui)
+                    if !vm.profiles.isEmpty {
+                        MeetInfoView(vm: vm, ui: ui)
+                    }
                 }
                 .id(vm.profiles.count)
                 .id(vm.invites.count)
@@ -161,5 +172,27 @@ extension MeetContainer {
         try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
         try? await minDelay
         ui.showSentInvite = nil
+    }
+    
+    
+    private var loadingProfilesView: some View {
+        
+        
+        VStack(spacing: 96) {
+            
+            Text("Loading Profiles")
+                .font(.title(20, .medium))
+            
+            LottieView(animation: .named("ModernMiniLoaderBlue.json"))
+                .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200, height: 200)
+
+            
+        }
+        
+        
+        
     }
 }
