@@ -46,4 +46,8 @@ import UIKit
     func loadUserImages() async -> [UIImage] {
         return await imageLoader.loadProfileImages([s.user])
     }
+    
+    var isGenevieve: Bool {
+        user.name == "Genevieve"
+    }
 }

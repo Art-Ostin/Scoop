@@ -10,17 +10,28 @@ import FirebaseFunctions
 
 
 struct MatchesView: View {
+    
     @Environment(\.appState) private var appState
     @State var vm: MatchesViewModel
     @State var showProfileView = false
     @State var showSettingsView = false
     @State var userProfileImages: [UIImage] = []
     
-    init(vm: MatchesViewModel) { _vm = State(initialValue: vm)}
+    
+    
+    
+    init(vm: MatchesViewModel) {
+        _vm = State(initialValue: vm)
+    }
     
     var body: some View {
         CustomTabPage(page: .Matches, TabAction: $showSettingsView) {
-            matchesView
+            if vm.isGenevieve {
+                matchesView
+            } else {
+                messagesAppearHereView
+            }
+            
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
         .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
@@ -54,6 +65,22 @@ extension MatchesView {
             }
         }
         
+    }
+    
+    private var messagesAppearHereView: some View {
+        
+        VStack(spacing: 144) {
+            Text("Message your past matches here")
+                .font(.title(16, .medium))
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            Image("CoolGuys")
+                .resizable()
+                .scaledToFit()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .frame(width: 250, height: 250)
+        }
     }
     
     
