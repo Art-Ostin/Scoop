@@ -46,6 +46,26 @@ extension SettingsView {
         }
     }
     
+    private var keySettingsSection: some View {
+        
+        CustomList(title: "legal", usesContainerWidth: false) {
+            
+            Text("Privacy Policy")
+                .frame(height: 40, alignment: .leading)
+            
+            softDivider
+            
+            Text("Download my data")
+                .frame(height: 40, alignment: .leading)
+        }
+        .font(.body(17, .medium))
+        .foregroundStyle(Color.grayText)
+        
+        
+    }
+    
+    
+    
     private var softDivider: some View {
         Rectangle()
             .frame(height: 1)
