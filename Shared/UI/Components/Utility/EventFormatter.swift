@@ -56,7 +56,7 @@ func formatTime(date: Date?, withHour: Bool = true, wideWeek: Bool = true,  only
     if onlyHour {
         return(time)
     } else if withHour {
-        return "\(weekDay) (\(dayOfMonth)) \(time)"
+        return "\(weekDay) (\(dayOfMonth)) · \(time)"
     } else {
         return "\(weekDay) (\(dayOfMonth))"
     }

@@ -94,19 +94,13 @@ extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
         if ui.showInvitePopup, let event = vm.profileModel.event {
-            AcceptInvitePopup(profileModel: vm.profileModel) {
-                if let meetVM {
-                    @Bindable var meetVM = meetVM
-                    Task {
-                        do {
-                            try await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event)
-                            await MainActor.run { withAnimation { tabSelection.wrappedValue = 1 } }
-                        } catch {
-                            print("Error sending invite: \(error)")
-                        }
-                    }
-                }
+            
+            AcceptInviteView(showInvite: $ui.showInvitePopup, profileModel: vm.profileModel, event: event) { event in
+                print("Hello World")
+                ui.showInvitePopup.toggle()
+            } onDecline: { event in
             }
+            
         } else {
             SelectTimeAndPlace(
                 defaults: vm.defaults,
@@ -293,3 +287,21 @@ extension ProfileView {
         }
     }
 }
+
+/*
+ 
+     
+     AcceptInvitePopup(profileModel: vm.profileModel) {
+         if let meetVM {
+             @Bindable var meetVM = meetVM
+             Task {
+                 do {
+                     try await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event)
+                     await MainActor.run { withAnimation { tabSelection.wrappedValue = 1 } }
+                 } catch {
+                     print("Error sending invite: \(error)")
+                 }
+             }
+         }
+     }
+ */

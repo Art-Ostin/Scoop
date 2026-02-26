@@ -32,10 +32,10 @@ extension View {
    } label: {
        Group {
            if vm.viewProfileType == .accept {
-               Image (systemName: "heart")
+               Image("LetterIconProfile")
                    .resizable()
-                   .frame(width: 25, height: 25)
-                   .font(.system(size: 25, weight: .heavy))
+                   .scaledToFit()
+                   .frame(width: 24, height: 24)
            } else {
                Image("LetterIconProfile")
                    .resizable()
