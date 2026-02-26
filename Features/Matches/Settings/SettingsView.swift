@@ -14,7 +14,11 @@ struct SettingsView: View {
     init(vm: SettingsViewModel) { self.vm = vm }
     
     var body: some View {
-        signOutSection
+        VStack(spacing: 36) {
+            keySettingsSection
+            
+            signOutSection
+        }
         .navigationTitle("Settings")
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarTitleDisplayMode(.inline)

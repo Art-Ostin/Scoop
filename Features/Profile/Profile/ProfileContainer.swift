@@ -292,7 +292,7 @@ extension ProfileView {
             
             //4. If at least 625 milliseconds have past, dismiss the screenCover
             try? await minDelay
-            showRespondToProfile = isAccepted ? nil : (invited ? .invite : .declined)
+            showRespondToProfile = nil
         }
     }
 }
