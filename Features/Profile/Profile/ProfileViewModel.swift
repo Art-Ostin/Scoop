@@ -57,7 +57,7 @@ enum DragType {
     var isTopOfScroll = true
     var detailsOpenOffset: CGFloat = -284
     var hideProfileScreen: Bool = false
-    let dismissalDuration: TimeInterval = 0.35
+    let dismissalDuration: TimeInterval = 0.25
 }
 
 

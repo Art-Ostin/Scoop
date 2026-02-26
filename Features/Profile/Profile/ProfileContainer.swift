@@ -198,11 +198,14 @@ extension ProfileView {
                 if ui.dragType == .profile {
                     dismissOffset = v.translation.height
                     
-                    if meetVM != nil { //Bug Fix: Causes issues with the selectedProfile
-                        selectedProfile = nil
-                    } else {
-                        withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil }
-                    }
+//                    if meetVM != nil { //Bug Fix: Causes issues with the selectedProfile
+//                        selectedProfile = nil
+//                    } else {
+                        withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil } //Fixes bug
+//                    }
+                    
+                    
+//                    dismissProfile(using: geo, startingOffset: v.translation.height)
                 } else if ui.dragType == .details {
                     ui.detailsOpen.toggle()
                 }
@@ -312,4 +315,14 @@ extension ProfileView {
              }
          }
      }
+ */
+
+
+/*
+ //                    if meetVM != nil { //Bug Fix: Causes issues with the selectedProfile
+ //                        selectedProfile = nil
+ //                    } else {
+                         withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil } //Fixes bug
+ //                    }
+
  */

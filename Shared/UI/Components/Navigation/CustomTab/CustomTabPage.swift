@@ -42,6 +42,7 @@ struct CustomTabPage<Content: View>: View {
                             .padding(.top, 12)
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 60)
+                        .offset(x: page == .Matches ? -14 : 0)
                 }
                 .padding(.horizontal, 16)
                 content
