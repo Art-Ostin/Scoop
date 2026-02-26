@@ -44,6 +44,13 @@ struct AcceptInviteView: View {
                     Text( "\(EventFormatting.expandedDate(event.proposedTimes.dates.first?.date ?? Date()) ) · \(EventFormatting.hourTime(event.proposedTimes.dates.first?.date ?? Date())) ")
                         .font(.body(20, .medium))
                     
+                    if let message = event.message, !message.isEmpty {
+                        Text(message)
+                            .font(.body(16, .italic))
+                            .lineSpacing(5)
+                            .multilineTextAlignment(.center)
+                    }
+                    
                     typeAndPlace
                 }
                 ActionButton(text: "Accept", isInvite: true, cornerRadius: 16) { onAccept(event) }
