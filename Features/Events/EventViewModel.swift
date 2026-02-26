@@ -32,7 +32,7 @@ import FirebaseFirestore
     var events: [ProfileModel] { sessionManager.events}
     
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
-        try await eventRepo.updateStatus(eventId: eventId, to: status)
+        try await eventRepo.updateStatus(eventId: eventId, to: status, acceptedDate: nil)
     }
     
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {

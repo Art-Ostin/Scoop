@@ -65,6 +65,7 @@ struct CustomTabPage<Content: View>: View {
         .onPreferenceChange(TopSafeAreaTest.self) { newSafeArea in
             topSafeArea = newSafeArea
         }
+        .contentMargins(.horizontal, page == .Meet ? 0 : 16, for: .scrollContent)
     }
 }
 

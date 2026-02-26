@@ -40,19 +40,22 @@ struct EventPlaceholder: View {
                 }
             }
             .padding(.bottom, 16)
-            Divider()
+            MapDivider()
             VStack(spacing: 60) {
                 ImageSection(textTitle: "Social Meet", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
-                Divider()
+                MapDivider()
                 ImageSection(textTitle: "Double Date ", text: "Both bring a friend along...social dating is the way", image: "DancingCats")
-                Divider()
+                MapDivider()
                 ImageSection(textTitle: "Grab a Drink ", text: "Invite them with a time and place, then meet up just the two of you", image: "CoolGuys")
-                Divider()
+                MapDivider()
                 ImageSection(textTitle: "Custom ", text: "Send a time and place with a message and do something out the ordinary", image: "Monkey")
             }
         }
     }
 }
+
+
+
 
 struct ImageSection: View {
     let textTitle: String

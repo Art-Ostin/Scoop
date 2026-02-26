@@ -42,7 +42,7 @@ import SwiftUI
     }
     
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
-        try await eventRepo.updateStatus(eventId: eventId, to: status)
+        try await eventRepo.updateStatus(eventId: eventId, to: status, acceptedDate: nil)
     }
         
     func updateProfileRec(event: EventDraft? = nil, profileModel: ProfileModel, status: ProfileRec.Status) async throws {
@@ -57,7 +57,7 @@ import SwiftUI
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
         guard let event = profileModel.event, let id = event.id else { return }
-        try await eventRepo.updateStatus(eventId: id, to: .accepted)
+        try await eventRepo.updateStatus(eventId: id, to: .accepted, acceptedDate: event.proposedTimes.dates.first?.date)
         print("Accepted")
     }
     

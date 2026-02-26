@@ -115,11 +115,21 @@ class EventsRepo: EventsRepository {
         return (initial, updates)
     }
     
-    func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
+    func updateStatus(eventId: String, to newStatus: Event.EventStatus, acceptedDate: Date? = nil) async throws {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
         try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.status.rawValue: newStatus.rawValue])
+        
+        
+        //Update Accepted Time if there is an acceptedTime 
+        if let date = acceptedDate {
+            try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: [Event.Field.acceptedTime.rawValue: date])
+            try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: [Event.Field.acceptedTime.rawValue: date])
+            try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.acceptedTime.rawValue: date])
+            print("Accepted Date")
+        }
+        
     }
         
     func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
