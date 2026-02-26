@@ -11,7 +11,7 @@ struct ProfileView: View {
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
     @Binding private var dismissOffset: CGFloat?
-    @Binding var showRespondToProfile: Bool?
+    @Binding var showRespondToProfile: RespondToProfileState?
     @Binding private var selectedProfile: ProfileModel?
     
     @State private var ui = ProfileUIState()
@@ -35,7 +35,7 @@ struct ProfileView: View {
         profileImages: [UIImage],
         selectedProfile: Binding<ProfileModel?>,
         dismissOffset: Binding<CGFloat?>,
-        showRespondToProfile: Binding<Bool?> = .constant(nil),
+        showRespondToProfile: Binding<RespondToProfileState?> = .constant(nil),
         draftProfile: UserProfile? = nil
     ) {
         _vm = State(initialValue: vm)
@@ -259,7 +259,7 @@ extension ProfileView {
     
     private func dismissProfileWithAction(invited: Bool, isAccepted: Bool = false, acceptedEvent: UserEvent? = nil, event: EventDraft? = nil) {
         
-        showRespondToProfile = invited
+        showRespondToProfile = isAccepted ? .accepted : (invited ? .invite : .declined)
         
         
         Task { @MainActor in
@@ -292,7 +292,7 @@ extension ProfileView {
             
             //4. If at least 625 milliseconds have past, dismiss the screenCover
             try? await minDelay
-            showRespondToProfile = isAccepted ? nil : invited
+            showRespondToProfile = isAccepted ? nil : (invited ? .invite : .declined)
         }
     }
 }

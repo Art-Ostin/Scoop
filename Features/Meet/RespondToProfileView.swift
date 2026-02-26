@@ -7,24 +7,28 @@
 
 import SwiftUI
 
-struct RespondToProfileView: View {
+enum RespondToProfileState {
+    case invite
+    case accepted
+    case declined
+}
 
-    let isInvite: Bool
-    
-    let isAccepted: Bool
+struct RespondToProfileView: View {
+    let response: RespondToProfileState
     
     var body: some View {
         VStack(alignment: .center, spacing: 36) {
-            if isInvite {
+            switch response {
+            case .invite:
                 Image("CoolGuys")
                 Text("Invite Sent")
                     .font(.body(16, .bold))
-            } else if isAccepted {
+            case .accepted:
                 Image("Cats")
                 Text("Accepted")
                     .font(.body(16, .bold))
                     .foregroundStyle(Color(Color.appGreen))
-            } else {
+            case .declined:
                 Image("Monkey")
                 Text("Declined")
                     .font(.body(16, .bold))
