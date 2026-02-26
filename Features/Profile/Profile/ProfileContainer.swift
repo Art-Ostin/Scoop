@@ -97,9 +97,8 @@ extension ProfileView {
             
             AcceptInviteView(showInvite: $ui.showInvitePopup, profileModel: vm.profileModel, event: event) { event in
                 
-//                dismissProfileWithAction(invited: true, event: event)
-                
-                print("Hello World")
+                dismissProfileWithAction(invited: false, isAccepted: true, acceptedEvent: event)
+                print("Hello THIS IS CONFIRMED THAT IT IS CLICKED")
                 ui.showInvitePopup.toggle()
             } onDecline: { event in
             }
@@ -280,10 +279,16 @@ extension ProfileView {
             if invited {
                 guard let event else {return}
                  try? await meetVM?.updateProfileRec(event: event, profileModel: vm.profileModel, status: .invited)
+            } else if isAccepted {
+                guard let acceptedEvent else {return}
+                print("Is accepted")
+                try? await meetVM?.acceptInvite(profileModel: vm.profileModel, userEvent: acceptedEvent)
+                tabSelection.wrappedValue = 1
             } else {
                 print("Would have declined")
                 try? await meetVM?.updateProfileRec(profileModel: vm.profileModel, status: .declined)
             }
+            
             //4. If at least 625 milliseconds have past, dismiss the screenCover
             try? await minDelay
             showRespondToProfile = nil

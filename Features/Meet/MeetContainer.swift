@@ -51,6 +51,7 @@ struct MeetContainer: View {
                     MeetInfoView(vm: vm, ui: ui)
                 }
                 .id(vm.profiles.count)
+                .id(vm.invites.count)
                 
                 if let profileRec = ui.selectedProfile {
                     profile(profile: profileRec)

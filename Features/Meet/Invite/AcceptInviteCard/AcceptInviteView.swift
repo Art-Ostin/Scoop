@@ -86,7 +86,6 @@ extension AcceptInviteView {
         HStack(spacing: 8) {
             Text("\(event.type.description.emoji ?? "")  \(event.type.description.label) ")
                 .font(.body(16, .medium))
-                .frame(maxWidth: .infinity, alignment: .trailing)
             
             Text(event.location.name ?? "Location")
                 .font(.body(20, .bold))

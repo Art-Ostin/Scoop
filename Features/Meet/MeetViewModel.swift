@@ -58,6 +58,7 @@ import SwiftUI
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
         guard let event = profileModel.event, let id = event.id else { return }
         try await eventRepo.updateStatus(eventId: id, to: .accepted)
+        print("Accepted")
     }
     
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {
