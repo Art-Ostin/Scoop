@@ -56,8 +56,22 @@ import SwiftUI
     }
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
-        guard let event = profileModel.event, let id = event.id else { return }
-        try await eventRepo.updateStatus(eventId: id, to: .accepted, acceptedDate: event.proposedTimes.dates.first?.date)
+        guard let eventId = userEvent.id else { return }
+        let acceptedDate = userEvent.proposedTimes.dates.first?.date
+        try await eventRepo.updateStatus(eventId: eventId, to: .accepted, acceptedDate: acceptedDate)
+
+        var acceptedEvent = userEvent
+        acceptedEvent.status = .accepted
+        acceptedEvent.acceptedTime = acceptedDate ?? acceptedEvent.acceptedTime
+        let acceptedModel = ProfileModel(event: acceptedEvent, profile: profileModel.profile, image: profileModel.image)
+
+        s.invites.removeAll { $0.id == acceptedModel.id }
+        s.pastEvents.removeAll { $0.id == acceptedModel.id }
+        if let index = s.events.firstIndex(where: { $0.id == acceptedModel.id }) {
+            s.events[index] = acceptedModel
+        } else {
+            s.events.append(acceptedModel)
+        }
         print("Accepted")
     }
     
@@ -78,4 +92,3 @@ enum DismissTransition {
     var openPastInvites = false
     var showSentInvite: Bool?
 }
-

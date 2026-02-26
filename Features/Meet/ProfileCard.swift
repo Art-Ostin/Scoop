@@ -27,8 +27,13 @@ struct ProfileCard : View {
                     .overlay(alignment: .bottomLeading) {
                         HStack(alignment: .bottom) {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(profile.profile.name)
-                                    .font(.body(22, .bold))
+                                HStack {
+                                    Text(profile.profile.name)
+                                        .font(.body(22, .bold))
+                                    
+                                                                        
+                                    
+                                }
                                 infoSection
                                     .font(.body(14, .medium))
                             }
@@ -66,6 +71,7 @@ extension ProfileCard {
                                 .font(.body(16, .medium))
                         )
                         .offset(y: -28)
+                        .offset(x: profile.profile.name == "Genevieve" ? 24 : 0)
 
                     }
             } else {

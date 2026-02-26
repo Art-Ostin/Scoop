@@ -127,6 +127,14 @@ enum ShowProfilesState {
 
 //Store the three key streams here
 extension SessionManager  {
+    
+    private func upsert(_ model: ProfileModel, into models: inout [ProfileModel]) {
+        if let index = models.firstIndex(where: { $0.id == model.id }) {
+            models[index] = model
+        } else {
+            models.append(model)
+        }
+    }
 
     //Loads up all 'invites' from the profiles folder and begins the listener if any change
     private func startProfilesStream() async {
@@ -176,21 +184,24 @@ extension SessionManager  {
                     for try await (event, kind) in updates {
                         switch kind {
                         case .invite:
-                            if let model = try? await profileLoader.fromEvent(event),
-                               invites.contains(where: { $0.id == model.id }) {
-                                invites.append(model)
+                            if let model = try? await profileLoader.fromEvent(event) {
+                                upsert(model, into: &invites)
+                                events.removeAll { $0.id == model.id }
+                                pastEvents.removeAll { $0.id == model.id }
                             }
 
                         case .accepted:
-                            if let model = try? await profileLoader.fromEvent(event),
-                               events.contains(where: { $0.id == model.id }) {
-                                events.append(model)
+                            if let model = try? await profileLoader.fromEvent(event) {
+                                upsert(model, into: &events)
+                                invites.removeAll { $0.id == model.id }
+                                pastEvents.removeAll { $0.id == model.id }
                             }
 
                         case .pastAccepted:
-                            if let model = try? await profileLoader.fromEvent(event),
-                               pastEvents.contains(where: { $0.id == model.id }) {
-                                pastEvents.append(model)
+                            if let model = try? await profileLoader.fromEvent(event) {
+                                upsert(model, into: &pastEvents)
+                                invites.removeAll { $0.id == model.id }
+                                events.removeAll { $0.id == model.id }
                             }
 
                         case .remove:
