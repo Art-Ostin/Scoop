@@ -82,11 +82,7 @@ extension MatchesView {
                 .frame(width: 250, height: 250)
         }
         .padding(.top, 72)
-    }
-    
-    
-    
-    
+    }    
     
     private var tabSection: some View {
         HStack(alignment: .top) {
