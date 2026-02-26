@@ -197,15 +197,7 @@ extension ProfileView {
                 guard max(distance, predicted) > 75 else { return }
                 if ui.dragType == .profile {
                     dismissOffset = v.translation.height
-                    
-//                    if meetVM != nil { //Bug Fix: Causes issues with the selectedProfile
-//                        selectedProfile = nil
-//                    } else {
-                        withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil } //Fixes bug
-//                    }
-                    
-                    
-//                    dismissProfile(using: geo, startingOffset: v.translation.height)
+                    withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil } //Fixes bug
                 } else if ui.dragType == .details {
                     ui.detailsOpen.toggle()
                 }
