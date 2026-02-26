@@ -12,35 +12,43 @@ struct CustomList<Content: View> : View {
     
     let content: () -> Content
     var title: String?
+    var usesContainerWidth: Bool
     
     init(
         title: String? = nil,
+        usesContainerWidth: Bool = true,
         @ViewBuilder content: @escaping () -> Content
     ){
         self.title = title
+        self.usesContainerWidth = usesContainerWidth
         self.content = content
     }
     
     var body: some View {
-            VStack(alignment: .leading, spacing: 8) {
-                if let title = title {
-                    Text(title)
-                        .font(.body(12, .bold))
-                        .foregroundStyle(Color.grayText)
-                        .padding(.horizontal, 16)
-                }
-                VStack(spacing: 6) {
-                    content()
-                }
-                .padding(.vertical, 12)
-                .background(Color.white)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 20))
-                .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
+        let listContent = VStack(alignment: .leading, spacing: 8) {
+            if let title = title {
+                Text(title)
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.grayText)
+                    .padding(.horizontal, 16)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .containerRelativeFrame(.horizontal)
+            VStack(spacing: 6) {
+                content()
+            }
+            .padding(.vertical, 12)
+            .background(Color.white)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: 20))
+            .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+
+        if usesContainerWidth {
+            listContent.containerRelativeFrame(.horizontal)
+        } else {
+            listContent
+        }
     }
-    }
+}
 
 #Preview {
     CustomList(content: {})
