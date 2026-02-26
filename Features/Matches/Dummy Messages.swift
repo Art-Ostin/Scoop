@@ -47,22 +47,15 @@ let willowMessages: [String] = [
 
 let willowNames: [String] = [
     "Milo Mole",
-    "Matilda Mole",
-    "Rufus Ratty",
-    "Rosalind Rat",
     "Theodore Toad",
-    "Tabitha Toad",
     "Benedict Badger",
-    "Beatrice Badger",
     "Oscar Otter",
-    "Portia Otter",
     "Winston Weasel",
     "Stellan Stoat",
     "Felix Ferret",
     "Hazel Hedgehog",
     "Rowan Rabbit",
     "Gideon Gaoler",
-    "Daisy Gaoler",
     "Willa Washerwoman",
     "Seth Sea-Rat",
     "Piper Dawn"

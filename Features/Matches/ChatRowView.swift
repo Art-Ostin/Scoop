@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct ChatRowView: View {
-    
-    
+
     let dummyData: DummyMessage
 
     
@@ -29,6 +28,8 @@ struct ChatRowView: View {
                 Text(dummyData.text)
                     .font(.body(15, dummyData.isBold ? .bold : .regular))
                     .foregroundStyle(dummyData.isBold ? .black : .grayText)
+                    .lineSpacing(6)
+                    .lineLimit(1)
             }
         }
         .frame(height: 90, alignment: .center)
