@@ -96,6 +96,9 @@ extension ProfileView {
         if ui.showInvitePopup, let event = vm.profileModel.event {
             
             AcceptInviteView(showInvite: $ui.showInvitePopup, profileModel: vm.profileModel, event: event) { event in
+                
+//                dismissProfileWithAction(invited: true, event: event)
+                
                 print("Hello World")
                 ui.showInvitePopup.toggle()
             } onDecline: { event in
@@ -260,7 +263,7 @@ extension ProfileView {
         }
     }
     
-    private func dismissProfileWithAction(invited: Bool, event: EventDraft? = nil) {
+    private func dismissProfileWithAction(invited: Bool, isAccepted: Bool = false, acceptedEvent: UserEvent? = nil, event: EventDraft? = nil) {
         
         showRespondToProfile = invited
         

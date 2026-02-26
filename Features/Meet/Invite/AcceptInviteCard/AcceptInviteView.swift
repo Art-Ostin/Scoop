@@ -19,7 +19,7 @@ struct AcceptInviteView: View {
     let onAccept: (UserEvent) -> ()
     
     let onDecline: (UserEvent) -> ()
-            
+    
     @State var showInfoScreen: Bool = false
     
     var body: some View {
@@ -27,45 +27,26 @@ struct AcceptInviteView: View {
         ZStack {
             CustomScreenCover {showInvite = false }
             
-            VStack(alignment: .leading, spacing: 24) {
-                HStack {
-                    HStack(alignment: .center, spacing: 8) {
-                        if let image = profileModel.image {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 30, height: 30)
-                                .clipShape(Circle())
-                        }
-                        Text("Meet \(profileModel.profile.name)")
-                            .font(.body(24, .bold))
+            VStack(alignment: .center, spacing: 24) {
+                HStack(spacing: 8) {
+                    if let image = profileModel.image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 30, height: 30)
+                            .clipShape(Circle())
                     }
-                    
-                    
-                    Text("\(event.type.description.emoji ?? "")  \(event.type.description.label) ")
-                        .font(.body(16, .medium))
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    Text("Meet \(profileModel.profile.name)")
+                        .font(.body(22, .bold))
                 }
-                .frame(maxWidth: .infinity)
                 
-                VStack(alignment: .center, spacing: 16) {
+                VStack(spacing: 16) {
                     Text( "\(EventFormatting.expandedDate(event.proposedTimes.dates.first?.date ?? Date()) ) · \(EventFormatting.hourTime(event.proposedTimes.dates.first?.date ?? Date())) ")
                         .font(.body(20, .medium))
                     
-                    Button {
-                        
-                    } label: {
-                        Text(event.location.name ?? "Location")
-                            .font(.body(20, .bold))
-                            .foregroundStyle(Color.appGreen)
-                    }
-                    
-                    ActionButton(text: "Accept", isInvite: true, cornerRadius: 16) { onAccept(event) }
-                        .padding(.top, 8)
+                    typeAndPlace
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
-                .font(.body(16, .regular))
+                ActionButton(text: "Accept", isInvite: true, cornerRadius: 16) { onAccept(event) }
             }
             .padding(22)
             .padding(.bottom, 8)
@@ -81,6 +62,7 @@ struct AcceptInviteView: View {
                     .scaleEffect(0.9)
                     .offset(x: -12, y: -48)
             }
+            .offset(y: 12)
         }
         .sheet(isPresented: $showInfoScreen) {
             Text("Info Screen")
@@ -89,8 +71,8 @@ struct AcceptInviteView: View {
             MinimalistButton(text: "Decline") {
                 onDecline(event)
             }
-            .padding(.top, 144)
-            .padding(.horizontal, 48)
+            .padding(.top, 36)
+            .padding(.horizontal, 20)
         }
         .toolbar(.hidden, for: .tabBar) // native TabView tab bar
         .tabBarHidden(true)
@@ -100,11 +82,22 @@ struct AcceptInviteView: View {
 extension AcceptInviteView {
     
     
+    private var typeAndPlace: some View {
+        HStack(spacing: 8) {
+            Text("\(event.type.description.emoji ?? "")  \(event.type.description.label) ")
+                .font(.body(16, .medium))
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            
+            Text(event.location.name ?? "Location")
+                .font(.body(20, .bold))
+                .foregroundStyle(Color.appGreen)
+        }
+    }
 }
 
 
 
 /*
  let eventTime = "\(EventFormatting.expandedDate(acceptedTime)) · \(EventFormatting.hourTime(acceptedTime))"
-
+ 
  */
