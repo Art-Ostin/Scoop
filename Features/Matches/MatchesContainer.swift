@@ -35,13 +35,13 @@ extension MatchesView {
     
     private var matchesView: some View {
         
-        VStack {
+        VStack(spacing: 0) {
             ForEach(0..<10) {_ in
                 if let img = userProfileImages.first, img.size != .zero {
                     ChatRowView(image: img, person: "Arthur", text: "Want to Meet", isBold: false)
                 }
                 MapDivider()
-                    .padding(-12)
+                    .padding(.horizontal, -16)
             }
         }
         

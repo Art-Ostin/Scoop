@@ -93,6 +93,7 @@
 		6561C8CE2E0444EC006A72DF /* NewYorkMedium-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6561C8C52E0444EC006A72DF /* NewYorkMedium-Semibold.otf */; };
 		656373B52F50152F003A922D /* MinimalistButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656373B42F50152F003A922D /* MinimalistButton.swift */; };
 		656373B72F502457003A922D /* ChatRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656373B62F502457003A922D /* ChatRowView.swift */; };
+		656373B92F5027A9003A922D /* Dummy Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656373B82F5027A9003A922D /* Dummy Messages.swift */; };
 		6565AB6F2E660E1500AAE306 /* OnboadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */; };
 		6565FF792E6732AA0075C8CF /* SFProRounded-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */; };
 		6567FC782F42A63500A93846 /* AcceptInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6567FC772F42A63500A93846 /* AcceptInviteView.swift */; };
@@ -309,6 +310,7 @@
 		6561C8C52E0444EC006A72DF /* NewYorkMedium-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewYorkMedium-Semibold.otf"; sourceTree = "<group>"; };
 		656373B42F50152F003A922D /* MinimalistButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimalistButton.swift; sourceTree = "<group>"; };
 		656373B62F502457003A922D /* ChatRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRowView.swift; sourceTree = "<group>"; };
+		656373B82F5027A9003A922D /* Dummy Messages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dummy Messages.swift"; sourceTree = "<group>"; };
 		6565AB6E2E660E1500AAE306 /* OnboadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboadingViewModel.swift; sourceTree = "<group>"; };
 		6565FF782E6732AA0075C8CF /* SFProRounded-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Bold.otf"; sourceTree = "<group>"; };
 		6567FC772F42A63500A93846 /* AcceptInviteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptInviteView.swift; sourceTree = "<group>"; };
@@ -855,6 +857,7 @@
 				65C7D6352E54EE1600B726B8 /* MatchesViewModel.swift */,
 				653A78582E1340BA0098747F /* MatchesContainer.swift */,
 				656373B62F502457003A922D /* ChatRowView.swift */,
+				656373B82F5027A9003A922D /* Dummy Messages.swift */,
 				65A39BB22E5FBFBB0049D114 /* Settings */,
 			);
 			path = Matches;
@@ -1330,6 +1333,7 @@
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
 				65E963D62F3F7C090022595F /* RespondToProfileView.swift in Sources */,
+				656373B92F5027A9003A922D /* Dummy Messages.swift in Sources */,
 				65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,

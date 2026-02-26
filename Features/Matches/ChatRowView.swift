@@ -22,23 +22,23 @@ struct ChatRowView: View {
     
     var body: some View {
         
-        HStack {
+        HStack(spacing: 24) {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 80, height: 80)
+                .frame(width: 65, height: 65)
                 .clipShape(Circle())
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(person)
-                    .font(.body(17, .bold))
+                    .font(.body(20, .bold))
                 
                 Text(text)
-                    .font(.body(16, isBold ? .bold : .medium))
+                    .font(.body(15, isBold ? .bold : .regular))
                     .foregroundStyle(isBold ? .black : .grayText)
             }
         }
-        .frame(height: 100)
+        .frame(height: 90, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
