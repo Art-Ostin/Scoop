@@ -97,12 +97,15 @@ struct VerifyEmailView: View {
         .padding(.horizontal)
         .background(Color.background)
         .flowNavigation()
-        .task {
-            try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000))
-            do {
-                try await vm.signInUser(email: vm.email, password: vm.password)
-            } catch {
-                guard let _ = try? await vm.createAuthUser(email: vm.email, password: vm.password) else {return}
+        .onChange(of: code) {
+            if code.count == 6 {
+                Task {
+                    do {
+                        try await vm.signInUser(email: vm.email, password: vm.password)
+                    } catch {
+                        guard let _ = try? await vm.createAuthUser(email: vm.email, password: vm.password) else {return}
+                    }
+                }
             }
         }
     }
