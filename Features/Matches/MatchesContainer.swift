@@ -41,7 +41,7 @@ extension MatchesView {
                 
                 if let img = userProfileImages.first, img.size != .zero {
                     let dummyMessage = DummyMessage(
-                        image: img,
+                        image: dummyImages[idx],
                         person: willowNames[idx],
                         text: willowMessages[idx],
                         isBold: Bool.random()

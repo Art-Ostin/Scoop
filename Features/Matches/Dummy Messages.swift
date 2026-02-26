@@ -10,7 +10,7 @@ import SwiftUI
 
 struct DummyMessage {
     
-    let image: UIImage
+    let image: String
     
     let person: String
     
@@ -21,6 +21,19 @@ struct DummyMessage {
 }
 
 
+
+let dummyImages: [String] = [
+    "Demo1",
+    "Demo2",
+    "Demo3",
+    "Demo4",
+    "Demo5",
+    "Demo6",
+    "Demo7",
+    "Demo8",
+    "Demo9",
+    "Demo10"
+]
 
 
 
@@ -46,17 +59,17 @@ let willowMessages: [String] = [
 ]
 
 let willowNames: [String] = [
-    "Milo Mole",
-    "Theodore Toad",
-    "Benedict Badger",
-    "Oscar Otter",
-    "Winston Weasel",
-    "Stellan Stoat",
-    "Felix Ferret",
-    "Hazel Hedgehog",
-    "Rowan Rabbit",
-    "Gideon Gaoler",
-    "Willa Washerwoman",
-    "Seth Sea-Rat",
-    "Piper Dawn"
+    "Julian",
+    "Sebastian",
+    "Adrian",
+    "Elliot",
+    "Cassian",
+    "Dorian",
+    "Nico",
+    "Theo",
+    "Luca",
+    "Jasper",
+    "Miles",
+    "Roman",
+    "Felix"
 ]

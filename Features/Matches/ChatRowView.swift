@@ -15,7 +15,7 @@ struct ChatRowView: View {
     var body: some View {
         
         HStack(spacing: 24) {
-            Image(uiImage: dummyData.image)
+            Image(dummyData.image)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 65, height: 65)

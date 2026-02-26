@@ -29,12 +29,12 @@ struct EventPlaceholder: View {
                     .frame(maxWidth: .infinity)
                 
                 VStack(spacing: 24) {
-                    Text(quotes.shared.allQuotes.randomElement()?.quoteText ?? "")
+                    Text(quotes.shared.allQuotes.first?.quoteText ?? "")
                         .font(.body(16, .italic))
                         .lineSpacing(8)
                         .multilineTextAlignment(.center)
                     
-                    Text("-\(quotes.shared.allQuotes.randomElement()?.name ?? "")")
+                    Text("-\(quotes.shared.allQuotes.first?.name ?? "")")
                         .font(.body(16, .bold))
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }

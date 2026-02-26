@@ -20,6 +20,7 @@ struct SettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { CloseToolBar() }
         .padding(.horizontal)
+        .padding(.horizontal, 24)
     }
 }
 
@@ -44,7 +45,6 @@ extension SettingsView {
                 .frame(height: 40, alignment: .center)
                 .foregroundStyle(.accent)
         }
-        .padding(.horizontal, 24)
     }
     
     private var softDivider: some View {
@@ -55,6 +55,3 @@ extension SettingsView {
             .padding(.horizontal, 24)
     }
 }
-
-
-
