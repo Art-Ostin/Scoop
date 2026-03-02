@@ -17,6 +17,8 @@ struct ChatMessageView: View {
     
     var showTriangle: Bool = false
     
+    var lastWasSameUser: Bool = false
+    
     var isMyChat: Bool {
         chat.authorId == userId
     }
@@ -48,10 +50,10 @@ struct ChatMessageView: View {
             .padding(.bottom, isTimeBelow ? timeBelowPadding : 0)
             .background (
                 UnevenRoundedRectangle(
-                    topLeadingRadius: 16,
-                    bottomLeadingRadius: isMyChat ? 16 : (showTriangle ? 0 : 16),
-                    bottomTrailingRadius: isMyChat ? (showTriangle ? 0 : 16) : 16,   // <- sharp corner
-                    topTrailingRadius: 16,
+                    topLeadingRadius: isMyChat ? 16 : lastWasSameUser ? 0 : 16,
+                    bottomLeadingRadius: isMyChat ? 16 : 0 ,
+                    bottomTrailingRadius: isMyChat ? 0 : 16,   // <- sharp corner
+                    topTrailingRadius: isMyChat ? (lastWasSameUser ? 0 : 16) : 0,
                     style: .continuous
                 )
                 .fill(backgroundColor)
