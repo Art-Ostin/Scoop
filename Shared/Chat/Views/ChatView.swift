@@ -37,7 +37,7 @@ struct ChatView: View {
         if message.id != messages.last?.id && idx > 0 { //Not the last or the first message
             let nextMessageAuthor = messages[idx + 1].authorId
             if nextMessageAuthor == message.authorId {
-                lastWasSameUserIndex = idx
+                lastWasSameUserIndex = idx - 1
                 lastWasSameUser = true
                 return false
             }
