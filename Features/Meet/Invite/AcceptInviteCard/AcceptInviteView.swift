@@ -106,19 +106,3 @@ extension AcceptInviteView {
     }
 }
 
-
-
-/*
- let eventTime = "\(EventFormatting.expandedDate(acceptedTime)) · \(EventFormatting.hourTime(acceptedTime))"
- 
- */
-/*
- My Pleasures:
- 
- A coffee on a sunday Morning!
- 
- 
- 
- 
- 
- */

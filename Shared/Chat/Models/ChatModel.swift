@@ -7,6 +7,14 @@
 
 import Foundation
 
-struct ChatModel {
+struct ChatModel: Identifiable {
+    let id: String
+    let creator_id: String
+    let recipient_id: String
+    let dateCreated: Date
+    let dateModified: Date
+    
+    
+    
     
 }
