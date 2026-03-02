@@ -18,13 +18,25 @@ struct ChatView: View {
         VStack {
             ScrollView {
                 LazyVStack {
-                    ForEach(messages) {chat in
-                        ChatMessageView(chat: chat, userId: userId, showTriangle: true)
+                    ForEach(Array(messages.enumerated()), id: \.element.id) { idx, message in
+                        let showTriangle = showTriangle(idx: idx, message: message)
+                        ChatMessageView(chat: message, userId: userId, showTriangle: showTriangle)
                     }
                 }
             }
             .frame(maxWidth: .infinity)
         }
+    }
+    
+    private func showTriangle(idx: Int, message: ChatMessageModel) -> Bool {
+        if message.id != messages.last?.id && idx > 1 { //Not the last or the first message
+            let lastMessageAuthor = messages[idx - 1].authorId
+            let nextMessageAuthor = messages[idx + 1].authorId
+            if lastMessageAuthor != message.authorId && nextMessageAuthor == message.authorId {
+                return false
+            }
+        }
+        return true
     }
 }
 
@@ -39,3 +51,4 @@ extension ChatView {
         Text("Hello")
     }
 }
+

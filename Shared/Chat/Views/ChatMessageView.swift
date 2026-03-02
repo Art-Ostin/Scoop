@@ -27,8 +27,9 @@ struct ChatMessageView: View {
     
     @State var isTimeBelow: Bool = true
     private let minInlineGap: CGFloat = 50
-    private let textHorizontalInsets: CGFloat = 32 // .padding(.horizontal) = 16 + 16
-    private let messageUIFont = UIFont.systemFont(ofSize: 16, weight: .regular)
+    private let textHorizontalInsets: CGFloat = 32 
+    private let timeBelowPadding: CGFloat = 12
+    private let messageUIFont = UIFont.body(16, .regular)
         
     
     var body: some View {
@@ -44,12 +45,12 @@ struct ChatMessageView: View {
             .lineSpacing(5)
             .padding(.horizontal)
             .padding(.vertical, 10)
-            .padding(.bottom, isTimeBelow ? 16 : 0)
+            .padding(.bottom, isTimeBelow ? timeBelowPadding : 0)
             .background (
                 UnevenRoundedRectangle(
                     topLeadingRadius: 16,
-                    bottomLeadingRadius: isMyChat ? 16 : 0,
-                    bottomTrailingRadius: isMyChat ? 0 : 16,   // <- sharp corner
+                    bottomLeadingRadius: isMyChat ? 16 : (showTriangle ? 0 : 16),
+                    bottomTrailingRadius: isMyChat ? (showTriangle ? 0 : 16) : 16,   // <- sharp corner
                     topTrailingRadius: 16,
                     style: .continuous
                 )
@@ -65,18 +66,20 @@ struct ChatMessageView: View {
             )
             .overlay(alignment: .bottomTrailing) {
                 Text(timeString)
-                    .font(.body(12))
+                    .font(.body(9, .regular))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .kerning(1)
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.grayText.opacity(0.8))
             }
             .overlay(alignment: isMyChat ?  .bottomTrailing : .bottomLeading) {
-                RoundedTriangle(radius: 4)
-                    .scaleEffect(x: isMyChat ? 1 : -1, y: 1)
-                    .foregroundStyle(backgroundColor)
-                    .frame(width: 10, height: 15)
-                    .offset(x: isMyChat ? 10 : -10)
+                if showTriangle {
+                    RoundedTriangle(radius: 4)
+                        .scaleEffect(x: isMyChat ? 1 : -1, y: 1)
+                        .foregroundStyle(backgroundColor)
+                        .frame(width: 10, height: 15)
+                        .offset(x: isMyChat ? 10 : -10)
+                }
             }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
             .padding(.horizontal, 24)
@@ -86,22 +89,26 @@ struct ChatMessageView: View {
     
     private func updateTimePlacement(bubbleWidth: CGFloat) {
         let textWidth = max(0, bubbleWidth - textHorizontalInsets)
-        let trailingGap = trailingSpaceInLastLine(text: chat.content, width: textWidth, font: messageUIFont)
-        
-        
-        
-        
-        if chat.content.count < 35 {
+        let metrics = textLayoutMetrics(text: chat.content, width: textWidth, font: messageUIFont)
+
+        if metrics.lineCount <= 1 {
             isTimeBelow = true
         } else {
-            isTimeBelow = trailingGap < minInlineGap
+            isTimeBelow = metrics.trailingSpace < minInlineGap
         }
     }
 
-    private func trailingSpaceInLastLine(text: String, width: CGFloat, font: UIFont) -> CGFloat {
-        guard !text.isEmpty, width > 0 else { return width }
-
-        let attr = NSAttributedString(string: text, attributes: [.font: font])
+    private func textLayoutMetrics(text: String, width: CGFloat, font: UIFont) -> (lineCount: Int, trailingSpace: CGFloat) {
+        guard !text.isEmpty, width > 0 else { return (1, width) }
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineSpacing = 5
+        let attr = NSAttributedString(
+            string: text,
+            attributes: [
+                .font: font,
+                .paragraphStyle: paragraph
+            ]
+        )
         let storage = NSTextStorage(attributedString: attr)
         let layout = NSLayoutManager()
         let container = NSTextContainer(size: CGSize(width: width, height: .greatestFiniteMagnitude))
@@ -112,13 +119,15 @@ struct ChatMessageView: View {
         layout.addTextContainer(container)
         layout.ensureLayout(for: container)
 
+        var lineCount = 0
         var lastUsedRect = CGRect.zero
         let glyphs = layout.glyphRange(for: container)
         layout.enumerateLineFragments(forGlyphRange: glyphs) { _, usedRect, _, _, _ in
+            lineCount += 1
             lastUsedRect = usedRect
         }
 
-        return max(0, width - lastUsedRect.maxX)
+        return (max(1, lineCount), max(0, width - lastUsedRect.maxX))
     }
 }
 
