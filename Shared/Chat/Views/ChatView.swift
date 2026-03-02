@@ -17,7 +17,7 @@ struct ChatView: View {
     var body: some View {
         VStack {
             ScrollView {
-                LazyVStack {
+                LazyVStack(spacing: 0) {
                     ForEach(Array(messages.enumerated()), id: \.element.id) { idx, message in
                         let showTriangle = showTriangle(idx: idx, message: message)
                         ChatMessageView(chat: message, userId: userId, showTriangle: showTriangle)
@@ -29,7 +29,7 @@ struct ChatView: View {
     }
     
     private func showTriangle(idx: Int, message: ChatMessageModel) -> Bool {
-        if message.id != messages.last?.id && idx > 1 { //Not the last or the first message
+        if message.id != messages.last?.id && idx > 0 { //Not the last or the first message
             let lastMessageAuthor = messages[idx - 1].authorId
             let nextMessageAuthor = messages[idx + 1].authorId
             if lastMessageAuthor != message.authorId && nextMessageAuthor == message.authorId {

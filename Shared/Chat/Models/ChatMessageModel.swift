@@ -15,6 +15,11 @@ struct ChatMessageModel: Identifiable, Hashable {
     let chatSeen: Bool
     let dateCreated: Date?
     
+    private static func ago(days: Int = 0, hours: Int = 0, minutes: Int = 0) -> Date {
+        let totalSeconds = (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60)
+        return Date(timeIntervalSinceNow: TimeInterval(-totalSeconds))
+    }
+    
     static let mockChatMessages: [ChatMessageModel] = [
         
         // ~3 days ago
@@ -24,7 +29,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_arthur",
             content: "Hey—still good for tonight?",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 3 - 40 * 60) // 3d + 40m ago
+            dateCreated: Self.ago(days: 3, minutes: 40) // 3d + 40m ago
         ),
         ChatMessageModel(
             id: "m_002",
@@ -32,7 +37,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_arthur",
             content: "No rush btw",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 3 - 38 * 60) // double text
+            dateCreated: Self.ago(days: 3, minutes: 38) // double text
         ),
         
         // ~2 days ago
@@ -42,7 +47,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_maya",
             content: "Yes! Sorry—was in lab.",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 2 - 6 * 60 * 60) // 2d + 6h ago
+            dateCreated: Self.ago(days: 2, hours: 6) // 2d + 6h ago
         ),
         ChatMessageModel(
             id: "m_004",
@@ -50,7 +55,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_maya",
             content: "What time were you thinking?",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 2 - 5 * 60 * 60 - 58 * 60) // double text
+            dateCreated: Self.ago(days: 2, hours: 5, minutes: 58) // double text
         ),
         ChatMessageModel(
             id: "m_005",
@@ -58,23 +63,23 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_arthur",
             content: "Around 8 works—want something chill near campus?",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 2 - 5 * 60 * 60 - 40 * 60)
+            dateCreated: Self.ago(days: 2, hours: 5, minutes: 40)
         ),
         ChatMessageModel(
             id: "m_006",
             chatId: "chat_001",
             authorId: "user_maya",
-            content: "Chill is perfect.\nNear campus is ideal.\nI’m kinda tired lol",
+            content: "Chill is perfect. Near campus is ideal.I’m kinda tired lol",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 2 - 5 * 60 * 60 - 30 * 60)
+            dateCreated: Self.ago(days: 2, hours: 5, minutes: 30)
         ),
         ChatMessageModel(
             id: "m_007",
             chatId: "chat_001",
             authorId: "user_arthur",
-            content: "Same.\nI’ll pick something low-key.",
+            content: "Same.I’ll pick something low-key.",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 2 - 5 * 60 * 60 - 22 * 60)
+            dateCreated: Self.ago(days: 2, hours: 5, minutes: 22)
         ),
         ChatMessageModel(
             id: "m_008",
@@ -82,7 +87,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_arthur",
             content: "Give me 2 mins",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 * 2 - 5 * 60 * 60 - 21 * 60) // double text
+            dateCreated: Self.ago(days: 2, hours: 5, minutes: 21) // double text
         ),
         
         // ~1 day ago (day-of logistics)
@@ -92,7 +97,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_arthur",
             content: "Ok: Milky Way (on Parc) or Else’s (closer to campus)?",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 - 4 * 60 * 60 - 15 * 60)
+            dateCreated: Self.ago(days: 1, hours: 4, minutes: 15)
         ),
         ChatMessageModel(
             id: "m_010",
@@ -100,15 +105,15 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_maya",
             content: "Else’s!",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 - 4 * 60 * 60 - 12 * 60)
+            dateCreated: Self.ago(days: 1, hours: 4, minutes: 12)
         ),
         ChatMessageModel(
             id: "m_011",
             chatId: "chat_001",
             authorId: "user_arthur",
-            content: "Perfect.\nMeet outside at 8?",
+            content: "Perfect.Meet outside at 8?",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 - 4 * 60 * 60 - 10 * 60)
+            dateCreated: Self.ago(days: 1, hours: 4, minutes: 10)
         ),
         ChatMessageModel(
             id: "m_012",
@@ -116,7 +121,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_maya",
             content: "Yep 🙂",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 - 4 * 60 * 60 - 9 * 60)
+            dateCreated: Self.ago(days: 1, hours: 4, minutes: 9)
         ),
         ChatMessageModel(
             id: "m_013",
@@ -124,7 +129,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_maya",
             content: "Also I might be like 5 late",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 - 4 * 60 * 60 - 8 * 60) // double text
+            dateCreated: Self.ago(days: 1, hours: 4, minutes: 8) // double text
         ),
         ChatMessageModel(
             id: "m_014",
@@ -132,7 +137,7 @@ struct ChatMessageModel: Identifiable, Hashable {
             authorId: "user_maya",
             content: "Don’t hate me 😭",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 24 - 4 * 60 * 60 - 7 * 60) // triple text
+            dateCreated: Self.ago(days: 1, hours: 4, minutes: 7) // triple text
         ),
         
         // ~today (post-date vibe)
@@ -140,11 +145,9 @@ struct ChatMessageModel: Identifiable, Hashable {
             id: "m_015",
             chatId: "chat_001",
             authorId: "user_arthur",
-            content: "All good 😂\nText me when you’re close.",
+            content: "All good 😂Text me when you’re close.",
             chatSeen: true,
-            dateCreated: Date(timeIntervalSinceNow: -60 * 60 * 3 - 12 * 60) // 3h 12m ago
+            dateCreated: Self.ago(hours: 3, minutes: 12) // 3h 12m ago
         )
     ]
-
 }
-
