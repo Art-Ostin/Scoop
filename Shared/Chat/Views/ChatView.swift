@@ -19,9 +19,21 @@ struct ChatView: View {
     var body: some View {
         VStack {
             ScrollView {
-                LazyVStack {
-                    ForEach(messages) {chat in
-                        ChatMessageView(chat: chat, userId: userId, showTriangle: true, lastWasSameUser: <#T##Bool#>)
+                LazyVStack(spacing: 4) {
+                    ForEach(0..<messages.count, id: \.self) { idx in
+                        let chat = messages[idx]
+                        let prevIsDifferentUser =
+                            idx == 0 || messages[idx - 1].authorId != chat.authorId
+
+                        let nextIsDifferentUser =
+                            idx == messages.count - 1 || messages[idx + 1].authorId != chat.authorId
+
+                        
+                        let isMyChat = userId == chat.authorId
+                        
+                        
+                        ChatMessageView(chat: chat, isMyChat: isMyChat, nextIsDifferentUser: nextIsDifferentUser, lastIsDifferentUser: prevIsDifferentUser)
+                            .padding(.bottom, nextIsDifferentUser ? 12 : 0)
                     }
                 }
             }
@@ -36,15 +48,40 @@ struct ChatView: View {
 
 extension ChatView {
     
-    
-    private func showTriangle(idx: Int, message: ChatMessageModel) {
-        let isFirst: Bool = (messages.first?.id).map { $0 == message.id } ?? false
-        let isLast: Bool = (messages.last?.id).map { $0 == message.id } ?? false
+    @ViewBuilder
+    private func messageBox(idx: Int) -> some View {
+        let chat = messages[idx]
+        let prevIsDifferentUser =
+            idx == 0 || messages[idx - 1].authorId != chat.authorId
+
+        let nextIsDifferentUser =
+            idx == messages.count - 1 || messages[idx + 1].authorId != chat.authorId
+
         
-        if !isLast {
-            let nextMessage = messages[idx + 1]
+        let isMyChat = userId == chat.authorId
+    
+        let startsNewDay: Bool =
+            idx == 0 ||
+            {
+                guard
+                    let cur = messages[idx].dateCreated,
+                    let prev = messages[idx - 1].dateCreated
+                else { return false }   // or `true` if you want nil dates to force a "new day"
+                
+                return !Calendar.current.isDate(cur, inSameDayAs: prev)
+            }()
+        
+        VStack {
+            if startsNewDay {
+                
+                
+            } else {
+                
+            }
             
-            
+            ChatMessageView(chat: chat, isMyChat: isMyChat, nextIsDifferentUser: nextIsDifferentUser, lastIsDifferentUser: prevIsDifferentUser)
+                .padding(.bottom, nextIsDifferentUser ? 12 : 0)
         }
     }
+    
 }
