@@ -15,6 +15,8 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(spacing: 36) {
+            meetTheTeam
+            
             keySettingsSection
             
             signOutSection
@@ -50,20 +52,60 @@ extension SettingsView {
         }
     }
     
+    private var meetTheTeam: some View {
+        CustomList(title: "Meet the Teem", usesContainerWidth: false) {
+            
+            customRow(text: "Alice Godbout", role: "Software Engineer")
+            
+            customDivider
+            
+            customRow(text: "Genevieve Jakeway", role: "Digital Artist")
+            
+            customDivider
+            
+            customRow(text: "William Potter", role: "Software Engineer")
+            
+            customDivider
+            
+            customRow(text: "William Lane", role: "UI/UX Designer")
+            
+            customDivider
+            
+            customRow(text: "Arthur Ostin", role: "Founder/Software Engineer")
+        }
+    }
+    
+    
+    private var customDivider: some View {
+        Rectangle()
+            .frame(height: 1)
+            .frame(maxWidth:.infinity)
+            .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
+            .padding(.leading, 16)
+    }
+    
+    
+    
+    
+    
     private var keySettingsSection: some View {
         
         CustomList(title: "legal", usesContainerWidth: false) {
             
-            Text("Privacy Policy")
-                .frame(height: 40, alignment: .leading)
+            customRow(text: "Privacy Policy")
             
-            softDivider
+            customDivider
             
-            Text("Download my data")
-                .frame(height: 40, alignment: .leading)
+            customRow(text: "Terms of Service")
+
+            customDivider
+            
+            customRow(text: "Download My Data (Beta)")
+            
+
         }
         .font(.body(17, .medium))
-        .foregroundStyle(Color.grayText)
+        .foregroundStyle(Color.black)
         
         
     }
@@ -76,5 +118,23 @@ extension SettingsView {
             .frame(maxWidth:.infinity)
             .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
             .padding(.horizontal, 24)
+    }
+    
+    private func customRow(text: String, role: String? = "") -> some View {
+        HStack {
+            (
+                Text(text)
+                +
+                Text("   \(role ?? "") ")
+                    .foregroundStyle(Color.grayText)
+                    .font(.body(15, .regular))
+            )
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.body(15, .medium))
+        }
+        .padding(.horizontal, 16)
+        .font(.body(15, .bold))
+        .frame(height: 40)
     }
 }

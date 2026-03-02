@@ -50,6 +50,7 @@ struct Event: Identifiable, Codable {
         self.type = draft.type
         self.proposedTimes = draft.proposedTimes
         self.location = draft.location ?? EventLocation(mapItem: MKMapItem())
+        self.message = draft.message
     }
 }
 

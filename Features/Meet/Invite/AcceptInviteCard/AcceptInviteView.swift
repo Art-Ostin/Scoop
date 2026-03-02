@@ -46,9 +46,10 @@ struct AcceptInviteView: View {
                     
                     if let message = event.message, !message.isEmpty {
                         Text(message)
-                            .font(.body(16, .italic))
+                            .font(.body(14, .italic))
                             .lineSpacing(5)
                             .multilineTextAlignment(.center)
+                            .foregroundStyle(Color.grayText)
                     }
                     
                     typeAndPlace
@@ -94,9 +95,13 @@ extension AcceptInviteView {
             Text("\(event.type.description.emoji ?? "")  \(event.type.description.label) ")
                 .font(.body(16, .medium))
             
-            Text(event.location.name ?? "Location")
-                .font(.body(20, .bold))
-                .foregroundStyle(Color.appGreen)
+            Button {
+                MapsRouter.openGoogleMaps(item: event.location.mapItem, withDirections: false)
+            } label: {
+                Text(event.location.name ?? "Location")
+                    .font(.body(20, .bold))
+                    .foregroundStyle(Color.appGreen)
+            }
         }
     }
 }
@@ -105,5 +110,15 @@ extension AcceptInviteView {
 
 /*
  let eventTime = "\(EventFormatting.expandedDate(acceptedTime)) · \(EventFormatting.hourTime(acceptedTime))"
+ 
+ */
+/*
+ My Pleasures:
+ 
+ A coffee on a sunday Morning!
+ 
+ 
+ 
+ 
  
  */
