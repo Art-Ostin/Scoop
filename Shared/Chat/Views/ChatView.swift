@@ -12,6 +12,8 @@ struct ChatView: View {
     let userId = "user_arthur"
     
     
+    @State var lastWasSameUser: Bool = false
+    
     let messages = ChatMessageModel.mockChatMessages
     
     var body: some View {
@@ -19,7 +21,7 @@ struct ChatView: View {
             ScrollView {
                 LazyVStack {
                     ForEach(messages) {chat in
-                        ChatMessageView(chat: chat, userId: userId, showTriangle: true)
+                        ChatMessageView(chat: chat, userId: userId, showTriangle: true, lastWasSameUser: <#T##Bool#>)
                     }
                 }
             }
@@ -34,8 +36,15 @@ struct ChatView: View {
 
 extension ChatView {
     
-    private var typeMessageView: some View {
+    
+    private func showTriangle(idx: Int, message: ChatMessageModel) {
+        let isFirst: Bool = (messages.first?.id).map { $0 == message.id } ?? false
+        let isLast: Bool = (messages.last?.id).map { $0 == message.id } ?? false
         
-        Text("Hello")
+        if !isLast {
+            let nextMessage = messages[idx + 1]
+            
+            
+        }
     }
 }

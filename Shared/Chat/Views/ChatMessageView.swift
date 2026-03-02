@@ -17,6 +17,8 @@ struct ChatMessageView: View {
     
     var showTriangle: Bool = false
     
+    var lastWasSameUser: Bool = false
+    
     var isMyChat: Bool {
         chat.authorId == userId
     }
@@ -47,9 +49,9 @@ struct ChatMessageView: View {
             .padding(.bottom, isTimeBelow ? 16 : 0)
             .background (
                 UnevenRoundedRectangle(
-                    topLeadingRadius: 16,
+                    topLeadingRadius: isMyChat ? 16 : (lastWasSameUser ? 0 : 16),
                     bottomLeadingRadius: isMyChat ? 16 : 0,
-                    bottomTrailingRadius: isMyChat ? 0 : 16,   // <- sharp corner
+                    bottomTrailingRadius: isMyChat ? (lastWasSameUser ? 0 : 16) : 16,   // <- sharp corner
                     topTrailingRadius: 16,
                     style: .continuous
                 )
@@ -65,11 +67,11 @@ struct ChatMessageView: View {
             )
             .overlay(alignment: .bottomTrailing) {
                 Text(timeString)
-                    .font(.body(12))
+                    .font(.body(10, .regular))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .kerning(1)
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.grayText.opacity(0.8))
             }
             .overlay(alignment: isMyChat ?  .bottomTrailing : .bottomLeading) {
                 RoundedTriangle(radius: 4)
