@@ -25,14 +25,12 @@ struct ChatMessageView: View {
         isMyChat ? Color.accent.opacity(0.05) : Color(uiColor: .systemGray6)
     }
     
-    
-    
-    @State private var isTimeBelow: Bool = false
-    
-    
+    @State var isTimeBelow: Bool = true
     private let minInlineGap: CGFloat = 50
     private let textHorizontalInsets: CGFloat = 32 // .padding(.horizontal) = 16 + 16
     private let messageUIFont = UIFont.systemFont(ofSize: 16, weight: .regular)
+        
+    
     var body: some View {
         let timeString = chat.dateCreated?.formatted(
             Date.FormatStyle()
@@ -89,7 +87,15 @@ struct ChatMessageView: View {
     private func updateTimePlacement(bubbleWidth: CGFloat) {
         let textWidth = max(0, bubbleWidth - textHorizontalInsets)
         let trailingGap = trailingSpaceInLastLine(text: chat.content, width: textWidth, font: messageUIFont)
-        isTimeBelow = trailingGap < minInlineGap
+        
+        
+        
+        
+        if chat.content.count < 35 {
+            isTimeBelow = true
+        } else {
+            isTimeBelow = trailingGap < minInlineGap
+        }
     }
 
     private func trailingSpaceInLastLine(text: String, width: CGFloat, font: UIFont) -> CGFloat {
