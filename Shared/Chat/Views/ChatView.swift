@@ -143,7 +143,7 @@ extension ChatView {
                         .fill(text.isEmpty ? Color.grayBackground : Color.accent)
                     
                     Image("SendArrow")
-                        .scaleEffect(0)
+                        .scaleEffect(0.8)
                 }
                 .frame(width: 44, height: 44)
                 .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)

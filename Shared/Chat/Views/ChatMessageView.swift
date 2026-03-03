@@ -18,7 +18,7 @@ struct ChatMessageView: View {
     
     
     var backgroundColor: Color {
-        isMyChat ? Color.accent.opacity(0.05) :  Color(uiColor: .systemGray6).opacity(0.8)
+        isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
     }
     
     @State var isTimeBelow: Bool = true
@@ -36,8 +36,8 @@ struct ChatMessageView: View {
         ) ?? ""
         
         Text(chat.content)
-            .font(.body(16, .regular))
-            .foregroundStyle(Color.black)
+            .font(.body(16, .medium))
+            .foregroundStyle(isMyChat ? Color.white : Color.black)
             .lineSpacing(5)
             .padding(.horizontal)
             .padding(.vertical, 10)
@@ -67,7 +67,7 @@ struct ChatMessageView: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .kerning(1)
-                    .foregroundStyle(Color.grayText.opacity(0.8))
+                    .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
             }
             .overlay(alignment: isMyChat ?  .bottomTrailing : .bottomLeading) {
                 if nextIsDifferentUser {
