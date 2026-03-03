@@ -11,6 +11,12 @@ import UIKit
 
 struct ChatView: View {
     
+    let profileModel: ProfileModel
+    
+    @Environment(\.dismiss) private var dismiss
+    var isEvent = false
+    
+    
     let userId = "user_arthur"
     @State private var isUserScrollingUp  = false
     @State var text = ""
@@ -19,35 +25,51 @@ struct ChatView: View {
     @State var lastWasSameUser: Bool = false
     
     private let bottomID = "BOTTOM_ANCHOR"
-
+    
     
     let messages = ChatMessageModel.mockChatMessages
     
     var body: some View {
-        VStack {
-            messageSection
-                .safeAreaInset(edge: .bottom) {
-                    typingSection
-                }
-        }
-        .onChange(of: isUserScrollingUp) { oldValue, newValue in
-            if newValue && isFocused  {
-                isFocused = false
-                isUserScrollingUp = false
+            VStack {
+                messageSection
+                    .safeAreaInset(edge: .bottom) {
+                        typingSection
+                    }
+                    .safeAreaInset(edge: .top) {
+                        HStack {
+                            
+                        }
+                    }
             }
-        }
-        //Background doubles up avoids keyboard bug
-        .background(Color.background)
-        .background(
-            Color.background
-                .ignoresSafeArea(.keyboard)
-        )
+            
+            .onChange(of: isUserScrollingUp) { oldValue, newValue in
+                if newValue && isFocused  {
+                    isFocused = false
+                    isUserScrollingUp = false
+                }
+            }
+            //Background doubles up avoids keyboard bug
+            .background(Color.background)
+            .background(
+                Color.background
+                    .ignoresSafeArea(.keyboard)
+            )
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: isEvent ? "xmark" : "chevron.back")
+                            .font(.body(16, .bold))
+                            .padding(24)
+                            .contentShape(Rectangle())
+                            .padding(-24)
+                    }
+                }
+            }
     }
 }
 
-#Preview {
-    ChatView()
-}
 
 extension ChatView {
     
@@ -72,10 +94,8 @@ extension ChatView {
                 ZStack {
                     Circle()
                         .fill(text.isEmpty ? Color.grayBackground : Color.accent)
-
-                    Image("ForwardArrow")
-                        .scaleEffect(0.9)
-                        .rotationEffect(.degrees(-90))
+                    
+                    Image("SendArrow")
                 }
                 .frame(width: 44, height: 44)
             }
@@ -97,7 +117,7 @@ extension ChatView {
                         let chat = messages[idx]
                         messageBox(idx: idx, chat: chat)
                     }
-
+                    
                     Color.clear
                         .frame(height: 1)
                         .id(bottomID)
@@ -113,7 +133,7 @@ extension ChatView {
                 isUserScrollingUp = (delta < 0)
             })
             .frame(maxWidth: .infinity)
-
+            
             // Example trigger:
             .onChange(of: isFocused) { _, newValue in
                 guard newValue else { return }
@@ -131,9 +151,9 @@ extension ChatView {
     private func messageBox(idx: Int, chat: ChatMessageModel) -> some View {
         let chat = messages[idx]
         let prevIsDifferentUser =
-            idx == 0 || messages[idx - 1].authorId != chat.authorId
+        idx == 0 || messages[idx - 1].authorId != chat.authorId
         let nextIsDifferentUser =
-            idx == messages.count - 1 || messages[idx + 1].authorId != chat.authorId
+        idx == messages.count - 1 || messages[idx + 1].authorId != chat.authorId
         
         var checkNewDay: Bool {
             if idx == 0 {
@@ -168,14 +188,14 @@ extension ChatView {
     func formatDay(day: Date) -> String {
         let cal = Calendar.current
         let now = Date()
-
+        
         if cal.isDateInToday(day) { return "Today" }
         if cal.isDateInYesterday(day) { return "Yesterday" }
-
+        
         let startDay = cal.startOfDay(for: day)
         let startNow = cal.startOfDay(for: now)
         let diffDays = cal.dateComponents([.day], from: startDay, to: startNow).day ?? 0
-
+        
         // 2–6 days ago → weekday name
         if (2...6).contains(diffDays) {
             let df = DateFormatter()
@@ -183,7 +203,7 @@ extension ChatView {
             df.dateFormat = "EEEE" // Wednesday
             return df.string(from: day).capitalized(with: .current)
         }
-
+        
         // 7+ days ago (or future) → "Tue 3 Feb"
         let df = DateFormatter()
         df.locale = Locale(identifier: "en_US_POSIX")

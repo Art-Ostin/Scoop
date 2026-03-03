@@ -24,11 +24,10 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ChatView()
-//             RootView()
-//                 .appDependencies(dep)
-//                 .task { dep.sessionManager.userStream(appState: $appState) }
-//                 .environment(\.appState, $appState)
+             RootView()
+                 .appDependencies(dep)
+                 .task { dep.sessionManager.userStream(appState: $appState) }
+                 .environment(\.appState, $appState)
         }
     }
 }
