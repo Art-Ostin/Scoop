@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import UIKit
+
 
 struct ChatView: View {
     
@@ -52,20 +54,18 @@ extension ChatView {
     private var typingSection: some View {
         HStack (alignment: .bottom, spacing: 6) {
             TextField("Message…", text: $text, axis: .vertical)
-                .textFieldStyle(.plain)
                 .font(.body(17, .regular))
+                .frame(minHeight: 24, alignment: .center)
                 .lineLimit(1...4)
                 .padding(.horizontal)
-                .padding(.vertical, 2)
-                .frame(minHeight: 24, alignment: .leading)
                 .padding(.vertical, 8)
-                .stroke(24, lineWidth: 1, color: .grayPlaceholder)
-                .focused($isFocused)
-                .lineSpacing(4)
                 .background(
                     RoundedRectangle(cornerRadius: 24)
                         .fill(Color.white)
                 )
+                .stroke(24, lineWidth: 1, color: .grayPlaceholder)
+                .focused($isFocused)
+                .lineSpacing(4)
             
             Button {
                 print("Hello World")
@@ -83,8 +83,9 @@ extension ChatView {
             .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity)
+        .padding(.top, 12)
         .padding(.horizontal)
-        .padding(.vertical)
+        .padding(.bottom, isFocused ? 12 : 0)
         .background(Color.background)
     }
     
