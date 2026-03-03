@@ -18,7 +18,7 @@ struct ChatMessageView: View {
     
     
     var backgroundColor: Color {
-        isMyChat ? Color.accent.opacity(0.05) : Color(uiColor: .systemGray6)
+        isMyChat ? Color.accent.opacity(0.05) :  Color(uiColor: .systemGray6).opacity(0.8)
     }
     
     @State var isTimeBelow: Bool = true

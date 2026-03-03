@@ -37,7 +37,6 @@ struct ChatView: View {
     
     var body: some View {
         ZStack {
-            
             messageView
             
             if let profile = selectedProfile {
@@ -64,9 +63,10 @@ extension ChatView {
             }
         }
         //Background doubles up avoids keyboard bug
-        .background(Color.background)
+        .background(Color(red: 0.96, green: 0.95, blue: 0.92).opacity(0.08))
         .background(
-            Color.background
+            Color(red: 0.96, green: 0.95, blue: 0.92)
+                .opacity(0.08)
                 .ignoresSafeArea(.keyboard)
         )
         .toolbar {
@@ -143,6 +143,7 @@ extension ChatView {
                         .fill(text.isEmpty ? Color.grayBackground : Color.accent)
                     
                     Image("SendArrow")
+                        .scaleEffect(0)
                 }
                 .frame(width: 44, height: 44)
                 .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)
