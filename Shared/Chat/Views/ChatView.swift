@@ -50,12 +50,22 @@ struct ChatView: View {
 extension ChatView {
     
     private var typingSection: some View {
-        HStack (spacing: 6) {
-            TextField("Message…", text: $text)
-                .padding(.horizontal, 12)
-                .frame(height: 44)
-                .stroke(24, lineWidth: 1, color: .grayBackground)
+        HStack (alignment: .bottom, spacing: 6) {
+            TextField("Message…", text: $text, axis: .vertical)
+                .textFieldStyle(.plain)
+                .font(.body(17, .regular))
+                .lineLimit(1...4)
+                .padding(.horizontal)
+                .frame(minHeight: 24, alignment: .leading)
+                .background(Color.blue)
+                .padding(.vertical, 8)
+                .stroke(24, lineWidth: 1, color: .grayPlaceholder)
                 .focused($isFocused)
+                .lineSpacing(4)
+                .background(
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(Color.white)
+                )
             
             Button {
                 print("Hello World")
