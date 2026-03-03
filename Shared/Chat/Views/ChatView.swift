@@ -97,7 +97,6 @@ extension ChatView {
                             
                             Text(profileModel.profile.name)
                                 .font(.body(17, .bold))
-                                                            
                         }
                         .offset(x: -4)
                     }

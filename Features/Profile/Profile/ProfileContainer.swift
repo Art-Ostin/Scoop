@@ -58,7 +58,7 @@ struct ProfileView: View {
                         profileTitle(geo: geo)
                             .offset(y: rangeUpdater(endValue: -108))
                             .opacity(1 - overlayTitleOpacity)
-                            .padding(.top, isMessageProfile && !ui.detailsOpen ? 0 : 36)
+                            .padding(.top, 36)
                         
                         ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
                             .offset(y: rangeUpdater(endValue: -100))
@@ -89,7 +89,7 @@ struct ProfileView: View {
         .overlay {if ui.showInvitePopup {invitePopup}}
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
-        .toolbar(ui.detailsOpen ? .hidden : .visible, for: .navigationBar)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
