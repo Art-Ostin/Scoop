@@ -6,7 +6,7 @@
 
 
 import Foundation
-
+import FirebaseFirestore
 
 struct ChatMessageModel: Identifiable, Hashable {
     let id: String
@@ -14,8 +14,8 @@ struct ChatMessageModel: Identifiable, Hashable {
     let authorId: String
     let content: String
     let chatSeen: Bool
-    let dateCreated: Date?
-    
+    @ServerTimestamp var dateCreated: Date?
+
     static let mockChatMessages: [ChatMessageModel] = [
         // 3 days ago
         ChatMessageModel(

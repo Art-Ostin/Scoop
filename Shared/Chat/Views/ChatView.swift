@@ -53,33 +53,31 @@ extension ChatView {
         let chat = messages[idx]
         let prevIsDifferentUser =
             idx == 0 || messages[idx - 1].authorId != chat.authorId
-
         let nextIsDifferentUser =
             idx == messages.count - 1 || messages[idx + 1].authorId != chat.authorId
-
+        
+        var checkNewDay: Bool {
+            if idx == 0 {
+                return true
+            } else {
+                let lastMessage = messages[idx - 1]
+                let nextMessage = messages[idx]
+                
+                return isNewDay(lastMessage, nextMessage)
+            }
+        }
         
         let isMyChat = userId == chat.authorId
-    
-        let startsNewDay: Bool =
-            idx == 0 ||
-            {
-                guard
-                    let cur = messages[idx].dateCreated,
-                    let prev = messages[idx - 1].dateCreated
-                else { return false }   // or `true` if you want nil dates to force a "new day"
-                
-                return !Calendar.current.isDate(cur, inSameDayAs: prev)
-            }()
+        
         
         VStack(spacing: 16) {
-            if startsNewDay {
-                if let dateCreated = chat.dateCreated {
-                    Text(formatDay(day: dateCreated))
-                        .font(.body(12, .medium))
-                } else {
-                    Text("Hello World")
+            
+            if checkNewDay {
+                if let date = chat.dateCreated {
+                    Text(formatDay(day: date))
                 }
             }
+            
             
             ChatMessageView(chat: chat, isMyChat: isMyChat, nextIsDifferentUser: nextIsDifferentUser, lastIsDifferentUser: prevIsDifferentUser)
                 .padding(.bottom, nextIsDifferentUser ? 12 : 0)
@@ -110,5 +108,14 @@ extension ChatView {
         df.locale = Locale(identifier: "en_US_POSIX")
         df.dateFormat = "EEE d MMM"
         return df.string(from: day)
+    }
+    
+    func isNewDay(_ lastMessage: ChatMessageModel, _ newMessage: ChatMessageModel) -> Bool {
+        if let lastMessageDay = lastMessage.dateCreated, let newMessageDay = newMessage.dateCreated {
+            print("Returning done")
+            return Calendar.current.isDate(lastMessageDay, inSameDayAs: newMessageDay)
+        }
+        print("Returning not done")
+        return false
     }
 }
