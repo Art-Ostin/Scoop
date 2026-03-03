@@ -30,6 +30,8 @@ struct ChatView: View {
     let messages = ChatMessageModel.mockChatMessages
     
     var body: some View {
+        
+        
             VStack {
                 messageSection
                     .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -61,8 +63,24 @@ struct ChatView: View {
                     }
                 }
                 
-                
-            }            
+                ToolbarItem() {
+                    Button {
+                        
+                    } label: {
+                        HStack(spacing: 8) {
+                            if let image = profileModel.image {
+                                CirclePhoto(image: image, showShadow: false)
+                            }
+                            
+                            Text(profileModel.profile.name)
+                                .font(.body(17, .bold))
+                                                            
+                        }
+                        .padding(.trailing, 6)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                }
+            }
     }
 }
 

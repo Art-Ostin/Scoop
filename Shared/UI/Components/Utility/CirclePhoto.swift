@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CirclePhoto: View {
     let image: UIImage
+    var showShadow: Bool = true
     
     
     var body: some View {
@@ -17,7 +18,7 @@ struct CirclePhoto: View {
             .scaledToFill()
             .frame(width: 35, height: 35)
             .clipShape(Circle())
-            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+            .shadow(color: .black.opacity(showShadow ? 0.15 : 0), radius: 1, x: 0, y: 2)
     }
 }
 
