@@ -84,8 +84,11 @@ extension ChatView {
             if selectedProfile == nil {
                 ToolbarItem() {
                     Button {
+                        isFocused = false
                         dismissOffset = nil
-                        selectedProfile = profileModel
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedProfile = profileModel
+                        }
                     } label: {
                         HStack(spacing: 8) {
                             if let image = profileModel.image {
