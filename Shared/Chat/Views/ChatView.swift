@@ -54,7 +54,6 @@ extension ChatView {
     private var typingSection: some View {
         HStack (alignment: .bottom, spacing: 6) {
             TextField("Message…", text: $text, axis: .vertical)
-                .font(.body(17, .regular))
                 .frame(minHeight: 24, alignment: .center)
                 .lineLimit(1...4)
                 .padding(.horizontal)
