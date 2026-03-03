@@ -28,6 +28,7 @@ struct ProfileView: View {
     private var displayProfile: UserProfile {
         draftProfile ?? vm.profileModel.profile
     }
+    let isMessageProfile: Bool
     
     init(
         vm: ProfileViewModel,
@@ -36,7 +37,8 @@ struct ProfileView: View {
         selectedProfile: Binding<ProfileModel?>,
         dismissOffset: Binding<CGFloat?>,
         showRespondToProfile: Binding<RespondToProfileState?> = .constant(nil),
-        draftProfile: UserProfile? = nil
+        draftProfile: UserProfile? = nil,
+        isMessageProfile: Bool = false
     ) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
@@ -45,6 +47,7 @@ struct ProfileView: View {
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
         self._showRespondToProfile = showRespondToProfile
+        self.isMessageProfile = isMessageProfile
     }
     
     var body: some View {
@@ -55,7 +58,7 @@ struct ProfileView: View {
                         profileTitle(geo: geo)
                             .offset(y: rangeUpdater(endValue: -108))
                             .opacity(1 - overlayTitleOpacity)
-                            .padding(.top, 36)
+                            .padding(.top, isMessageProfile ? 0 : 36)
                         
                         ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
                             .offset(y: rangeUpdater(endValue: -100))
@@ -86,6 +89,7 @@ struct ProfileView: View {
         .overlay {if ui.showInvitePopup {invitePopup}}
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
+        .toolbar(ui.detailsOpen ? .hidden : .visible, for: .navigationBar)
     }
 }
 
@@ -121,7 +125,9 @@ extension ProfileView {
             ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .black, selectedProfile: $selectedProfile) {dismissProfile(using: geo)}
+                ProfileDismissButton(color: .black, selectedProfile: $selectedProfile) {
+                    dismissProfile(using: geo)
+                }
             }
         }
         .offset(y: 4) // Hack to align to bottom of HStack
@@ -244,7 +250,6 @@ extension ProfileView {
     }
     
     private func dismissProfile(using geo: GeometryProxy, startingOffset: CGFloat? = nil) {
-        dismiss()
         let distance = geo.size.height + geo.safeAreaInsets.bottom
         if let startingOffset {
             dismissOffset = startingOffset

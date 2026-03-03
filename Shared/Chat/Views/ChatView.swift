@@ -13,8 +13,14 @@ struct ChatView: View {
     
     let profileModel: ProfileModel
     
+    @Bindable var vm: EventViewModel
+    
+    @State var selectedProfile: ProfileModel? = nil
+    @State var dismissOffset: CGFloat? = nil
+    
     @Environment(\.dismiss) private var dismiss
     var isEvent = false
+    @State var profileImages: [UIImage] = []
     
     
     let userId = "user_arthur"
@@ -30,42 +36,61 @@ struct ChatView: View {
     let messages = ChatMessageModel.mockChatMessages
     
     var body: some View {
-        
-        
-            VStack {
-                messageSection
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        typingSection
-                    }
+        ZStack {
+            
+            messageView
+            
+            if (selectedProfile != nil) {
+                profileView
+            }
+        }
+//        .task(id: selectedProfile) {
+//            if selectedProfile == nil {
+//                try? await Task.sleep(for: .seconds(1))
+//                dismissOffset = nil
+//            }
+//        }
+    }
+}
+
+
+extension ChatView {
+    
+    private var messageView: some View {
+        VStack {
+            messageSection
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    typingSection
+                }
+        }
+        .onChange(of: isUserScrollingUp) { oldValue, newValue in
+            if newValue && isFocused  {
+                isFocused = false
+                isUserScrollingUp = false
+            }
+        }
+        //Background doubles up avoids keyboard bug
+        .background(Color.background)
+        .background(
+            Color.background
+                .ignoresSafeArea(.keyboard)
+        )
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: isEvent ? "xmark" : "chevron.left")
+                        .font(.body(16, .bold))
+                        .contentShape(Rectangle())
+                        .foregroundStyle(Color.black)
+                }
             }
             
-            .onChange(of: isUserScrollingUp) { oldValue, newValue in
-                if newValue && isFocused  {
-                    isFocused = false
-                    isUserScrollingUp = false
-                }
-            }
-            //Background doubles up avoids keyboard bug
-            .background(Color.background)
-            .background(
-                Color.background
-                    .ignoresSafeArea(.keyboard)
-            )
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: isEvent ? "xmark" : "chevron.left")
-                            .font(.body(16, .bold))
-                            .contentShape(Rectangle())
-                            .foregroundStyle(Color.black)
-                    }
-                }
-                
+            if selectedProfile == nil {
                 ToolbarItem() {
                     Button {
-                        
+                        selectedProfile = profileModel
                     } label: {
                         HStack(spacing: 8) {
                             if let image = profileModel.image {
@@ -77,15 +102,30 @@ struct ChatView: View {
                                                             
                         }
                         .padding(.trailing, 6)
-                        .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
             }
+        }
+        .task {
+            let loadImages = await vm.loadImages(profileModel: profileModel)
+            profileImages = loadImages
+        }
+
     }
-}
-
-
-extension ChatView {
+    
+    private var profileView: some View {
+        ProfileView(vm:
+                    ProfileViewModel(defaults: vm.defaults,
+                            sessionManager: vm.sessionManager,
+                            profileModel: profileModel,
+                            imageLoader: vm.imageLoader),
+                    profileImages: profileImages,
+                    selectedProfile: $selectedProfile,
+                    dismissOffset: $dismissOffset, isMessageProfile: true)
+        .id(profileModel.profile.id)
+        .zIndex(1)
+        .transition(.move(edge: .bottom))
+    }
     
     private var typingSection: some View {
         HStack (alignment: .bottom, spacing: 6) {
@@ -110,6 +150,7 @@ extension ChatView {
                     Image("SendArrow")
                 }
                 .frame(width: 44, height: 44)
+                .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)
             }
             .buttonStyle(.plain)
         }
@@ -118,7 +159,6 @@ extension ChatView {
         .padding(.horizontal)
         .padding(.bottom, isFocused ? 12 : 0)
     }
-    
     
     private var messageSection: some View {
         ScrollViewReader { proxy in
@@ -161,7 +201,6 @@ extension ChatView {
             }
         }
     }
-    
     
     @ViewBuilder
     private func messageBox(idx: Int, chat: ChatMessageModel) -> some View {
@@ -270,5 +309,55 @@ extension ChatView {
      .padding(.horizontal)
      .padding(.bottom, isFocused ? 12 : 0)
      .background(Color.background)
+ }
+ */
+
+/*
+ VStack {
+     messageSection
+         .safeAreaInset(edge: .bottom, spacing: 0) {
+             typingSection
+         }
+ }
+ .onChange(of: isUserScrollingUp) { oldValue, newValue in
+     if newValue && isFocused  {
+         isFocused = false
+         isUserScrollingUp = false
+     }
+ }
+ //Background doubles up avoids keyboard bug
+ .background(Color.background)
+ .background(
+     Color.background
+         .ignoresSafeArea(.keyboard)
+ )
+ .toolbar {
+     ToolbarItem(placement: .topBarLeading) {
+         Button {
+             dismiss()
+         } label: {
+             Image(systemName: isEvent ? "xmark" : "chevron.left")
+                 .font(.body(16, .bold))
+                 .contentShape(Rectangle())
+                 .foregroundStyle(Color.black)
+         }
+     }
+     
+     ToolbarItem() {
+         Button {
+             selectedProfile = profileModel
+         } label: {
+             HStack(spacing: 8) {
+                 if let image = profileModel.image {
+                     CirclePhoto(image: image, showShadow: false)
+                 }
+                 
+                 Text(profileModel.profile.name)
+                     .font(.body(17, .bold))
+                                                 
+             }
+             .padding(.trailing, 6)
+         }
+     }
  }
  */

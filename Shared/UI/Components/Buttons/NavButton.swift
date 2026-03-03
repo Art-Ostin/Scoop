@@ -56,10 +56,6 @@ struct ProfileDismissButton : View {
         Button {
             if let onDismiss {
                 onDismiss()
-            } else {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedProfile = nil
-                }
             }
         } label: {
             Image(systemName: "chevron.down")
@@ -72,4 +68,22 @@ struct ProfileDismissButton : View {
 
 /*
  @Binding var selectedProfile: ProfileModel?
+ */
+
+/*
+ if let onDismiss {
+     onDismiss()
+ } else {
+     withAnimation(.easeInOut(duration: 0.2)) {
+         selectedProfile = nil
+     }
+ }
+ */
+
+/*
+ else {
+    withAnimation(.easeInOut(duration: 0.2)) {
+        selectedProfile = nil
+    }
+}
  */
