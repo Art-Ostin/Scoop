@@ -32,6 +32,9 @@ struct ChatView: View {
     var body: some View {
             VStack {
                 messageSection
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        typingSection
+                    }
             }
             
             .onChange(of: isUserScrollingUp) { oldValue, newValue in
@@ -68,19 +71,17 @@ extension ChatView {
     
     private var typingSection: some View {
         HStack (alignment: .bottom, spacing: 6) {
-            TextField("Message…", text: $text, axis: .vertical)
-                .frame(minHeight: 24, alignment: .center)
-                .lineLimit(1...4)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(Color.white)
-                )
-                .stroke(24, lineWidth: 1, color: .grayPlaceholder)
-                .focused($isFocused)
-                .lineSpacing(4)
             
+            TextField("Message...", text: $text, axis: .vertical)
+                .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+                .lineSpacing(4)
+                .focused($isFocused)
+            
+            
+        
             Button {
                 print("Hello World")
             } label: {
@@ -98,7 +99,6 @@ extension ChatView {
         .padding(.top, 12)
         .padding(.horizontal)
         .padding(.bottom, isFocused ? 12 : 0)
-        .background(Color.background)
     }
     
     
@@ -216,3 +216,41 @@ extension ChatView {
         return false
     }
 }
+
+//Original Typing Section
+/*
+ private var typingSection: some View {
+     HStack (alignment: .bottom, spacing: 6) {
+         TextField("Message…", text: $text, axis: .vertical)
+             .frame(minHeight: 24, alignment: .center)
+             .lineLimit(1...4)
+             .padding(.horizontal)
+             .padding(.vertical, 8)
+             .background(
+                 RoundedRectangle(cornerRadius: 24)
+                     .fill(Color.white)
+             )
+             .stroke(24, lineWidth: 1, color: .grayPlaceholder)
+             .focused($isFocused)
+             .lineSpacing(4)
+         
+         Button {
+             print("Hello World")
+         } label: {
+             ZStack {
+                 Circle()
+                     .fill(text.isEmpty ? Color.grayBackground : Color.accent)
+                 
+                 Image("SendArrow")
+             }
+             .frame(width: 44, height: 44)
+         }
+         .buttonStyle(.plain)
+     }
+     .frame(maxWidth: .infinity)
+     .padding(.top, 12)
+     .padding(.horizontal)
+     .padding(.bottom, isFocused ? 12 : 0)
+     .background(Color.background)
+ }
+ */
