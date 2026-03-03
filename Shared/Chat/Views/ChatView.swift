@@ -71,12 +71,14 @@ extension ChatView {
                 return !Calendar.current.isDate(cur, inSameDayAs: prev)
             }()
         
-        VStack {
+        VStack(spacing: 16) {
             if startsNewDay {
-                
-                
-            } else {
-                
+                if let dateCreated = chat.dateCreated {
+                    Text(formatDay(day: dateCreated))
+                        .font(.body(12, .medium))
+                } else {
+                    Text("Hello World")
+                }
             }
             
             ChatMessageView(chat: chat, isMyChat: isMyChat, nextIsDifferentUser: nextIsDifferentUser, lastIsDifferentUser: prevIsDifferentUser)
@@ -84,4 +86,29 @@ extension ChatView {
         }
     }
     
+    func formatDay(day: Date) -> String {
+        let cal = Calendar.current
+        let now = Date()
+
+        if cal.isDateInToday(day) { return "Today" }
+        if cal.isDateInYesterday(day) { return "yesterday" }
+
+        let startDay = cal.startOfDay(for: day)
+        let startNow = cal.startOfDay(for: now)
+        let diffDays = cal.dateComponents([.day], from: startDay, to: startNow).day ?? 0
+
+        // 2–6 days ago → weekday name
+        if (2...6).contains(diffDays) {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "EEEE" // Wednesday
+            return df.string(from: day).lowercased()
+        }
+
+        // 7+ days ago (or future) → "Tue 3 Feb"
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.dateFormat = "EEE d MMM"
+        return df.string(from: day)
+    }
 }
