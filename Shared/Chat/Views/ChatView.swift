@@ -10,23 +10,36 @@ import SwiftUI
 struct ChatView: View {
     
     let userId = "user_arthur"
+    @State private var isUserScrollingUp  = false
+    @State var text = ""
     
-    
+    @FocusState private var isFocused
     @State var lastWasSameUser: Bool = false
+    
+    private let bottomID = "BOTTOM_ANCHOR"
+
     
     let messages = ChatMessageModel.mockChatMessages
     
     var body: some View {
         VStack {
-            ScrollView {
-                LazyVStack(spacing: 4) {
-                    ForEach(0..<messages.count, id: \.self) { idx in
-                        messageBox(idx: idx)
-                    }
+            messageSection
+                .safeAreaInset(edge: .bottom) {
+                    typingSection
                 }
-            }
-            .frame(maxWidth: .infinity)
         }
+        .onChange(of: isUserScrollingUp) { oldValue, newValue in
+            if newValue && isFocused  {
+                isFocused = false
+                isUserScrollingUp = false
+            }
+        }
+        //Background doubles up avoids keyboard bug
+        .background(Color.background)
+        .background(
+            Color.background
+                .ignoresSafeArea(.keyboard)
+        )
     }
 }
 
@@ -36,8 +49,76 @@ struct ChatView: View {
 
 extension ChatView {
     
+    private var typingSection: some View {
+        HStack (spacing: 6) {
+            TextField("Message…", text: $text)
+                .padding(.horizontal, 12)
+                .frame(height: 44)
+                .stroke(24, lineWidth: 1, color: .grayBackground)
+                .focused($isFocused)
+            
+            Button {
+                print("Hello World")
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(text.isEmpty ? Color.grayBackground : Color.accent)
+
+                    Image("ForwardArrow")
+                        .scaleEffect(0.9)
+                        .rotationEffect(.degrees(-90))
+                }
+                .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal)
+        .padding(.vertical)
+        .background(Color.background)
+    }
+    
+    
+    private var messageSection: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 4) {
+                    ForEach(messages.indices, id: \.self) { idx in
+                        let chat = messages[idx]
+                        messageBox(idx: idx, chat: chat)
+                    }
+
+                    Color.clear
+                        .frame(height: 1)
+                        .id(bottomID)
+                }
+            }
+            .scrollIndicators(.hidden)
+            .onScrollGeometryChange(for: CGFloat.self, of: { g in
+                g.contentOffset.y
+            }, action: { oldY, newY in
+                let directionThreshold: CGFloat = 24
+                let delta = newY - oldY
+                guard abs(delta) > directionThreshold else { return }
+                isUserScrollingUp = (delta < 0)
+            })
+            .frame(maxWidth: .infinity)
+
+            // Example trigger:
+            .onChange(of: isFocused) { _, newValue in
+                guard newValue else { return }
+                DispatchQueue.main.async {
+                    withAnimation(.easeInOut) {
+                        proxy.scrollTo(bottomID, anchor: .bottom)
+                    }
+                }
+            }
+        }
+    }
+    
+    
     @ViewBuilder
-    private func messageBox(idx: Int) -> some View {
+    private func messageBox(idx: Int, chat: ChatMessageModel) -> some View {
         let chat = messages[idx]
         let prevIsDifferentUser =
             idx == 0 || messages[idx - 1].authorId != chat.authorId
@@ -61,14 +142,13 @@ extension ChatView {
             if checkNewDay {
                 if let date = chat.dateCreated {
                     Text(formatDay(day: date))
-                        .font(.body(14, .medium))
-                        .padding(.horizontal)
-                        .padding(.vertical, 6)
-                        .background (
-                        )
+                        .font(.body(12, .bold))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
+                        .stroke(16, lineWidth: 1, color: .grayPlaceholder)
+                        .padding(.top, 16)
                 }
             }
-            
             
             ChatMessageView(chat: chat, isMyChat: isMyChat, nextIsDifferentUser: nextIsDifferentUser, lastIsDifferentUser: prevIsDifferentUser)
                 .padding(.bottom, nextIsDifferentUser ? 12 : 0)
