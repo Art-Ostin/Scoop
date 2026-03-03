@@ -40,16 +40,10 @@ struct ChatView: View {
             
             messageView
             
-            if (selectedProfile != nil) {
-                profileView
+            if let profile = selectedProfile {
+                profileView(profile: profile)
             }
         }
-//        .task(id: selectedProfile) {
-//            if selectedProfile == nil {
-//                try? await Task.sleep(for: .seconds(1))
-//                dismissOffset = nil
-//            }
-//        }
     }
 }
 
@@ -90,6 +84,7 @@ extension ChatView {
             if selectedProfile == nil {
                 ToolbarItem() {
                     Button {
+                        dismissOffset = nil
                         selectedProfile = profileModel
                     } label: {
                         HStack(spacing: 8) {
@@ -101,7 +96,7 @@ extension ChatView {
                                 .font(.body(17, .bold))
                                                             
                         }
-                        .padding(.trailing, 6)
+                        .offset(x: -4)
                     }
                 }
             }
@@ -110,14 +105,13 @@ extension ChatView {
             let loadImages = await vm.loadImages(profileModel: profileModel)
             profileImages = loadImages
         }
-
     }
     
-    private var profileView: some View {
+    private func profileView(profile: ProfileModel) -> some View {
         ProfileView(vm:
                     ProfileViewModel(defaults: vm.defaults,
                             sessionManager: vm.sessionManager,
-                            profileModel: profileModel,
+                            profileModel: profile,
                             imageLoader: vm.imageLoader),
                     profileImages: profileImages,
                     selectedProfile: $selectedProfile,
@@ -137,6 +131,7 @@ extension ChatView {
                 .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
                 .lineSpacing(4)
                 .focused($isFocused)
+                .lineLimit(1...5)
             
             
         

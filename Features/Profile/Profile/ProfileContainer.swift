@@ -301,31 +301,3 @@ extension ProfileView {
         }
     }
 }
-
-/*
- 
-     
-     AcceptInvitePopup(profileModel: vm.profileModel) {
-         if let meetVM {
-             @Bindable var meetVM = meetVM
-             Task {
-                 do {
-                     try await meetVM.acceptInvite(profileModel: vm.profileModel, userEvent: event)
-                     await MainActor.run { withAnimation { tabSelection.wrappedValue = .events } }
-                 } catch {
-                     print("Error sending invite: \(error)")
-                 }
-             }
-         }
-     }
- */
-
-
-/*
- //                    if meetVM != nil { //Bug Fix: Causes issues with the selectedProfile
- //                        selectedProfile = nil
- //                    } else {
-                         withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil } //Fixes bug
- //                    }
-
- */
