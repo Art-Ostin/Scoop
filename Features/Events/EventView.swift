@@ -53,7 +53,7 @@ struct EventView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(item: $ui.showMessageScreen) {profileModel in
             NavigationStack {
-                ChatView(profileModel: profileModel, isEvent: false)
+                ChatView(profileModel: profileModel, isEvent: true)
             }
         }
         .sheet(item: $ui.showEventDetails) { event in

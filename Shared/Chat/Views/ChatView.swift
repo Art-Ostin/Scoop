@@ -32,14 +32,6 @@ struct ChatView: View {
     var body: some View {
             VStack {
                 messageSection
-                    .safeAreaInset(edge: .bottom) {
-                        typingSection
-                    }
-                    .safeAreaInset(edge: .top) {
-                        HStack {
-                            
-                        }
-                    }
             }
             
             .onChange(of: isUserScrollingUp) { oldValue, newValue in
@@ -59,14 +51,15 @@ struct ChatView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: isEvent ? "xmark" : "chevron.back")
+                        Image(systemName: isEvent ? "xmark" : "chevron.left")
                             .font(.body(16, .bold))
-                            .padding(24)
                             .contentShape(Rectangle())
-                            .padding(-24)
+                            .foregroundStyle(Color.black)
                     }
                 }
-            }
+                
+                
+            }            
     }
 }
 
@@ -141,6 +134,11 @@ extension ChatView {
                     withAnimation(.easeInOut) {
                         proxy.scrollTo(bottomID, anchor: .bottom)
                     }
+                }
+            }
+            .onAppear {
+                DispatchQueue.main.async {
+                    proxy.scrollTo(bottomID, anchor: .bottom)
                 }
             }
         }
