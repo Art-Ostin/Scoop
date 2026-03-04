@@ -26,26 +26,20 @@ class ChatRepo: ChatRepository {
         return "chats/\(eventId)/messages"
     }
     
-    internal func sendMessage(draftMessage: ChatDraftMessage, event: UserEvent) async throws {
-        //Set it in the Event
-        let chatMessage = ChatMessageModel(draftMessage: draftMessage)
-        try fs.set(chatMessagePath(eventId: draftMessage.eventId), value: chatMessage)
+    func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
+        //Set the textMessage
+        let textMessage = ChatMessageModel(authorId: userId, recipientId: recipientId, content: text)
+        try fs.set(chatMessagePath(eventId: eventId), value: textMessage)
         
-        //Set it in the userEvents
-        let authorId = chatMessage.authorId
-        let recipientId = chatMessage.recipientId
-        guard let userEventId = event.id else {return}
-        let message = chatMessage.content
-        
-        try await eventsRepo.updateUserEventChatState(userEventId: userEventId, userId: authorId, message: chatMessage, isRecipient: false)
-        try await eventsRepo.updateUserEventChatState(userEventId: userEventId, userId: recipientId, message: chatMessage, isRecipient: true)
+        try await eventsRepo.updateRecentChat(eventId: eventId , userId: userId, message: textMessage, isRecipient: false)
+        try await eventsRepo.updateRecentChat(eventId: eventId , userId: recipientId, message: textMessage, isRecipient: true)
     }
     
-    
-    
-    
-    
-
+    func fetchMessages(eventId: String) async throws {
+        
+        
+        
+    }
     
     
     

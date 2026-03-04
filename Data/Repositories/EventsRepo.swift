@@ -190,7 +190,7 @@ class EventsRepo: EventsRepository {
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
     
-    func updateUserEventChatState(userEventId: String, userId: String, message: ChatMessageModel, isRecipient: Bool) async throws {
+    func updateRecentChat(eventId: String, userId: String, message: ChatMessageModel, isRecipient: Bool) async throws {
         //Fetch the values
         var fields: [String : Any] = [
             UserEventChatState.Field.lastMessageAt.rawValue : message.createdAt as Any,
@@ -199,11 +199,11 @@ class EventsRepo: EventsRepository {
         ]
         
         //Update the userEventField
-        try await fs.update(userEventPath(userId: userId, userEventId: userEventId), fields: fields)
+        try await fs.update(userEventPath(userId: userId, userEventId: eventId), fields: fields)
         
         //Increment the count by 1 if they are the recipient
         if isRecipient {
-            fs.increment(userEventPath(userId: userId, userEventId: userEventId), by: [UserEventChatState.Field.unreadCount.rawValue : Int64(1)])
+            fs.increment(userEventPath(userId: userId, userEventId: eventId), by: [UserEventChatState.Field.unreadCount.rawValue : Int64(1)])
         }
     }
     

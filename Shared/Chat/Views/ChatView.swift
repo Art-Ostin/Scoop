@@ -11,30 +11,26 @@ import UIKit
 
 struct ChatView: View {
     
-    let profileModel: ProfileModel
-    
+    @Environment(\.dismiss) private var dismiss
+        
     @Bindable var vm: EventViewModel
+    @Bindable var chatVM: ChatViewModel
     
+    @State var detailsOpen: Bool = false
     @State var selectedProfile: ProfileModel? = nil
     @State var dismissOffset: CGFloat? = nil
-    
-    @Environment(\.dismiss) private var dismiss
-    var isEvent = false
     @State var profileImages: [UIImage] = []
-
-    
-    let userId = "user_arthur"
     @State private var isUserScrollingUp  = false
     @State var text = ""
     
-    @FocusState private var isFocused
-    @State var lastWasSameUser: Bool = false
-    
-    private let bottomID = "BOTTOM_ANCHOR"
     @Namespace private var ns
-    let messages = ChatMessageModel.mockChatMessages
+    @FocusState private var isFocused
+    private let bottomID = "BOTTOM_ANCHOR"
     
-    @State var detailsOpen: Bool = false
+    
+    var isEvent = false
+    let profileModel: ProfileModel
+    
     
     var body: some View {
         ZStack {

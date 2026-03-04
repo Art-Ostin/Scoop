@@ -42,7 +42,7 @@ import SwiftUI
     }
     
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
-        try await eventRepo.updateStatus(eventId: eventId, to: status, acceptedDate: nil)
+        try await eventRepo.updateStatus(eventId: eventId, to: status)
     }
         
     func updateProfileRec(event: EventDraft? = nil, profileModel: ProfileModel, status: ProfileRec.Status) async throws {

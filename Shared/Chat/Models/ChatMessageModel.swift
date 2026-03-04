@@ -20,11 +20,11 @@ struct ChatMessageModel: Identifiable, Hashable, Codable {
     let content: String
     @ServerTimestamp var createdAt: Date?
     
-    var readByRecipient: Bool = false
+    var readByRecipient = false
     
-    init(draftMessage: ChatDraftMessage) {
-        authorId = draftMessage.authorId
-        recipientId = draftMessage.recipientId
-        content = draftMessage.text
+    init(authorId: String, recipientId: String, content: String) {
+        self.authorId = authorId
+        self.recipientId = recipientId
+        self.content = content
     }
 }
