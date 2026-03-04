@@ -21,7 +21,7 @@ struct ChatView: View {
     @Environment(\.dismiss) private var dismiss
     var isEvent = false
     @State var profileImages: [UIImage] = []
-    
+
     
     let userId = "user_arthur"
     @State private var isUserScrollingUp  = false
@@ -31,9 +31,9 @@ struct ChatView: View {
     @State var lastWasSameUser: Bool = false
     
     private let bottomID = "BOTTOM_ANCHOR"
-    
-    
+    @Namespace private var ns
     let messages = ChatMessageModel.mockChatMessages
+    
     
     var body: some View {
         ZStack {
@@ -43,11 +43,82 @@ struct ChatView: View {
                 profileView(profile: profile)
             }
         }
+        .overlay(alignment: .top) {
+            HStack {
+                if selectedProfile == nil {
+                    closeButtonMain
+                        .matchedGeometryEffect(id: "button", in: ns)
+                } else {
+                    profileCloseButton
+                        .matchedGeometryEffect(id: "button", in: ns)
+                }
+                Spacer()
+                profileButton
+            }
+            .padding(.horizontal)
+        }
     }
 }
 
 
 extension ChatView {
+    
+    
+    private var profileCloseButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: isEvent ? "xmark" : "chevron.left")
+                .font(.body(16, .bold))
+                .contentShape(Rectangle())
+                .foregroundStyle(Color.black)
+                .padding(4)
+                .glassIfAvailable(Circle(), isClear: true)
+                .offset(y: -12)
+        }
+    }
+    
+    private var closeButtonMain: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: isEvent ? "xmark" : "chevron.left")
+                .font(.body(18, .bold))
+                .contentShape(Rectangle())
+                .foregroundStyle(Color.black)
+                .padding(12)
+                .glassIfAvailable(Circle(), isClear: false)
+        }
+    }
+    
+    private var profileButton: some View {
+        Button {
+            isFocused = false
+            dismissOffset = nil
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedProfile = profileModel
+            }
+        } label: {
+            HStack(spacing: 6) {
+                if let image = profileModel.image {
+                    CirclePhoto(image: image, showShadow: false)
+                        .scaleEffect(0.9)
+                }
+                
+                Text(profileModel.profile.name)
+                    .font(.body(16, .bold))
+            }
+            .padding(.vertical, 3)
+            .padding(.leading, 4)
+            .padding(.trailing, 8)
+            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+            .opacity(
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedProfile != nil ? 0 : 1
+                }
+            )
+        }
+    }
     
     private var messageView: some View {
         VStack {
@@ -56,6 +127,8 @@ extension ChatView {
                     typingSection
                 }
         }
+        
+        
         .onChange(of: isUserScrollingUp) { oldValue, newValue in
             if newValue && isFocused  {
                 isFocused = false
@@ -69,40 +142,6 @@ extension ChatView {
                 .opacity(0.08)
                 .ignoresSafeArea(.keyboard)
         )
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: isEvent ? "xmark" : "chevron.left")
-                        .font(.body(16, .bold))
-                        .contentShape(Rectangle())
-                        .foregroundStyle(Color.black)
-                }
-            }
-            
-            if selectedProfile == nil {
-                ToolbarItem() {
-                    Button {
-                        isFocused = false
-                        dismissOffset = nil
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedProfile = profileModel
-                        }
-                    } label: {
-                        HStack(spacing: 8) {
-                            if let image = profileModel.image {
-                                CirclePhoto(image: image, showShadow: false)
-                            }
-                            
-                            Text(profileModel.profile.name)
-                                .font(.body(17, .bold))
-                        }
-                        .offset(x: -4)
-                    }
-                }
-            }
-        }
         .task {
             let loadImages = await vm.loadImages(profileModel: profileModel)
             profileImages = loadImages
@@ -172,6 +211,7 @@ extension ChatView {
                         .id(bottomID)
                 }
             }
+            .customScrollFade(height: 120, showFade: true)
             .scrollIndicators(.hidden)
             .onScrollGeometryChange(for: CGFloat.self, of: { g in
                 g.contentOffset.y
@@ -358,4 +398,43 @@ extension ChatView {
          }
      }
  }
+ */
+
+/*
+ .toolbar {
+     
+         ToolbarItem(placement: .topBarLeading) {
+             Button {
+                 dismiss()
+             } label: {
+                 Image(systemName: isEvent ? "xmark" : "chevron.left")
+                     .font(.body(16, .bold))
+                     .contentShape(Rectangle())
+                     .foregroundStyle(Color.black)
+             }
+         }
+         
+         if selectedProfile == nil {
+             ToolbarItem() {
+                 Button {
+                     isFocused = false
+                     dismissOffset = nil
+                     withAnimation(.easeInOut(duration: 0.2)) {
+                         selectedProfile = profileModel
+                     }
+                 } label: {
+                     HStack(spacing: 8) {
+                         if let image = profileModel.image {
+                             CirclePhoto(image: image, showShadow: false)
+                         }
+                         
+                         Text(profileModel.profile.name)
+                             .font(.body(17, .bold))
+                     }
+                     .offset(x: -4)
+                 }
+             }
+     }
+ }
+
  */

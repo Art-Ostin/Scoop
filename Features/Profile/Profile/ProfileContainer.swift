@@ -83,6 +83,22 @@ struct ProfileView: View {
                     .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
                     .animation(.easeInOut(duration: ui.dismissalDuration), value: selectedProfile) /*snappy(duration: ui.dismissalDuration)*/
                     .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
+//                    .overlay(alignment: .topLeading) {
+//                        if isMessageProfile {
+//                            Button {
+//                                dismiss()
+//                            } label: {
+//                                Image(systemName: "xmark")
+//                                    .font(.body(18, .bold))
+//                                    .contentShape(Rectangle())
+//                                    .foregroundStyle(Color.black)
+//                                    .padding(12)
+//                                    .glassIfAvailable(Circle(), isClear: false)
+//                                    .scaleEffect(0.6)
+////                                    .opacity( dismissOffset == 0 ? 1 : 0)
+//                            }
+//                        }
+//                    }
                 }
             }
         }
