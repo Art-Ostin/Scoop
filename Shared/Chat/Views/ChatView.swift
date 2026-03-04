@@ -209,10 +209,11 @@ extension ChatView {
                 ClearRectangle(size: 24)
                 
                 LazyVStack(spacing: 4) {
-                    ForEach(messages.indices, id: \.self) { idx in
-                        let chat = messages[idx]
+                    ForEach(chatVM.messages.indices) {idx in
+                        let chat = chatVM.messages[idx]
                         messageBox(idx: idx, chat: chat)
                     }
+                    
                     
                     Color.clear
                         .frame(height: 1)
