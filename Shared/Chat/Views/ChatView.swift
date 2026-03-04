@@ -47,10 +47,8 @@ struct ChatView: View {
             HStack {
                 if selectedProfile == nil {
                     closeButtonMain
-                        .matchedGeometryEffect(id: "button", in: ns)
                 } else {
                     profileCloseButton
-                        .matchedGeometryEffect(id: "button", in: ns)
                 }
                 Spacer()
                 profileButton
@@ -69,12 +67,13 @@ extension ChatView {
             dismiss()
         } label: {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
+                .matchedGeometryEffect(id: "button", in: ns)
                 .font(.body(16, .bold))
                 .contentShape(Rectangle())
                 .foregroundStyle(Color.black)
-                .padding(4)
+                .padding(6)
                 .glassIfAvailable(Circle(), isClear: true)
-                .offset(y: -12)
+                .offset(y: -14)
         }
     }
     
@@ -83,6 +82,7 @@ extension ChatView {
             dismiss()
         } label: {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
+                .matchedGeometryEffect(id: "button", in: ns)
                 .font(.body(18, .bold))
                 .contentShape(Rectangle())
                 .foregroundStyle(Color.black)
