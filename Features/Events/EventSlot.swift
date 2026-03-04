@@ -51,6 +51,7 @@ struct EventSlot: View {
                     .padding(.bottom, 144)
                     .overlay(alignment: .topTrailing) {
                         messageButton
+                            .contentShape(.rect)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 6)
                     }
