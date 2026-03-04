@@ -97,13 +97,7 @@ extension ChatView {
     }
     
     private var profileButton: some View {
-        Button {
-            isFocused = false
-            dismissOffset = nil
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedProfile = profileModel
-            }
-        } label: {
+        Button(action: openProfile) {
             HStack(spacing: 6) {
                 if let image = profileModel.image {
                     CirclePhoto(image: image, showShadow: false)
@@ -122,6 +116,19 @@ extension ChatView {
                     selectedProfile != nil ? 0 : 1
                 }
             )
+        }
+        .contextMenu {
+            Button(action: openProfile) {
+                Label("View profile", systemImage: "person.crop.circle")
+            }
+        }
+    }
+    
+    private func openProfile() {
+        isFocused = false
+        dismissOffset = nil
+        withAnimation(.easeInOut(duration: 0.2)) {
+            selectedProfile = profileModel
         }
     }
     
