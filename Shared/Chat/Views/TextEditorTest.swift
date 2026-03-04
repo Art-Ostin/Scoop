@@ -9,7 +9,20 @@ import SwiftUI
 
 struct TextEditorTest: View {
     var body: some View {
-        Text("Hello, World!")
+        Menu {
+            Text("Action 1")
+            
+            Text("Action 2")
+            
+            Text("Action 3")
+        } label: {
+            HStack {
+                Text("Tap Me")
+                Image(systemName: "chevron.down")
+            }
+        }
+
+        
     }
 }
 

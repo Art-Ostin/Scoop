@@ -178,8 +178,6 @@ extension ChatView {
                 .lineSpacing(4)
                 .focused($isFocused)
                 .lineLimit(1...5)
-            
-            
         
             Button {
                 print("Hello World")
@@ -205,6 +203,8 @@ extension ChatView {
     private var messageSection: some View {
         ScrollViewReader { proxy in
             ScrollView {
+                ClearRectangle(size: 24)
+                
                 LazyVStack(spacing: 4) {
                     ForEach(messages.indices, id: \.self) { idx in
                         let chat = messages[idx]

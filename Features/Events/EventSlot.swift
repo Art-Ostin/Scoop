@@ -51,7 +51,6 @@ struct EventSlot: View {
                     .padding(.bottom, 144)
                     .overlay(alignment: .topTrailing) {
                         messageButton
-                            .contentShape(.rect)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 6)
                     }
@@ -126,6 +125,9 @@ extension EventSlot {
                 .font(.body(17, .bold))
                 .padding(6)
                 .glassIfAvailable(isClear: true)
+                .padding(24)
+                .contentShape(Rectangle())
+                .padding(-24)
         }
     }
     
