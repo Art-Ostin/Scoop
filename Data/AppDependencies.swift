@@ -19,6 +19,7 @@ final class AppDependencies {
     let profilesRepo: ProfilesRepository
     let imageLoader: ImageLoading
     let profileLoader: ProfileLoading
+    let chatRepo: ChatRepository 
     
     @MainActor
     lazy var sessionManager: SessionManager = {
@@ -38,16 +39,18 @@ final class AppDependencies {
         let fs = FirestoreService()
         let userRepo = UserRepo(fs: fs)
         let imageLoader = ImageLoader()
+        let eventsRepo = EventsRepo(userRepo: userRepo, fs: fs)
         
         //2. assigning the variables used through the app with the initialised services
         self.authService = auth
         self.storageService = StorageService()
         self.userRepo = userRepo
-        self.eventRepo = EventsRepo(userRepo: userRepo, fs: fs)
+        self.eventRepo = eventsRepo
         self.profilesRepo = ProfileRepo(fs: fs)
         self.imageLoader = ImageLoader()
         self.profileLoader = ProfileLoader(userRepo: userRepo, imageLoader: imageLoader)
         self.defaultsManager = MainActor.assumeIsolated { DefaultsManager() }
+        self.chatRepo = ChatRepo(eventsRepo: eventsRepo, fs: fs)
     }
 }
 

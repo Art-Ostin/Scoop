@@ -115,18 +115,36 @@ class EventsRepo: EventsRepository {
         return (initial, updates)
     }
     
-    func updateStatus(eventId: String, to newStatus: Event.EventStatus, acceptedDate: Date? = nil) async throws {
+    func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         var fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
-        if let acceptedDate {
-            fields[Event.Field.acceptedTime.rawValue] = acceptedDate
-        }
 
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: fields)
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
         try await fs.update(EventPath(eventId: eventId), fields: fields)
-        
     }
+    
+    func acceptEvent(eventId: String, acceptedDate: Date) async throws {
+        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
+        
+        let userEventChatState = UserEventChatState()
+        
+        let eventFields: [String : Any] = [
+            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
+            Event.Field.acceptedTime.rawValue: acceptedDate
+        ]
+        
+        let userEventFields: [String : Any] = [
+            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
+            Event.Field.acceptedTime.rawValue: acceptedDate,
+            UserEvent.Field.userEventChatState.rawValue : userEventChatState
+        ]
+        
+        try await fs.update(userEventPath(userId: initiatorId, userEventId: event.id), fields: userEventFields)
+        try await fs.update(userEventPath(userId: recipientId, userEventId: event.id), fields: userEventFields)
+        try await fs.update(EventPath(eventId: event.id), fields: eventFields)
+    }
+    
         
     func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
         let path = "users/\(userId)/user_events"
@@ -170,5 +188,26 @@ class EventsRepo: EventsRepository {
                 
         //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
         try await deleteAllSentPendingInvites(userId: cancelledById)
+    }
+    
+    func updateUserEventChatState(userEventId: String, userId: String, message: ChatMessageModel, isRecipient: Bool) async throws {
+        //Fetch the values
+        var fields: [String : Any] = [
+            UserEventChatState.Field.lastMessageAt.rawValue : message.createdAt as Any,
+            UserEventChatState.Field.lastMessageAuthor.rawValue : message.authorId,
+            UserEventChatState.Field.lastMessagePreview.rawValue : message.content.prefix(50)
+        ]
+        
+        //Update the userEventField
+        try await fs.update(userEventPath(userId: userId, userEventId: userEventId), fields: fields)
+        
+        //Increment the count by 1 if they are the recipient
+        if isRecipient {
+            fs.increment(userEventPath(userId: userId, userEventId: userEventId), by: [UserEventChatState.Field.unreadCount.rawValue : Int64(1)])
+        }
+    }
+    
+    func readRecentMessages(userId: String, userEventId: String) async throws {
+        try await fs.update(userEventPath(userId: userId, userEventId: userEventId), fields: [UserEventChatState.Field.unreadCount.rawValue : 0])
     }
 }

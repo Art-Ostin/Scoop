@@ -6,15 +6,19 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
-struct ChatModel: Identifiable {
-    let id: String
-    let creator_id: String
-    let recipient_id: String
-    let dateCreated: Date
-    let dateModified: Date
+
+struct ChatThread: Codable, Identifiable {
+    let eventId: String
+    var id: String { eventId }
+    let participantIds: [String]
     
-    
-    
-    
+    var lastMessagePreview: String?
+    var lastMessageAuthorId: String?
+    var lastMessageAt: Date?
+
+    @ServerTimestamp var createdAt: Date?
+    @ServerTimestamp var updatedAt: Date?
+
 }

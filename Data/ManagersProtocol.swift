@@ -50,11 +50,21 @@ protocol UserRepository {
 protocol EventsRepository {
     func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws
     func eventTracker(userId: String, now: Date) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>)
-    func updateStatus(eventId: String, to newStatus: Event.EventStatus, acceptedDate: Date?) async throws
+    func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws
     func fetchPendingSentInvites(userId: String) async throws -> [UserEvent]
     func deleteAllSentPendingInvites(userId: String) async throws
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
+    func acceptEvent(eventId: String, acceptedDate: Date) async throws
+    func updateUserEventChatState(userEventId: String, userId: String, message: ChatMessageModel, isRecipient: Bool) async throws
+    func readRecentMessages(userId: String, userEventId: String) async throws
 }
+
+protocol ChatRepository {
+    
+    func sendMessage(draftMessage: ChatDraftMessage, event: UserEvent) async throws
+    
+}
+
 
 protocol ProfilesRepository {
     func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>)

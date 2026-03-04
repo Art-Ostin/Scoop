@@ -57,12 +57,11 @@ import SwiftUI
     
     func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
         guard let eventId = userEvent.id else { return }
-        let acceptedDate = userEvent.proposedTimes.dates.first?.date
-        try await eventRepo.updateStatus(eventId: eventId, to: .accepted, acceptedDate: acceptedDate)
-
+        guard let acceptedDate = userEvent.proposedTimes.dates.first?.date else { return }
+        try await eventRepo.acceptEvent(eventId: eventId, acceptedDate: acceptedDate)
         var acceptedEvent = userEvent
         acceptedEvent.status = .accepted
-        acceptedEvent.acceptedTime = acceptedDate ?? acceptedEvent.acceptedTime
+        acceptedEvent.acceptedTime = acceptedDate
         let acceptedModel = ProfileModel(event: acceptedEvent, profile: profileModel.profile, image: profileModel.image)
 
         s.invites.removeAll { $0.id == acceptedModel.id }

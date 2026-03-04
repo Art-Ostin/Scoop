@@ -34,6 +34,7 @@ struct UserEvent: Identifiable, Codable {
     //4. Event Updatable Information
     var status: Event.EventStatus = .pending
     var canText: Bool = false
+    var recentChatState: UserEventChatState?
 
     //5. MetaData
     var updatedAt: Date? = nil
@@ -59,6 +60,6 @@ extension UserEvent {
     enum Field: String {
         case otherUserId, otherUserName, otherUserPhoto, role,
              type, proposedTimes, acceptedTime, location, message,
-             status, canText, updatedAt, earlyTerminatorID
+             status, canText, updatedAt, earlyTerminatorID, userEventChatState
     }
 }
