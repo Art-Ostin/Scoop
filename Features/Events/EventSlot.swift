@@ -45,22 +45,22 @@ struct EventSlot: View {
                         eventInfo(event: event)
                     }
                     .padding(.top, 60)
-                    .overlay(alignment: .topTrailing) {
-                        messageButton
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 2)
-                            .padding(.top, 8)
-                    }
                     .onAppear {
                         locationManager.requestWhenInUseAuthorization()
                     }
                     .padding(.bottom, 144)
+                    .overlay(alignment: .topTrailing) {
+                        messageButton
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 6)
+                    }
                 }
                 .measure(key: ImageSizeKey.self) { $0.size.width }
                 .onPreferenceChange(ImageSizeKey.self) { screenWidth in
                     imageSize = screenWidth - 48 //Adds 24 padding on each side
                 }
                 .scrollIndicators(.hidden)
+                .customScrollFade(height: 100, showFade: true)
             }
         }
     }
@@ -118,13 +118,13 @@ extension EventSlot {
         Button {
             ui.showMessageScreen = profileModel
         } label: {
-            Image("ChatIcon")
+            Image("roundMessageIcon")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 20, height: 20)
+                .frame(width: 22, height: 22)
                 .font(.body(17, .bold))
-                .padding(8)
-                .glassIfAvailable()
+                .padding(6)
+                .glassIfAvailable(isClear: true)
         }
     }
     
