@@ -34,6 +34,7 @@ struct ChatView: View {
     @Namespace private var ns
     let messages = ChatMessageModel.mockChatMessages
     
+    @State var detailsOpen: Bool = false
     
     var body: some View {
         ZStack {
@@ -49,11 +50,15 @@ struct ChatView: View {
                     closeButtonMain
                 } else {
                     profileCloseButton
+                        .opacity(detailsOpen ? 0 : 1)
                 }
                 Spacer()
                 profileButton
             }
             .padding(.horizontal)
+        }
+        .onPreferenceChange(OpenDetails.self) { newValue in
+            detailsOpen = newValue
         }
     }
 }

@@ -131,13 +131,10 @@ struct TopSafeArea: PreferenceKey {
       }
 }
 
-/*
- extension Array {
-     func chunked(into size: Int) -> [[Element]] {
-         stride(from: 0, to: count, by: size).map { start in
-             Array(self[start..<Swift.min(start + size, count)])
-         }
-     }
- }
-
- */
+struct OpenDetails: PreferenceKey {
+    static var defaultValue: Bool = false
+    
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = nextValue()
+    }
+}
