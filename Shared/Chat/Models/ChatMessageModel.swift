@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-struct ChatMessageModel: Identifiable, Hashable, Codable {
+struct MessageModel: Identifiable, Hashable, Codable {
     
     //So always ID even if not saved yet
     @DocumentID var _id: String?
@@ -18,7 +18,7 @@ struct ChatMessageModel: Identifiable, Hashable, Codable {
     let authorId: String
     let recipientId: String
     let content: String
-    @ServerTimestamp var createdAt: Date?
+    @ServerTimestamp var dateCreated: Date?
     
     var readByRecipient = false
     
@@ -26,5 +26,9 @@ struct ChatMessageModel: Identifiable, Hashable, Codable {
         self.authorId = authorId
         self.recipientId = recipientId
         self.content = content
+    }
+    
+    enum Field: String {
+        case authorId, recipientId, content, createdAt
     }
 }

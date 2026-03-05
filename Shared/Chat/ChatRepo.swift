@@ -35,11 +35,13 @@ class ChatRepo: ChatRepository {
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: recipientId, message: textMessage, isRecipient: true)
     }
     
-    func fetchMessages(eventId: String) async throws {
-        
-        
-        
+    func fetchMessages(eventId: String) async throws -> [ChatMessageModel] {
+        let path = chatMessagePath(eventId: eventId)
+        let messages: [ChatMessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: ChatMessageModel.Field.createdAt.rawValue, descending: true), limit: 100)
+        return messages
     }
+    
+    //Set up streaming Messages 
     
     
     
@@ -59,3 +61,4 @@ class ChatRepo: ChatRepository {
     
     
 }
+

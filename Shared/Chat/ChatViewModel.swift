@@ -16,14 +16,15 @@ class ChatViewModel {
     
     let profileModel: ProfileModel
     
-    let messages: [ChatMessageModel] = []
+    var messages: [MessageModel] = []
     
     init(session: SessionManager, chatRepo: ChatRepository, profileModel: ProfileModel) {
         self.chatRepo = chatRepo
         self.session = session
         self.profileModel = profileModel
-    }
         
+        
+    }
     
     var userId: String {session.user.id}
     
@@ -33,4 +34,13 @@ class ChatViewModel {
         let recipientId = profileModel.profile.id
         try await chatRepo.sendMessage(text: text, eventId: eventId, userId: userId, recipientId: recipientId)
     }
+    
+    
+    func fetchMessages() async throws {
+        guard let eventId = profileModel.event?.id else {return}
+
+        messages = try await chatRepo.fetchMessages(eventId: eventId)
+    }
+    
+    
 }
