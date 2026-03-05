@@ -8,40 +8,52 @@
 import SwiftUI
 
 struct TypeMessageView: View {
+    @Bindable var vm: ChatViewModel
+    @State var text = ""
+    var isFocused: FocusState<Bool>.Binding
+
     var body: some View {
         HStack (alignment: .bottom, spacing: 6) {
-            
-            TextField("Message...", text: $text, axis: .vertical)
-                .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-                .padding(.horizontal)
-                .padding(.vertical, 10)
-                .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
-                .lineSpacing(4)
-                .focused($isFocused)
-                .lineLimit(1...5)
-        
-            Button {
-                print("Hello World")
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(text.isEmpty ? Color.grayBackground : Color.accent)
-                    
-                    Image("SendArrow")
-                        .scaleEffect(0.8)
-                }
-                .frame(width: 44, height: 44)
-                .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)
-            }
-            .buttonStyle(.plain)
+            chatTextField
+            sendMessageView
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 12)
         .padding(.horizontal)
-        .padding(.bottom, isFocused ? 12 : 0)
+        .padding(.bottom, isFocused.wrappedValue ? 12 : 0)
     }
 }
 
-#Preview {
-    TypeMessageView()
+extension TypeMessageView {
+    
+    private var chatTextField: some View {
+        TextField("Message...", text: $text, axis: .vertical)
+            .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+            .lineSpacing(4)
+            .focused(isFocused)
+            .lineLimit(1...5)
+    }
+    
+    private var sendMessageView: some View {
+        Button {
+            Task { try await sendMessage() }
+        } label: {
+            Image("SendArrow")
+                .scaleEffect(0.8)
+                .frame(width: 44, height: 44)
+                .background(
+                    text.isEmpty ? Color.grayBackground : Color.accent,
+                    in: Circle()
+                )
+                .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)
+        }
+    }
+    
+    private func sendMessage() async throws {
+        try await vm.sendMessage(text: text)
+        text = ""
+    }
 }

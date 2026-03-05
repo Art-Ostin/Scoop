@@ -8,73 +8,43 @@
 import SwiftUI
 
 struct ChatScrollView: View {
-    
     let bottomID = "bottomID"
-    
     @Bindable var vm: ChatViewModel
-    
     var isFocused: FocusState<Bool>.Binding
     
-    
-    
     var body: some View {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    
-                    LazyVStack(spacing: 4) {
-                        
-                        ClearRectangle(size: 24)
-                        ForEach(vm.messages) {idx in
-                            let chat = vm.messages[idx]
-                            MessageSection(vm: vm, idx: idx, message: chat)
-                        }
-                        
-                        ClearRectangle(size: 1).id(bottomID)
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 4) {
+                    ClearRectangle(size: 24)
+                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
+                        MessageSection(vm: vm, idx: idx, message: chat)
                     }
+                    ClearRectangle(size: 1).id(bottomID)
                 }
-                .frame(maxWidth: .infinity)
-                .customScrollFade(height: 100, showFade: true)
-                .scrollIndicators(.hidden)
-                .onChange (of: isFocused) {
-                    if isFocused { withAnimation(.easeInOut) {proxy.scrollTo(bottomID, anchor: .bottom)} }
+            }
+            .frame(maxWidth: .infinity)
+            .customScrollFade(height: 100, showFade: true)
+            .scrollIndicators(.hidden)
+            .onChange(of: isFocused.wrappedValue) { _, focused in
+                if focused { withAnimation(.easeInOut) { proxy.scrollTo(bottomID, anchor: .bottom) } }
+            }
+            .onAppear {proxy.scrollTo(bottomID, anchor: .bottom)}
+            .background(Color(red: 0.96, green: 0.95, blue: 0.92).opacity(0.08))
+            .background(
+                Color(red: 0.96, green: 0.95, blue: 0.92)
+                    .opacity(0.08)
+                    .ignoresSafeArea(.keyboard)
+            )
+            .onScrollGeometryChange(for: CGFloat.self) {scrollGeo in
+                scrollGeo.contentOffset.y
+            } action: {oldY, newY in
+                //Get total contentOffset for swipe, if big enough swipe, dismiss keyboard.
+                let totalMove  = newY - oldY
+                if totalMove > -20 {
+                    isFocused.wrappedValue = false
                 }
-                .onAppear {proxy.scrollTo(bottomID, anchor: .bottom)}
-                .background(Color(red: 0.96, green: 0.95, blue: 0.92).opacity(0.08))
-                .background(
-                    Color(red: 0.96, green: 0.95, blue: 0.92)
-                        .opacity(0.08)
-                        .ignoresSafeArea(.keyboard)
-                )
+            }
+        }
     }
 }
-
-    
-    
-    
-    
-    
-    
-/*
- .onChange(of: isUserScrollingUp) { oldValue, newValue in
-     if newValue && isFocused  {
-         isFocused = false
-         isUserScrollingUp = false
-     }
-
- */
-
-/*
- .onScrollGeometryChange(for: CGFloat.self) { geometry in
-     geoe
-     
-     
-     g.contentOffset.y
- }, action: { oldY, newY in
-     let directionThreshold: CGFloat = 24
-     let delta = newY - oldY
-     guard abs(delta) > directionThreshold else { return }
-     isUserScrollingUp = (delta < 0)
- })
-}
-
- */

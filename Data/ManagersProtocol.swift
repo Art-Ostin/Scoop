@@ -55,14 +55,14 @@ protocol EventsRepository {
     func deleteAllSentPendingInvites(userId: String) async throws
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
     func acceptEvent(eventId: String, acceptedDate: Date) async throws
-    func updateRecentChat(eventId: String, userId: String, message: ChatMessageModel, isRecipient: Bool) async throws
+    func updateRecentChat(eventId: String, userId: String, message: MessageModel, isRecipient: Bool) async throws
     func readRecentMessages(userId: String, userEventId: String) async throws
 }
 
 protocol ChatRepository {
     
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws
-    func fetchMessages(eventId: String) async throws -> [ChatMessageModel]
+    func fetchMessages(eventId: String) async throws -> [MessageModel]
 }
 
 

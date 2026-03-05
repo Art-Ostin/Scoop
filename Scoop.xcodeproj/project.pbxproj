@@ -115,6 +115,7 @@
 		657683202F59111C0094A02D /* TypeMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831F2F59111C0094A02D /* TypeMessageView.swift */; };
 		657683222F5913F70094A02D /* ChatDayDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657683212F5913F70094A02D /* ChatDayDivider.swift */; };
 		657683242F591B480094A02D /* MessageSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657683232F591B480094A02D /* MessageSection.swift */; };
+		657683262F59CA380094A02D /* MessageTriangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657683252F59CA380094A02D /* MessageTriangle.swift */; };
 		6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7ED2E687FB3004217A4 /* FirestoreService.swift */; };
 		6576B7F22E69082F004217A4 /* ProfileLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576B7F12E69082F004217A4 /* ProfileLoader.swift */; };
 		6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */; };
@@ -345,6 +346,7 @@
 		6576831F2F59111C0094A02D /* TypeMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeMessageView.swift; sourceTree = "<group>"; };
 		657683212F5913F70094A02D /* ChatDayDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatDayDivider.swift; sourceTree = "<group>"; };
 		657683232F591B480094A02D /* MessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSection.swift; sourceTree = "<group>"; };
+		657683252F59CA380094A02D /* MessageTriangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTriangle.swift; sourceTree = "<group>"; };
 		6576B7ED2E687FB3004217A4 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
 		6576B7F12E69082F004217A4 /* ProfileLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLoader.swift; sourceTree = "<group>"; };
 		6577D7AD2E1FFD2F00FFCF82 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -543,8 +545,8 @@
 		65140B192F55E3F300ED1DDE /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				65F993CA2F58847400EC810B /* ChatViewModel.swift */,
 				65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */,
+				65F993CA2F58847400EC810B /* ChatViewModel.swift */,
 				65140B232F55EEF300ED1DDE /* Views */,
 				65140B1A2F55E40700ED1DDE /* Models */,
 			);
@@ -571,6 +573,7 @@
 				657683212F5913F70094A02D /* ChatDayDivider.swift */,
 				6576831F2F59111C0094A02D /* TypeMessageView.swift */,
 				6576831B2F5910580094A02D /* ChatHeaderBar.swift */,
+				657683252F59CA380094A02D /* MessageTriangle.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1330,6 +1333,7 @@
 				6594971A2E01DD4000880921 /* AppContainer.swift in Sources */,
 				65F660CA2F23F46300AF791F /* FrozenContextView.swift in Sources */,
 				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
+				657683262F59CA380094A02D /* MessageTriangle.swift in Sources */,
 				657B8D4B2F2CFA5F00583ADA /* SaveIcon.swift in Sources */,
 				65D1C40E2F3FCA1C00B61C00 /* MeetInfoView.swift in Sources */,
 				651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */,

@@ -34,7 +34,26 @@ import Foundation
          let day = Calendar.current.component(.day, from: date)
          return "\(weekday) \(day)\(ordinalSuffix(for: day)) \(month)"
      }
-          
+     
+     static func twoDigitHour(_ date: Date) -> String {
+         return date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)))
+     }
+     
+     static func messageDay(_ date: Date) -> String {
+         let cal = Calendar.current
+         let now = Date()
+         
+         if cal.isDateInToday(day) { return "Today" }
+         if cal.isDateInYesterday(day) { return "Yesterday" }
+
+         
+         
+     }
+     
+
+     
+     
+     
      
      static func placeName(_ place: EventLocation) -> String {
          place.name

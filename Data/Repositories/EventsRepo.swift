@@ -190,10 +190,10 @@ class EventsRepo: EventsRepository {
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
     
-    func updateRecentChat(eventId: String, userId: String, message: ChatMessageModel, isRecipient: Bool) async throws {
+    func updateRecentChat(eventId: String, userId: String, message: MessageModel, isRecipient: Bool) async throws {
         //Fetch the values
         var fields: [String : Any] = [
-            UserEventChatState.Field.lastMessageAt.rawValue : message.createdAt as Any,
+            UserEventChatState.Field.lastMessageAt.rawValue : message.dateCreated as Any,
             UserEventChatState.Field.lastMessageAuthor.rawValue : message.authorId,
             UserEventChatState.Field.lastMessagePreview.rawValue : message.content.prefix(50)
         ]

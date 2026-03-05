@@ -28,20 +28,20 @@ class ChatRepo: ChatRepository {
     
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
         //Set the textMessage
-        let textMessage = ChatMessageModel(authorId: userId, recipientId: recipientId, content: text)
+        let textMessage = MessageModel(authorId: userId, recipientId: recipientId, content: text)
         try fs.set(chatMessagePath(eventId: eventId), value: textMessage)
         
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: userId, message: textMessage, isRecipient: false)
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: recipientId, message: textMessage, isRecipient: true)
     }
     
-    func fetchMessages(eventId: String) async throws -> [ChatMessageModel] {
+    func fetchMessages(eventId: String) async throws -> [MessageModel] {
         let path = chatMessagePath(eventId: eventId)
-        let messages: [ChatMessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: ChatMessageModel.Field.createdAt.rawValue, descending: true), limit: 100)
+        let messages: [MessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: MessageModel.Field.createdAt.rawValue, descending: true), limit: 100)
         return messages
     }
     
-    //Set up streaming Messages 
+    //Set up streaming Messages
     
     
     
