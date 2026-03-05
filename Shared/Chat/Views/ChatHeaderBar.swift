@@ -11,21 +11,19 @@ struct ChatHeaderBar: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    @Binding var profileOpen: Bool
+    @Binding var profileOpen: ProfileModel?
     @Binding var dismissOffset: CGFloat?
     
     @State var detailsOpen = false
-
     @Namespace private var ns
     
     let profileModel: ProfileModel
     let isEvent: Bool
-    
     var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
-            if profileOpen {
+            if profileOpen != nil {
                 profileCloseButton
             } else {
                 closeButtonMain
@@ -71,7 +69,7 @@ extension ChatHeaderBar {
             .padding(.leading, 4)
             .padding(.trailing, 8)
             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
-            .opacity(profileOpen ? 0 : 1)
+            .opacity(profileOpen != nil ? 0 : 1)
             .animation(.easeInOut(duration: 0.2), value: profileOpen)
         }
     }
@@ -95,6 +93,6 @@ extension ChatHeaderBar {
     private func openProfile() {
         isFocused.wrappedValue = false
         dismissOffset = nil
-        profileOpen = true
+        profileOpen = profileModel
     }
 }

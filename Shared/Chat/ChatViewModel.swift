@@ -22,8 +22,6 @@ class ChatViewModel {
         self.chatRepo = chatRepo
         self.session = session
         self.profileModel = profileModel
-        
-        
     }
     
     var userId: String {session.user.id}
@@ -38,7 +36,6 @@ class ChatViewModel {
     
     func fetchMessages() async throws {
         guard let eventId = profileModel.event?.id else {return}
-
         messages = try await chatRepo.fetchMessages(eventId: eventId)
     }
     

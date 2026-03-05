@@ -49,7 +49,6 @@ struct NavButton: View {
 
 struct ProfileDismissButton : View {
     let color: Color
-    @Binding var selectedProfile: ProfileModel?
     let onDismiss: (() -> Void)?
     
     var body: some View {

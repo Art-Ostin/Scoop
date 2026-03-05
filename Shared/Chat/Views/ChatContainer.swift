@@ -10,52 +10,43 @@ import UIKit
 
 
 struct ChatContainer: View {
-    
-        
     @Bindable var vm: ChatViewModel
     @Bindable var eventVM: EventViewModel
     
-    @State var selectedProfile: ProfileModel? = nil
+    @State var profileOpen: ProfileModel? = nil
     @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [UIImage] = []
-    @State var text = ""
-    
-    @Namespace private var ns
     
     @FocusState private var isFocused
-    
     
     var isEvent = false
     let profileModel: ProfileModel
     
-    
     var body: some View {
         ZStack {
-            messageView
-            
-            if let profile = selectedProfile {
-                profileView(profile: profile)
+            ChatScrollView(vm: vm, isFocused: $isFocused)
+            if profileOpen != nil {
+                profileView
             }
         }
-        .overlay(alignment: .top) {chatHeaderView}
-        .task {
-            let loadImages = await vm.loadImages(profileModel: profileModel)
-            profileImages = loadImages
+        .overlay(alignment: .top) {
+            ChatHeaderBar(profileOpen: $profileOpen, dismissOffset: $dismissOffset, profileModel: profileModel, isEvent: isEvent, isFocused: $isFocused)
         }
+        .task { profileImages = await eventVM.loadImages(profileModel: profileModel)}
     }
 }
 
 //Other Views
 extension ChatContainer {
     
-    private func profileView(profile: ProfileModel) -> some View {
+    private var profileView: some View {
         ProfileView(vm:
                     ProfileViewModel(defaults: eventVM.defaults,
                             sessionManager: eventVM.sessionManager,
-                            profileModel: profile,
+                            profileModel: profileModel,
                             imageLoader: eventVM.imageLoader),
                     profileImages: profileImages,
-                    selectedProfile: $selectedProfile,
+                    selectedProfile: $profileOpen,
                     dismissOffset: $dismissOffset, isMessageProfile: true)
         .id(profileModel.profile.id)
         .zIndex(1)

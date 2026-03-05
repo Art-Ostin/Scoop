@@ -77,7 +77,7 @@ struct ProfileTitle: View {
             Text(p.name)
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
-            ProfileDismissButton(color: .black, selectedProfile: $selectedProfile, onDismiss: onDismiss)
+            ProfileDismissButton(color: .black, onDismiss: onDismiss)
         }
         .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))

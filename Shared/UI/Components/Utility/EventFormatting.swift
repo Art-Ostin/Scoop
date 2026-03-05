@@ -39,22 +39,6 @@ import Foundation
          return date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)))
      }
      
-     static func messageDay(_ date: Date) -> String {
-         let cal = Calendar.current
-         let now = Date()
-         
-         if cal.isDateInToday(day) { return "Today" }
-         if cal.isDateInYesterday(day) { return "Yesterday" }
-
-         
-         
-     }
-     
-
-     
-     
-     
-     
      static func placeName(_ place: EventLocation) -> String {
          place.name
          ?? place.address.map { String($0.prefix(20)) }

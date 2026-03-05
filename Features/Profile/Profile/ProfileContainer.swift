@@ -126,7 +126,7 @@ extension ProfileView {
             ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .black, selectedProfile: $selectedProfile) {
+                ProfileDismissButton(color: .black) {
                     dismissProfile(using: geo)
                 }
             }
@@ -141,7 +141,7 @@ extension ProfileView {
             Text(displayProfile.name)
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .white, selectedProfile: $selectedProfile) { onDismiss() }
+                ProfileDismissButton(color: .white) { onDismiss() }
                     .padding(6)
                     .glassIfAvailable(Circle())
             }
