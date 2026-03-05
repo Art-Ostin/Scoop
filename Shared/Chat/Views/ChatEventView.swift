@@ -52,27 +52,25 @@ struct ChatEventView: View {
 }
 extension ChatEventView {
     
-    
     private func eventDetails(event: UserEvent) -> some View {
         Text(eventDetailsText(event: event, isLocationPressed: isLocationPressed))
         .font(.body(16, .medium))
         .lineLimit(2)
         .lineSpacing(6)
         .foregroundStyle(Color.black.opacity(0.8))
-        .tint(isLocationPressed ? Color.grayText : Color.accent)
+        .tint(Color.accent)
         .environment(\.openURL, OpenURLAction { url in
             guard url == Self.locationURL else {
                 return .systemAction(url)
             }
             Task { @MainActor in
-                withAnimation(.easeOut(duration: 0.06)) {
+                withAnimation(.easeOut(duration: 0.01)) {
                     isLocationPressed = true
                 }
-                try? await Task.sleep(nanoseconds: 120_000_000)
-                withAnimation(.easeOut(duration: 0.08)) {
-                    isLocationPressed = false
-                }
+                try? await Task.sleep(nanoseconds: 50_000_000)
                 MapsRouter.openGoogleMaps(item: event.location.mapItem)
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                isLocationPressed = false
             }
             return .handled
         })
@@ -82,7 +80,7 @@ extension ChatEventView {
         var details = AttributedString("\(eventTime(event: event)) · ")
         var location = AttributedString(event.location.name ?? event.location.address ?? "")
         location.link = Self.locationURL
-        location.foregroundColor = Color.accent
+        location.foregroundColor = isLocationPressed ? Color.grayText.opacity(0.5) : Color.accent
         details += location
         return details
     }
