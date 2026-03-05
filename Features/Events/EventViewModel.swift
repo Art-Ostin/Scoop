@@ -19,13 +19,15 @@ import FirebaseFirestore
     let userRepo: UserRepository
     let defaults: DefaultsManaging
     let eventRepo: EventsRepository
+    let chatRepo: ChatRepository
     let imageLoader: ImageLoading
     
-    init(sessionManager: SessionManager, userRepo: UserRepository, defaults: DefaultsManaging, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(sessionManager: SessionManager, userRepo: UserRepository, defaults: DefaultsManaging, eventRepo: EventsRepository, chatRepo: ChatRepository, imageLoader: ImageLoading) {
         self.sessionManager = sessionManager
         self.userRepo = userRepo
         self.eventRepo = eventRepo
         self.imageLoader = imageLoader
+        self.chatRepo = chatRepo
         self.defaults = defaults
     }
 

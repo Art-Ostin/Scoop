@@ -16,14 +16,16 @@ class FrozenViewModel {
     let authService: AuthServicing
     let userRepo: UserRepository
     let eventRepo: EventsRepository
+    let chatRepo: ChatRepository
     let imageLoader: ImageLoading
     
-    init(sessionManager: SessionManager, defaults: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(sessionManager: SessionManager, defaults: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository, chatRepo: ChatRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.sessionManager = sessionManager
         self.defaults = defaults
         self.authService = authService
         self.userRepo = userRepo
         self.eventRepo = eventRepo
+        self.chatRepo = chatRepo
         self.imageLoader = imageLoader
     }
     var user: UserProfile {sessionManager.user}

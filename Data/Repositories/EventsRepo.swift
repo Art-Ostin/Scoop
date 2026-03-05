@@ -117,7 +117,7 @@ class EventsRepo: EventsRepository {
     
     func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
-        var fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
+        let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
 
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: fields)
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
@@ -192,7 +192,7 @@ class EventsRepo: EventsRepository {
     
     func updateRecentChat(eventId: String, userId: String, message: MessageModel, isRecipient: Bool) async throws {
         //Fetch the values
-        var fields: [String : Any] = [
+        let fields: [String : Any] = [
             UserEventChatState.Field.lastMessageAt.rawValue : message.dateCreated as Any,
             UserEventChatState.Field.lastMessageAuthor.rawValue : message.authorId,
             UserEventChatState.Field.lastMessagePreview.rawValue : message.content.prefix(50)
