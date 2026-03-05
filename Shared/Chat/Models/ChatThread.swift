@@ -9,15 +9,11 @@ import Foundation
 import FirebaseFirestore
 
 
-struct ChatThread: Codable, Identifiable {
-    let eventId: String
-    var id: String { eventId }
+struct ChatThread: Codable {
+    var id: String
     let participantIds: [String]
     
-    var lastMessagePreview: String?
-    var lastMessageAuthorId: String?
     var lastMessageAt: Date?
-
     @ServerTimestamp var createdAt: Date?
     @ServerTimestamp var updatedAt: Date?
 }

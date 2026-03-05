@@ -25,25 +25,19 @@ class ChatRepo: ChatRepository {
     private func chatMessagePath(eventId: String) -> String {
         return "chats/\(eventId)/messages"
     }
-
+    
+    
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
         //Set the textMessage
         let textMessage = MessageModel(authorId: userId, recipientId: recipientId, content: text)
         
-        let isFirstChat = try await !fs.exists(chatThreadPath(eventId: eventId))
+        let chatThread = ChatThread(id: eventId, participantIds: [userId, recipientId])
         
-        if isFirstChat {
-            let chatThread = ChatThread(eventId: eventId, participantIds: [userId, recipientId], lastMessagePreview: String(text.prefix(50)), lastMessageAuthorId: userId, lastMessageAt: Date(), createdAt: Date(), updatedAt: Date())
-            
-            print("Reached here")
-            try fs.set(chatThreadPath(eventId: eventId), value: chatThread)
-            print("And got past this hurdle")
-        }
+        //Adds the specific message
+        try fs.set(chatThreadPath(eventId: eventId), value: chatThread, merge: true)
+        _ = try fs.add(chatThreadPath(eventId: eventId), value: textMessage)
         
-        try fs.set(chatMessagePath(eventId: eventId), value: textMessage)
-        
-        try await eventsRepo.updateRecentChat(eventId: eventId , userId: userId, message: textMessage, isRecipient: false)
-        try await eventsRepo.updateRecentChat(eventId: eventId , userId: recipientId, message: textMessage, isRecipient: true)
+        try await eventsRepo.updateRecentChat(message: textMessage, eventId: eventId)
     }
     
     
@@ -52,13 +46,32 @@ class ChatRepo: ChatRepository {
     
     func fetchMessages(eventId: String) async throws -> [MessageModel] {
         let path = chatMessagePath(eventId: eventId)
-        let messages: [MessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: MessageModel.Field.createdAt.rawValue, descending: true), limit: 100)
+        let messages: [MessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: MessageModel.Field.dateCreated.rawValue, descending: true), limit: 100)
         return messages
     }
             
     //Set up streaming Messages
     
     
+    /*
+     
+     
+     let isFirstChat = try await fs.exists(chatThreadPath(eventId: eventId))
+     print(isFirstChat)
+     
+     if isFirstChat {
+         let chatThread = ChatThread(eventId: eventId, participantIds: [userId, recipientId], lastMessagePreview: String(text.prefix(50)), lastMessageAuthorId: userId, lastMessageAt: Date(), createdAt: Date(), updatedAt: Date())
+         
+         print("Reached here")
+         try fs.set(chatThreadPath(eventId: eventId), value: chatThread)
+         print("And got past this hurdle")
+     }
+     print("Before Bug")
+     _ = try fs.add(chatMessagePath(eventId: eventId), value: textMessage)
+     print("Completed this")
+     
+     
+     */
     
     
     

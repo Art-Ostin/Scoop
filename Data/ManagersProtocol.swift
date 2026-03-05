@@ -13,7 +13,7 @@ import UIKit
 
 
 protocol FirestoreServicing {
-    func set<T: Encodable> (_ path: String, value: T) throws
+    func set<T: Encodable> (_ path: String, value: T, merge: Bool) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
     func get<T: Decodable>(_ path: String) async throws -> T
     func increment(_ path: String, by deltas: [String: Int64])
@@ -55,7 +55,7 @@ protocol EventsRepository {
     func deleteAllSentPendingInvites(userId: String) async throws
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
     func acceptEvent(eventId: String, acceptedDate: Date) async throws
-    func updateRecentChat(eventId: String, userId: String, message: MessageModel, isRecipient: Bool) async throws
+    func updateRecentChat(message: MessageModel, eventId: String) async throws 
     func readRecentMessages(userId: String, userEventId: String) async throws
 }
 

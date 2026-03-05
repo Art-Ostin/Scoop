@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct UserEventChatState: Codable {
     var unreadCount: Int = 0
-    var lastMessageAt: Date?
+    
     var lastMessagePreview: String?
     var lastMessageAuthor: String?
-    
-    
+    @ServerTimestamp var lastMessageAt: Date?
+
     
     enum Field: String {
         case unreadCount, lastMessageAt, lastMessagePreview, lastMessageAuthor

@@ -190,23 +190,21 @@ class EventsRepo: EventsRepository {
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
     
-    func updateRecentChat(eventId: String, userId: String, message: MessageModel, isRecipient: Bool) async throws {
-        //Fetch the values
-        let fields: [String : Any] = [
-            UserEventChatState.Field.lastMessageAt.rawValue : message.dateCreated as Any,
-            UserEventChatState.Field.lastMessageAuthor.rawValue : message.authorId,
-            UserEventChatState.Field.lastMessagePreview.rawValue : message.content.prefix(50)
-        ]
+    func updateRecentChat(message: MessageModel, eventId: String) async throws {
+        //1. Get the components from messageModel
+        let authorId = message.authorId, recipientId = message.recipientId, text = String(message.content.prefix(40))
         
-        //Update the userEventField
-        try await fs.update(userEventPath(userId: userId, userEventId: eventId), fields: fields)
+        //2. Construct the UserEventChatState
+        let chatState = UserEventChatState(lastMessagePreview: text, lastMessageAuthor: authorId)
         
-        //Increment the count by 1 if they are the recipient
-        if isRecipient {
-            fs.increment(userEventPath(userId: userId, userEventId: eventId), by: [UserEventChatState.Field.unreadCount.rawValue : Int64(1)])
-        }
+        //3. Set the data for those fields in the profile
+        try fs.set(userEventPath(userId: authorId, userEventId: eventId), value: chatState, merge: true)
+        try fs.set(userEventPath(userId: recipientId, userEventId: eventId), value: chatState, merge: true)
+
+        //4. Increment for the recipient, the unseen count by one
+        fs.increment(userEventPath(userId: recipientId, userEventId: eventId), by: [UserEventChatState.Field.unreadCount.rawValue : Int64(1)])
     }
-    
+        
     func readRecentMessages(userId: String, userEventId: String) async throws {
         try await fs.update(userEventPath(userId: userId, userEventId: userEventId), fields: [UserEventChatState.Field.unreadCount.rawValue : 0])
     }

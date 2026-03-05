@@ -38,18 +38,13 @@ final class FirestoreService: FirestoreServicing {
     
     let db = Firestore.firestore()
     
-    func set<T: Encodable> (_ path: String, value: T) throws {
-        try db.document(path).setData(from: value)
+    func set<T: Encodable> (_ path: String, value: T, merge: Bool = false) throws {
+        try db.document(path).setData(from: value, merge: merge)
     }
     
     func add<T: Encodable> (_ path: String, value: T) throws -> String {
         let ref = try db.collection(path).addDocument(from: value)
         return ref.documentID
-    }
-    
-    func exists(_ path: String) async throws  -> Bool {
-        let snap = try await db.document(path).getDocument()
-        return snap.exists
     }
     
     func increment(_ path: String, by deltas: [String: Int64]) {
@@ -63,21 +58,11 @@ final class FirestoreService: FirestoreServicing {
     }
     
     func update(_ path: String, fields: [String: Any]) async throws {
-        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
-            db.document(path).updateData(fields) { error in
-                if let error { cont.resume(throwing: error) }
-                else { cont.resume() }
-            }
-        }
+        try await db.document(path).updateData(fields)
     }
     
     func delete(_ path: String) async throws {
-        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
-            db.document(path).delete { error in
-                if let error { cont.resume(throwing: error) }
-                else { cont.resume() }
-            }
-        }
+        try await db.document(path).delete()
     }
     
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {

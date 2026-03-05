@@ -15,6 +15,7 @@ struct MessageModel: Identifiable, Hashable, Codable {
     var localId: String = UUID().uuidString
     var id: String { _id ?? localId }
     
+    
     let authorId: String
     let recipientId: String
     let content: String
@@ -29,6 +30,6 @@ struct MessageModel: Identifiable, Hashable, Codable {
     }
     
     enum Field: String {
-        case authorId, recipientId, content, createdAt
+        case authorId, recipientId, content, dateCreated
     }
 }
