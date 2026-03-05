@@ -16,7 +16,8 @@ struct ChatScrollView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 4) {
-                    ClearRectangle(size: 24)
+                    ClearRectangle(size: 72)
+                    ChatEventView(event: vm.profileModel.event)
                     ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
                         MessageSection(vm: vm, idx: idx, message: chat)
                     }
@@ -40,8 +41,8 @@ struct ChatScrollView: View {
                 scrollGeo.contentOffset.y
             } action: {oldY, newY in
                 //Get total contentOffset for swipe, if big enough swipe, dismiss keyboard.
-                let totalMove  = newY - oldY
-                if totalMove > -20 {
+                let totalMove = newY - oldY
+                if totalMove < -10 {
                     isFocused.wrappedValue = false
                 }
             }

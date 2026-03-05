@@ -32,6 +32,10 @@ struct ChatContainer: View {
         .overlay(alignment: .top) {
             ChatHeaderBar(profileOpen: $profileOpen, dismissOffset: $dismissOffset, profileModel: profileModel, isEvent: isEvent, isFocused: $isFocused)
         }
+        .overlay(alignment: .bottom) {
+            TypeMessageView(vm: vm, isFocused: $isFocused)
+                .opacity(profileOpen == nil ? 1 : 0)
+        }
         .task { profileImages = await eventVM.loadImages(profileModel: profileModel)}
     }
 }
@@ -52,6 +56,4 @@ extension ChatContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-    
-    
 }

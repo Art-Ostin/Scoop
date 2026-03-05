@@ -35,6 +35,7 @@ struct ChatHeaderBar: View {
         .onPreferenceChange(OpenDetails.self) { isDetailsOpen in
             detailsOpen = isDetailsOpen
         }
+        .animation(.easeInOut(duration: 0.2), value: profileOpen)
     }
 }
 
@@ -69,8 +70,10 @@ extension ChatHeaderBar {
             .padding(.leading, 4)
             .padding(.trailing, 8)
             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
-            .opacity(profileOpen != nil ? 0 : 1)
-            .animation(.easeInOut(duration: 0.2), value: profileOpen)
+            .opacity(
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    profileOpen != nil ? 0 : 1
+                })
         }
     }
     
@@ -93,6 +96,6 @@ extension ChatHeaderBar {
     private func openProfile() {
         isFocused.wrappedValue = false
         dismissOffset = nil
-        profileOpen = profileModel
+        withAnimation(.easeInOut(duration: 0.2)) {profileOpen = profileModel}
     }
 }
