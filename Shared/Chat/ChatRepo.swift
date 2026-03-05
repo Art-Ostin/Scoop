@@ -29,7 +29,7 @@ class ChatRepo: ChatRepository {
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
         //Set the textMessage
         let textMessage = MessageModel(authorId: userId, recipientId: recipientId, content: text)
-        try fs.set(chatMessagePath(eventId: eventId), value: textMessage)
+        try fs.set(chatThreadPath(eventId: eventId), value: textMessage)
         
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: userId, message: textMessage, isRecipient: false)
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: recipientId, message: textMessage, isRecipient: true)
