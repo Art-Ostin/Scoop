@@ -35,7 +35,8 @@ class ChatRepo: ChatRepository {
         
         //Adds the specific message
         try fs.set(chatThreadPath(eventId: eventId), value: chatThread, merge: true)
-        _ = try fs.add(chatThreadPath(eventId: eventId), value: textMessage)
+        
+        _ = try fs.add(chatMessagePath(eventId: eventId), value: textMessage)
         
         try await eventsRepo.updateRecentChat(message: textMessage, eventId: eventId)
     }
