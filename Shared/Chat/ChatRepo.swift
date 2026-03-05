@@ -25,22 +25,37 @@ class ChatRepo: ChatRepository {
     private func chatMessagePath(eventId: String) -> String {
         return "chats/\(eventId)/messages"
     }
-    
+
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
         //Set the textMessage
         let textMessage = MessageModel(authorId: userId, recipientId: recipientId, content: text)
-        try fs.set(chatThreadPath(eventId: eventId), value: textMessage)
+        
+        let isFirstChat = try await !fs.exists(chatThreadPath(eventId: eventId))
+        
+        if isFirstChat {
+            let chatThread = ChatThread(eventId: eventId, participantIds: [userId, recipientId], lastMessagePreview: String(text.prefix(50)), lastMessageAuthorId: userId, lastMessageAt: Date(), createdAt: Date(), updatedAt: Date())
+            
+            print("Reached here")
+            try fs.set(chatThreadPath(eventId: eventId), value: chatThread)
+            print("And got past this hurdle")
+        }
+        
+        try fs.set(chatMessagePath(eventId: eventId), value: textMessage)
         
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: userId, message: textMessage, isRecipient: false)
         try await eventsRepo.updateRecentChat(eventId: eventId , userId: recipientId, message: textMessage, isRecipient: true)
     }
+    
+    
+    
+    
     
     func fetchMessages(eventId: String) async throws -> [MessageModel] {
         let path = chatMessagePath(eventId: eventId)
         let messages: [MessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: MessageModel.Field.createdAt.rawValue, descending: true), limit: 100)
         return messages
     }
-    
+            
     //Set up streaming Messages
     
     
@@ -62,3 +77,18 @@ class ChatRepo: ChatRepository {
     
 }
 
+
+/*
+ 
+ 
+ //Create the document first (merging if not there).
+ 
+ 
+//       let snap = try await chatMessagePath(eventId: eventId).getDocument()
+ 
+ //If no document with the eventID inside the 'chats' collection, create a document inputting the ChatThread
+ 
+ //After that, set the textMessage inside the subcollection of that document 'messages' (i.e. putting messages in there)
+ 
+ try fs.set(chatThreadPath(eventId: eventId), value: textMessage)
+ */

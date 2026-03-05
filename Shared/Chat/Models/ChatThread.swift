@@ -20,5 +20,4 @@ struct ChatThread: Codable, Identifiable {
 
     @ServerTimestamp var createdAt: Date?
     @ServerTimestamp var updatedAt: Date?
-
 }
