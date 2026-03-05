@@ -5,10 +5,13 @@
 //  Created by Art Ostin on 05/03/2026.
 //
 
+
 import SwiftUI
 
 struct ChatEventView: View {
     
+    private static let locationURL = URL(string: "scoop://event-location")!
+    @State private var isLocationPressed = false
     let event: UserEvent?
     
     var body: some View {
@@ -51,19 +54,37 @@ extension ChatEventView {
     
     
     private func eventDetails(event: UserEvent) -> some View {
-        (
-            Text("\(eventTime(event: event)) · ")
-            +
-            Text(event.location.name ?? event.location.address ?? "")
-                .foregroundStyle(Color.accent)
-                .onTapGesture {
-                    MapsRouter.openGoogleMaps(item: event.location)
-                }
-        )
+        Text(eventDetailsText(event: event, isLocationPressed: isLocationPressed))
         .font(.body(16, .medium))
         .lineLimit(2)
         .lineSpacing(6)
         .foregroundStyle(Color.black.opacity(0.8))
+        .tint(isLocationPressed ? Color.grayText : Color.accent)
+        .environment(\.openURL, OpenURLAction { url in
+            guard url == Self.locationURL else {
+                return .systemAction(url)
+            }
+            Task { @MainActor in
+                withAnimation(.easeOut(duration: 0.06)) {
+                    isLocationPressed = true
+                }
+                try? await Task.sleep(nanoseconds: 120_000_000)
+                withAnimation(.easeOut(duration: 0.08)) {
+                    isLocationPressed = false
+                }
+                MapsRouter.openGoogleMaps(item: event.location.mapItem)
+            }
+            return .handled
+        })
+    }
+
+    private func eventDetailsText(event: UserEvent, isLocationPressed: Bool) -> AttributedString {
+        var details = AttributedString("\(eventTime(event: event)) · ")
+        var location = AttributedString(event.location.name ?? event.location.address ?? "")
+        location.link = Self.locationURL
+        location.foregroundColor = Color.accent
+        details += location
+        return details
     }
     
     private func eventTime(event: UserEvent) -> String {
@@ -75,3 +96,4 @@ extension ChatEventView {
         return "\(type.description.emoji ?? "") \(type.description.label)"
     }
 }
+

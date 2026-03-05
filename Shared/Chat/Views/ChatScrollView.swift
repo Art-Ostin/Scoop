@@ -23,6 +23,7 @@ struct ChatScrollView: View {
                     }
                     ClearRectangle(size: 1).id(bottomID)
                 }
+                .frame(maxHeight: .infinity, alignment: .bottom)
             }
             .frame(maxWidth: .infinity)
             .customScrollFade(height: 100, showFade: true)
