@@ -19,7 +19,7 @@ struct ChatContainer: View {
     
     @FocusState private var isFocused
     
-    var isEvent = false
+    var isEvent = true
     let profileModel: ProfileModel
     
     var body: some View {
