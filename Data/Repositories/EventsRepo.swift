@@ -202,13 +202,20 @@ class EventsRepo: EventsRepository {
         let fields: [String : Any] = [
             chatStateField(.lastMessageAuthor) : authorId,
             chatStateField(.lastMessagePreview) : text,
-            chatStateField(.lastMessageAt) : Date()
+            chatStateField(.lastMessageAt) : FieldValue.serverTimestamp(),
+            chatStateField(.unreadCount) : 0
         ]
         
+        let recipientFields: [String : Any ] = [
+            chatStateField(.lastMessageAuthor) : authorId,
+            chatStateField(.lastMessagePreview) : text,
+            chatStateField(.lastMessageAt) : FieldValue.serverTimestamp(),
+            chatStateField(.unreadCount) : FieldValue.increment(Int64(1))
+        ]
         
         //3. Set the data for those fields in the profile
         try await fs.update(userEventPath(userId: authorId, userEventId: eventId), fields: fields)
-        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
+        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: recipientFields)
     }
         
     func readRecentMessages(userId: String, userEventId: String) async throws {
