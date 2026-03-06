@@ -21,18 +21,6 @@ enum FSCollectionEvent<T> {
     case removed(String)
 }
 
-struct FSWhere {
-    let field: String
-    let op: FSOp
-    let value: Any
-}
-enum FSOp { case eq, lt, lte, gt, gte }
-
-struct FSOrder {
-    let field: String
-    let descending: Bool
-}
-
 
 final class FirestoreService: FirestoreServicing {    
     
@@ -74,34 +62,16 @@ final class FirestoreService: FirestoreServicing {
         }
     }
     
-    private func makeQuery(_ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) -> Query {
-        var q: Query = db.collection(collectionPath)
-        for f in filters {
-            switch f.op {
-            case .eq:  q = q.whereField(f.field, isEqualTo: f.value)
-            case .lt:  q = q.whereField(f.field, isLessThan: f.value)
-            case .lte: q = q.whereField(f.field, isLessThanOrEqualTo: f.value)
-            case .gt:  q = q.whereField(f.field, isGreaterThan: f.value)
-            case .gte: q = q.whereField(f.field, isGreaterThanOrEqualTo: f.value)
-            }
-        }
-        if let o = orderBy { q = q.order(by: o.field, descending: o.descending) }
-        if let l = limit   { q = q.limit(to: l) }
-        return q
-    }
-        
-    func fetchFromCollection<T: Decodable>(_ collectionPath: String, filters: [FSWhere] = [], orderBy: FSOrder? = nil, limit: Int? = nil) async throws -> [T] {
-        let q = makeQuery(collectionPath, filters: filters, orderBy: orderBy, limit: limit)
-        let snap = try await q.getDocuments()
+    func fetchFromCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) async throws -> [T] {
+        let snap = try await configure(db.collection(collectionPath)).getDocuments()
         return try snap.documents.map { try $0.data(as: T.self) }
     }
     
-    func streamCollection<T: Decodable>(_ collectionPath: String, filters: [FSWhere], orderBy: FSOrder?, limit: Int?) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+        let query = configure(db.collection(collectionPath))
         return AsyncThrowingStream<FSCollectionEvent<T>, Error> { continuation in
-            let q = makeQuery(collectionPath, filters: filters, orderBy: orderBy, limit: limit)
-            
             var isFirst = true
-            let reg = q.addSnapshotListener { snap, error in
+            let reg = query.addSnapshotListener { snap, error in
                 if let err = error { continuation.finish(throwing: err); return }
                 guard let snap else { return }
                 

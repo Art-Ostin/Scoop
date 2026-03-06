@@ -71,25 +71,22 @@ class EventsRepo: EventsRepository {
         let path = "users/\(userId)/user_events"
         typealias F = UserEvent.Field
         
-        //1. Construct the correct filters to specify what I want to retrieve
-        let invitedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.pending.rawValue),
-            FSWhere(field: F.role.rawValue,   op: .eq,  value: UserEvent.EdgeRole.received.rawValue),
-        ]
-        let upcomingAcceptedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq,  value: Event.EventStatus.accepted.rawValue)
-        ]
-        
-        let pastAcceptedFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.pastAccepted.rawValue)
-        ]
-        
         //2. Actually fetch the events from the collection
-        async let invited: [UserEvent] = fs.fetchFromCollection(path, filters: invitedFilters, orderBy: FSOrder(field: F.proposedTimes.rawValue, descending: false), limit: nil)
+        async let invited: [UserEvent] = fs.fetchFromCollection(path) {
+            $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.pending.rawValue)
+                .whereField(F.role.rawValue, isEqualTo: UserEvent.EdgeRole.received.rawValue)
+                .order(by: F.proposedTimes.rawValue, descending: false)
+        }
         
-        async let upcoming: [UserEvent] = fs.fetchFromCollection(path, filters: upcomingAcceptedFilters, orderBy: FSOrder(field: F.acceptedTime.rawValue, descending: false), limit: nil)
+        async let upcoming: [UserEvent] = fs.fetchFromCollection(path) {
+            $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.accepted.rawValue)
+                .order(by: F.acceptedTime.rawValue, descending: false)
+        }
         
-        async let past: [UserEvent] = fs.fetchFromCollection(path, filters: pastAcceptedFilters, orderBy: FSOrder(field: F.acceptedTime.rawValue, descending: true), limit: nil)
+        async let past: [UserEvent] = fs.fetchFromCollection(path) {
+            $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.pastAccepted.rawValue)
+                .order(by: F.acceptedTime.rawValue, descending: true)
+        }
         
         let (inv, upc, pas) = try await (invited, upcoming, past)
         
@@ -99,7 +96,7 @@ class EventsRepo: EventsRepository {
         + upc.map { (event: $0, kind: .accepted) }
         + pas.map { (event: $0, kind: .pastAccepted) }
         
-        let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
+        let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path)
         
         let updates = AsyncThrowingStream<UserEventUpdate, Error> { (continuation: AsyncThrowingStream<UserEventUpdate, Error>.Continuation) in
             Task {
@@ -170,11 +167,10 @@ class EventsRepo: EventsRepository {
         let path = "users/\(userId)/user_events"
         typealias F = UserEvent.Field
         
-        let pendingSentFilters: [FSWhere] = [
-            FSWhere(field: F.status.rawValue, op: .eq, value: Event.EventStatus.pending.rawValue),
-            FSWhere(field: F.role.rawValue, op: .eq, value: UserEvent.EdgeRole.sent.rawValue),
-        ]
-        return try await fs.fetchFromCollection(path, filters: pendingSentFilters, orderBy: nil, limit: nil)
+        return try await fs.fetchFromCollection(path) {
+            $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.pending.rawValue)
+                .whereField(F.role.rawValue, isEqualTo: UserEvent.EdgeRole.sent.rawValue)
+        }
     }
     
     //Only used when their profile becomes frozen (or blocked) & just remove all their pending invite events.

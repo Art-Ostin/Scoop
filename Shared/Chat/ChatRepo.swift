@@ -41,7 +41,10 @@ class ChatRepo: ChatRepository {
     
     func fetchMessages(eventId: String) async throws -> [MessageModel] {
         let path = chatMessagePath(eventId: eventId)
-        let messages: [MessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: MessageModel.Field.dateCreated.rawValue, descending: true), limit: 100)
+        let messages: [MessageModel] = try await fs.fetchFromCollection(path) {
+            $0.order(by: MessageModel.Field.dateCreated.rawValue, descending: true)
+                .limit(to: 100)
+        }
         return messages
     }
 }

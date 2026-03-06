@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 
 enum UpdateShownProfiles {
@@ -29,10 +30,11 @@ class ProfileRepo: ProfilesRepository {
     //Fetches the initial profiles on Launch and listens for any updates
     func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>) {
         let path = profilesFolder(userId: userId)
-        let filters: [FSWhere] = [FSWhere(field: ProfileRec.Field.status.rawValue, op: .eq,  value: ProfileRec.Status.pending.rawValue)]
-        let initial: [ProfileRec] = try await fs.fetchFromCollection(path, filters: filters, orderBy: nil, limit: nil)
+        let initial: [ProfileRec] = try await fs.fetchFromCollection(path) {
+            $0.whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRec.Status.pending.rawValue)
+        }
         
-        let base: AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
+        let base: AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error> = fs.streamCollection(path)
         let updates = AsyncThrowingStream<UpdateShownProfiles, Error> { continuation in
             Task {
                 do { //Don't do anything with initial docs in file, but when added or modified remove if not pending otherwise return
