@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-class ChatRepo: ChatRepository {
+class ChatRepo: ChatRepository {    
     
     private let eventsRepo: EventsRepository
     
@@ -43,11 +43,6 @@ class ChatRepo: ChatRepository {
         let path = chatMessagePath(eventId: eventId)
         let messages: [MessageModel] = try await fs.fetchFromCollection(path, orderBy: FSOrder(field: MessageModel.Field.dateCreated.rawValue, descending: true), limit: 100)
         return messages
-    }
-    
-    func createChatModel(event: Event) throws {
-        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
-        try fs.set(chatThreadPath(eventId: event.id), value: chatModel)
     }
 }
     

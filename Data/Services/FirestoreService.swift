@@ -38,6 +38,7 @@ final class FirestoreService: FirestoreServicing {
     
     let db = Firestore.firestore()
     
+    //1. Functions to write to Firebase
     func set<T: Encodable> (_ path: String, value: T, merge: Bool = false) throws {
         try db.document(path).setData(from: value, merge: merge)
     }
@@ -47,23 +48,17 @@ final class FirestoreService: FirestoreServicing {
         return ref.documentID
     }
     
-    
-    func increment(_ path: String, by deltas: [String: Int64]) {
-        var payload: [String: Any] = [:]
-        for (k, v) in deltas { payload[k] = FieldValue.increment(v) }
-        db.document(path).updateData(payload)
-    }
-    
-    func get<T: Decodable>(_ path: String) async throws -> T {
-        return try await db.document(path).getDocument(as: T.self)
-    }
-    
     func update(_ path: String, fields: [String: Any]) async throws {
         try await db.document(path).updateData(fields)
     }
     
     func delete(_ path: String) async throws {
         try await db.document(path).delete()
+    }
+    
+    //2. Functions to read from firebase
+    func get<T: Decodable>(_ path: String) async throws -> T {
+        return try await db.document(path).getDocument(as: T.self)
     }
     
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
@@ -94,7 +89,7 @@ final class FirestoreService: FirestoreServicing {
         if let l = limit   { q = q.limit(to: l) }
         return q
     }
-    
+        
     func fetchFromCollection<T: Decodable>(_ collectionPath: String, filters: [FSWhere] = [], orderBy: FSOrder? = nil, limit: Int? = nil) async throws -> [T] {
         let q = makeQuery(collectionPath, filters: filters, orderBy: orderBy, limit: limit)
         let snap = try await q.getDocuments()
@@ -138,4 +133,3 @@ final class FirestoreService: FirestoreServicing {
         }
     }
 }
-

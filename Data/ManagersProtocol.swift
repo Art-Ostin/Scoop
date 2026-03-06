@@ -16,7 +16,6 @@ protocol FirestoreServicing {
     func set<T: Encodable> (_ path: String, value: T, merge: Bool) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
     func get<T: Decodable>(_ path: String) async throws -> T
-    func increment(_ path: String, by deltas: [String: Int64])
     func update(_ path: String, fields: [String : Any]) async throws
     func delete(_ path: String) async throws
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
@@ -63,7 +62,6 @@ protocol ChatRepository {
     
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws
     func fetchMessages(eventId: String) async throws -> [MessageModel]
-    func createChatModel(event: Event) throws
 }
 
 protocol ProfilesRepository {

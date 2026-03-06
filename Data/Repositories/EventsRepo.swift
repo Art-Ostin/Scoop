@@ -16,13 +16,11 @@ typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 class EventsRepo: EventsRepository {
     
     private let userRepo: UserRepository
-    private let chatRepo: ChatRepository
     private let fs: FirestoreService
     
-    init(userRepo: UserRepository, fs: FirestoreService, chatRepo: ChatRepository) {
+    init(userRepo: UserRepository, fs: FirestoreService) {
         self.userRepo = userRepo
         self.fs = fs
-        self.chatRepo = chatRepo
     }
     
     private func EventPath(eventId: String) -> String {
@@ -95,7 +93,6 @@ class EventsRepo: EventsRepository {
         
         let (inv, upc, pas) = try await (invited, upcoming, past)
         
-        print("UPCOMING EVENTS ARE \(upc)")
         
         let initial: [UserEventUpdate] =
         inv.map { (event: $0, kind: .invite) }
@@ -146,7 +143,6 @@ class EventsRepo: EventsRepository {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         
         let userEventChatState = UserEventChatState()
-        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
         
         let eventFields: [String : Any] = [
             Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
@@ -164,7 +160,9 @@ class EventsRepo: EventsRepository {
         async let updateEvent: Void = fs.update(EventPath(eventId: event.id), fields: eventFields)
         _ = try await (updateInitiator, updateRecipient, updateEvent)
 
-        try chatRepo.createChatModel(event: event)
+        //Overlapping interest, but avoids more complexity elsewhere
+        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
+        try fs.set("chats/\(eventId)", value: chatModel)
     }
     
     
