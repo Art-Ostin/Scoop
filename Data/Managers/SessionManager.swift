@@ -149,7 +149,7 @@ extension SessionManager  {
                         switch update {
                         case .addProfile(let id):
                             if !profiles.contains(where: { $0.id == id }) {
-                                let model = try await profileLoader.fromId(id)
+                                let model = try await profileLoader.fetchProfileModel(id, event: nil)
                                 profiles.append(model)
                             }
                         case .removeProfile(let id):
@@ -184,21 +184,21 @@ extension SessionManager  {
                     for try await (event, kind) in updates {
                         switch kind {
                         case .invite:
-                            if let model = try? await profileLoader.fromEvent(event) {
+                            if let model = try? await profileLoader.fetchProfileModel(event.otherUserId, event: event) {
                                 upsert(model, into: &invites)
                                 events.removeAll { $0.id == model.id }
                                 pastEvents.removeAll { $0.id == model.id }
                             }
 
                         case .accepted:
-                            if let model = try? await profileLoader.fromEvent(event) {
+                            if let model = try? await profileLoader.fetchProfileModel(event.otherUserId, event: event) {
                                 upsert(model, into: &events)
                                 invites.removeAll { $0.id == model.id }
                                 pastEvents.removeAll { $0.id == model.id }
                             }
 
                         case .pastAccepted:
-                            if let model = try? await profileLoader.fromEvent(event) {
+                            if let model = try? await profileLoader.fetchProfileModel(event.otherUserId, event: event) {
                                 upsert(model, into: &pastEvents)
                                 invites.removeAll { $0.id == model.id }
                                 events.removeAll { $0.id == model.id }

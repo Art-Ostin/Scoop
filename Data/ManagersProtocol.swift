@@ -81,8 +81,7 @@ protocol ImageLoading {
 protocol ProfileLoading {
     func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel]
     func fromIds(_ ids: [String]) async throws -> [ProfileModel]
-    func fromEvent(_ event: UserEvent) async throws -> ProfileModel
-    func fromId(_ id: String) async throws -> ProfileModel
+    func fetchProfileModel(_ profileId: String, event: UserEvent?) async throws -> ProfileModel
 }
 
 protocol DefaultsManaging: AnyObject {
@@ -105,3 +104,9 @@ protocol DefaultsManaging: AnyObject {
     func fetchEventDraft(profileId: String) -> EventDraft?
     func deleteEventDraft(profileId: String)
 }
+
+/*
+ func fromEvent(_ event: UserEvent) async throws -> ProfileModel
+ func fromId(_ id: String) async throws -> ProfileModel
+
+ */

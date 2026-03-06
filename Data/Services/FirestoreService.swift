@@ -57,6 +57,42 @@ final class FirestoreService: FirestoreServicing {
     }
     
     //3. Functions to listen to Firebase collections
+    
+//    func test<T: Decodable> (_ path: String, configure: (Query) -> Query = { $0 }) -> [T]? {
+//        let baseQuery = db.collection(path)
+//        let finalQuery = configure(baseQuery).addSnapshotListener { querySnapshot, error  in
+//            if let error {
+//                print (error)
+//                return
+//            }
+//            
+//            let items: [T] = []
+//            
+//            if let querySnapshot {
+//                
+//                for change in querySnapshot.documentChanges {
+//                    
+//                    switch change.type {
+//                        
+//                    case .added:
+//                        if let item = try? change.document.data(as: T.self) {
+//                            // Use `item` as needed, e.g., append to a local array or process it.
+//                            // Currently, this function doesn't surface results; consider returning a stream or callback.
+//                        }
+//                        
+//                    case .modified:
+//                        
+//                    case .removed:
+//                        
+//                    }
+//                }
+//            }
+//        }
+//        return nil
+//    }
+    
+    
+    
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
         AsyncThrowingStream { continuation in
             let reg = db.document(path).addSnapshotListener { snapshot, error in
