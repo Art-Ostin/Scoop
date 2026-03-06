@@ -28,6 +28,10 @@ class EventsRepo: EventsRepository {
         return "users/\(userId)/user_events/\(userEventId)"
     }
     
+    private func chatStateField(_ field: UserEventChatState.Field) -> String {
+        "\(UserEvent.Field.userEventChatState.rawValue).\(field.rawValue)"
+    }
+
     private func fetchEvent(eventId: String) async throws -> Event {
         try await fs.get(EventPath(eventId: eventId))
     }
@@ -193,16 +197,18 @@ class EventsRepo: EventsRepository {
     func updateRecentChat(message: MessageModel, eventId: String) async throws {
         //1. Get the components from messageModel
         let authorId = message.authorId, recipientId = message.recipientId, text = String(message.content.prefix(40))
+                
+        //2. Create the fields
+        let fields: [String : Any] = [
+            chatStateField(.lastMessageAuthor) : authorId,
+            chatStateField(.lastMessagePreview) : text,
+            chatStateField(.lastMessageAt) : Date()
+        ]
         
-        //2. Construct the UserEventChatState
-        let chatState = UserEventChatState(lastMessagePreview: text, lastMessageAuthor: authorId)
         
         //3. Set the data for those fields in the profile
-        try fs.set(userEventPath(userId: authorId, userEventId: eventId), value: chatState, merge: true)
-        try fs.set(userEventPath(userId: recipientId, userEventId: eventId), value: chatState, merge: true)
-
-        //4. Increment for the recipient, the unseen count by one
-        fs.increment(userEventPath(userId: recipientId, userEventId: eventId), by: [UserEventChatState.Field.unreadCount.rawValue : Int64(1)])
+        try await fs.update(userEventPath(userId: authorId, userEventId: eventId), fields: fields)
+        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
     }
         
     func readRecentMessages(userId: String, userEventId: String) async throws {
