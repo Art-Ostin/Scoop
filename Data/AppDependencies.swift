@@ -39,7 +39,7 @@ final class AppDependencies {
         let fs = FirestoreService()
         let userRepo = UserRepo(fs: fs)
         let imageLoader = ImageLoader()
-        let eventsRepo = EventsRepo(userRepo: userRepo, fs: fs)
+        let eventsRepo = EventsRepo(userRepo: userRepo, fs: fs, chatRepo: <#any ChatRepository#>)
         
         //2. assigning the variables used through the app with the initialised services
         self.authService = auth

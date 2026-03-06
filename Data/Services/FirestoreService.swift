@@ -47,6 +47,7 @@ final class FirestoreService: FirestoreServicing {
         return ref.documentID
     }
     
+    
     func increment(_ path: String, by deltas: [String: Int64]) {
         var payload: [String: Any] = [:]
         for (k, v) in deltas { payload[k] = FieldValue.increment(v) }

@@ -9,11 +9,14 @@ import Foundation
 import FirebaseFirestore
 
 
-struct ChatThread: Codable {
-    var id: String
+struct ChatModel: Codable {
     let participantIds: [String]
     
     var lastMessageAt: Date?
     @ServerTimestamp var createdAt: Date?
     @ServerTimestamp var updatedAt: Date?
+    
+    enum Field: String {
+        case participantsIds, lastMessageAt, createdAt, updatedAt
+    }
 }

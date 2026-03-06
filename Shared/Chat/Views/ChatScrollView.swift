@@ -18,9 +18,9 @@ struct ChatScrollView: View {
                 LazyVStack(spacing: 4) {
                     ClearRectangle(size: 72)
                     ChatEventView(event: vm.profileModel.event)
-                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
-                        MessageSection(vm: vm, idx: idx, message: chat)
-                    }
+//                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
+//                        MessageSection(vm: vm, idx: idx, message: chat)
+//                    }
                     ClearRectangle(size: 1).id(bottomID)
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)

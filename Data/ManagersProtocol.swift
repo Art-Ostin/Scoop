@@ -63,8 +63,8 @@ protocol ChatRepository {
     
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws
     func fetchMessages(eventId: String) async throws -> [MessageModel]
+    func createChatModel(event: Event) throws
 }
-
 
 protocol ProfilesRepository {
     func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>)

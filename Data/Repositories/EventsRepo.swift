@@ -16,9 +16,14 @@ typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 class EventsRepo: EventsRepository {
     
     private let userRepo: UserRepository
+    private let chatRepo: ChatRepository
     private let fs: FirestoreService
     
-    init(userRepo: UserRepository, fs: FirestoreService) { self.userRepo = userRepo ; self.fs = fs }
+    init(userRepo: UserRepository, fs: FirestoreService, chatRepo: ChatRepository) {
+        self.userRepo = userRepo
+        self.fs = fs
+        self.chatRepo = chatRepo
+    }
     
     private func EventPath(eventId: String) -> String {
         "events/\(eventId)"
@@ -31,7 +36,16 @@ class EventsRepo: EventsRepository {
     private func chatStateField(_ field: UserEventChatState.Field) -> String {
         "\(UserEvent.Field.userEventChatState.rawValue).\(field.rawValue)"
     }
-
+    
+    private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {
+        [
+            chatStateField(.lastMessageAuthor): message.authorId,
+            chatStateField(.lastMessagePreview): String(message.content.prefix(40)),
+            chatStateField(.lastMessageAt): FieldValue.serverTimestamp(),
+            chatStateField(.unreadCount): unreadCount
+        ]
+    }
+    
     private func fetchEvent(eventId: String) async throws -> Event {
         try await fs.get(EventPath(eventId: eventId))
     }
@@ -84,9 +98,9 @@ class EventsRepo: EventsRepository {
         print("UPCOMING EVENTS ARE \(upc)")
         
         let initial: [UserEventUpdate] =
-            inv.map { (event: $0, kind: .invite) }
-          + upc.map { (event: $0, kind: .accepted) }
-          + pas.map { (event: $0, kind: .pastAccepted) }
+        inv.map { (event: $0, kind: .invite) }
+        + upc.map { (event: $0, kind: .accepted) }
+        + pas.map { (event: $0, kind: .pastAccepted) }
         
         let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path, filters: [], orderBy: nil, limit: nil)
         
@@ -122,7 +136,7 @@ class EventsRepo: EventsRepository {
     func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
-
+        
         try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: fields)
         try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
         try await fs.update(EventPath(eventId: eventId), fields: fields)
@@ -132,6 +146,7 @@ class EventsRepo: EventsRepository {
         let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
         
         let userEventChatState = UserEventChatState()
+        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
         
         let eventFields: [String : Any] = [
             Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
@@ -144,12 +159,15 @@ class EventsRepo: EventsRepository {
             UserEvent.Field.userEventChatState.rawValue : userEventChatState
         ]
         
-        try await fs.update(userEventPath(userId: initiatorId, userEventId: event.id), fields: userEventFields)
-        try await fs.update(userEventPath(userId: recipientId, userEventId: event.id), fields: userEventFields)
-        try await fs.update(EventPath(eventId: event.id), fields: eventFields)
+        async let updateInitiator: Void = fs.update(userEventPath(userId: initiatorId, userEventId: event.id), fields: userEventFields)
+        async let updateRecipient: Void = fs.update(userEventPath(userId: recipientId, userEventId: event.id), fields: userEventFields)
+        async let updateEvent: Void = fs.update(EventPath(eventId: event.id), fields: eventFields)
+        _ = try await (updateInitiator, updateRecipient, updateEvent)
+
+        try chatRepo.createChatModel(event: event)
     }
     
-        
+    
     func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
         let path = "users/\(userId)/user_events"
         typealias F = UserEvent.Field
@@ -169,7 +187,7 @@ class EventsRepo: EventsRepository {
         async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
         _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
     }
-
+    
     func deleteAllSentPendingInvites(userId: String) async throws {
         let events = try await fetchPendingSentInvites(userId: userId)
         let ids = events.compactMap(\.id)
@@ -189,36 +207,27 @@ class EventsRepo: EventsRepository {
         try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         print("Succesfully updated Cancelled By user")
-                
+        
         //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
     
     func updateRecentChat(message: MessageModel, eventId: String) async throws {
-        //1. Get the components from messageModel
-        let authorId = message.authorId, recipientId = message.recipientId, text = String(message.content.prefix(40))
-                
-        //2. Create the fields
-        let fields: [String : Any] = [
-            chatStateField(.lastMessageAuthor) : authorId,
-            chatStateField(.lastMessagePreview) : text,
-            chatStateField(.lastMessageAt) : FieldValue.serverTimestamp(),
-            chatStateField(.unreadCount) : 0
-        ]
-        
-        let recipientFields: [String : Any ] = [
-            chatStateField(.lastMessageAuthor) : authorId,
-            chatStateField(.lastMessagePreview) : text,
-            chatStateField(.lastMessageAt) : FieldValue.serverTimestamp(),
-            chatStateField(.unreadCount) : FieldValue.increment(Int64(1))
-        ]
-        
-        //3. Set the data for those fields in the profile
-        try await fs.update(userEventPath(userId: authorId, userEventId: eventId), fields: fields)
-        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: recipientFields)
+        async let updateAuthor: Void = fs.update(
+            userEventPath(userId: message.authorId, userEventId: eventId),
+            fields: recentChatFields(message: message, unreadCount: 0)
+        )
+        async let updateRecipient: Void = fs.update(
+            userEventPath(userId: message.recipientId, userEventId: eventId),
+            fields: recentChatFields(message: message, unreadCount: FieldValue.increment(Int64(1)))
+        )
+        _ = try await (updateAuthor, updateRecipient)
     }
-        
+    
     func readRecentMessages(userId: String, userEventId: String) async throws {
-        try await fs.update(userEventPath(userId: userId, userEventId: userEventId), fields: [UserEventChatState.Field.unreadCount.rawValue : 0])
+        try await fs.update(
+            userEventPath(userId: userId, userEventId: userEventId),
+            fields: [chatStateField(.unreadCount): 0]
+        )
     }
 }

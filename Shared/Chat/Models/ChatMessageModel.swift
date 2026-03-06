@@ -8,20 +8,13 @@
 import Foundation
 import FirebaseFirestore
 
-struct MessageModel: Identifiable, Hashable, Codable {
+struct MessageModel: Hashable, Codable {
     
     //So always ID even if not saved yet
-    @DocumentID var _id: String?
-    var localId: String = UUID().uuidString
-    var id: String { _id ?? localId }
-    
-    
     let authorId: String
     let recipientId: String
     let content: String
     @ServerTimestamp var dateCreated: Date?
-    
-    var readByRecipient = false
     
     init(authorId: String, recipientId: String, content: String) {
         self.authorId = authorId
