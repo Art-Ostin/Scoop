@@ -44,11 +44,19 @@ final class FirestoreService: FirestoreServicing {
         try await db.document(path).delete()
     }
     
-    //2. Functions to read from firebase
+    //2. Functions to fetch from firebase
     func get<T: Decodable>(_ path: String) async throws -> T {
         return try await db.document(path).getDocument(as: T.self)
     }
     
+    func fetchFromCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) async throws -> [T] {
+        let baseQuery = db.collection(collectionPath)
+        let finalQuery = configure(baseQuery)
+        let snap = try await finalQuery.getDocuments()
+        return try snap.documents.map{ try $0.data(as: T.self)}
+    }
+    
+    //3. Functions to listen to Firebase collections
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
         AsyncThrowingStream { continuation in
             let reg = db.document(path).addSnapshotListener { snapshot, error in
@@ -62,10 +70,6 @@ final class FirestoreService: FirestoreServicing {
         }
     }
     
-    func fetchFromCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) async throws -> [T] {
-        let snap = try await configure(db.collection(collectionPath)).getDocuments()
-        return try snap.documents.map { try $0.data(as: T.self) }
-    }
     
     func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
         let query = configure(db.collection(collectionPath))

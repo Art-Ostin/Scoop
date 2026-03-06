@@ -59,7 +59,6 @@ protocol EventsRepository {
 }
 
 protocol ChatRepository {
-    
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws
     func fetchMessages(eventId: String) async throws -> [MessageModel]
 }
