@@ -58,10 +58,6 @@ final class FirestoreService: FirestoreServicing {
     }
     
     //3. Functions to listen to Firebase collections
-    
-    
-    
-    
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error> {
         AsyncThrowingStream { continuation in
             let reg = db.document(path).addSnapshotListener { snapshot, error in
@@ -86,14 +82,16 @@ final class FirestoreService: FirestoreServicing {
                 if let error { continuation.finish(throwing: error) ; return }
                 guard let snapshot else {return}
                 
+                
                 do {
                     //2.If first time get all document matching the query, then yield it as initial
                     if loadInitial {
                         let items = try snapshot.documents.compactMap { doc in
                             FSCollectionItem(id: doc.documentID, model: try doc.data(as: T.self))
                         }
+                        
+                        //I want to return initial, seperate not putting it in the asynchronous Sequence
                         continuation.yield(.initial(items))
-                        loadInitial = false
                         return
                     }
                     
@@ -126,73 +124,3 @@ final class FirestoreService: FirestoreServicing {
         }
     }
 }
-
-/*
- func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<T, Error> {
-     let query = configure(db.collection(collectionPath))
-     return AsyncThrowingStream<T, Error> { continuation in
-         var isFirst = true
-         let reg = query.addSnapshotListener { snap, error in
-             if let err = error { continuation.finish(throwing: err); return }
-             guard let snap else { return }
-             
-             if isFirst {
-                 isFirst = false
-                 let items: [Identified<T>] = snap.documents.compactMap {
-                     guard let m = try? $0.data(as: T.self) else { return nil }
-                     return Identified(id: $0.documentID, model: m)
-                 }
-                 continuation.yield(FSCollectionEvent<T>.initial(items))
-                 return
-             }
-             for change in snap.documentChanges {
-                 switch change.type {
-                 case .added:
-                     if let m = try? change.document.data(as: T.self) {
-                         continuation.yield(.added(.init(id: change.document.documentID, model: m)))
-                     }
-                 case .modified:
-                     if let m = try? change.document.data(as: T.self) {
-                         continuation.yield(.modified(.init(id: change.document.documentID, model: m)))
-                     }
-                 case .removed:
-                     break
-                 }
-             }
-         }
-         continuation.onTermination = { _ in reg.remove() }
-     }
- }
- */
-
-/*
- 
- 
- if isFirst {
-     isFirst = false
-     let items: [Identified<T>] = snap.documents.compactMap {
-         guard let m = try? $0.data(as: T.self) else { return nil }
-         return Identified(id: $0.documentID, model: m)
-     }
-     continuation.yield(FSCollectionEvent<T>.initial(items))
-     return
- }
- 
- 
- for change in snap.documentChanges {
-     switch change.type {
-     case .added:
-         if let m = try? change.document.data(as: T.self) {
-             continuation.yield(.added(.init(id: change.document.documentID, model: m)))
-         }
-     case .modified:
-         if let m = try? change.document.data(as: T.self) {
-             continuation.yield(.modified(.init(id: change.document.documentID, model: m)))
-         }
-     case .removed:
-         break
-     }
- }
-}
-}
- */

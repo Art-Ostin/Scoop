@@ -164,10 +164,10 @@ extension SessionManager  {
     }
     
     //Loads up all users (1) events (2) past events and populates respective fields.
-    private func startEventsStream(now: Date = .init()) async {
+    private func startEventsStream() async {
         eventStreamTask?.cancel()
         do {
-            let (initial, updates) = try await eventsRepo.eventTracker(userId: user.id, now: now)
+            let (initial, updates) = try await eventsRepo.eventTracker(userId: user.id, now: Date())
             let invitesReceived = initial.filter { $0.kind == .invite }.map(\.event)
             let accepted = initial.filter { $0.kind == .accepted }.map(\.event)
             let past = initial.filter { $0.kind == .pastAccepted }.map(\.event)

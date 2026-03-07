@@ -11,9 +11,10 @@ import FirebaseFirestore
 
 
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
+
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
-class EventsRepo: EventsRepository {
+class EventsRepo {
     
     private let fs: FirestoreService
     
@@ -47,8 +48,8 @@ class EventsRepo: EventsRepository {
         let recipientUserEvent = UserEvent(otherProfile: user, role: .received, event: event)
         
         //3. Update the event Paths
-        try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent)
-        try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent)
+        try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent, merge: false)
+        try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent, merge: false)
     }
     
     func acceptEvent(eventId: String, acceptedDate: Date) async throws {
@@ -72,7 +73,7 @@ class EventsRepo: EventsRepository {
 
         //Overlapping interest, but avoids more complexity elsewhere
         let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
-        try fs.set("chats/\(eventId)", value: chatModel)
+        try fs.set("chats/\(eventId)", value: chatModel, merge: false)
     }
     
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
@@ -86,62 +87,17 @@ class EventsRepo: EventsRepository {
 
     //Part 3:Track Events
     
-    func eventTracker(userId: String) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
-        let path = "users/\(userId)/user_events"
+    func eventTracker(userId: String) -> (initial: [UserEvent], AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>) {
         
-        typealias F = UserEvent.Field
+        let userEventsPath = "users/\(userId)/events"
         
+        let stream: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> =  fs.streamCollection(userEventsPath)
         
-        let stream: AsyncThrowingStream<UserEvent, Error> = fs.streamCollection(path)
-        
-        for try await event in stream {
+        let initial = stream.colle
             
             
-            
-            
-            
-        }
-        
-        
-        
-  
-        
-        
-        let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path)
-        
-        
-        
-        let updates = AsyncThrowingStream<UserEventUpdate, Error> { (continuation: AsyncThrowingStream<UserEventUpdate, Error>.Continuation) in
-            
-            Task {
-                do {
-                    for try await ev in base {
-                        switch ev {
-                        case .initial:
-                            continue
-                        case .added(let it), .modified(let it):
-                            let e = it.model
-                            if e.status == .pending, e.role == .received {
-                                continuation.yield((event: e, kind: .invite))
-                            } else if e.status == .accepted {
-                                continuation.yield((event: e, kind: .accepted))
-                            } else if e.status == .pastAccepted {
-                                continuation.yield((event: e, kind: .pastAccepted))
-                            } else {
-                                continuation.yield((event: e, kind: .remove))
-                            }
-                        case .removed:
-                            break
-                        }
-                    }
-                    continuation.finish()
-                } catch { continuation.finish(throwing: error) }
-            }
-        }
-        return (initial, updates)
+    
     }
-    
-    
     
 }
 
@@ -255,4 +211,5 @@ extension EventsRepo {
  + upc.map { (event: $0, kind: .accepted) }
  + pas.map { (event: $0, kind: .pastAccepted) }
  */
+
 
