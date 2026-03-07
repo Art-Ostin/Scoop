@@ -53,38 +53,41 @@ class EventsRepo {
     }
     
     func acceptEvent(eventId: String, acceptedDate: Date) async throws {
-        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
-                
-        let eventFields: [String : Any] = [
+        let (event, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
+                        
+        var userFields: [String : Any] = [
             Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
             Event.Field.acceptedTime.rawValue: acceptedDate
         ]
+        let eventFields = userFields
+        userFields[UserEvent.Field.userEventChatState.rawValue] = UserEventChatState()
+        try await updateEvent(initiatorId: initiatorId, recipientId: recipientId, eventId: eventId, userFields: userFields, eventFields: eventFields)
         
-        let userEventFields: [String : Any] = [
-            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
-            Event.Field.acceptedTime.rawValue: acceptedDate,
-            UserEvent.Field.userEventChatState.rawValue : UserEventChatState()
-        ]
-        
-        async let updateInitiator: Void = fs.update(userEventPath(userId: initiatorId, userEventId: event.id), fields: userEventFields)
-        async let updateRecipient: Void = fs.update(userEventPath(userId: recipientId, userEventId: event.id), fields: userEventFields)
-        async let updateEvent: Void = fs.update(EventPath(eventId: event.id), fields: eventFields)
-        _ = try await (updateInitiator, updateRecipient, updateEvent)
-
         //Overlapping interest, but avoids more complexity elsewhere
         let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
         try fs.set("chats/\(eventId)", value: chatModel, merge: false)
     }
     
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
-        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
+        let (event, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
         let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
-        
-        try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: fields)
-        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
-        try await fs.update(EventPath(eventId: eventId), fields: fields)
+        try await updateEvent(initiatorId: initiatorId, recipientId: recipientId, eventId: eventId, userFields: fields, eventFields: fields)
+    }
+    
+    private func updateEvent(initiatorId: String, recipientId: String, eventId: String, userFields: [String : Any], eventFields: [String : Any]) async throws {
+        async let updateInitiator: Void = fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: userFields)
+        async let updateRecipient: Void = fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: userFields)
+        async let updateEvent: Void = fs.update(EventPath(eventId: eventId) , fields: eventFields)
+        _ = try await (updateInitiator, updateRecipient, updateEvent)
     }
 
+    private func getEventInfo(eventId: String) async throws -> (event: Event, initiatorId: String, recipientId: String) {
+        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
+        return(event, initiatorId, recipientId)
+    }
+    
+    
+    
     //Part 3:Track Events
     
     func eventTracker(userId: String) -> (initial: [UserEvent], AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>) {
