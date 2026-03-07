@@ -8,6 +8,21 @@
 import Foundation
 import FirebaseFirestore
 
+
+struct FSCollectionItem<Model> {
+    let id: String
+    let model: Model
+}
+
+enum FSCollectionEvent<Model> {
+    case initial([FSCollectionItem<Model>])
+    case added(FSCollectionItem<Model>)
+    case modified(FSCollectionItem<Model>)
+    case removed(id: String)
+}
+
+
+
 final class FirestoreService: FirestoreServicing {
     
     let db = Firestore.firestore()
@@ -43,7 +58,7 @@ final class FirestoreService: FirestoreServicing {
     }
     
     //3. Functions to listen to Firebase collections
-         
+    
     
     
     
@@ -61,44 +76,53 @@ final class FirestoreService: FirestoreServicing {
     }
     
     
-    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> //Specify return type here {
-        let query = configure(db.collection(collectionPath))
-        
-        return AsyncStream<T> { continuation in
-            
-            let listener = query.addSnapshotListener { snap, error in
+    
+    func streamCollection<T: Decodable>(_ collectionPath: String) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+        return AsyncThrowingStream<FSCollectionEvent<T>, Error> { continuation in
+            var loadInitial = true
+            let listener = db.collection(collectionPath).addSnapshotListener { snapshot, error in
                 
-                guard let snap else {return}
-                if let error {continuation.finish() }
+                //1. Ensure data is correct and no errors
+                if let error { continuation.finish(throwing: error) ; return }
+                guard let snapshot else {return}
                 
-                for change in snap.documentChanges {
-                    
-                    do {
-                        let data = try change.document.data(as: T.self)
-                    } catch {
-                        print(error)
+                do {
+                    //2.If first time get all document matching the query, then yield it as initial
+                    if loadInitial {
+                        let items = try snapshot.documents.compactMap { doc in
+                            FSCollectionItem(id: doc.documentID, model: try doc.data(as: T.self))
+                        }
+                        continuation.yield(.initial(items))
+                        loadInitial = false
+                        return
                     }
                     
-                    
-                    switch change.type {
+                    //3.For any more updates to fields only get
+                    for change in snapshot.documentChanges {
                         
-                    case .added:
+                        //3.1. Construct the return Item - an ID and the data type (Need ID to e.g. construct profileModel from ID)
+                        let doc = try change.document.data(as: T.self)
+                        let newItem = FSCollectionItem(id: change.document.documentID, model: doc)
                         
-                        
-                        
-                    case .modified:
-                        
-                    case .removed:
-                        
-                        
+                        //3.2. Return the value also communicating if the doc has been added, or removed, or modified
+                        switch change.type {
+                        case .added:
+                            continuation.yield(.added(newItem))
+                        case .modified:
+                            continuation.yield(.modified(newItem))
+                        case.removed:
+                            continuation.yield(.removed(id: change.document.documentID))
+                        }
                     }
+                    
+                } catch {
+                    continuation.finish(throwing: error)
                 }
             }
-            
             continuation.onTermination = { _ in
                 listener.remove()
             }
-
+            
         }
     }
 }
