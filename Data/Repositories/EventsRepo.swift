@@ -15,11 +15,9 @@ typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
 class EventsRepo: EventsRepository {
     
-    private let userRepo: UserRepository
     private let fs: FirestoreService
     
-    init(userRepo: UserRepository, fs: FirestoreService) {
-        self.userRepo = userRepo
+    init(fs: FirestoreService) {
         self.fs = fs
     }
     
@@ -30,19 +28,7 @@ class EventsRepo: EventsRepository {
     private func userEventPath(userId: String, userEventId: String) -> String {
         return "users/\(userId)/user_events/\(userEventId)"
     }
-    
-    private func chatStateField(_ field: UserEventChatState.Field) -> String {
-        "\(UserEvent.Field.userEventChatState.rawValue).\(field.rawValue)"
-    }
-    
-    private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {
-        [
-            chatStateField(.lastMessageAuthor): message.authorId,
-            chatStateField(.lastMessagePreview): String(message.content.prefix(40)),
-            chatStateField(.lastMessageAt): FieldValue.serverTimestamp(),
-            chatStateField(.unreadCount): unreadCount
-        ]
-    }
+        
     
     private func fetchEvent(eventId: String) async throws -> Event {
         try await fs.get(EventPath(eventId: eventId))
@@ -99,6 +85,7 @@ class EventsRepo: EventsRepository {
         let base: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(path)
         
         let updates = AsyncThrowingStream<UserEventUpdate, Error> { (continuation: AsyncThrowingStream<UserEventUpdate, Error>.Continuation) in
+            
             Task {
                 do {
                     for try await ev in base {
@@ -205,7 +192,24 @@ class EventsRepo: EventsRepository {
         //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
         try await deleteAllSentPendingInvites(userId: cancelledById)
     }
+}
+
+//Logic dea
+extension EventsRepo {
     
+    private func chatStateField(_ field: UserEventChatState.Field) -> String {
+        "\(UserEvent.Field.userEventChatState.rawValue).\(field.rawValue)"
+    }
+    
+    private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {
+        [
+            chatStateField(.lastMessageAuthor): message.authorId,
+            chatStateField(.lastMessagePreview): String(message.content.prefix(40)),
+            chatStateField(.lastMessageAt): FieldValue.serverTimestamp(),
+            chatStateField(.unreadCount): unreadCount
+        ]
+    }
+
     func updateRecentChat(message: MessageModel, eventId: String) async throws {
         async let updateAuthor: Void = fs.update(
             userEventPath(userId: message.authorId, userEventId: eventId),
