@@ -17,10 +17,9 @@ class EventsRepo: EventsRepository {
     
     private let fs: FirestoreService
     
-    init(fs: FirestoreService) {
-        self.fs = fs
-    }
+    init(fs: FirestoreService) { self.fs = fs}
     
+    //PART 1: Setting up Event Paths
     private func EventPath(eventId: String) -> String {
         "events/\(eventId)"
     }
@@ -28,7 +27,6 @@ class EventsRepo: EventsRepository {
     private func userEventPath(userId: String, userEventId: String) -> String {
         return "users/\(userId)/user_events/\(userEventId)"
     }
-        
     
     private func fetchEvent(eventId: String) async throws -> Event {
         try await fs.get(EventPath(eventId: eventId))
@@ -38,6 +36,7 @@ class EventsRepo: EventsRepository {
         try await fs.get(userEventPath(userId: userId, userEventId: userEventId))
     }
     
+    //Part 2: Creating and modifying events
     func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
         //1. Create the event, and add it to the collection 'events'
         let event = Event(draft: draft)
@@ -52,6 +51,40 @@ class EventsRepo: EventsRepository {
         try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent)
     }
     
+    func acceptEvent(eventId: String, acceptedDate: Date) async throws {
+        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
+                
+        let eventFields: [String : Any] = [
+            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
+            Event.Field.acceptedTime.rawValue: acceptedDate
+        ]
+        
+        let userEventFields: [String : Any] = [
+            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
+            Event.Field.acceptedTime.rawValue: acceptedDate,
+            UserEvent.Field.userEventChatState.rawValue : UserEventChatState()
+        ]
+        
+        async let updateInitiator: Void = fs.update(userEventPath(userId: initiatorId, userEventId: event.id), fields: userEventFields)
+        async let updateRecipient: Void = fs.update(userEventPath(userId: recipientId, userEventId: event.id), fields: userEventFields)
+        async let updateEvent: Void = fs.update(EventPath(eventId: event.id), fields: eventFields)
+        _ = try await (updateInitiator, updateRecipient, updateEvent)
+
+        //Overlapping interest, but avoids more complexity elsewhere
+        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
+        try fs.set("chats/\(eventId)", value: chatModel)
+    }
+    
+    func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
+        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
+        let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
+        
+        try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: fields)
+        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
+        try await fs.update(EventPath(eventId: eventId), fields: fields)
+    }
+
+    //Part 3:Track Events
     
     func eventTracker(userId: String, now: Date = .init()) async throws -> (initial: [UserEventUpdate], updates: AsyncThrowingStream<UserEventUpdate, Error>) {
         let path = "users/\(userId)/user_events"
@@ -114,43 +147,28 @@ class EventsRepo: EventsRepository {
         return (initial, updates)
     }
     
-    func updateStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
-        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
-        let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
-        
-        try await fs.update(userEventPath(userId: initiatorId, userEventId: eventId), fields: fields)
-        try await fs.update(userEventPath(userId: recipientId, userEventId: eventId), fields: fields)
-        try await fs.update(EventPath(eventId: eventId), fields: fields)
-    }
     
-    func acceptEvent(eventId: String, acceptedDate: Date) async throws {
-        let event = try await fetchEvent(eventId: eventId), initiatorId = event.initiatorId, recipientId = event.recipientId
-        
-        let userEventChatState = UserEventChatState()
-        
-        let eventFields: [String : Any] = [
-            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
-            Event.Field.acceptedTime.rawValue: acceptedDate
-        ]
-        
-        let userEventFields: [String : Any] = [
-            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
-            Event.Field.acceptedTime.rawValue: acceptedDate,
-            UserEvent.Field.userEventChatState.rawValue : userEventChatState
-        ]
-        
-        async let updateInitiator: Void = fs.update(userEventPath(userId: initiatorId, userEventId: event.id), fields: userEventFields)
-        async let updateRecipient: Void = fs.update(userEventPath(userId: recipientId, userEventId: event.id), fields: userEventFields)
-        async let updateEvent: Void = fs.update(EventPath(eventId: event.id), fields: eventFields)
-        _ = try await (updateInitiator, updateRecipient, updateEvent)
+    
+}
 
-        //Overlapping interest, but avoids more complexity elsewhere
-        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
-        try fs.set("chats/\(eventId)", value: chatModel)
+//Logic deleting all userEvents when the user cancels an Event (Or if t
+extension EventsRepo {
+    
+    func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws {
+        //1. Update the status and specify who cancelled the event
+        let event = try await fetchEvent(eventId: eventId)
+        let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
+        
+        try await updateEventStatus(eventId: eventId, to: .cancelled)
+        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        
+        //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
+        try await deleteAllSentPendingInvites(userId: cancelledById)
     }
     
-    
-    func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
+    private func fetchPendingSentInvites(userId: String) async throws -> [UserEvent] {
         let path = "users/\(userId)/user_events"
         typealias F = UserEvent.Field
         
@@ -160,7 +178,6 @@ class EventsRepo: EventsRepository {
         }
     }
     
-    //Only used when their profile becomes frozen (or blocked) & just remove all their pending invite events.
     private func deleteEvent(eventId: String) async throws {
         let event = try await fetchEvent(eventId: eventId)
         async let deleteEventDoc: Void = fs.delete(EventPath(eventId: eventId))
@@ -176,25 +193,9 @@ class EventsRepo: EventsRepository {
             try await deleteEvent(eventId: eventId)
         }
     }
-    
-    //Should move this somewhere else as not pure event handling
-    func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws {
-        //1. Update the status and specify who cancelled the event
-        let event = try await fetchEvent(eventId: eventId)
-        let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
-        
-        try await updateStatus(eventId: eventId, to: .cancelled)
-        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
-        try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
-        try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
-        print("Succesfully updated Cancelled By user")
-        
-        //3. Delete all the user's pending invites (actually deletes the files -- as deemed cleanest solution)
-        try await deleteAllSentPendingInvites(userId: cancelledById)
-    }
 }
 
-//Logic dea
+//Logic regarding the 'recentMessageState' in the events
 extension EventsRepo {
     
     private func chatStateField(_ field: UserEventChatState.Field) -> String {
