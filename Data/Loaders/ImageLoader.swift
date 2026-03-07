@@ -51,30 +51,65 @@ class ImageLoader: ImageLoading  {
     
     @discardableResult
     func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
+        
+        //1. Fetch the URLs from the profile
         let urls = profiles.flatMap { profile in
             profile.imagePathURL.compactMap { URL(string: $0) }
         }
-        var images = Array<UIImage?>(repeating: nil, count: urls.count)
-        await withTaskGroup(of: (Int, UIImage?).self) { group in
+                
+        return await withTaskGroup(of: (Int, UIImage?).self) { group in
+            
+            var images = Array<UIImage?>(repeating: nil, count: urls.count)
+            print("URL COUNT IS: \(urls.count)")
             for (index, url) in urls.enumerated() {
                 group.addTask {
-                    do {
-                        let image = try await self.fetchImage(for: url)
+                        let image = try? await self.fetchImage(for: url)
                         return (index, image)
-                    } catch {
-//                        print(error)
-                        print("unable to add images to cache")
-                        return (index, nil)
-                    }
                 }
             }
+            
             for await (index, img) in group {
                 if let img { images[index] = img }
             }
-            print("Images saved to cache")
+            
+            return images.compactMap { $0 }
         }
-        return images.compactMap { $0 }
     }
+    
+    //
+    func loadProfileImages2(_ profile: UserProfile) async -> [UIImage] {
+        
+        //1. Fetch the imageurls from the profile
+        let urls = profile.imagePathURL.compactMap { URL(string: $0) }
+
+        //2. Open task group so more efficient
+        return await withTaskGroup(of: (Int, UIImage?).self) { group in
+            
+            //3. Create an empty array of six images
+            var images = Array<UIImage?>(repeating: nil, count: urls.count)
+            
+            //4. For each url get the Index and Image
+            for (index, url) in urls.enumerated() {
+                group.addTask {
+                    let image = try? await self.fetchImage(for: url)
+                    return (index, image)
+                }
+            }
+
+            //5. Add the image back at the specific index (so order retained)
+            for await (index, img) in group {
+                if let img {
+                    images[index] = img
+                }
+            }
+
+            //6. Return the images back
+            return images.compactMap { $0 }
+        }
+    }
+    
+    
+    
     
     @discardableResult
     func addProfileImagesToCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
