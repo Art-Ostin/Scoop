@@ -8,30 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-enum FSChange<T> {
-    case added(id: String?, data: T)
-    case modified(id: String?, data: T)
-}
-struct Identified<T> { let id: String; let model: T }
-
-enum FSCollectionEvent<T> {
-    case initial([Identified<T>])
-    case added(Identified<T>)
-    case modified(Identified<T>)
-    case removed(String)
-}
-
-struct StreamReturn<T> {
-    let model: T
-    let returnType: DocumentChangeType
-}
-
-
-
-
-
-
-final class FirestoreService: FirestoreServicing {    
+final class FirestoreService: FirestoreServicing {
     
     let db = Firestore.firestore()
     
@@ -66,11 +43,7 @@ final class FirestoreService: FirestoreServicing {
     }
     
     //3. Functions to listen to Firebase collections
-    
-            
-            
-            
-     
+         
     
     
     
@@ -88,7 +61,7 @@ final class FirestoreService: FirestoreServicing {
     }
     
     
-    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncStream<StreamReturn<T>> {
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> //Specify return type here {
         let query = configure(db.collection(collectionPath))
         
         return AsyncStream<T> { continuation in
