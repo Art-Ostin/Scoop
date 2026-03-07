@@ -21,6 +21,15 @@ enum FSCollectionEvent<T> {
     case removed(String)
 }
 
+struct StreamReturn<T> {
+    let model: T
+    let returnType: DocumentChangeType
+}
+
+
+
+
+
 
 final class FirestoreService: FirestoreServicing {    
     
@@ -58,17 +67,6 @@ final class FirestoreService: FirestoreServicing {
     
     //3. Functions to listen to Firebase collections
     
-    func test<T: Decodable> (_ path: String, configure: (Query) -> Query = { $0 }) -> AsyncStream<T> {
-        let baseQuery = db.collection(path)
-        let finalQuery = configure(baseQuery)
-        
-        return AsyncStream(T.self)  { continuation in
-            
-            let listener = finalQuery.addSnapshotListener { querySnapshot, error in
-                
-            }
-        }
-    }
             
             
             
@@ -90,39 +88,114 @@ final class FirestoreService: FirestoreServicing {
     }
     
     
-    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncStream<StreamReturn<T>> {
         let query = configure(db.collection(collectionPath))
-        return AsyncThrowingStream<FSCollectionEvent<T>, Error> { continuation in
-            var isFirst = true
-            let reg = query.addSnapshotListener { snap, error in
-                if let err = error { continuation.finish(throwing: err); return }
-                guard let snap else { return }
+        
+        return AsyncStream<T> { continuation in
+            
+            let listener = query.addSnapshotListener { snap, error in
                 
-                if isFirst {
-                    isFirst = false
-                    let items: [Identified<T>] = snap.documents.compactMap {
-                        guard let m = try? $0.data(as: T.self) else { return nil }
-                        return Identified(id: $0.documentID, model: m)
-                    }
-                    continuation.yield(FSCollectionEvent<T>.initial(items))
-                    return
-                }
+                guard let snap else {return}
+                if let error {continuation.finish() }
+                
                 for change in snap.documentChanges {
+                    
+                    do {
+                        let data = try change.document.data(as: T.self)
+                    } catch {
+                        print(error)
+                    }
+                    
+                    
                     switch change.type {
+                        
                     case .added:
-                        if let m = try? change.document.data(as: T.self) {
-                            continuation.yield(.added(.init(id: change.document.documentID, model: m)))
-                        }
+                        
+                        
+                        
                     case .modified:
-                        if let m = try? change.document.data(as: T.self) {
-                            continuation.yield(.modified(.init(id: change.document.documentID, model: m)))
-                        }
+                        
                     case .removed:
-                        break
+                        
+                        
                     }
                 }
             }
-            continuation.onTermination = { _ in reg.remove() }
+            
+            continuation.onTermination = { _ in
+                listener.remove()
+            }
+
         }
     }
 }
+
+/*
+ func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<T, Error> {
+     let query = configure(db.collection(collectionPath))
+     return AsyncThrowingStream<T, Error> { continuation in
+         var isFirst = true
+         let reg = query.addSnapshotListener { snap, error in
+             if let err = error { continuation.finish(throwing: err); return }
+             guard let snap else { return }
+             
+             if isFirst {
+                 isFirst = false
+                 let items: [Identified<T>] = snap.documents.compactMap {
+                     guard let m = try? $0.data(as: T.self) else { return nil }
+                     return Identified(id: $0.documentID, model: m)
+                 }
+                 continuation.yield(FSCollectionEvent<T>.initial(items))
+                 return
+             }
+             for change in snap.documentChanges {
+                 switch change.type {
+                 case .added:
+                     if let m = try? change.document.data(as: T.self) {
+                         continuation.yield(.added(.init(id: change.document.documentID, model: m)))
+                     }
+                 case .modified:
+                     if let m = try? change.document.data(as: T.self) {
+                         continuation.yield(.modified(.init(id: change.document.documentID, model: m)))
+                     }
+                 case .removed:
+                     break
+                 }
+             }
+         }
+         continuation.onTermination = { _ in reg.remove() }
+     }
+ }
+ */
+
+/*
+ 
+ 
+ if isFirst {
+     isFirst = false
+     let items: [Identified<T>] = snap.documents.compactMap {
+         guard let m = try? $0.data(as: T.self) else { return nil }
+         return Identified(id: $0.documentID, model: m)
+     }
+     continuation.yield(FSCollectionEvent<T>.initial(items))
+     return
+ }
+ 
+ 
+ for change in snap.documentChanges {
+     switch change.type {
+     case .added:
+         if let m = try? change.document.data(as: T.self) {
+             continuation.yield(.added(.init(id: change.document.documentID, model: m)))
+         }
+     case .modified:
+         if let m = try? change.document.data(as: T.self) {
+             continuation.yield(.modified(.init(id: change.document.documentID, model: m)))
+         }
+     case .removed:
+         break
+     }
+ }
+}
+}
+ */
