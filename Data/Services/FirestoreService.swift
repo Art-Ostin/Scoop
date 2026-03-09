@@ -22,17 +22,8 @@ enum FSCollectionEvent<Model> {
     case removed(id: String)
 }
 
-struct FSCollectionStream<Model> {
-    let initial: [FSCollectionItem<Model>]
-    let updates: AsyncThrowingStream<FSCollectionEvent<Model>, Error>
-    
-    var initialModels: [Model] {
-        initial.map(\.model)
-    }
-    
-    var initialIds: [String] {
-        initial.map(\.id)
-    }
+struct Stream<Model> {
+    let stream:  AsyncThrowingStream<FSCollectionEvent<Model>, Error>
 }
 
 
@@ -86,9 +77,9 @@ final class FirestoreService: FirestoreServicing {
     
     
     
-    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> ColStream<T> {
         
-        return  AsyncThrowingStream<FSCollectionEvent<T>, Error> { continuation in
+        return  ColStream<T> { continuation in
             var loadInitial = true
             let listener = db.collection(collectionPath).addSnapshotListener { snapshot, error in
                 
@@ -111,7 +102,6 @@ final class FirestoreService: FirestoreServicing {
                     
                     //3.For any more updates to fields only get
                     for change in snapshot.documentChanges {
-                        
                         //3.1. Construct the return Item - an ID and the data type (Need ID to e.g. construct profileModel from ID)
                         let doc = try change.document.data(as: T.self)
                         let newItem = FSCollectionItem(id: change.document.documentID, model: doc)
@@ -127,7 +117,6 @@ final class FirestoreService: FirestoreServicing {
                         }
                     }
                 } catch {
-                    print(error)
                     continuation.finish(throwing: error)
                 }
             }
