@@ -90,18 +90,23 @@ class EventsRepo {
     
     //Part 3:Track Events
     
-    func eventTracker(userId: String) -> (initial: [UserEvent], AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>) {
+    //Split the stream into initial and other at the start. 
+    func eventTracker(userId: String) async throws  -> (initial: [UserEvent], AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>) {
         
         let userEventsPath = "users/\(userId)/events"
         
         let stream: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> =  fs.streamCollection(userEventsPath)
+    
+        var iterator = stream.makeAsyncIterator()
+
+        let firstSnapshot = try await iterator.next()
         
-        let initial = stream.colle
-            
-            
-    
+        if case .initial(let items)? = firstSnapshot {
+            let initialUserEvents = items.map(\.model)
+        }
+        
+        
     }
-    
 }
 
 //Logic deleting all userEvents when the user cancels an Event (Or if t

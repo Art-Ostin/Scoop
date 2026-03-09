@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestore
+import AppIntents
 
 
 struct FSCollectionItem<Model> {
@@ -21,6 +22,18 @@ enum FSCollectionEvent<Model> {
     case removed(id: String)
 }
 
+struct FSCollectionStream<Model> {
+    let initial: [FSCollectionItem<Model>]
+    let updates: AsyncThrowingStream<FSCollectionEvent<Model>, Error>
+    
+    var initialModels: [Model] {
+        initial.map(\.model)
+    }
+    
+    var initialIds: [String] {
+        initial.map(\.id)
+    }
+}
 
 
 final class FirestoreService: FirestoreServicing {
@@ -73,8 +86,9 @@ final class FirestoreService: FirestoreServicing {
     
     
     
-    func streamCollection<T: Decodable>(_ collectionPath: String) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
-        return AsyncThrowingStream<FSCollectionEvent<T>, Error> { continuation in
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+        
+        return  AsyncThrowingStream<FSCollectionEvent<T>, Error> { continuation in
             var loadInitial = true
             let listener = db.collection(collectionPath).addSnapshotListener { snapshot, error in
                 
@@ -89,9 +103,9 @@ final class FirestoreService: FirestoreServicing {
                         let items = try snapshot.documents.compactMap { doc in
                             FSCollectionItem(id: doc.documentID, model: try doc.data(as: T.self))
                         }
-                        
                         //I want to return initial, seperate not putting it in the asynchronous Sequence
                         continuation.yield(.initial(items))
+                        loadInitial = false
                         return
                     }
                     
@@ -112,15 +126,14 @@ final class FirestoreService: FirestoreServicing {
                             continuation.yield(.removed(id: change.document.documentID))
                         }
                     }
-                    
                 } catch {
+                    print(error)
                     continuation.finish(throwing: error)
                 }
             }
             continuation.onTermination = { _ in
                 listener.remove()
             }
-            
         }
     }
 }
