@@ -77,9 +77,9 @@ final class FirestoreService: FirestoreServicing {
     
     
     
-    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> ColStream<T> {
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> Stream<T> {
         
-        return  ColStream<T> { continuation in
+        return  Stream<T> { continuation in
             var loadInitial = true
             let listener = db.collection(collectionPath).addSnapshotListener { snapshot, error in
                 
