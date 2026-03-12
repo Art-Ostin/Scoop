@@ -10,7 +10,7 @@ import UIKit
 import SwiftUI
 
 //Injecting ImageLoader around the app as don't want to have multiple Caches open
-actor ImageLoader  {
+actor ImageLoader: ImageLoading  {    
     
     private let cache: NSCache<NSURL, UIImage>
     private var inFlight: [NSURL: Task<UIImage, Error>] = [:]
@@ -57,11 +57,10 @@ actor ImageLoader  {
         return try await task.value
     }
 
-    func fetchFirstImage(profile: UserProfile) async throws -> UIImage {
+    func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         if let urlString = profile.imagePathURL.first, let url = URL(string: urlString) {
             return try await fetchImage(for: url)
         }
-        return UIImage()
     }
     
     func loadProfileImages(_ profile: UserProfile) async -> [UIImage] {

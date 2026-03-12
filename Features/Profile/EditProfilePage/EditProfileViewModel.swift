@@ -124,7 +124,7 @@ extension EditProfileViewModel {
     
     @MainActor
     func loadImages() async {
-        self.images = await imageLoader.loadProfileImages([user])
+        self.images = await imageLoader.loadProfileImages(user)
     }
 }
 

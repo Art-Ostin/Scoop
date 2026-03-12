@@ -63,18 +63,16 @@ protocol ChatRepository {
 }
 
 protocol ProfilesRepository {
-    func func profilesTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error>
+    func profilesTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error>
     func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws
 }
 
 protocol ImageLoading {
-    @discardableResult
-    func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage]
+    func loadProfileImages(_ profile: UserProfile) async -> [UIImage]
     func fetchImage(for url: URL) async throws -> UIImage
     func removeImage(for url: URL)
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage?
-    @discardableResult
-    func addProfileImagesToCache(for profiles: [UserProfile]) -> Task<Void, Never>?
+    func addProfileImagesToCache(for profiles: [UserProfile])
 }
 
 protocol ProfileLoading {
