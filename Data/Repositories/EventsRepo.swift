@@ -178,36 +178,3 @@ extension EventsRepo {
         )
     }
 }
-
-
-
-
-//Logic to fetch initial events from the collection (I think wrong logic)
-/*
- //2. Actually fetch the events from the collection
- async let invited: [UserEvent] = fs.fetchFromCollection(path) {
-     $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.pending.rawValue)
-         .whereField(F.role.rawValue, isEqualTo: UserEvent.EdgeRole.received.rawValue)
-         .order(by: F.proposedTimes.rawValue, descending: false)
- }
- 
- async let upcoming: [UserEvent] = fs.fetchFromCollection(path) {
-     $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.accepted.rawValue)
-         .order(by: F.acceptedTime.rawValue, descending: false)
- }
- 
- async let past: [UserEvent] = fs.fetchFromCollection(path) {
-     $0.whereField(F.status.rawValue, isEqualTo: Event.EventStatus.pastAccepted.rawValue)
-         .order(by: F.acceptedTime.rawValue, descending: true)
- }
- 
- let (inv, upc, pas) = try await (invited, upcoming, past)
- 
- 
- let initial: [UserEventUpdate] =
- inv.map { (event: $0, kind: .invite) }
- + upc.map { (event: $0, kind: .accepted) }
- + pas.map { (event: $0, kind: .pastAccepted) }
- */
-
-

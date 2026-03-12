@@ -11,6 +11,10 @@ import UIKit
 
 import CoreText
 
+//App holistic Architecture: Root view every possible app state (i.e. MainApp, Onboarding, Loading).
+//When the app Starts (1) the initial state of Root view is 'Loading' (2) userStream checking if user logged in, launches immedietely
+//the user Stream updates the appState which then takes the user to the correct app Mode (i.e. MainApp, blockedAccount, Onboarding...)
+
 @main
 struct ScoopApp: App {
     
@@ -24,16 +28,10 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            TextEditorTest()
              RootView()
                  .appDependencies(dep)
-                 .task { dep.sessionManager.userStream(appState: $appState) }
+                 .onAppear { dep.sessionManager.userStream(appState: $appState) }
                  .environment(\.appState, $appState)
         }
     }
 }
-/*
- RootView()"S
- */
-
-//CustomKeyboardTest()/

@@ -10,15 +10,10 @@ import FirebaseFirestore
 import AppIntents
 
 
-struct FSCollectionItem<Model> {
-    let id: String
-    let model: Model
-}
-
 enum FSCollectionEvent<Model> {
-    case initial([FSCollectionItem<Model>])
-    case added(FSCollectionItem<Model>)
-    case modified(FSCollectionItem<Model>)
+    case initial([Model])
+    case added(Model)
+    case modified(Model)
     case removed(id: String)
 }
 
@@ -89,7 +84,7 @@ final class FirestoreService: FirestoreServicing {
                     //2.If first time get all document matching the query, then yield it to the initial
                     if loadInitial {
                         let items = try snapshot.documents.compactMap { doc in
-                            FSCollectionItem(id: doc.documentID, model: try doc.data(as: T.self))
+                            try doc.data(as: T.self)
                         }
                         //I want to return initial, seperate not putting it in the asynchronous Sequence
                         continuation.yield(.initial(items))
@@ -100,15 +95,13 @@ final class FirestoreService: FirestoreServicing {
                     //3.For any more updates to fields only get
                     for change in snapshot.documentChanges {
                         //3.1. Construct the return Item - an ID and the data type (Need ID to e.g. construct profileModel from ID)
-                        let doc = try change.document.data(as: T.self)
-                        let newItem = FSCollectionItem(id: change.document.documentID, model: doc)
-                        
+                        let model = try change.document.data(as: T.self)
                         //3.2. Return the value also communicating if the doc has been added, or removed, or modified
                         switch change.type {
                         case .added:
-                            continuation.yield(.added(newItem))
+                            continuation.yield(.added(model))
                         case .modified:
-                            continuation.yield(.modified(newItem))
+                            continuation.yield(.modified(model))
                         case.removed:
                             continuation.yield(.removed(id: change.document.documentID))
                         }

@@ -70,7 +70,6 @@ enum ShowProfilesState {
         userStreamTask = Task { @MainActor in
             
             for await uid in authService.authStateStream() {
-                
                 //1. If no authenticated user go to the login state
                 guard let uid else {
                     stopSession()
@@ -84,31 +83,28 @@ enum ShowProfilesState {
                     sessionUser = nil
                     continue
                 }
+                
                 //3. Otherwise start session with the user inputted which triggers loading up
-                await startSession(user: user) {
-                    self.updateAppState(appState, for: user)
-                }
-                Task { await imageLoader.loadProfileImages([user]) }
+                startSession(user: user, appState: appState)
             }
         }
     }
 
-    func startSession(user: UserProfile, onReady: (() -> Void)? = nil) async {
-        //1. Stop Previous session, and populate new with the user
+    private func startSession(user: UserProfile, appState: Binding<AppState>) {
+        //1. Start new session, inputting a user
         stopSession()
         sessionUser = user
         
-        //2. Populate session fields and open up listener for events & profiles
-        async let eventsReady: Void = eventsStream()
-        async let profilesReady: Void = startProfilesStream()
-        _ = await (eventsReady, profilesReady)
-        
-        //3.
-//        userProfileStream()
-        onReady?()
+        //2. Start the streams with initial snapshots
+        eventsStream()
+        profilesStream()
+                
+        //3.Update the AppState and add profileImages
+        updateAppState(appState, for: user)
+        Task { await imageLoader.loadProfileImages([user]) }
     }
-        
-    func stopSession() {
+    
+    private func stopSession() {
         profileStreamTask?.cancel()
         eventStreamTask?.cancel()
         userProfileStreamTask?.cancel()
@@ -134,19 +130,22 @@ extension SessionManager {
         let stream = eventsRepo.eventTracker(userId: user.id)
 
         eventStreamTask = Task { @MainActor in
-            for try await change in stream {
-                switch change {
-                case .initial(let events): try await loadEvents(events: events)
-                case .added(let item): try await addProfile(item: item)
-                case .modified(let item): updateModifiedProfile(item: item)
-                case .removed(let id): _ = removeAndReturnProfile(id: id)
+            do {
+                for try await change in stream {
+                    switch change {
+                    case .initial(let events): try await loadEvents(events: events)
+                    case .added(let event): try await addProfile(event: event)
+                    case .modified(let event): updateModifiedProfile(event: event)
+                    case .removed(let id): _ = removeAndReturnProfile(id: id)
+                    }
                 }
+            } catch {
+                print(error)
             }
         }
     }
     
-    private func loadEvents(events: [FSCollectionItem<UserEvent>]) async throws {
-        let events = events.map(\.model)
+    private func loadEvents(events: [UserEvent]) async throws {
         let b = profileLoader
         
         let invites = events.filter {$0.status == .pending && $0.role == .received }
@@ -160,21 +159,27 @@ extension SessionManager {
         (self.invites, self.events, self.pastEvents) = try await(inv, acc, past)
     }
     
-    private func addProfile(item: FSCollectionItem<UserEvent>) async throws {
-        let event = item.model
+    private func addProfile(event: UserEvent) async throws {
         if event.status == .pending && event.role == .received {
             let profile = try await profileLoader.fromEvents([event])
             self.invites.append(contentsOf: profile)
         }
     }
     
-    private func updateModifiedProfile(item: FSCollectionItem<UserEvent>) {
-        //Can only be updated to .accepted or .pastAccepted, .pending (Otherwise, its removed category)
-        if let profile = removeAndReturnProfile(id: item.id), let event = profile.event {
-            if event.status == .accepted {
-                events.append(profile)
-            } else if event.status == .pastAccepted {
-                pastEvents.append(profile)
+    private func updateModifiedProfile(event: UserEvent) {
+        if let id = event.id {
+            //If it is in invites, and its status is no long invites, add it to accepted
+            if invites.contains(where: { $0.id == id }) && event.status != .pending {
+                if event.status == .accepted {
+                    if let profile = removeAndReturnProfile(id: id) {
+                        events.append(profile)
+                    }
+                }
+                //If it is in events, and its status is no long events, add it to pastAccepted
+            } else if events.contains(where: { $0.id == id }) && event.status == .pastAccepted {
+                if let profile = removeAndReturnProfile(id: id) {
+                    pastEvents.append(profile)
+                }
             }
         }
     }
@@ -196,70 +201,42 @@ extension SessionManager {
 extension SessionManager {
     
     private func profilesStream() {
+        profileStreamTask?.cancel()
+        let stream = profilesRepo.profilesTracker(userId: user.id)
         
+        profileStreamTask = Task { @MainActor in
+            do {
+                for try await change in stream {
+                    switch change {
+                    case .initial(let profileRecs):
+                        let profileIds = profileRecs.compactMap {$0.id}
+                        let profiles = try await profileLoader.fromIds(profileIds)
+                        self.profiles = profiles
+                    case .added(let profileRec):
+                        if let id = profileRec.id {
+                            let profile = try await profileLoader.fromIds([id])
+                            self.profiles.append(contentsOf: profile)
+                        }
+                    case .modified(let items):
+                        //Don't need to do anything
+                    case .removed(let id):
+                        profiles.removeAll { $0.id == id }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        }
     }
+    
 }
 
 
 
-
-
-
-
 //Store the three key streams here
+
 extension SessionManager  {
     
-    private func upsert(_ model: ProfileModel, into models: inout [ProfileModel]) {
-        if let index = models.firstIndex(where: { $0.id == model.id }) {
-            models[index] = model
-        } else {
-            models.append(model)
-        }
-    }
-
-    //Loads up all 'invites' from the profiles folder and begins the listener if any change
-    private func startProfilesStream() async {
-        profileStreamTask?.cancel()
-        do {
-            let (initial, updates) = try await profilesRepo.profilesListener(userId: user.id)
-            let ids = initial.compactMap(\.id)
-            profiles = try await profileLoader.fromIds(ids)   // initial load done here
-            profileStreamTask = Task { @MainActor in
-                do {
-                    for try await update in updates {
-                        switch update {
-                        case .addProfile(let id):
-                            if !profiles.contains(where: { $0.id == id }) {
-                                let model = try await profileLoader.fetchProfileModel(id, event: nil)
-                                profiles.append(model)
-                            }
-                        case .removeProfile(let id):
-                            profiles.removeAll(where: { $0.id == id })
-                        }
-                    }
-                } catch { print(error) }
-            }
-        } catch {
-            print(error)
-        }
-    }
-    
-    //Loads up all users (1) events (2) past events and populates respective fields.
- 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    //The user's profile listener. Changes in firebase instantly updates user
     func userProfileStream() {
         userProfileStreamTask?.cancel()
         userProfileStreamTask = Task { @MainActor in
@@ -279,4 +256,19 @@ extension SessionManager  {
             }
         }
     }
+    
+    
 }
+
+
+/*
+ Might need for profile ordering. Not sure yet
+ private func upsert(_ model: ProfileModel, into models: inout [ProfileModel]) {
+     if let index = models.firstIndex(where: { $0.id == model.id }) {
+         models[index] = model
+     } else {
+         models.append(model)
+     }
+ }
+
+ */

@@ -63,7 +63,7 @@ protocol ChatRepository {
 }
 
 protocol ProfilesRepository {
-    func profilesListener(userId: String) async throws -> (initial: [ProfileRec], updates: AsyncThrowingStream<UpdateShownProfiles, Error>)
+    func func profilesTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error>
     func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws
 }
 
