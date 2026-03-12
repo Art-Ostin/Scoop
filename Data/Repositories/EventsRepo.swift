@@ -87,11 +87,9 @@ class EventsRepo {
     }
     
     //Part 3:Track Events
-    
-    
     func eventTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
         //Set up the listener for specifically the UserEvents. Only includes events pending, accepted, or pastAccepted
-        let userEventsPath = "users/\(userId)/events"
+        let userEventsPath = "users/\(userId)/user_events"
         let statuses = [
             Event.EventStatus.pending.rawValue,
             Event.EventStatus.accepted.rawValue,

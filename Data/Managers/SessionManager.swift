@@ -99,7 +99,7 @@ enum ShowProfilesState {
         sessionUser = user
         
         //2. Populate session fields and open up listener for events & profiles
-        async let eventsReady: Void = startEventsStream()
+        async let eventsReady: Void = eventsStream()
         async let profilesReady: Void = startProfilesStream()
         _ = await (eventsReady, profilesReady)
         
@@ -129,7 +129,7 @@ enum ShowProfilesState {
 //Events Stream
 extension SessionManager {
     
-    private func startEventsStream() {
+    private func eventsStream() {
         eventStreamTask?.cancel()
         let stream = eventsRepo.eventTracker(userId: user.id)
 
@@ -190,6 +190,13 @@ extension SessionManager {
         pastEvents.removeAll { $0.event?.id == id }
         
         return localProfile
+    }
+}
+
+extension SessionManager {
+    
+    private func profilesStream() {
+        
     }
 }
 
@@ -273,76 +280,3 @@ extension SessionManager  {
         }
     }
 }
-
-
-
-
-
-
-/*
- private func startEventsStream() async {
-     eventStreamTask?.cancel()
-     do {
-         let (initial, updates) = try await eventsRepo.eventTracker(userId: user.id, now: Date())
-         let invitesReceived = initial.filter { $0.kind == .invite }.map(\.event)
-         let accepted = initial.filter { $0.kind == .accepted }.map(\.event)
-         let past = initial.filter { $0.kind == .pastAccepted }.map(\.event)
-                     
-         
-         let (invModels, accModels, pastModels) = try await buildEvents(profileLoader, invites: invitesReceived, accepted: accepted,past: past)
-
-         invites = invModels
-         events = accModels
-         pastEvents = pastModels
-         
-         eventStreamTask = Task { @MainActor in
-             do {
-                 for try await (event, kind) in updates {
-                     switch kind {
-                     case .invite:
-                         if let model = try? await profileLoader.fetchProfileModel(event.otherUserId, event: event) {
-                             upsert(model, into: &invites)
-                             events.removeAll { $0.id == model.id }
-                             pastEvents.removeAll { $0.id == model.id }
-                         }
-
-                     case .accepted:
-                         if let model = try? await profileLoader.fetchProfileModel(event.otherUserId, event: event) {
-                             upsert(model, into: &events)
-                             invites.removeAll { $0.id == model.id }
-                             pastEvents.removeAll { $0.id == model.id }
-                         }
-
-                     case .pastAccepted:
-                         if let model = try? await profileLoader.fetchProfileModel(event.otherUserId, event: event) {
-                             upsert(model, into: &pastEvents)
-                             invites.removeAll { $0.id == model.id }
-                             events.removeAll { $0.id == model.id }
-                         }
-
-                     case .remove:
-                         invites.removeAll { $0.id == event.otherUserId }
-                         events.removeAll { $0.id == event.otherUserId }
-                         pastEvents.removeAll { $0.id == event.otherUserId }
-                     }
-                 }
-             } catch { print(error) }
-         }
-     } catch {
-         print(error)
-     }
- }
- 
- 
- 
- //Important that this is done of the main Thread, so function not in session Manager
- func buildEvents(_ b: ProfileLoading, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {
-     async let inv  = b.fromEvents(invites)
-     async let acc  = b.fromEvents(accepted)
-     async let past = b.fromEvents(past)
-     return try await (inv, acc, past)
- }
-
-
-
- */
