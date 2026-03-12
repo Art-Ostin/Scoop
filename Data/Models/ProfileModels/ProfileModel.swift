@@ -15,7 +15,6 @@ struct ProfileModel: Identifiable, Equatable, Hashable {
     var image: UIImage?
     var id: String { profile.id}
     
-    
     static func == (lhs: ProfileModel, rhs: ProfileModel) -> Bool {
         lhs.id == rhs.id
     }

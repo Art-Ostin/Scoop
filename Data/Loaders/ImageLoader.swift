@@ -60,7 +60,7 @@ actor ImageLoader: ImageLoading  {
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         if let urlString = profile.imagePathURL.first, let url = URL(string: urlString) {
             return try await fetchImage(for: url)
-        }
+        } else { return nil} 
     }
     
     func loadProfileImages(_ profile: UserProfile) async -> [UIImage] {

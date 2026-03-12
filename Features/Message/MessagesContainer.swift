@@ -9,10 +9,10 @@ import SwiftUI
 import FirebaseFunctions
 
 
-struct MatchesView: View {
+struct MessagesContainer: View {
     
     @Environment(\.appState) private var appState
-    @State var vm: MatchesViewModel
+    @State var vm: MessagesViewModel
     @State var showProfileView = false
     @State var showSettingsView = false
     @State var userProfileImages: [UIImage] = []
@@ -20,18 +20,13 @@ struct MatchesView: View {
     
     
     
-    init(vm: MatchesViewModel) {
+    init(vm: MessagesViewModel) {
         _vm = State(initialValue: vm)
     }
     
     var body: some View {
         CustomTabPage(page: .Matches, TabAction: $showSettingsView) {
-            if vm.isGenevieve {
-                matchesView
-            } else {
-                messagesAppearHereView
-            }
-            
+            messagesAppearHereView
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
         .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
@@ -41,8 +36,7 @@ struct MatchesView: View {
 }
 
 //Additonal Views
-extension MatchesView {
-    
+extension MessagesContainer {
     
     @ViewBuilder
     private var matchesView: some View {
@@ -133,7 +127,7 @@ extension MatchesView {
     }
 }
 //Additional Functions
-extension MatchesView {
+extension MessagesContainer {
     private func editProfileScreen() -> some View {
         EditProfileContainer(
             vm: EditProfileViewModel(s: vm.s, storageService: vm.storageService, userRepo: vm.userRepo, imageLoader: vm.imageLoader, importedImages: userProfileImages),

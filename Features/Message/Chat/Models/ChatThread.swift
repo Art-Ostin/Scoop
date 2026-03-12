@@ -12,7 +12,6 @@ import FirebaseFirestore
 struct ChatModel: Codable {
     let participantIds: [String]
     
-    
     var lastMessageAt: Date?
     @ServerTimestamp var createdAt: Date?
     @ServerTimestamp var updatedAt: Date?
@@ -21,3 +20,4 @@ struct ChatModel: Codable {
         case participantsIds, lastMessageAt, createdAt, updatedAt
     }
 }
+

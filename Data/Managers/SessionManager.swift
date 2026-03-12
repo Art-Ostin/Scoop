@@ -89,8 +89,9 @@ enum ShowProfilesState {
             }
         }
     }
-
-    private func startSession(user: UserProfile, appState: Binding<AppState>) {
+    
+    //Not private as need it to sign up
+    func startSession(user: UserProfile, appState: Binding<AppState>? = nil) {
         //1. Start new session, inputting a user
         stopSession()
         sessionUser = user
@@ -101,11 +102,14 @@ enum ShowProfilesState {
         userProfileStream()
                 
         //3.Update the AppState and add profileImages
-        updateAppState(appState, for: user)
+        if let appState {
+            updateAppState(appState, for: user)
+        }
         Task { await imageLoader.loadProfileImages(user) }
     }
     
-    private func stopSession() {
+    //Not private as need it when sign out
+    func stopSession() {
         profileStreamTask?.cancel()
         eventStreamTask?.cancel()
         userProfileStreamTask?.cancel()
@@ -209,7 +213,8 @@ extension SessionManager {
                             let profile = try await profileLoader.fromIds([id])
                             self.profiles.append(contentsOf: profile)
                         }
-                    case .modified(let profileRec):
+                    case .modified:
+                        break
                         //Don't need to do anything
                     case .removed(let id):
                         profiles.removeAll { $0.id == id }

@@ -9,12 +9,12 @@ import SwiftUI
 import FirebaseFirestore
 
 struct UserEventChatState: Codable {
+    
     var unreadCount: Int = 0
     
     var lastMessagePreview: String?
     var lastMessageAuthor: String?
     @ServerTimestamp var lastMessageAt: Date?
-
     
     enum Field: String {
         case unreadCount, lastMessageAt, lastMessagePreview, lastMessageAuthor
@@ -32,4 +32,11 @@ struct ChatDraftMessage {
 //For Pagination
 struct ChatMessageCursor {
     let lastMessageId: String
+}
+
+struct ChatProfileModel {
+    let event: Event
+    let profile: UserProfile
+    let chatState: UserEventChatState
+    let firstPhoto: Image
 }

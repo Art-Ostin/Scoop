@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 @MainActor
-@Observable class MatchesViewModel {
+@Observable class MessagesViewModel {
     
     let s: SessionManager
     let storageService: StorageServicing
@@ -47,7 +47,4 @@ import UIKit
         return await imageLoader.loadProfileImages(s.user)
     }
     
-    var isGenevieve: Bool {
-        user.name == "Genevieve"
-    }
 }

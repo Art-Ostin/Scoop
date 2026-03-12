@@ -8,9 +8,6 @@
 import SwiftUI
 
 struct ChatRowView: View {
-
-    let dummyData: DummyMessage
-
     
     var body: some View {
         
