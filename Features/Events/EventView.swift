@@ -24,45 +24,51 @@ struct EventView: View {
     
     var body: some View {
         ZStack {
-            Color.background
             TabView(selection: $selection) {
-                ForEach(vm.events) { profile in
-                    EventSlot(vm: vm, ui: ui, profileModel: profile, dismissOffset: $dismissOffset, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo)
-                        .task {
-                            let loadedImages = await vm.loadImages(profileModel: profile)
-                            await MainActor.run {
-                                profileImages[profile.id] = loadedImages
-                            }
-                        }
+                ForEach(vm.events) {profile in
+                    eventSlot(profile)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
-            .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
-            .background(Color.background)
             
             if let profile = ui.selectedProfile {
-                ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.sessionManager, profileModel: profile, imageLoader: vm.imageLoader), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
-                    .id(profile.id)
-                    .zIndex(1)
-                    .transition(.move(edge: .bottom))
+                profileView(profile: profile)
             }
         }
-        .onAppear {
-            print("Events are: \(vm.events)")
+        .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea().background(Color.background)
+        .fullScreenCover(item: $ui.showMessageScreen) {chatView(profile: $0)}
+        .sheet(item: $ui.showEventDetails) { eventDetailsView(event: $0) }
+    }
+}
+
+extension EventView {
+    
+    private func eventSlot(_ profile: ProfileModel) -> some View {
+        EventSlot(vm: vm, ui: ui, profileModel: profile, dismissOffset: $dismissOffset, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo)
+            .task { await loadProfileImages(profile) }
+    }
+    
+    private func chatView(profile: ProfileModel) -> some View {
+        NavigationStack {
+            ChatContainer(vm: ChatViewModel(session: vm.sessionManager, chatRepo: vm.chatRepo, profileModel: profile), eventVM: vm, profileModel: profile)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .fullScreenCover(item: $ui.showMessageScreen) {profileModel in
-            NavigationStack {
-                ChatContainer(vm: ChatViewModel(session: vm.sessionManager, chatRepo: vm.chatRepo, profileModel: profileModel), eventVM: vm, profileModel: profileModel)
-            }
+    }
+    
+    private func profileView(profile: ProfileModel) -> some View {
+        ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.sessionManager, profileModel: profile, imageLoader: vm.imageLoader), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
+            .id(profile.id)
+            .zIndex(1)
+            .transition(.move(edge: .bottom))
+    }
+    
+    private func eventDetailsView(event: UserEvent) -> some View {
+        NavigationStack {
+            EventDetails(vm: vm, event: event)
         }
-        .sheet(item: $ui.showEventDetails) { event in
-            NavigationStack {
-                EventDetails(vm: vm, event: event)
-            }
-        }
-        .fullScreenCover(item: $ui.showCantMakeIt) { event in
-            //Print can't make it here
-        }
+    }
+    
+    private func loadProfileImages(_ profile: ProfileModel) async {
+        let loadedImages = await vm.loadImages(profileModel: profile)
+        profileImages[profile.id] = loadedImages
     }
 }

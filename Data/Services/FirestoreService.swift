@@ -26,7 +26,6 @@ struct Stream<Model> {
     let stream:  AsyncThrowingStream<FSCollectionEvent<Model>, Error>
 }
 
-
 final class FirestoreService: FirestoreServicing {
     
     let db = Firestore.firestore()
@@ -75,21 +74,19 @@ final class FirestoreService: FirestoreServicing {
         }
     }
     
-    
-    
-    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> Stream<T> {
+    func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) -> AsyncThrowingStream<FSCollectionEvent<T>, Error> {
+        let query = configure(db.collection(collectionPath))
         
-        return  Stream<T> { continuation in
+        return AsyncThrowingStream<FSCollectionEvent<T>, Error>  { continuation in
             var loadInitial = true
-            let listener = db.collection(collectionPath).addSnapshotListener { snapshot, error in
+            let listener = query.addSnapshotListener { snapshot, error in
                 
                 //1. Ensure data is correct and no errors
                 if let error { continuation.finish(throwing: error) ; return }
                 guard let snapshot else {return}
                 
-                
                 do {
-                    //2.If first time get all document matching the query, then yield it as initial
+                    //2.If first time get all document matching the query, then yield it to the initial
                     if loadInitial {
                         let items = try snapshot.documents.compactMap { doc in
                             FSCollectionItem(id: doc.documentID, model: try doc.data(as: T.self))

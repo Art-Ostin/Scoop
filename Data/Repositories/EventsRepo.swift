@@ -91,21 +91,16 @@ class EventsRepo {
     //Part 3:Track Events
     
     //Split the stream into initial and other at the start. 
-    func eventTracker(userId: String) async throws  -> (initial: [UserEvent], AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>) {
-        
+    func eventTracker(userId: String) async throws  -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
+        //Set up the listener for specifically the UserEvents
         let userEventsPath = "users/\(userId)/events"
+        let statuses = [
+            Event.EventStatus.pending.rawValue,
+            Event.EventStatus.accepted.rawValue,
+            Event.EventStatus.pastAccepted.rawValue
+        ]
         
-        let stream: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> =  fs.streamCollection(userEventsPath)
-    
-        var iterator = stream.makeAsyncIterator()
-
-        let firstSnapshot = try await iterator.next()
-        
-        if case .initial(let items)? = firstSnapshot {
-            let initialUserEvents = items.map(\.model)
-        }
-        
-        
+        return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue,in: statuses)}
     }
 }
 

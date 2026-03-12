@@ -13,6 +13,7 @@ struct ProposedTime: Codable, Equatable {
 }
 
 struct ProposedTimes: Codable, Equatable  {
+    
     static let maxCount = 3
     private(set) var dates: [ProposedTime]
     

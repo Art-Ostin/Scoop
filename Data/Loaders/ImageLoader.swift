@@ -10,7 +10,6 @@ import UIKit
 import SwiftUI
 
 //Injecting ImageLoader around the app as don't want to have multiple Caches open
-
 class ImageLoader: ImageLoading  {
     
     private let cache: NSCache<NSURL, UIImage>
@@ -109,14 +108,11 @@ class ImageLoader: ImageLoading  {
     }
     
     
-    
-    
     @discardableResult
     func addProfileImagesToCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
         guard !profiles.isEmpty else { return nil }
-        return Task(priority: .utility) { [weak self] in
-            guard let self else { return }
-            _ = await self.loadProfileImages(profiles)
+        return Task(priority: .utility) {
+            _ = await self.loadProfileImages(profiles) //No weak self, as even after ImageLoader called, want it to still add images
         }
     }
 }

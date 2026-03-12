@@ -11,7 +11,6 @@ import MapKit
 
 struct MapView: View {
     
-    
     @State var  vm: MapViewModel
     
     @Environment(\.dismiss) var dismiss

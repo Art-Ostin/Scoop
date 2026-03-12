@@ -147,6 +147,6 @@ extension MatchesView {
     
     private func prepareUserImages() async {
         let loadedUserImages = await vm.loadUserImages()
-        await MainActor.run {userProfileImages = loadedUserImages}
+        userProfileImages = loadedUserImages
     }
 }
