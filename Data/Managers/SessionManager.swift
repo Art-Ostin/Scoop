@@ -180,18 +180,9 @@ extension SessionManager  {
                         let upcomingEvents = events.filter {$0.status == .accepted}
                         let pastEventItems = events.filter {$0.status == .pastAccepted}
 
-                        async let loadedInvites  = try profileLoader.fromEvents(invitedEvents)
-                        async let loadedEvents = try profileLoader.fromEvents(upcomingEvents)
-                        async let loadedPastEvents = try profileLoader.fromEvents(pastEventItems)
+                        (self.invites, self.events, self.pastEvents) = try await buildEvents(profileLoader, invites: invitedEvents, accepted: upcomingEvents, past: pastEventItems)
                         
-                        (self.invites, self.events, pastEvents) = try await (loadedInvites, loadedEvents, loadedPastEvents)
                     case .added(let item):
-                        let event = item.map(\.model)
-                        if item.status == .pending {
-                            let profile = profileLoader.fromEvents([item])
-                            invites.append(profile)
-                        }
-                        break
                     case .modified(let item):
                          
                         
@@ -210,7 +201,7 @@ extension SessionManager  {
         }
     }
     
-    private func removeOldProfile(id: String) {
+    private func removeOldProfile(id: String){
         invites.removeAll { $0.event?.id == id }
         events.removeAll { $0.event?.id == id }
         pastEvents.removeAll { $0.event?.id == id }
