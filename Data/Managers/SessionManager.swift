@@ -102,7 +102,7 @@ enum ShowProfilesState {
                 
         //3.Update the AppState and add profileImages
         updateAppState(appState, for: user)
-        Task { await imageLoader.loadProfileImages([user]) }
+        Task { await imageLoader.loadProfileImages(user) }
     }
     
     private func stopSession() {
@@ -209,7 +209,7 @@ extension SessionManager {
                             let profile = try await profileLoader.fromIds([id])
                             self.profiles.append(contentsOf: profile)
                         }
-                    case .modified(let items):
+                    case .modified(let profileRec):
                         //Don't need to do anything
                     case .removed(let id):
                         profiles.removeAll { $0.id == id }

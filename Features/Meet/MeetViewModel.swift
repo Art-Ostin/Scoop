@@ -42,7 +42,7 @@ import SwiftUI
     }
     
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
-        try await eventRepo.updateStatus(eventId: eventId, to: status)
+        try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }
         
     func updateProfileRec(event: EventDraft? = nil, profileModel: ProfileModel, status: ProfileRec.Status) async throws {
@@ -75,7 +75,7 @@ import SwiftUI
     }
     
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {
-        return await imageLoader.loadProfileImages([profileModel.profile])
+        return await imageLoader.loadProfileImages(profileModel.profile)
     }
 }
 

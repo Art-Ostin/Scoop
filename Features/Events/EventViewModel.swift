@@ -34,11 +34,11 @@ import FirebaseFirestore
     var events: [ProfileModel] { sessionManager.events}
     
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
-        try await eventRepo.updateStatus(eventId: eventId, to: status)
+        try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }
     
     func loadImages(profileModel: ProfileModel) async -> [UIImage] {
-        return await imageLoader.loadProfileImages([profileModel.profile])
+        return await imageLoader.loadProfileImages(profileModel.profile)
     }
     
     func cancelEvent(event: UserEvent) async throws {

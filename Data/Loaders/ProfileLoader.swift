@@ -45,7 +45,7 @@ final class ProfileLoader: ProfileLoading {
                 models.append(model)
             }
         }
-        imageLoader.addProfileImagesToCache(for: models.map(\.profile))
+        await imageLoader.addProfileImagesToCache(for: models.map(\.profile))
         return models
     }
     

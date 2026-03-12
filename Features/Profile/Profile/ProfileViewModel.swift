@@ -41,7 +41,7 @@ enum ProfileViewType {
     }
     
     func loadImages() async -> [UIImage] {
-        return await imageLoader.loadProfileImages([profileModel.profile])
+        return await imageLoader.loadProfileImages(profileModel.profile)
     }
 }
 enum DragType {

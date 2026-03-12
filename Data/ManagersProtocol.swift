@@ -11,7 +11,6 @@ import FirebaseFirestore
 import FirebaseStorage
 import UIKit
 
-
 protocol FirestoreServicing {
     func set<T: Encodable> (_ path: String, value: T, merge: Bool) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
@@ -67,7 +66,7 @@ protocol ProfilesRepository {
     func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws
 }
 
-protocol ImageLoading {
+protocol ImageLoading: Actor {
     func loadProfileImages(_ profile: UserProfile) async -> [UIImage]
     func fetchImage(for url: URL) async throws -> UIImage
     func removeImage(for url: URL)
