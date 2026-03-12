@@ -88,7 +88,7 @@ class EventsRepo {
     
     //Part 3:Track Events
     
-    //Split the stream into initial and other at the start. 
+    
     func eventTracker(userId: String) async throws  -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
         //Set up the listener for specifically the UserEvents
         let userEventsPath = "users/\(userId)/events"
@@ -97,7 +97,6 @@ class EventsRepo {
             Event.EventStatus.accepted.rawValue,
             Event.EventStatus.pastAccepted.rawValue
         ]
-        
         return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue,in: statuses)}
     }
 }

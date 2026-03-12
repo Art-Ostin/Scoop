@@ -167,8 +167,19 @@ extension SessionManager  {
     
     private func startEventsStream() async {
         
-        
-        
+        let stream = try? await eventsRepo.eventTracker(userId: user.id)
+    
+        eventStreamTask = Task { @MainActor in
+            for try await change in stream {
+                switch stream {
+                case .initial:
+                    
+                    
+                    
+                    
+                }
+            }
+        }
     }
     
     
@@ -205,6 +216,8 @@ extension SessionManager  {
     }
 }
 
+
+
 //Important that this is done of the main Thread, so function not in session Manager
 func buildEvents(_ b: ProfileLoading, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {
     async let inv  = b.fromEvents(invites)
@@ -212,6 +225,11 @@ func buildEvents(_ b: ProfileLoading, invites: [UserEvent], accepted: [UserEvent
     async let past = b.fromEvents(past)
     return try await (inv, acc, past)
 }
+
+
+
+
+
 
 
 /*
