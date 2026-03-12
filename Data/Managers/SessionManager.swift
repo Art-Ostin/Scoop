@@ -174,32 +174,46 @@ extension SessionManager  {
                 for try await change in stream {
                     switch change {
                     case .initial(let items):
-                        let invitedEvents = items.map(\.model).filter {$0.status == .pending && $0.role == .received }
-                        let upcomingEvents = items.map(\.model).filter {$0.status == .accepted}
-                        let pastEvents = items.map(\.model).filter {$0.status == .pastAccepted}
+                        let events = items.map(\.model)
                         
-                        async let loadedInvites = try profileLoader.fromEvents(invitedEvents)
+                        let invitedEvents = events.filter {$0.status == .pending && $0.role == .received }
+                        let upcomingEvents = events.filter {$0.status == .accepted}
+                        let pastEventItems = events.filter {$0.status == .pastAccepted}
+
+                        async let loadedInvites  = try profileLoader.fromEvents(invitedEvents)
                         async let loadedEvents = try profileLoader.fromEvents(upcomingEvents)
-                        async let loadedPastEvents = try profileLoader.fromEvents(pastEvents)
+                        async let loadedPastEvents = try profileLoader.fromEvents(pastEventItems)
                         
                         (self.invites, self.events, pastEvents) = try await (loadedInvites, loadedEvents, loadedPastEvents)
                     case .added(let item):
-                        let item = item.map(\.model)
+                        let event = item.map(\.model)
                         if item.status == .pending {
-                            let profile =
+                            let profile = profileLoader.fromEvents([item])
+                            invites.append(profile)
                         }
-                        
                         break
                     case .modified(let item):
+                         
+                        
+                        
+                        
+                        //If accepted, or PastAccepted
                         break
                     case .removed(let id):
-                        break
+                        //The stream only tracks events that are pending, accepted, or pastAccepted, so remove it here
+                        removeOldProfile(id: id)
                     }
                 }
             } catch {
                 print(error)
             }
         }
+    }
+    
+    private func removeOldProfile(id: String) {
+        invites.removeAll { $0.event?.id == id }
+        events.removeAll { $0.event?.id == id }
+        pastEvents.removeAll { $0.event?.id == id }
     }
 
     

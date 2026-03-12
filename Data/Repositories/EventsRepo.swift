@@ -69,7 +69,7 @@ class EventsRepo {
     }
     
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
-        let (event, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
+        let (_, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
         let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
         try await updateEvent(initiatorId: initiatorId, recipientId: recipientId, eventId: eventId, userFields: fields, eventFields: fields)
     }
@@ -90,7 +90,7 @@ class EventsRepo {
     
     
     func eventTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
-        //Set up the listener for specifically the UserEvents
+        //Set up the listener for specifically the UserEvents. Only includes events pending, accepted, or pastAccepted
         let userEventsPath = "users/\(userId)/events"
         let statuses = [
             Event.EventStatus.pending.rawValue,
