@@ -89,7 +89,7 @@ class EventsRepo {
     //Part 3:Track Events
     
     
-    func eventTracker(userId: String) async throws  -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
+    func eventTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
         //Set up the listener for specifically the UserEvents
         let userEventsPath = "users/\(userId)/events"
         let statuses = [

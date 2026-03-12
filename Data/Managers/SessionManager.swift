@@ -45,7 +45,7 @@ enum ShowProfilesState {
     var invites: [ProfileModel] = []
     var events: [ProfileModel] = []
     var pastEvents: [ProfileModel] = []
-        
+    
     init(
         authService: AuthServicing,
         defaultsManager: DefaultsManaging,
@@ -165,22 +165,43 @@ extension SessionManager  {
     
     //Loads up all users (1) events (2) past events and populates respective fields.
     
-    private func startEventsStream() async {
-        
-        let stream = try? await eventsRepo.eventTracker(userId: user.id)
-    
+    private func startEventsStream() {
+        eventStreamTask?.cancel()
+        let stream = eventsRepo.eventTracker(userId: user.id)
+
         eventStreamTask = Task { @MainActor in
-            for try await change in stream {
-                switch stream {
-                case .initial:
-                    
-                    
-                    
-                    
+            do {
+                for try await change in stream {
+                    switch change {
+                    case .initial(let items):
+                        let invitedEvents = items.map(\.model).filter {$0.status == .pending && $0.role == .received }
+                        let upcomingEvents = items.map(\.model).filter {$0.status == .accepted}
+                        let pastEvents = items.map(\.model).filter {$0.status == .pastAccepted}
+                        
+                        async let loadedInvites = try profileLoader.fromEvents(invitedEvents)
+                        async let loadedEvents = try profileLoader.fromEvents(upcomingEvents)
+                        async let loadedPastEvents = try profileLoader.fromEvents(pastEvents)
+                        
+                        (self.invites, self.events, pastEvents) = try await (loadedInvites, loadedEvents, loadedPastEvents)
+                    case .added(let item):
+                        let item = item.map(\.model)
+                        if item.status == .pending {
+                            let profile =
+                        }
+                        
+                        break
+                    case .modified(let item):
+                        break
+                    case .removed(let id):
+                        break
+                    }
                 }
+            } catch {
+                print(error)
             }
         }
     }
+
     
     
     
