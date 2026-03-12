@@ -14,7 +14,7 @@ enum UserEventKind { case invite, accepted, pastAccepted, remove }
 
 typealias UserEventUpdate = (event: UserEvent, kind: UserEventKind)
 
-class EventsRepo {
+class EventsRepo: EventsRepository {
     
     private let fs: FirestoreService
     

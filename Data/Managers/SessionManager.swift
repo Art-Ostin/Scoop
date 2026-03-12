@@ -98,6 +98,7 @@ enum ShowProfilesState {
         //2. Start the streams with initial snapshots
         eventsStream()
         profilesStream()
+        userProfileStream()
                 
         //3.Update the AppState and add profileImages
         updateAppState(appState, for: user)
@@ -109,15 +110,6 @@ enum ShowProfilesState {
         eventStreamTask?.cancel()
         userProfileStreamTask?.cancel()
         sessionUser = nil
-    }
-    
-    //Checks if user is blocked or frozen before going to main appState
-    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
-        if user.isBlocked || user.frozenUntil != nil {
-            appState.wrappedValue = .frozen
-        } else {
-            appState.wrappedValue = .app
-        }
     }
 }
 
@@ -229,23 +221,17 @@ extension SessionManager {
         }
     }
     
-}
-
-
-
-//Store the three key streams here
-
-extension SessionManager  {
-    
-    func userProfileStream() {
+    //Listen to user's profile in case there is an update on their account.
+    private func userProfileStream() {
         userProfileStreamTask?.cancel()
         userProfileStreamTask = Task { @MainActor in
             do {
                 for try await change in userRepo.userListener(userId: user.id) {
+                    //1. If they have updated their profile/preference make the session user, reflect this change
                     if let change {
-                        //If profile updated, this ensure 'sessionUser' instantly reflects changes
                         sessionUser = change
-                        print("Updated")
+                        
+                        //2.If change is 'user's status' i.e. to blocked or frozen, update appState.
                         if let appStateBinding {
                             updateAppState(appStateBinding, for: change)
                         }
@@ -257,8 +243,18 @@ extension SessionManager  {
         }
     }
     
-    
+    //Checks if user is blocked or frozen before going to main appState
+    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
+        if user.isBlocked || user.frozenUntil != nil {
+            appState.wrappedValue = .frozen
+        } else {
+            appState.wrappedValue = .app
+        }
+    }
 }
+
+
+
 
 
 /*
