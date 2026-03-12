@@ -10,7 +10,7 @@ import UIKit
 import SwiftUI
 
 //Injecting ImageLoader around the app as don't want to have multiple Caches open
-class ImageLoader: ImageLoading  {
+actor ImageLoader  {
     
     private let cache: NSCache<NSURL, UIImage>
 
@@ -23,15 +23,8 @@ class ImageLoader: ImageLoading  {
     private func fetchImageFromCache(for url: URL) -> UIImage? {
         cache.object(forKey: url as NSURL)
     }
-
-    func removeImage(for url: URL) {
-        cache.removeObject(forKey: url as NSURL)
-    }
     
-    func fetchImage(for url: URL) async throws -> UIImage {
-        if let image = fetchImageFromCache(for: url) {
-            return image
-        }
+    private func addImageToCache(url: URL) async throws -> UIImage {
         let (data, _) = try await URLSession.shared.data(from: url)
         if let image = UIImage(data: data) {
             cache.setObject(image, forKey: url as NSURL, cost: data.count)
@@ -40,43 +33,23 @@ class ImageLoader: ImageLoading  {
         return UIImage()
     }
     
-    func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
-        guard
-            let urlString = profile.imagePathURL.first,
-            let url = URL(string: urlString)
-        else {return nil}
-        return try await fetchImage(for: url)
+    func removeImage(for url: URL) {
+        cache.removeObject(forKey: url as NSURL)
     }
     
-    @discardableResult
-    func loadProfileImages(_ profiles: [UserProfile]) async -> [UIImage] {
-        
-        //1. Fetch the URLs from the profile
-        let urls = profiles.flatMap { profile in
-            profile.imagePathURL.compactMap { URL(string: $0) }
-        }
-                
-        return await withTaskGroup(of: (Int, UIImage?).self) { group in
-            
-            var images = Array<UIImage?>(repeating: nil, count: urls.count)
-            print("URL COUNT IS: \(urls.count)")
-            for (index, url) in urls.enumerated() {
-                group.addTask {
-                        let image = try? await self.fetchImage(for: url)
-                        return (index, image)
-                }
-            }
-            
-            for await (index, img) in group {
-                if let img { images[index] = img }
-            }
-            
-            return images.compactMap { $0 }
-        }
+    func fetchImage(for url: URL) async throws -> UIImage {
+        if let image = fetchImageFromCache(for: url) { return image}
+        return try await addImageToCache(url: url)
     }
     
-    //
-    func loadProfileImages2(_ profile: UserProfile) async -> [UIImage] {
+    func fetchFirstImage(profile: UserProfile) async throws -> UIImage {
+        if let urlString = profile.imagePathURL.first, let url = URL(string: urlString) {
+            return try await fetchImage(for: url)
+        }
+        return UIImage()
+    }
+    
+    func loadProfileImages(_ profile: UserProfile) async -> [UIImage] {
         
         //1. Fetch the imageurls from the profile
         let urls = profile.imagePathURL.compactMap { URL(string: $0) }
@@ -94,26 +67,30 @@ class ImageLoader: ImageLoading  {
                     return (index, image)
                 }
             }
-
             //5. Add the image back at the specific index (so order retained)
             for await (index, img) in group {
                 if let img {
                     images[index] = img
                 }
             }
-
             //6. Return the images back
             return images.compactMap { $0 }
         }
     }
     
-    
-    @discardableResult
-    func addProfileImagesToCache(for profiles: [UserProfile]) -> Task<Void, Never>? {
-        guard !profiles.isEmpty else { return nil }
-        return Task(priority: .utility) {
-            _ = await self.loadProfileImages(profiles) //No weak self, as even after ImageLoader called, want it to still add images
+    func addImagesToCache(for profiles: [UserProfile]) async {
+        await withTaskGroup(of: Void.self) { group in
+            for profile in profiles {
+                group.addTask {
+                    for urlString in profile.imagePathURL {
+                        if let url = URL(string: urlString) {
+                           _ = try? await self.addImageToCache(url: url)
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
 

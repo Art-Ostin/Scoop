@@ -176,8 +176,7 @@ extension MeetContainer {
     
     
     private var loadingProfilesView: some View {
-        
-        
+
         VStack(spacing: 96) {
             
             Text("Loading Profiles")
@@ -191,8 +190,5 @@ extension MeetContainer {
 
             
         }
-        
-        
-        
     }
 }

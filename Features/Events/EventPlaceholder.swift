@@ -58,6 +58,7 @@ struct EventPlaceholder: View {
 
 
 struct ImageSection: View {
+    
     let textTitle: String
     let text: String
     let image: String

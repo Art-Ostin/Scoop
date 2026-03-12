@@ -47,7 +47,6 @@ final class AppDependencies {
         self.userRepo = userRepo
         self.eventRepo = eventsRepo
         self.profilesRepo = ProfileRepo(fs: fs)
-        self.imageLoader = ImageLoader()
         self.profileLoader = ProfileLoader(userRepo: userRepo, imageLoader: imageLoader)
         self.defaultsManager = MainActor.assumeIsolated { DefaultsManager() }
         self.chatRepo = ChatRepo(eventsRepo: eventsRepo, fs: fs)
