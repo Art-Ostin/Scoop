@@ -125,6 +125,80 @@ enum ShowProfilesState {
     }
 }
 
+
+//Events Stream
+extension SessionManager {
+    
+    private func startEventsStream() {
+        eventStreamTask?.cancel()
+        let stream = eventsRepo.eventTracker(userId: user.id)
+
+        eventStreamTask = Task { @MainActor in
+            for try await change in stream {
+                switch change {
+                case .initial(let events): try await loadEvents(events: events)
+                case .added(let item): try await addProfile(item: item)
+                case .modified(let item): updateModifiedProfile(item: item)
+                case .removed(let id): _ = removeAndReturnProfile(id: id)
+                }
+            }
+        }
+    }
+    
+    private func loadEvents(events: [FSCollectionItem<UserEvent>]) async throws {
+        let events = events.map(\.model)
+        let b = profileLoader
+        
+        let invites = events.filter {$0.status == .pending && $0.role == .received }
+        let accepted = events.filter {$0.status == .accepted}
+        let pastAccepted = events.filter {$0.status == .pastAccepted}
+        
+        async let inv  = b.fromEvents(invites)
+        async let acc  = b.fromEvents(accepted)
+        async let past = b.fromEvents(pastAccepted)
+
+        (self.invites, self.events, self.pastEvents) = try await(inv, acc, past)
+    }
+    
+    private func addProfile(item: FSCollectionItem<UserEvent>) async throws {
+        let event = item.model
+        if event.status == .pending && event.role == .received {
+            let profile = try await profileLoader.fromEvents([event])
+            self.invites.append(contentsOf: profile)
+        }
+    }
+    
+    private func updateModifiedProfile(item: FSCollectionItem<UserEvent>) {
+        //Can only be updated to .accepted or .pastAccepted, .pending (Otherwise, its removed category)
+        if let profile = removeAndReturnProfile(id: item.id), let event = profile.event {
+            if event.status == .accepted {
+                events.append(profile)
+            } else if event.status == .pastAccepted {
+                pastEvents.append(profile)
+            }
+        }
+    }
+    
+    private func removeAndReturnProfile(id: String) -> ProfileModel? {
+        let localProfile =
+        invites.first(where: { $0.event?.id == id }) ??
+        events.first(where: { $0.event?.id == id }) ??
+        pastEvents.first(where: { $0.event?.id == id })
+        
+        invites.removeAll { $0.event?.id == id }
+        events.removeAll { $0.event?.id == id }
+        pastEvents.removeAll { $0.event?.id == id }
+        
+        return localProfile
+    }
+}
+
+
+
+
+
+
+
 //Store the three key streams here
 extension SessionManager  {
     
@@ -164,49 +238,7 @@ extension SessionManager  {
     }
     
     //Loads up all users (1) events (2) past events and populates respective fields.
-    
-    private func startEventsStream() {
-        eventStreamTask?.cancel()
-        let stream = eventsRepo.eventTracker(userId: user.id)
-
-        eventStreamTask = Task { @MainActor in
-            do {
-                for try await change in stream {
-                    switch change {
-                    case .initial(let items):
-                        let events = items.map(\.model)
-                        
-                        let invitedEvents = events.filter {$0.status == .pending && $0.role == .received }
-                        let upcomingEvents = events.filter {$0.status == .accepted}
-                        let pastEventItems = events.filter {$0.status == .pastAccepted}
-
-                        (self.invites, self.events, self.pastEvents) = try await buildEvents(profileLoader, invites: invitedEvents, accepted: upcomingEvents, past: pastEventItems)
-                        
-                    case .added(let item):
-                    case .modified(let item):
-                         
-                        
-                        
-                        
-                        //If accepted, or PastAccepted
-                        break
-                    case .removed(let id):
-                        //The stream only tracks events that are pending, accepted, or pastAccepted, so remove it here
-                        removeOldProfile(id: id)
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
-    private func removeOldProfile(id: String){
-        invites.removeAll { $0.event?.id == id }
-        events.removeAll { $0.event?.id == id }
-        pastEvents.removeAll { $0.event?.id == id }
-    }
-
+ 
     
     
     
@@ -241,17 +273,6 @@ extension SessionManager  {
         }
     }
 }
-
-
-
-//Important that this is done of the main Thread, so function not in session Manager
-func buildEvents(_ b: ProfileLoading, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {
-    async let inv  = b.fromEvents(invites)
-    async let acc  = b.fromEvents(accepted)
-    async let past = b.fromEvents(past)
-    return try await (inv, acc, past)
-}
-
 
 
 
@@ -311,4 +332,17 @@ func buildEvents(_ b: ProfileLoading, invites: [UserEvent], accepted: [UserEvent
          print(error)
      }
  }
+ 
+ 
+ 
+ //Important that this is done of the main Thread, so function not in session Manager
+ func buildEvents(_ b: ProfileLoading, invites: [UserEvent], accepted: [UserEvent], past: [UserEvent]) async throws -> ([ProfileModel],[ProfileModel],[ProfileModel]) {
+     async let inv  = b.fromEvents(invites)
+     async let acc  = b.fromEvents(accepted)
+     async let past = b.fromEvents(past)
+     return try await (inv, acc, past)
+ }
+
+
+
  */
