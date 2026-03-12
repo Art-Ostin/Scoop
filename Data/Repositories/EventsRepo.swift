@@ -86,8 +86,6 @@ class EventsRepo {
         return(event, initiatorId, recipientId)
     }
     
-    
-    
     //Part 3:Track Events
     
     //Split the stream into initial and other at the start. 

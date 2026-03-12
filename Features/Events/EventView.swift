@@ -5,23 +5,19 @@
 //  Created by Art Ostin on 04/08/2025.
 
 import SwiftUI
-import FirebaseFunctions
-
 
 struct EventView: View {
     
-    @State var ui = EventUIState()
-    
     let vm: EventViewModel
-    
-    @State var showEventDetails: Bool = false
-    @State var selection: String?
-    @State var dismissOffset: CGFloat? = nil
-    @State var profileImages: [String : [UIImage]] = [ : ]
-    
-    @Binding var showFrozenInfo: Bool
     let isFrozenEvent: Bool
     
+    @Binding var showFrozenInfo: Bool
+    
+    @State private var ui = EventUIState()
+    @State private var selection: String?
+    @State private var dismissOffset: CGFloat?
+    @State private var profileImages: [String: [UIImage]] = [:]
+
     var body: some View {
         ZStack {
             TabView(selection: $selection) {
@@ -35,9 +31,9 @@ struct EventView: View {
                 profileView(profile: profile)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea().background(Color.background)
+        .colorBackground()
         .fullScreenCover(item: $ui.showMessageScreen) {chatView(profile: $0)}
-        .sheet(item: $ui.showEventDetails) { eventDetailsView(event: $0) }
+        .sheet(item: $ui.showEventDetails) {eventDetailsView(event: $0) }
     }
 }
 
