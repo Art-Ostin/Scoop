@@ -15,8 +15,14 @@ struct UserEvent: Identifiable, Codable {
         case sent, received
     }
 
-    //1. Event Identifier
-    @DocumentID var id: String?
+    //1. Event Identifier and trick to get non-optional id
+    @DocumentID var _id: String?
+    var id: String {
+        guard let _id else {
+            preconditionFailure("UserEvent ID accessed before Firestore assigned a document ID.")
+        }
+        return _id
+    }
     
     //2.Other userInfo & Role
     let otherUserId: String
@@ -39,7 +45,6 @@ struct UserEvent: Identifiable, Codable {
     //5. MetaData
     var updatedAt: Date? = nil
     var earlyTerminatorID: String? = nil
-    
     
     init(otherProfile: UserProfile, role: EdgeRole, event: Event) {
         otherUserId = otherProfile.id

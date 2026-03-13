@@ -8,11 +8,11 @@
 import SwiftUI
 
 //ForAcceptedEvents
-struct Profile: Identifiable, Hashable {
+struct EventProfile: Identifiable, Hashable {
     var event: UserEvent
     var profile: UserProfile
     var image: UIImage?
-    var id: String { profile.id}
+    var id: String { event.id }
     
     var chatState: ChatState? {
         event.chatState
@@ -21,8 +21,7 @@ struct Profile: Identifiable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
-    static func == (lhs: Profile, rhs: Profile) -> Bool {
+    static func == (lhs: EventProfile, rhs: EventProfile) -> Bool {
         lhs.id == rhs.id
     }
 }

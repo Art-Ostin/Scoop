@@ -9,7 +9,7 @@ import Foundation
 @preconcurrency import FirebaseFirestore
 
 //User Facing Information about profiles
-struct ProfileModel: Identifiable, Equatable, Hashable {
+struct ProfileRec: Identifiable, Equatable, Hashable {
     var event: UserEvent?
     var profile: UserProfile
     var image: UIImage?
