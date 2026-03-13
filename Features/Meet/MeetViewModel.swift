@@ -19,7 +19,6 @@ import SwiftUI
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
     
-
     init(s: SessionManager, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.imageLoader = imageLoader
         self.s = s
@@ -33,42 +32,20 @@ import SwiftUI
     var pendingInvites: [PendingProfile] { s.profiles} // Change later
     
     var user: UserProfile {s.user}
+            
+    func sendInvite(event: EventDraft, profile: UserProfile) async throws {
+        try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .invited)
+        try await eventRepo.createEvent(draft: event, user: user, profile: profile)
+        defaults.deleteEventDraft(profileId: profile.id)
+    }
+    
+    func declineProfile(profile: UserProfile) async throws {
+        try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .declined)
+        defaults.deleteEventDraft(profileId: profile.id)
+    }
     
     func fetchImage(url: URL) async throws -> UIImage {
         try await imageLoader.fetchImage(for: url)
-    }
-    
-    func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
-        try await eventRepo.updateEventStatus(eventId: eventId, to: status)
-    }
-        
-    func updateProfileRec(event: EventDraft? = nil, profileModel: ProfileModel, status: ProfileRec.Status) async throws {
-        let user = s.user
-        try await profileRepo.updateProfileRec(userId: user.id, profileId: profileModel.profile.id, status: status)
-        if status == .invited {
-            guard let event else {return}
-            try await eventRepo.createEvent(draft: event, user: user, profile: profileModel.profile)
-        }
-        defaults.deleteEventDraft(profileId: profileModel.profile.id)
-    }
-    
-    func acceptInvite(profileModel: ProfileModel, userEvent: UserEvent) async throws {
-        guard let eventId = userEvent.id else { return }
-        guard let acceptedDate = userEvent.proposedTimes.dates.first?.date else { return }
-        try await eventRepo.acceptEvent(eventId: eventId, acceptedDate: acceptedDate)
-        var acceptedEvent = userEvent
-        acceptedEvent.status = .accepted
-        acceptedEvent.acceptedTime = acceptedDate
-        let acceptedModel = ProfileModel(event: acceptedEvent, profile: profileModel.profile, image: profileModel.image)
-
-        s.invites.removeAll { $0.id == acceptedModel.id }
-        s.pastEvents.removeAll { $0.id == acceptedModel.id }
-        if let index = s.events.firstIndex(where: { $0.id == acceptedModel.id }) {
-            s.events[index] = acceptedModel
-        } else {
-            s.events.append(acceptedModel)
-        }
-        print("Accepted")
     }
     
     func loadImages(profile: UserProfile) async -> [UIImage] {
@@ -88,3 +65,4 @@ enum DismissTransition {
     var openPastInvites = false
     var showSentInvite: RespondToProfileState?
 }
+

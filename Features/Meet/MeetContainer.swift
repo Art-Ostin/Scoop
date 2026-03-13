@@ -21,11 +21,10 @@ struct MeetContainer: View {
     
     var body: some View {
         ZStack {
-            
             meetView
             
-            if let profileRec = ui.selectedProfile {
-                profile(profile: profileRec)
+            if let profileRec = ui.openProfile {
+                profileView(profile: profileRec)
             }
             
             if let quickInviteProfile = ui.quickInvite {
@@ -75,9 +74,9 @@ extension MeetContainer {
     }
     
     private func openProfile(_ profile: PendingProfile) {
-        if ui.selectedProfile == nil {
+        if ui.openProfile == nil {
             dismissOffset = nil
-            ui.selectedProfile = profile.profile
+            ui.openProfile = profile.profile
         }
     }
     
@@ -92,8 +91,9 @@ extension MeetContainer {
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
-            showRespondToProfile: $ui.showSentInvite,
-        )
+            showRespondToProfile: $ui.showSentInvite) {
+                sendInvite(event: )
+            }
         .id(profile.id)
         .zIndex(1)
         .transition(.move(edge: .bottom))
@@ -101,127 +101,19 @@ extension MeetContainer {
         
     private func quickInviteView(profile: UserProfile) ->  some View {
         SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, onDismiss: { ui.quickInvite = nil}) { event in
-            Task{ @MainActor in await sendQuickInvite(event: event, profile: profile)}
+            Task{ @MainActor in
+                await sendInvite(event: event, profile: profile)
+            }
         }
     }
     
-    private func sendQuickInvite(event: EventDraft, profile: UserProfile) async {
+    private func sendInvite(event: EventDraft, profile: UserProfile) async {
         ui.showSentInvite = .invite
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         try? await Task.sleep(for: .milliseconds(750))
         ui.quickInvite = nil
-        try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
+        try? await vm.sendInvite(event: event, profile: profile)
         try? await minDelay
         ui.showSentInvite = nil
     }
 }
-
-
-
-
-
-/*
- 
- 
- 
- private func profileRecSection(profiles: [ProfileModel]) -> some View {
-     LazyVStack(spacing: 72) {
-         profileCardSection(profiles: profiles)
-     }
- }
- 
- private func profileInviteSection(profiles: [ProfileModel]) -> some View {
-     ScrollView(.horizontal) {
-         HStack(spacing: 16) {
-             ClearRectangle(size: 0)
-             HStack(spacing: 12) {
-                 profileCardSection(profiles: profiles)
-             }
-             ClearRectangle(size: 0)
-         }
-         .frame(height: imageSize + 8, alignment: .top)
-     }
- }
- 
- 
- private func profileCardSection(profiles: [ProfileModel]) -> some View {
-     ForEach(profiles) { profile in
-         ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $ui.quickInvite)
-             .contentShape(Rectangle())
-             .onTapGesture {
-                 if ui.selectedProfile == nil {
-                     dismissOffset = nil
-                     ui.selectedProfile = profile
-                 }
-             }
-             .task {
-                 let loadedImages = await vm.loadImages(profileModel: profile)
-                 await MainActor.run {
-                     profileImages[profile.id] = loadedImages
-                 }
-             }
-     }
- }
- */
-
-
-
-
-
-/*
- 
- 
- if !vm.invites.isEmpty  {
-     VStack(spacing: 24) {
-
-         VStack(spacing: 24) {
-             sectionTitle(text: "Invites")
-                 
-             profileInviteSection(profiles: vm.invites)
-         }
-              
-         
-         MapDivider()
-             .padding(.horizontal, 36)
-         
-         VStack(spacing: 24) {
-             sectionTitle(text: "Profiles")
-             
-
-             
-             profileRecSection(profiles: vm.profiles)
-         }
-         .padding(.top, 4)
-     }
- } else {
-     
-     if vm.profiles.isEmpty {
-         loadingProfilesView
-             .padding(.top, 72)
-
-     }
- }
- 
- if !vm.profiles.isEmpty {
-     MeetInfoView(vm: vm, ui: ui)
- }
-}
-.id(vm.profiles.count)
-.id(vm.invites.count)
-
-if let profileRec = ui.selectedProfile {
- profile(profile: profileRec)
-}
-
-if let quickInviteProfile = ui.quickInvite {
- quickInviteView(profile: quickInviteProfile)
-}
-
-if let profileResponse = ui.showSentInvite {
- RespondToProfileView(response: profileResponse)
-}
-}
-}
-}
-
- */

@@ -29,7 +29,9 @@ struct ProfileView: View {
         draftProfile ?? vm.profile
     }
     
-    let isMessageProfile: Bool
+    let sendInvite: ((EventDraft) -> Void)?
+    let acceptInvite: ((UserEvent) -> Void)?
+    let declineProfile: (() -> Void)?
     
     init(
         vm: ProfileViewModel,
@@ -39,7 +41,10 @@ struct ProfileView: View {
         dismissOffset: Binding<CGFloat?>,
         showRespondToProfile: Binding<RespondToProfileState?> = .constant(nil),
         draftProfile: UserProfile? = nil,
-        isMessageProfile: Bool = false
+        isMessageProfile: Bool = false,
+        sendInvite: ((EventDraft) -> Void)? = nil,
+        acceptInvite: ((UserEvent) -> Void)? = nil,
+        declineProfile: (() -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
         self.meetVM = meetVM
@@ -48,7 +53,9 @@ struct ProfileView: View {
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
         self._showRespondToProfile = showRespondToProfile
-        self.isMessageProfile = isMessageProfile
+        self.sendInvite = sendInvite
+        self.acceptInvite = acceptInvite
+        self.declineProfile = declineProfile
     }
     
     var body: some View {
@@ -263,6 +270,12 @@ extension ProfileView {
         }
     }
     
+    
+    
+    
+    
+    
+    
     private func dismissProfileWithAction(invited: Bool, isAccepted: Bool = false, acceptedEvent: UserEvent? = nil, event: EventDraft? = nil) {
         
         showRespondToProfile = isAccepted ? .accepted : (invited ? .invite : .declined)
@@ -278,17 +291,16 @@ extension ProfileView {
             //3.Either Invite or decline the profile (Uncomment when actual done
             if invited {
                 guard let event else {return}
-                try? await meetVM?.updateProfileRec(event: event, profileModel: vm.profile, status: .invited)
+                try await meetVM?.sendInvite(event: event, profile: vm.profile)
             } else if isAccepted {
                 guard let acceptedEvent else {return}
-                print("Is accepted")
                 do {
                     try await meetVM?.acceptInvite(profileModel: vm.profileModel, userEvent: acceptedEvent)
                     withAnimation {
                         tabSelection.wrappedValue = .events
                     }
                 } catch {
-                    print("Failed accepting invite: \(error)")
+                    
                 }
             } else {
                 print("Would have declined")
