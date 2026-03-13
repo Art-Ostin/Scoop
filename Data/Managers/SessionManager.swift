@@ -42,10 +42,10 @@ enum ShowProfilesState {
         return sessionUser
     }
     
-    var profiles: [ProfileModel] = []
-    var invites: [ProfileModel] = []
-    var events: [ProfileModel] = []
-    var pastEvents: [ProfileModel] = []
+    var profiles: [PendingProfile] = []
+    var invites: [ProfileEvent] = []
+    var events: [ProfileEvent] = []
+    var pastEvents: [ProfileEvent] = []
     
     init(
         authService: AuthServicing,
