@@ -63,7 +63,7 @@ enum DismissTransition {
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false
-    var profileActionView: RespondToProfileState?
+    var respondedToProfile: ProfileResponse?
     
     var profileInvite: UserProfile? {
         didSet {

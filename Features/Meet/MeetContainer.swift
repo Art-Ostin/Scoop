@@ -30,9 +30,8 @@ struct MeetContainer: View {
             if ui.quickInvite {
                 quickInviteView
             }
-            
-            if let profileResponse = ui.showSentInvite {
-                RespondToProfileView(response: profileResponse)
+            if let response = ui.respondedToProfile {
+                RespondedToProfileView(response: response)
             }
         }
         .transition(.opacity)
@@ -91,10 +90,10 @@ extension MeetContainer {
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
-            showRespondToProfile: $ui.showSentInvite, sendInvite: { draft in
-                Task { await sendInvite(event: draft, profile: profile) }
-            }, declineProfile: {_ in 
-                Task { await declineProfile(profile: profile) }
+            sendInvite: { draft in
+                Task { await respondToProfile(event: draft, profile: profile) }
+            }, declineProfile: {_ in
+                Task { await respondToProfile(profile: profile) }
             }
         )
         .id(profile.id)
@@ -105,9 +104,9 @@ extension MeetContainer {
     @ViewBuilder
     private var quickInviteView: some View {
         if let profile = ui.profileInvite {
-            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, showInvite: $ui.quickInvite) { event in
+            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, showInvite: $ui.quickInvite) { draft in
                 Task{ @MainActor in
-                    await sendInvite(event: event, profile: profile)
+                    await respondToProfile(event: draft, profile: profile)
                 }
             }
         }
@@ -116,37 +115,25 @@ extension MeetContainer {
 
 extension MeetContainer {
     
-    
-    private func respondToProfile(event: EventDraft?, profile: UserProfile) async {
+    private func respondToProfile(event: EventDraft? = nil, profile: UserProfile) async {
         let isInvite = event != nil
+        //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
+        ui.respondedToProfile = isInvite ? .invite : .declined
         
-        
-        ui.show
-        
-        
-        
-    }
-    
-    
-    
-    
-    
-    
-    private func sendInvite(event: EventDraft, profile: UserProfile) async {
-        async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-        ui.showSentInvite = .invite
-        
-        try? await Task.sleep(for: .milliseconds(250))
+        //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
         ui.openProfile = nil
         ui.quickInvite = false
         
-        try? await vm.sendInvite(event: event, profile: profile)
-        try? await minDelay
-        ui.showSentInvite = nil
-    }
-
-    private func declineProfile(profile: UserProfile) async {
+        //3. Actually send invite or decline profile
+        if let event {
+            try? await vm.sendInvite(event: event, profile: profile)
+        } else {
+            try? await vm.declineProfile(profile: profile)
+        }
         
+        //4.if the minimum of 0.75s done, dismiss the screen
+        try? await minDelay
+        ui.respondedToProfile = nil
     }
 }

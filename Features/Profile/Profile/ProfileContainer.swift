@@ -40,7 +40,6 @@ struct ProfileView: View {
         profileImages: [UIImage],
         selectedProfile: Binding<UserProfile?>,
         dismissOffset: Binding<CGFloat?>,
-        showRespondToProfile: Binding<RespondToProfileState?> = .constant(nil),
         draftProfile: UserProfile? = nil,
         isMessageProfile: Bool = false,
         sendInvite: ((EventDraft) -> Void)? = nil,
@@ -262,44 +261,6 @@ extension ProfileView {
             .fill(Color.background)
             .ignoresSafeArea()
             .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-    }
-    
-    
-    
-    private func dismissProfileWithAction(invited: Bool, isAccepted: Bool = false, acceptedEvent: UserEvent? = nil, event: EventDraft? = nil) {
-        
-        showRespondToProfile = isAccepted ? .accepted : (invited ? .invite : .declined)
-        
-        Task { @MainActor in
-            async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-
-            //2.Dismiss profile in background after 250 milliseconds
-            try? await Task.sleep(for: .milliseconds(250))
-            ui.showInvitePopup = false
-            selectedProfile = nil
-            
-            //3.Either Invite or decline the profile (Uncomment when actual done
-            if invited {
-                guard let event else {return}
-                try await meetVM?.sendInvite(event: event, profile: vm.profile)
-            } else if isAccepted {
-                guard let acceptedEvent else {return}
-                do {
-                    try await meetVM?.acceptInvite(profileModel: vm.profileModel, userEvent: acceptedEvent)
-                    withAnimation {
-                        tabSelection.wrappedValue = .events
-                    }
-                } catch {
-                    
-                }
-            } else {
-                print("Would have declined")
-                try? await meetVM?.updateProfileRec(profileModel: vm.profileModel, status: .declined)
-            }
-            //4. If at least 625 milliseconds have past, dismiss the screenCover
-            try? await minDelay
-            showRespondToProfile = nil
-        }
     }
 }
 

@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-enum ProfileAction {
+enum ProfileResponse {
     case invite
     case accepted
     case declined
 }
 
-struct ProfileActionView: View {
-    let response: ProfileAction
+struct RespondedToProfileView: View {
+    let response: ProfileResponse
     
     var body: some View {
         VStack(alignment: .center, spacing: 36) {
@@ -35,22 +35,7 @@ struct ProfileActionView: View {
             }
         }
         .transition(.opacity.animation(.easeInOut(duration: 0.18)))
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
-        .background(Color.background)
+        .colorBackground()
         .zIndex(10)
     }
 }
-
-
-
-/*
- 
- LottieView(animation: .named("SendAnimation.json"))
-     .playbackMode(.playing(.toProgress(1, loopMode: .playOnce)))
-     .resizable()
-     .scaledToFit()
-     .frame(maxWidth: .infinity)
-     .frame(height: 250)
-     .offset(y: -24)
- */
