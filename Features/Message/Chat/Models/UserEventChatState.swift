@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseFirestore
 
-struct UserEventChatState: Codable {
+struct ChatState: Codable {
     
     var unreadCount: Int = 0
     

@@ -34,7 +34,7 @@ struct UserEvent: Identifiable, Codable {
     //4. Event Updatable Information
     var status: Event.EventStatus = .pending
     var canText: Bool = false
-    var recentChatState: UserEventChatState?
+    var chatState: ChatState?
 
     //5. MetaData
     var updatedAt: Date? = nil
