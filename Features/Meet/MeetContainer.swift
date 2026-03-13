@@ -91,29 +91,42 @@ extension MeetContainer {
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
-            showRespondToProfile: $ui.showSentInvite) {
-                sendInvite(event: )
+            showRespondToProfile: $ui.showSentInvite, sendInvite: { draft in
+                Task { await sendInvite(event: draft, profile: profile) }
+            }, declineProfile: {_ in 
+                Task { await declineProfile(profile: profile) }
             }
+        )
         .id(profile.id)
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
         
     private func quickInviteView(profile: UserProfile) ->  some View {
-        SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, onDismiss: { ui.quickInvite = nil}) { event in
+        SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, showInvite: $ui.quickInvite) { event in
             Task{ @MainActor in
                 await sendInvite(event: event, profile: profile)
             }
         }
     }
-    
+}
+
+extension MeetContainer {
     private func sendInvite(event: EventDraft, profile: UserProfile) async {
-        ui.showSentInvite = .invite
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-        try? await Task.sleep(for: .milliseconds(750))
-        ui.quickInvite = nil
+        ui.showSentInvite = .invite
+        
+        try? await Task.sleep(for: .milliseconds(250))
+        ui.openProfile = nil
+        ui.quickInvite = false
+        
         try? await vm.sendInvite(event: event, profile: profile)
         try? await minDelay
         ui.showSentInvite = nil
+    }
+    
+    private func declineProfile(profile: UserProfile) async {
+        
+        
     }
 }

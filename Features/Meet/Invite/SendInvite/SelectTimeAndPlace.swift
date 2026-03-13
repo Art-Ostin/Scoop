@@ -7,7 +7,8 @@ struct SelectTimeAndPlace: View {
     
     let firstImage: UIImage
     @State var vm: TimeAndPlaceViewModel
-    let onDismiss: () -> Void
+    @Binding var showInvite: Bool
+    
     let onSubmit: @Sendable (EventDraft) async -> Void
     @State var showInfoScreen: Bool = false
     
@@ -16,17 +17,16 @@ struct SelectTimeAndPlace: View {
         !vm.showTypePopup &&
         ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
     }
-    
 
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile, onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile, showInvite: Binding<Bool>, onSubmit: @escaping (EventDraft) async -> ()) {
         _vm = .init(initialValue: .init(defaults: defaults, sessionManager: sessionManager, profile: profile))
-        self.onDismiss = onDismiss
+        self._showInvite = showInvite
         self.onSubmit = onSubmit
     }
     
     var body: some View {
         ZStack {
-            CustomScreenCover {onDismiss()}
+            CustomScreenCover {showInvite = false}
             sendInviteScreen
                 .overlay(alignment: .topTrailing) {
                     TabInfoButton(showScreen: $showInfoScreen)
@@ -57,6 +57,7 @@ struct SelectTimeAndPlace: View {
 
 extension SelectTimeAndPlace {
     
+    @ViewBuilder
     private var sendInviteScreen: some View {
         VStack(spacing: 20) {
             HStack(spacing: 16) {

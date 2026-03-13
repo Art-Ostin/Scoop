@@ -62,6 +62,7 @@ extension ProfileDetailsView {
                 .padding(.horizontal, 6)
         }
     }
+    
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
             UserInterests(p: p, interestScale: interestScale)

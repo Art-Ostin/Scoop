@@ -2,23 +2,24 @@ import SwiftUI
 //Note: Geometry Reader needed to Keep the VStack from respecting the top safe Area
 
 struct ProfileView: View {
-    @Environment(\.tabSelection) private var tabSelection
+    
     @Environment(\.dismiss) private var dismiss
     
     @State private var vm: ProfileViewModel
-    let meetVM: MeetViewModel?
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
+    
     @Binding private var dismissOffset: CGFloat?
-    @Binding var showRespondToProfile: RespondToProfileState?
     @Binding private var selectedProfile: UserProfile?
     
     @State private var ui = ProfileUIState()
+    
     private var detailsDragRange: ClosedRange<CGFloat> {
         let limit = ui.detailsOpenOffset - 80
         return ui.detailsOpen ? (-85 ... -limit) : (limit ... 85)
     }
+    
     let profileImages: [UIImage]
 
     //Functionality to do with draftProfile to display
@@ -31,7 +32,7 @@ struct ProfileView: View {
     
     let sendInvite: ((EventDraft) -> Void)?
     let acceptInvite: ((UserEvent) -> Void)?
-    let declineProfile: (() -> Void)?
+    let declineProfile: ((UserEvent?) -> Void)?
     
     init(
         vm: ProfileViewModel,
@@ -44,15 +45,13 @@ struct ProfileView: View {
         isMessageProfile: Bool = false,
         sendInvite: ((EventDraft) -> Void)? = nil,
         acceptInvite: ((UserEvent) -> Void)? = nil,
-        declineProfile: (() -> Void)? = nil
+        declineProfile: ((UserEvent?) -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
-        self.meetVM = meetVM
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
-        self._showRespondToProfile = showRespondToProfile
         self.sendInvite = sendInvite
         self.acceptInvite = acceptInvite
         self.declineProfile = declineProfile
@@ -68,34 +67,29 @@ struct ProfileView: View {
                             .opacity(1 - overlayTitleOpacity)
                             .padding(.top, 36)
                         
-                        ProfileImageView(vm: vm, showInvite: $ui.showInvitePopup, detailsOffset: detailsOffset, importedImages: profileImages)
+                        ProfileImageView(vm: vm, showInvite: $ui.showInvite, detailsOffset: detailsOffset, importedImages: profileImages)
                             .offset(y: rangeUpdater(endValue: -100))
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                         
-                        ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvitePopup, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { dismissProfileWithAction(invited: false)}
+                        ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvite, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { declineProfile?(nil) }
                             .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                             .offset(y: detailsSectionOffset())
                             .onTapGesture { ui.detailsOpen.toggle() }
                             .simultaneousGesture(detailsDrag)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .background(
-                        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
-                            .fill(Color.background)
-                            .ignoresSafeArea()
-                            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-                    )
+                    .background(profileBackground)
                     .animation(.spring(duration: 0.2), value: ui.detailsOpen)
                     .animation(.easeInOut(duration: 0.2), value: detailsOffset)
                     .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
-                    .animation(.easeInOut(duration: ui.dismissalDuration), value: selectedProfile) /*snappy(duration: ui.dismissalDuration)*/
+                    .animation(.easeInOut(duration: ui.dismissalDuration), value: selectedProfile) //snappy(duration: ui.dismissalDuration)
                     .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                     .preference(key: OpenDetails.self, value: ui.detailsOpen)
                 }
             }
         }
-        .overlay {if ui.showInvitePopup {invitePopup}}
+        .overlay {if ui.showInvite {invitePopup}}
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
@@ -104,25 +98,18 @@ struct ProfileView: View {
 
 //Different Screens
 extension ProfileView {
+    
     @ViewBuilder
     private var invitePopup: some View {
-        if ui.showInvitePopup, let event = vm.event {
-            
-            AcceptInviteView(showInvite: $ui.showInvitePopup, profileModel: vm.profile, event: event) { event in
-                dismissProfileWithAction(invited: false, isAccepted: true, acceptedEvent: event)
-                ui.showInvitePopup.toggle()
-            } onDecline: { event in
-                
+        if ui.showInvite != nil, let event = vm.event {
+            AcceptInviteView(showInvite: $ui.showInvite, profileModel: vm.profile, event: event) { event in
+                acceptInvite?(event)
+            } onDecline: {
+                self.declineProfile
             }
-            
         } else {
-            SelectTimeAndPlace(
-                defaults: vm.defaults,
-                sessionManager: vm.s,
-                profile: vm.profileModel,
-                onDismiss: { ui.showInvitePopup = false },
-            ){ event in
-                dismissProfileWithAction(invited: true, event: event)
+            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, show: ui.showInvite) { eventDraft in
+                sendInvite(eventDraft)
             }
         }
     }
@@ -270,9 +257,12 @@ extension ProfileView {
         }
     }
     
-    
-    
-    
+    private var profileBackground: some View {
+        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
+            .fill(Color.background)
+            .ignoresSafeArea()
+            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+    }
     
     
     
@@ -313,3 +303,11 @@ extension ProfileView {
         }
     }
 }
+
+//Exporting actions so profile more 'Stupid' -> things I can remove
+/*
+ @Environment(\.tabSelection) private var tabSelection
+ let meetVM: MeetViewModel?
+ @Binding var showRespondToProfile: RespondToProfileState?
+
+ */
