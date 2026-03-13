@@ -8,13 +8,24 @@
 import SwiftUI
 
 struct ProfileCard : View {
-    let profile: ProfileModel
+    
+    @Bindable var vm: MeetViewModel
+    
+    let pendingProfile: PendingProfile
+    
+    let eventProfile: EventProfile
+    
+    
+    var isInvite: Bool {event != nil}
     
     let size: CGFloat
-    @Bindable var vm: MeetViewModel
-    @Binding var quickInvite: ProfileModel?
-    var isInvite: Bool { profile.event != nil }
     
+    @Binding var showInvite: EventProfile?
+    @Binding var sendInvite: PendingProfile?
+    
+
+    
+        
     
     
     var body: some View {
@@ -71,7 +82,6 @@ extension ProfileCard {
                                 .font(.body(16, .medium))
                         )
                         .offset(y: -28)
-
                     }
             } else {
                 profileInfoView
@@ -113,7 +123,7 @@ extension ProfileCard {
         
     
     private var profileInfoView: some View {
-        Text("\(profile.profile.year) | \(profile.profile.degree) | \(profile.profile.hometown)")
+        Text("\(profile.year) | \(profile.degree) | \(profile.hometown)")
             .font(.body(14, .medium))
     }
         

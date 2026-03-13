@@ -7,7 +7,7 @@
 
 import SwiftUI
 enum Page: String, Hashable {
-    case Meet, Meeting, Matches, EditProfile
+    case Meet, Meeting, Matches, Invites, EditProfile
 
     var image: Image {
         switch self {
@@ -16,6 +16,8 @@ enum Page: String, Hashable {
         case .Matches:
             Image(systemName: "")
         case .EditProfile:
+            Image(systemName: "")
+        case .Invites:
             Image(systemName: "")
         }
     }

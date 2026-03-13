@@ -84,8 +84,8 @@ enum DismissTransition {
 }
 
 @Observable final class MeetUIState {
-    var selectedProfile: ProfileModel? = nil
-    var quickInvite: ProfileModel?
+    var selectedProfile: PendingProfile? = nil
+    var quickInvite: PendingProfile?
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false

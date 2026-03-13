@@ -8,21 +8,23 @@
 import SwiftUI
 
 struct PendingInviteCard: View {
-    let profile: ProfileModel
+    
+    let eventProfile: EventProfile
     
     @Binding var showPendingInvites: Bool
     @Binding var openPastInvites: Bool
     
     var body: some View {
-        if let image = profile.image  {
+        if let image = eventProfile.image  {
             HStack(alignment: .top, spacing: 12)  {
                 Image(uiImage: image)
                     .resizable()
                     .defaultImage(132)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(profile.profile.name)
-                    if let event = profile.event, let time = event.acceptedTime  {
+                    let event = eventProfile.event
+                    Text(eventProfile.profile.name)
+                    if let time = event.proposedTimes.dates.first?.date {
                         EventFormatter(time: time, type: event.type, message: event.message, place: event.location, size: 15)
                     }
                 }

@@ -11,11 +11,6 @@ struct SelectTimeAndPlace: View {
     let onSubmit: @Sendable (EventDraft) async -> Void
     @State var showInfoScreen: Bool = false
     
-
-    
-    
-    
-    
     var showProposeTwoDays: Bool {
         (vm.event.type == .drink || vm.event.type == .doubleDate) &&
         !vm.showTypePopup &&
