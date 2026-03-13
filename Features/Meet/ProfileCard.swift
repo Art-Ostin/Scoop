@@ -12,22 +12,17 @@ struct ProfileCard : View {
     @Bindable var vm: MeetViewModel
     @Binding var selectedProfile: UserProfile?
     
-    let userProfile: UserProfile
-    let image: UIImage
-    let event: UserEvent?
+    let profile: PendingProfile
     let size: CGFloat
-    
-    let onTap: () -> ()
-    
+        
     var body: some View {
-        Image(uiImage: image)
+        Image(uiImage: profile.image ?? UIImage())
             .resizable()
             .defaultImage(size)
             .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
             .overlay(alignment: .bottomLeading) { cardOverlay }
     }
 }
-
 
 extension ProfileCard {
     
@@ -43,6 +38,7 @@ extension ProfileCard {
     
     private var inviteButton: some View {
         Button {
+            ui.selected
             onTap()
         } label: {
             Image("LetterIconProfile")
@@ -79,48 +75,3 @@ extension ProfileCard {
             .font(.body(14, .medium))
     }
 }
-
-//Logic dealing with the eventInfo
-
-struct ProfileCardEventInfo: View {
-    
-    let event: UserEvent
-    var dates: [Date] {event.proposedTimes.dates.filter(\.stillAvailable).map(\.date)}
-    
-    var body: some View {
-        Group {
-            if dates.count == 1 {
-                Text(formatTime(date: dates.first))
-            } else if dates.count == 2 {
-                twoDateView(dates: dates)
-            } else if dates.count == 3 {
-                threeDateView(dates: dates)
-            }
-        }
-        .overlay {eventInfoView(event: event)
-        }
-    }
-    
-    private func eventInfoView(event: UserEvent) -> some View {
-        Text("\(event.type.description.emoji ?? "") \(event.type.description.label)")
-            .font(.body(16, .medium))
-            .offset(y: -28)
-    }
-
-    private func twoDateView(dates: [Date]) -> some View {
-        Text(
-            "\(formatTime(date: dates.first, withHour: false, wideWeek: false)) | " +
-            "\(formatTime(date: dates[1], withHour: false, wideWeek: false)) · " +
-            "\(formatTime(date: dates.first, onlyHour: true))"
-        )
-    }
-    
-    private func threeDateView(dates: [Date]) -> some View {
-        let dayText = dates
-            .map { formatTime(date: $0, withHour: false, wideWeek: false) }
-            .joined(separator: ", ")
-        
-        return Text("\(dayText) · \(formatTime(date: dates[0], onlyHour: true))")
-    }
-}
-    

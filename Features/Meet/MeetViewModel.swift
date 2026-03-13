@@ -71,8 +71,8 @@ import SwiftUI
         print("Accepted")
     }
     
-    func loadImages(profileModel: ProfileModel) async -> [UIImage] {
-        return await imageLoader.loadProfileImages(profileModel.profile)
+    func loadImages(profile: UserProfile) async -> [UIImage] {
+        return await imageLoader.loadProfileImages(profile)
     }
 }
 

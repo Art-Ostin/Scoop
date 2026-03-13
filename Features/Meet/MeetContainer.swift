@@ -22,15 +22,7 @@ struct MeetContainer: View {
     var body: some View {
         ZStack {
             
-            CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
-                if vm.profiles.isEmpty {
-                    meetPlaceholder
-                } else {
-                    MeetView()
-                }
-            }
-            .id(vm.profiles.count)
-            
+            meetView
             
             if let profileRec = ui.selectedProfile {
                 profile(profile: profileRec)
@@ -58,61 +50,19 @@ struct MeetContainer: View {
                     
                     
                     
-                    
-                    if !vm.invites.isEmpty  {
-                        VStack(spacing: 24) {
-
-                            VStack(spacing: 24) {
-                                sectionTitle(text: "Invites")
-                                    
-                                profileInviteSection(profiles: vm.invites)
-                            }
-                                 
-                            
-                            MapDivider()
-                                .padding(.horizontal, 36)
-                            
-                            VStack(spacing: 24) {
-                                sectionTitle(text: "Profiles")
-                                
-
-                                
-                                profileRecSection(profiles: vm.profiles)
-                            }
-                            .padding(.top, 4)
-                        }
-                    } else {
-                        
-                        if vm.profiles.isEmpty {
-                            loadingProfilesView
-                                .padding(.top, 72)
-
-                        }
-                    }
-                    
-                    if !vm.profiles.isEmpty {
-                        MeetInfoView(vm: vm, ui: ui)
-                    }
-                }
-                .id(vm.profiles.count)
-                .id(vm.invites.count)
-                
-                if let profileRec = ui.selectedProfile {
-                    profile(profile: profileRec)
-                }
-                
-                if let quickInviteProfile = ui.quickInvite {
-                    quickInviteView(profile: quickInviteProfile)
-                }
-                
-                if let profileResponse = ui.showSentInvite {
-                    RespondToProfileView(response: profileResponse)
-                }
-            }
-    }
-}
-
 extension MeetContainer {
+    
+    
+    private var meetView: some View {
+        CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
+            if vm.profiles.isEmpty {
+                meetPlaceholder
+            } else {
+                MeetView()
+            }
+        }
+        .id(vm.profiles.count)
+    }
     
     private var meetPlaceholder: some View {
         VStack {
@@ -120,7 +70,32 @@ extension MeetContainer {
         }
     }
     
+    private var profileCardsSection: some View {
+        ForEach(vm.profiles) { profile in
+            if let image = profile.image {
+                ProfileCard(vm: vm, selectedProfile: Binding<UserProfile?>, userProfile: profile.profile, image: profile.image ?? UIImage(), size: imageSize) {
+                    $ui.quickInvite = profile
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {openProfile(profile.profile)}
+                .task { await loadProfileImages(profile.profile) }
+            }
+        }
     
+    private func openProfile(_ profile: UserProfile) {
+        if ui.selectedProfile == nil {
+            dismissOffset = nil
+            ui.selectedProfile = profile
+        }
+    }
+    
+    private func loadProfileImages(_ profile: UserProfile) async {
+        let loadedImages = await vm.loadImages(profile: profile)
+        profileImages[profile.id] = loadedImages
+    }
+    
+    
+
     
     
     
@@ -201,3 +176,61 @@ extension MeetContainer {
         ui.showSentInvite = nil
     }
 }
+
+/*
+ 
+ 
+ if !vm.invites.isEmpty  {
+     VStack(spacing: 24) {
+
+         VStack(spacing: 24) {
+             sectionTitle(text: "Invites")
+                 
+             profileInviteSection(profiles: vm.invites)
+         }
+              
+         
+         MapDivider()
+             .padding(.horizontal, 36)
+         
+         VStack(spacing: 24) {
+             sectionTitle(text: "Profiles")
+             
+
+             
+             profileRecSection(profiles: vm.profiles)
+         }
+         .padding(.top, 4)
+     }
+ } else {
+     
+     if vm.profiles.isEmpty {
+         loadingProfilesView
+             .padding(.top, 72)
+
+     }
+ }
+ 
+ if !vm.profiles.isEmpty {
+     MeetInfoView(vm: vm, ui: ui)
+ }
+}
+.id(vm.profiles.count)
+.id(vm.invites.count)
+
+if let profileRec = ui.selectedProfile {
+ profile(profile: profileRec)
+}
+
+if let quickInviteProfile = ui.quickInvite {
+ quickInviteView(profile: quickInviteProfile)
+}
+
+if let profileResponse = ui.showSentInvite {
+ RespondToProfileView(response: profileResponse)
+}
+}
+}
+}
+
+ */
