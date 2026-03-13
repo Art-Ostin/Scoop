@@ -11,13 +11,14 @@ import SwiftUI
 @Observable class TimeAndPlaceViewModel {
     
     let text: String
+    let pendingProfile: PendingProfile
+    
+    
     var event: EventDraft {
         didSet {
-            persistDraft()
+            defaults.updateEventDraft(profileId: pendingProfile.profile.id, eventDraft: event)
         }
     }
-    
-    var profile: ProfileModel?
 
     let defaults: DefaultsManaging
     let s: SessionManager
@@ -33,27 +34,21 @@ import SwiftUI
     var showAlert: Bool = false
     var isMessageTap: Bool = false
     
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, text: String, profile: ProfileModel? = nil) {
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, text: String, profile: PendingProfile) {
         self.defaults = defaults
         self.text = text
-        self.profile = profile
+        self.pendingProfile = profile
         self.s = sessionManager
-        let profileId = profile?.profile.id
-        if let profileId, let storedEvent = defaults.fetchEventDraft(profileId: profileId) {
+        let profileId = profile.profile.id
+        if let storedEvent = defaults.fetchEventDraft(profileId: profile.profile.id) {
             self.event = storedEvent
         } else {
-            event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId ?? "", type: .drink)
+            event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId, type: .drink)
         }
     }
     
-    func persistDraft() {
-        guard let profileId = profile?.profile.id else { return }
-        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
-    }
-    
     func deleteEventDefault() {
-        guard let profileId = profile?.profile.id else { return }
-        defaults.deleteEventDraft(profileId: profileId)
-        event = EventDraft(initiatorId: s.user.id, recipientId: profileId, type: .drink)
+        defaults.deleteEventDraft(profileId: pendingProfile.profile.id)
+        event = EventDraft(initiatorId: s.user.id, recipientId: pendingProfile.profile.id, type: .drink)
     }
 }

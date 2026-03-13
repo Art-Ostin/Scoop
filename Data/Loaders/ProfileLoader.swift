@@ -36,7 +36,6 @@ final class ProfileLoader: ProfileLoading {
                 models.append(model)
             }
         }
-        
         await imageLoader.addProfileImagesToCache(for: models.map(\.profile))
         return models
     }
@@ -58,13 +57,13 @@ final class ProfileLoader: ProfileLoading {
         return models
     }
     
-    func fetchEventProfile(_ profileId: String, event: UserEvent) async throws -> EventProfile {
+    private func fetchEventProfile(_ profileId: String, event: UserEvent) async throws -> EventProfile {
         let profile = try await self.userRepo.fetchProfile(userId: profileId)
         let img = try? await self.imageLoader.fetchFirstImage(profile: profile)
         return EventProfile(event: event, profile: profile, image: img)
     }
     
-    func fetchPendingProfile(_ profileId: String) async throws -> PendingProfile {
+    private func fetchPendingProfile(_ profileId: String) async throws -> PendingProfile {
         let profile = try await self.userRepo.fetchProfile(userId: profileId)
         let img = try await self.imageLoader.fetchFirstImage(profile: profile)
         return PendingProfile(profile: profile, image: img)

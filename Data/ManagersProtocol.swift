@@ -75,9 +75,8 @@ protocol ImageLoading: Actor {
 }
 
 protocol ProfileLoading {
-    func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel]
-    func fromIds(_ ids: [String]) async throws -> [ProfileModel]
-    func fetchProfileModel(_ profileId: String, event: UserEvent?) async throws -> ProfileModel
+    func fromEvents(_ events: [UserEvent]) async throws -> [EventProfile]
+    func fromIds(_ ids: [String]) async throws -> [PendingProfile]
 }
 
 protocol DefaultsManaging: AnyObject {
