@@ -33,10 +33,3 @@ struct ChatDraftMessage {
 struct ChatMessageCursor {
     let lastMessageId: String
 }
-
-struct ChatProfileModel {
-    let event: Event
-    let profile: UserProfile
-    let chatState: UserEventChatState
-    let firstPhoto: Image
-}

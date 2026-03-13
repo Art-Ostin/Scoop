@@ -18,8 +18,6 @@ struct MessagesContainer: View {
     @State var userProfileImages: [UIImage] = []
     
     
-    
-    
     init(vm: MessagesViewModel) {
         _vm = State(initialValue: vm)
     }
@@ -45,24 +43,16 @@ extension MessagesContainer {
             ForEach(0..<10) {idx in
                 
                 if let img = userProfileImages.first, img.size != .zero {
-                    let dummyMessage = DummyMessage(
-                        image: dummyImages[idx],
-                        person: willowNames[idx],
-                        text: willowMessages[idx],
-                        isBold: Bool.random()
-                    )
-                    ChatRowView(dummyData: dummyMessage)
+                    ChatRowView(image: <#T##UIImage#>, event: <#T##UserEvent#>)
 
                     MapDivider()
                         .padding(.horizontal, -16)                    
                 }
             }
         }
-        
     }
     
     private var messagesAppearHereView: some View {
-        
         VStack(spacing: 96) {
             Text("Message your past matches here")
                 .font(.title(20, .medium))
