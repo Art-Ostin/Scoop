@@ -89,14 +89,14 @@ struct FlowLayoutBottom: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-
-struct ProfileEvent: View {
-    let p: UserProfile
-    let event: UserEvent?
-    
-    var body: some View {
-        if let event = event, let time = event.acceptedTime {
-            EventFormatter(time: time, type: event.type, message: event.message, place: event.location, size: 24)
-        }
-    }
-}
+//
+//struct ProfileEvent: View {
+//    let p: UserProfile
+//    let event: UserEvent?
+//    
+//    var body: some View {
+//        if let event = event, let time = event.acceptedTime {
+//            EventFormatter(time: time, type: event.type, message: event.message, place: event.location, size: 24)
+//        }
+//    }
+//}

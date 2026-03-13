@@ -65,6 +65,6 @@ extension UserEvent {
     enum Field: String {
         case otherUserId, otherUserName, otherUserPhoto, role,
              type, proposedTimes, acceptedTime, location, message,
-             status, canText, updatedAt, earlyTerminatorID, userEventChatState
+             status, canText, updatedAt, earlyTerminatorID, chatState
     }
 }

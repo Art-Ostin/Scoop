@@ -43,9 +43,9 @@ enum ShowProfilesState {
     }
     
     var profiles: [PendingProfile] = []
-    var invites: [ProfileEvent] = []
-    var events: [ProfileEvent] = []
-    var pastEvents: [ProfileEvent] = []
+    var invites: [EventProfile] = []
+    var events: [EventProfile] = []
+    var pastEvents: [EventProfile] = []
     
     init(
         authService: AuthServicing,
@@ -125,7 +125,7 @@ extension SessionManager {
     private func eventsStream() {
         eventStreamTask?.cancel()
         let stream = eventsRepo.eventTracker(userId: user.id)
-
+        
         eventStreamTask = Task { @MainActor in
             do {
                 for try await change in stream {
@@ -152,7 +152,7 @@ extension SessionManager {
         async let inv  = b.fromEvents(invites)
         async let acc  = b.fromEvents(accepted)
         async let past = b.fromEvents(pastAccepted)
-
+        
         (self.invites, self.events, self.pastEvents) = try await(inv, acc, past)
     }
     
@@ -164,32 +164,24 @@ extension SessionManager {
     }
     
     private func updateModifiedProfile(event: UserEvent) {
-        if let id = event.id {
-            //If it is in invites, and its status is no long invites, add it to accepted
-            if invites.contains(where: { $0.id == id }) && event.status != .pending {
-                if event.status == .accepted {
-                    if let profile = removeAndReturnProfile(id: id) {
-                        events.append(profile)
-                    }
-                }
-                //If it is in events, and its status is no long events, add it to pastAccepted
-            } else if events.contains(where: { $0.id == id }) && event.status == .pastAccepted {
-                if let profile = removeAndReturnProfile(id: id) {
-                    pastEvents.append(profile)
-                }
-            }
+        //If it is in invites, and its status is no long invites, add it to accepted
+        if event.status == .accepted, invites.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
+            events.append(profile)
+            
+        //If it is in events, and its status is no long events, add it to pastAccepted
+        } else if event.status == .pastAccepted, events.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
+            pastEvents.append(profile)
         }
-    }
-    
-    private func removeAndReturnProfile(id: String) -> ProfileModel? {
+    }        
+    private func removeAndReturnProfile(id: String) -> EventProfile? {
         let localProfile =
-        invites.first(where: { $0.event?.id == id }) ??
-        events.first(where: { $0.event?.id == id }) ??
-        pastEvents.first(where: { $0.event?.id == id })
+        invites.first(where: { $0.event.id == id }) ??
+        events.first(where: { $0.event.id == id }) ??
+        pastEvents.first(where: { $0.event.id == id })
         
-        invites.removeAll { $0.event?.id == id }
-        events.removeAll { $0.event?.id == id }
-        pastEvents.removeAll { $0.event?.id == id }
+        invites.removeAll { $0.event.id == id }
+        events.removeAll { $0.event.id == id }
+        pastEvents.removeAll { $0.event.id == id }
         
         return localProfile
     }

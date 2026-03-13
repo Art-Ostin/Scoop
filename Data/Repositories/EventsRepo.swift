@@ -60,7 +60,7 @@ class EventsRepo: EventsRepository {
             Event.Field.acceptedTime.rawValue: acceptedDate
         ]
         let eventFields = userFields
-        userFields[UserEvent.Field.userEventChatState.rawValue] = UserEventChatState()
+        userFields[UserEvent.Field.chatState.rawValue] = ChatState()
         try await updateEvent(initiatorId: initiatorId, recipientId: recipientId, eventId: eventId, userFields: userFields, eventFields: eventFields)
         
         //Overlapping interest, but avoids more complexity elsewhere
@@ -146,8 +146,8 @@ extension EventsRepo {
 //Logic regarding the 'recentMessageState' in the events
 extension EventsRepo {
     
-    private func chatStateField(_ field: UserEventChatState.Field) -> String {
-        "\(UserEvent.Field.userEventChatState.rawValue).\(field.rawValue)"
+    private func chatStateField(_ field: ChatState.Field) -> String {
+        "\(UserEvent.Field.chatState.rawValue).\(field.rawValue)"
     }
     
     private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {

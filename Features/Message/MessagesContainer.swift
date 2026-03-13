@@ -43,7 +43,7 @@ extension MessagesContainer {
             ForEach(0..<10) {idx in
                 
                 if let img = userProfileImages.first, img.size != .zero {
-                    ChatRowView(image: <#T##UIImage#>, event: <#T##UserEvent#>)
+//                    ChatRowView(image: UIImage, event: <#T##UserEvent#>)
 
                     MapDivider()
                         .padding(.horizontal, -16)                    
