@@ -5,28 +5,26 @@ import MapKit
 
 struct SelectTimeAndPlace: View {
     
+    let firstImage: UIImage
     @State var vm: TimeAndPlaceViewModel
     let onDismiss: () -> Void
     let onSubmit: @Sendable (EventDraft) async -> Void
     @State var showInfoScreen: Bool = false
     
-    let rowHeight = CGFloat(60)
+
+    
+    
+    
     
     var showProposeTwoDays: Bool {
         (vm.event.type == .drink || vm.event.type == .doubleDate) &&
         !vm.showTypePopup &&
         ((vm.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
     }
+    
 
-    init(
-        defaults: DefaultsManaging,
-        sessionManager: SessionManager,
-        profile: ProfileModel? = nil,
-        text: String = "Confirm & Send",
-        onDismiss: @escaping () -> Void,
-        onSubmit: @escaping (EventDraft) async -> ()
-    ) {
-        _vm = .init(initialValue: .init(defaults: defaults, sessionManager: sessionManager, text: text, profile: profile))
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile, onDismiss: @escaping () -> Void, onSubmit: @escaping (EventDraft) async -> ()) {
+        _vm = .init(initialValue: .init(defaults: defaults, sessionManager: sessionManager, profile: profile))
         self.onDismiss = onDismiss
         self.onSubmit = onSubmit
     }
@@ -66,15 +64,12 @@ extension SelectTimeAndPlace {
     
     private var sendInviteScreen: some View {
         VStack(spacing: 20) {
-            if vm.text == "Confirm & Send" {
-                HStack(spacing: 16) {
-                    CirclePhoto(image: vm.profile?.image ?? UIImage())
-                    
-                    
-                    if let name = vm.profile?.profile.name {
-                        Text("Meet \(name)")
-                            .font(.custom("SFProRounded-Bold", size: 24))
-                    }
+            HStack(spacing: 16) {
+                CirclePhoto(image: firstImage)
+                
+                
+                Text("Meet \(vm.profile.name)")
+                        .font(.custom("SFProRounded-Bold", size: 24))
                 }
             }
 
@@ -121,10 +116,10 @@ extension SelectTimeAndPlace {
                 .zIndex(0)
 
             }
-            ActionButton(isValid: !vm.showAlert && InviteIsValid && !showProposeTwoDays, text: vm.text) {
+            ActionButton(isValid: !vm.showAlert && InviteIsValid && !showProposeTwoDays, text: "Confirm & Send") {
                 vm.showAlert.toggle()
             }
-        }
+        
         .frame(alignment: .top)
         .padding(.top, 24)
         .padding([.leading, .trailing, .bottom], 32)
@@ -202,23 +197,3 @@ extension SelectTimeAndPlace {
         Task { await onSubmit(vm.event)}
     }
 }
-
-
-
-/*
- .alert("Event Commitment", isPresented: $vm.showAlert) {
-     Button("Cancel", role: .cancel) { }
-     Button ("I Understand") {
-         onDismiss()
-         Task { await onSubmit(vm.event)}
-     }
- } message : {
-     Text("If you don't show, you'll be blocked from Scoop")
- }
-
- */
-
-/*
- else if ((vm.event.type == .drink || vm.event.type == .doubleDate) | && vm.showTimePopup && vm.event.proposedTimes.dates.count > 1)   || ((vm.event.type == .custom || vm.event.type == .socialMeet) && vm.showTimePopup && vm.event.proposedTimes.dates.count > 1) {
-
- */

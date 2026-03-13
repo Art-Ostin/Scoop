@@ -12,7 +12,7 @@ struct ProfileView: View {
     @GestureState var profileOffset = CGFloat.zero
     @Binding private var dismissOffset: CGFloat?
     @Binding var showRespondToProfile: RespondToProfileState?
-    @Binding private var selectedProfile: ProfileModel?
+    @Binding private var selectedProfile: UserProfile?
     
     @State private var ui = ProfileUIState()
     private var detailsDragRange: ClosedRange<CGFloat> {
@@ -26,15 +26,16 @@ struct ProfileView: View {
     var isUserProfile: Bool { draftProfile != nil }
     
     private var displayProfile: UserProfile {
-        draftProfile ?? vm.profileModel.profile
+        draftProfile ?? vm.profile
     }
+    
     let isMessageProfile: Bool
     
     init(
         vm: ProfileViewModel,
         meetVM: MeetViewModel? = nil,
         profileImages: [UIImage],
-        selectedProfile: Binding<ProfileModel?>,
+        selectedProfile: Binding<UserProfile?>,
         dismissOffset: Binding<CGFloat?>,
         showRespondToProfile: Binding<RespondToProfileState?> = .constant(nil),
         draftProfile: UserProfile? = nil,
@@ -98,14 +99,13 @@ struct ProfileView: View {
 extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
-        if ui.showInvitePopup, let event = vm.profileModel.event {
+        if ui.showInvitePopup, let event = vm.event {
             
-            AcceptInviteView(showInvite: $ui.showInvitePopup, profileModel: vm.profileModel, event: event) { event in
-                
+            AcceptInviteView(showInvite: $ui.showInvitePopup, profileModel: vm.profile, event: event) { event in
                 dismissProfileWithAction(invited: false, isAccepted: true, acceptedEvent: event)
-                print("Hello THIS IS CONFIRMED THAT IT IS CLICKED")
                 ui.showInvitePopup.toggle()
             } onDecline: { event in
+                
             }
             
         } else {
@@ -267,7 +267,6 @@ extension ProfileView {
         
         showRespondToProfile = isAccepted ? .accepted : (invited ? .invite : .declined)
         
-        
         Task { @MainActor in
             async let minDelay: Void = Task.sleep(for: .milliseconds(750))
 
@@ -279,7 +278,7 @@ extension ProfileView {
             //3.Either Invite or decline the profile (Uncomment when actual done
             if invited {
                 guard let event else {return}
-                 try? await meetVM?.updateProfileRec(event: event, profileModel: vm.profileModel, status: .invited)
+                try? await meetVM?.updateProfileRec(event: event, profileModel: vm.profile, status: .invited)
             } else if isAccepted {
                 guard let acceptedEvent else {return}
                 print("Is accepted")

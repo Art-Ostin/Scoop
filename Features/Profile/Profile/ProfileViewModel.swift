@@ -15,25 +15,25 @@ enum ProfileViewType {
 @MainActor
 @Observable class ProfileViewModel {
     
-    let profileModel: ProfileModel
-    let imageLoader: ImageLoading
+    let profile: UserProfile
+    let event: UserEvent?
     
+    let imageLoader: ImageLoading
     let defaults: DefaultsManaging
     let s: SessionManager
-    
-    var receivedEvent: UserEvent? { profileModel.event }
-    
+        
     var viewProfileType: ProfileViewType
     
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, profileModel: ProfileModel, imageLoader: ImageLoading) {
-        self.profileModel = profileModel
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading) {
+        self.profile = profile
         self.imageLoader = imageLoader
         self.defaults = defaults
         self.s = sessionManager
+        self.event = event
         
-        if profileModel.event?.status == .pastAccepted || profileModel.event?.status == .accepted {
+        if event?.status == .pastAccepted || event?.status == .accepted {
             self.viewProfileType = .view
-        } else if profileModel.event?.status == .pending {
+        } else if event?.status == .pending {
             self.viewProfileType = .accept
         } else {
             self.viewProfileType = .invite
@@ -41,7 +41,7 @@ enum ProfileViewType {
     }
     
     func loadImages() async -> [UIImage] {
-        return await imageLoader.loadProfileImages(profileModel.profile)
+        return await imageLoader.loadProfileImages(profile)
     }
 }
 enum DragType {

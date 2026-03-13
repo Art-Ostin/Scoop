@@ -10,9 +10,7 @@ import SwiftUI
 @MainActor
 @Observable class TimeAndPlaceViewModel {
     
-    let text: String
-    let pendingProfile: PendingProfile
-    
+    let profile: UserProfile
     
     var event: EventDraft {
         didSet {
@@ -34,13 +32,12 @@ import SwiftUI
     var showAlert: Bool = false
     var isMessageTap: Bool = false
     
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, text: String, profile: PendingProfile) {
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile) {
         self.defaults = defaults
-        self.text = text
-        self.pendingProfile = profile
+        self.profile = profile
         self.s = sessionManager
-        let profileId = profile.profile.id
-        if let storedEvent = defaults.fetchEventDraft(profileId: profile.profile.id) {
+        let profileId = profile.id
+        if let storedEvent = defaults.fetchEventDraft(profileId: profile.id) {
             self.event = storedEvent
         } else {
             event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId, type: .drink)
@@ -48,7 +45,7 @@ import SwiftUI
     }
     
     func deleteEventDefault() {
-        defaults.deleteEventDraft(profileId: pendingProfile.profile.id)
-        event = EventDraft(initiatorId: s.user.id, recipientId: pendingProfile.profile.id, type: .drink)
+        defaults.deleteEventDraft(profileId: profile.id)
+        event = EventDraft(initiatorId: s.user.id, recipientId: profile.id, type: .drink)
     }
 }
