@@ -12,8 +12,9 @@ struct EventProfile: Identifiable, Hashable {
     var event: UserEvent
     var profile: UserProfile
     var image: UIImage?
-    var id: String { event.id }
     
+    var id: String { event.id }
+    var status: Event.EventStatus { event.status }
     var chatState: ChatState? {
         event.chatState
     }

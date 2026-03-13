@@ -41,6 +41,7 @@ enum ShowProfilesState {
         guard let sessionUser else { fatalError("Session not started") }
         return sessionUser
     }
+    
     var profiles: [ProfileModel] = []
     var invites: [ProfileModel] = []
     var events: [ProfileModel] = []

@@ -9,13 +9,12 @@ import Foundation
 @preconcurrency import FirebaseFirestore
 
 //User Facing Information about profiles
-struct ProfileRec: Identifiable, Equatable, Hashable {
-    var event: UserEvent?
+struct PendingProfile: Identifiable, Equatable, Hashable {
     var profile: UserProfile
     var image: UIImage?
     var id: String { profile.id}
     
-    static func == (lhs: ProfileModel, rhs: ProfileModel) -> Bool {
+    static func == (lhs: PendingProfile, rhs: PendingProfile) -> Bool {
         lhs.id == rhs.id
     }
     func hash(into hasher: inout Hasher) {
