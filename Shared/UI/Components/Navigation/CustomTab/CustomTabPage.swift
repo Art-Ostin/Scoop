@@ -40,7 +40,7 @@ struct CustomTabPage<Content: View>: View {
         ScrollView {
             VStack(spacing: 36) {
                 ZStack(alignment: .top) {
-                        TabButton(page: page, isPresented: $TabAction)
+                    TabButton(page: page, isPresented: $TabAction)
                             .padding(.top, 12)
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 60)

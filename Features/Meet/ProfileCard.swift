@@ -65,7 +65,7 @@ extension ProfileCard {
                 .font(.body(22, .bold))
             
             if let event {
-                cardEventInfo(event: event)
+                ProfileCardEventInfo(event: event)
             } else {
                 cardProfileInfo
             }
@@ -78,10 +78,16 @@ extension ProfileCard {
         Text("\(userProfile.year) | \(userProfile.degree) | \(userProfile.hometown)")
             .font(.body(14, .medium))
     }
+}
+
+//Logic dealing with the eventInfo
+
+struct ProfileCardEventInfo: View {
     
-    @ViewBuilder
-    private func cardEventInfo(event: UserEvent) -> some View {
-        let dates = event.proposedTimes.dates.filter(\.stillAvailable).map(\.date)
+    let event: UserEvent
+    var dates: [Date] {event.proposedTimes.dates.filter(\.stillAvailable).map(\.date)}
+    
+    var body: some View {
         Group {
             if dates.count == 1 {
                 Text(formatTime(date: dates.first))
@@ -91,7 +97,8 @@ extension ProfileCard {
                 threeDateView(dates: dates)
             }
         }
-        .overlay {eventInfoView(event: event)}
+        .overlay {eventInfoView(event: event)
+        }
     }
     
     private func eventInfoView(event: UserEvent) -> some View {
@@ -116,9 +123,4 @@ extension ProfileCard {
         return Text("\(dayText) · \(formatTime(date: dates[0], onlyHour: true))")
     }
 }
-
-//Logic dealing with the eventInfo
-extension ProfileCard {
     
-}
-

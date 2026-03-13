@@ -46,6 +46,10 @@ struct PastInviteView: View {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 48) {
                     ForEach(vm.pendingInvites) { profileModel in
+                        
+                        
+                        
+                        
                         PendingInviteCard(
                             profile: profileModel,
                             showPendingInvites: $ui.showPendingInvites,

@@ -28,12 +28,9 @@ import SwiftUI
         self.eventRepo = eventRepo
         self.defaults = defaults
     }
-    
-    var invites: [ProfileModel] { s.invites }
-    
-    var profiles: [ProfileModel] { s.profiles }
-    
-    var pendingInvites: [ProfileModel] { s.profiles} // Change later
+        
+    var profiles: [PendingProfile] { s.profiles }
+    var pendingInvites: [PendingProfile] { s.profiles} // Change later
     
     var user: UserProfile {s.user}
     
