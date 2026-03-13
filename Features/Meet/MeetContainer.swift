@@ -46,19 +46,14 @@ struct MeetContainer: View {
     }
 }
 
-                
-                    
-                    
-                    
 extension MeetContainer {
-    
     
     private var meetView: some View {
         CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
             if vm.profiles.isEmpty {
                 meetPlaceholder
             } else {
-                MeetView()
+                profileCardsSection
             }
         }
         .id(vm.profiles.count)
@@ -72,20 +67,17 @@ extension MeetContainer {
     
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
-            if let image = profile.image {
-                ProfileCard(vm: vm, selectedProfile: Binding<UserProfile?>, userProfile: profile.profile, image: profile.image ?? UIImage(), size: imageSize) {
-                    $ui.quickInvite = profile
-                }
+            ProfileCard(openProfile: $ui.openProfile, quickInvite: $ui.quickInvite, profile: profile, size: imageSize)
                 .contentShape(Rectangle())
-                .onTapGesture {openProfile(profile.profile)}
+                .onTapGesture {openProfile(profile)}
                 .task { await loadProfileImages(profile.profile) }
-            }
         }
+    }
     
-    private func openProfile(_ profile: UserProfile) {
+    private func openProfile(_ profile: PendingProfile) {
         if ui.selectedProfile == nil {
             dismissOffset = nil
-            ui.selectedProfile = profile
+            ui.selectedProfile = profile.profile
         }
     }
     
@@ -93,63 +85,12 @@ extension MeetContainer {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
     }
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    private func profileRecSection(profiles: [ProfileModel]) -> some View {
-        LazyVStack(spacing: 72) {
-            profileCardSection(profiles: profiles)
-        }
-    }
-    
-    private func profileInviteSection(profiles: [ProfileModel]) -> some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 16) {
-                ClearRectangle(size: 0)
-                HStack(spacing: 12) {
-                    profileCardSection(profiles: profiles)
-                }
-                ClearRectangle(size: 0)
-            }
-            .frame(height: imageSize + 8, alignment: .top)
-        }
-    }
-    
-    
-    private func profileCardSection(profiles: [ProfileModel]) -> some View {
-        ForEach(profiles) { profile in
-            ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $ui.quickInvite)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if ui.selectedProfile == nil {
-                        dismissOffset = nil
-                        ui.selectedProfile = profile
-                    }
-                }
-                .task {
-                    let loadedImages = await vm.loadImages(profileModel: profile)
-                    await MainActor.run {
-                        profileImages[profile.id] = loadedImages
-                    }
-                }
-        }
-    }
-    
             
-    private func profile(profile: ProfileModel) -> some View {
+    private func profileView(profile: UserProfile) -> some View {
         ProfileView(
-            vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: profile, imageLoader: vm.imageLoader), meetVM: vm,
+            vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profile, imageLoader: vm.imageLoader), meetVM: vm,
             profileImages: profileImages[profile.id] ?? [],
-            selectedProfile: $ui.selectedProfile,
+            selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
             showRespondToProfile: $ui.showSentInvite,
         )
@@ -157,18 +98,16 @@ extension MeetContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-    
-    private func quickInviteView(profile: ProfileModel) ->  some View {
+        
+    private func quickInviteView(profile: UserProfile) ->  some View {
         SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, onDismiss: { ui.quickInvite = nil}) { event in
             Task{ @MainActor in await sendQuickInvite(event: event, profile: profile)}
         }
     }
     
-    func sendQuickInvite(event: EventDraft, profile: ProfileModel) async {
+    private func sendQuickInvite(event: EventDraft, profile: UserProfile) async {
         ui.showSentInvite = .invite
-        
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-
         try? await Task.sleep(for: .milliseconds(750))
         ui.quickInvite = nil
         try? await vm.updateProfileRec(event: event, profileModel: profile, status: .invited)
@@ -176,6 +115,58 @@ extension MeetContainer {
         ui.showSentInvite = nil
     }
 }
+
+
+
+
+
+/*
+ 
+ 
+ 
+ private func profileRecSection(profiles: [ProfileModel]) -> some View {
+     LazyVStack(spacing: 72) {
+         profileCardSection(profiles: profiles)
+     }
+ }
+ 
+ private func profileInviteSection(profiles: [ProfileModel]) -> some View {
+     ScrollView(.horizontal) {
+         HStack(spacing: 16) {
+             ClearRectangle(size: 0)
+             HStack(spacing: 12) {
+                 profileCardSection(profiles: profiles)
+             }
+             ClearRectangle(size: 0)
+         }
+         .frame(height: imageSize + 8, alignment: .top)
+     }
+ }
+ 
+ 
+ private func profileCardSection(profiles: [ProfileModel]) -> some View {
+     ForEach(profiles) { profile in
+         ProfileCard(profile: profile, size: imageSize, vm: vm, quickInvite: $ui.quickInvite)
+             .contentShape(Rectangle())
+             .onTapGesture {
+                 if ui.selectedProfile == nil {
+                     dismissOffset = nil
+                     ui.selectedProfile = profile
+                 }
+             }
+             .task {
+                 let loadedImages = await vm.loadImages(profileModel: profile)
+                 await MainActor.run {
+                     profileImages[profile.id] = loadedImages
+                 }
+             }
+     }
+ }
+ */
+
+
+
+
 
 /*
  

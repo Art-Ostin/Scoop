@@ -9,14 +9,14 @@ import SwiftUI
 
 struct ProfileCard : View {
     
-    @Bindable var vm: MeetViewModel
-    @Binding var selectedProfile: UserProfile?
+    @Binding var openProfile: UserProfile?
+    @Binding var quickInvite: UserProfile?
     
     let profile: PendingProfile
     let size: CGFloat
         
     var body: some View {
-        Image(uiImage: profile.image ?? UIImage())
+        Image(uiImage: profile.image)
             .resizable()
             .defaultImage(size)
             .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
@@ -38,8 +38,7 @@ extension ProfileCard {
     
     private var inviteButton: some View {
         Button {
-            ui.selected
-            onTap()
+            quickInvite = profile.profile
         } label: {
             Image("LetterIconProfile")
                 .resizable()
@@ -50,28 +49,21 @@ extension ProfileCard {
         .frame(width: 40, height: 40)
         .background(
             Circle()
-                .fill(event != nil ? Color.appGreen : Color.accent)
+                .fill(Color.accent)
                 .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
         )
     }
     
     private var infoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(userProfile.name)
+            let p = profile.profile
+            Text(p.name)
                 .font(.body(22, .bold))
             
-            if let event {
-                ProfileCardEventInfo(event: event)
-            } else {
-                cardProfileInfo
-            }
+            Text("\(p.year) | \(p.degree) | \(p.hometown)")
+                .font(.body(14, .medium))
         }
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
-    }
-    
-    private var cardProfileInfo: some View {
-        Text("\(userProfile.year) | \(userProfile.degree) | \(userProfile.hometown)")
-            .font(.body(14, .medium))
     }
 }

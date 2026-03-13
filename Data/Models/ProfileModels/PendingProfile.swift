@@ -10,8 +10,8 @@ import Foundation
 
 //User Facing Information about profiles
 struct PendingProfile: Identifiable, Equatable, Hashable {
-    var profile: UserProfile
-    var image: UIImage?
+    let profile: UserProfile
+    let image: UIImage
     var id: String { profile.id}
     
     static func == (lhs: PendingProfile, rhs: PendingProfile) -> Bool {

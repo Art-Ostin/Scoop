@@ -170,7 +170,6 @@
 		65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF148E2F63A7C100031513 /* EventProfile.swift */; };
 		65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14912F64456000031513 /* InvitesViewModel.swift */; };
 		65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14932F6445EB00031513 /* InvitesContainer.swift */; };
-		65AF14982F645C1000031513 /* MeetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14972F645C1000031513 /* MeetView.swift */; };
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
@@ -207,6 +206,7 @@
 		65E963DB2F3F8FC30022595F /* Celebrations.json in Resources */ = {isa = PBXBuildFile; fileRef = 65E963DA2F3F8FC30022595F /* Celebrations.json */; };
 		65EA17492E4DFDB300EF38DC /* AcceptInvitePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */; };
 		65ED38882F6461E400AD5600 /* ProfileCardEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED38872F6461E400AD5600 /* ProfileCardEvent.swift */; };
+		65ED388A2F64656600AD5600 /* InviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED38892F64656600AD5600 /* InviteCard.swift */; };
 		65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */; };
 		65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E072F1E82CB008BF4DA /* PreferencesView.swift */; };
 		65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */; };
@@ -411,7 +411,6 @@
 		65AF148E2F63A7C100031513 /* EventProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProfile.swift; sourceTree = "<group>"; };
 		65AF14912F64456000031513 /* InvitesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesViewModel.swift; sourceTree = "<group>"; };
 		65AF14932F6445EB00031513 /* InvitesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesContainer.swift; sourceTree = "<group>"; };
-		65AF14972F645C1000031513 /* MeetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetView.swift; sourceTree = "<group>"; };
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -446,6 +445,7 @@
 		65E963DA2F3F8FC30022595F /* Celebrations.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Celebrations.json; sourceTree = "<group>"; };
 		65EA17482E4DFDB300EF38DC /* AcceptInvitePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptInvitePopup.swift; sourceTree = "<group>"; };
 		65ED38872F6461E400AD5600 /* ProfileCardEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardEvent.swift; sourceTree = "<group>"; };
+		65ED38892F64656600AD5600 /* InviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCard.swift; sourceTree = "<group>"; };
 		65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		65F28E072F1E82CB008BF4DA /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPreferredYears.swift; sourceTree = "<group>"; };
@@ -897,9 +897,8 @@
 			children = (
 				65E5C9252E51FBB10093410B /* MeetViewModel.swift */,
 				65F450CA2E463E7900AE3503 /* MeetContainer.swift */,
-				65AF14972F645C1000031513 /* MeetView.swift */,
-				65D1C40D2F3FCA1C00B61C00 /* MeetInfoView.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
+				65D1C40D2F3FCA1C00B61C00 /* MeetInfoView.swift */,
 				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
 				65E963D52F3F7C090022595F /* RespondToProfileView.swift */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
@@ -1056,6 +1055,7 @@
 			children = (
 				65AF14912F64456000031513 /* InvitesViewModel.swift */,
 				65AF14932F6445EB00031513 /* InvitesContainer.swift */,
+				65ED38892F64656600AD5600 /* InviteCard.swift */,
 				65ED38872F6461E400AD5600 /* ProfileCardEvent.swift */,
 			);
 			path = Invites;
@@ -1387,7 +1387,6 @@
 				654982D82E3152C000CA335F /* ProfileImages.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
 				657683202F59111C0094A02D /* TypeMessageView.swift in Sources */,
-				65AF14982F645C1000031513 /* MeetView.swift in Sources */,
 				659568242ED26A350091163E /* ClearRectangle.swift in Sources */,
 				657B8D592F2D73EE00583ADA /* ProposedTimesModel.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
@@ -1423,6 +1422,7 @@
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,
 				65140B222F55EEE500ED1DDE /* ChatRowCellView.swift in Sources */,
+				65ED388A2F64656600AD5600 /* InviteCard.swift in Sources */,
 				65A93D4C2F393B28003F6410 /* MapOptionsView.swift in Sources */,
 				652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */,
 				650E8E5E2EB82F6F009F5454 /* DeclineButton.swift in Sources */,
