@@ -10,22 +10,17 @@ import SwiftUI
 struct ProfileCard : View {
     
     @Bindable var vm: MeetViewModel
+        
+    let pendingProfile: PendingProfile?
     
-    let pendingProfile: PendingProfile
-    
-    let eventProfile: EventProfile
-    
-    
-    var isInvite: Bool {event != nil}
-    
+    let eventProfile: EventProfile?
+        
     let size: CGFloat
     
-    @Binding var showInvite: EventProfile?
-    @Binding var sendInvite: PendingProfile?
+    let onTap: () -> ()
     
-
     
-        
+    
     
     
     var body: some View {
