@@ -27,8 +27,8 @@ struct MeetContainer: View {
                 profileView(profile: profileRec)
             }
             
-            if let quickInviteProfile = ui.quickInvite {
-                quickInviteView(profile: quickInviteProfile)
+            if ui.quickInvite {
+                quickInviteView
             }
             
             if let profileResponse = ui.showSentInvite {
@@ -66,7 +66,7 @@ extension MeetContainer {
     
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
-            ProfileCard(openProfile: $ui.openProfile, quickInvite: $ui.quickInvite, profile: profile, size: imageSize)
+            ProfileCard(openProfile: $ui.openProfile, profileInvite: $ui.profileInvite, profile: profile, size: imageSize)
                 .contentShape(Rectangle())
                 .onTapGesture {openProfile(profile)}
                 .task { await loadProfileImages(profile.profile) }
@@ -101,17 +101,38 @@ extension MeetContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-        
-    private func quickInviteView(profile: UserProfile) ->  some View {
-        SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, showInvite: $ui.quickInvite) { event in
-            Task{ @MainActor in
-                await sendInvite(event: event, profile: profile)
+    
+    @ViewBuilder
+    private var quickInviteView: some View {
+        if let profile = ui.profileInvite {
+            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, showInvite: $ui.quickInvite) { event in
+                Task{ @MainActor in
+                    await sendInvite(event: event, profile: profile)
+                }
             }
         }
     }
 }
 
 extension MeetContainer {
+    
+    
+    private func respondToProfile(event: EventDraft?, profile: UserProfile) async {
+        let isInvite = event != nil
+        async let minDelay: Void = Task.sleep(for: .milliseconds(750))
+        
+        
+        ui.show
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
     private func sendInvite(event: EventDraft, profile: UserProfile) async {
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         ui.showSentInvite = .invite
@@ -124,9 +145,8 @@ extension MeetContainer {
         try? await minDelay
         ui.showSentInvite = nil
     }
-    
+
     private func declineProfile(profile: UserProfile) async {
-        
         
     }
 }

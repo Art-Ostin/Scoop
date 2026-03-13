@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-enum RespondToProfileState {
+enum ProfileAction {
     case invite
     case accepted
     case declined
 }
 
-struct RespondToProfileView: View {
-    let response: RespondToProfileState
+struct ProfileActionView: View {
+    let response: ProfileAction
     
     var body: some View {
         VStack(alignment: .center, spacing: 36) {

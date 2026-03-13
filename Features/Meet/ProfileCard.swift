@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfileCard : View {
     
     @Binding var openProfile: UserProfile?
-    @Binding var quickInvite: UserProfile?
+    @Binding var profileInvite: UserProfile?
     
     let profile: PendingProfile
     let size: CGFloat
