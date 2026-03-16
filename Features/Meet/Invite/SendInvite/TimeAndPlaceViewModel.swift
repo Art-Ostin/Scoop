@@ -14,17 +14,12 @@ import SwiftUI
     
     let defaults: DefaultsManaging
     let s: SessionManager
-    
     var event: EventDraft {
         didSet {
             defaults.updateEventDraft(profileId: profile.profile.id, eventDraft: event)
         }
     }
-    
-    //Change this
-    var selectedHour: Int = 22
-    var selectedMinute: Int = 30
-    
+        
     init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile) {
         self.defaults = defaults
         self.profile = profile

@@ -15,6 +15,8 @@ struct SelectTimeView: View {
     @Binding var showTimePopup: Bool
     @State private var shakeTicksByDay: [Date: Int] = [:]
     @State private var clickedUnavailbleDay = false
+    @State private var selectedHour = 22
+    @State private var selectedMinute = 30
 
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
@@ -33,8 +35,8 @@ struct SelectTimeView: View {
             }
         }
         .onAppear { syncTimePickerIfNeeded() }
-        .onChange(of: vm.selectedHour) {vm.event.proposedTimes.updateTime(hour: vm.selectedHour, minute: vm.selectedMinute) }
-        .onChange(of: vm.selectedMinute) {vm.event.proposedTimes.updateTime(hour: vm.selectedHour, minute: vm.selectedMinute) }
+        .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
+        .onChange(of: selectedMinute) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
         .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
         .overlay(alignment: .top) {
             Group {
@@ -188,9 +190,3 @@ extension SelectTimeView {
         }
     }
 }
-
-/*
- if let clicked = clickedMax {
-     if clicked == true {
-
- */

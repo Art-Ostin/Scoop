@@ -20,23 +20,24 @@ enum ProfileViewType {
     
     let imageLoader: ImageLoading
     let defaults: DefaultsManaging
-    let s: SessionManager
         
     var viewProfileType: ProfileViewType
     
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading) {
+    init(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading) {
         self.profile = profile
         self.imageLoader = imageLoader
         self.defaults = defaults
-        self.s = sessionManager
         self.event = event
-        
+        self.viewProfileType = Self.loadProfileViewType(event: event)
+    }
+    
+    private static func loadProfileViewType(event: UserEvent? = nil) -> ProfileViewType {
         if event?.status == .pastAccepted || event?.status == .accepted {
-            self.viewProfileType = .view
+            return .view
         } else if event?.status == .pending {
-            self.viewProfileType = .accept
+            return .accept
         } else {
-            self.viewProfileType = .invite
+            return .invite
         }
     }
     
@@ -44,6 +45,7 @@ enum ProfileViewType {
         return await imageLoader.loadProfileImages(profile)
     }
 }
+
 enum DragType {
     case details, profile, horizontal
 }
