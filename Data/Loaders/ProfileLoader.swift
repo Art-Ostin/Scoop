@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 final class ProfileLoader: ProfileLoading {
     
@@ -65,11 +66,10 @@ final class ProfileLoader: ProfileLoading {
     
     private func fetchPendingProfile(_ profileId: String) async throws -> PendingProfile {
         let profile = try await self.userRepo.fetchProfile(userId: profileId)
-        let img = try await self.imageLoader.fetchFirstImage(profile: profile)
+        let img = try await self.imageLoader.fetchFirstImage(profile: profile) ?? UIImage()
         return PendingProfile(profile: profile, image: img)
     }
 }
-
 
 /*
  func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel] {

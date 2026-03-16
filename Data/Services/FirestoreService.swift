@@ -94,7 +94,7 @@ final class FirestoreService: FirestoreServicing {
                     
                     //3.For any more updates to fields only get
                     for change in snapshot.documentChanges {
-                        //3.1. Construct the return Item - an ID and the data type (Need ID to e.g. construct profileModel from ID)
+                        //3.1. Construct the return Item - an ID and the data type (Need ID to e.g. construct profile from ID)
                         let model = try change.document.data(as: T.self)
                         //3.2. Return the value also communicating if the doc has been added, or removed, or modified
                         switch change.type {

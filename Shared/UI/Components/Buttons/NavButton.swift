@@ -65,24 +65,3 @@ struct ProfileDismissButton : View {
     }
 }
 
-/*
- @Binding var selectedProfile: ProfileModel?
- */
-
-/*
- if let onDismiss {
-     onDismiss()
- } else {
-     withAnimation(.easeInOut(duration: 0.2)) {
-         selectedProfile = nil
-     }
- }
- */
-
-/*
- else {
-    withAnimation(.easeInOut(duration: 0.2)) {
-        selectedProfile = nil
-    }
-}
- */

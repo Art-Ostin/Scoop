@@ -11,12 +11,12 @@ import SwiftUI
 @Observable class TimeAndPlaceViewModel {
     
     let profile: UserProfile
-    
     let defaults: DefaultsManaging
     let s: SessionManager
+    
     var event: EventDraft {
         didSet {
-            defaults.updateEventDraft(profileId: profile.profile.id, eventDraft: event)
+            defaults.updateEventDraft(profileId: profile.id, eventDraft: event)
         }
     }
         

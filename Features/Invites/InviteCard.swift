@@ -12,11 +12,7 @@ struct InviteCard: View {
     let eventProfile: EventProfile
     
     var body: some View {
-        Text(eventProfile.profile)
+        Text(eventProfile.profile.name)
         Text(eventProfile.event.location.name ?? "No location name")
     }
-}
-
-#Preview {
-    InviteCard()
 }

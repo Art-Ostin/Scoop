@@ -69,7 +69,7 @@ extension EventSlotContainer {
         
     private var messageButton: some View {
         Button {
-            ui.showMessageScreen = eventProfile.profile
+            ui.showMessageScreen = eventProfile
         } label: {
             Image("roundMessageIcon")
                 .resizable()

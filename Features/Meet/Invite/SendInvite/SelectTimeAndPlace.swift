@@ -4,17 +4,17 @@ import MapKit
 struct SelectTimeAndPlace: View {
     
     @State var vm: TimeAndPlaceViewModel
-    @State private var ui = TimeAndPlaceUIState ()
+    @State private var ui = TimeAndPlaceUIState()
     @Binding var showInvite: Bool
     
     let firstImage: UIImage
     let alertMessage = "If they accept & you don't show, you'll be blocked from Scoop"
     let onSubmit: (EventDraft) -> ()
     
-
-    init(d: DefaultsManaging, s: SessionManager, p: UserProfile, showInvite: Binding<Bool>, onSubmit: @escaping (EventDraft) -> ()) {
-        _vm = .init(initialValue: .init(defaults: d, sessionManager: s, profile: p))
+    init(vm: TimeAndPlaceViewModel, showInvite: Binding<Bool>, firstImage: UIImage, onSubmit: @escaping (EventDraft) -> Void) {
+        self.vm = vm
         self._showInvite = showInvite
+        self.firstImage = firstImage
         self.onSubmit = onSubmit
     }
     

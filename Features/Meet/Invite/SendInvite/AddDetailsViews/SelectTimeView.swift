@@ -11,6 +11,7 @@ import Foundation
 struct SelectTimeView: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
+    @Bindable var ui: TimeAndPlaceUIState
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
     @State private var shakeTicksByDay: [Date: Int] = [:]
@@ -103,7 +104,7 @@ extension SelectTimeView {
             .contentShape(Circle())
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    vm.showTimePopup.toggle()
+                    ui.showTimePopup.toggle()
                 }
             }
     }
@@ -127,7 +128,7 @@ extension SelectTimeView {
             }
             
             withAnimation(.easeInOut(duration: 0.2)) {
-                let hitMax = vm.event.proposedTimes.updateDate(day: day, hour: vm.selectedHour, minute: vm.selectedMinute)
+                let hitMax = vm.event.proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
                 if hitMax {
                     shakeTicksByDay[keyDay, default: 0] += 1   // <- triggers shake
                     clickedMax.toggle()
@@ -160,13 +161,13 @@ extension SelectTimeView {
     
     private var timePicker: some View {
         HStack {
-            Picker("Hour", selection: $vm.selectedHour) {
+            Picker("Hour", selection: $selectedHour) {
                 ForEach(0..<24, id: \.self) { h in
                     Text(String(format: "%02d", h)).tag(h)
                 }
             }
             
-            Picker("Minute", selection: $vm.selectedMinute) {
+            Picker("Minute", selection: $selectedMinute) {
                 ForEach([00, 15, 30, 45], id: \.self) { m in
                     Text(String(format: "%02d", m)).tag(m)
                 }
@@ -184,9 +185,9 @@ extension SelectTimeView {
         let calendar = Calendar.current
         let newHour = calendar.component(.hour, from: first.date)
         let newMinute = calendar.component(.minute, from: first.date)
-        if newHour != vm.selectedHour || newMinute != vm.selectedMinute {
-            vm.selectedHour = newHour
-            vm.selectedMinute = newMinute
+        if newHour != selectedHour || newMinute != selectedMinute {
+            selectedHour = newHour
+            selectedMinute = newMinute
         }
     }
 }

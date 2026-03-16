@@ -99,9 +99,3 @@ protocol DefaultsManaging: AnyObject {
     func fetchEventDraft(profileId: String) -> EventDraft?
     func deleteEventDraft(profileId: String)
 }
-
-/*
- func fromEvent(_ event: UserEvent) async throws -> ProfileModel
- func fromId(_ id: String) async throws -> ProfileModel
-
- */

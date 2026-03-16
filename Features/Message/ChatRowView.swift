@@ -41,7 +41,7 @@ extension ChatRowView {
     
     @ViewBuilder
     private var messagePreview: some View {
-        if let chat = event.recentChatState {
+        if let chat = event.chatState {
             let unread = chat.unreadCount > 0
             Text(chat.lastMessagePreview ?? "")
                 .font(.body(15, unread ? .bold : .regular))

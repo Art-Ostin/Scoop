@@ -17,6 +17,7 @@ struct SelectTypeView: View {
     
     
     var body: some View {
+        
         VStack(spacing: 0) {
             DropDownMenu {
                 ForEach(Array(Event.EventType.allCases.enumerated()), id: \.element) { index, eventType in

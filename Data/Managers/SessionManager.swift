@@ -257,7 +257,7 @@ extension SessionManager {
 
 /*
  Might need for profile ordering. Not sure yet
- private func upsert(_ model: ProfileModel, into models: inout [ProfileModel]) {
+ private func upsert(_ model: EventProfile, into models: inout [ProfileModel]) {
      if let index = models.firstIndex(where: { $0.id == model.id }) {
          models[index] = model
      } else {

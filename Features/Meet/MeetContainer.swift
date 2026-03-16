@@ -37,7 +37,6 @@ struct MeetContainer: View {
         }
         .transition(.opacity)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .sheet(isPresented: $ui.showPendingInvites) {PastInviteView(vm: vm, ui: ui)}
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) {screenSize in
             imageSize = screenSize - (16 * 2)
@@ -87,7 +86,12 @@ extension MeetContainer {
             
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
-            vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profile, imageLoader: vm.imageLoader), meetVM: vm,
+            vm: ProfileViewModel(
+                defaults: vm.defaults,
+                s: vm.s,
+                profile: profile,
+                imageLoader: vm.imageLoader
+            ),
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
@@ -105,11 +109,14 @@ extension MeetContainer {
     @ViewBuilder
     private var quickInviteView: some View {
         if let profile = ui.profileInvite {
-            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: profile, showInvite: $ui.quickInvite) { draft in
-                Task{ @MainActor in
-                    await respondToProfile(event: draft, profile: profile)
+            SelectTimeAndPlace(
+                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profile),
+                showInvite: $ui.quickInvite,
+                firstImage: profileImages[profile.id]?.first ?? UIImage()) { draft in
+                    Task{ @MainActor in
+                        await respondToProfile(event: draft, profile: profile)
+                    }
                 }
-            }
         }
     }
 }

@@ -107,9 +107,12 @@ extension ProfileView {
                 declineProfile?(event)
             }
         } else {
-            SelectTimeAndPlace(d: vm.defaults, s: vm.s, p: vm.profile, showInvite: $ui.showInvite) { draft in
-                sendInvite?(draft)
-            }
+            SelectTimeAndPlace(
+                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile),
+                showInvite: $ui.showInvite,
+                firstImage: profileImages.first ?? UIImage()) { event in
+                    sendInvite?(event)
+                }
         }
     }
     
