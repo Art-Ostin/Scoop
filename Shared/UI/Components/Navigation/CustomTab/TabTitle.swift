@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct TabTitle: View {
-    let page: Page
-    @Binding var offset: CGFloat
     
+    let page: Page
+
+    @Binding var offset: CGFloat
+        
     var body: some View {
-        Text(page == .EditProfile ? "Edit Profile" : page.rawValue)
+        Text(page.title)
             .font(.custom("SFProRounded-Bold", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)
             .opacity(Double(offset) / 70)

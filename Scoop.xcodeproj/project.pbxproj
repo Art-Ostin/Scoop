@@ -139,6 +139,7 @@
 		657B8D532F2D41C300583ADA /* InviteTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D522F2D41C300583ADA /* InviteTimeRow.swift */; };
 		657B8D592F2D73EE00583ADA /* ProposedTimesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657B8D582F2D73EE00583ADA /* ProposedTimesModel.swift */; };
 		657E61522F353B9300262821 /* MapSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657E61512F353B9300262821 /* MapSearchViewModel.swift */; };
+		657F30392F68B41D0057D42C /* PageEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F30382F68B41D0057D42C /* PageEnum.swift */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
 		65871F4E2F3A543200C9A87A /* ClearIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65871F4D2F3A543200C9A87A /* ClearIcon.swift */; };
 		658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */; };
@@ -386,6 +387,7 @@
 		657B8D522F2D41C300583ADA /* InviteTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteTimeRow.swift; sourceTree = "<group>"; };
 		657B8D582F2D73EE00583ADA /* ProposedTimesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposedTimesModel.swift; sourceTree = "<group>"; };
 		657E61512F353B9300262821 /* MapSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchViewModel.swift; sourceTree = "<group>"; };
+		657F30382F68B41D0057D42C /* PageEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageEnum.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		65871F4D2F3A543200C9A87A /* ClearIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearIcon.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
@@ -747,7 +749,6 @@
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 				659109232E19AEC00065696F /* NextButton.swift */,
 				656B31D02F2501A3008641C1 /* SettingsButton.swift */,
-				651263972EAFBCF0005E6930 /* TabButton.swift */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
 			);
@@ -757,9 +758,11 @@
 		652B154F2F3023B00042A3E1 /* CustomTab */ = {
 			isa = PBXGroup;
 			children = (
+				657F30382F68B41D0057D42C /* PageEnum.swift */,
 				65F9E3822EE70F6B008A57BD /* CustomTabPage.swift */,
 				658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */,
 				658DE51C2EAFA3AA000EF2FA /* TabTitle.swift */,
+				651263972EAFBCF0005E6930 /* TabButton.swift */,
 			);
 			path = CustomTab;
 			sourceTree = "<group>";
@@ -1592,6 +1595,7 @@
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */,
 				65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */,
+				657F30392F68B41D0057D42C /* PageEnum.swift in Sources */,
 				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */,
 				658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */,

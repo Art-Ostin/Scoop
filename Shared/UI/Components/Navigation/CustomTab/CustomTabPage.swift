@@ -7,29 +7,14 @@
 
 import SwiftUI
 
-enum Page: String, Hashable {
-    
-    case meet, match, meetingNoEvent, meetingEvent, message, editProfile
-        
-    var title: String {
-        switch self {
-        case .meetingEvent, .meetingNoEvent:
-            return "Meeting"
-        case .editProfile:
-            return "Edit Profile"
-        default:
-            return self.rawValue.capitalized
-        }
-    }
-}
-
 struct CustomTabPage<Content: View>: View {
+    
     @State var scrollViewOffset: CGFloat = 0
-    @State var topSafeArea: CGFloat = 0
     @Binding var TabAction: Bool
     
     let page: Page
     let content: Content
+    
     init(page: Page, TabAction: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
         self.page = page
         _TabAction = TabAction
@@ -41,7 +26,7 @@ struct CustomTabPage<Content: View>: View {
             VStack(spacing: 36) {
                 ZStack(alignment: .top) {
                     TabButton(page: page, isPresented: $TabAction)
-                            .padding(.top, 12)
+                        .padding(.top, 12)
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 60)
                 }
@@ -49,54 +34,19 @@ struct CustomTabPage<Content: View>: View {
             }
             .padding(.bottom, 48)
         }
-        .overlay(alignment: .top) {
-            ScrollNavBar(title: page.title, topSafeArea: topSafeArea)
-                .opacity(withAnimation(.easeInOut(duration: 0.2)) {scrollViewOffset < 0 ? 1 : 0})
-                .ignoresSafeArea(edges: .all)
-        }
+        .overlay(alignment: .top) {scrollNavBar}
         .scrollIndicators(.never)
         .coordinateSpace(name: page)
         .onPreferenceChange(TitleOffsetsKey.self) { value in
             scrollViewOffset = value[page] ?? 0
         }
         .colorBackground()
-        .measure(key: TopSafeAreaTest.self) { geo in
-            geo.safeAreaInsets.top
-        }
-        .onPreferenceChange(TopSafeAreaTest.self) { newSafeArea in
-            topSafeArea = newSafeArea
+    }
+    private var scrollNavBar: some View {
+        GeometryReader { geo in
+            ScrollNavBar(title: page.title, topSafeArea: geo.safeAreaInsets.top)
+                .opacity(withAnimation(.easeInOut(duration: 0.2)) { scrollViewOffset < 0 ? 1 : 0 })
+                .ignoresSafeArea(edges: .all)
         }
     }
 }
-
-struct TopSafeAreaTest: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout Value, nextValue: () -> Value) {
-        value = max(value, nextValue())
-    }
-}
-
-
-
-
-
-
-/*
- 
-
- var image: Image {
-     switch self {
-     case .Meet, .Meeting:
-         Image(systemName: "info.circle")
-     case .Matches:
-         Image(systemName: "")
-     case .EditProfile:
-         Image(systemName: "")
-     case .Invites:
-         Image(systemName: "")
-     }
- }
-
- */
-
-

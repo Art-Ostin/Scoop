@@ -123,11 +123,3 @@ struct CloseToolBar: ToolbarContent {
         }
     }
 }
-
-/*
- if #available(iOS 26.0, *) {
-     self
-         .glassEffect(isClear ? .clear : .regular, in: shape)
- } else {
-
- */
