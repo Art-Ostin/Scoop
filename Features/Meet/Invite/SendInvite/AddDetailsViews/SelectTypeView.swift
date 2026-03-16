@@ -10,6 +10,7 @@ import SwiftUI
 struct SelectTypeView: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
+    @Bindable var ui: TimeAndPlaceUIState
     
     let selectedType: Event.EventType?
     
@@ -19,7 +20,6 @@ struct SelectTypeView: View {
     var body: some View {
         
         VStack(spacing: 0) {
-            DropDownMenu {
                 ForEach(Array(Event.EventType.allCases.enumerated()), id: \.element) { index, eventType in
                         customRow(
                             image: eventType.description.emoji ?? "",
@@ -29,7 +29,7 @@ struct SelectTypeView: View {
                         .onTapGesture {
                             let message = (vm.event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
                             if eventType == .custom && message.isEmpty {
-                                vm.showMessageScreen = true
+                                ui.showMessageScreen = true
                             }
                             vm.event.type = eventType
                             withAnimation(.easeInOut(duration: 0.25)) {
@@ -40,8 +40,6 @@ struct SelectTypeView: View {
                         MapDivider()
                     }
                 }
-                
             }
         }
     }
-}

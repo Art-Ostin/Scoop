@@ -21,7 +21,7 @@ struct InviteTypeRow: View {
         DropDownView(showOptions: $ui.showTypePopup) {
             inviteTypeRow
         } dropDown: {
-            SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $ui.showTypePopup)
+            SelectTypeView(vm: vm, ui: ui, selectedType: vm.event.type, showTypePopup: $ui.showTypePopup)
         }
     }
 }

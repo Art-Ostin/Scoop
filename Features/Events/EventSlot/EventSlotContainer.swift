@@ -22,19 +22,12 @@ struct EventSlotContainer: View {
     @State private var imageSize: CGFloat = 0
 
     var body: some View {
-        ZStack {
-            ScrollView {
-                VStack(spacing: 36) {
-                    titleView
-                    EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                    EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps()}
-                    EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps()}
-                    EventInfoView(ui: ui, event: eventProfile.event) {openMaps()}
-                }
-            }
-            .padding(.top, 60)
-            .padding(.bottom, 144)
-            .overlay(alignment: .topTrailing) {messageButton}
+        CustomTabPage(page: .Meeting, TabAction: .constant(false)) {
+            EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
+            EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps()}
+            EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps()}
+            EventInfoView(ui: ui, event: eventProfile.event) {openMaps()}
+                .padding(.bottom, 144)
         }
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
@@ -46,27 +39,7 @@ struct EventSlotContainer: View {
 }
 
 extension EventSlotContainer {
-    
-    private var titleView: some View {
-        
-        HStack(alignment: .top, spacing: 6) {
-            Text("Meeting")
-                .font(.custom("SFProRounded-Bold", size: 32))
             
-            if isFrozenEvent {
-                Button {
-                    showfrozenInfo.toggle()
-                } label: {
-                    Image(systemName: "info.circle")
-                        .foregroundStyle(Color(red: 0.26, green: 0.26, blue: 0.26))
-                        .contentShape(Circle())
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
-    }
-        
     private var messageButton: some View {
         Button {
             ui.showMessageScreen = eventProfile
@@ -91,5 +64,3 @@ extension EventSlotContainer {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
 }
-
-

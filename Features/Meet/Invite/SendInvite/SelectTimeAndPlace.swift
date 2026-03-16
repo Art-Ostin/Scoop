@@ -31,7 +31,7 @@ struct SelectTimeAndPlace: View {
         .fullScreenCover(isPresented: $ui.showMapView) {
             MapView(defaults: vm.defaults, eventVM: vm)
         }
-        .sheet(isPresented: $ui.showMessageScreen) {AddMessageView(vm: vm)}
+        .sheet(isPresented: $ui.showMessageScreen) {AddMessageView(vm: vm, ui: ui)}
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
 }

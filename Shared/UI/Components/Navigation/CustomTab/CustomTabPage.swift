@@ -6,19 +6,19 @@
 //
 
 import SwiftUI
-enum Page: String, Hashable {
-    case Meet, Meeting, Matches, Invites, EditProfile
 
-    var image: Image {
+enum Page: String, Hashable {
+    
+    case meet, match, meetingNoEvent, meetingEvent, message, editProfile
+        
+    var title: String {
         switch self {
-        case .Meet, .Meeting:
-            Image(systemName: "info.circle")
-        case .Matches:
-            Image(systemName: "")
-        case .EditProfile:
-            Image(systemName: "")
-        case .Invites:
-            Image(systemName: "")
+        case .meetingEvent, .meetingNoEvent:
+            return "Meeting"
+        case .editProfile:
+            return "Edit Profile"
+        default:
+            return self.rawValue.capitalized
         }
     }
 }
@@ -45,13 +45,12 @@ struct CustomTabPage<Content: View>: View {
                     TabTitle(page: page, offset: $scrollViewOffset)
                         .padding(.top, 60)
                 }
-                .padding(.horizontal, page == .Meet ? 16 : 0) 
                 content
             }
             .padding(.bottom, 48)
         }
         .overlay(alignment: .top) {
-            ScrollNavBar(title: page == .EditProfile ? "Edit Profile" : page.rawValue, topSafeArea: topSafeArea)
+            ScrollNavBar(title: page.title, topSafeArea: topSafeArea)
                 .opacity(withAnimation(.easeInOut(duration: 0.2)) {scrollViewOffset < 0 ? 1 : 0})
                 .ignoresSafeArea(edges: .all)
         }
@@ -60,14 +59,13 @@ struct CustomTabPage<Content: View>: View {
         .onPreferenceChange(TitleOffsetsKey.self) { value in
             scrollViewOffset = value[page] ?? 0
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.background)
+        .colorBackground()
         .measure(key: TopSafeAreaTest.self) { geo in
             geo.safeAreaInsets.top
         }
         .onPreferenceChange(TopSafeAreaTest.self) { newSafeArea in
             topSafeArea = newSafeArea
         }
-        .contentMargins(.horizontal, page == .Meet ? 0 : 16, for: .scrollContent)
     }
 }
 
@@ -79,7 +77,26 @@ struct TopSafeAreaTest: PreferenceKey {
 }
 
 
+
+
+
+
 /*
+ 
+
+ var image: Image {
+     switch self {
+     case .Meet, .Meeting:
+         Image(systemName: "info.circle")
+     case .Matches:
+         Image(systemName: "")
+     case .EditProfile:
+         Image(systemName: "")
+     case .Invites:
+         Image(systemName: "")
+     }
+ }
+
  */
 
 

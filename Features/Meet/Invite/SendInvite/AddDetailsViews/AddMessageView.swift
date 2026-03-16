@@ -12,6 +12,7 @@ import UIKit
 struct AddMessageView: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
+    @Bindable var ui: TimeAndPlaceUIState
     @State var showTypePopup: Bool = false
     
     
@@ -122,7 +123,7 @@ extension AddMessageView {
             DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
                 dropdownTitle
             } dropDown: {
-                SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $showTypePopup)
+                SelectTypeView(vm: vm, ui: ui, selectedType: vm.event.type, showTypePopup: $showTypePopup)
             }
         }
         .frame(maxWidth: .infinity)
