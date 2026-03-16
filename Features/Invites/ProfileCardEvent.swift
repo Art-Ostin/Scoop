@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-s
+
 struct ProfileCardEventInfo: View {
     
     let event: UserEvent

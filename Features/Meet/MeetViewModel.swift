@@ -53,10 +53,6 @@ import SwiftUI
     }
 }
 
-enum DismissTransition {
-    case standard, actionPerformed
-}
-
 @Observable final class MeetUIState {
     var openProfile: UserProfile? = nil
     var quickInvite: Bool = false

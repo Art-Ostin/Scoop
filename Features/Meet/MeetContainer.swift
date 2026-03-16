@@ -30,6 +30,7 @@ struct MeetContainer: View {
             if ui.quickInvite {
                 quickInviteView
             }
+            
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
             }

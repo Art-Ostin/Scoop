@@ -899,7 +899,6 @@
 				65F450CA2E463E7900AE3503 /* MeetContainer.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				65D1C40D2F3FCA1C00B61C00 /* MeetInfoView.swift */,
-				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
 				65E963D52F3F7C090022595F /* RespondedToProfileView.swift */,
 				653BAFA92E0C664F00C1AB9E /* Invite */,
 			);
@@ -948,6 +947,7 @@
 		6576831A2F590ED20094A02D /* Delete */ = {
 			isa = PBXGroup;
 			children = (
+				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
 				65140B212F55EEE500ED1DDE /* ChatRowCellView.swift */,
 				65E963D32F3F6DA80022595F /* AcceptInviteTest.swift */,
 			);

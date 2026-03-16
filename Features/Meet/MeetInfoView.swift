@@ -36,32 +36,3 @@ extension MeetInfoView {
     
 }
 
-
-struct PastInviteView: View {
-    @Bindable var vm: MeetViewModel
-    @Bindable var ui: MeetUIState
-
-    var body: some View {
-        NavigationStack {
-            ScrollView(.vertical) {
-                LazyVStack(spacing: 48) {
-                    ForEach(vm.pendingInvites) { profileModel in
-                        
-                        
-                        
-                        
-                        PendingInviteCard(
-                            profile: profileModel,
-                            showPendingInvites: $ui.showPendingInvites,
-                            openPastInvites: $ui.openPastInvites
-                        )
-                    }
-                }
-            }
-            .navigationTitle("Your Pending Invites")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
-    }
-}

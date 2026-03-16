@@ -12,35 +12,31 @@ import SwiftUI
     
     let profile: UserProfile
     
-    var event: EventDraft {
-        didSet {
-            defaults.updateEventDraft(profileId: pendingProfile.profile.id, eventDraft: event)
-        }
-    }
-
     let defaults: DefaultsManaging
     let s: SessionManager
+    
+    var event: EventDraft {
+        didSet {
+            defaults.updateEventDraft(profileId: profile.profile.id, eventDraft: event)
+        }
+    }
     
     //Change this
     var selectedHour: Int = 22
     var selectedMinute: Int = 30
-
-    var showTypePopup: Bool = false
-    var showMessageScreen: Bool = false
-    var showTimePopup: Bool = false
-    var showMapView: Bool = false
-    var showAlert: Bool = false
-    var isMessageTap: Bool = false
     
     init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile) {
         self.defaults = defaults
         self.profile = profile
         self.s = sessionManager
-        let profileId = profile.id
-        if let storedEvent = defaults.fetchEventDraft(profileId: profile.id) {
-            self.event = storedEvent
+        self.event = Self.loadEvent(d: defaults, s: sessionManager, p: profile)
+    }
+    
+    private static func loadEvent(d: DefaultsManaging, s: SessionManager, p: UserProfile) -> EventDraft {
+        if let storedEvent = d.fetchEventDraft(profileId: p.id) {
+            return storedEvent
         } else {
-            event = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId, type: .drink)
+            return EventDraft(initiatorId: s.user.id, recipientId: p.id, type: .drink)
         }
     }
     
@@ -48,4 +44,13 @@ import SwiftUI
         defaults.deleteEventDraft(profileId: profile.id)
         event = EventDraft(initiatorId: s.user.id, recipientId: profile.id, type: .drink)
     }
+}
+
+@Observable class TimeAndPlaceUIState {
+    var showTypePopup: Bool = false
+    var showMessageScreen: Bool = false
+    var showTimePopup: Bool = false
+    var showMapView: Bool = false
+    var showAlert: Bool = false
+    var isMessageTap: Bool = false
 }

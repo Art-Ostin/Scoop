@@ -38,7 +38,7 @@ extension ProfileCard {
     
     private var inviteButton: some View {
         Button {
-            quickInvite = profile.profile
+            profileInvite = profile.profile
         } label: {
             Image("LetterIconProfile")
                 .resizable()
