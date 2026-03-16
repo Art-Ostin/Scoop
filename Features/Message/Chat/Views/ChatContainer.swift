@@ -10,50 +10,65 @@ import UIKit
 
 
 struct ChatContainer: View {
-    @Bindable var vm: ChatViewModel
-    @Bindable var eventVM: EventViewModel
     
-    @State var profileOpen: ProfileModel? = nil
+    @Bindable var vm: ChatViewModel
+    
+    @State var isProfileOpen: UserProfile? = nil
     @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [UIImage] = []
-    
     @FocusState private var isFocused
     
     var isEvent = true
-    let profileModel: ProfileModel
     
     var body: some View {
         ZStack {
             ChatScrollView(vm: vm, isFocused: $isFocused)
-            if profileOpen != nil {
+
+            if isProfileOpen != nil {
                 profileView
             }
         }
-        .overlay(alignment: .top) {
-            ChatHeaderBar(profileOpen: $profileOpen, dismissOffset: $dismissOffset, profileModel: profileModel, isEvent: isEvent, isFocused: $isFocused)
-        }
-        .overlay(alignment: .bottom) {
-            TypeMessageView(vm: vm, isFocused: $isFocused)
-                .opacity(profileOpen == nil ? 1 : 0)
-        }
-        .task { profileImages = await eventVM.loadImages(profileModel: profileModel)}
+        .overlay(alignment: .top) {chatHeaderBar}
+        .overlay(alignment: .bottom) {typeMessageView}
+        .task { profileImages = await vm.loadImages(profile: vm.eventProfile)}
     }
 }
 
 //Other Views
 extension ChatContainer {
     
+    private var chatHeaderBar: some View {
+        ChatHeaderBar(
+            isProfileOpen: $isProfileOpen,
+            dismissOffset: $dismissOffset,
+            profile: vm.eventProfile.profile,
+            image: profileImages.first ?? UIImage(),
+            isEvent: isEvent,
+            isFocused: $isFocused
+        )
+    }
+    
     private var profileView: some View {
-        ProfileView(vm:
-                    ProfileViewModel(defaults: eventVM.defaults,
-                            sessionManager: eventVM.sessionManager,
-                            profileModel: profileModel,
-                            imageLoader: eventVM.imageLoader),
-                    profileImages: profileImages,
-                    selectedProfile: $profileOpen,
-                    dismissOffset: $dismissOffset, isMessageProfile: true)
-        .id(profileModel.profile.id)
+        ProfileView(
+            vm: ProfileViewModel(
+                defaults: vm.defaults,
+                s: vm.session,
+                profile: vm.eventProfile.profile,
+                event: vm.eventProfile.event,
+                imageLoader: vm.imageLoader
+            ),
+            profileImages: profileImages,
+            selectedProfile: $isProfileOpen,
+            dismissOffset: $dismissOffset,
+            isMessageProfile: true
+        )
+        .id(vm.eventProfile.profile.id)
         .zIndex(1)
         .transition(.move(edge: .bottom))
+    }
+    
+    private var typeMessageView: some View {
+        TypeMessageView(vm: vm, isFocused: $isFocused)
+            .opacity(isProfileOpen == nil ? 1 : 0)
     }
 }

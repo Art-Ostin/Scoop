@@ -11,33 +11,34 @@ import SwiftUI
 @Observable
 class ChatViewModel {
     
+    let defaults: DefaultsManaging
     let session: SessionManager
     let chatRepo: ChatRepository
-    
-    let profileModel: ProfileModel
+    let imageLoader: ImageLoading
+    let eventProfile: EventProfile
     
     var messages: [MessageModel] = []
     
-    init(session: SessionManager, chatRepo: ChatRepository, profileModel: ProfileModel) {
-        self.chatRepo = chatRepo
+    init(defaults: DefaultsManaging, session: SessionManager, chatRepo: ChatRepository, imageLoader: ImageLoading, eventProfile: EventProfile) {
+        self.defaults = defaults
         self.session = session
-        self.profileModel = profileModel
+        self.chatRepo = chatRepo
+        self.imageLoader = imageLoader
+        self.eventProfile = eventProfile
+        self.messages = messages
     }
-    
+
     var userId: String {session.user.id}
     
-    
     func sendMessage(text: String) async throws {
-        guard let eventId = profileModel.event?.id else {return}
-        let recipientId = profileModel.profile.id
-        try await chatRepo.sendMessage(text: text, eventId: eventId, userId: userId, recipientId: recipientId)
+        try await chatRepo.sendMessage(text: text, eventId: eventProfile.id, userId: userId, recipientId: eventProfile.profile.id)
     }
-    
     
     func fetchMessages() async throws {
-        guard let eventId = profileModel.event?.id else {return}
-        messages = try await chatRepo.fetchMessages(eventId: eventId)
+        messages = try await chatRepo.fetchMessages(eventId: eventProfile.id)
     }
     
-    
+    func loadImages(profile: EventProfile) async -> [UIImage] {
+        return await imageLoader.loadProfileImages(profile.profile)
+    }
 }

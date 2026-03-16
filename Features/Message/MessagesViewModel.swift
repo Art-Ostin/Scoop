@@ -37,7 +37,7 @@ import UIKit
     
     var user: UserProfile {s.user}
     
-    var events: [ProfileModel] { s.pastEvents }
+    var events: [EventProfile] { s.pastEvents }
     
     func signOut() {
         try? authService.signOutAuthUser()

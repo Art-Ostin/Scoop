@@ -11,19 +11,21 @@ struct ChatHeaderBar: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    @Binding var profileOpen: ProfileModel?
+    @Binding var isProfileOpen: UserProfile?
     @Binding var dismissOffset: CGFloat?
     
     @State var detailsOpen = false
     @Namespace private var ns
     
-    let profileModel: ProfileModel
+    let profile: UserProfile
+    let image: UIImage
+    
     let isEvent: Bool
     var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
-            if profileOpen != nil {
+            if isProfileOpen != nil {
                 profileCloseButton
             } else {
                 closeButtonMain
@@ -35,7 +37,7 @@ struct ChatHeaderBar: View {
         .onPreferenceChange(OpenDetails.self) { isDetailsOpen in
             detailsOpen = isDetailsOpen
         }
-        .animation(.easeInOut(duration: 0.2), value: profileOpen)
+        .animation(.easeInOut(duration: 0.2), value: isProfileOpen)
     }
 }
 
@@ -58,12 +60,10 @@ extension ChatHeaderBar {
     private var profileButton: some View {
         Button(action: openProfile) {
             HStack(spacing: 6) {
-                if let image = profileModel.image {
-                    CirclePhoto(image: image, showShadow: false)
-                        .scaleEffect(0.9)
-                }
+                CirclePhoto(image: image, showShadow: false)
+                    .scaleEffect(0.9)
                 
-                Text(profileModel.profile.name)
+                Text(profile.name)
                     .font(.body(16, .bold))
             }
             .padding(.vertical, 3)
@@ -72,7 +72,7 @@ extension ChatHeaderBar {
             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
             .opacity(
                 withAnimation(.easeInOut(duration: 0.1)) {
-                    profileOpen != nil ? 0 : 1
+                    isProfileOpen != nil ? 0 : 1
                 })
         }
     }
@@ -96,6 +96,6 @@ extension ChatHeaderBar {
     private func openProfile() {
         isFocused.wrappedValue = false
         dismissOffset = nil
-        withAnimation(.easeInOut(duration: 0.2)) {profileOpen = profileModel}
+        withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = profile}
     }
 }

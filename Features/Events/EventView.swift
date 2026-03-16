@@ -45,7 +45,7 @@ extension EventView {
     
     private func chatView(profile: EventProfile) -> some View {
         NavigationStack {
-            ChatContainer(vm: ChatViewModel(session: vm.sessionManager, chatRepo: vm.chatRepo, profileModel: profile), eventVM: vm, profileModel: profile)
+            ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.sessionManager, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: profile))
         }
     }
     
