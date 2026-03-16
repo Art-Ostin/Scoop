@@ -24,11 +24,8 @@ struct SelectTimeAndPlace: View {
         ZStack {
             CustomScreenCover {showInvite = false}
             sendInviteScreen
-                .overlay(alignment: .topTrailing) {
-                    TabInfoButton(showScreen: $ui.showInfoScreen)
-                        .scaleEffect(0.9)
-                        .offset(x: -12, y: -48)
-                }
+                .overlay(alignment: .topTrailing) {infoButton }
+                
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .toolbar(.hidden, for: .tabBar)
@@ -45,9 +42,6 @@ struct SelectTimeAndPlace: View {
             Text("Info screen here")
         }
         
-    }
-    private var InviteIsValid: Bool {
-        return !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
     }
 }
 
@@ -85,6 +79,12 @@ extension SelectTimeAndPlace {
         .overlay(alignment: .topLeading) { clearButton}
     }
     
+    private var infoButton: some View {
+        TabInfoButton(showScreen: $ui.showInfoScreen)
+            .scaleEffect(0.9)
+            .offset(x: -12, y: -48)
+    }
+
     private var clearButton: some View {
         Button {
             vm.deleteEventDefault()
@@ -112,7 +112,6 @@ extension SelectTimeAndPlace {
         }
     }
     
-    
     private var proposeTwoDaysText: some View {
         Group {
             if showTwoDays() {
@@ -132,6 +131,7 @@ extension SelectTimeAndPlace {
         .padding(.top, 64)
         .zIndex(0)
     }
+    
     private var popupTitle: some View {
         HStack(spacing: 16) {
             CirclePhoto(image: firstImage)
@@ -150,5 +150,9 @@ extension SelectTimeAndPlace {
         (vm.event.type == .drink || vm.event.type == .doubleDate) &&
         !ui.showTypePopup &&
         ((ui.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
+    }
+    
+    private var InviteIsValid: Bool {
+        return !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
     }
 }
