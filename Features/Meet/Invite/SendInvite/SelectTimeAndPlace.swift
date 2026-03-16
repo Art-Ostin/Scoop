@@ -68,14 +68,12 @@ extension SelectTimeAndPlace {
             
 
             VStack(spacing: 10) {
-                DropDownView(showOptions: $vm.showTypePopup) {
-                    InviteTypeRow(vm: vm)
-                        .frame(height: 50)
-                } dropDown: {
-                    SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
-                }
+                
+                InviteTypeRow(vm: vm, ui: ui)
                 
                 Divider()
+                
+                
                 
                 DropDownView(showOptions: $vm.showTimePopup) {
                     InviteTimeRow(vm: vm)
@@ -104,9 +102,9 @@ extension SelectTimeAndPlace {
         
         .frame(width: 365)
         .background (cardBackground)
-        .onChange(of: vm.showTypePopup) {
-            if vm.showTypePopup == true {
-                vm.showTimePopup = false
+        .onChange(of: ui.showTypePopup) {
+            if ui.showTypePopup == true {
+                ui.showTimePopup = false
             }
         }
         .onChange(of: vm.showTimePopup) {

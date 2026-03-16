@@ -9,41 +9,40 @@ import SwiftUI
 
 struct InviteTypeRow: View {
     
+    @Bindable var vm: TimeAndPlaceViewModel
     @Bindable var ui: TimeAndPlaceUIState
-    let event: EventDraft
-    var trimmedMessage: String  {
+    
+    var event: EventDraft {vm.event}
+    var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     var body: some View {
-        
-        
-        DropDownView(showOptions: $vm.showTypePopup) {
-            InviteTypeRow(vm: vm)
-                .frame(height: 50)
+        DropDownView(showOptions: $ui.showTypePopup) {
+            inviteTypeRow
         } dropDown: {
-            SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $vm.showTypePopup)
-        }
-
-        
-        
-        
-        HStack {
-            if !trimmedMessage.isEmpty {
-                typeWithMessage
-            } else {
-                typeWithNoMessage
-            }
-            Spacer()
-            DropDownButton(isExpanded: $ui.showTypePopup)
+            SelectTypeView(vm: vm, selectedType: vm.event.type, showTypePopup: $ui.showTypePopup)
         }
     }
 }
 
 extension InviteTypeRow {
     
+    private var inviteTypeRow: some View {
+        HStack {
+            if message.isEmpty {
+                typeWithNoMessage
+            } else {
+                typeWithMessage
+            }
+            Spacer()
+            DropDownButton(isExpanded: $ui.showTypePopup)
+        }
+        .frame(height: 50)
+    }
+    
     private var typeWithMessage: some View {
-        (inviteType + inviteMessage(trimmed: trimmedMessage) + editButton)
+        (inviteType + inviteMessage(trimmed: message) + editButton)
             .lineSpacing(6)
             .contentShape(.rect)
             .onTapGesture { openMessageScreen() }
@@ -51,42 +50,26 @@ extension InviteTypeRow {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    
-    private var inviteType: some View {
+    private var inviteType: Text {
         Text(verbatim: "\(event.type.description.emoji ?? "") \(event.type.description.label): ")
             .font(.body(16, .bold))
     }
     
-    @ViewBuilder private func inviteMessage(trimmed: String) -> some View {
+    @ViewBuilder private func inviteMessage(trimmed: String) -> Text {
         let parsedMessage = trimmed.count > 65 ? "\(trimmed.prefix(65))..." : trimmed
         Text(" \(parsedMessage)")
             .font(.body(12, .italic))
             .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.grayText)
     }
     
-    private var editButton: some View {
+    private var editButton: Text {
         Text(" edit")
             .font(.body(12, .italic))
             .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
 
     }
     
-    
-    private func openMessageScreen() {
-        ui.isMessageTap = true
-        ui.showTypePopup = false
-        ui.showMessageScreen.toggle()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            ui.isMessageTap = false
-        }
-    }
-}
-
-//
-extension InviteTypeRow {
-    
-    @ViewBuilder
-    private var typeWithNoMessage: some View {
+    @ViewBuilder private var typeWithNoMessage: some View {
         let type = event.type.description.label
         let emoji = event.type.description.emoji ?? ""
             VStack(alignment: .leading, spacing: 6) {
@@ -104,4 +87,15 @@ extension InviteTypeRow {
             .onTapGesture { openMessageScreen() }
             .onLongPressGesture(minimumDuration: 0.1, pressing: { ui.isMessageTap = $0 }, perform: {})
     }
+    
+    private func openMessageScreen() {
+        ui.isMessageTap = true
+        ui.showTypePopup = false
+        ui.showMessageScreen.toggle()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            ui.isMessageTap = false
+        }
+    }
+    
 }
+
