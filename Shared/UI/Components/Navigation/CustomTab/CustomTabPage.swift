@@ -10,26 +10,21 @@ import SwiftUI
 struct CustomTabPage<Content: View>: View {
     
     @State var scrollViewOffset: CGFloat = 0
-    @Binding var TabAction: Bool
+    @Binding var tabAction: Bool
     
     let page: Page
     let content: Content
     
-    init(page: Page, TabAction: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
+    init(page: Page, tabAction: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
         self.page = page
-        _TabAction = TabAction
+        _tabAction = tabAction
         self.content = content()
     }
     
     var body: some View {
         ScrollView {
             VStack(spacing: 36) {
-                ZStack(alignment: .top) {
-                    TabButton(page: page, isPresented: $TabAction)
-                        .padding(.top, 12)
-                    TabTitle(page: page, offset: $scrollViewOffset)
-                        .padding(.top, 60)
-                }
+                headerBar
                 content
             }
             .padding(.bottom, 48)
@@ -42,6 +37,19 @@ struct CustomTabPage<Content: View>: View {
         }
         .colorBackground()
     }
+}
+
+extension CustomTabPage {
+    
+    private var headerBar: some View {
+        ZStack(alignment: .top) {
+            TabButton(page: page, isPresented: $tabAction)
+                .padding(.top, 12)
+            TabTitle(page: page, offset: $scrollViewOffset)
+                .padding(.top, 60)
+        }
+    }
+    
     private var scrollNavBar: some View {
         GeometryReader { geo in
             ScrollNavBar(title: page.title, topSafeArea: geo.safeAreaInsets.top)

@@ -30,7 +30,7 @@ struct EnterEmailView: View {
             .background(Color.background)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .toolbar { CloseToolBar()}
+            .toolbar { DismissToolbarItem()}
         }
     }
 }

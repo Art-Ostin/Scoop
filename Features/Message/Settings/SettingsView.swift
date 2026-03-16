@@ -24,7 +24,7 @@ struct SettingsView: View {
         .navigationTitle("Settings")
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { CloseToolBar() }
+        .toolbar { DismissToolbarItem() }
         .padding(.horizontal, 24)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 enum Page: String, Hashable {
     
-    case meet, match, meetingNoEvent, meetingEvent, message, editProfile
+    case meet, invites, meetingNoEvent, meetingEvent, pastMatches, editProfile
     
     var title: String {
         switch self {
@@ -17,9 +17,10 @@ enum Page: String, Hashable {
             return "Meeting"
         case .editProfile:
             return "Edit Profile"
+        case .pastMatches:
+            return "Message"
         default:
             return self.rawValue.capitalized
         }
     }
 }
-

@@ -318,3 +318,14 @@ extension Array where Element == String {
         else if limit.map({ count < $0 }) ?? true { append(s) }
     }
 }
+
+extension View {
+    @ViewBuilder
+    func glassRectangle() -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(in: .rect(cornerRadius: 36))
+        } else {
+            self
+        }
+    }
+}

@@ -12,114 +12,67 @@ struct TabButton: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        if page != .EditProfile && page != .Matches {
-            button
-                .glassIfAvailable()
-                .frame(maxWidth: .infinity, alignment: .trailing)
+        
+        switch page {
+        case .meet, .meetingNoEvent, .invites:
+            TabInfoButton(showScreen: $isPresented)
+            
+        case .meetingEvent:
+            messageButton
+            
+        case .pastMatches:
+            settingsButton
+            
+        case .editProfile:
+            
+            
         }
     }
 }
 
 extension TabButton {
-    private var button: some View {
-        page.image
-            .font(.body(page == .Matches ? 20 : 17))
-            .padding(6)
-            .foregroundStyle(.black)
-            .onTapGesture {
-                isPresented = true
-            }
-    }
-}
-
-
-extension View {
-    @ViewBuilder
-    func glassIfAvailable<S: InsettableShape>(_ shape: S = Capsule(), isClear: Bool = true, thinMaterial: Bool = false) -> some View {
-        if #available(iOS 26.0, *) {
-            self
-                .glassEffect(isClear ? .clear : .regular, in: shape)
-        } else {
-            self
-                .background {shape.fill(Color.background)}
-                .overlay {shape.strokeBorder(Color.grayBackground, lineWidth: 0.4)}
-                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
-                .background(Capsule().fill(thinMaterial ? AnyShapeStyle(.ultraThinMaterial) : AnyShapeStyle(.clear)))
-        }
-    }
-}
-
-extension View {
-    @ViewBuilder
-    func glassRectangle() -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(in: .rect(cornerRadius: 36))
-        } else {
-            self
-        }
-    }
-}
-
-extension ToolbarContent {
-    @ToolbarContentBuilder
-    func hideSharedBackgroundIfAvailable() -> some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            sharedBackgroundVisibility(.hidden)
-        } else {
-            self
-        }
-    }
-}
-
-struct DefaultAppButton: View {
-    let image: Image
-    let size: CGFloat
-    @Binding var isPresented: Bool
     
-    var body: some View {
-            Group {
-                if #available(iOS 26.0, *) {
-                    button
-                        .glassEffect()
-                } else {
-                    button
-                        .background( Circle().fill(Color.background) )
-                        .overlay( Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4) )
-                        .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.horizontal, 24)
+    
+    private var messageButton: some View {
+        Button {
+            isPresented = true
+        } label: {
+            Image("roundMessageIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 22, height: 22)
+                .font(.body(17, .bold))
+                .padding(6)
+                .glassIfAvailable(isClear: true)
+                .padding(24) //Expands Tap Area
+                .contentShape(Rectangle())
+                .padding(-24)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 6)
         }
-}
-
-extension DefaultAppButton {
-    private var button: some View {
-        image
-            .resizable()
-            .scaledToFit()
-            .frame(width: 24, height: 24)
-            .padding(6)
-            .contentShape(Circle())
-            .onTapGesture { isPresented = true }
-    }
-}
-
-
-struct CloseToolBar: ToolbarContent {
-    @Environment(\.dismiss) private var dismiss
-    let imageString: String
-    let isLeading: Bool
-    init(imageString: String = "xmark", isLeading: Bool = true) {
-        self.imageString = imageString
-        self.isLeading = isLeading
     }
     
-    var body: some ToolbarContent {
-        ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
-            Button(action: { dismiss() }) {
-                Image(systemName: imageString).font(.body.weight(.semibold))
-            }
+    private var settingsButton: some View {
+        Button {
+            isPresented = true
+        } label: {
+            Image(systemName: "gear")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .frame(width: 35, height: 35)
+                .glassIfAvailable(Circle())
+                .contentShape(Circle())
+                .foregroundStyle(Color.black)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+    
+    
+    private var editProfileButton: some View {
+        
+    }
 }
+
+
+

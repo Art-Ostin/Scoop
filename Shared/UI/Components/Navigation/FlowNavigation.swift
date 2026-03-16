@@ -39,7 +39,7 @@ struct FlowNavigation: ViewModifier {
                             .font(.body(12, .bold))
                     }
                 case .profile:
-                    CloseToolBar(imageString: "chevron.left")
+                    DismissToolbarItem(imageString: "chevron.left")
                 }
             }
     }
