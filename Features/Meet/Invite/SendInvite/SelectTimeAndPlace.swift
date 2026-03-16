@@ -28,26 +28,23 @@ struct SelectTimeAndPlace: View {
                 
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .hideTabBar()
         .toolbar(.hidden, for: .tabBar)
         .tabBarHidden(true) // This is custom Tool bar hidden
-        .sheet(isPresented: $ui.showMessageScreen) {AddMessageView(vm: vm)}
-        .fullScreenCover(isPresented: $ui.showMapView) {
-            MapView(defaults: vm.defaults, eventVM: vm)
-        }
+
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
             onSubmit(vm.event)
         }
-        .tint(.blue)
-        .sheet(isPresented: $ui.showInfoScreen) {
-            Text("Info screen here")
+        .fullScreenCover(isPresented: $ui.showMapView) {
+            MapView(defaults: vm.defaults, eventVM: vm)
         }
-        
+        .sheet(isPresented: $ui.showMessageScreen) {AddMessageView(vm: vm)}
+        .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
 }
 
 
 extension SelectTimeAndPlace {
-    
     
     @ViewBuilder
     private var sendInviteScreen: some View {
@@ -114,7 +111,7 @@ extension SelectTimeAndPlace {
     
     private var proposeTwoDaysText: some View {
         Group {
-            if showTwoDays() {
+            if showTwoDays {
                 Text("Propose at least two days")
             } else if vm.showTimePopup && vm.event.proposedTimes.dates.count > 1 {
                 HStack(spacing: 0) {
@@ -141,12 +138,12 @@ extension SelectTimeAndPlace {
     }
     
     private var sendInviteButton: some View {
-        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays(), text: "Confirm & Send") {
+        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Confirm & Send") {
             ui.showAlert.toggle()
         }
     }
     
-    private func showTwoDays() -> Bool {
+    private var showTwoDays: Bool {
         (vm.event.type == .drink || vm.event.type == .doubleDate) &&
         !ui.showTypePopup &&
         ((ui.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
