@@ -1,16 +1,14 @@
 import SwiftUI
 import MapKit
 
-
-
 struct SelectTimeAndPlace: View {
     
     @State var vm: TimeAndPlaceViewModel
     @State private var ui = TimeAndPlaceUIState ()
-    
     @Binding var showInvite: Bool
     
     let firstImage: UIImage
+    let alertMessage = "If they accept & you don't show, you'll be blocked from Scoop"
     let onSubmit: (EventDraft) -> ()
     
 
@@ -25,14 +23,9 @@ struct SelectTimeAndPlace: View {
             CustomScreenCover {showInvite = false}
             sendInviteScreen
                 .overlay(alignment: .topTrailing) {infoButton }
-                
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .hideTabBar()
-        .toolbar(.hidden, for: .tabBar)
-        .tabBarHidden(true) // This is custom Tool bar hidden
-
-        .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+        .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: alertMessage, showTwoButtons: true, isConfirmInvite: true) {
             onSubmit(vm.event)
         }
         .fullScreenCover(isPresented: $ui.showMapView) {
@@ -42,7 +35,6 @@ struct SelectTimeAndPlace: View {
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
 }
-
 
 extension SelectTimeAndPlace {
     
@@ -113,7 +105,7 @@ extension SelectTimeAndPlace {
         Group {
             if showTwoDays {
                 Text("Propose at least two days")
-            } else if vm.showTimePopup && vm.event.proposedTimes.dates.count > 1 {
+            } else if ui.showTimePopup && vm.event.proposedTimes.dates.count > 1 {
                 HStack(spacing: 0) {
                     Text("They only accept ")
                     Text("one day")

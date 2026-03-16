@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension View {
-    
     func hideTabBar() -> some View {
         self
             .toolbar(.hidden, for: .tabBar)
