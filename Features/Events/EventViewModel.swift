@@ -31,19 +31,19 @@ import FirebaseFirestore
         self.defaults = defaults
     }
 
-    var events: [ProfileModel] { sessionManager.events}
+    var events: [EventProfile] { sessionManager.events}
     
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
         try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }
     
-    func loadImages(profileModel: ProfileModel) async -> [UIImage] {
-        return await imageLoader.loadProfileImages(profileModel.profile)
+    func loadImages(profile: EventProfile) async -> [UIImage] {
+        return await imageLoader.loadProfileImages(profile.profile)
     }
     
     func cancelEvent(event: UserEvent) async throws {
         //Get the fields for the 'blockedContext'
-        guard let acceptedTime = event.acceptedTime, let eventId = event.id else { return }
+        guard let acceptedTime = event.acceptedTime else {return}
         let profileName = event.otherUserName
         let eventTime = "\(EventFormatting.expandedDate(acceptedTime)) · \(EventFormatting.hourTime(acceptedTime))"
         let eventPlace = event.location.name ?? event.location.address.map { String($0.suffix(10)) }  ?? ""
@@ -52,7 +52,7 @@ import FirebaseFirestore
         
         //Update event Status and the user
         try await applyCancellationPenalty(blockedContext: blockedContext, userId: userId)
-        try await eventRepo.cancelEvent(eventId: eventId, cancelledById: userId, blockedContext: blockedContext)
+        try await eventRepo.cancelEvent(eventId: event.id, cancelledById: userId, blockedContext: blockedContext)
     }
     
     private func applyCancellationPenalty(blockedContext: BlockedContext, userId: String) async throws {
@@ -67,8 +67,9 @@ import FirebaseFirestore
 @Observable
 final class EventUIState {
     var showEventDetails: UserEvent? = nil
-    var showMessageScreen: ProfileModel? = nil
-    var showCantMakeIt: ProfileModel? = nil
-    var selectedProfile: ProfileModel? = nil
+    var showMessageScreen: UserProfile? = nil
+    var showCantMakeIt: UserProfile? = nil
+    var selectedProfile: UserProfile? = nil
+    var dismissOffset: CGFloat? = nil
 }
 

@@ -11,38 +11,46 @@ import Contacts
 
 
 
-struct EventSlot: View {
+struct EventSlotContainer: View {
+    
+    @State var eventProfile: EventProfile
+    @Bindable var ui: EventUIState
+
     
     let vm: EventViewModel
-    @Bindable var ui: EventUIState
-    @State var profileModel: ProfileModel
-    @State var imageSize: CGFloat = 0
-    @Binding var dismissOffset: CGFloat?
-    let isFrozenEvent: Bool
-    @Binding var showfrozenInfo: Bool
-    let locationManager = CLLocationManager()
     
+    @Binding var showfrozenInfo: Bool
+
+    @State var imageSize: CGFloat = 0
+    let isFrozenEvent: Bool
+    let locationManager = CLLocationManager()
+        
     var body: some View {
-        if let event = profileModel.event, let time = event.acceptedTime ?? event.proposedTimes.dates.first?.date {
-            
-            ZStack {
-                
+
+        ZStack {
                 ScrollView {
                     VStack(spacing: 36) {
                         titleView
-                        
-                        imageView
-                        
+                        EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize,)
                         VStack(spacing: 24) {
-                            timeAndPlace(event: event, time: time)
-                            LargeClockView(targetTime: time) {}
-                                .onTapGesture {
-                                    ui.showEventDetails = event
-                                }
+                            
+                            EventTimeAndPlace(event: eventProfile.event) {}
+                            
+                            
+                            
+                            
+                            if let time = eventProfile.event.proposedTimes.dates.first?.date {
+                                timeAndPlace(event: eventProfile.event, time: time)
+                                LargeClockView(targetTime: time) {}
+                                    .onTapGesture {
+                                        ui.showEventDetails = eventProfile.event
+                                    }
+                            }
                         }
-                        mapView(event: event)
                         
-                        eventInfo(event: event)
+                        mapView(event: eventProfile.event)
+                        
+                        eventInfo(event:  eventProfile.event)
                     }
                     .padding(.top, 60)
                     .onAppear {
@@ -67,7 +75,7 @@ struct EventSlot: View {
 }
 
 
-extension EventSlot {
+extension EventSlotContainer {
     
     
     private var titleView: some View {
@@ -89,34 +97,10 @@ extension EventSlot {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
     }
-    
-    @ViewBuilder
-    private var imageView: some View {
-        if let image = profileModel.image {
-            Image(uiImage: image)
-                .resizable()
-                .defaultImage(imageSize)
-                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if ui.selectedProfile == nil {
-                        dismissOffset = nil
-                        ui.selectedProfile = profileModel
-                    }
-                }
-                .overlay(alignment: .bottomLeading) {
-                    Text(profileModel.profile.name)
-                        .font(.body(24, .bold))
-                        .padding(.vertical)
-                        .padding(.horizontal)
-                        .foregroundStyle(.white)
-                }
-        }
-    }
-    
+        
     private var messageButton: some View {
         Button {
-            ui.showMessageScreen = profileModel
+            ui.showMessageScreen = eventProfile.profile
         } label: {
             Image("roundMessageIcon")
                 .resizable()
@@ -136,7 +120,6 @@ extension EventSlot {
         let coord = CLLocationCoordinate2D(latitude: event.location.latitude, longitude: event.location .longitude)
         
         ZStack(alignment: .bottomTrailing) {
-            
             
             Map(initialPosition: .camera(.init(centerCoordinate: coord, distance: 800))) {
                 Marker(event.location.name ?? "",systemImage: "mappin", coordinate: coord)
@@ -190,7 +173,8 @@ extension EventSlot {
     }
 }
 
-extension EventSlot {
+extension EventSlotContainer {
+    
     private func eventInfoTitle (event: UserEvent) -> some View {
         let otherPerson = event.otherUserName
         
@@ -222,6 +206,7 @@ extension EventSlot {
                 .multilineTextAlignment(.leading)
         }
     }
+    
     private func removingTrailingCountry(from address: String) -> String {
         guard let i = address.lastIndex(of: ",") else { return address }
         return String(address[..<i]).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -309,6 +294,7 @@ extension EventSlot {
             .padding(.vertical, 10)
         }
     }
+    
     @discardableResult
     private func openEventInPreferredMaps(_ event: UserEvent) -> Bool {
         MapsRouter.openMaps(defaults: vm.defaults, item: event.location.mapItem, withDirections: true)

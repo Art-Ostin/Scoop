@@ -13,20 +13,11 @@ struct InvitesContainer: View {
     @State var vm: InvitesViewModel
     
     var body: some View {
-        
-        if vm.
-        
-        
-        CustomTabPage(page: .Invites,TabAction: $ui.showInfo) {
-            
-            
-            
-            
-            
+        if vm.invites.isEmpty {
+            InvitesPlaceholder()
+        } else {
+            InvitesView()
         }
     }
 }
 
-#Preview {
-    InvitesContainer()
-}

@@ -100,15 +100,15 @@ extension ProfileView {
     
     @ViewBuilder
     private var invitePopup: some View {
-        if ui.showInvite != nil, let event = vm.event {
-            AcceptInviteView(showInvite: $ui.showInvite, profileModel: vm.profile, event: event) { event in
+        if ui.showInvite, let event = vm.event {
+            AcceptInviteView(showInvite: $ui.showInvite, profile: vm.profile, event: event, image: profileImages.first) { event in
                 acceptInvite?(event)
-            } onDecline: {
-                self.declineProfile
+            } onDecline: { event in
+                declineProfile?(event)
             }
         } else {
-            SelectTimeAndPlace(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, show: ui.showInvite) { eventDraft in
-                sendInvite(eventDraft)
+            SelectTimeAndPlace(d: vm.defaults, s: vm.s, p: vm.profile, showInvite: $ui.showInvite) { draft in
+                sendInvite?(draft)
             }
         }
     }

@@ -15,7 +15,6 @@ struct EventView: View {
     
     @State private var ui = EventUIState()
     @State private var selection: String?
-    @State private var dismissOffset: CGFloat?
     @State private var profileImages: [String: [UIImage]] = [:]
 
     var body: some View {
@@ -39,18 +38,18 @@ struct EventView: View {
 
 extension EventView {
     
-    private func eventSlot(_ profile: ProfileModel) -> some View {
-        EventSlot(vm: vm, ui: ui, profileModel: profile, dismissOffset: $dismissOffset, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo)
+    private func eventSlot(_ profile: EventProfile) -> some View {
+        EventSlot(vm: vm, ui: ui, imageSize: profile, dismissOffset: $dismissOffset, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo, eventProfile: <#EventProfile#>)
             .task { await loadProfileImages(profile) }
     }
     
-    private func chatView(profile: ProfileModel) -> some View {
+    private func chatView(profile: EventProfile) -> some View {
         NavigationStack {
             ChatContainer(vm: ChatViewModel(session: vm.sessionManager, chatRepo: vm.chatRepo, profileModel: profile), eventVM: vm, profileModel: profile)
         }
     }
     
-    private func profileView(profile: ProfileModel) -> some View {
+    private func profileView(profile: EventProfile) -> some View {
         ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.sessionManager, profileModel: profile, imageLoader: vm.imageLoader), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
             .id(profile.id)
             .zIndex(1)
@@ -63,8 +62,8 @@ extension EventView {
         }
     }
     
-    private func loadProfileImages(_ profile: ProfileModel) async {
-        let loadedImages = await vm.loadImages(profileModel: profile)
+    private func loadProfileImages(_ profile: EventProfile) async {
+        let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
     }
 }
