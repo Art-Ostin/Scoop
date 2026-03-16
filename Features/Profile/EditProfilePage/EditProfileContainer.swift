@@ -12,7 +12,7 @@ struct EditProfileContainer: View {
     @State var isEdit: Bool = true
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
-    @State var selectedProfile: ProfileModel?
+    @State var selectedProfile: UserProfile?
     @State var dismissOffset: CGFloat? = nil
     @State var navigationPath: [EditProfileRoute] = []
     @State var selectedImage: ImageSlot? = nil
@@ -46,8 +46,6 @@ struct EditProfileContainer: View {
             }
         }
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
-        
-        
     }
 }
 

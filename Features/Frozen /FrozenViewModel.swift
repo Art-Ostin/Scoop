@@ -29,5 +29,5 @@ class FrozenViewModel {
         self.imageLoader = imageLoader
     }
     var user: UserProfile {sessionManager.user}
-    var events: [ProfileModel] { sessionManager.events}
+    var events: [EventProfile] { sessionManager.events}
 }

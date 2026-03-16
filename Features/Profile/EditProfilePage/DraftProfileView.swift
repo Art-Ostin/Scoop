@@ -18,7 +18,7 @@ struct DraftProfileView: View {
         VStack {
             
             HStack(spacing: 4) {
-                let p = vm.profileModel.profile
+                let p = vm..profile
                 Text(p.name)
             }
 //            ProfileImageView(vm: vm, showInvite: $showInvite, detailsOffset: 32, firstImage: vm.profileModel.image!)

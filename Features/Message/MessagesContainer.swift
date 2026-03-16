@@ -120,10 +120,20 @@ extension MessagesContainer {
 extension MessagesContainer {
     private func editProfileScreen() -> some View {
         EditProfileContainer(
-            vm: EditProfileViewModel(s: vm.s, storageService: vm.storageService, userRepo: vm.userRepo, imageLoader: vm.imageLoader, importedImages: userProfileImages),
-            profileVM: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.s, profileModel: ProfileModel(profile: vm.user), imageLoader: vm.imageLoader),
+            vm: EditProfileViewModel(
+                s: vm.s, storageService: vm.storageService,
+                userRepo: vm.userRepo,
+                imageLoader: vm.imageLoader,
+                importedImages: userProfileImages
+            ),
+            profileVM: ProfileViewModel(
+                defaults: vm.defaults,
+                s: vm.s, profile: vm.user,
+                imageLoader: vm.imageLoader
+            ),
             selectedProfile: nil)
     }
+    
     
     private func settingScreen() -> some View {
         SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.s))

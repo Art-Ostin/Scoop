@@ -69,7 +69,7 @@ struct InfoItem: View {
 
 struct ProfileTitle: View {
     let p: UserProfile
-    @Binding var selectedProfile: ProfileModel?
+    @Binding var selectedProfile: EventProfile?
     let onDismiss: (() -> Void)?
     
     var body: some View {
