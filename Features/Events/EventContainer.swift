@@ -22,10 +22,8 @@ struct EventContainer: View {
     var body: some View {
         if !vm.events.isEmpty {
             EventView(vm: vm, isFrozenEvent: isFrozenEvent, showFrozenInfo: $showFrozenInfo)
-
         } else {
             EventPlaceholder(vm: vm)
-                .onAppear { print(vm.events)}
         }
     }
 }

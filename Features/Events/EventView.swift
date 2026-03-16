@@ -39,7 +39,7 @@ struct EventView: View {
 extension EventView {
     
     private func eventSlot(_ profile: EventProfile) -> some View {
-        EventSlot(vm: vm, ui: ui, imageSize: profile, dismissOffset: $dismissOffset, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo, eventProfile: <#EventProfile#>)
+        EventSlotContainer(vm: vm, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo, eventProfile: profile, ui: ui)
             .task { await loadProfileImages(profile) }
     }
     
@@ -49,11 +49,16 @@ extension EventView {
         }
     }
     
-    private func profileView(profile: EventProfile) -> some View {
-        ProfileView(vm: ProfileViewModel(defaults: vm.defaults, sessionManager: vm.sessionManager, profileModel: profile, imageLoader: vm.imageLoader), profileImages: profileImages[profile.id] ?? [], selectedProfile: $ui.selectedProfile, dismissOffset: $dismissOffset)
-            .id(profile.id)
-            .zIndex(1)
-            .transition(.move(edge: .bottom))
+    private func profileView(profile: UserProfile) -> some View {
+        ProfileView(
+            vm:ProfileViewModel(defaults: vm.defaults, s: vm.sessionManager, profile: profile, imageLoader: vm.imageLoader),
+            profileImages: profileImages[profile.id] ?? [],
+            selectedProfile: $ui.selectedProfile,
+            dismissOffset: $ui.dismissOffset
+        )
+        .id(profile.id)
+        .zIndex(1)
+        .transition(.move(edge: .bottom))
     }
     
     private func eventDetailsView(event: UserEvent) -> some View {

@@ -54,9 +54,6 @@ struct EventPlaceholder: View {
     }
 }
 
-
-
-
 struct ImageSection: View {
     
     let textTitle: String

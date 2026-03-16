@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EventTimeAndPlace: View {
+struct EventHeaderDetails: View {
     
     @Bindable var ui: EventUIState
     
