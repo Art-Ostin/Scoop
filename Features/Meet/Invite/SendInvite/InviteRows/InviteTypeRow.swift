@@ -26,6 +26,7 @@ struct InviteTypeRow: View {
     }
 }
 
+//With Message Views
 extension InviteTypeRow {
     
     private var inviteTypeRow: some View {
@@ -38,7 +39,7 @@ extension InviteTypeRow {
             Spacer()
             DropDownButton(isExpanded: $ui.showTypePopup)
         }
-        .frame(height: 50)
+        .frame(height: ui.rowHeight)
     }
     
     private var typeWithMessage: some View {
@@ -68,7 +69,10 @@ extension InviteTypeRow {
             .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
 
     }
-    
+}
+
+//With No Message Views
+extension InviteTypeRow {
     @ViewBuilder private var typeWithNoMessage: some View {
         let type = event.type.description.label
         let emoji = event.type.description.emoji ?? ""
@@ -96,6 +100,4 @@ extension InviteTypeRow {
             ui.isMessageTap = false
         }
     }
-    
 }
-

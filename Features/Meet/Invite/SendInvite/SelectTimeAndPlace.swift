@@ -13,11 +13,6 @@ struct SelectTimeAndPlace: View {
     let firstImage: UIImage
     let onSubmit: (EventDraft) -> ()
     
-    var showProposeTwoDays: Bool {
-        (vm.event.type == .drink || vm.event.type == .doubleDate) &&
-        !ui.showTypePopup &&
-        ((ui.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
-    }
 
     init(d: DefaultsManaging, s: SessionManager, p: UserProfile, showInvite: Binding<Bool>, onSubmit: @escaping (EventDraft) -> ()) {
         _vm = .init(initialValue: .init(defaults: d, sessionManager: s, profile: p))
@@ -30,7 +25,7 @@ struct SelectTimeAndPlace: View {
             CustomScreenCover {showInvite = false}
             sendInviteScreen
                 .overlay(alignment: .topTrailing) {
-                    TabInfoButton(showScreen: $showInfoScreen)
+                    TabInfoButton(showScreen: $ui.showInfoScreen)
                         .scaleEffect(0.9)
                         .offset(x: -12, y: -48)
                 }
@@ -38,15 +33,15 @@ struct SelectTimeAndPlace: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .toolbar(.hidden, for: .tabBar)
         .tabBarHidden(true) // This is custom Tool bar hidden
-        .sheet(isPresented: $vm.showMessageScreen) {AddMessageView(vm: vm)}
-        .fullScreenCover(isPresented: $vm.showMapView) {
+        .sheet(isPresented: $ui.showMessageScreen) {AddMessageView(vm: vm)}
+        .fullScreenCover(isPresented: $ui.showMapView) {
             MapView(defaults: vm.defaults, eventVM: vm)
         }
-        .customAlert(isPresented: $vm.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-            inviteSent()
+        .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            onSubmit(vm.event)
         }
         .tint(.blue)
-        .sheet(isPresented: $showInfoScreen) {
+        .sheet(isPresented: $ui.showInfoScreen) {
             Text("Info screen here")
         }
         
@@ -63,54 +58,29 @@ extension SelectTimeAndPlace {
     @ViewBuilder
     private var sendInviteScreen: some View {
         
-        VStack {
+        VStack(spacing: 16) {
             popupTitle
-            
-
             VStack(spacing: 10) {
-                
                 InviteTypeRow(vm: vm, ui: ui)
-                
                 Divider()
-                
-                
-                
-                DropDownView(showOptions: $vm.showTimePopup) {
-                    InviteTimeRow(vm: vm)
-                        .frame(height: 50)
-                } dropDown: {
-                    SelectTimeView(vm: vm, showTimePopup: $vm.showTimePopup)
-                        .zIndex(2)
-                }
+                InviteTimeRow(vm: vm, ui: ui)
                 Divider()
-                InvitePlaceRow
-                    .frame(height: 50)
+                InvitePlaceRow(vm: vm, ui: ui)
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
-            
             sendInviteButton
-        
         }
         .frame(alignment: .top)
         .padding(.top, 24)
         .padding([.leading, .trailing, .bottom], 32)
-
-        
-        
-        
-        
-        .frame(width: 365)
+        .frame(maxWidth: .infinity).padding(.horizontal, 48)
         .background (cardBackground)
-        .onChange(of: ui.showTypePopup) {
-            if ui.showTypePopup == true {
-                ui.showTimePopup = false
-            }
+        .onChange(of: ui.showTypePopup) {_, newValue in
+            if newValue { ui.showTimePopup = false}
         }
-        .onChange(of: vm.showTimePopup) {
-            if vm.showTimePopup == true {
-                vm.showTypePopup = false
-            }
+        .onChange(of: ui.showTimePopup) { _, newValue in
+            if newValue { ui.showTypePopup = false}
         }
         .overlay(alignment: .topLeading) { clearButton}
     }
@@ -142,18 +112,17 @@ extension SelectTimeAndPlace {
         }
     }
     
+    
     private var proposeTwoDaysText: some View {
         Group {
-            if showProposeTwoDays {
+            if showTwoDays() {
                 Text("Propose at least two days")
-            }
-            else if vm.showTimePopup && vm.event.proposedTimes.dates.count > 1 {
-                (
+            } else if vm.showTimePopup && vm.event.proposedTimes.dates.count > 1 {
+                HStack(spacing: 0) {
                     Text("They only accept ")
-                    +
                     Text("one day")
                         .font(.body(12, .bold))
-                )
+                }
             }
         }
         .font(.body(12, .regular))
@@ -163,7 +132,6 @@ extension SelectTimeAndPlace {
         .padding(.top, 64)
         .zIndex(0)
     }
-    
     private var popupTitle: some View {
         HStack(spacing: 16) {
             CirclePhoto(image: firstImage)
@@ -173,12 +141,14 @@ extension SelectTimeAndPlace {
     }
     
     private var sendInviteButton: some View {
-        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showProposeTwoDays, text: "Confirm & Send") {
+        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays(), text: "Confirm & Send") {
             ui.showAlert.toggle()
         }
     }
     
-    private func inviteSent() {
-        Task { await onSubmit(vm.event)}
+    private func showTwoDays() -> Bool {
+        (vm.event.type == .drink || vm.event.type == .doubleDate) &&
+        !ui.showTypePopup &&
+        ((ui.showTimePopup && vm.event.proposedTimes.dates.count < 2) || vm.event.proposedTimes.dates.count == 1)
     }
 }

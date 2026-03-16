@@ -10,39 +10,51 @@ import SwiftUI
 struct InvitePlaceRow: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
-    
+    @Bindable var ui: TimeAndPlaceUIState
     
     var body: some View {
         HStack {
             if let location = vm.event.location {
-                VStack(alignment: .leading) {
-                    Text(location.name ?? "")
-                        .font(.body(18, .bold))
-                    Text(addressWithoutCountry(location.address))
-                        .font(.footnote)
-                        .foregroundStyle(.gray)
-                }
+                addressText(location: location)
             } else {
-                Text("Place")
-                    .font(.body(20, .bold))
+                noLocationPlaceholder
             }
             Spacer()
-            Button {
-                withAnimation(.snappy) { vm.showMapView.toggle() }
-            } label:  {
-                Image("InvitePlace")
-            }
+            openMapButton
+        }
+        .frame(height: ui.rowHeight)
+    }
+}
+
+extension InvitePlaceRow {
+    
+    private var noLocationPlaceholder: some View {
+        Text("Place")
+            .font(.body(20, .bold))
+    }
+    
+    private var openMapButton: some View {
+        Button {
+            withAnimation(.snappy) { ui.showMapView.toggle() }
+        } label:  {
+            Image("InvitePlace")
         }
     }
     
-    func addressWithoutCountry(_ address: String?) -> String {
+    private func addressText(location: EventLocation) -> some View {
+        VStack(alignment: .leading) {
+            Text(location.name ?? "")
+                .font(.body(18, .bold))
+            Text(addressWithoutCountry(location.address))
+                .font(.footnote)
+                .foregroundStyle(.gray)
+        }
+    }
+    
+    private func addressWithoutCountry(_ address: String?) -> String {
         let parts = (address ?? "")
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         return parts.dropLast().joined(separator: ", ")
-    }    
-}
-
-#Preview {
-    InvitePlaceRow()
+    }
 }
