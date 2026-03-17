@@ -23,7 +23,7 @@ struct MessagesContainer: View {
     }
     
     var body: some View {
-        CustomTabPage(page: .Matches, TabAction: $showSettingsView) {
+        CustomTabPage(page: .pastMatches, tabAction: $showSettingsView) {
             messagesAppearHereView
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
@@ -43,7 +43,7 @@ extension MessagesContainer {
             ForEach(0..<10) {idx in
                 
                 if let img = userProfileImages.first, img.size != .zero {
-//                    ChatRowView(image: UIImage, event: <#T##UserEvent#>)
+//                    ChatRowView(image: UIImage, event: UserEvent)
 
                     MapDivider()
                         .padding(.horizontal, -16)                    
@@ -68,15 +68,7 @@ extension MessagesContainer {
         .padding(.top, 72)
     }    
     
-    private var tabSection: some View {
-        HStack(alignment: .top) {
-            TabButton(page: .Matches, isPresented: $showSettingsView)
-            Spacer()
-        }
-        .padding(.top, 48)
-        .frame(maxWidth: .infinity)
-    }
-    
+
     private var noMatchesView: some View {
         VStack(spacing: 32) {
             Image("DancingCats")
@@ -107,6 +99,7 @@ extension MessagesContainer {
             }
         }
     }
+    
     private var actionBar: some View {
         HStack {
             SettingsButton(showSettingsView: $showSettingsView)

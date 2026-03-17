@@ -14,12 +14,12 @@ struct EventView: View {
     @Binding var showFrozenInfo: Bool
     
     @State private var ui = EventUIState()
-    @State private var selection: String?
+    @State private var selectedProfile: EventProfile?
     @State private var profileImages: [String: [UIImage]] = [:]
 
     var body: some View {
         ZStack {
-            TabView(selection: $selection) {
+            TabView(selection: $selectedProfile) {
                 ForEach(vm.events) {profile in
                     eventSlot(profile)
                 }
@@ -31,7 +31,9 @@ struct EventView: View {
             }
         }
         .colorBackground()
-        .fullScreenCover(item: $ui.showMessageScreen) {chatView(profile: $0)}
+        .fullScreenCover(isPresented: $ui.showMessageScreen) {
+            if let profile = selectedProfile {chatView(profile: profile) }
+        }
         .sheet(item: $ui.showEventDetails) {eventDetailsView(event: $0) }
     }
 }

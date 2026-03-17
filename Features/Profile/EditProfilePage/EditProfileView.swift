@@ -32,7 +32,7 @@ struct EditProfileView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            CustomTabPage(page: .EditProfile, TabAction: $callDismiss) {
+            CustomTabPage(page: .editProfile, tabAction: $callDismiss) {
                     ImagesView(vm: vm, selectedImage: $selectedImage)
                     PromptsView(vm: vm)
                     InfoView(vm: vm)

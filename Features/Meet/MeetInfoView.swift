@@ -17,7 +17,6 @@ struct MeetInfoView: View {
     var body: some View {
         VStack(spacing: 60) {
             newProfileTimer
-            DefaultAppButton(image: Image("PastInvites"), size: 25, isPresented: $ui.showPendingInvites)
         }
     }
 }

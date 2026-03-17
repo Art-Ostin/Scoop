@@ -755,6 +755,7 @@
 				659109232E19AEC00065696F /* NextButton.swift */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
+				656B31D02F2501A3008641C1 /* SettingsButton.swift */,
 				657F303A2F68B61C0057D42C /* DismissToolbarItem.swift */,
 			);
 			path = Buttons;
@@ -989,7 +990,6 @@
 		6576831A2F590ED20094A02D /* Delete */ = {
 			isa = PBXGroup;
 			children = (
-				656B31D02F2501A3008641C1 /* SettingsButton.swift */,
 				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
 				65140B212F55EEE500ED1DDE /* ChatRowCellView.swift */,
 				65E963D32F3F6DA80022595F /* AcceptInviteTest.swift */,

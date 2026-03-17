@@ -20,18 +20,13 @@ struct TabButton: View {
         case .meetingEvent:
             messageButton
             
-        case .pastMatches:
-            settingsButton
-            
-        case .editProfile:
-            
-            
+        default:
+            EmptyView()
         }
     }
 }
 
 extension TabButton {
-    
     
     private var messageButton: some View {
         Button {
@@ -50,27 +45,6 @@ extension TabButton {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 6)
         }
-    }
-    
-    private var settingsButton: some View {
-        Button {
-            isPresented = true
-        } label: {
-            Image(systemName: "gear")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20, height: 20)
-                .frame(width: 35, height: 35)
-                .glassIfAvailable(Circle())
-                .contentShape(Circle())
-                .foregroundStyle(Color.black)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    
-    
-    private var editProfileButton: some View {
-        
     }
 }
 

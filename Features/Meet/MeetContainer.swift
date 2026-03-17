@@ -47,7 +47,7 @@ struct MeetContainer: View {
 extension MeetContainer {
     
     private var meetView: some View {
-        CustomTabPage(page: .Meet,TabAction: $ui.showInfo) {
+        CustomTabPage(page: .meet ,tabAction: $ui.showInfo) {
             if vm.profiles.isEmpty {
                 meetPlaceholder
             } else {

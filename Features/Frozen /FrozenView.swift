@@ -99,10 +99,9 @@ extension FrozenView {
     
     private var actionBar: some View {
         HStack {
-//            Spacer()
             SettingsButton(showSettingsView: $showSettings)
             Spacer()
-             TabInfoButton(showScreen: $showInfo)
+            TabInfoButton(showScreen: $showInfo)
         }
         .padding(.horizontal)
     }

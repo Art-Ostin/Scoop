@@ -16,7 +16,7 @@ struct EventPlaceholder: View {
         
     var body: some View {
         
-        CustomTabPage(page: .Meeting, TabAction: $showInfo) {
+        CustomTabPage(page: .meetingNoEvent, tabAction: $showInfo) {
             VStack(spacing: 84) {
                 Text("Upcoming Events appear here")
                     .font(.title(16, .medium))

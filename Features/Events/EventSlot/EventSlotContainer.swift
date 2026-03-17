@@ -22,7 +22,7 @@ struct EventSlotContainer: View {
     @State private var imageSize: CGFloat = 0
 
     var body: some View {
-        CustomTabPage(page: .Meeting, TabAction: .constant(false)) {
+        CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
             EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
             EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps()}
             EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps()}

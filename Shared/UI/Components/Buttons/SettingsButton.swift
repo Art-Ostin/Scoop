@@ -5,7 +5,6 @@
 //  Created by Art Ostin on 24/01/2026.
 //
 
-/*
  import SwiftUI
 
  struct SettingsButton: View {
@@ -25,4 +24,3 @@
          }
      }
  }
- */
