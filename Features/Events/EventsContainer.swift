@@ -55,6 +55,7 @@ extension EventsContainer {
         TabView(selection: $tabProfile) {
             ForEach(vm.events) { eventProfile in
                 eventSlot(eventProfile: eventProfile)
+                    .tag(eventProfile)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .automatic))
@@ -75,11 +76,9 @@ extension EventsContainer {
         .customScrollFade(height: 100, showFade: true)
         .task { await loadProfileImages(eventProfile.profile)}
     }
-    
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
-    
 }
 
 //The different Views
