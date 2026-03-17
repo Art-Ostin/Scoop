@@ -881,7 +881,6 @@
 		653FB5722F6880DD00440E41 /* EventSlot */ = {
 			isa = PBXGroup;
 			children = (
-				650135892E4C06DF00630CF3 /* EventSlotContainer.swift */,
 				653FB5732F6882FC00440E41 /* EventImageView.swift */,
 				653FB5752F68854D00440E41 /* EventTimeAndPlace.swift */,
 				653FB5772F68886700440E41 /* EventMapView.swift */,
@@ -987,6 +986,7 @@
 			children = (
 				650884112EAD475E00776620 /* PendingInvitesCard.swift */,
 				651263972EAFBCF0005E6930 /* TabButton.swift */,
+				650135892E4C06DF00630CF3 /* EventSlotContainer.swift */,
 				65140B212F55EEE500ED1DDE /* ChatRowCellView.swift */,
 				65E963D32F3F6DA80022595F /* AcceptInviteTest.swift */,
 				65FAF9852E413B100015E231 /* EventContainer.swift */,
