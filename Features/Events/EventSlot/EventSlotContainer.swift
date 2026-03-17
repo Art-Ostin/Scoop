@@ -12,14 +12,17 @@ import Contacts
 
 struct EventSlotContainer: View {
     
+    @Environment(\.appState) private var state
+        
     let vm: EventViewModel
-    let isFrozenEvent: Bool
-    
-    @Binding var showfrozenInfo: Bool
-    
+        
     @State var eventProfile: EventProfile
     @Bindable var ui: EventUIState
     @State private var imageSize: CGFloat = 0
+    
+    private var isFrozenEvent: Bool {
+        state.wrappedValue == .frozen
+    }
 
     var body: some View {
         CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {

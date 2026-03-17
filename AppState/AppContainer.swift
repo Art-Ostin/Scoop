@@ -58,7 +58,7 @@ extension AppContainer {
     }
     
     private var eventsView: some View {
-        EventContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))
+        EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))
     }
     
     private var matchesView: some View {

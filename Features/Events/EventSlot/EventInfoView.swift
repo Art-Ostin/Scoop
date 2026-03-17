@@ -16,7 +16,7 @@ struct EventInfoView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 10) {
                 eventInfoTitle
                 eventInfoTime
                 eventInfoAddress

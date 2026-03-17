@@ -7,15 +7,11 @@
 
 import SwiftUI
 
-struct EventPlaceholder: View {
+struct EventsPlaceholder: View {
     
-    @Bindable var vm: EventViewModel
-    @State private var scrollViewOffset: CGFloat = 0
     @State var showInfo: Bool = false
-    let title = "Meeting"
         
     var body: some View {
-        
         CustomTabPage(page: .meetingNoEvent, tabAction: $showInfo) {
             VStack(spacing: 84) {
                 Text("Upcoming Events appear here")

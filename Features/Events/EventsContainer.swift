@@ -6,42 +6,49 @@
 
 import SwiftUI
 
-struct EventView: View {
+struct EventsContainer: View {
     
-    let vm: EventViewModel
-    let isFrozenEvent: Bool
-    
-    @Binding var showFrozenInfo: Bool
-    
+    @State var vm: EventViewModel
     @State private var ui = EventUIState()
+        
     @State private var selectedProfile: EventProfile?
     @State private var profileImages: [String: [UIImage]] = [:]
+    
 
     var body: some View {
-        ZStack {
-            TabView(selection: $selectedProfile) {
-                ForEach(vm.events) {profile in
-                    eventSlot(profile)
+        
+        if vm.events.isEmpty  {
+            EventsPlaceholder()
+        } else {
+            ZStack {
+                profilesTabView
+                
+                if let profile = ui.selectedProfile {
+                    profileView(profile: profile)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .automatic))
-            
-            if let profile = ui.selectedProfile {
-                profileView(profile: profile)
+            .colorBackground()
+            .fullScreenCover(isPresented: $ui.showMessageScreen) {
+                if let profile = selectedProfile {chatView(profile: profile) }
             }
+            .sheet(item: $ui.showEventDetails) {eventDetailsView(event: $0) }
         }
-        .colorBackground()
-        .fullScreenCover(isPresented: $ui.showMessageScreen) {
-            if let profile = selectedProfile {chatView(profile: profile) }
-        }
-        .sheet(item: $ui.showEventDetails) {eventDetailsView(event: $0) }
     }
 }
 
-extension EventView {
+extension EventsContainer {
+    
+    private var profilesTabView: some View {
+        TabView(selection: $selectedProfile) {
+            ForEach(vm.events) {profile in
+                eventSlot(profile)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .automatic))
+    }
     
     private func eventSlot(_ profile: EventProfile) -> some View {
-        EventSlotContainer(vm: vm, isFrozenEvent: isFrozenEvent, showfrozenInfo: $showFrozenInfo, eventProfile: profile, ui: ui)
+        EventSlotContainer(vm: vm, eventProfile: profile, ui: ui)
             .task { await loadProfileImages(profile) }
     }
     
