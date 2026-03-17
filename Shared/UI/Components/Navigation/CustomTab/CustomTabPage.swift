@@ -35,7 +35,9 @@ struct CustomTabPage<Content: View>: View {
         .onPreferenceChange(TitleOffsetsKey.self) { value in
             scrollViewOffset = value[page] ?? 0
         }
-        .colorBackground()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 16) //On the Screens 
+        .background(Color.background)
     }
 }
 
@@ -43,9 +45,9 @@ extension CustomTabPage {
     
     private var headerBar: some View {
         ZStack(alignment: .top) {
-            TabButton(page: page, isPresented: $tabAction)
+            tabButton
                 .padding(.top, 12)
-            TabTitle(page: page, offset: $scrollViewOffset)
+            tabTitle
                 .padding(.top, 60)
         }
     }
@@ -56,5 +58,55 @@ extension CustomTabPage {
                 .opacity(withAnimation(.easeInOut(duration: 0.2)) { scrollViewOffset < 0 ? 1 : 0 })
                 .ignoresSafeArea(edges: .all)
         }
+    }
+    private var tabTitle: some View {
+        Text(page.title)
+            .font(.custom("SFProRounded-Bold", size: 32))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .opacity(Double(scrollViewOffset) / 70)
+            .measure(key: TitleOffsetsKey.self) { geo in
+                [page: geo.frame(in: .named(page)).maxY]}
+    }
+    
+    @ViewBuilder
+    private var tabButton: some View {
+        Group {
+            switch page {
+            case .meet, .meetingNoEvent, .invites:
+                TabInfoButton(showScreen: $tabAction)
+                
+            case .meetingEvent:
+                messageButton
+                
+            default:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+    }
+    
+    private var messageButton: some View {
+        Button {
+            tabAction = true
+        } label: {
+            Image("roundMessageIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 22, height: 22)
+                .font(.body(17, .bold))
+                .padding(6)
+                .glassIfAvailable(isClear: true)
+                .padding(24) //Expands Tap Area
+                .contentShape(Rectangle())
+                .padding(-24)
+        }
+    }
+}
+
+
+struct TitleOffsetsKey: PreferenceKey {
+    static var defaultValue: [Page: CGFloat] = [:]
+    static func reduce(value: inout [Page: CGFloat], nextValue: () -> [Page: CGFloat]) {
+        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
     }
 }

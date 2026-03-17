@@ -21,6 +21,7 @@ struct MeetContainer: View {
     
     var body: some View {
         ZStack {
+            
             meetView
             
             if let profileRec = ui.openProfile {

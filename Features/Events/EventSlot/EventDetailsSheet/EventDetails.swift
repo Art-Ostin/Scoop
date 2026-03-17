@@ -28,13 +28,13 @@ struct EventDetails: View {
             cantMakeItButton
                 .padding(.top, 24)
         }
-        .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 60)
     }
 }
 
 extension EventDetails {
+    
     private var detailsTitle: some View {
         HStack(alignment: .bottom) {
             Text("How It Works")

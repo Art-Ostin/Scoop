@@ -24,7 +24,6 @@ struct EventInfoView: View {
             confirmedText
             showEventDetailsButton
         }
-        .padding(.horizontal, 24)
     }
 }
 

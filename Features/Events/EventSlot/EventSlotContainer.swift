@@ -31,7 +31,7 @@ struct EventSlotContainer: View {
         }
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 48 //Adds 24 padding on each side
+            imageSize = screenWidth - 32 //Adds 24 padding on each side
         }
         .scrollIndicators(.hidden)
         .customScrollFade(height: 100, showFade: true)
@@ -39,7 +39,6 @@ struct EventSlotContainer: View {
 }
 
 extension EventSlotContainer {
-            
     
     @discardableResult
     private func openMaps() -> Bool {
