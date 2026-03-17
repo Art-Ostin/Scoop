@@ -20,4 +20,3 @@ struct InvitesContainer: View {
         }
     }
 }
-

@@ -21,11 +21,18 @@ struct AppContainer: View {
                             Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")
                         }
                     
+                    invitesView
+                        .tag(TabBarItem.invites)
+                        .tabItem {
+                            Label("", image: tabSelection == .meet ? "TabLetterBlack" : "TabLetterGray")
+                        }
+                    
                     eventsView
                         .tag(TabBarItem.events)
                         .tabItem {
                             Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                         }
+                    
                     matchesView
                         .tag(TabBarItem.matches)
                         .tabItem {
@@ -36,6 +43,7 @@ struct AppContainer: View {
             } else {
                 CustomTabBarContainerView(selection: $tabSelection) {
                     meetView .tabBarItem(.meet, selection: $tabSelection)
+                    invitesView .tabBarItem(.invites, selection: $tabSelection)
                     eventsView.tabBarItem(.events, selection: $tabSelection)
                     matchesView.tabBarItem(.matches, selection: $tabSelection)
                 }
@@ -56,6 +64,11 @@ extension AppContainer {
             imageLoader: dep.imageLoader
         ))
     }
+    
+    private var invitesView: some View {
+        InvitesContainer(vm: InvitesViewModel(s: dep.sessionManager, d: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
+    }
+    
     
     private var eventsView: some View {
         EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))

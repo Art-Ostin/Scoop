@@ -16,12 +16,15 @@ import SwiftUI
 
 enum TabBarItem: Hashable {
     
-    case meet, events, matches
+    case meet, invites, events, matches
     
     var image: Image {
         switch self {
         case .meet:
             return Image("AppLogoApp")
+            
+        case .invites:
+            return Image("TabLetterGray")
             
         case .events:
             return Image("EventApp")
@@ -35,6 +38,9 @@ enum TabBarItem: Hashable {
         switch self {
         case .meet:
             return Image("AppLogoBlack")
+            
+        case .invites:
+            return Image("TabLetterBlack")
             
         case .events:
             return Image("EventIcon")

@@ -10,14 +10,16 @@ import SwiftUI
 @MainActor
 @Observable class InvitesViewModel {
     
-    let eventProfile: EventProfile
     let s: SessionManager
+    let d: DefaultsManaging
+    let imageLoader: ImageLoading
     let eventRepo: EventsRepository
-    
-    init(eventProfile: EventProfile, s: SessionManager, events: EventsRepository) {
-        self.eventProfile = eventProfile
+
+    init(s: SessionManager, d: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
         self.s = s
-        self.eventRepo = events
+        self.d = d
+        self.imageLoader = imageLoader
+        self.eventRepo = eventRepo
     }
     
     var invites: [EventProfile] {s.invites}
