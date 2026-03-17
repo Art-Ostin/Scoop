@@ -13,9 +13,9 @@ import Contacts
 struct EventSlotContainer: View {
     
     @Environment(\.appState) private var state
-        
+    
     let vm: EventViewModel
-        
+    
     @State var eventProfile: EventProfile
     @Bindable var ui: EventUIState
     @State private var imageSize: CGFloat = 0
@@ -23,21 +23,13 @@ struct EventSlotContainer: View {
     private var isFrozenEvent: Bool {
         state.wrappedValue == .frozen
     }
-
+    
     var body: some View {
-        CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
-            EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-            EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps()}
-            EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps()}
-            EventInfoView(ui: ui, event: eventProfile.event) {openMaps()}
-                .padding(.bottom, 144)
-        }
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 32 //Adds 24 padding on each side
-        }
-        .scrollIndicators(.hidden)
-        .customScrollFade(height: 100, showFade: true)
+        EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
+        EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps()}
+        EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps()}
+        EventInfoView(ui: ui, event: eventProfile.event) {openMaps()}
+            .padding(.bottom, 96)
     }
 }
 

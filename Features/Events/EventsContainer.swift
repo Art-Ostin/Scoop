@@ -14,6 +14,8 @@ struct EventsContainer: View {
     @State private var selectedProfile: EventProfile?
     @State private var profileImages: [String: [UIImage]] = [:]
     
+    @State private var imageSize: CGFloat = 0
+    
 
     var body: some View {
         
@@ -21,13 +23,23 @@ struct EventsContainer: View {
             EventsPlaceholder()
         } else {
             ZStack {
-                profilesTabView
+                CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
+                    
+                    profilesTabView
+                    
+                }
+                .measure(key: ImageSizeKey.self) { $0.size.width }
+                .onPreferenceChange(ImageSizeKey.self) { screenWidth in
+                    imageSize = screenWidth - 32 //Adds 24 padding on each side
+                }
+                .scrollIndicators(.hidden)
+                .customScrollFade(height: 100, showFade: true)
+                
                 
                 if let profile = ui.selectedProfile {
                     profileView(profile: profile)
                 }
             }
-            .colorBackground()
             .fullScreenCover(isPresented: $ui.showMessageScreen) {
                 if let profile = selectedProfile {chatView(profile: profile) }
             }
@@ -38,12 +50,18 @@ struct EventsContainer: View {
 
 extension EventsContainer {
     
+    
+    private var
+    
+    
+    
     private var profilesTabView: some View {
         TabView(selection: $selectedProfile) {
             ForEach(vm.events) {profile in
                 eventSlot(profile)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .tabViewStyle(.page(indexDisplayMode: .automatic))
     }
     
