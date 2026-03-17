@@ -172,7 +172,11 @@ extension SessionManager {
         } else if event.status == .pastAccepted, events.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
             pastEvents.append(profile)
         }
-    }        
+    }
+    
+    
+    
+    
     private func removeAndReturnProfile(id: String) -> EventProfile? {
         let localProfile =
         invites.first(where: { $0.event.id == id }) ??

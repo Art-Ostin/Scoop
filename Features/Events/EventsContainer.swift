@@ -22,7 +22,7 @@ struct EventsContainer: View {
             EventsPlaceholder()
         } else {
             ZStack {
-                eventsPagerSection
+                eventPages
                 
                 if let profile = ui.selectedProfile {
                     profileView(profile: profile)
@@ -53,22 +53,27 @@ extension EventsContainer {
     
     private var eventPages: some View {
         TabView(selection: $selectedProfile) {
-            ForEach(vm.events) { profile in
-                eventSlot(eventProfile: profile)
-                    .task { await loadProfileImages(profile) }
+            ForEach(vm.events) { eventProfile in
+                eventSlot(eventProfile: eventProfile)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .automatic))
+        .measure(key: ImageSizeKey.self) { $0.size.width }
+        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
+            imageSize = screenWidth - 32 //Adds 24 padding on each side
+        }
     }
     
     private func eventSlot(eventProfile: EventProfile) -> some View {
-        VStack {
+        CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
             EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
             EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
             EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
-                .padding(.bottom, 96)
         }
+        .customScrollFade(height: 100, showFade: true)
+        .task { await loadProfileImages(eventProfile) }
+        .tag(Optional(eventProfile))
     }
     
     private func openMaps(_ eventProfile: EventProfile) {
