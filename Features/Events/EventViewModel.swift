@@ -37,8 +37,8 @@ import FirebaseFirestore
         try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }
     
-    func loadImages(profile: EventProfile) async -> [UIImage] {
-        return await imageLoader.loadProfileImages(profile.profile)
+    func loadImages(profile: UserProfile) async -> [UIImage] {
+        return await imageLoader.loadProfileImages(profile)
     }
     
     func cancelEvent(event: UserEvent) async throws {

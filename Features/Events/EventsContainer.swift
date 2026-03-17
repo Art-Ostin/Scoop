@@ -11,7 +11,7 @@ struct EventsContainer: View {
     @State var vm: EventViewModel
     @State private var ui = EventUIState()
     
-    @State private var selectedProfile: EventProfile?
+    @State private var tabProfile: EventProfile?
     @State private var profileImages: [String: [UIImage]] = [:]
     
     @State private var imageSize: CGFloat = 0
@@ -52,12 +52,13 @@ extension EventsContainer {
     }
     
     private var eventPages: some View {
-        TabView(selection: $selectedProfile) {
+        TabView(selection: $tabProfile) {
             ForEach(vm.events) { eventProfile in
                 eventSlot(eventProfile: eventProfile)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .automatic))
+        .ignoresSafeArea(tabProfile == nil ? .all : []) //Fixes bug for screen layout
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
             imageSize = screenWidth - 32 //Adds 24 padding on each side
@@ -72,8 +73,7 @@ extension EventsContainer {
             EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
         }
         .customScrollFade(height: 100, showFade: true)
-        .task { await loadProfileImages(eventProfile) }
-        .tag(Optional(eventProfile))
+        .task { await loadProfileImages(eventProfile.profile)}
     }
     
     private func openMaps(_ eventProfile: EventProfile) {
@@ -87,10 +87,12 @@ extension EventsContainer {
     
     @ViewBuilder
     private var chatView: some View {
-        if let profile = selectedProfile  {
+        if let profile = tabProfile  {
             NavigationStack {
                 ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.sessionManager, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: profile))
             }
+        } else {
+            Text("No Tab Profile")
         }
     }
     
@@ -106,7 +108,7 @@ extension EventsContainer {
         .transition(.move(edge: .bottom))
     }
     
-    private func loadProfileImages(_ profile: EventProfile) async {
+    private func loadProfileImages(_ profile: UserProfile) async {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
     }
