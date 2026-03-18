@@ -10,6 +10,8 @@ import SwiftUI
 struct DropDownButton: View {
     
     @Binding var isExpanded: Bool
+    
+    var isAccept: Bool = false
         
     var body: some View {
         Button {
@@ -18,9 +20,9 @@ struct DropDownButton: View {
             }
         } label: {
                 Image(systemName: "chevron.down")
-                    .font(.body(17, .bold))
+                .font(.body(isAccept ? 15 : 17, .bold))
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    .foregroundStyle(Color.accent)
+                    .foregroundStyle(isAccept ? Color.black : Color.accent)
                     .padding(12)
                     .contentShape(Rectangle())
                     .padding(-12)

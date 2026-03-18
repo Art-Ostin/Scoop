@@ -39,7 +39,7 @@ import Foundation
      
      static func fullDateAndTime(_ date: Date) -> String {
          let weekday = date.formatted(.dateTime.weekday(.wide))
-         let month = date.formatted(.dateTime.month(.abbreviated))
+         let month = date.formatted(.dateTime.month())
          let time = hourTime(date)
 
          return "\(weekday), \(month) \(ordinalDay(for: date)) · \(time)"

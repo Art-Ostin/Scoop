@@ -22,6 +22,10 @@ struct ProposedTimes: Codable, Equatable  {
         self.dates = items
         normalize()
     }
+    
+    var firstAvailableDate: Date? {
+        dates.first(where: { $0.stillAvailable })?.date
+    }
 
     @discardableResult
     mutating func updateDate(day: Date, hour: Int, minute: Int) -> Bool {

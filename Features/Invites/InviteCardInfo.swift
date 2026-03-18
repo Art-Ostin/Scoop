@@ -18,15 +18,16 @@ struct InviteCardInfo: View {
         image != nil
     }
  
+    @State var showTimeDropDown: Bool = false
     @Bindable var vm: RespondViewModel
     
+
     
     var body: some View {
-        VStack(alignment: .leading, spacing: isPopup ? 24 : 16) {
+        VStack(alignment: .leading, spacing: isPopup ? 24 : 24) {
             title
             time
             place
-                .padding(.bottom, 8)
             responseRow
         }
         .padding(.horizontal, 24)
@@ -52,7 +53,6 @@ extension InviteCardInfo {
             Text("\(name)'s Invite")
                 .font(.body(20, .bold))
             
-            
             Spacer()
             
             HStack {
@@ -63,18 +63,35 @@ extension InviteCardInfo {
         }
     }
     
+    @ViewBuilder
     private var time: some View {
+        if let firstAvailableDate = event.proposedTimes.firstAvailableDate {
+            DropDownView(showOptions: $showTimeDropDown) {
+                timeRow(firstAvailableDate: firstAvailableDate)
+            } dropDown: {
+                
+            }
+            .frame(height: 0)
+        }
+    }
+
+
+    private func timeRow(firstAvailableDate: Date) -> some View {
         HStack(spacing: 9) {
             Image("MiniClockIcon")
             
-            Text(EventFormatting.fullDateAndTime(event.proposedTimes.dates.first?.date ?? Date()))
-                .font(.body(16, .medium))
-                .foregroundStyle(Color(red: 0.11, green: 0.11, blue: 0.11))
+            HStack {
+                Text(EventFormatting.fullDateAndTime(firstAvailableDate))
+                    .font(.body(16, .regular))
+                    .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
+                
+                DropDownButton(isExpanded: $showTimeDropDown, isAccept: true)
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var place: some View {
-        
         HStack(spacing: 12) {
             Image("MiniMapIcon")
             
