@@ -17,17 +17,16 @@ struct InviteCardInfo: View {
     var isPopup: Bool {
         image != nil
     }
-
-    
+ 
     @Bindable var vm: RespondViewModel
     
     
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: isPopup ? 24 : 22) {
+        VStack(alignment: .leading, spacing: isPopup ? 24 : 16) {
             title
             time
             place
+                .padding(.bottom, 8)
             responseRow
         }
         .padding(.horizontal, 24)
@@ -49,12 +48,15 @@ extension InviteCardInfo {
             if let image {
                 CirclePhoto(image: image)
             }
+            
             Text("\(name)'s Invite")
+                .font(.body(20, .bold))
+            
             
             Spacer()
             
             HStack {
-                Text("\(String(describing: event.type.description.emoji))  \(event.type.description.label)")
+                Text("\(event.type.description.emoji ?? "")  \(event.type.description.label)")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color(red: 0.11, green: 0.11, blue: 0.11))
             }
@@ -65,8 +67,8 @@ extension InviteCardInfo {
         HStack(spacing: 9) {
             Image("MiniClockIcon")
             
-            Text(formatTime(date: event.proposedTimes.dates.first?.date ?? Date(), withHour: true))
-                .font(.body(17, .medium))
+            Text(EventFormatting.fullDateAndTime(event.proposedTimes.dates.first?.date ?? Date()))
+                .font(.body(16, .medium))
                 .foregroundStyle(Color(red: 0.11, green: 0.11, blue: 0.11))
         }
     }
@@ -76,10 +78,21 @@ extension InviteCardInfo {
         HStack(spacing: 12) {
             Image("MiniMapIcon")
             
-            Text((event.location.name ?? event.location.address) ?? "Location")
-                .font(.body(17, .medium))
+            Text(address())
+                .font(.body(14, .regular))
                 .foregroundStyle(Color(red: 0.11, green: 0.11, blue: 0.11))
+                .underline()
+                .lineLimit(1)
         }
+     }
+    
+    private func address() -> String {
+        String(
+            [event.location.name, event.location.address]
+                .compactMap { $0 }
+                .joined(separator: ", ")
+                .prefix(50)
+        )
     }
 }
 

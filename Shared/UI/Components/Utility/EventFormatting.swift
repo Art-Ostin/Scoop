@@ -23,20 +23,31 @@ import Foundation
              let weekday = date.formatted(.dateTime.weekday(.wide))
              let month = date.formatted(.dateTime.month(.abbreviated))
 
-             let day = Calendar.current.component(.day, from: date)
-             return "\(weekday) \(day)\(ordinalSuffix(for: day)) \(month)"
+         return "\(weekday) \(ordinalDay(for: date)) \(month)"
      }
      
      static func expandedDate(_ date: Date) -> String {
          let weekday = date.formatted(.dateTime.weekday(.wide))
          let month = date.formatted(.dateTime.month(.wide))
 
-         let day = Calendar.current.component(.day, from: date)
-         return "\(weekday) \(day)\(ordinalSuffix(for: day)) \(month)"
+         return "\(weekday) \(ordinalDay(for: date)) \(month)"
      }
      
      static func twoDigitHour(_ date: Date) -> String {
          return date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)))
+     }
+     
+     static func fullDateAndTime(_ date: Date) -> String {
+         let weekday = date.formatted(.dateTime.weekday(.wide))
+         let month = date.formatted(.dateTime.month(.abbreviated))
+         let time = hourTime(date)
+
+         return "\(weekday), \(month) \(ordinalDay(for: date)) · \(time)"
+     }
+
+     private static func ordinalDay(for date: Date) -> String {
+         let day = Calendar.current.component(.day, from: date)
+         return "\(day)\(ordinalSuffix(for: day))"
      }
      
      static func placeName(_ place: EventLocation) -> String {

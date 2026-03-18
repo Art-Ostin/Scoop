@@ -22,6 +22,7 @@ struct EventDeclineButton: View {
                 .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
                 .onTapGesture {onTap()}
         }
+    
 }
 
 
