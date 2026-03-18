@@ -32,7 +32,7 @@ extension InvitesContainer {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 24)
         .background(Color.background)
     }
     

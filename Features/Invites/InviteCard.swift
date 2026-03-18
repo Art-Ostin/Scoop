@@ -20,11 +20,7 @@ struct InviteCard: View {
             Image(uiImage: eventProfile.image ?? UIImage())
                 .resizable()
                 .defaultImage(imageSize)
-            
-            
-            
             ClearRectangle(size: 100)
-            
         }
         .padding(8)                  // interior padding
         .padding(.bottom, 12)        // extra interior bottom padding
@@ -42,6 +38,5 @@ struct InviteCard: View {
             RoundedRectangle(cornerRadius: 22)
                 .stroke(Color(red: 0.96, green: 0.96, blue: 0.96), lineWidth: 1)
         )
-        .padding(.horizontal, 24)    // outside spacing
     }
 }
