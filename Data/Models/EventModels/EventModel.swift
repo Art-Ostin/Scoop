@@ -63,7 +63,7 @@ extension Event {
 
 extension Event.EventType {
     
-        var description: (emoji: String?, label: String) {
+        var description: (emoji: String, label: String) {
             switch self {
             case .drink:
                 return ("🍻", "Drink")
@@ -88,6 +88,7 @@ extension Event.EventType {
                 return "Custom Meet"
             }
         }
+    
         var textPlaceholder: String {
             switch self {
             case . drink:

@@ -91,7 +91,7 @@ extension ChatEventView {
     
     private func eventType(event: UserEvent) -> String {
         let type = event.type
-        return "\(type.description.emoji ?? "") \(type.description.label)"
+        return "\(type.description.emoji) \(type.description.label)"
     }
 }
 

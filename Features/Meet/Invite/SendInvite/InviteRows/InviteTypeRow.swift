@@ -52,7 +52,7 @@ extension InviteTypeRow {
     }
     
     private var inviteType: Text {
-        Text(verbatim: "\(event.type.description.emoji ?? "") \(event.type.description.label): ")
+        Text(verbatim: "\(event.type.description.emoji) \(event.type.description.label): ")
             .font(.body(16, .bold))
     }
     
@@ -75,7 +75,7 @@ extension InviteTypeRow {
 extension InviteTypeRow {
     @ViewBuilder private var typeWithNoMessage: some View {
         let type = event.type.description.label
-        let emoji = event.type.description.emoji ?? ""
+        let emoji = event.type.description.emoji
             VStack(alignment: .leading, spacing: 6) {
                 Text("\(emoji) \(type)")
                     .font(.body(18))

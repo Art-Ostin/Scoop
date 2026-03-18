@@ -15,6 +15,8 @@ struct InviteCardInfo: View {
     let event: UserEvent
     
     @State var selectedDay: Date?
+    @State var newProposedDates: [Date]? = nil
+    @State var showProposeDate: Bool = false
     
     var isPopup: Bool {
         image != nil
@@ -35,22 +37,13 @@ struct InviteCardInfo: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             title
-            time
+            timeView
             place
             responseRow
         }
         .padding(.horizontal, 16)
     }
 }
-
-/*
- 
- var selectedDay: Date? {
-     event.proposedTimes.firstAvailableDate
- }
-
- */
-
 
 extension InviteCardInfo {
     
@@ -74,7 +67,7 @@ extension InviteCardInfo {
             Spacer()
             
             HStack {
-                Text("\(event.type.description.emoji ?? "")  \(event.type.description.label)")
+                Text("\(event.type.description.emoji)  \(event.type.description.label)")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color(red: 0.11, green: 0.11, blue: 0.11))
             }
@@ -82,10 +75,10 @@ extension InviteCardInfo {
     }
     
     @ViewBuilder
-    private var time: some View {
-        if let firstAvailableDate = event.proposedTimes.firstAvailableDate {
+    private var timeView: some View {
+        if let selectedDay {
             DropDownView(showOptions: $showTimeDropDown) {
-                timeRow(firstAvailableDate: firstAvailableDate)
+                timeRow(selectedDay: selectedDay)
             } dropDown: {
                 typeDropDown
             }
@@ -94,12 +87,12 @@ extension InviteCardInfo {
     }
 
 
-    private func timeRow(firstAvailableDate: Date) -> some View {
+    private func timeRow(selectedDay: Date) -> some View {
         HStack(alignment: .center, spacing: 9) {
             Image("MiniClockIcon")
             
             HStack {
-                Text(EventFormatting.fullDateAndTime(firstAvailableDate))
+                Text(EventFormatting.fullDateAndTime(selectedDay))
                     .font(.body(16, .regular))
                     .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
                     .offset(y: 0.5)
@@ -138,6 +131,10 @@ extension InviteCardInfo {
         DropDownMenu {
             ForEach(event.proposedTimes.availableDates(), id: \.self) { date in
                 dropDownRow(date: date)
+            }
+            
+            DropDownRow(text: "Propose New Time", isSelected: false, isLastRow: true) {
+                showProposeDate.toggle()
             }
         }
         .zIndex(3)

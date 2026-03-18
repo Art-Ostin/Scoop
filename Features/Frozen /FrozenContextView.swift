@@ -34,7 +34,7 @@ struct BlockedContextView: View {
                     
                     Spacer()
                     
-                    Text("\(frozenContext.eventType.description.label)  \(frozenContext.eventType.description.emoji ?? "")")
+                    Text("\(frozenContext.eventType.description.label)  \(frozenContext.eventType.description.emoji)")
                         .font(.body(14, .medium))
                         .offset(x: 6)
                 }

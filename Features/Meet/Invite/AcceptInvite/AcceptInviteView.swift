@@ -71,7 +71,7 @@ extension AcceptInviteView {
         
     private var typeAndPlace: some View {
         HStack(spacing: 8) {
-            Text("\(event.type.description.emoji ?? "")  \(event.type.description.label) ")
+            Text("\(event.type.description.emoji)  \(event.type.description.label) ")
                 .font(.body(16, .medium))
             
             Button {

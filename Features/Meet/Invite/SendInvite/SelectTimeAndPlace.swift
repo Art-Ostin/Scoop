@@ -55,10 +55,11 @@ extension SelectTimeAndPlace {
             sendInviteButton
         }
         .frame(alignment: .top)
-        .padding(.top, 24)
-        .padding([.leading, .trailing, .bottom], 32)
-        .frame(maxWidth: .infinity).padding(.horizontal, 48)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 32)
+        .frame(maxWidth: .infinity)
         .background (cardBackground)
+        .padding(.horizontal, 16)
         .onChange(of: ui.showTypePopup) {_, newValue in
             if newValue { ui.showTimePopup = false}
         }
@@ -84,8 +85,8 @@ extension SelectTimeAndPlace {
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
                     .padding()
                     .padding()
-                    .offset(x: -7)
-                    .offset(y: -7)
+                    .offset(x: 4)
+                    .offset(y: -12)
             }
         }
     }
@@ -123,7 +124,7 @@ extension SelectTimeAndPlace {
     
     private var popupTitle: some View {
         HStack(spacing: 16) {
-            CirclePhoto(image: firstImage)
+            CirclePhoto(image: firstImage, showShadow: false)
             Text("Meet \(vm.profile.name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
         }

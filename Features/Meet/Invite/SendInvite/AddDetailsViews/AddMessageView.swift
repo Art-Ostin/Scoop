@@ -79,7 +79,7 @@ extension AddMessageView {
     
     @ViewBuilder
     private var dropdownTitle: some View {
-        let emoji = vm.event.type.description.emoji ?? ""
+        let emoji = vm.event.type.description.emoji
         let type = vm.event.type.description.label
         
         HStack(spacing: 10) {
