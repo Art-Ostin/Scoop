@@ -49,4 +49,5 @@ import SwiftUI
     var declineScreen: Bool? = false
     var acceptScreen: Bool = true
     var showDetails: Bool = false
+    var dismissOffset: CGFloat? = nil
 }

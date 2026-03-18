@@ -16,6 +16,9 @@ struct InviteCard: View {
     
     var body: some View {
         
+        
+        
+        
         VStack(spacing: 20) {
 
             Image(uiImage: eventProfile.image ?? UIImage())
