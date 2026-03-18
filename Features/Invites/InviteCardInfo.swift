@@ -19,9 +19,12 @@ struct InviteCardInfo: View {
     }
  
     @State var showTimeDropDown: Bool = false
+    
     @Bindable var vm: RespondViewModel
     
-
+    var selectedDay: Date? {
+        event.proposedTimes.firstAvailableDate
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -69,7 +72,7 @@ extension InviteCardInfo {
             DropDownView(showOptions: $showTimeDropDown) {
                 timeRow(firstAvailableDate: firstAvailableDate)
             } dropDown: {
-                
+                typeDropDown
             }
             .frame(height: 0)
         }
@@ -112,5 +115,19 @@ extension InviteCardInfo {
                 .joined(separator: ", ")
                 .prefix(50)
         )
+    }
+    
+    
+    private var typeDropDown: some View {
+        DropDownMenu {
+            ForEach(event.proposedTimes.availableDates(), id: \.self) { date in
+                customRow(image: "", text: EventFormatting.expandedDate(date)
+                )
+                .foregroundStyle(selectedDay == date ? .accent : .black)
+                
+                MapDivider()
+            }
+            customRow(image: "", text: "Propose New Day")
+        }
     }
 }

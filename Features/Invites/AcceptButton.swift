@@ -18,7 +18,7 @@ struct AcceptButton: View {
                 .foregroundStyle(Color.white)
                 .font(.body(16, .bold))
                 .padding(.horizontal, 36)
-                .frame(height: 42)
+                .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
                         .foregroundStyle(Color.appGreen)

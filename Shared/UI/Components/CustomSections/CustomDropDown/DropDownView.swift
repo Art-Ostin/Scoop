@@ -86,16 +86,3 @@ private extension View {
         .onPreferenceChange(ViewHeightKey.self, perform: onChange)
     }
 }
-
-//#Preview {
-//    ContentView()
-//}
-
-/* Fixed some unwanted animation
- /*
-  .opacity(showOptions ? 1 : 0)
-  .transition(.move(edge: .top).combined(with: .opacity))
-  .animation(.snappy(duration: 0.22, extraBounce: 0.02), value: showOptions)
-  */
-
- */

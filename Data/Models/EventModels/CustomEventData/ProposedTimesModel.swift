@@ -22,9 +22,13 @@ struct ProposedTimes: Codable, Equatable  {
         self.dates = items
         normalize()
     }
+        
+    func availableDates() -> [Date] {
+        dates.filter(\.stillAvailable).map(\.date)
+    }
     
     var firstAvailableDate: Date? {
-        dates.first(where: { $0.stillAvailable })?.date
+        availableDates().first
     }
 
     @discardableResult

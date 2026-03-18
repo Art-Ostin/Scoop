@@ -36,22 +36,6 @@ struct DropDownMenu<Content: View> : View {
 }
 
 
-struct customRow : View {
-    let image: String?
-    let text: String
-    var body: some View {
-        HStack (spacing: 24) {
-            if let emoji = image {
-               Text(emoji)
-            }
-            Text(text)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-    }
-}
-
 struct SoftDivider: View {
     var body: some View {
         Rectangle()

@@ -24,7 +24,7 @@ struct InvitesContainer: View {
 extension InvitesContainer {
     
     private var invitesView: some View {
-        VStack(spacing: 36) {
+        VStack(spacing: 24) {
             titleAndTab
             
             ForEach(vm.invites) { invite in
@@ -32,11 +32,9 @@ extension InvitesContainer {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 16)
-        
+        .padding(.horizontal, 20)
         .background(Color.background)
     }
-    
     
     private var titleAndTab: some View {
         ZStack(alignment: .top) {

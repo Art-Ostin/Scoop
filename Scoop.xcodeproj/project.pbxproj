@@ -91,6 +91,7 @@
 		655D92C72F6AEB1500A99685 /* InviteCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */; };
 		655D92C92F6AF65000A99685 /* AcceptButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92C82F6AF64D00A99685 /* AcceptButton.swift */; };
 		655D92CB2F6AF65D00A99685 /* DeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92CA2F6AF65A00A99685 /* DeclineButton.swift */; };
+		655D92DA2F6B310400A99685 /* DropDownRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92D92F6B30FD00A99685 /* DropDownRow.swift */; };
 		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
 		655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4A92E6B901000AE626D /* AppTabBarView.swift */; };
 		655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */; };
@@ -340,6 +341,7 @@
 		655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfo.swift; sourceTree = "<group>"; };
 		655D92C82F6AF64D00A99685 /* AcceptButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptButton.swift; sourceTree = "<group>"; };
 		655D92CA2F6AF65A00A99685 /* DeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclineButton.swift; sourceTree = "<group>"; };
+		655D92D92F6B30FD00A99685 /* DropDownRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownRow.swift; sourceTree = "<group>"; };
 		655EF4A92E6B901000AE626D /* AppTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarView.swift; sourceTree = "<group>"; };
 		655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarItemsPreferenceKey.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* TabBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarItem.swift; sourceTree = "<group>"; };
@@ -695,7 +697,7 @@
 		652B154A2F301EA10042A3E1 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				652B15502F30CF5A0042A3E1 /* OverlayScreens */,
+				652B15502F30CF5A0042A3E1 /* CustomSections */,
 				652B154E2F3022660042A3E1 /* Buttons */,
 				652B15522F30D1810042A3E1 /* Indicators */,
 				652B15532F30D21E0042A3E1 /* Navigation */,
@@ -759,6 +761,7 @@
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
 				656B31D02F2501A3008641C1 /* SettingsButton.swift */,
 				657F303A2F68B61C0057D42C /* DismissToolbarItem.swift */,
+				656373B42F50152F003A922D /* MinimalistButton.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -773,16 +776,14 @@
 			path = CustomTab;
 			sourceTree = "<group>";
 		};
-		652B15502F30CF5A0042A3E1 /* OverlayScreens */ = {
+		652B15502F30CF5A0042A3E1 /* CustomSections */ = {
 			isa = PBXGroup;
 			children = (
-				65FE78D52F293C6C00DC2538 /* DropDownView.swift */,
-				6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */,
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */,
-				656373B42F50152F003A922D /* MinimalistButton.swift */,
+				655D92D82F6B306B00A99685 /* CustomDropDown */,
 			);
-			path = OverlayScreens;
+			path = CustomSections;
 			sourceTree = "<group>";
 		};
 		652B15522F30D1810042A3E1 /* Indicators */ = {
@@ -910,6 +911,16 @@
 				655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */,
 			);
 			path = NoScrollCustomTab;
+			sourceTree = "<group>";
+		};
+		655D92D82F6B306B00A99685 /* CustomDropDown */ = {
+			isa = PBXGroup;
+			children = (
+				65FE78D52F293C6C00DC2538 /* DropDownView.swift */,
+				6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */,
+				655D92D92F6B30FD00A99685 /* DropDownRow.swift */,
+			);
+			path = CustomDropDown;
 			sourceTree = "<group>";
 		};
 		655FADC82E89F0FC00AFAD5F /* Profile */ = {
@@ -1510,6 +1521,7 @@
 				657B8D4F2F2D3F1C00583ADA /* InviteTypeRow.swift in Sources */,
 				659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */,
 				652D3D2F2F2E9A0600AE491D /* EventLocationModel.swift in Sources */,
+				655D92DA2F6B310400A99685 /* DropDownRow.swift in Sources */,
 				653FB5762F68854D00440E41 /* EventTimeAndPlace.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */,
