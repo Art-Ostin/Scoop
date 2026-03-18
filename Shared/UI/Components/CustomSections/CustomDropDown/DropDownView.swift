@@ -20,9 +20,11 @@ struct DropDownView<Row: View, DropDown: View> : View {
     private let shadowAllowance: CGFloat = 14
     private let rowHeight: CGFloat = 60
     var shiftLeft: Bool
+    var opensAbove: Bool
 
-    init(shiftLeft: Bool = false, showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
+    init(shiftLeft: Bool = false, opensAbove: Bool = false, showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
         self.shiftLeft = shiftLeft
+        self.opensAbove = opensAbove
         _showOptions = showOptions
         self.row = row
         self.dropDown = dropDown
@@ -33,7 +35,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
             .frame(height: rowHeight)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .contentShape(.rect)
-            .overlay(alignment: .top) {
+            .overlay(alignment: opensAbove ? .bottom : .top) {
                 dropdownRevealOverlay
             }
             .zIndex(zIndex)
@@ -48,23 +50,36 @@ struct DropDownView<Row: View, DropDown: View> : View {
     @ViewBuilder
     private var dropdownRevealOverlay: some View {
         VStack(spacing: 0) {
-            Color.clear.frame(height: rowHeight)
-            dropDown()
-                .padding(24)
-                .readHeight { menuHeight = $0 }
-                .offset(y: showOptions ? 0 : -(menuHeight + shadowAllowance * 2))
-                .mask(alignment: .top) {
-                    Rectangle()
-                        .padding(shadowAllowance)
-                        .frame(height: menuHeight + shadowAllowance * 2,
-                               alignment: .top)
-                        .offset(y: -shadowAllowance)
-                }
-                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
-                .offset(y: -24)
-                .offset(x: shiftLeft ? -60 : 0)
+            if opensAbove {
+                dropdownMenu
+                Color.clear.frame(height: rowHeight)
+            } else {
+                Color.clear.frame(height: rowHeight)
+                dropdownMenu
+            }
         }
         .allowsHitTesting(showOptions)
+    }
+
+    private var dropdownMenu: some View {
+        dropDown()
+            .padding(24)
+            .readHeight { menuHeight = $0 }
+            .offset(y: showOptions ? 0 : hiddenOffsetY)
+            .mask(alignment: opensAbove ? .bottom : .top) {
+                Rectangle()
+                    .padding(shadowAllowance)
+                    .frame(height: menuHeight + shadowAllowance * 2)
+                    .offset(y: opensAbove ? shadowAllowance : -shadowAllowance)
+            }
+            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+            .offset(y: opensAbove ? 24 : -24)
+            .offset(x: shiftLeft ? -60 : 0)
+    }
+
+    private var hiddenOffsetY: CGFloat {
+        let hiddenHeight = menuHeight + shadowAllowance * 2
+        return opensAbove ? hiddenHeight : -hiddenHeight
     }
 }
 
