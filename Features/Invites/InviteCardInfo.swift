@@ -24,13 +24,13 @@ struct InviteCardInfo: View {
 
     
     var body: some View {
-        VStack(alignment: .leading, spacing: isPopup ? 24 : 24) {
+        VStack(alignment: .leading, spacing: 24) {
             title
             time
             place
             responseRow
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 16)
     }
 }
 
@@ -77,16 +77,17 @@ extension InviteCardInfo {
 
 
     private func timeRow(firstAvailableDate: Date) -> some View {
-        HStack(spacing: 9) {
+        HStack(alignment: .center, spacing: 9) {
             Image("MiniClockIcon")
             
             HStack {
                 Text(EventFormatting.fullDateAndTime(firstAvailableDate))
                     .font(.body(16, .regular))
                     .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
-                
-                DropDownButton(isExpanded: $showTimeDropDown, isAccept: true)
+                    .offset(y: 0.5)
             }
+            Spacer()
+            DropDownButton(isExpanded: $showTimeDropDown, isAccept: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -100,6 +101,7 @@ extension InviteCardInfo {
                 .foregroundStyle(Color(red: 0.11, green: 0.11, blue: 0.11))
                 .underline()
                 .lineLimit(1)
+                .offset(y: 0.5)
         }
      }
     
@@ -112,8 +114,3 @@ extension InviteCardInfo {
         )
     }
 }
-
-
-
-
-

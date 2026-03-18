@@ -32,7 +32,7 @@ extension InvitesContainer {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 16)
         
         .background(Color.background)
     }
@@ -49,9 +49,7 @@ extension InvitesContainer {
                 .padding(.top, 12)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .padding(.horizontal, -8)
     }
-    
     
     private var invitesPlaceholder: some View {
         Text("There are no current invites")
