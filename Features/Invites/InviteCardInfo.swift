@@ -79,7 +79,7 @@ extension InviteCardInfo {
     @ViewBuilder
     private var timeView: some View {
         if let selectedDay {
-            DropDownView(showOptions: $showTimePopup) {
+            DropDownView(opensAbove: true, showOptions: $showTimePopup) {
                 timeRow(selectedDay: selectedDay)
             } dropDown: {
                 SelectAvailableDay(event: event, selectedDay: $selectedDay, showTimePopup: $showTimePopup)
