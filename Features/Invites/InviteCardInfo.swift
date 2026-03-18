@@ -14,6 +14,8 @@ struct InviteCardInfo: View {
     
     let event: UserEvent
     
+    @State var selectedDay: Date?
+    
     var isPopup: Bool {
         image != nil
     }
@@ -21,9 +23,13 @@ struct InviteCardInfo: View {
     @State var showTimeDropDown: Bool = false
     
     @Bindable var vm: RespondViewModel
-    
-    var selectedDay: Date? {
-        event.proposedTimes.firstAvailableDate
+
+    init(vm: RespondViewModel, image: UIImage?, name: String, event: UserEvent) {
+        self.image = image
+        self.name = name
+        self.event = event
+        self.vm = vm
+        self._selectedDay = State(initialValue: event.proposedTimes.firstAvailableDate)
     }
     
     var body: some View {
@@ -36,6 +42,15 @@ struct InviteCardInfo: View {
         .padding(.horizontal, 16)
     }
 }
+
+/*
+ 
+ var selectedDay: Date? {
+     event.proposedTimes.firstAvailableDate
+ }
+
+ */
+
 
 extension InviteCardInfo {
     
@@ -138,7 +153,7 @@ extension InviteCardInfo {
         let formattedDate = EventFormatting.expandedDate(date)
 
         DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
-            se
+            selectedDay = date
             showTimeDropDown = false
         }
     }

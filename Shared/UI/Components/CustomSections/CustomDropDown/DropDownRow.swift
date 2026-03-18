@@ -28,6 +28,7 @@ struct DropDownRow: View {
             }
             if !isLastRow {
                 CustomDivider()
+                    .padding(.trailing, -24)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

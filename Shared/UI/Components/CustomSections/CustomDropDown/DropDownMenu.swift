@@ -20,7 +20,6 @@ struct DropDownMenu<Content: View> : View {
     }
     
     var body: some View {
-        
         VStack(spacing: 18) {
             content()
         }

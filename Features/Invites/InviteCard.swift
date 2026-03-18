@@ -10,10 +10,7 @@ import SwiftUI
 struct InviteCard: View {
     
     @State private var imageSize: CGFloat = 0
-    
     private let contentPadding: CGFloat = 8
-    
-    
     let eventProfile: EventProfile
     @Bindable var vm: RespondViewModel
     
@@ -25,7 +22,7 @@ struct InviteCard: View {
                 .resizable()
                 .defaultImage(imageSize)
                         
-            InviteCardInfo(image: nil, name: eventProfile.profile.name, event: eventProfile.event, vm: vm)
+            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, event: eventProfile.event)
         }
         .padding(contentPadding)
         .padding(.bottom, 12)
