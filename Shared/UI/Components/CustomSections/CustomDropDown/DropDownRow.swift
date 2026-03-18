@@ -32,6 +32,7 @@ struct DropDownRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .foregroundStyle(isSelected ? Color.appGreen : Color.black)
         .contentShape(Rectangle())
         .onTapGesture {
             onTap()

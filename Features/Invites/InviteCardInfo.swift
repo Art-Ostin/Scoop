@@ -137,14 +137,10 @@ extension InviteCardInfo {
     private var typeDropDown: some View {
         DropDownMenu {
             ForEach(event.proposedTimes.availableDates(), id: \.self) { date in
-                let isSelected = selectedDay == date
-                let formattedDate = EventFormatting.expandedDate(date)
-
-                DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
-                    
-                }
+                dropDownRow(date: date)
             }
         }
+        .zIndex(3)
     }
     
     @ViewBuilder
