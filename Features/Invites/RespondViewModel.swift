@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-@Observable class InvitesViewModel {
+@Observable class RespondViewModel {
     
     let s: SessionManager
     let d: DefaultsManaging

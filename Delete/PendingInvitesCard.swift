@@ -11,7 +11,7 @@ import SwiftUI
 /*
  
  struct PastInviteView: View {
-     @Bindable var vm: MeetViewModel
+     @Bindable var vm: InviteViewModel
      @Bindable var ui: MeetUIState
 
      var body: some View {

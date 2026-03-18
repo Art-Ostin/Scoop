@@ -56,7 +56,7 @@ struct AppContainer: View {
 extension AppContainer {
     
     private var meetView: some View {
-        MeetContainer(vm: MeetViewModel(
+        MeetContainer(vm: InviteViewModel(
             s: dep.sessionManager, defaults: dep.defaultsManager,
             userRepo: dep.userRepo,
             profileRepo: dep.profilesRepo,
@@ -66,7 +66,7 @@ extension AppContainer {
     }
     
     private var invitesView: some View {
-        InvitesContainer(vm: InvitesViewModel(s: dep.sessionManager, d: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
+        InvitesContainer(vm: RespondViewModel(s: dep.sessionManager, d: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
     }
     
     

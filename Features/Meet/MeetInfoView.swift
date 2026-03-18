@@ -10,7 +10,7 @@ import SwiftUI
 //To expand when needed
 struct MeetInfoView: View {
     
-    @Bindable var vm: MeetViewModel
+    @Bindable var vm: InviteViewModel
     
     @Bindable var ui: MeetUIState
     

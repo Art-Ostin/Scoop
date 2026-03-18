@@ -10,7 +10,7 @@ import SwiftUI
 struct InvitesContainer: View {
     
     @State var ui = InvitesUIState()
-    @State var vm: InvitesViewModel
+    @State var vm: RespondViewModel
     
     var body: some View {
         if vm.invites.isEmpty {
@@ -33,6 +33,7 @@ extension InvitesContainer {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 24)
+        
         .background(Color.background)
     }
     
@@ -54,6 +55,7 @@ extension InvitesContainer {
                 .padding(.top, 12)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .padding(.horizontal, -8)
     }
     
     

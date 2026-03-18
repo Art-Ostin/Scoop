@@ -11,13 +11,13 @@ import Lottie
 
 
 struct MeetContainer: View {
-    let vm: MeetViewModel
+    let vm: InviteViewModel
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
     @State var profileImages: [String : [UIImage]] = [:]
     @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
     
-    init(vm: MeetViewModel) { self.vm = vm }
+    init(vm: InviteViewModel) { self.vm = vm }
     
     var body: some View {
         ZStack {

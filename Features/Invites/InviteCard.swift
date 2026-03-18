@@ -9,7 +9,10 @@ import SwiftUI
 
 struct InviteCard: View {
     
-    @State var imageSize: CGFloat = 0
+    @State private var imageSize: CGFloat = 0
+    
+    private let contentPadding: CGFloat = 8
+    
     
     let eventProfile: EventProfile
     
@@ -22,13 +25,13 @@ struct InviteCard: View {
                 .defaultImage(imageSize)
             ClearRectangle(size: 100)
         }
-        .padding(8)                  // interior padding
-        .padding(.bottom, 12)        // extra interior bottom padding
+        .padding(contentPadding)
+        .padding(.bottom, 12)
         .frame(maxWidth: .infinity)
         .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) {screenSize in
-            imageSize = screenSize
-        }
+        .onPreferenceChange(ImageSizeKey.self) { cardWidth in
+             imageSize = max(cardWidth - (contentPadding * 2), 0)
+         }
         .background(
             RoundedRectangle(cornerRadius: 22)
                 .fill(Color.background)

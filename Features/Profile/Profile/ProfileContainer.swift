@@ -36,7 +36,7 @@ struct ProfileView: View {
     
     init(
         vm: ProfileViewModel,
-        meetVM: MeetViewModel? = nil,
+        meetVM: InviteViewModel? = nil,
         profileImages: [UIImage],
         selectedProfile: Binding<UserProfile?>,
         dismissOffset: Binding<CGFloat?>,
@@ -266,11 +266,3 @@ extension ProfileView {
             .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
     }
 }
-
-//Exporting actions so profile more 'Stupid' -> things I can remove
-/*
- @Environment(\.tabSelection) private var tabSelection
- let meetVM: MeetViewModel?
- @Binding var showRespondToProfile: RespondToProfileState?
-
- */
