@@ -15,6 +15,7 @@ struct InviteCard: View {
     
     
     let eventProfile: EventProfile
+    @Bindable var vm: RespondViewModel
     
     var body: some View {
         
@@ -23,7 +24,11 @@ struct InviteCard: View {
             Image(uiImage: eventProfile.image ?? UIImage())
                 .resizable()
                 .defaultImage(imageSize)
-            ClearRectangle(size: 100)
+            
+            ClearRectangle(size: 60)
+            
+            InviteCardInfo(name: eventProfile.profile.name, event: eventProfile.event, vm: vm)
+            
         }
         .padding(contentPadding)
         .padding(.bottom, 12)

@@ -75,7 +75,7 @@ extension ProfileDetailsView {
     
     private var profileActionBar: some View {
         HStack {
-            DeclineButton() {onDecline()}
+            EventDeclineButton() {onDecline()}
             Spacer()
             InviteButton(vm: vm, showInvite: $showInvite)
         }

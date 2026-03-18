@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DeclineButton: View {
+struct EventDeclineButton: View {
     let image: String = "DeclineIcon"
     let onTap: () -> ()
     var body: some View {

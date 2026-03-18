@@ -28,7 +28,7 @@ extension InvitesContainer {
             titleAndTab
             
             ForEach(vm.invites) { invite in
-                InviteCard(eventProfile: invite)
+                InviteCard(eventProfile: invite, vm: vm)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -37,12 +37,6 @@ extension InvitesContainer {
         .background(Color.background)
     }
     
-    private var invitesTabView: some View {
-        
-        ForEach(vm.invites) { invite in
-            InviteCard(eventProfile: invite)
-        }
-    }
     
     private var titleAndTab: some View {
         ZStack(alignment: .top) {
@@ -51,7 +45,7 @@ extension InvitesContainer {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 60)
             
-            TabInfoButton(showScreen: $ui.showInfo)
+            TabInfoButton(showScreen: $ui.showDetails)
                 .padding(.top, 12)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }

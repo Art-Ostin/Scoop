@@ -40,9 +40,7 @@ import SwiftUI
 
 @Observable final class InvitesUIState {
     var selectedProfile: UserProfile? = nil
-    var quickInvite: EventProfile?
-    var showPendingInvites = false
-    var showInfo: Bool = false
-    var openPastInvites = false
-    var showSentInvite: RespondedToProfileView?
+    var declineScreen: Bool? = false
+    var acceptScreen: Bool = true
+    var showDetails: Bool = false
 }
