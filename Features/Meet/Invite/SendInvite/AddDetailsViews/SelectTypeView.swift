@@ -41,7 +41,6 @@ extension SelectTypeView {
         .contentShape(Rectangle())
         .onTapGesture { selectType(eventType: eventType)}
     }
-    
     private func selectType(eventType: Event.EventType) {
         let message = (vm.event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         if eventType == .custom && message.isEmpty {

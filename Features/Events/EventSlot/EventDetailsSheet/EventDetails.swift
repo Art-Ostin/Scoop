@@ -43,9 +43,9 @@ extension EventDetails {
             
             Spacer()
             
-            Text("\(detailsTypeTitle)  ")
+            Text("\(detailsTypeTitle)")
                 .font(.body(20, .medium))
-            + Text(event.type.description.emoji ?? "🦥")
+            + Text(event.type.description.emoji)
                 .font(.body(24, .medium))
         }
     }

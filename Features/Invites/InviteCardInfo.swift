@@ -15,6 +15,7 @@ struct InviteCardInfo: View {
     let event: UserEvent
     
     @State var selectedDay: Date?
+    
     @State var newProposedDates: [Date]? = nil
     @State var showProposeDate: Bool = false
     
@@ -22,7 +23,7 @@ struct InviteCardInfo: View {
         image != nil
     }
  
-    @State var showTimeDropDown: Bool = false
+    @State var showTimePopup: Bool = false
     
     @Bindable var vm: RespondViewModel
 
@@ -38,7 +39,7 @@ struct InviteCardInfo: View {
         VStack(alignment: .leading, spacing: 24) {
             title
             timeView
-            place
+            placeRow
             responseRow
         }
         .padding(.horizontal, 16)
@@ -74,18 +75,18 @@ extension InviteCardInfo {
         }
     }
     
+    
     @ViewBuilder
     private var timeView: some View {
         if let selectedDay {
-            DropDownView(showOptions: $showTimeDropDown) {
+            DropDownView(showOptions: $showTimePopup) {
                 timeRow(selectedDay: selectedDay)
             } dropDown: {
-                typeDropDown
+                SelectAvailableDay(event: event, selectedDay: $selectedDay, showTimePopup: $showTimePopup)
             }
             .frame(height: 0)
         }
     }
-
 
     private func timeRow(selectedDay: Date) -> some View {
         HStack(alignment: .center, spacing: 9) {
@@ -98,12 +99,12 @@ extension InviteCardInfo {
                     .offset(y: 0.5)
             }
             Spacer()
-            DropDownButton(isExpanded: $showTimeDropDown, isAccept: true)
+            DropDownButton(isExpanded: $showTimePopup, isAccept: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private var place: some View {
+    private var placeRow: some View {
         HStack(spacing: 12) {
             Image("MiniMapIcon")
             
@@ -117,40 +118,10 @@ extension InviteCardInfo {
      }
     
     private func address() -> String {
-        String(
-            [event.location.name, event.location.address]
+        String([event.location.name, event.location.address]
                 .compactMap { $0 }
                 .joined(separator: ", ")
-                .prefix(50)
+                .prefix(40)
         )
-    }
-    
-    
-    @ViewBuilder
-    private var typeDropDown: some View {
-        DropDownMenu {
-            ForEach(event.proposedTimes.availableDates(), id: \.self) { date in
-                dropDownRow(date: date)
-            }
-            
-            DropDownRow(text: "Propose New Time", isSelected: false, isLastRow: true) {
-                showProposeDate.toggle()
-            }
-        }
-        .zIndex(3)
-    }
-    
-    @ViewBuilder
-    private func dropDownRow(date: Date) -> some View {
-        let isSelected = selectedDay == date
-        let formattedDate = EventFormatting.expandedDate(date)
-
-        DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
-            selectedDay = date
-            
-            withAnimation(.easeInOut(duration: 0.25)) {
-                showTimeDropDown.toggle()
-            }
-        }
-    }
+    }    
 }
