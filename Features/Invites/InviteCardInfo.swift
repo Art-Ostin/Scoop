@@ -150,7 +150,10 @@ extension InviteCardInfo {
 
         DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
             selectedDay = date
-            showTimeDropDown = false
+            
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showTimeDropDown.toggle()
+            }
         }
     }
 }
