@@ -40,7 +40,7 @@ extension Color {
     
     static let secondary = Color (red: 0, green: 0.6, blue: 0.52)
     
-    static let appGreen =  Color(red: 0, green: 0.6, blue: 0.52)
+    static let appGreen =  Color(red: 0.01, green: 0.6, blue: 0.52)
     
     static let appRed = Color(red: 0.86, green: 0.21, blue: 0.27)
     

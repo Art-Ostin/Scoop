@@ -24,14 +24,23 @@ struct InvitesContainer: View {
 extension InvitesContainer {
     
     private var invitesView: some View {
-        VStack {
+        VStack(spacing: 36) {
             titleAndTab
             
-            
+            ForEach(vm.invites) { invite in
+                InviteCard(eventProfile: invite)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
         .background(Color.background)
+    }
+    
+    private var invitesTabView: some View {
+        
+        ForEach(vm.invites) { invite in
+            InviteCard(eventProfile: invite)
+        }
     }
     
     private var titleAndTab: some View {
