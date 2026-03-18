@@ -16,7 +16,6 @@ struct SelectAvailableDay: View {
     
     
     var body: some View {
-        DropDownMenu {
             VStack(spacing: 12) {
                 let dates = event.proposedTimes.availableDates()
                 
@@ -25,7 +24,12 @@ struct SelectAvailableDay: View {
                 }
                 customDateRow
             }
-        }
+            .frame(maxWidth: .infinity)
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.background)
+            )
     }
 }
 
@@ -46,19 +50,21 @@ extension SelectAvailableDay {
             CustomDivider()
                 .padding(.trailing, -24)
         }
-        .foregroundStyle(selectedDay == date ? Color.appGreen : Color.black)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture { selectDay(date: date)}
+        .font(.body(17, selectedDay == date ? .bold : .regular))
+        
     }
     
     private var customDateRow: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 20) {
             Text(" 🖊️ ")
             Text("Propose New date")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
+        .font(.body(17, .regular))
     }
     
     private func selectDay(date: Date) {
