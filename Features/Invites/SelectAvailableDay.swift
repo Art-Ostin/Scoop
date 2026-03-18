@@ -48,7 +48,6 @@ extension SelectAvailableDay {
             }
             
             CustomDivider()
-                .padding(.trailing, -24)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
@@ -58,8 +57,8 @@ extension SelectAvailableDay {
     }
     
     private var customDateRow: some View {
-        HStack(spacing: 20) {
-            Text(" 🖊️ ")
+        HStack(spacing: 16) {
+            Text("🖊️")
             Text("Propose New date")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -75,39 +74,3 @@ extension SelectAvailableDay {
         }
     }
 }
-
-
-
-/*
- @ViewBuilder
- private func dropDownRow(date: Date) -> some View {
-     let isSelected = selectedDay == date
-     let formattedDate = EventFormatting.expandedDate(date)
-
-     DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
-         selectedDay = date
-         
-         withAnimation(.easeInOut(duration: 0.25)) {
-             showTimeDropDown.toggle()
-         }
-     }
- }
- */
-
-
-/*
- @ViewBuilder
- private var typeDropDown: some View {
-     DropDownMenu {
-         ForEach(event.proposedTimes.availableDates(), id: \.self) { date in
-             dropDownRow(date: date)
-         }
-         
-         DropDownRow(text: "Propose New Time", isSelected: false, isLastRow: true) {
-             showProposeDate.toggle()
-         }
-     }
-     .zIndex(3)
- }
-
- */
