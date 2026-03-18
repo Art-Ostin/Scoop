@@ -44,7 +44,6 @@ struct DropDownView<Row: View, DropDown: View> : View {
                 }
             }
     }
-
     
     @ViewBuilder
     private var dropdownRevealOverlay: some View {

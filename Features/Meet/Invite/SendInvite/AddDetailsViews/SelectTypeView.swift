@@ -16,12 +16,11 @@ struct SelectTypeView: View {
     
     @Binding var showTypePopup: Bool
     
-    
     var body: some View {
         
         VStack(spacing: 0) {
                 ForEach(Array(Event.EventType.allCases.enumerated()), id: \.element) { index, eventType in
-                        customRow(
+                        DropDownRow(
                             image: eventType.description.emoji ?? "",
                             text: eventType.description.label
                         )

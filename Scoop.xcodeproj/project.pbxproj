@@ -87,11 +87,11 @@
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
 		655AB8FF2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
-		655D92C52F699B2400A99685 /* NoScrollCustomTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */; };
 		655D92C72F6AEB1500A99685 /* InviteCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */; };
 		655D92C92F6AF65000A99685 /* AcceptButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92C82F6AF64D00A99685 /* AcceptButton.swift */; };
 		655D92CB2F6AF65D00A99685 /* DeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92CA2F6AF65A00A99685 /* DeclineButton.swift */; };
 		655D92DA2F6B310400A99685 /* DropDownRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92D92F6B30FD00A99685 /* DropDownRow.swift */; };
+		655D92DC2F6B358E00A99685 /* CustomDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92DB2F6B358E00A99685 /* CustomDivider.swift */; };
 		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
 		655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4A92E6B901000AE626D /* AppTabBarView.swift */; };
 		655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */; };
@@ -337,11 +337,11 @@
 		654C009D2E35835900FFD504 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
 		655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseAndCheckNavButton.swift; sourceTree = "<group>"; };
-		655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoScrollCustomTab.swift; sourceTree = "<group>"; };
 		655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfo.swift; sourceTree = "<group>"; };
 		655D92C82F6AF64D00A99685 /* AcceptButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptButton.swift; sourceTree = "<group>"; };
 		655D92CA2F6AF65A00A99685 /* DeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclineButton.swift; sourceTree = "<group>"; };
 		655D92D92F6B30FD00A99685 /* DropDownRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownRow.swift; sourceTree = "<group>"; };
+		655D92DB2F6B358E00A99685 /* CustomDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDivider.swift; sourceTree = "<group>"; };
 		655EF4A92E6B901000AE626D /* AppTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarView.swift; sourceTree = "<group>"; };
 		655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarItemsPreferenceKey.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* TabBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarItem.swift; sourceTree = "<group>"; };
@@ -766,14 +766,14 @@
 			path = Buttons;
 			sourceTree = "<group>";
 		};
-		652B154F2F3023B00042A3E1 /* CustomTab */ = {
+		652B154F2F3023B00042A3E1 /* CustomPage */ = {
 			isa = PBXGroup;
 			children = (
 				657F30382F68B41D0057D42C /* PageEnum.swift */,
 				65F9E3822EE70F6B008A57BD /* CustomTabPage.swift */,
 				658B74992E6B715E00BE8B6B /* ScrollNavBar.swift */,
 			);
-			path = CustomTab;
+			path = CustomPage;
 			sourceTree = "<group>";
 		};
 		652B15502F30CF5A0042A3E1 /* CustomSections */ = {
@@ -782,6 +782,7 @@
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */,
 				655D92D82F6B306B00A99685 /* CustomDropDown */,
+				652B154F2F3023B00042A3E1 /* CustomPage */,
 			);
 			path = CustomSections;
 			sourceTree = "<group>";
@@ -800,8 +801,6 @@
 			children = (
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
 				65E5C8F12E4E79550093410B /* TabSelectionKey.swift */,
-				655D92C32F699B0B00A99685 /* NoScrollCustomTab */,
-				652B154F2F3023B00042A3E1 /* CustomTab */,
 				650383DF2E6B84A80053DDB2 /* CustomTabBar */,
 			);
 			path = Navigation;
@@ -811,6 +810,7 @@
 			isa = PBXGroup;
 			children = (
 				659568232ED26A350091163E /* ClearRectangle.swift */,
+				655D92DB2F6B358E00A99685 /* CustomDivider.swift */,
 				657B8D4A2F2CFA5F00583ADA /* SaveIcon.swift */,
 				65CA5E342F2263A600694981 /* EventFormatting.swift */,
 				65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */,
@@ -903,14 +903,6 @@
 				6536063C2F238077006334D6 /* EventDetails.swift */,
 			);
 			path = EventDetailsSheet;
-			sourceTree = "<group>";
-		};
-		655D92C32F699B0B00A99685 /* NoScrollCustomTab */ = {
-			isa = PBXGroup;
-			children = (
-				655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */,
-			);
-			path = NoScrollCustomTab;
 			sourceTree = "<group>";
 		};
 		655D92D82F6B306B00A99685 /* CustomDropDown */ = {
@@ -1624,9 +1616,9 @@
 				653A78CA2E15EB490098747F /* MapSheetContainer.swift in Sources */,
 				6565AB6F2E660E1500AAE306 /* OnboadingViewModel.swift in Sources */,
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
+				655D92DC2F6B358E00A99685 /* CustomDivider.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */,
 				65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */,
-				655D92C52F699B2400A99685 /* NoScrollCustomTab.swift in Sources */,
 				657F30392F68B41D0057D42C /* PageEnum.swift in Sources */,
 				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */,

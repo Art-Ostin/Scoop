@@ -118,16 +118,28 @@ extension InviteCardInfo {
     }
     
     
+    @ViewBuilder
     private var typeDropDown: some View {
         DropDownMenu {
             ForEach(event.proposedTimes.availableDates(), id: \.self) { date in
-                customRow(image: "", text: EventFormatting.expandedDate(date)
-                )
-                .foregroundStyle(selectedDay == date ? .accent : .black)
-                
-                MapDivider()
+                let isSelected = selectedDay == date
+                let formattedDate = EventFormatting.expandedDate(date)
+
+                DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
+                    
+                }
             }
-            customRow(image: "", text: "Propose New Day")
+        }
+    }
+    
+    @ViewBuilder
+    private func dropDownRow(date: Date) -> some View {
+        let isSelected = selectedDay == date
+        let formattedDate = EventFormatting.expandedDate(date)
+
+        DropDownRow(text: formattedDate, isSelected: isSelected, isLastRow: false) {
+            se
+            showTimeDropDown = false
         }
     }
 }

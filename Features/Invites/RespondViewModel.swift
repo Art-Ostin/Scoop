@@ -35,6 +35,12 @@ import SwiftUI
         s.invites.removeAll { $0.id == eventProfile.id }
         s.events.append(eventProfile)
     }
+    
+    //For Defaults to update it
+    func updateEventAcceptedTime(eventId: String, acceptedTime: Date) {
+        
+        
+    }
 }
 
 
