@@ -24,7 +24,7 @@ struct AppContainer: View {
                     invitesView
                         .tag(TabBarItem.invites)
                         .tabItem {
-                            Label("", image: tabSelection == .meet ? "TabLetterBlack" : "TabLetterGray")
+                            Label("", image: tabSelection == .invites ? "TabLetterBlack" : "TabLetterGray")
                         }
                     
                     eventsView

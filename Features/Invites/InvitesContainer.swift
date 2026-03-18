@@ -14,9 +14,41 @@ struct InvitesContainer: View {
     
     var body: some View {
         if vm.invites.isEmpty {
-            InvitesPlaceholder()
+            invitesPlaceholder
         } else {
-            InvitesView()
+            invitesView
         }
+    }
+}
+
+extension InvitesContainer {
+    
+    private var invitesView: some View {
+        VStack {
+            titleAndTab
+            
+            
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.horizontal, 16)
+        .background(Color.background)
+    }
+    
+    private var titleAndTab: some View {
+        ZStack(alignment: .top) {
+            Text("Invites")
+                .font(.custom("SFProRounded-Bold", size: 32))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 60)
+            
+            TabInfoButton(showScreen: $ui.showInfo)
+                .padding(.top, 12)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+    
+    
+    private var invitesPlaceholder: some View {
+        Text("There are no current invites")
     }
 }

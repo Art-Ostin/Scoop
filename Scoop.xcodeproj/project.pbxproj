@@ -71,8 +71,6 @@
 		653BAFBC2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 653BAFBB2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf */; };
 		653BAFC02E0D930900C1AB9E /* SFCompactRounded-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 653BAFBF2E0D930900C1AB9E /* SFCompactRounded-Regular.otf */; };
 		653FB56D2F686D6800440E41 /* HideTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB56C2F686D6800440E41 /* HideTabBar.swift */; };
-		653FB56F2F68701200440E41 /* InvitesPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB56E2F68701200440E41 /* InvitesPlaceholder.swift */; };
-		653FB5712F6870B800440E41 /* InvitesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5702F6870B800440E41 /* InvitesView.swift */; };
 		653FB5742F6882FC00440E41 /* EventImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5732F6882FC00440E41 /* EventImageView.swift */; };
 		653FB5762F68854D00440E41 /* EventTimeAndPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5752F68854D00440E41 /* EventTimeAndPlace.swift */; };
 		653FB5782F68886700440E41 /* EventMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5772F68886700440E41 /* EventMapView.swift */; };
@@ -89,6 +87,7 @@
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
 		655AB8FF2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
+		655D92C52F699B2400A99685 /* NoScrollCustomTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */; };
 		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
 		655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4A92E6B901000AE626D /* AppTabBarView.swift */; };
 		655EF4AC2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */; };
@@ -319,8 +318,6 @@
 		653BAFBB2E0D78E400C1AB9E /* SFCompactRounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFCompactRounded-Semibold.otf"; sourceTree = "<group>"; };
 		653BAFBF2E0D930900C1AB9E /* SFCompactRounded-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFCompactRounded-Regular.otf"; sourceTree = "<group>"; };
 		653FB56C2F686D6800440E41 /* HideTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideTabBar.swift; sourceTree = "<group>"; };
-		653FB56E2F68701200440E41 /* InvitesPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesPlaceholder.swift; sourceTree = "<group>"; };
-		653FB5702F6870B800440E41 /* InvitesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesView.swift; sourceTree = "<group>"; };
 		653FB5732F6882FC00440E41 /* EventImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventImageView.swift; sourceTree = "<group>"; };
 		653FB5752F68854D00440E41 /* EventTimeAndPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTimeAndPlace.swift; sourceTree = "<group>"; };
 		653FB5772F68886700440E41 /* EventMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMapView.swift; sourceTree = "<group>"; };
@@ -336,6 +333,7 @@
 		654C009D2E35835900FFD504 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
 		655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseAndCheckNavButton.swift; sourceTree = "<group>"; };
+		655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoScrollCustomTab.swift; sourceTree = "<group>"; };
 		655EF4A92E6B901000AE626D /* AppTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarView.swift; sourceTree = "<group>"; };
 		655EF4AB2E6B90E800AE626D /* TabBarItemsPreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarItemsPreferenceKey.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* TabBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarItem.swift; sourceTree = "<group>"; };
@@ -795,6 +793,7 @@
 			children = (
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
 				65E5C8F12E4E79550093410B /* TabSelectionKey.swift */,
+				655D92C32F699B0B00A99685 /* NoScrollCustomTab */,
 				652B154F2F3023B00042A3E1 /* CustomTab */,
 				650383DF2E6B84A80053DDB2 /* CustomTabBar */,
 			);
@@ -897,6 +896,14 @@
 				6536063C2F238077006334D6 /* EventDetails.swift */,
 			);
 			path = EventDetailsSheet;
+			sourceTree = "<group>";
+		};
+		655D92C32F699B0B00A99685 /* NoScrollCustomTab */ = {
+			isa = PBXGroup;
+			children = (
+				655D92C42F699B2400A99685 /* NoScrollCustomTab.swift */,
+			);
+			path = NoScrollCustomTab;
 			sourceTree = "<group>";
 		};
 		655FADC82E89F0FC00AFAD5F /* Profile */ = {
@@ -1096,8 +1103,6 @@
 			children = (
 				65AF14912F64456000031513 /* InvitesViewModel.swift */,
 				65AF14932F6445EB00031513 /* InvitesContainer.swift */,
-				653FB56E2F68701200440E41 /* InvitesPlaceholder.swift */,
-				653FB5702F6870B800440E41 /* InvitesView.swift */,
 				65ED38892F64656600AD5600 /* InviteCard.swift */,
 				65ED38872F6461E400AD5600 /* ProfileCardEvent.swift */,
 			);
@@ -1475,7 +1480,6 @@
 				657F303D2F68B8450057D42C /* GlassIfAvailableModifier.swift in Sources */,
 				650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */,
 				6576B7F22E69082F004217A4 /* ProfileLoader.swift in Sources */,
-				653FB5712F6870B800440E41 /* InvitesView.swift in Sources */,
 				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6536063D2F238077006334D6 /* EventDetails.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsView.swift in Sources */,
@@ -1544,7 +1548,6 @@
 				655FADCB2E89F0FC00AFAD5F /* ProfileImageView.swift in Sources */,
 				655FADCC2E89F0FC00AFAD5F /* ProfileViewModel.swift in Sources */,
 				650E8E5C2EB80D9E009F5454 /* DetailsSections.swift in Sources */,
-				653FB56F2F68701200440E41 /* InvitesPlaceholder.swift in Sources */,
 				65FAF9862E413B100015E231 /* EventContainer.swift in Sources */,
 				6593365C2E193CEA00150AAC /* MapSelectionView.swift in Sources */,
 				65140B1C2F55E41000ED1DDE /* ChatThread.swift in Sources */,
@@ -1599,6 +1602,7 @@
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */,
 				65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */,
+				655D92C52F699B2400A99685 /* NoScrollCustomTab.swift in Sources */,
 				657F30392F68B41D0057D42C /* PageEnum.swift in Sources */,
 				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */,
