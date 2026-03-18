@@ -16,19 +16,23 @@ struct InviteCard: View {
     var body: some View {
         
         VStack(spacing: 20) {
+
+            Image(uiImage: eventProfile.image ?? UIImage())
+                .resizable()
+                .defaultImage(imageSize)
             
-            defaultImage(imageSize)
+            
             
             ClearRectangle(size: 100)
             
         }
         .padding(8)                  // interior padding
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) {screenSize in
-            imageSize = screenSize - (16 * 2)
-        }
         .padding(.bottom, 12)        // extra interior bottom padding
         .frame(maxWidth: .infinity)
+        .measure(key: ImageSizeKey.self) { $0.size.width }
+        .onPreferenceChange(ImageSizeKey.self) {screenSize in
+            imageSize = screenSize
+        }
         .background(
             RoundedRectangle(cornerRadius: 22)
                 .fill(Color.background)
@@ -38,6 +42,6 @@ struct InviteCard: View {
             RoundedRectangle(cornerRadius: 22)
                 .stroke(Color(red: 0.96, green: 0.96, blue: 0.96), lineWidth: 1)
         )
-        .padding(.horizontal, 28)    // outside spacing
+        .padding(.horizontal, 24)    // outside spacing
     }
 }
