@@ -21,51 +21,77 @@ struct ProfileInviteView: View {
             timeRow
             placeRow
         }
-        .overlay(alignment: .topTrailing) {
-            Text(event.type.description.emoji)
-                .font(.body(18, .bold))
-                .padding(.vertical)
-        }
+//        .overlay(alignment: .topTrailing) {
+//            Text(event.type.description.emoji)
+//                .font(.body(16, .medium))
+//                .padding(.vertical)
+//        }
     }
 }
 
 
 extension ProfileInviteView {
     private var typeRow: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(event.type.title)
-                .font(.body(18, .bold))
+        
+        HStack(spacing: 20) {
+            Text(event.type.description.emoji)
+                .font(.body(20, .medium))
             
-            if let message = event.message {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                (
+                    Text("\(event.type.title): ")
+                        .font(.body(16, .medium))
+
+                    +
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+
+                )
             }
         }
     }
     
     private var timeRow: some View {
-        VStack(alignment: .leading, spacing: 4) {
-        if let first = event.proposedTimes.firstAvailableDate {
-                Text(EventFormatting.fullDate(first))
-                    .font(.body(18, .bold))
-                
-                Text(EventFormatting.hourTime(first))
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
+        
+        HStack(spacing: 24) {
+            Image("MiniClockIcon")
+                .scaleEffect(1.3)
+            
+            
+            VStack(alignment: .leading, spacing: 4) {
+            if let first = event.proposedTimes.firstAvailableDate {
+                    Text(EventFormatting.fullDate(first))
+                    .font(.body(16, .medium))
+
+                    Text(EventFormatting.hourTime(first))
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                }
             }
         }
+        
+        
+        
+        
     }
     
     private var placeRow: some View {
-        VStack {
-            let location = event.location
-            VStack(alignment: .leading) {
-                Text(location.name ?? "")
-                    .font(.body(18, .bold))
-                Text(addressWithoutCountry(location.address))
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
+        
+        HStack(spacing: 24) {
+            Image("MiniMapIcon")
+                .scaleEffect(1.3)
+
+            VStack {
+                let location = event.location
+                VStack(alignment: .leading) {
+                    Text(location.name ?? "")
+                        .font(.body(16, .medium))
+                    Text(addressWithoutCountry(location.address))
+                        .font(.footnote)
+                        .foregroundStyle(.gray)
+                }
             }
         }
     }

@@ -12,12 +12,14 @@ struct DetailsSection<Content: View>: View {
     let color: Color
     let title: String?
     let content: Content
+    let padding: CGFloat
     let adaptivePadding: Bool
     
-    init(color: Color = Color(red: 0.9, green: 0.9, blue: 0.9), title: String? = nil, adaptivePadding: Bool = false, @ViewBuilder content: () -> Content) {
+    init(color: Color = Color(red: 0.9, green: 0.9, blue: 0.9), title: String? = nil, adaptivePadding: Bool = false, padding: CGFloat = 16, @ViewBuilder content: () -> Content) {
         self.color = color
         self.title = title
         self.adaptivePadding = adaptivePadding
+        self.padding = padding
         self.content = content()
     }
     
@@ -26,7 +28,7 @@ struct DetailsSection<Content: View>: View {
                 content
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.vertical, padding)
             .frame(maxWidth: .infinity, alignment: .center)
             .frame(height: adaptivePadding ? nil : 169)
             .padding(.vertical, adaptivePadding ? 12 : 0)

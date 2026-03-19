@@ -33,8 +33,11 @@ struct ProfileDetailsView: View {
         ScrollView {
             VStack(spacing: 24) {
                 if showEventView() {
-                    DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "Event Invite") {
-                        if let event {ProfileInviteView(ui: ui, event: event)}
+                    if let event {
+                        DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "\(event.otherUserName)'s Invite", adaptivePadding: true, padding: 12) {
+                            ProfileInviteView(ui: ui, event: event)
+                        }
+                        .padding(.bottom, 24)
                     }
                 }
                 DetailsSection(color: ui.detailsOpen ? (showEventView() ? Color.grayBackground : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
@@ -111,7 +114,6 @@ extension ProfileDetailsView {
     var disableDetailsScroll: Bool {
         !ui.detailsOpen || (ui.isTopOfScroll && detailsOffset > 0)
     }
-    
     
     func showEventView() -> Bool {
         return event != nil && (event?.status == .accepted || event?.status == .pending)
