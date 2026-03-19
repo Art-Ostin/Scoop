@@ -22,11 +22,7 @@ struct InviteCard: View {
     
     var body: some View {
         VStack(spacing: 20) {
-
-            Image(uiImage: eventProfile.image ?? UIImage())
-                .resizable()
-                .defaultImage(imageSize)
-                .opacity(ui.showTimePopup ? 0.3 : 1)
+            profileImage
 
             InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $ui.showTimePopup)
         }

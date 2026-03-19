@@ -36,10 +36,7 @@ struct InvitesContainer: View {
 extension InvitesContainer {
     
     private func fetchEventProfile(_ profile: UserProfile) -> EventProfile? {
-        print("Fetching profile")
-        let nProfile = vm.invites.first { $0.profile.id == profile.id }
-        print(nProfile)
-        return nProfile
+        vm.invites.first { $0.profile.id == profile.id }
     }
 
     private var invitesView: some View {
@@ -111,6 +108,7 @@ extension InvitesContainer {
                 // declineProfile
             }
         )
+        .transition(.move(edge: .bottom))
     }
     
     private func openProfile(_ profile: UserProfile) {
