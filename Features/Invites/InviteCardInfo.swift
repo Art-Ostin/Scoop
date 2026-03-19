@@ -23,16 +23,17 @@ struct InviteCardInfo: View {
         image != nil
     }
  
-    @State var showTimePopup: Bool = false
+    @Binding var showTimePopup: Bool
     
     @Bindable var vm: RespondViewModel
 
-    init(vm: RespondViewModel, image: UIImage?, name: String, event: UserEvent) {
+    init(vm: RespondViewModel, image: UIImage?, name: String, event: UserEvent, showTimePopup: Binding<Bool>) {
         self.image = image
         self.name = name
         self.event = event
         self.vm = vm
         self._selectedDay = State(initialValue: event.proposedTimes.firstAvailableDate)
+        self._showTimePopup = showTimePopup
     }
     
     var body: some View {
@@ -40,7 +41,9 @@ struct InviteCardInfo: View {
             title
             timeView
             placeRow
+                .opacity(showTimePopup ? 0.3 : 1)
             responseRow
+                .opacity(showTimePopup ? 0.3 : 1)
         }
         .padding(.horizontal, 16)
     }

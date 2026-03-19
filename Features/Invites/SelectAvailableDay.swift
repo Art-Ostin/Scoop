@@ -14,31 +14,32 @@ struct SelectAvailableDay: View {
     @Binding var selectedDay: Date?
     @Binding var showTimePopup: Bool
     
+    @State var showCover: Bool = false
     private var dates: [Date] {
         event.proposedTimes.availableDates()
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            headerSection
-            
-            VStack(spacing: 10) {
-                ForEach(dates.indices, id: \.self) { idx in
-                    availableDayRow(idx: idx, date: dates[idx])
+            VStack(alignment: .leading, spacing: 16) {
+                headerSection
+                
+                VStack(spacing: 10) {
+                    ForEach(dates.indices, id: \.self) { idx in
+                        availableDayRow(idx: idx, date: dates[idx])
+                    }
+                    proposeNewDay
                 }
-                proposeNewDay
             }
-        }
-        .frame(width: 290)
-        .padding(18)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.background)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.grayBackground, lineWidth: 1)
-                }
-        )
+            .frame(width: 290)
+            .padding(18)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.background)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(Color.grayBackground, lineWidth: 1)
+                    }
+            )
     }
 }
 

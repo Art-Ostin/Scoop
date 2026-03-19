@@ -14,18 +14,17 @@ struct InviteCard: View {
     let eventProfile: EventProfile
     @Bindable var vm: RespondViewModel
     
+    @State var showTimePopup: Bool = false
+    
     var body: some View {
-        
-        
-        
-        
         VStack(spacing: 20) {
 
             Image(uiImage: eventProfile.image ?? UIImage())
                 .resizable()
                 .defaultImage(imageSize)
+                .opacity(showTimePopup ? 0.3 : 1)
                         
-            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, event: eventProfile.event)
+            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, event: eventProfile.event, showTimePopup: $showTimePopup)
         }
         .padding(contentPadding)
         .padding(.bottom, 12)
