@@ -38,9 +38,14 @@ struct InviteCard: View {
                 .fill(Color.background)
                 .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 22)
-                .stroke(Color(red: 0.96, green: 0.96, blue: 0.96), lineWidth: 1)
-        )
+        .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
+        
+        .onTapGesture {
+            if showTimePopup {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    showTimePopup = false
+                }
+            }
+        }
     }
 }

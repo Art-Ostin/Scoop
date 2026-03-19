@@ -44,6 +44,7 @@ struct InviteCardInfo: View {
                 .opacity(showTimePopup ? 0.3 : 1)
             responseRow
                 .opacity(showTimePopup ? 0.3 : 1)
+                .allowsHitTesting(!showTimePopup)
         }
         .padding(.horizontal, 16)
     }
