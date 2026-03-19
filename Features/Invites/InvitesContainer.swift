@@ -12,6 +12,8 @@ struct InvitesContainer: View {
     @State var ui = InvitesUIState()
     @State var vm: RespondViewModel
     
+    @State var showTint: Bool = false
+    
     var body: some View {
         if vm.invites.isEmpty {
             invitesPlaceholder
@@ -24,7 +26,8 @@ struct InvitesContainer: View {
 extension InvitesContainer {
     
     private var invitesView: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 24) {            
+            
             titleAndTab
             
             ForEach(vm.invites) { invite in
@@ -34,6 +37,9 @@ extension InvitesContainer {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
         .background(Color.background)
+        .onPreferenceChange(QuickInviteTime.self) { newValue in
+                showTint = newValue
+        }
     }
     
     private var titleAndTab: some View {

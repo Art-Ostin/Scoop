@@ -79,7 +79,7 @@ extension InviteCardInfo {
     @ViewBuilder
     private var timeView: some View {
         if let selectedDay {
-            DropDownView(opensAbove: true, showOptions: $showTimePopup) {
+            DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
                 timeRow(selectedDay: selectedDay)
             } dropDown: {
                 SelectAvailableDay(event: event, selectedDay: $selectedDay, showTimePopup: $showTimePopup)
@@ -125,3 +125,12 @@ extension InviteCardInfo {
         )
     }    
 }
+
+
+struct QuickInviteTime: PreferenceKey {
+    static var defaultValue: Bool = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = nextValue()
+    }
+}
+

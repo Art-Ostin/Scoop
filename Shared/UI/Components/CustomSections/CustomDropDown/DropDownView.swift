@@ -19,12 +19,15 @@ struct DropDownView<Row: View, DropDown: View> : View {
     
     private let shadowAllowance: CGFloat = 14
     private let rowHeight: CGFloat = 60
-    var shiftLeft: Bool
-    var opensAbove: Bool
+    
+    let shiftLeft: Bool
+    let opensAbove: Bool
+    let verticalOffset: CGFloat
 
-    init(shiftLeft: Bool = false, opensAbove: Bool = false, showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
+    init(shiftLeft: Bool = false, opensAbove: Bool = false, verticalOffset: CGFloat = 24, showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
         self.shiftLeft = shiftLeft
         self.opensAbove = opensAbove
+        self.verticalOffset = verticalOffset
         _showOptions = showOptions
         self.row = row
         self.dropDown = dropDown
@@ -73,7 +76,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
                     .offset(y: opensAbove ? shadowAllowance : -shadowAllowance)
             }
             .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
-            .offset(y: opensAbove ? 24 : -24)
+            .offset(y: opensAbove ? verticalOffset : -verticalOffset)
             .offset(x: shiftLeft ? -60 : 0)
     }
 

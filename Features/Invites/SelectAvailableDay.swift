@@ -26,9 +26,10 @@ struct SelectAvailableDay: View {
                 ForEach(dates.indices, id: \.self) { idx in
                     availableDayRow(idx: idx, date: dates[idx])
                 }
+                proposeNewDay
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(width: 290)
         .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -41,18 +42,39 @@ struct SelectAvailableDay: View {
     }
 }
 
-
 extension SelectAvailableDay {
-    
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Available Times")
+            Text("Invited Times")
                 .font(.body(18, .bold))
                 .foregroundStyle(Color.black.opacity(0.88))
             
-            Text("Choose the option that works best for you.")
-                .font(.body(13, .medium))
-                .foregroundStyle(Color.grayText)
+        }
+    }
+    
+    
+    private var proposeNewDay: some View {
+        VStack {
+            HStack {
+                Text("Propose a new time")
+                    .font(.body(16, .medium))
+                    .foregroundStyle(Color.black.opacity(0.88))
+                
+                Spacer()
+                
+                Image("EditGray")
+            }
+        }
+        .frame(height: 34)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.white.opacity(0.92))
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.grayBackground, lineWidth: 1)
         }
     }
     
@@ -65,10 +87,6 @@ extension SelectAvailableDay {
         } label: {
             HStack(spacing: 14) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("OPTION \(idx + 1)")
-                        .font(.body(11, .bold))
-                        .kerning(0.9)
-                        .foregroundStyle(isSelected ? Color.accent : Color.grayText)
                     
                     Text(EventFormatting.fullDate(date))
                         .font(.body(16, isSelected ? .bold : .medium))
@@ -76,22 +94,20 @@ extension SelectAvailableDay {
                     
                     Text(EventFormatting.hourTime(date))
                         .font(.body(14, .medium))
-                        .foregroundStyle(isSelected ? Color.accent : Color.grayText)
+                        .foregroundStyle(isSelected ? Color.appGreen : Color.grayText)
                 }
-                
                 Spacer()
-                
-                selectionIndicator(isSelected: isSelected)
+//                selectionIndicator(isSelected: isSelected)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isSelected ? Color.accent.opacity(0.08) : Color.white.opacity(0.92))
+                    .fill(Color.white.opacity(0.92))
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(isSelected ? Color.accent.opacity(0.35) : Color.grayBackground, lineWidth: 1)
+                    .stroke(isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground, lineWidth: 1)
             }
         }
         .buttonStyle(.plain)
@@ -100,12 +116,12 @@ extension SelectAvailableDay {
     private func selectionIndicator(isSelected: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(isSelected ? Color.accent : Color.grayBackground, lineWidth: 1.5)
+                .stroke(isSelected ? Color.appGreen : Color.grayBackground, lineWidth: 1.5)
                 .frame(width: 24, height: 24)
             
             if isSelected {
                 Circle()
-                    .fill(Color.accent)
+                    .fill(Color.appGreen)
                     .frame(width: 24, height: 24)
                 
                 Image(systemName: "checkmark")
@@ -123,3 +139,17 @@ extension SelectAvailableDay {
         }
     }
 }
+
+/*
+ Text("OPTION \(idx + 1)")
+     .font(.body(11, .bold))
+     .kerning(0.9)
+     .foregroundStyle(isSelected ? Color.appGreen: Color.grayText)
+ */
+
+/*
+ //            Text("Choose a day or propose a new time to meet.")
+ //                .font(.body(13, .medium))
+ //                .foregroundStyle(Color.grayText)
+
+ */
