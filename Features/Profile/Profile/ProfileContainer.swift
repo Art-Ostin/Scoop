@@ -65,7 +65,7 @@ struct ProfileView: View {
                             .opacity(1 - overlayTitleOpacity)
                             .padding(.top, 36)
                         
-                        ProfileImageView(vm: vm, showInvite: $ui.showInvite, detailsOffset: detailsOffset, importedImages: profileImages)
+                        ProfileImageView(vm: vm, showInvite: $ui.showRespondPopup, detailsOffset: detailsOffset, importedImages: profileImages)
                             .offset(y: rangeUpdater(endValue: -100))
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
@@ -89,7 +89,7 @@ struct ProfileView: View {
                 }
             }
         }
-        .overlay {if ui.showInvite {invitePopup}}
+        .overlay {if ui.showRespondPopup {invitePopup}}
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
@@ -101,7 +101,7 @@ extension ProfileView {
     
     @ViewBuilder
     private var invitePopup: some View {
-        if ui.showInvite, let event = vm.event {
+        if ui.showRespondPopup, let event = vm.event {
             AcceptInviteContainer(
                 ui: ui,
                 vm: vm,
@@ -116,7 +116,7 @@ extension ProfileView {
         } else {
             SelectTimeAndPlace(
                 vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile),
-                showInvite: $ui.showInvite,
+                showInvite: $ui.showRespondPopup,
                 firstImage: profileImages.first ?? UIImage()) { event in
                     sendInvite?(event)
                 }

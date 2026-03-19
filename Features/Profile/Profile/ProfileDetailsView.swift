@@ -92,7 +92,7 @@ extension ProfileDetailsView {
         HStack {
             EventDeclineButton() {onDecline()}
             Spacer()
-            InviteButton(vm: vm, showInvite: $ui.showInvite)
+            InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
         }
         .padding(.horizontal, 16)
         .offset(y: 354)

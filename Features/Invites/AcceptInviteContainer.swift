@@ -20,6 +20,7 @@ struct AcceptInviteContainer: View {
     
     var body: some View {
         ZStack {
+            CustomScreenCover { ui.showRespondPopup = false }
             
             TabView(selection: $ui.inviteTabSelection) {
                 
@@ -27,12 +28,22 @@ struct AcceptInviteContainer: View {
                     .tag(0)
 
                 if let image {
-                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profileEvent.profile), showInvite: $ui.showInvite, firstImage: image) { onInvite($0)
+                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profileEvent.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
                     }
                     .tag(1)
                 }
             }
+            .sheet(isPresented: $ui.showInfoSheet) {Text("Info Screen")}
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .hideTabBar()
         }
+    }
+}
+
+extension AcceptInviteContainer {
+    private var tabInfoButton: some View {
+        TabInfoButton(showScreen: $ui.showInfoSheet)
+            .scaleEffect(0.9)
+            .offset(x: -12, y: -48)
     }
 }

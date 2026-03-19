@@ -9,20 +9,24 @@ struct SelectTimeAndPlace: View {
     
     let firstImage: UIImage
     let alertMessage = "If they accept & you don't show, you'll be blocked from Scoop"
+    let isCounterInvite: Bool
     let onSubmit: (EventDraft) -> ()
     
-    init(vm: TimeAndPlaceViewModel, showInvite: Binding<Bool>, firstImage: UIImage, onSubmit: @escaping (EventDraft) -> Void) {
+    init(vm: TimeAndPlaceViewModel, showInvite: Binding<Bool>, firstImage: UIImage, isCounterInvite: Bool = false, onSubmit: @escaping (EventDraft) -> Void) {
         self.vm = vm
         self._showInvite = showInvite
         self.firstImage = firstImage
+        self.isCounterInvite = true
         self.onSubmit = onSubmit
     }
     
     var body: some View {
         ZStack {
-            CustomScreenCover {showInvite = false}
+            if !isCounterInvite {
+                CustomScreenCover {showInvite = false}
+            }
             sendInviteScreen
-                .overlay(alignment: .topTrailing) {infoButton }
+                .overlay(alignment: .topTrailing) {if !isCounterInvite { infoButton} }
         }
         .hideTabBar()
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: alertMessage, showTwoButtons: true, isConfirmInvite: true) {

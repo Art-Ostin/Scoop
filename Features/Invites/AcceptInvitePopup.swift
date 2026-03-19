@@ -22,34 +22,21 @@ struct AcceptInvitePopup: View {
     }
     
     var body: some View {
-        ZStack {
-            CustomScreenCover { ui.showInvite = false }
-
-            VStack(alignment: .leading, spacing: 24) {
-                popupTitle
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    typeRow
-                    timeRow
-                    placeRow
-                acceptButton
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }
-            .padding(22)
-            .padding(.bottom, 8)
-            .frame(maxWidth: .infinity)
-            .background(cardBackground)
-            .padding(.horizontal, 24)
-            .overlay(alignment: .topTrailing) {tabInfoButton}
-            .offset(y: 12)
+        VStack(alignment: .leading, spacing: 24) {
+            popupTitle
+                .frame(maxWidth: .infinity, alignment: .center)
+            typeRow
+            timeRow
+            placeRow
+            acceptButton
+                .frame(maxWidth: .infinity, alignment: .center)
         }
-        .sheet(isPresented: $ui.showInfoSheet) {Text("Info Screen")}
-        .hideTabBar()
-    }
-    
-    private var tabInfoButton: some View {
-        TabInfoButton(showScreen: $ui.showInfoSheet)
-            .scaleEffect(0.9)
-            .offset(x: -12, y: -48)
+        .padding(22)
+        .padding(.bottom, 8)
+        .frame(maxWidth: .infinity)
+        .background(cardBackground)
+        .padding(.horizontal, 24)
+        .offset(y: 12)
     }
 }
 

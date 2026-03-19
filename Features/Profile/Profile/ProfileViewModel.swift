@@ -54,7 +54,7 @@ enum DragType {
 
 
 @Observable final class ProfileUIState {
-    var showInvite: Bool = false
+    var showRespondPopup: Bool = false
     var showInfoSheet: Bool = false
     var detailsOpen = false
     var dragType: DragType? = nil
