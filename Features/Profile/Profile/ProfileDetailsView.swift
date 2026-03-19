@@ -7,25 +7,37 @@
 import SwiftUI
 import SwiftUIFlowLayout
 
+
+//    let detailsOffset: CGFloat
+//     @Binding var isTopOfScroll: Bool
+//      @Binding var showInvite: Bool
+//     let detailsOpen: Bool
+
+
 struct ProfileDetailsView: View {
     @Bindable var vm: ProfileViewModel
-    @Binding var isTopOfScroll: Bool
-    @Binding var showInvite: Bool
+    @Bindable var ui: ProfileUIState
     
-    let detailsOpen: Bool
-    let detailsOffset: CGFloat
     let p: UserProfile
+    let detailsOffset: CGFloat
+    let event: UserEvent?
+    let onDecline: () -> Void
+    
     
     @State private var flowLayoutBottom: CGFloat = 0
     @State private var interestSectionBottom: CGFloat = 0
     @State private var interestScale: CGFloat = 1
-    
-    let onDecline: () -> Void
 
     var body: some View {
+        
         ScrollView {
             VStack(spacing: 24) {
-                DetailsSection(color: detailsOpen ? .accent : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
+                if showEventView() {
+                    DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "Event Invite") {
+                        if let event {ProfileInviteView(ui: ui, event: event)}
+                    }
+                }
+                DetailsSection(color: ui.detailsOpen ? (showEventView() ? Color.grayBackground : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
@@ -40,12 +52,12 @@ struct ProfileDetailsView: View {
         .stroke(30, lineWidth: 1, color: .grayPlaceholder)
         .coordinateSpace(.named("InterestsSection"))
         .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
-            self.isTopOfScroll = isAtTop
+            self.ui.isTopOfScroll = isAtTop
         }
         .scrollDisabled(disableDetailsScroll)
         .scrollIndicators(.hidden)
         .overlay(alignment: .top) { if vm.viewProfileType != .view {profileActionBar}}
-        .customScrollFade(height: 80, showFade: !isTopOfScroll)
+        .customScrollFade(height: 80, showFade: !ui.isTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
     }
 }
@@ -53,7 +65,7 @@ struct ProfileDetailsView: View {
 extension ProfileDetailsView {
     @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !isTopOfScroll && detailsOpen {
+        if !ui.isTopOfScroll && ui.detailsOpen {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
@@ -77,7 +89,7 @@ extension ProfileDetailsView {
         HStack {
             EventDeclineButton() {onDecline()}
             Spacer()
-            InviteButton(vm: vm, showInvite: $showInvite)
+            InviteButton(vm: vm, showInvite: $ui.showInvite)
         }
         .padding(.horizontal, 16)
         .offset(y: 354)
@@ -97,26 +109,11 @@ extension ProfileDetailsView {
     }
     
     var disableDetailsScroll: Bool {
-        !detailsOpen || (isTopOfScroll && detailsOffset > 0)
+        !ui.detailsOpen || (ui.isTopOfScroll && detailsOffset > 0)
+    }
+    
+    
+    func showEventView() -> Bool {
+        return event != nil && (event?.status == .accepted || event?.status == .pending)
     }
 }
-
-/*
- private var gradientCover: some View {
-     LinearGradient(colors: [.white, .white.opacity(0.9), .white.opacity(0.6), .white.opacity(0.25), .white.opacity(0.0)], startPoint: .top, endPoint: .bottom)
-         .frame(maxWidth: .infinity)
-         .frame(height: 80)
-         .cornerRadius(30)
- }
- */
-
-
-
-/*
- //                .background(
- //                    Circle()
- //                        .fill(Color.background)
- //                        .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
- //                        .stroke(200, lineWidth: 0.5, color: Color.grayBackground)
- //                )
- */

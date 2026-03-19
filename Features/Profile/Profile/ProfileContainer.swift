@@ -70,7 +70,9 @@ struct ProfileView: View {
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                         
-                        ProfileDetailsView(vm: vm, isTopOfScroll: $ui.isTopOfScroll, showInvite: $ui.showInvite, detailsOpen: ui.detailsOpen, detailsOffset: detailsOffset, p: displayProfile) { declineProfile?(nil) }
+                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event) {
+                            declineProfile?(nil)
+                        }
                             .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                             .offset(y: detailsSectionOffset())
                             .onTapGesture { ui.detailsOpen.toggle() }

@@ -108,6 +108,8 @@ extension InvitesContainer {
                 // declineProfile
             }
         )
+        .id(eventProfile.profile.id)
+        .zIndex(1)
         .transition(.move(edge: .bottom))
     }
     
