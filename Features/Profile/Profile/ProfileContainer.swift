@@ -102,10 +102,16 @@ extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
         if ui.showInvite, let event = vm.event {
-            AcceptInviteView(showInvite: $ui.showInvite, profile: vm.profile, event: event, image: profileImages.first) { event in
-                acceptInvite?(event)
-            } onDecline: { event in
-                declineProfile?(event)
+            AcceptInviteContainer(
+                ui: ui,
+                vm: vm,
+                profileEvent: EventProfile(event: event, profile: vm.profile),
+                image: profileImages.first ?? UIImage(),
+                name: vm.profile.name
+            ) { acceptedEvent in
+                
+            } onInvite: { invitedEvent in
+                
             }
         } else {
             SelectTimeAndPlace(
@@ -267,3 +273,9 @@ extension ProfileView {
             .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
     }
 }
+
+/*
+ AcceptInvitePopup(ui: ui, event: event, image: profileImages.first, name: vm.profile.name) {event in
+     acceptInvite?(event)
+ }
+ */

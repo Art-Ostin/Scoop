@@ -37,7 +37,7 @@ struct ProfileDetailsView: View {
                         DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "\(event.otherUserName)'s Invite", adaptivePadding: true, padding: 12) {
                             ProfileInviteView(ui: ui, event: event)
                         }
-                        .padding(.bottom, 24)
+                        .padding(.bottom, 32)
                     }
                 }
                 DetailsSection(color: ui.detailsOpen ? (showEventView() ? Color.grayBackground : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}

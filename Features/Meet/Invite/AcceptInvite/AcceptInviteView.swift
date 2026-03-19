@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AcceptInviteView: View {
     
-    @Binding var showInvite: Bool
+    @Bindable var ui: ProfileUIState
     
     let profile: UserProfile
     let event: UserEvent
@@ -23,7 +23,7 @@ struct AcceptInviteView: View {
     var body: some View {
         
         ZStack {
-            CustomScreenCover {showInvite = false }
+            CustomScreenCover { ui.showInfoSheet = false }
             VStack(alignment: .center, spacing: 24) {
                 popupTitle
                 VStack(spacing: 16) {
@@ -96,7 +96,7 @@ extension AcceptInviteView {
     }
     
     private var tabInfoButton: some View {
-        TabInfoButton(showScreen: $showInfoScreen)
+        TabInfoButton(showScreen: $ui.showInfoSheet)
             .scaleEffect(0.9)
             .offset(x: -12, y: -48)
     }

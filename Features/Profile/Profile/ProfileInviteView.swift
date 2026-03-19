@@ -33,7 +33,7 @@ struct ProfileInviteView: View {
 extension ProfileInviteView {
     private var typeRow: some View {
         
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             Text(event.type.description.emoji)
                 .font(.body(20, .medium))
             
@@ -42,12 +42,10 @@ extension ProfileInviteView {
                 (
                     Text("\(event.type.title): ")
                         .font(.body(16, .medium))
-
                     +
                     Text(message)
                         .font(.footnote)
                         .foregroundStyle(.gray)
-
                 )
             }
         }
@@ -71,17 +69,13 @@ extension ProfileInviteView {
                 }
             }
         }
-        
-        
-        
-        
     }
     
     private var placeRow: some View {
-        
         HStack(spacing: 24) {
             Image("MiniMapIcon")
                 .scaleEffect(1.3)
+                .foregroundStyle(Color.appGreen)
 
             VStack {
                 let location = event.location
@@ -95,6 +89,7 @@ extension ProfileInviteView {
             }
         }
     }
+    
     private func addressWithoutCountry(_ address: String?) -> String {
         let parts = (address ?? "")
             .split(separator: ",")
