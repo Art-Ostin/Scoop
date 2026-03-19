@@ -10,6 +10,7 @@ import SwiftUI
 struct InvitesContainer: View {
     
     @State var ui = InvitesUIState()
+    
     @State var vm: RespondViewModel
     
     @State var showTint: Bool = false
@@ -31,7 +32,7 @@ extension InvitesContainer {
             titleAndTab
             
             ForEach(vm.invites) { invite in
-                InviteCard(eventProfile: invite, vm: vm)
+                InviteCard(eventProfile: invite, vm: vm, timeAndPlaceVM: TimeAndPlaceViewModel(defaults: vm.d, sessionManager: vm.s, profile: invite.profile))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

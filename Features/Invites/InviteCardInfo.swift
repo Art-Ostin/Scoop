@@ -12,7 +12,11 @@ struct InviteCardInfo: View {
     let image: UIImage?
     let name: String
     
-    let event: UserEvent
+    let eventProfile: EventProfile
+    
+    var event: UserEvent {
+        eventProfile.event
+    }
     
     @State var selectedDay: Date?
     
@@ -27,12 +31,12 @@ struct InviteCardInfo: View {
     
     @Bindable var vm: RespondViewModel
 
-    init(vm: RespondViewModel, image: UIImage?, name: String, event: UserEvent, showTimePopup: Binding<Bool>) {
+    init(vm: RespondViewModel, image: UIImage?, name: String, eventProfile: EventProfile , showTimePopup: Binding<Bool>) {
         self.image = image
         self.name = name
-        self.event = event
+        self.eventProfile = eventProfile
         self.vm = vm
-        self._selectedDay = State(initialValue: event.proposedTimes.firstAvailableDate)
+        self._selectedDay = State(initialValue: eventProfile.event.proposedTimes.firstAvailableDate)
         self._showTimePopup = showTimePopup
     }
     
@@ -86,7 +90,7 @@ extension InviteCardInfo {
             DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
                 timeRow(selectedDay: selectedDay)
             } dropDown: {
-                SelectAvailableDay(event: event, selectedDay: $selectedDay, showTimePopup: $showTimePopup)
+                InviteSelectTimeView(event: event, showTimePopup: $showTimePopup, selectedDay: $selectedDay, vm: vm, timeAndPlaceVM: TimeAndPlaceViewModel(defaults: vm.d, sessionManager: vm.s, profile: eventProfile.profile ))
             }
             .frame(height: 0)
         }

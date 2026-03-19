@@ -18,7 +18,6 @@ struct SelectTimeView: View {
     @State private var clickedUnavailbleDay = false
     @State private var selectedHour = 22
     @State private var selectedMinute = 30
-
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11

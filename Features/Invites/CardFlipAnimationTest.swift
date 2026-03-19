@@ -8,21 +8,25 @@
 import SwiftUI
 
 
-
 struct CardFlipView: View {
-    @State private var rotation: Double = 0
-
-    var body: some View {
+    
+    @State var isFlipped = false
+    
+    var body: some View{
+        
         ZStack {
-            FrontOfCard()
+            if isFlipped {
+                BackOfCard()
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
 
-            BackOfCard()
-                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+            } else {
+                FrontOfCard()
+            }
         }
-        .rotation3DEffect(.degrees(rotation), axis: (x: 0, y: 1, z: 0))
-        .animation(.easeInOut, value: rotation)
+        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+        .animation(.easeInOut, value: isFlipped)
         .onTapGesture {
-            rotation += 180
+            isFlipped.toggle()
         }
     }
 }

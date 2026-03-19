@@ -9,12 +9,16 @@ import SwiftUI
 
 struct InviteCard: View {
     
+    
+    
     @State private var imageSize: CGFloat = 0
     private let contentPadding: CGFloat = 8
     let eventProfile: EventProfile
     @Bindable var vm: RespondViewModel
     
     @State var showTimePopup: Bool = false
+    
+    @State var timeAndPlaceVM: TimeAndPlaceViewModel
     
     var body: some View {
         VStack(spacing: 20) {
@@ -24,7 +28,7 @@ struct InviteCard: View {
                 .defaultImage(imageSize)
                 .opacity(showTimePopup ? 0.3 : 1)
                         
-            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, event: eventProfile.event, showTimePopup: $showTimePopup)
+            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $showTimePopup)
         }
         .padding(contentPadding)
         .padding(.bottom, 12)
