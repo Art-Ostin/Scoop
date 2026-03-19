@@ -9,16 +9,16 @@ import SwiftUI
 
 struct InviteCard: View {
     
+    @State var timeAndPlaceVM: TimeAndPlaceViewModel
+
+    @Bindable var vm: RespondViewModel
+    @Bindable var ui: InvitesUIState
+    let eventProfile: EventProfile
     
+    let openProfile: (UserProfile) -> ()
     
     @State private var imageSize: CGFloat = 0
     private let contentPadding: CGFloat = 8
-    let eventProfile: EventProfile
-    @Bindable var vm: RespondViewModel
-    
-    @State var showTimePopup: Bool = false
-    
-    @State var timeAndPlaceVM: TimeAndPlaceViewModel
     
     var body: some View {
         VStack(spacing: 20) {
@@ -26,9 +26,9 @@ struct InviteCard: View {
             Image(uiImage: eventProfile.image ?? UIImage())
                 .resizable()
                 .defaultImage(imageSize)
-                .opacity(showTimePopup ? 0.3 : 1)
-                        
-            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $showTimePopup)
+                .opacity(ui.showTimePopup ? 0.3 : 1)
+
+            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $ui.showTimePopup)
         }
         .padding(contentPadding)
         .padding(.bottom, 12)
@@ -45,11 +45,27 @@ struct InviteCard: View {
         .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
         
         .onTapGesture {
-            if showTimePopup {
+            if ui.showTimePopup {
                 withAnimation(.easeInOut(duration: 0.15)) {
-                    showTimePopup = false
+                    ui.showTimePopup = false
                 }
             }
         }
     }
+}
+
+extension InviteCard {
+    
+    
+    private var profileImage: some View {
+        Image(uiImage: eventProfile.image ?? UIImage())
+            .resizable()
+            .defaultImage(imageSize)
+            .opacity(ui.showTimePopup ? 0.3 : 1)
+            .contentShape(Rectangle())
+            .onTapGesture {openProfile(eventProfile.profile)}
+    }
+    
+    
+    
 }

@@ -41,6 +41,10 @@ import SwiftUI
         
         
     }
+    
+    func loadImages(profile: UserProfile) async -> [UIImage] {
+        return await imageLoader.loadProfileImages(profile)
+    }
 }
 
 
@@ -49,5 +53,6 @@ import SwiftUI
     var declineScreen: Bool? = false
     var acceptScreen: Bool = true
     var showDetails: Bool = false
+    var showTimePopup: Bool = false
     var dismissOffset: CGFloat? = nil
 }

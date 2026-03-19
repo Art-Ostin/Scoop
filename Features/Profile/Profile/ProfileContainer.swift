@@ -36,7 +36,6 @@ struct ProfileView: View {
     
     init(
         vm: ProfileViewModel,
-        meetVM: InviteViewModel? = nil,
         profileImages: [UIImage],
         selectedProfile: Binding<UserProfile?>,
         dismissOffset: Binding<CGFloat?>,

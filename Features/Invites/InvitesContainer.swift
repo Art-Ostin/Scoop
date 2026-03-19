@@ -12,27 +12,51 @@ struct InvitesContainer: View {
     @State var ui = InvitesUIState()
     
     @State var vm: RespondViewModel
-    
+    @State var profileImages: [String : [UIImage]] = [:]
     @State var showTint: Bool = false
     
     var body: some View {
         if vm.invites.isEmpty {
             invitesPlaceholder
         } else {
-            invitesView
+            
+            ZStack {
+                invitesView
+                
+                if let profile = ui.selectedProfile {
+                    if let eventProfile = fetchEventProfile(profile) {
+                        profileView(eventProfile: eventProfile)
+                    }
+                }
+            }
         }
     }
 }
 
 extension InvitesContainer {
     
+    private func fetchEventProfile(_ profile: UserProfile) -> EventProfile? {
+        print("Fetching profile")
+        let nProfile = vm.invites.first { $0.profile.id == profile.id }
+        print(nProfile)
+        return nProfile
+    }
+
     private var invitesView: some View {
-        VStack(spacing: 24) {            
-            
+        VStack(spacing: 24) {
             titleAndTab
             
             ForEach(vm.invites) { invite in
-                InviteCard(eventProfile: invite, vm: vm, timeAndPlaceVM: TimeAndPlaceViewModel(defaults: vm.d, sessionManager: vm.s, profile: invite.profile))
+                InviteCard(
+                    timeAndPlaceVM: TimeAndPlaceViewModel(
+                        defaults: vm.d,
+                        sessionManager: vm.s,
+                        profile: invite.profile
+                    ),
+                    vm: vm, ui: ui, eventProfile: invite) {profile in
+                        openProfile(profile)
+                    }
+                    .task { await loadProfileImages(invite.profile) }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -58,5 +82,58 @@ extension InvitesContainer {
     
     private var invitesPlaceholder: some View {
         Text("There are no current invites")
+    }
+}
+
+//ProfileView Related
+extension InvitesContainer {
+    
+    @ViewBuilder
+    private func profileView(eventProfile: EventProfile) -> some View {
+        ProfileView(
+            vm: ProfileViewModel(
+                defaults: vm.d,
+                s: vm.s,
+                profile: eventProfile.profile,
+                event: eventProfile.event,
+                imageLoader: vm.imageLoader
+            ),
+            profileImages: profileImages[eventProfile.profile.id] ?? [],
+            selectedProfile: $ui.selectedProfile,
+            dismissOffset: $ui.dismissOffset,
+            sendInvite: { draft in
+                // sendInvite
+            },
+            acceptInvite: { acceptInviteModel in
+                // acceptInvite
+            },
+            declineProfile: { declineProfileId in
+                // declineProfile
+            }
+        )
+    }
+    
+    private func openProfile(_ profile: UserProfile) {
+        if ui.selectedProfile == nil {
+            ui.dismissOffset = nil
+            ui.selectedProfile = profile
+        }
+    }
+    
+    private func loadProfileImages(_ profile: UserProfile) async {
+        let loadedImages = await vm.loadImages(profile: profile)
+        profileImages[profile.id] = loadedImages
+    }
+    
+    private func sendInvite(eventDraft: EventDraft) {
+        
+    }
+    
+    private func acceptInvite(eventDraft: UserEvent) {
+        
+    }
+    
+    private func declineProfile(userEvent: UserEvent) {
+        
     }
 }
