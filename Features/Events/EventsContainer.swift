@@ -97,7 +97,7 @@ extension EventsContainer {
     
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
-            vm:ProfileViewModel(defaults: vm.defaults, s: vm.sessionManager, profile: profile, imageLoader: vm.imageLoader),
+            vm:ProfileViewModel(defaults: vm.defaults, s: vm.sessionManager, profile: profile, event: fetchEvent(profile), imageLoader: vm.imageLoader),
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.selectedProfile,
             dismissOffset: $ui.dismissOffset
@@ -110,5 +110,10 @@ extension EventsContainer {
     private func loadProfileImages(_ profile: UserProfile) async {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
+    }
+    
+    private func fetchEvent(_ profile: UserProfile) -> UserEvent? {
+        let eventProfile = vm.events.first { $0.profile.id == profile.id }
+        return eventProfile?.event
     }
 }

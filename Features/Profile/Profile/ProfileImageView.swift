@@ -53,7 +53,7 @@ extension ProfileImageView {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                if !(vm.viewProfileType == .view) {
+                if vm.viewProfileType == .invite {
                     InviteButton(vm: vm, showInvite: $showInvite)
                         .padding()
                 }

@@ -93,11 +93,19 @@ struct ProfileView: View {
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .bottomTrailing) {
+            if vm.viewProfileType == .accept && !ui.showRespondPopup {
+                InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 84)
+            }
+        }
     }
 }
 
 //Different Screens
 extension ProfileView {
+    
     
     @ViewBuilder
     private var invitePopup: some View {

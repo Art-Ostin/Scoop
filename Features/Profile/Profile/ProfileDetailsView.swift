@@ -88,14 +88,17 @@ extension ProfileDetailsView {
         .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 ; updateInterestScale()}
     }
     
+    @ViewBuilder
     private var profileActionBar: some View {
-        HStack {
-            EventDeclineButton() {onDecline()}
-            Spacer()
-            InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
+        if vm.viewProfileType == .invite {
+            HStack {
+                EventDeclineButton() {onDecline()}
+                Spacer()
+                InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
+            }
+            .padding(.horizontal, 16)
+            .offset(y: 354)
         }
-        .padding(.horizontal, 16)
-        .offset(y: 354)
     }
 }
 
