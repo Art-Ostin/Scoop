@@ -123,12 +123,10 @@ extension AcceptInvitePopup {
     
     private var actionSection: some View {
         HStack {
-            acceptButton
-            Spacer()
             declineButton
+            Spacer()
+            acceptButton
         }
-        
-        
     }
     
     private var declineButton: some View {
