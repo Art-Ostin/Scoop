@@ -24,12 +24,10 @@ struct AcceptInvitePopup: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             popupTitle
-                .frame(maxWidth: .infinity, alignment: .center)
             typeRow
             timeRow
             placeRow
-            acceptButton
-                .frame(maxWidth: .infinity, alignment: .center)
+            actionSection
         }
         .padding(22)
         .padding(.bottom, 8)
@@ -122,6 +120,29 @@ extension AcceptInvitePopup {
         return parts.dropLast().joined(separator: ", ")
     }
     
+    
+    private var actionSection: some View {
+        HStack {
+            acceptButton
+            Spacer()
+            declineButton
+        }
+        
+        
+    }
+    
+    private var declineButton: some View {
+        Button {
+
+        } label: {
+            Text("Decline")
+                .font(.body(16, .bold))
+                .foregroundStyle(Color(red: 0.36, green: 0.36, blue: 0.36))
+                .padding(.horizontal, 36)
+                .frame(height: 40)
+                .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
+        }
+    }
     
     private var acceptButton: some View {
         Button {

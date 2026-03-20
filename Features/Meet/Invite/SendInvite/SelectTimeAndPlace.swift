@@ -16,7 +16,7 @@ struct SelectTimeAndPlace: View {
         self.vm = vm
         self._showInvite = showInvite
         self.firstImage = firstImage
-        self.isCounterInvite = true
+        self.isCounterInvite = isCounterInvite
         self.onSubmit = onSubmit
     }
     
@@ -26,7 +26,7 @@ struct SelectTimeAndPlace: View {
                 CustomScreenCover {showInvite = false}
             }
             sendInviteScreen
-                .overlay(alignment: .topTrailing) {if !isCounterInvite { infoButton} }
+                .overlay(alignment: .topTrailing) {if !isCounterInvite { infoButton } }
         }
         .hideTabBar()
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: alertMessage, showTwoButtons: true, isConfirmInvite: true) {
