@@ -24,13 +24,11 @@ struct AcceptInvitePopup: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             popupTitle
-            typeRow
             timeRow
             placeRow
             actionSection
         }
         .padding(22)
-        .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
         .background(cardBackground)
         .padding(.horizontal, 24)
@@ -42,35 +40,21 @@ struct AcceptInvitePopup: View {
 extension AcceptInvitePopup {
 
     private var popupTitle: some View {
-        HStack(spacing: 8) {
-            if let image {
-                CirclePhoto(image: image, showShadow: false, height: 30)
+        HStack(alignment: .center) {
+            HStack(spacing: 8) {
+                if let image {
+                    CirclePhoto(image: image, showShadow: false, height: 30)
+                }
+                Text("Meet \(name)")
+                    .font(.body(22, .bold))
             }
-            Text("Meet \(name)")
-                .font(.body(22, .bold))
+
+            Spacer()
+                Text("\(event.type.description.emoji) \(event.type.title)")
+                    .font(.body(16, .medium))
         }
     }
 
-    
-    private var typeRow: some View {
-        
-        HStack(spacing: 16) {
-            Text(event.type.description.emoji)
-                .font(.body(20, .medium))
-            
-            
-            VStack(alignment: .leading, spacing: 4) {
-                (
-                    Text("\(event.type.title): ")
-                        .font(.body(16, .medium))
-                    +
-                    Text(message)
-                        .font(.footnote)
-                        .foregroundStyle(.gray)
-                )
-            }
-        }
-    }
     
     private var timeRow: some View {
         
@@ -81,17 +65,25 @@ extension AcceptInvitePopup {
             
             VStack(alignment: .leading, spacing: 4) {
                 if let first = event.proposedTimes.firstAvailableDate {
-                    Text(EventFormatting.fullDate(first))
-                        .font(.body(16, .medium))
-                    
-                    Text(EventFormatting.hourTime(first))
-                        .font(.footnote)
-                        .foregroundStyle(.gray)
+                    if let message = event.message {
+                        
+                        Text(EventFormatting.fullDateAndTime(first))
+                            .font(.body(16, .medium))
+                        
+                        Text(message)
+                            .font(.footnote)
+                            .foregroundStyle(.gray)
+                    } else {
+                        Text(EventFormatting.fullDate(first, wideMonth: true))
+                        
+                        Text(EventFormatting.hourTime(first))
+                            .font(.footnote)
+                            .foregroundStyle(.gray)
+                    }
                 }
             }
         }
     }
-    
     
     private var placeRow: some View {
         HStack(spacing: 24) {
@@ -108,6 +100,7 @@ extension AcceptInvitePopup {
                         .font(.footnote)
                         .foregroundStyle(.gray)
                         .underline()
+                        .lineLimit(1)
                 }
             }
         }
@@ -169,3 +162,28 @@ extension AcceptInvitePopup {
         }
     }
 }
+
+
+
+/*
+ private var typeRow: some View {
+     
+     HStack(spacing: 16) {
+         Text(event.type.description.emoji)
+             .font(.body(20, .medium))
+         
+         
+         VStack(alignment: .leading, spacing: 4) {
+             (
+                 Text("\(event.type.title): ")
+                     .font(.body(16, .medium))
+                 +
+                 Text(message)
+                     .font(.footnote)
+                     .foregroundStyle(.gray)
+             )
+         }
+     }
+ }
+
+ */

@@ -97,7 +97,7 @@ struct ProfileView: View {
             if vm.viewProfileType == .accept && !ui.showRespondPopup {
                 InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 84)
+                    .padding(.bottom, 96)
             }
         }
     }
@@ -105,7 +105,6 @@ struct ProfileView: View {
 
 //Different Screens
 extension ProfileView {
-    
     
     @ViewBuilder
     private var invitePopup: some View {

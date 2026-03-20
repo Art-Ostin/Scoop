@@ -119,6 +119,6 @@ extension ProfileDetailsView {
     }
     
     func showEventView() -> Bool {
-        return event != nil && (event?.status == .accepted || event?.status == .pending)
+        return event != nil && (event?.status == .accepted)
     }
 }

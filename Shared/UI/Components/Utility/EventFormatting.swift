@@ -19,9 +19,9 @@ import Foundation
          date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
      }
      
-     static func fullDate(_ date: Date) -> String {
+     static func fullDate(_ date: Date, wideMonth: Bool = false) -> String {
              let weekday = date.formatted(.dateTime.weekday(.wide))
-             let month = date.formatted(.dateTime.month(.abbreviated))
+         let month = date.formatted(.dateTime.month(wideMonth ? .wide : .abbreviated))
 
          return "\(weekday) \(ordinalDay(for: date)) \(month)"
      }
