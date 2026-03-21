@@ -10,6 +10,7 @@ import SwiftUI
 struct RespondCard: View {
     
     @Bindable var ui: ProfileUIState
+    @Binding var isFlipped: Bool
     
     let event: UserEvent
     let image: UIImage
@@ -17,10 +18,6 @@ struct RespondCard: View {
     
     let onAccept: (UserEvent) -> ()
     let onDecline: (UserEvent) -> ()
-    
-    
-    
-    @State var isFlipped: Bool = false
     
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -35,7 +32,6 @@ struct RespondCard: View {
             placeRow
             actionSection
         }
-        .animation(.easeInOut, value: isFlipped)
         .padding(22)
         .frame(maxWidth: .infinity)
         .background(CardBackground())
@@ -44,27 +40,8 @@ struct RespondCard: View {
     }
 }
 
-
+//PopupTitle Section
 extension RespondCard {
-
-    @ViewBuilder
-    private var acceptInviteScreen: some View {
-        VStack(alignment: .leading, spacing: 22){
-            popupTitle
-            timeRow
-        }
-        placeRow
-        actionSection
-    }
-    
-    private var backToEvent: some View {
-        Text("Event")
-            .foregroundStyle(Color.appGreen)
-            .contentShape(.rect)
-            .onTapGesture {
-                isFlipped.toggle()
-            }
-    }
     
     private var popupTitle: some View {
         HStack(alignment: .center) {
@@ -76,9 +53,7 @@ extension RespondCard {
     
     private var eventTitle: some View {
         HStack(spacing: 8) {
-            if let image {
-                CirclePhoto(image: image, showShadow: false, height: 30)
-            }
+            CirclePhoto(image: image, showShadow: false, height: 30)
             Text("Meet \(name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
@@ -88,17 +63,18 @@ extension RespondCard {
         Button {
             isFlipped = true
         } label: {
-            HStack(spacing: 2) {
+            HStack(alignment: .top, spacing: 2) {
                 Text("\(event.type.description.emoji) \(event.type.title)")
                     .font(.body(16, .medium))
                 
                 Image(systemName: "info.circle")
                     .foregroundStyle(Color.grayText).opacity(0.6)
                     .font(.body(14, .medium))
-                    .offset(y: -6)
             }
         }
     }
+}
+extension RespondCard {
     
     private var timeRow: some View {
         
@@ -106,11 +82,9 @@ extension RespondCard {
             Image("MiniClockIcon")
                 .scaleEffect(1.3)
             
-            
             VStack(alignment: .leading, spacing: 4) {
                 if let first = event.proposedTimes.firstAvailableDate {
                     if let message = event.message {
-                        
                         Text(EventFormatting.fullDateAndTime(first))
                             .font(.body(16, .medium))
                         
@@ -140,7 +114,7 @@ extension RespondCard {
                 VStack(alignment: .leading) {
                     Text(location.name ?? "")
                         .font(.body(16, .medium))
-                    Text(addressWithoutCountry(location.address))
+                    Text(EventFormatting.addressWithoutCountry(location.address))
                         .font(.footnote)
                         .foregroundStyle(.gray)
                         .underline()
@@ -150,48 +124,11 @@ extension RespondCard {
         }
     }
     
-    private func addressWithoutCountry(_ address: String?) -> String {
-        let parts = (address ?? "")
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        return parts.dropLast().joined(separator: ", ")
-    }
-    
-    
     private var actionSection: some View {
         HStack {
-            declineButton
+            DeclineButton {onDecline(event) }
             Spacer()
-            acceptButton
-        }
-    }
-    
-    private var declineButton: some View {
-        Button {
-
-        } label: {
-            Text("Decline")
-                .font(.body(16, .bold))
-                .foregroundStyle(Color(red: 0.36, green: 0.36, blue: 0.36))
-                .padding(.horizontal, 36)
-                .frame(height: 40)
-                .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
-        }
-    }
-    
-    private var acceptButton: some View {
-        Button {
-            onAccept(event)
-        } label: {
-            Text("Accept")
-                .foregroundStyle(Color.white)
-                .font(.body(16, .bold))
-                .padding(.horizontal, 36)
-                .frame(height: 40)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .foregroundStyle(Color.appGreen)
-                )
+            AcceptButton {onAccept(event)}
         }
     }
 }

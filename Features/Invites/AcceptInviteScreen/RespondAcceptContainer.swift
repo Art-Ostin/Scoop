@@ -20,6 +20,6 @@ struct RespondAcceptContainer: View {
                 
             }
         }
-        
+        .animation(.easeInOut, value: isFlipped)
     }
 }

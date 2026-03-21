@@ -71,4 +71,11 @@ import Foundation
          default: return "th"
          }
      }
+     
+    static func addressWithoutCountry(_ address: String?) -> String {
+         let parts = (address ?? "")
+             .split(separator: ",")
+             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+         return parts.dropLast().joined(separator: ", ")
+     }
  }

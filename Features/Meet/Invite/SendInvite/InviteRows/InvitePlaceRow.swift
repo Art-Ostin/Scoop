@@ -45,16 +45,9 @@ extension InvitePlaceRow {
         VStack(alignment: .leading) {
             Text(location.name ?? "")
                 .font(.body(18, .bold))
-            Text(addressWithoutCountry(location.address))
+            Text(EventFormatting.addressWithoutCountry(location.address))
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
-    }
-    
-    private func addressWithoutCountry(_ address: String?) -> String {
-        let parts = (address ?? "")
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        return parts.dropLast().joined(separator: ", ")
     }
 }

@@ -34,5 +34,12 @@ extension RespondDetailsCard {
         }
     }
     
-    
+    private var backToEvent: some View {
+        Text("Event")
+            .foregroundStyle(Color.appGreen)
+            .contentShape(.rect)
+            .onTapGesture {
+                isFlipped.toggle()
+            }
+    }
 }
