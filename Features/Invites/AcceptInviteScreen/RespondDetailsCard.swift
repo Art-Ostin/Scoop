@@ -26,11 +26,11 @@ struct RespondDetailsCard: View {
             inviteDetailsTitle
             
             Text(openingMessage)
-                .font(.body(16, .medium))
+                .font(.body(16, .italic))
+                .foregroundStyle(Color.grayText)
             
             Text("When you've accepted their invite you can begin messaging")
                 .font(.body(16, .bold))
-
             
             Text(event.type.howItWorks(userEvent: event))
                 .font(.body(16, .medium))
@@ -45,39 +45,20 @@ struct RespondDetailsCard: View {
 
 extension RespondDetailsCard {
     
-    
-    
-    private var inviteDetailsTitle: some View {
-        
-        Text ("\(event.type.description.emoji) \(event.type.description.label)")
-            .font()
-        
-        
-        
+    private var Title: some View {
+        Text("How it Works")
+            .font(.body(12, .bold))
+            .tracking(1.2)
+            .foregroundStyle(Color.grayText)
     }
-
+    
+    @ViewBuilder
     private var inviteDetailsTitle: some View {
         HStack {
-            HStack(spacing: 8) {
-               Image(systemName: "info.circle")
-                    .font(.body(20, .regular))
-                     .foregroundStyle(Color.grayText)
-                
-                HStack(spacing: 2) {
-                    Text("How it works: ")
-                    
-                    +
-                    
-                    Text("\(event.type.description.label)")
-                        .font(.custom("SFProRounded-Bold", size: 20))
-                    
-                    Text("\(event.type.description.emoji)")
-                        .font(.body(20))
-                }
-            }
+            Text ("\(event.type.description.emoji) \(event.type.description.label)")
+                .font(.custom("SFProRounded-Medium", size: 20))
             
             Spacer()
-            
             backToEvent
         }
     }
@@ -93,12 +74,50 @@ extension RespondDetailsCard {
                     .foregroundStyle(Color.appGreen)
                     .contentShape(.rect)
             }
+            .background (
+                ZStack {
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(Color.background)
+                        .shadow(color: .appGreen.opacity(0.1), radius: 5, x: 0, y: 4)
+
+                    RoundedRectangle(cornerRadius: 30)
+                        .inset(by: 0.5)
+                        .stroke(Color.grayBackground, lineWidth: 0.5)
+                }
+            )
         }
     }
 }
 
 /*
  
+ private var inviteDetailsTitle: some View {
+     
+     HStack {
+         HStack(spacing: 8) {
+            Image(systemName: "info.circle")
+                 .font(.body(20, .regular))
+                  .foregroundStyle(Color.grayText)
+             
+             HStack(spacing: 2) {
+                 Text("How it works: ")
+                 
+                 +
+                 
+                 Text("\(event.type.description.label)")
+                     .font(.custom("SFProRounded-Bold", size: 20))
+                 
+                 Text("\(event.type.description.emoji)")
+                     .font(.body(20))
+             }
+         }
+         
+         Spacer()
+         
+         backToEvent
+     }
+ }
+
  
  
  Text("\(event.type.description.emoji)  \(event.type.description.label)")
