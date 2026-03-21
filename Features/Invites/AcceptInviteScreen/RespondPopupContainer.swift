@@ -7,59 +7,48 @@
 
 import SwiftUI
 
-struct AcceptInviteContainer: View {
+struct RespondPopupContainer: View {
     
     @Bindable var ui: ProfileUIState
     @Bindable var vm: ProfileViewModel
     
     let profileEvent: EventProfile
-    let image: UIImage?
-    let name: String
     let onAccept: (UserEvent) -> ()
     let onInvite: (EventDraft) -> ()
     
     var body: some View {
-        ZStack {
-            CustomScreenCover { ui.showRespondPopup = false }
-            
-            TabView(selection: $ui.inviteTabSelection) {
-                acceptInvitePage
-                    .tag(0)
-
-                if let image {
-                    counterInvitePage(image: image)
-                    .tag(1)
+        if let image = profileEvent.image {
+            ZStack {
+                CustomScreenCover { ui.showRespondPopup = false }
+                TabView(selection: $ui.inviteTabSelection) {
+                    acceptInvitePage(image)
+                        .tag(0)
+                    counterInvitePage(image)
+                        .tag(1)
                 }
+                .sheet(isPresented: $ui.showInfoSheet) {Text("Info Screen")}
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .hideTabBar()
             }
-            .sheet(isPresented: $ui.showInfoSheet) {Text("Info Screen")}
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .hideTabBar()
         }
     }
 }
 
-extension AcceptInviteContainer {
-    private var tabInfoButton: some View {
-        TabInfoButton(showScreen: $ui.showInfoSheet)
-            .scaleEffect(0.9)
-            .offset(x: -12, y: -48)
-    }
+extension RespondPopupContainer {
     
-    
-    private var acceptInvitePage: some View {
+    private func acceptInvitePage(_ image: UIImage) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            
-            AcceptInvitePopup(ui: ui, event: profileEvent.event, image: image, name: name) { onAccept($0) }
+            RespondCard(ui: ui, event: profileEvent.event, image: image, name: profileEvent.profile.name) { onAccept($0) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private func counterInvitePage(image: UIImage) -> some View {
+    private func counterInvitePage(_ image: UIImage) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())

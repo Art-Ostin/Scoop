@@ -7,13 +7,14 @@
 
 import SwiftUI
 
-struct AcceptInvitePopup: View {
+struct RespondCard: View {
     
     @Bindable var ui: ProfileUIState
     
     let event: UserEvent
-    let image: UIImage?
+    let image: UIImage
     let name: String
+    
     
     let onAccept: (UserEvent) -> ()
     

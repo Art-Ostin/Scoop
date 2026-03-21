@@ -23,7 +23,6 @@ final class ProfileLoader: ProfileLoading {
         self.imageLoader = imageLoader
     }
     
-    
     func fromEvents(_ events: [UserEvent]) async throws -> [EventProfile] {
         var models: [EventProfile] = []
         
@@ -60,7 +59,7 @@ final class ProfileLoader: ProfileLoading {
     
     private func fetchEventProfile(_ profileId: String, event: UserEvent) async throws -> EventProfile {
         let profile = try await self.userRepo.fetchProfile(userId: profileId)
-        let img = try? await self.imageLoader.fetchFirstImage(profile: profile)
+        let img = try await self.imageLoader.fetchFirstImage(profile: profile)
         return EventProfile(event: event, profile: profile, image: img)
     }
     
