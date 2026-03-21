@@ -26,7 +26,7 @@ struct SelectTimeAndPlace: View {
                 CustomScreenCover {showInvite = false}
             }
             sendInviteScreen
-                .overlay(alignment: .topTrailing) {if !isCounterInvite { infoButton } }
+                .overlay(alignment: .topTrailing) { infoButton }
         }
         .hideTabBar()
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: alertMessage, showTwoButtons: true, isConfirmInvite: true) {
@@ -76,7 +76,7 @@ extension SelectTimeAndPlace {
     private var infoButton: some View {
         TabInfoButton(showScreen: $ui.showInfoScreen)
             .scaleEffect(0.9)
-            .offset(x: -12, y: -48)
+            .offset(x: -16, y: -48)
     }
 
     private var clearButton: some View {

@@ -21,11 +21,6 @@ struct ProfileInviteView: View {
             timeRow
             placeRow
         }
-//        .overlay(alignment: .topTrailing) {
-//            Text(event.type.description.emoji)
-//                .font(.body(16, .medium))
-//                .padding(.vertical)
-//        }
     }
 }
 
@@ -182,9 +177,17 @@ extension ProfileInviteView {
          .font(.body(16, .bold))
  }
  
- @ViewBuilder private func inviteMessage(trimmed: String) -> Text {
+@ViewBuilder private func inviteMessage(trimmed: String) -> Text {
      Text(trimmed)
          .font(.body(12, .italic))
          .foregroundStyle(Color.grayText)
- }
+}
+ 
+.overlay(alignment: .topTrailing) {
+    Text(event.type.description.emoji)
+        .font(.body(16, .medium))
+        .padding(.vertical)
+}
+
+ 
  */

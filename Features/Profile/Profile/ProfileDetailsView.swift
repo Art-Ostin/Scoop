@@ -34,7 +34,7 @@ struct ProfileDetailsView: View {
             VStack(spacing: 24) {
                 if showEventView() {
                     if let event {
-                        DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "\(event.otherUserName)'s Invite", adaptivePadding: true, padding: 12) {
+                        DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "\(event.otherUserName) and \(vm.s.user.name)'s event", adaptivePadding: true, padding: 12) {
                             ProfileInviteView(ui: ui, event: event)
                         }
                         .padding(.bottom, 32)

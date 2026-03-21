@@ -17,44 +17,104 @@ struct AcceptInvitePopup: View {
     
     let onAccept: (UserEvent) -> ()
     
+    @State var isFlipped: Bool = false
+    
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            popupTitle
-            timeRow
-            placeRow
-            actionSection
+            ZStack {
+                acceptInviteScreen
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    .opacity(isFlipped ? 0 : 1)
+                
+                inviteDetailsScreen
+                    .rotation3DEffect(.degrees(-180), axis: (x: 0, y: 1, z: 0))
+                    .opacity(isFlipped ? 1 : 0)
+            }
         }
+        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
+        .animation(.easeInOut, value: isFlipped)
         .padding(22)
         .frame(maxWidth: .infinity)
         .background(cardBackground)
         .padding(.horizontal, 24)
         .offset(y: 12)
+        
     }
 }
 
 
 extension AcceptInvitePopup {
-
-    private var popupTitle: some View {
-        HStack(alignment: .center) {
-            HStack(spacing: 8) {
-                if let image {
-                    CirclePhoto(image: image, showShadow: false, height: 30)
-                }
-                Text("Meet \(name)")
-                    .font(.body(22, .bold))
+    
+    private var inviteDetailsScreen: some View {
+        VStack {
+            HStack {
+                Text(event.type.description.emoji)
+                Text(event.type.description.label)
+                Spacer()
+                acceptInviteScreen
             }
-
-            Spacer()
-                Text("\(event.type.description.emoji) \(event.type.title)")
-                    .font(.body(16, .medium))
+            .font(.custom("SFProRounded-Bold", size: 24))
+            
+            Text(event.type.howItWorks(userEvent: event))
         }
     }
 
+    @ViewBuilder
+    private var acceptInviteScreen: some View {
+        VStack(alignment: .leading, spacing: 22){
+            popupTitle
+            timeRow
+        }
+        placeRow
+        actionSection
+    }
+    
+    private var backToEvent: some View {
+        Text("Event")
+            .foregroundStyle(Color.appGreen)
+            .contentShape(.rect)
+            .onTapGesture {
+                isFlipped.toggle()
+            }
+    }
+    
+    private var popupTitle: some View {
+        HStack(alignment: .center) {
+            eventTitle
+            Spacer()
+            eventInfoButton
+        }
+    }
+    
+    private var eventTitle: some View {
+        HStack(spacing: 8) {
+            if let image {
+                CirclePhoto(image: image, showShadow: false, height: 30)
+            }
+            Text("Meet \(name)")
+                .font(.custom("SFProRounded-Bold", size: 24))
+        }
+    }
+    
+    private var eventInfoButton: some View {
+        Button {
+            isFlipped = true
+        } label: {
+            HStack(spacing: 2) {
+                Text("\(event.type.description.emoji) \(event.type.title)")
+                    .font(.body(16, .medium))
+                
+                Image(systemName: "info.circle")
+                    .foregroundStyle(Color.grayText).opacity(0.6)
+                    .font(.body(14, .medium))
+                    .offset(y: -6)
+            }
+        }
+    }
     
     private var timeRow: some View {
         
@@ -163,27 +223,3 @@ extension AcceptInvitePopup {
     }
 }
 
-
-
-/*
- private var typeRow: some View {
-     
-     HStack(spacing: 16) {
-         Text(event.type.description.emoji)
-             .font(.body(20, .medium))
-         
-         
-         VStack(alignment: .leading, spacing: 4) {
-             (
-                 Text("\(event.type.title): ")
-                     .font(.body(16, .medium))
-                 +
-                 Text(message)
-                     .font(.footnote)
-                     .foregroundStyle(.gray)
-             )
-         }
-     }
- }
-
- */

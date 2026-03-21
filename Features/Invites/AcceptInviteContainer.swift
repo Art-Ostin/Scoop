@@ -25,10 +25,10 @@ struct AcceptInviteContainer: View {
             TabView(selection: $ui.inviteTabSelection) {
                 
                 acceptInvitePage
+                    .tag(0)
                 
                 if let image {
-                    SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profileEvent.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
-                    }
+                    counterInvitePage(image: image)
                     .tag(1)
                 }
             }
@@ -59,5 +59,18 @@ extension AcceptInviteContainer {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
+    
+    private func counterInvitePage(image: UIImage) -> some View {
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    ui.showRespondPopup = false
+                }
+            
+            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profileEvent.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 }
