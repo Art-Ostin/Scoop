@@ -103,15 +103,28 @@ extension Event.EventType {
     }
     
     func howItWorks(userEvent: UserEvent?) -> String {
-        switch self {
-        case .drink:
-            return "E.g. Lets get a drink"
-        case .doubleDate:
-            return "E.g. My friends instagram is @, let do a double dateee if you're down!"
-        case .socialMeet:
-            return "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
-        case .custom:
-            return "E.g. Throwing a house party on Friday, you should come along with your friends"
+        if let event = userEvent {
+            switch self {
+            case .drink:
+                return "When its time head to \(event.location.name ?? "the bar") and grab a drink with one another."
+            case .doubleDate:
+                return "Then both bring a friend and meet at \(event.location.name ?? "the venue") for a double Date! "
+            case .socialMeet:
+                return "Then go with your friends to \(event.location.name ?? "the venue") and meet \(event.otherUserName) and their friends there. Its a Social Date"
+            case .custom:
+                return "Then for a custom meet, do whatever the other person has proposed in the invite."
+            }
+        } else {
+            switch self {
+            case .drink:
+                return "E.g. Lets get a drink"
+            case .doubleDate:
+                return "E.g. My friends instagram is @, let do a double dateee if you're down!"
+            case .socialMeet:
+                return "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
+            case .custom:
+                return "E.g. Throwing a house party on Friday, you should come along with your friends"
+            }
         }
     }
 }

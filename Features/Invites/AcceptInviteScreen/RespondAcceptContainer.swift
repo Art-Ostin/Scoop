@@ -30,15 +30,12 @@ struct RespondAcceptContainer: View {
                     onDecline(event)
                 }
             } else {
-                RespondDetailsCard(event: event, isFlipped: $isFlipped)
+                RespondDetailsCard(event: event, isFlipped: $isFlipped, image: image)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             }
         }
         .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
         .animation(.easeInOut, value: isFlipped)
-        .overlay(alignment: .topTrailing) {
-//            infoButton
-        }
     }
     
     @ViewBuilder
