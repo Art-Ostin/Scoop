@@ -32,11 +32,7 @@ struct RespondCard: View {
             placeRow
             actionSection
         }
-        .padding(22)
-        .frame(maxWidth: .infinity)
-        .background(CardBackground())
-        .padding(.horizontal, 24)
-        .offset(y: 12)
+        .modifier(CardContainerModifier())
     }
 }
 
@@ -54,7 +50,7 @@ extension RespondCard {
     private var eventTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text("Meet \(name)")
+            Text("Invite") //Meet \(name)
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
     }
@@ -130,5 +126,17 @@ extension RespondCard {
             Spacer()
             AcceptButton {onAccept(event)}
         }
+    }
+}
+
+
+struct CardContainerModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(22)
+            .frame(maxWidth: .infinity)
+            .background(CardBackground())
+            .padding(.horizontal, 24)
+            .offset(y: 12)
     }
 }
