@@ -9,10 +9,11 @@ import SwiftUI
 
 struct AcceptButton: View {
     
-    @Bindable var vm: RespondViewModel
+    let onAccept: () -> Void
+    
     var body: some View {
         Button {
-            print("Hello World")
+            onAccept()
         } label: {
             Text("Accept")
                 .foregroundStyle(Color.white)
@@ -29,11 +30,11 @@ struct AcceptButton: View {
 
 struct DeclineButton: View {
     
-    @Bindable var vm: RespondViewModel
+    let onDecline: () -> Void
     
     var body: some View {
         Button {
-            print("Hello World")
+            onDecline()
         } label: {
             Text("Decline")
                 .font(.body(16, .bold))

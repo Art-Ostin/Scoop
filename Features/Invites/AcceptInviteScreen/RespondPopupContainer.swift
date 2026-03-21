@@ -14,12 +14,14 @@ struct RespondPopupContainer: View {
     
     let profileEvent: EventProfile
     let onAccept: (UserEvent) -> ()
+    let onDecline: (UserEvent) -> ()
     let onInvite: (EventDraft) -> ()
     
     var body: some View {
         if let image = profileEvent.image {
             ZStack {
                 CustomScreenCover { ui.showRespondPopup = false }
+
                 TabView(selection: $ui.inviteTabSelection) {
                     acceptInvitePage(image)
                         .tag(0)
@@ -34,6 +36,7 @@ struct RespondPopupContainer: View {
     }
 }
 
+
 extension RespondPopupContainer {
     
     private func acceptInvitePage(_ image: UIImage) -> some View {
@@ -43,7 +46,7 @@ extension RespondPopupContainer {
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            RespondCard(ui: ui, event: profileEvent.event, image: image, name: profileEvent.profile.name) { onAccept($0) }
+            RespondCard(ui: ui, event: profileEvent.event, image: image, name: profileEvent.profile.name) { onAccept($0) } onDecline: {onDecline($0)}
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

@@ -15,8 +15,10 @@ struct RespondCard: View {
     let image: UIImage
     let name: String
     
-    
     let onAccept: (UserEvent) -> ()
+    let onDecline: (UserEvent) -> ()
+    
+    
     
     @State var isFlipped: Bool = false
     
@@ -26,7 +28,7 @@ struct RespondCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 22){
+            VStack(alignment: .leading, spacing: 22) {
                 popupTitle
                 timeRow
             }
@@ -43,21 +45,7 @@ struct RespondCard: View {
 }
 
 
-extension AcceptInvitePopup {
-    
-    private var inviteDetailsScreen: some View {
-        VStack {
-            HStack {
-                Text(event.type.description.emoji)
-                Text(event.type.description.label)
-                Spacer()
-                acceptInviteScreen
-            }
-            .font(.custom("SFProRounded-Bold", size: 24))
-            
-            Text(event.type.howItWorks(userEvent: event))
-        }
-    }
+extension RespondCard {
 
     @ViewBuilder
     private var acceptInviteScreen: some View {
@@ -204,19 +192,6 @@ extension AcceptInvitePopup {
                     RoundedRectangle(cornerRadius: 16)
                         .foregroundStyle(Color.appGreen)
                 )
-        }
-    }
-}
-
-struct CardBackground: View {
-    var body: some View {
-        ZStack { //Background done like this to fix bugs when popping up
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.background)
-                .shadow(color: .appGreen.opacity(0.1), radius: 5, x: 0, y: 4)
-            RoundedRectangle(cornerRadius: 30)
-                .inset(by: 0.5)
-                .stroke(Color.grayBackground, lineWidth: 0.5)
         }
     }
 }
