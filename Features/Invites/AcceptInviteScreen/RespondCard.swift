@@ -50,7 +50,7 @@ extension RespondCard {
     private var eventTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text("Invite") //Meet \(name)
+            Text("\(name)'s Invite")
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
     }

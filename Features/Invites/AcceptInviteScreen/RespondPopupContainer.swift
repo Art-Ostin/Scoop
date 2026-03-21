@@ -12,16 +12,15 @@ struct RespondPopupContainer: View {
     @Bindable var ui: ProfileUIState
     @Bindable var vm: ProfileViewModel
     
-    let profileEvent: EventProfile
+    let eventProfile: EventProfile
     let onAccept: (UserEvent) -> ()
     let onDecline: (UserEvent) -> ()
     let onInvite: (EventDraft) -> ()
     
     var body: some View {
-        if let image = profileEvent.image {
             ZStack {
                 CustomScreenCover { ui.showRespondPopup = false }
-
+            if let image = eventProfile.image {
                 TabView(selection: $ui.inviteTabSelection) {
                     acceptInvitePage(image)
                         .tag(0)
@@ -46,7 +45,12 @@ extension RespondPopupContainer {
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            RespondCard(ui: ui, event: profileEvent.event, image: image, name: profileEvent.profile.name) { onAccept($0) } onDecline: {onDecline($0)}
+            
+            RespondAcceptContainer(ui: ui, event: eventProfile.event, image: image, name: eventProfile.profile.name) { userEvent in
+                onAccept(userEvent)
+            } onDecline: { userEvent in
+                onDecline(userEvent)
+            }            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -58,7 +62,7 @@ extension RespondPopupContainer {
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profileEvent.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
+            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

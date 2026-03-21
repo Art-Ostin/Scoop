@@ -11,7 +11,7 @@ struct RespondAcceptContainer: View {
     
     @Bindable var ui: ProfileUIState
     
-    @State var isFlipped: Bool
+    @State var isFlipped: Bool = false
     let event: UserEvent
     let image: UIImage
     let name: String
@@ -23,7 +23,7 @@ struct RespondAcceptContainer: View {
     var body: some View {
         
         ZStack {
-            if isFlipped {
+            if !isFlipped {
                 RespondCard(ui: ui, isFlipped: $isFlipped, event: event, image: image, name: name) { event in
                     onAccept(event)
                 } onDecline: { event in

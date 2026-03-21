@@ -58,9 +58,9 @@ extension InviteCardInfo {
     
     private var responseRow: some View {
         HStack {
-            DeclineButton(vm: vm)
+            DeclineButton { }
             Spacer()
-            AcceptButton(vm: vm)
+            AcceptButton {}
         }
     }
     

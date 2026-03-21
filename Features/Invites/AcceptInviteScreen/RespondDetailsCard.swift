@@ -14,9 +14,8 @@ struct RespondDetailsCard: View {
 
     
     var body: some View {
-        VStack(spacing: 24) {
-            
-            Text("Hello World")
+        VStack(alignment: .leading, spacing: 24) {
+            inviteDetailsTitle
             Text("Hello World")
             Text("Hello World")
         }

@@ -109,16 +109,12 @@ extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
         if ui.showRespondPopup, let event = vm.event {
-            AcceptInviteContainer(
-                ui: ui,
-                vm: vm,
-                profileEvent: EventProfile(event: event, profile: vm.profile),
-                image: profileImages.first ?? UIImage(),
-                name: vm.profile.name
-            ) { acceptedEvent in
-                
-            } onInvite: { invitedEvent in
-                
+            RespondPopupContainer(ui: ui, vm: vm, eventProfile: EventProfile(event: event, profile: vm.profile, image: profileImages.first)) { userEvent in
+                acceptInvite?(userEvent)
+            } onDecline: { userEvent in
+                declineProfile?(userEvent)
+            } onInvite: { eventDraft in
+                sendInvite?(eventDraft)
             }
         } else {
             SelectTimeAndPlace(
