@@ -25,24 +25,19 @@ struct AcceptInvitePopup: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            ZStack {
-                acceptInviteScreen
-                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                    .opacity(isFlipped ? 0 : 1)
-                
-                inviteDetailsScreen
-                    .rotation3DEffect(.degrees(-180), axis: (x: 0, y: 1, z: 0))
-                    .opacity(isFlipped ? 1 : 0)
+            VStack(alignment: .leading, spacing: 22){
+                popupTitle
+                timeRow
             }
+            placeRow
+            actionSection
         }
-        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
         .animation(.easeInOut, value: isFlipped)
         .padding(22)
         .frame(maxWidth: .infinity)
-        .background(cardBackground)
+        .background(CardBackground())
         .padding(.horizontal, 24)
         .offset(y: 12)
-        
     }
 }
 
@@ -210,8 +205,10 @@ extension AcceptInvitePopup {
                 )
         }
     }
-    
-    private var cardBackground: some View {
+}
+
+struct CardBackground: View {
+    var body: some View {
         ZStack { //Background done like this to fix bugs when popping up
             RoundedRectangle(cornerRadius: 30)
                 .fill(Color.background)
@@ -222,4 +219,3 @@ extension AcceptInvitePopup {
         }
     }
 }
-

@@ -23,10 +23,9 @@ struct AcceptInviteContainer: View {
             CustomScreenCover { ui.showRespondPopup = false }
             
             TabView(selection: $ui.inviteTabSelection) {
-                
                 acceptInvitePage
                     .tag(0)
-                
+
                 if let image {
                     counterInvitePage(image: image)
                     .tag(1)
@@ -67,7 +66,6 @@ extension AcceptInviteContainer {
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            
             SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profileEvent.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
             }
         }
