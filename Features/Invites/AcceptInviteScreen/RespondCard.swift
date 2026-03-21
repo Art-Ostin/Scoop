@@ -4,7 +4,6 @@
 //
 //  Created by Art Ostin on 19/03/2026.
 //
-
 import SwiftUI
 
 struct RespondCard: View {
@@ -25,52 +24,43 @@ struct RespondCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 22) {
-                popupTitle
+            VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
+                titleRow
                 timeRow
             }
             placeRow
             actionSection
         }
-        .modifier(CardContainerModifier())
+        .padding(22)
+        .frame(maxWidth: .infinity)
+        .background(CardBackground())
+        .padding(.horizontal, 24)
+        .offset(y: 32)
     }
 }
 
-//PopupTitle Section
 extension RespondCard {
     
-    private var popupTitle: some View {
-        HStack(alignment: .center) {
-            eventTitle
-            Spacer()
-            eventInfoButton
-        }
-    }
-    
-    private var eventTitle: some View {
+    private var titleRow: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text("\(name)'s Invite")
+            Text("Meet \(name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .allowsTightening(true)
+            Spacer()
+            Text("\(event.type.description.emoji) Drink")
+                .font(.body(16, .medium))
+                .offset(x: -10)
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(Color.grayText).opacity(0.6)
+                        .font(.body(14, .medium))
+                        .offset(x: 8, y: -12)
+                }
         }
     }
-    
-    private var eventInfoButton: some View {
-        Button {
-            isFlipped = true
-        } label: {
-            HStack(alignment: .top, spacing: 2) {
-                Text("\(event.type.description.emoji) \(event.type.title)")
-                    .font(.body(16, .medium))
-                
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.grayText).opacity(0.6)
-                    .font(.body(14, .medium))
-            }
-        }
-    }
-}
-extension RespondCard {
     
     private var timeRow: some View {
         
@@ -89,7 +79,7 @@ extension RespondCard {
                             .foregroundStyle(.gray)
                     } else {
                         Text(EventFormatting.fullDate(first, wideMonth: true))
-                        
+
                         Text(EventFormatting.hourTime(first))
                             .font(.footnote)
                             .foregroundStyle(.gray)
@@ -119,7 +109,7 @@ extension RespondCard {
             }
         }
     }
-    
+
     private var actionSection: some View {
         HStack {
             DeclineButton {onDecline(event) }
@@ -130,13 +120,73 @@ extension RespondCard {
 }
 
 
-struct CardContainerModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(22)
-            .frame(maxWidth: .infinity)
-            .background(CardBackground())
-            .padding(.horizontal, 24)
-            .offset(y: 12)
-    }
-}
+
+
+/*
+ VStack(alignment: .leading, spacing: 4) {
+     if let first = event.proposedTimes.firstAvailableDate {
+         if let message = event.message {
+             Text(EventFormatting.fullDateAndTime(first))
+                 .font(.body(16, .medium))
+             
+             Text(message)
+                 .font(.footnote)
+                 .foregroundStyle(.gray)
+         } else {
+             Text(EventFormatting.fullDate(first, wideMonth: true))
+             
+             Text(EventFormatting.hourTime(first))
+                 .font(.footnote)
+                 .foregroundStyle(.gray)
+         }
+     }
+ }
+
+ 
+ private var newEventInfoButton: some View {
+     Group {
+         Text("\(event.type.description.emoji) Double Date ") //\(event.type.description.label)
+             .font(.body(16, .medium))
+         +
+         Text(Image(systemName: "info.circle"))
+             .foregroundStyle(Color.grayText.opacity(0.5))
+             .font(.body(14, .medium))
+     }
+ }
+ 
+ 
+ private var eventInfoButton: some View {
+     Button {
+         isFlipped = true
+     } label: {
+         HStack(alignment: .center, spacing: 2) {
+             Text("\(event.type.description.emoji)")
+                 .font(.body(16, .medium))
+             Text("Double Date") //\(event.type.title)]
+                 .font(.body(16, .medium))
+                 .frame(width: 80, alignment: .leading)
+             Image(systemName: "info.circle")
+                 .foregroundStyle(Color.grayText).opacity(0.6)
+                 .font(.body(14, .medium))
+         }
+     }
+ }
+ private var typeRow: some View {
+     
+     HStack(spacing: 24) {
+         Image("CupContainer")
+         VStack(alignment: .leading, spacing: 4) {
+             Text("Double Date")
+                 .font(.body(16, .medium))
+             
+         
+             Text(message)
+                 .font(.footnote)
+                 .foregroundStyle(.gray)
+         }
+     }
+ }
+
+
+ 
+ */

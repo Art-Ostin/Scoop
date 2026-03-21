@@ -19,7 +19,10 @@ struct RespondDetailsCard: View {
             Text("Hello World")
             Text("Hello World")
         }
-        .modifier(CardContainerModifier())
+        .padding(22)
+        .frame(maxWidth: .infinity)
+        .background(CardBackground())
+        .padding(.horizontal, 24)
     }
 }
 

@@ -31,9 +31,26 @@ struct RespondAcceptContainer: View {
                 }
             } else {
                 RespondDetailsCard(event: event, isFlipped: $isFlipped)
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             }
         }
-//        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
+        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
         .animation(.easeInOut, value: isFlipped)
+        .overlay(alignment: .topTrailing) {
+//            infoButton
+        }
+    }
+    
+    @ViewBuilder
+    private var infoButton: some View {
+        
+        if isFlipped {
+            
+            
+        } else {
+            TabInfoButton(showScreen: $isFlipped)
+                .scaleEffect(0.9)
+                .offset(x: -24, y: -20)
+        }
     }
 }
