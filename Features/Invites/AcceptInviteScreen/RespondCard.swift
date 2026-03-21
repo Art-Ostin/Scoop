@@ -42,25 +42,33 @@ struct RespondCard: View {
 extension RespondCard {
     
     private var titleRow: some View {
-        HStack(spacing: 8) {
-            CirclePhoto(image: image, showShadow: false, height: 30)
-            Text("Meet \(name)")
-                .font(.custom("SFProRounded-Bold", size: 24))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .allowsTightening(true)
-            Spacer()
-            Text("\(event.type.description.emoji) Drink")
-                .font(.body(16, .medium))
-                .offset(x: -10)
-                .overlay(alignment: .topTrailing) {
+            HStack(spacing: 8) {
+                CirclePhoto(image: image, showShadow: false, height: 30)
+                Text("Meet Genevieve")
+                    .font(.custom("SFProRounded-Bold", size: 24))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .allowsTightening(true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                
+                HStack(spacing: 0) {
+                    Text("\(event.type.description.emoji) Double Date")
+                        .font(.body(16, .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .allowsTightening(true)
+                    
                     Image(systemName: "info.circle")
                         .foregroundStyle(Color.grayText).opacity(0.6)
                         .font(.body(14, .medium))
-                        .offset(x: 8, y: -12)
+                        .offset(y: -12)
                 }
-        }
+                .frame(width: 120, alignment: .trailing)
+            }
+            .padding(.trailing, -12)
     }
+    
     
     private var timeRow: some View {
         
