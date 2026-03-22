@@ -22,6 +22,13 @@ struct ScoopApp: App {
     @State var appState: AppState = .booting
     
     init() {
+        for family in UIFont.familyNames.sorted() {
+            let names = UIFont.fontNames(forFamilyName: family).sorted()
+            print("Family: \(family)")
+            for name in names {
+                print("   \(name)")
+            }
+        }
         FirebaseApp.configure()
         self.dep = AppDependencies()
     }
