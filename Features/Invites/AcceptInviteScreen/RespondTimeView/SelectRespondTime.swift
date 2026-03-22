@@ -18,9 +18,7 @@ struct SelectRespondTime: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: 16) {
-            
             timeDropDownTitle
-            
             
             VStack(spacing: 12) {
                 ForEach(dates.indices, id: \.self) {idx in
@@ -29,7 +27,6 @@ struct SelectRespondTime: View {
                 }
             }
         }
-        
         .padding(.horizontal, 20)
         .padding(.vertical, 24)
         .frame(maxWidth: .infinity)
