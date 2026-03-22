@@ -15,16 +15,16 @@ enum DetailInfo: CaseIterable {
         switch self {
         case .time: return "Select A Time"
         case .message: return "Message"
-        case .event: return event.type.title
+        case .event: return event.type.longTitle
         }
     }
     
     func message(_ event: UserEvent) -> String {
         switch self {
         case .time:
-            return "Select a time \(event.otherUserName) proposed or suggest a new time or event"
+            return "Select a time \(event.otherUserName) proposed, suggest a new one or send them a new invite."
         case .message:
-            return "Once accepted, message to sort out details and to find one another"
+            return "Once the event is accepted, you can message to coordinate details and find each other."
         case .event:
             return event.type.howItWorks(userEvent: event)
         }
@@ -55,16 +55,19 @@ struct RespondDetailsCard: View {
         .lineSpacing(4)
         .padding(.top, 18)
         .padding(.horizontal, 22)
-        .padding(.bottom, 40)
+        .padding(.bottom, 42)
         .overlay(alignment: .bottomTrailing) {
             inviteButton
-                .padding(.horizontal, 18)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity)
         .background(CardBackground())
         .padding(.horizontal, 24)
         .offset(y: 36)
+        .onTapGesture {
+            isFlipped.toggle()
+        }
     }
 }
 

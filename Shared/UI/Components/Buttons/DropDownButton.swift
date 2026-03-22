@@ -12,6 +12,7 @@ struct DropDownButton: View {
     @Binding var isExpanded: Bool
     
     var isAccept: Bool = false
+    var color: Color = Color.accent
         
     var body: some View {
         Button {
@@ -22,7 +23,7 @@ struct DropDownButton: View {
                 Image(systemName: "chevron.down")
                 .font(.body(isAccept ? 15 : 17, .bold))
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    .foregroundStyle(isAccept ? Color.black : Color.accent)
+                    .foregroundStyle(isAccept ? Color.black : color)
                     .padding(12)
                     .contentShape(Rectangle())
                     .padding(-12)

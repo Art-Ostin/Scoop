@@ -1239,8 +1239,8 @@
 		65F704502F6EDA7800CE29C5 /* InviteEventCardInfo */ = {
 			isa = PBXGroup;
 			children = (
-				655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */,
 				65ED38892F64656600AD5600 /* InviteCard.swift */,
+				655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */,
 				654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */,
 				654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */,
 			);

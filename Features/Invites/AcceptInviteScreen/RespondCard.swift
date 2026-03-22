@@ -35,7 +35,7 @@ struct RespondCard: View {
         .frame(maxWidth: .infinity)
         .background(CardBackground())
         .padding(.horizontal, 24)
-        .offset(y: 32)
+        .offset(y: 24)
     }
 }
 
@@ -64,16 +64,14 @@ extension RespondCard {
         Button {
             isFlipped.toggle()
         } label: {
-            HStack(spacing: 0) {
+            HStack(spacing: 2) {
                 Text("\(event.type.description.emoji) \(event.type.description.label)")
                     .font(.body(16, .medium))
                 
                 Image(systemName: "info.circle")
-                    .foregroundStyle(Color.grayText).opacity(0.6)
+                    .foregroundStyle(Color.grayText).opacity(0.8)
                     .font(.body(14, .medium))
-                    .offset(y: -12)
-                
-                
+                    .offset(y: -4)
             }
             .lineLimit(1)
             .minimumScaleFactor(0.7)
@@ -91,8 +89,14 @@ extension RespondCard {
             VStack(alignment: .leading, spacing: 4) {
                 if let first = event.proposedTimes.firstAvailableDate {
                     if let message = event.message {
-                        Text(EventFormatting.fullDateAndTime(first))
-                            .font(.body(16, .medium))
+                        HStack {
+                            Text(EventFormatting.fullDateAndTime(first))
+                                .font(.body(16, .medium))
+                            
+                            Spacer()
+                            
+                            DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
+                        }
                         
                         Text(message)
                             .font(.footnote)

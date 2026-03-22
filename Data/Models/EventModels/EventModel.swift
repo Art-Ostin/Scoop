@@ -76,6 +76,15 @@ extension Event.EventType {
         }
     }
     
+    var longTitle: String {
+        switch self {
+        case .drink: return "Grab A Drink"
+        case .doubleDate: return "Double Date"
+        case .socialMeet: return "Social Meet"
+        case .custom: return "Custom Meet"
+        }
+    }
+    
     var title: String {
         switch self {
         case . drink:
@@ -106,13 +115,13 @@ extension Event.EventType {
         if let event = userEvent {
             switch self {
             case .drink:
-                return "When its time head to \(event.location.name ?? "the bar") and grab a drink with one another."
+                return "When its time head to \(event.location.name ?? "the bar") and grab a drink together!"
             case .doubleDate:
-                return "Then both bring a friend and meet at \(event.location.name ?? "the venue") for a double Date! "
+                return "Both bring a friend and meet at \(event.location.name ?? "the venue") for a double Date!"
             case .socialMeet:
-                return "Then go with your friends to \(event.location.name ?? "the venue") and meet \(event.otherUserName) and their friends there. Its a Social Date"
+                return "Go with your friends to \(event.location.name ?? "the venue") and meet \(event.otherUserName) and their friends there."
             case .custom:
-                return "Then for a custom meet, do whatever the other person has proposed in the invite."
+                return "For a custom meet, do whatever the other person has proposed in the invite."
             }
         } else {
             switch self {
