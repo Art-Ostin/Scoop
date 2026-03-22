@@ -17,7 +17,7 @@ struct RespondTimeView: View {
     
     let event: UserEvent
     
-    var body: some View {
+    var body: some View {        
         DropDownView(showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {

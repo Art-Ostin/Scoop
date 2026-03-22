@@ -28,7 +28,7 @@ struct RespondCard: View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
-//                RespondTimeView(ui: ui, selectedDate: $selectedDate, event: event)
+                RespondTimeView(ui: ui, selectedDate: $selectedDate, event: event)
             }
             placeRow
             actionSection
