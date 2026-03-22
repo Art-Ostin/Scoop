@@ -11,6 +11,8 @@ struct RespondCard: View {
     @Bindable var ui: ProfileUIState
     @Binding var isFlipped: Bool
     
+    @State var selectedDate: Date?
+    
     let event: UserEvent
     let image: UIImage
     let name: String
@@ -26,7 +28,7 @@ struct RespondCard: View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
-                timeRow
+//                RespondTimeView(ui: ui, selectedDate: $selectedDate, event: event)
             }
             placeRow
             actionSection
@@ -77,39 +79,6 @@ extension RespondCard {
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
             .frame(maxWidth: 110, alignment: .trailing)
-        }
-    }
-    
-    private var timeRow: some View {
-        
-        HStack(spacing: 24) {
-            Image("MiniClockIcon")
-                .scaleEffect(1.3)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                if let first = event.proposedTimes.firstAvailableDate {
-                    if let message = event.message {
-                        HStack {
-                            Text(EventFormatting.fullDateAndTime(first))
-                                .font(.body(16, .medium))
-                            
-                            Spacer()
-                            
-                            DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
-                        }
-                        
-                        Text(message)
-                            .font(.footnote)
-                            .foregroundStyle(.gray)
-                    } else {
-                        Text(EventFormatting.fullDate(first, wideMonth: true))
-
-                        Text(EventFormatting.hourTime(first))
-                            .font(.footnote)
-                            .foregroundStyle(.gray)
-                    }
-                }
-            }
         }
     }
     
