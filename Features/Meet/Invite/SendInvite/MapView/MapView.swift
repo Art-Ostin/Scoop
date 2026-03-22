@@ -51,7 +51,6 @@ struct MapView: View {
                 withAnimation(.easeInOut(duration: 0.15)) {
                     sheet = MapSheets.from(detent: newDetent)
                 }
-//                sheet = MapSheets.from(detent: newDetent)
             }
         )
     }

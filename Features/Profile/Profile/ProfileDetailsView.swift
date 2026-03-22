@@ -40,7 +40,7 @@ struct ProfileDetailsView: View {
                         .padding(.bottom, 32)
                     }
                 }
-                DetailsSection(color: ui.detailsOpen ? (showEventView() ? Color.grayBackground : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
+                DetailsSection(color: ui.detailsOpen ? (showEventView() ? Color.grayBackground : vm.viewProfileType == .accept ? .appGreen : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
@@ -66,6 +66,8 @@ struct ProfileDetailsView: View {
 }
 
 extension ProfileDetailsView {
+    
+    
     @ViewBuilder
     private var dismissDetailsButton: some View {
         if !ui.isTopOfScroll && ui.detailsOpen {

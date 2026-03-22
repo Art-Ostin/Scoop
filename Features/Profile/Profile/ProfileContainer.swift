@@ -94,11 +94,11 @@ struct ProfileView: View {
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {
-            if vm.viewProfileType == .accept && !ui.showRespondPopup {
-                InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 96)
-            }
+             if vm.viewProfileType == .accept && !ui.showRespondPopup {
+                 InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
+                     .padding(.horizontal, 24)
+                     .padding(.bottom, 96)
+             }
         }
     }
 }
@@ -277,8 +277,7 @@ extension ProfileView {
     }
 }
 
-/*
- AcceptInvitePopup(ui: ui, event: event, image: profileImages.first, name: vm.profile.name) {event in
-     acceptInvite?(event)
- }
- */
+extension ProfileView {
+    
+    
+}
