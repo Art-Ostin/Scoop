@@ -46,7 +46,7 @@ struct RespondDetailsCard: View {
     let image: UIImage
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 20) {
             title
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 DetailSection(event: event, type: detail)
@@ -55,14 +55,16 @@ struct RespondDetailsCard: View {
         .lineSpacing(4)
         .padding(.top, 18)
         .padding(.horizontal, 22)
-        .padding(.bottom, 36)
+        .padding(.bottom, 40)
         .overlay(alignment: .bottomTrailing) {
             inviteButton
-                .padding()
+                .padding(.horizontal, 18)
+                .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity)
         .background(CardBackground())
         .padding(.horizontal, 24)
+        .offset(y: 36)
     }
 }
 
@@ -79,19 +81,22 @@ extension RespondDetailsCard {
             isFlipped.toggle()
         } label: {
             HStack {
-                CirclePhoto(image: image, height: 24)
+                CirclePhoto(image: image, showShadow: false, height: 24)
                 
                 Text("Invite")
                     .font(.body(14, .bold))
                     .foregroundStyle(Color.appGreen)
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .stroke(24, lineWidth: 1, color: .appGreen.opacity(0.2))
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color.appGreen.opacity(0.05))
+            )
+            .stroke(24, lineWidth: 1, color: .appGreen.opacity(0.5))
         }
     }
 }
-
 
 private struct DetailSection: View {
     let event: UserEvent
@@ -108,7 +113,10 @@ private struct DetailSection: View {
                 Text(type.message(event))
                     .font(.footnote)
                     .foregroundStyle(.gray)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
