@@ -30,6 +30,7 @@ struct RespondCard: View {
                 titleRow
                 RespondTimeView(ui: ui, selectedDate: $selectedDate, event: event)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             placeRow
             actionSection
         }
@@ -48,6 +49,8 @@ extension RespondCard {
             eventTitle
             eventType
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+
     }
     
     private var eventTitle: some View {
@@ -60,6 +63,8 @@ extension RespondCard {
                 .allowsTightening(true)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .layoutPriority(1)
+
     }
     
     private var eventType: some View {
@@ -80,6 +85,7 @@ extension RespondCard {
             .allowsTightening(true)
             .frame(maxWidth: 110, alignment: .trailing)
         }
+        .fixedSize(horizontal: true, vertical: false)
     }
     
     private var placeRow: some View {

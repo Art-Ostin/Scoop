@@ -134,7 +134,6 @@ extension SelectAvailableDay {
     
     private func selectDay(date: Date) {
         selectedDay = date
-        
         withAnimation(.easeInOut(duration: 0.25)) {
             showTimePopup = false
         }

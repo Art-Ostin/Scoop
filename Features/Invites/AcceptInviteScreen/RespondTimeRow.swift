@@ -28,7 +28,6 @@ struct RespondTimeView: View {
             }
             .onTapGesture {ui.showTimePopup.toggle()}
         }
-        .background(Color.blue)
     }
 }
 extension RespondTimeView {
