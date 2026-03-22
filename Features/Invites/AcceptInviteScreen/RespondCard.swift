@@ -23,6 +23,25 @@ struct RespondCard: View {
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    init(
+        ui: ProfileUIState,
+        isFlipped: Binding<Bool>,
+        event: UserEvent,
+        image: UIImage,
+        name: String,
+        onAccept: @escaping (UserEvent) -> (),
+        onDecline: @escaping (UserEvent) -> ()
+    ) {
+        self.ui = ui
+        self._isFlipped = isFlipped
+        self.event = event
+        self.image = image
+        self.name = name
+        self.onAccept = onAccept
+        self.onDecline = onDecline
+        _selectedDate = State(initialValue: event.proposedTimes.firstAvailableDate)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -113,7 +132,11 @@ extension RespondCard {
         HStack {
             DeclineButton {onDecline(event) }
             Spacer()
-            AcceptButton {onAccept(event)}
+            AcceptButton {
+                var acceptedEvent = event
+                acceptedEvent.acceptedTime = selectedDate ?? event.proposedTimes.firstAvailableDate
+                onAccept(acceptedEvent)
+            }
         }
     }
 }

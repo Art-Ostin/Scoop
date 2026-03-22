@@ -21,8 +21,11 @@ struct RespondTimeView: View {
         DropDownView(showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
-            SelectRespondTime(selectedDay: $selectedDate, dates: event.proposedTimes.availableDates())
-            .onTapGesture {ui.showTimePopup.toggle()}
+            SelectRespondTime(
+                selectedDay: $selectedDate,
+                showTimePopup: $ui.showTimePopup,
+                dates: event.proposedTimes.availableDates()
+            )
         }
     }
 }
@@ -33,7 +36,7 @@ extension RespondTimeView {
             Image("MiniClockIcon")
                 .scaleEffect(1.3)
             
-            if let date = event.proposedTimes.firstAvailableDate {
+            if let date = selectedDate ?? event.proposedTimes.firstAvailableDate {
                 if let message = event.message {
                     availableDateWithMessage(message: message, date: date)
                 } else {
