@@ -28,14 +28,15 @@ struct SelectRespondTime: View {
             
             ZStack(alignment: .topLeading) {
                 if showCustomTime {
-                    customTimeView
+                    ClearRectangle(size: 200)
                         .transition(contentTransition)
                         .zIndex(1)
                 }
                 
                 if !showCustomTime {
-                    proposedTimes
+                    ClearRectangle(size: 100)
                         .transition(contentTransition)
+                        .zIndex(1)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -43,8 +44,8 @@ struct SelectRespondTime: View {
         }
         .frame(width: 290, alignment: .leading)
         .padding([.horizontal, .top], 18)
-        .background(CardBackground(cornerRadius: 16))
-        .animation(.smooth(duration: 0.24), value: showCustomTime)
+        .background(CardBackground(cornerRadius: 16)) //Not Issue
+        .animation(.smooth(duration: 0.2), value: showCustomTime) //Not Issue
     }
 }
 
@@ -122,3 +123,6 @@ extension SelectRespondTime {
             .kerning(0.5)
     }
 }
+
+////                    proposedTimes
+/////                    customTimeView
