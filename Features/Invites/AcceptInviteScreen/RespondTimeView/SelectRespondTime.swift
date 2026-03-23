@@ -16,40 +16,43 @@ struct SelectRespondTime: View {
     @Bindable var vm: TimeAndPlaceViewModel
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
-    @Namespace private var contentNamespace
 
     let times: [ProposedTime]
 
-    @State var showCustomTime: Bool = true
+    @State var showCustomTime: Bool = false
+    private let cornerRadius: CGFloat = 16
         
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             timeDropDownTitle
-            
-            ZStack(alignment: .topLeading) {
-                if showCustomTime {
-                    ClearRectangle(size: 200)
-                        .transition(contentTransition)
-                        .zIndex(1)
-                }
-                
-                if !showCustomTime {
-                    ClearRectangle(size: 100)
-                        .transition(contentTransition)
-                        .zIndex(1)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .clipped()
+            contentViewport
         }
         .frame(width: 290, alignment: .leading)
         .padding([.horizontal, .top], 18)
-        .background(CardBackground(cornerRadius: 16)) //Not Issue
-        .animation(.smooth(duration: 0.2), value: showCustomTime) //Not Issue
+        .compositingGroup()
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .background(CardBackground(cornerRadius: cornerRadius))
+        .animation(.smooth(duration: 0.2), value: showCustomTime)
     }
 }
 
 extension SelectRespondTime {
+
+    private var contentViewport: some View {
+        ZStack(alignment: .topLeading) {
+            if showCustomTime {
+                customTimeView
+                    .transition(.move(edge: .trailing))
+                    .zIndex(1)
+            } else {
+                proposedTimes
+                    .transition(.move(edge: .leading))
+                    .zIndex(0)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .clipped(antialiased: true)
+    }
     
     private var customTimeView: some View {
         SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
@@ -60,7 +63,7 @@ extension SelectRespondTime {
             ForEach(times.indices, id: \.self) { idx in
                 let time = times[idx]
                 let status = getTimeStatus(time)
-                InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: .expired, date: time.date, idx: idx)
+                InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: status, date: time.date, idx: idx)
             }
         }
         .padding(.bottom, 18)
@@ -68,8 +71,8 @@ extension SelectRespondTime {
     
     private var contentTransition: AnyTransition {
         .asymmetric(
-            insertion: .opacity.combined(with: .scale(scale: 0.98, anchor: .top)),
-            removal: .opacity.combined(with: .scale(scale: 0.98, anchor: .top))
+            insertion: .move(edge: showCustomTime ? .trailing : .leading).combined(with: .opacity),
+            removal: .move(edge: showCustomTime ? .leading : .trailing).combined(with: .opacity)
         )
     }
     

@@ -14,7 +14,8 @@ struct DropDownView<Row: View, DropDown: View> : View {
     let dropDown: () -> DropDown
     
     @SceneStorage("drop_down_zindex") private var index = 1000.0
-    @State private var menuHeight: CGFloat = 0
+    @State private var measuredMenuHeight: CGFloat = 0
+    @State private var revealedMenuHeight: CGFloat = 0
     @State private var zIndex: Double = 1000.0
     
     private let shadowAllowance: CGFloat = 14
@@ -67,12 +68,12 @@ struct DropDownView<Row: View, DropDown: View> : View {
     private var dropdownMenu: some View {
         dropDown()
             .padding(24)
-            .readHeight { menuHeight = $0 }
+            .readHeight(syncMenuHeight)
             .offset(y: showOptions ? 0 : hiddenOffsetY)
             .mask(alignment: opensAbove ? .bottom : .top) {
                 Rectangle()
                     .padding(shadowAllowance)
-                    .frame(height: menuHeight + shadowAllowance * 2)
+                    .frame(height: revealedMenuHeight + shadowAllowance * 2)
                     .offset(y: opensAbove ? shadowAllowance : -shadowAllowance)
             }
             .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
@@ -81,8 +82,22 @@ struct DropDownView<Row: View, DropDown: View> : View {
     }
 
     private var hiddenOffsetY: CGFloat {
-        let hiddenHeight = menuHeight + shadowAllowance * 2
+        let hiddenHeight = revealedMenuHeight + shadowAllowance * 2
         return opensAbove ? hiddenHeight : -hiddenHeight
+    }
+
+    private func syncMenuHeight(_ newHeight: CGFloat) {
+        guard abs(measuredMenuHeight - newHeight) > 0.5 else { return }
+
+        measuredMenuHeight = newHeight
+
+        if showOptions {
+            withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
+                revealedMenuHeight = newHeight
+            }
+        } else {
+            revealedMenuHeight = newHeight
+        }
     }
 }
 
