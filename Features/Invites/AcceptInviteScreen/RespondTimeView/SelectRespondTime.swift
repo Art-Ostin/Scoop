@@ -27,13 +27,18 @@ struct SelectRespondTime: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 24)
-        .frame(maxWidth: .infinity)
-        .background(CardBackground())
-        .padding(.horizontal, 24 + 22) //Total adding of content so in middle with card content.
+        .frame(width: 290, alignment: .leading)
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.background)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.grayBackground, lineWidth: 1)
+                }
+        )
+        .zIndex(2)
     }
-    
     
     @ViewBuilder
     private func availableDay(idx: Int, date: Date) -> some View {

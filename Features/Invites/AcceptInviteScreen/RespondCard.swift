@@ -39,7 +39,7 @@ struct RespondCard: View {
         .background(CardBackground())
         .padding(.horizontal, 24)
         .offset(y: 24)
-        //This is a test 
+        .zIndex(ui.showTimePopup ? 1 : 0)
     }
 }
 
