@@ -34,7 +34,7 @@ struct SelectRespondTime: View {
                 }
                 
                 if !showCustomTime {
-                    ClearRectangle(size: 100)
+                    proposedTimes
                         .transition(contentTransition)
                         .zIndex(1)
                 }
@@ -60,7 +60,7 @@ extension SelectRespondTime {
             ForEach(times.indices, id: \.self) { idx in
                 let time = times[idx]
                 let status = getTimeStatus(time)
-                InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: status, date: time.date, idx: idx)
+                InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: .expired, date: time.date, idx: idx)
             }
         }
         .padding(.bottom, 18)
@@ -94,7 +94,7 @@ extension SelectRespondTime {
             Spacer()
             
             Button {
-                    showCustomTime.toggle()
+                showCustomTime.toggle()
             } label: {
                 if showCustomTime {
                     optionsLabel
