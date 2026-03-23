@@ -21,14 +21,21 @@ struct SelectRespondTime: View {
 
     @State var showCustomTime: Bool = false
     private let cornerRadius: CGFloat = 16
+    private let horizontalInset: CGFloat = 18
+    private let contentWidth: CGFloat = 290
+    
+    private var cardWidth: CGFloat {
+        contentWidth + (horizontalInset * 2)
+    }
         
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             timeDropDownTitle
+                .padding(.horizontal, horizontalInset)
             contentViewport
         }
-        .frame(width: 290, alignment: .leading)
-        .padding([.horizontal, .top], 18)
+        .frame(width: cardWidth, alignment: .leading)
+        .padding(.top, horizontalInset)
         .compositingGroup()
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .background(CardBackground(cornerRadius: cornerRadius))
@@ -41,17 +48,29 @@ extension SelectRespondTime {
     private var contentViewport: some View {
         ZStack(alignment: .topLeading) {
             if showCustomTime {
-                customTimeView
-                    .transition(.move(edge: .trailing))
+                transitionScreen {
+                    customTimeView
+                }
+                .transition(.move(edge: .trailing))
                     .zIndex(1)
             } else {
-                proposedTimes
-                    .transition(.move(edge: .leading))
-                    .zIndex(0)
+                transitionScreen {
+                    proposedTimes
+                }
+                .transition(.move(edge: .leading))
+                .zIndex(0)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .clipped(antialiased: true)
+        .customHorizontalScrollFade(width: horizontalInset, showFade: true, fromLeading: true)
+        .customHorizontalScrollFade(width: horizontalInset, showFade: true, fromLeading: false)
+    }
+    
+    private func transitionScreen<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .padding(.horizontal, horizontalInset)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var customTimeView: some View {
@@ -69,12 +88,6 @@ extension SelectRespondTime {
         .padding(.bottom, 18)
     }
     
-    private var contentTransition: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: showCustomTime ? .trailing : .leading).combined(with: .opacity),
-            removal: .move(edge: showCustomTime ? .leading : .trailing).combined(with: .opacity)
-        )
-    }
     
     //A time might be unavailable either because other user has new commitment or it has expired, this function checks for both
     private func getTimeStatus(_ time: ProposedTime) -> TimeStatus {
@@ -126,6 +139,19 @@ extension SelectRespondTime {
             .kerning(0.5)
     }
 }
+/*
+ //
+ //        Text("Options")
+ //            .foregroundStyle(Color.appGreen)
+ //            .font(.custom("SFProRounded-Bold", size: 12))
+ //            .kerning(0.5)
+ //            .padding(4)
+ //            .padding(.horizontal, 6)
+ //            .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+ //            .offset(y: -2)
+
+ */
+
 
 ////                    proposedTimes
 /////                    customTimeView
