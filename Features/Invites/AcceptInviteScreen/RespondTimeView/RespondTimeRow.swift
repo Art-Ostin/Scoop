@@ -17,8 +17,15 @@ struct RespondTimeView: View {
     
     let event: UserEvent
     
+    @State private var topLineBottom: CGFloat = 0
+    
+    private let rowHeight: CGFloat = 60
+    private let dropdownSpacing: CGFloat = 8
+    
+    
+    
     var body: some View {        
-        DropDownView(verticalOffset: 56, showOptions: $ui.showTimePopup) {
+        DropDownView(verticalOffset: 58, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
             SelectRespondTime(selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
@@ -27,6 +34,12 @@ struct RespondTimeView: View {
 }
 
 extension RespondTimeView {
+    
+    private var dropdownVerticalOffset: CGFloat {
+        max(0, rowHeight - topLineBottom - dropdownSpacing)
+    }
+
+    
     private var timeRow: some View {
         HStack(spacing: 24) {
             Image("MiniClockIcon")
@@ -43,6 +56,8 @@ extension RespondTimeView {
                 EmptyView()
             }
         }
+        .coordinateSpace(name: "RespondTimeRow")
+        .onPreferenceChange(RespondTimeTopLineBottomKey.self) { topLineBottom = $0 }
     }
     
     private func availableDateWithMessage(message: String, date: Date) -> some View {
@@ -50,13 +65,16 @@ extension RespondTimeView {
             HStack {
                 Text(EventFormatting.fullDateAndTime(date))
                     .font(.body(16, .medium))
+                    .measure(key: RespondTimeTopLineBottomKey.self) {
+                        $0.frame(in: .named("RespondTimeRow")).maxY
+                    }
                 Spacer()
                 DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
             }
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
-                    .opacity(ui.showTimePopup ? 0.3 : 1)
+            Text(message)
+                .font(.footnote)
+                .foregroundStyle(.gray)
+                .opacity(ui.showTimePopup ? 0.3 : 1)
         }
     }
     
@@ -72,54 +90,10 @@ extension RespondTimeView {
 }
 
 
-
-/*
- 
- private func getTimeScenario() -> RespondTimeScenario {
-     if event.proposedTimes.availableDates().isEmpty {
-         return .noAvailableTime
-     } else if event.message?.isEmpty == false {
-         return .timeWithMessage
-     } else {
-         return .timeNoMessage
-     }
-
- }
- */
-
-//
-/*
- VStack(alignment: .leading, spacing: 4) {
-     if let first = event.proposedTimes.firstAvailableDate {
-         if let message = event.message {timeRowWithMessage(message:)
-             HStack {
-                 Text(EventFormatting.fullDateAndTime(first))
-                     .font(.body(16, .medium))
-                 
-                 Spacer()
-                 
-                 DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
-             }
-             
-             Text(message)
-                 .font(.footnote)
-                 .foregroundStyle(.gray)
-         } else {
-             Text(EventFormatting.fullDate(first, wideMonth: true))
-
-             Text(EventFormatting.hourTime(first))
-                 .font(.footnote)
-                 .foregroundStyle(.gray)
-         }
-     }
- }
-
- */
-
-/*
- Four Scenarios:
-    1. No Time Available
-    2. Time available with Message
-    3. Time available without message
-    4. They have added a time (Deal with this later)
- */
+private struct RespondTimeTopLineBottomKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}

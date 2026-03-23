@@ -24,7 +24,10 @@ struct ProposedTimes: Codable, Equatable  {
     }
         
     func availableDates() -> [Date] {
-        dates.filter(\.stillAvailable).map(\.date)
+        dates
+            .filter(\.stillAvailable)
+            .sorted { $0.date > $1.date }
+            .map(\.date)
     }
     
     var firstAvailableDate: Date? {
