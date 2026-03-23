@@ -7,10 +7,24 @@
 
 import SwiftUI
 
+enum EventState {
+    case original, modified, new
+}
+
 struct EventResponseDraft {
     let event: UserEvent
-    let newTime: NewTimeDraft?
-    let eventDraft: EventDraft?
+    var selectedDay: Date?
+    var draftState: EventState
+    var newTime: NewTimeDraft?
+    var eventDraft: EventDraft?
+    
+    init(event: UserEvent, userId: String) {
+        self.event = event
+        self.selectedDay = event.proposedTimes.firstAvailableDate
+        self.draftState = .original //Initially
+        self.newTime = NewTimeDraft(event: event, proposedTimes: [], message: nil)
+        self.eventDraft = EventDraft(initiatorId: event.otherUserId, recipientId: userId, type: event.type, message: event.message, proposedTimes: event.proposedTimes, location: event.location)
+    }
 }
 
 struct NewTimeDraft {
