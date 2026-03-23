@@ -27,7 +27,7 @@ struct SelectRespondTime: View {
         }
         .frame(width: 290, alignment: .leading)
         .padding(18)
-        .background(CardBackground())
+        .background(CardBackground(cornerRadius: 16))
     }
 }
 

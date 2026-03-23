@@ -25,7 +25,7 @@ struct RespondTimeView: View {
     
     
     var body: some View {        
-        DropDownView(verticalOffset: 58, showOptions: $ui.showTimePopup) {
+        DropDownView(verticalOffset: dropdownVerticalOffset, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
             SelectRespondTime(selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
@@ -36,7 +36,7 @@ struct RespondTimeView: View {
 extension RespondTimeView {
     
     private var dropdownVerticalOffset: CGFloat {
-        max(0, rowHeight - topLineBottom - dropdownSpacing)
+        return max(0, rowHeight - topLineBottom - dropdownSpacing)
     }
 
     
