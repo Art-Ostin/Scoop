@@ -5,10 +5,7 @@
 //  Created by Art Ostin on 02/08/2025.
 //
 
-// IF normal 24 points padding everywhere and 12 points padding in between
-// If responde 12 points padding everywhere and
-//
-//
+//Weird Padding here to deal with
 
 import SwiftUI
 import Foundation
@@ -34,16 +31,17 @@ struct SelectTimeView: View {
             dayPicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
             Divider()
+                .padding(.horizontal, isRespondMode ? 16 : 0)
             timePicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
-                .offset(y: isRespondMode ? -6 : 0)
+                .offset(y: isRespondMode ? -10 : 0)
         }
         .frame(width: 280)
         .overlay(alignment: .bottomTrailing) {doneButton}
         .padding(.horizontal, isRespondMode ? 0 : 24)
         .padding(.top, isRespondMode ? 0 : 24)
-        .padding(.bottom, isRespondMode ? 0 : 12)
-        .background { if !isRespondMode { CardBackground(cornerRadius: 16) } }
+        .padding(.bottom, isRespondMode ? -8 : 12)
+        .background { if !isRespondMode {CardBackground(cornerRadius: 16)}}
         .onAppear { syncTimePickerIfNeeded() }
         .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
         .onChange(of: selectedMinute) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
@@ -53,18 +51,12 @@ struct SelectTimeView: View {
         .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
         .animation(.easeInOut(duration: 0.2), value: clickedMax)
         .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
-        .overlay(alignment: .top) { if isRespondMode{ infoSection}}
+//        .overlay(alignment: .top) { if isRespondMode{ infoSection}}
     }
 }
 
-//Sort out logic if multiple events
-/*
- if isRespondMode {
-     respondTitle
- }
- */
-
 //Views
+
 extension SelectTimeView {
     
     private func clickedMaxFunc() async {
@@ -98,7 +90,7 @@ extension SelectTimeView {
         }
         .padding(.horizontal)
         .background(Color.background)
-        .padding(.top, 96)
+        .padding(.top, 98)
     }
     
     @ViewBuilder
@@ -140,7 +132,7 @@ extension SelectTimeView {
     
     private var doneButton: some View {
             ZStack {
-                Image("TickButton")
+                Image(isRespondMode ? "TickButton" : "GreenTickMark")
                     .scaleEffect(0.9)
                 Circle()
                     .stroke(Color.black, lineWidth: 1)
@@ -155,7 +147,7 @@ extension SelectTimeView {
                     showTimePopup.toggle()
                 }
             }
-            .padding(.bottom, 80)
+            .padding(.bottom, isRespondMode ? 96 : 80)
     }
 
     @ViewBuilder

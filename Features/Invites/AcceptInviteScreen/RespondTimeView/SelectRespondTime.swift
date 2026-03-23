@@ -68,19 +68,19 @@ extension SelectRespondTime {
             Text(showCustomTime ? "Propose new Time" : "Invited Days")
                 .font(.custom("SFProRounded-Medium", size: 16))
                 .foregroundStyle(Color.grayText)
-                .padding(.bottom, showCustomTime ? 4 : 0)
             Spacer()
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {showCustomTime.toggle()}
             } label: {
                 if showCustomTime {
-                    Text("Invited Times")
+                    Text("Options")
                         .foregroundStyle(Color.appGreen)
                         .font(.custom("SFProRounded-Bold", size: 12))
                         .padding(4)
                         .kerning(0.5)
                         .padding(.horizontal, 6)
                         .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+                        .offset(y: -2)
                 } else {
                     Text("Can't make it?")
                         .font(.body(12, .bold))

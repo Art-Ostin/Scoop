@@ -83,7 +83,7 @@ extension RespondDetailsCard {
         Button {
             isFlipped.toggle()
         } label: {
-            HStack {
+            HStack(spacing: 8) {
                 CirclePhoto(image: image, showShadow: false, height: 24)
                 
                 Text("Invite")
@@ -91,12 +91,8 @@ extension RespondDetailsCard {
                     .foregroundStyle(Color.appGreen)
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.appGreen.opacity(0.05))
-            )
-            .stroke(24, lineWidth: 1, color: .appGreen.opacity(0.5))
+            .padding(.vertical, 3)
+            .stroke(24, lineWidth: 1, color: .appGreen.opacity(0.2))
         }
     }
 }
