@@ -14,14 +14,19 @@ struct RespondTimeContainer: View {
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
     let dates: [Date]
-
     @State var showCustomTime: Bool = false
+    @Namespace private var ns
     
     var body: some View {
-        if showCustomTime {
-            SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
-        } else {
-            SelectRespondTime(selectedDay: $selectedDay, showTime: $showTime, dates: dates, showCustomTime: $showCustomTime)
+        ZStack {
+            if showCustomTime {
+                SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
+                    .matchedGeometryEffect(id: "test", in: ns)
+            } else {
+                SelectRespondTime(selectedDay: $selectedDay, showTime: $showTime, dates: dates, showCustomTime: $showCustomTime)
+                    .matchedGeometryEffect(id: "test", in: ns)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: showCustomTime)
     }
 }

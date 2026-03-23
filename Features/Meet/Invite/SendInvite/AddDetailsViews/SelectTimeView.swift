@@ -123,7 +123,7 @@ extension SelectTimeView {
             Spacer()
             
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) { showInvitedTimes.toggle()}
+                showInvitedTimes.toggle()
             } label: {
                 Text("Invited Times")
                     .foregroundStyle(Color.appGreen)

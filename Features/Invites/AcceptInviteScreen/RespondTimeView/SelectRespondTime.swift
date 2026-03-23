@@ -77,9 +77,7 @@ extension SelectRespondTime {
                 .foregroundStyle(Color.grayText)
             Spacer()
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showCustomTime = true
-                }
+                showCustomTime = true
             } label: {
                 Text("Can't make it?")
                     .font(.body(12, .bold))
