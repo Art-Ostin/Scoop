@@ -17,15 +17,12 @@ struct SelectRespondTime: View {
     @State var showCustomTime: Bool = false
     
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             timeDropDownTitle
             
-            VStack(spacing: 12) {
-                ForEach(dates.indices, id: \.self) {idx in
-                    let date = dates[idx]
-                    availableDay(idx: idx, date: date)
-                }
+            ForEach(dates.indices, id: \.self) {idx in
+                let date = dates[idx]
+                availableDay(idx: idx, date: date)
             }
         }
         .frame(width: 290, alignment: .leading)
@@ -49,10 +46,19 @@ extension SelectRespondTime {
                     .font(.body(14, .medium))
                     .foregroundStyle(isSelected ? Color.appGreen : Color.grayText)
                 
-                let formattedDate = "\(date.formatted(.dateTime.weekday(.wide))) \(date.formatted(.dateTime.month(.wide).day()))"
+                let weekday = date.formatted(.dateTime.weekday(.wide))
+                let month = date.formatted(.dateTime.month(.wide).day())
+                let hour =  date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
                 
-                Text(formattedDate)
+                Text("\(weekday) \(month) ·")
                     .font(.body(16, .medium))
+                +
+                Text(" \(hour)")
+                    .font(.body(14))
+                    .foregroundStyle(Color.grayText)
+                
+                //let formattedDate = "\(date.formatted(.dateTime.weekday(.wide))) \(date.formatted(.dateTime.month(.wide).day()))"
+                //Text(formattedDate)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)

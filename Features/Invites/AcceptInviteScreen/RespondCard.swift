@@ -41,6 +41,7 @@ struct RespondCard: View {
         .background(CardBackground())
         .padding(.horizontal, 24)
         .offset(y: 24)
+        .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
     }
 }
 

@@ -18,7 +18,7 @@ struct RespondTimeView: View {
     let event: UserEvent
     
     var body: some View {        
-        DropDownView(verticalOffset: 54, showOptions: $ui.showTimePopup) {
+        DropDownView(verticalOffset: 56, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
             SelectRespondTime(selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
@@ -43,7 +43,6 @@ extension RespondTimeView {
                 EmptyView()
             }
         }
-        
     }
     
     private func availableDateWithMessage(message: String, date: Date) -> some View {
