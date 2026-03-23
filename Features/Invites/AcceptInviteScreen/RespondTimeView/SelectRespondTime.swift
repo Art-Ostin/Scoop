@@ -10,6 +10,7 @@ import SwiftUI
 struct SelectRespondTime: View {
 
     @Binding var selectedDay: Date?
+    @Binding var showTime: Bool
     
     let dates: [Date]
     
@@ -29,16 +30,11 @@ struct SelectRespondTime: View {
         }
         .frame(width: 290, alignment: .leading)
         .padding(18)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.background)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.grayBackground, lineWidth: 1)
-                }
-        )
-        .zIndex(2)
+        .background(CardBackground())
     }
+}
+
+extension SelectRespondTime {
     
     @ViewBuilder
     private func availableDay(idx: Int, date: Date) -> some View {
@@ -46,25 +42,28 @@ struct SelectRespondTime: View {
         
         Button {
             selectedDay = date
+            showTime = false
         } label : {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Option \(idx)")
+                Text("Option \(idx + 1)")
                     .font(.body(14, .medium))
                     .foregroundStyle(isSelected ? Color.appGreen : Color.grayText)
                 
                 let formattedDate = "\(date.formatted(.dateTime.weekday(.wide))) \(date.formatted(.dateTime.month(.wide).day()))"
+                
                 Text(formattedDate)
                     .font(.body(16, .medium))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background ( Color.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background (
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white)
+            )
             .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
         }
     }
-}
-
-extension SelectRespondTime {
     
     private var timeDropDownTitle: some View {
         HStack {

@@ -18,21 +18,20 @@ struct RespondTimeView: View {
     let event: UserEvent
     
     var body: some View {        
-        DropDownView(showOptions: $ui.showTimePopup) {
+        DropDownView(verticalOffset: 54, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
-            SelectRespondTime(selectedDay: $selectedDate, dates: event.proposedTimes.availableDates())
-            .zIndex(10)
-            .onTapGesture {ui.showTimePopup.toggle()}
+            SelectRespondTime(selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
         }
     }
 }
+
 extension RespondTimeView {
-    
     private var timeRow: some View {
         HStack(spacing: 24) {
             Image("MiniClockIcon")
                 .scaleEffect(1.3)
+                .opacity(ui.showTimePopup ? 0.3 : 1)
             
             if let date = event.proposedTimes.firstAvailableDate {
                 if let message = event.message {
@@ -55,9 +54,10 @@ extension RespondTimeView {
                 Spacer()
                 DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
             }
-            Text(message)
-                .font(.footnote)
-                .foregroundStyle(.gray)
+                Text(message)
+                    .font(.footnote)
+                    .foregroundStyle(.gray)
+                    .opacity(ui.showTimePopup ? 0.3 : 1)
         }
     }
     

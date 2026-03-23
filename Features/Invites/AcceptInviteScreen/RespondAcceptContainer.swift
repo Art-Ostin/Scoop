@@ -29,6 +29,7 @@ struct RespondAcceptContainer: View {
                 } onDecline: { event in
                     onDecline(event)
                 }
+                .zIndex(0)
             } else {
                 RespondDetailsCard(event: event, isFlipped: $isFlipped, image: image)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
