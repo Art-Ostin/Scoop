@@ -34,7 +34,7 @@ struct SelectRespondTime: View {
                 }
                 
                 if !showCustomTime {
-                    proposedTimes
+                    ClearRectangle(size: 100)
                         .transition(contentTransition)
                         .zIndex(1)
                 }
