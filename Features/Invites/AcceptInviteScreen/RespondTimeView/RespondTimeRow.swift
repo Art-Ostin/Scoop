@@ -12,6 +12,8 @@ import SwiftUI
 
 struct RespondTimeView: View {
     
+    @Bindable var vm: TimeAndPlaceViewModel
+    
     @Bindable var ui: ProfileUIState
     @Binding var selectedDate: Date?
     
@@ -22,13 +24,11 @@ struct RespondTimeView: View {
     private let rowHeight: CGFloat = 60
     private let dropdownSpacing: CGFloat = 8
     
-    
-    
-    var body: some View {        
+    var body: some View {
         DropDownView(verticalOffset: dropdownVerticalOffset, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
-            SelectRespondTime(selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
+            RespondTimeContainer(vm: vm, selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
         }
     }
 }

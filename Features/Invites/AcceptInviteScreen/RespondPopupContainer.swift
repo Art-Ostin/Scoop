@@ -46,7 +46,7 @@ extension RespondPopupContainer {
                     ui.showRespondPopup = false
                 }
             
-            RespondAcceptContainer(ui: ui, event: eventProfile.event, image: image, name: eventProfile.profile.name) { userEvent in
+            RespondAcceptContainer(ui: ui, vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), event: eventProfile.event, image: image, name: eventProfile.profile.name) { userEvent in
                 onAccept(userEvent)
             } onDecline: { userEvent in
                 onDecline(userEvent)

@@ -13,8 +13,8 @@ struct SelectRespondTime: View {
     @Binding var showTime: Bool
     
     let dates: [Date]
-    
-    @State var showCustomTime: Bool = false
+
+    @Binding var showCustomTime: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -78,7 +78,9 @@ extension SelectRespondTime {
             Spacer()
             
             Button {
-                showCustomTime = true
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showCustomTime = true
+                }
             } label: {
                 Text("Can't make it?")
                     .font(.body(12, .bold))

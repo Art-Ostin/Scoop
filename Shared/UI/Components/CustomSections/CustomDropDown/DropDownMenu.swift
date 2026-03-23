@@ -12,18 +12,21 @@ struct DropDownMenu<Content: View> : View {
     let content: () -> Content
     var width: CGFloat
     let cornerRadius: CGFloat
+    let bottomPadding: CGFloat
     
-    init(width: CGFloat = 325, cornerRadius: CGFloat = 12, @ViewBuilder content: @escaping () -> Content){
+    init(width: CGFloat = 325, cornerRadius: CGFloat = 12, bottomPadding: CGFloat = 24, @ViewBuilder content: @escaping () -> Content){
         self.width = width
         self.content = content
         self.cornerRadius = cornerRadius
+        self.bottomPadding = bottomPadding
     }
     
     var body: some View {
         VStack(spacing: 18) {
             content()
         }
-        .padding(24)
+        .padding(.horizontal, 24)
+        .padding(.bottom, bottomPadding)
         .frame(width: width)
         .cornerRadius(12)
         .background(

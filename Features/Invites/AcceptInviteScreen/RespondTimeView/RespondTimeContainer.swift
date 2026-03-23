@@ -8,11 +8,20 @@
 import SwiftUI
 
 struct RespondTimeContainer: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    
+    @Bindable var vm: TimeAndPlaceViewModel
+    @State var ui = TimeAndPlaceUIState ()
+    @Binding var selectedDay: Date?
+    @Binding var showTime: Bool
+    let dates: [Date]
 
-#Preview {
-    RespondTimeContainer()
+    @State var showCustomTime: Bool = false
+    
+    var body: some View {
+        if showCustomTime {
+            SelectTimeView(vm: vm, ui: ui, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
+        } else {
+            SelectRespondTime(selectedDay: $selectedDay, showTime: $showTime, dates: dates, showCustomTime: $showCustomTime)
+        }
+    }
 }

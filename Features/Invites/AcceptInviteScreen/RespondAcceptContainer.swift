@@ -10,6 +10,7 @@ import SwiftUI
 struct RespondAcceptContainer: View {
     
     @Bindable var ui: ProfileUIState
+    @Bindable var vm: TimeAndPlaceViewModel
     
     @State var isFlipped: Bool = false
     let event: UserEvent
@@ -24,7 +25,7 @@ struct RespondAcceptContainer: View {
         
         ZStack {
             if !isFlipped {
-                RespondCard(ui: ui, isFlipped: $isFlipped, event: event, image: image, name: name) { event in
+                RespondCard(vm: vm, ui: ui, isFlipped: $isFlipped, event: event, image: image, name: name) { event in
                     onAccept(event)
                 } onDecline: { event in
                     onDecline(event)

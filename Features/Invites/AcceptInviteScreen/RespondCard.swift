@@ -8,6 +8,9 @@ import SwiftUI
 
 struct RespondCard: View {
     
+    @Bindable var vm: TimeAndPlaceViewModel
+    
+    
     @Bindable var ui: ProfileUIState
     @Binding var isFlipped: Bool
     
@@ -32,7 +35,8 @@ struct RespondCard: View {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
                     .opacity(ui.showTimePopup ? 0.3 : 1)
-                RespondTimeView(ui: ui, selectedDate: $selectedDate, event: event)
+                
+                RespondTimeView(vm: vm, ui: ui, selectedDate: $selectedDate, event: event)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(2) //Fixes bug so backdrop appears above.
