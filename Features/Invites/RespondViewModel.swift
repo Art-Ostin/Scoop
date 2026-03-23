@@ -22,6 +22,8 @@ import SwiftUI
         self.eventRepo = eventRepo
     }
     
+    
+    
     var invites: [EventProfile] {s.invites}
     
     func acceptInvite(eventProfile: EventProfile, acceptedTime: Date) async throws {

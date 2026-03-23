@@ -24,6 +24,9 @@ struct RespondCard: View {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
+    
+    
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
