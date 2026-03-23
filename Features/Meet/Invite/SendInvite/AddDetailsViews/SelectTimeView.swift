@@ -16,7 +16,6 @@ import Foundation
 struct SelectTimeView: View {
     
     @Bindable var vm: TimeAndPlaceViewModel
-    @Bindable var ui: TimeAndPlaceUIState
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
     @State private var shakeTicksByDay: [Date: Int] = [:]
@@ -27,6 +26,7 @@ struct SelectTimeView: View {
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
     var isRespondMode: Bool = false
+    
     @Binding var showInvitedTimes: Bool
     
     var body: some View {
@@ -55,6 +55,7 @@ struct SelectTimeView: View {
         .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
         .animation(.easeInOut(duration: 0.2), value: clickedMax)
         .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
+        .overlay(alignment: .top) { if isRespondMode  { infoSection}}
     }
 }
 
@@ -67,37 +68,51 @@ extension SelectTimeView {
     private func clickedMaxFunc() async {
         guard clickedMax == true else {return}
         try? await Task.sleep(for: .seconds(1))
-        clickedMax = false
+        withAnimation(.easeInOut(duration: 0.2)) { clickedMax = false }
     }
     
     private func clickedUnavailableDayFunc() async {
         guard clickedUnavailbleDay == true else {return}
         try? await Task.sleep(for: .seconds(1))
-        clickedUnavailbleDay = false
+        withAnimation(.easeInOut(duration: 0.2)) { clickedUnavailbleDay = false }
     }
     
+    @ViewBuilder
     private var infoSection: some View {
-        Text("Propose at least two days")
-            .font(.body(12, .regular))
-            .foregroundStyle(Color.grayText)
-            .padding(.horizontal)
-            .background(Color.background)
-    }
-    
-    private var maxIcon: some View {
         Group {
             if clickedMax {
                 Text("Max 3")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.warningYellow)
             } else if clickedUnavailbleDay {
                 Text("Day Unavailable")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.warningYellow)
+            } else {
+                Text("Propose at least two days")
+                    .font(.body(12, .regular))
+                    .foregroundStyle(Color.grayText)
             }
         }
-        .font(.body(12, .bold))
-        .foregroundStyle(Color.warningYellow)
-        
-        
-        
-        .offset(y: isRespondMode ? 6 : -18)
+        .padding(.horizontal)
+        .background(Color.background)
+        .padding(.top, 135.5)
+    }
+    
+    @ViewBuilder
+    private var maxIcon: some View {
+        if !isRespondMode {
+            Group {
+                if clickedMax {
+                    Text("Max 3")
+                } else if clickedUnavailbleDay {
+                    Text("Day Unavailable")
+                }
+            }
+            .font(.body(12, .bold))
+            .foregroundStyle(Color.warningYellow)
+            .offset(y: -18)
+        }
     }
 
     private var respondTitle: some View {
@@ -156,8 +171,7 @@ extension SelectTimeView {
             .contentShape(Circle())
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    showInvitedTimes = false
-                    ui.showTimePopup.toggle()
+                    showTimePopup.toggle()
                 }
             }
             .padding(.bottom, 80)

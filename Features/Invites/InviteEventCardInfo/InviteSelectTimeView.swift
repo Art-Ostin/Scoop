@@ -29,7 +29,7 @@ struct InviteSelectTimeView: View {
             .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
             .opacity(isFlipped ? 0 : 1)
 
-            SelectTimeView(vm: timeAndPlaceVM, ui: ui, showTimePopup: $showTimePopup, showInvitedTimes: .constant(false))
+            SelectTimeView(vm: timeAndPlaceVM, showTimePopup: $showTimePopup, showInvitedTimes: .constant(false))
             .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
             .opacity(isFlipped ? 1 : 0)
         }

@@ -26,7 +26,7 @@ struct InviteTimeRow: View {
         DropDownView(showOptions: $ui.showTimePopup) {
             inviteTimeRow
         } dropDown: {
-            SelectTimeView(vm: vm, ui: ui, showTimePopup: $ui.showTimePopup, showInvitedTimes: .constant(false))
+            SelectTimeView(vm: vm, showTimePopup: $ui.showTimePopup, showInvitedTimes: .constant(false))
                 .zIndex(2)
         }
     }

@@ -19,7 +19,7 @@ struct RespondTimeContainer: View {
     
     var body: some View {
         if showCustomTime {
-            SelectTimeView(vm: vm, ui: ui, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
+            SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
         } else {
             SelectRespondTime(selectedDay: $selectedDay, showTime: $showTime, dates: dates, showCustomTime: $showCustomTime)
         }
