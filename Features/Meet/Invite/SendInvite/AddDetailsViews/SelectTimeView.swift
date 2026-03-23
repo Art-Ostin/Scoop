@@ -40,7 +40,7 @@ struct SelectTimeView: View {
         .overlay(alignment: .bottomTrailing) {doneButton}
         .padding(.horizontal, isRespondMode ? 0 : 24)
         .padding(.top, isRespondMode ? 0 : 24)
-        .padding(.bottom, isRespondMode ? -8 : 12)
+        .padding(.bottom, isRespondMode ? -12 : 12)
         .background { if !isRespondMode {CardBackground(cornerRadius: 16)}}
         .onAppear { syncTimePickerIfNeeded() }
         .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }

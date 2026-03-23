@@ -4,7 +4,6 @@
 //
 //  Created by Art Ostin on 22/03/2026.
 //
-
 import SwiftUI
 
 enum TimeStatus: String {
@@ -17,38 +16,60 @@ struct SelectRespondTime: View {
     @Bindable var vm: TimeAndPlaceViewModel
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
-    
+    @Namespace private var contentNamespace
+
     let times: [ProposedTime]
 
     @State var showCustomTime: Bool = true
-    
+        
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             timeDropDownTitle
             
-            if showCustomTime {
-                SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
-            } else {
-                proposedTimes
+            ZStack(alignment: .topLeading) {
+                if showCustomTime {
+                    customTimeView
+                        .transition(contentTransition)
+                        .zIndex(1)
+                }
+                
+                if !showCustomTime {
+                    proposedTimes
+                        .transition(contentTransition)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .clipped()
         }
         .frame(width: 290, alignment: .leading)
         .padding([.horizontal, .top], 18)
-        .padding(.bottom, showCustomTime ? 0 : 18)
         .background(CardBackground(cornerRadius: 16))
-        .animation(.easeInOut(duration: 2), value: showCustomTime)
+        .animation(.smooth(duration: 0.24), value: showCustomTime)
     }
 }
 
 extension SelectRespondTime {
     
+    private var customTimeView: some View {
+        SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
+    }
     
     private var proposedTimes: some View {
-        ForEach(times.indices, id: \.self) {idx in
-            let time = times[idx]
-            let status = getTimeStatus(time)
-            InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: status, date: time.date, idx: idx)
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(times.indices, id: \.self) { idx in
+                let time = times[idx]
+                let status = getTimeStatus(time)
+                InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: status, date: time.date, idx: idx)
+            }
         }
+        .padding(.bottom, 18)
+    }
+    
+    private var contentTransition: AnyTransition {
+        .asymmetric(
+            insertion: .opacity.combined(with: .scale(scale: 0.98, anchor: .top)),
+            removal: .opacity.combined(with: .scale(scale: 0.98, anchor: .top))
+        )
     }
     
     //A time might be unavailable either because other user has new commitment or it has expired, this function checks for both
@@ -72,7 +93,7 @@ extension SelectRespondTime {
             Spacer()
             
             Button {
-                showCustomTime.toggle()
+                    showCustomTime.toggle()
             } label: {
                 if showCustomTime {
                     optionsLabel
