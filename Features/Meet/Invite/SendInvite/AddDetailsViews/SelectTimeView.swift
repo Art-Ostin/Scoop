@@ -121,9 +121,10 @@ extension SelectTimeView {
                 .font(.custom("SFProRounded-Medium", size: 16))
                 .foregroundStyle(Color.grayText)
             Spacer()
-            
             Button {
-                showInvitedTimes.toggle()
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showInvitedTimes.toggle()
+                }
             } label: {
                 Text("Invited Times")
                     .foregroundStyle(Color.appGreen)

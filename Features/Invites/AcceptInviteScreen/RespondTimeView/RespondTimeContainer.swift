@@ -13,18 +13,18 @@ struct RespondTimeContainer: View {
     @State var ui = TimeAndPlaceUIState ()
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
-    let dates: [Date]
+    let times: [ProposedTime]
     @State var showCustomTime: Bool = false
     @Namespace private var ns
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             if showCustomTime {
                 SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
-                    .matchedGeometryEffect(id: "test", in: ns)
+                    .matchedGeometryEffect(id: "respondTimeContent", in: ns, properties: .frame, anchor: .topLeading)
             } else {
-                SelectRespondTime(selectedDay: $selectedDay, showTime: $showTime, dates: dates, showCustomTime: $showCustomTime)
-                    .matchedGeometryEffect(id: "test", in: ns)
+                SelectRespondTime(selectedDay: $selectedDay, showTime: $showTime, times: times, showCustomTime: $showCustomTime)
+                    .matchedGeometryEffect(id: "respondTimeContent", in: ns, properties: .frame, anchor: .topLeading)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showCustomTime)
