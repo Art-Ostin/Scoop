@@ -25,10 +25,7 @@ struct RespondCard: View {
     
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    
-    
-    
+    }    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {

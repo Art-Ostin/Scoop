@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-@Observable class RespondViewModel {
+@Observable class InvitesViewModel {
     
     let s: SessionManager
     let d: DefaultsManaging
@@ -56,3 +56,7 @@ import SwiftUI
     var showTimePopup: Bool = false
     var dismissOffset: CGFloat? = nil
 }
+
+
+
+

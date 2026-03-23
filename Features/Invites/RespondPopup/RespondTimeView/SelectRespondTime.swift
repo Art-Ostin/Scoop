@@ -104,7 +104,7 @@ extension SelectRespondTime {
     
     private var timeDropDownTitle: some View {
         HStack {
-            Text(showCustomTime ? "Propose new Time" : "Invited Days")
+            Text(showCustomTime ? "Propose New Time" : "Invited Times")
                 .font(.custom("SFProRounded-Medium", size: 16))
                 .foregroundStyle(Color.grayText)
             Spacer()

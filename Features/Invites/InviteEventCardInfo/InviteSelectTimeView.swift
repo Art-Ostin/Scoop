@@ -17,7 +17,7 @@ struct InviteSelectTimeView: View {
     @Binding var showTimePopup: Bool
     @Binding var selectedDay: Date?
     
-    @Bindable var vm: RespondViewModel
+    @Bindable var vm: InvitesViewModel
     @Bindable var timeAndPlaceVM: TimeAndPlaceViewModel
 
     @State var ui =  TimeAndPlaceUIState()

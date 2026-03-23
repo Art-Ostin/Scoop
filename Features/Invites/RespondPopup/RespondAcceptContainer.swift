@@ -38,38 +38,5 @@ struct RespondAcceptContainer: View {
         }
         .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
         .animation(.easeInOut, value: isFlipped)
-        .overlay(alignment: .bottom) {
-            if false { //Not using at the moment, might use later
-                Text("You’ll never know if if they’re for you unless you meet them!")
-                    .font(.title(14, .bold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 72)
-                    .offset(y: 120)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.grayText)
-            }
-        }
-    }
-    
-    
-    @ViewBuilder
-    private var infoButton: some View {
-        if isFlipped {
-            
-        } else {
-            TabInfoButton(showScreen: $isFlipped)
-                .scaleEffect(0.9)
-                .offset(x: -24, y: -20)
-        }
-    }
-    
-    private var extraMessage: some View {
-        Text("You’ll never know if if they’re for you unless you meet them!")
-            .font(.title(14, .bold))
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 72)
-            .offset(y: 120)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color.grayText)
     }
 }

@@ -45,7 +45,6 @@ extension RespondPopupContainer {
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            
             RespondAcceptContainer(ui: ui, vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), event: eventProfile.event, image: image, name: eventProfile.profile.name) { userEvent in
                 onAccept(userEvent)
             } onDecline: { userEvent in
@@ -62,8 +61,7 @@ extension RespondPopupContainer {
                 .onTapGesture {
                     ui.showRespondPopup = false
                 }
-            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) { onInvite($0)
-            }
+            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) {onInvite($0)}
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

@@ -29,9 +29,9 @@ struct InviteCardInfo: View {
  
     @Binding var showTimePopup: Bool
     
-    @Bindable var vm: RespondViewModel
+    @Bindable var vm: InvitesViewModel
 
-    init(vm: RespondViewModel, image: UIImage?, name: String, eventProfile: EventProfile , showTimePopup: Binding<Bool>) {
+    init(vm: InvitesViewModel, image: UIImage?, name: String, eventProfile: EventProfile , showTimePopup: Binding<Bool>) {
         self.image = image
         self.name = name
         self.eventProfile = eventProfile
