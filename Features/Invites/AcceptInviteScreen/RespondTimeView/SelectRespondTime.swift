@@ -36,6 +36,7 @@ struct SelectRespondTime: View {
         .padding([.horizontal, .top], 18)
         .padding(.bottom, showCustomTime ? 0 : 18)
         .background(CardBackground(cornerRadius: 16))
+        .animation(.easeInOut(duration: 2), value: showCustomTime)
     }
 }
 
@@ -69,25 +70,34 @@ extension SelectRespondTime {
                 .font(.custom("SFProRounded-Medium", size: 16))
                 .foregroundStyle(Color.grayText)
             Spacer()
+            
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) {showCustomTime.toggle()}
+                showCustomTime.toggle()
             } label: {
                 if showCustomTime {
-                    Text("Options")
-                        .foregroundStyle(Color.appGreen)
-                        .font(.custom("SFProRounded-Bold", size: 12))
-                        .padding(4)
-                        .kerning(0.5)
-                        .padding(.horizontal, 6)
-                        .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
-                        .offset(y: -2)
+                    optionsLabel
                 } else {
-                    Text("Can't make it?")
-                        .font(.body(12, .bold))
-                        .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
-                        .kerning(0.5)
+                    cantMakeItLabel
                 }
             }
         }
+    }
+    
+    private var optionsLabel: some View {
+        Text("Options")
+            .foregroundStyle(Color.appGreen)
+            .font(.custom("SFProRounded-Bold", size: 12))
+            .padding(4)
+            .kerning(0.5)
+            .padding(.horizontal, 6)
+            .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+            .offset(y: -2)
+    }
+    
+    private var cantMakeItLabel: some View {
+        Text("Can't make it?")
+            .font(.body(12, .bold))
+            .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
+            .kerning(0.5)
     }
 }

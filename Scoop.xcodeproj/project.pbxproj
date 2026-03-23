@@ -694,7 +694,6 @@
 			isa = PBXGroup;
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
-				6560CE2E2F71667B0078CFDF /* RespondTimeContainer.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
 			);
@@ -1049,6 +1048,7 @@
 				65E963D32F3F6DA80022595F /* AcceptInviteTest.swift */,
 				65FAF9852E413B100015E231 /* EventContainer.swift */,
 				653FB57B2F688B8300440E41 /* EventSlot 2.swift */,
+				6560CE2E2F71667B0078CFDF /* RespondTimeContainer.swift */,
 			);
 			path = Delete;
 			sourceTree = "<group>";
