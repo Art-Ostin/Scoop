@@ -32,7 +32,6 @@ struct SelectRespondTime: View {
 }
 
 extension SelectRespondTime {
-    
     @ViewBuilder
     private func availableDay(idx: Int, date: Date) -> some View {
         let isSelected = selectedDay == date
@@ -74,9 +73,9 @@ extension SelectRespondTime {
     private var timeDropDownTitle: some View {
         HStack {
             Text("Invited Days")
-                .font(.custom("SFProRounded-Semibold", size: 16))
+                .font(.custom("SFProRounded-Medium", size: 16))
+                .foregroundStyle(Color.grayText)
             Spacer()
-            
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     showCustomTime = true

@@ -5,9 +5,6 @@
 //  Created by Art Ostin on 22/03/2026.
 //
 
-
-
-
 import SwiftUI
 
 struct RespondTimeView: View {
@@ -18,14 +15,9 @@ struct RespondTimeView: View {
     @Binding var selectedDate: Date?
     
     let event: UserEvent
-    
-    @State private var topLineBottom: CGFloat = 0
-    
-    private let rowHeight: CGFloat = 60
-    private let dropdownSpacing: CGFloat = 8
-    
+        
     var body: some View {
-        DropDownView(verticalOffset: dropdownVerticalOffset, showOptions: $ui.showTimePopup) {
+        DropDownView(verticalOffset: 58, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
             RespondTimeContainer(vm: vm, selectedDay: $selectedDate, showTime: $ui.showTimePopup, dates: event.proposedTimes.availableDates())
@@ -35,10 +27,6 @@ struct RespondTimeView: View {
 
 extension RespondTimeView {
     
-    private var dropdownVerticalOffset: CGFloat {
-        return max(0, rowHeight - topLineBottom - dropdownSpacing)
-    }
-
     
     private var timeRow: some View {
         HStack(spacing: 24) {
@@ -56,8 +44,6 @@ extension RespondTimeView {
                 EmptyView()
             }
         }
-        .coordinateSpace(name: "RespondTimeRow")
-        .onPreferenceChange(RespondTimeTopLineBottomKey.self) { topLineBottom = $0 }
     }
     
     private func availableDateWithMessage(message: String, date: Date) -> some View {
@@ -65,9 +51,6 @@ extension RespondTimeView {
             HStack {
                 Text(EventFormatting.fullDateAndTime(date))
                     .font(.body(16, .medium))
-                    .measure(key: RespondTimeTopLineBottomKey.self) {
-                        $0.frame(in: .named("RespondTimeRow")).maxY
-                    }
                 Spacer()
                 DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
             }
@@ -86,14 +69,5 @@ extension RespondTimeView {
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
-    }
-}
-
-
-private struct RespondTimeTopLineBottomKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }

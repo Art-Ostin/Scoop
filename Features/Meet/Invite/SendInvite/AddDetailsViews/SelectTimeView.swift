@@ -26,85 +26,100 @@ struct SelectTimeView: View {
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
-    
     var isRespondMode: Bool = false
-    
     @Binding var showInvitedTimes: Bool
     
-    
     var body: some View {
-            ZStack {
-                    VStack(spacing: 12) {
-                        if isRespondMode {
-                            respondTitle
-                        }
-                        dayPicker
-                            .scaleEffect(isRespondMode ? 0.8 : 1)
-                        Divider()
-                        timePicker
-                            .scaleEffect(isRespondMode ? 0.7 : 1)
-                    }
-                
-                doneButton
-                    .position(x: 260, y: isRespondMode ? 160 : 140)
+        VStack(spacing: 12) {
+            if isRespondMode {
+                respondTitle
             }
-            .padding([.horizontal], isRespondMode ? 22 : 24)
-            .padding(.top, isRespondMode ? 12 : 24)
-            .padding(.bottom, 12)
-            .frame(width: 325)
-            .background(CardBackground(cornerRadius: 16))
-            .onAppear { syncTimePickerIfNeeded() }
-            .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
-            .onChange(of: selectedMinute) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
-            .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
-            .overlay(alignment: .top) {
-                Group {
-                    if clickedMax {
-                        Text("Max 3")
-                    } else if clickedUnavailbleDay {
-                        Text("Day Unavailable")
-                    }
-                }
-                .font(.body(12, .bold))
-                .foregroundStyle(Color.warningYellow)
-                .offset(y: -18)
-            }
-            .task(id: clickedMax) {
-                guard clickedMax == true else {return}
-                try? await Task.sleep(for: .seconds(1))
-                clickedMax = false
-            }
-            .task(id: clickedUnavailbleDay) {
-                guard clickedUnavailbleDay == true else {return}
-                try? await Task.sleep(for: .seconds(1))
-                clickedUnavailbleDay = false
-            }
-            .animation(.easeInOut(duration: 0.2), value: clickedMax)
-            .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)    }
+            dayPicker
+                .scaleEffect(isRespondMode ? 0.95 : 1)
+            Divider()
+            timePicker
+                .scaleEffect(isRespondMode ? 0.95 : 1)
+        }
+        .frame(width: isRespondMode ? 290 : 280)
+        .overlay(alignment: .bottomTrailing) { doneButton}
+        .padding(.horizontal, isRespondMode ? 18 : 24)
+        .padding(.top, isRespondMode ? 12 : 24)
+        .padding(.bottom, isRespondMode ? 6 : 12)
+        .background(CardBackground(cornerRadius: 16))
+        .onAppear { syncTimePickerIfNeeded() }
+        .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
+        .onChange(of: selectedMinute) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
+        .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
+        .overlay(alignment: .top) {maxIcon}
+        .task(id: clickedMax) {await clickedMaxFunc()}
+        .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
+        .animation(.easeInOut(duration: 0.2), value: clickedMax)
+        .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
+    }
 }
+
+//Sort out logic if multiple events
+
 
 //Views
 extension SelectTimeView {
+    
+    private func clickedMaxFunc() async {
+        guard clickedMax == true else {return}
+        try? await Task.sleep(for: .seconds(1))
+        clickedMax = false
+    }
+    
+    private func clickedUnavailableDayFunc() async {
+        guard clickedUnavailbleDay == true else {return}
+        try? await Task.sleep(for: .seconds(1))
+        clickedUnavailbleDay = false
+    }
+    
+    private var infoSection: some View {
+        Text("Propose at least two days")
+            .font(.body(12, .regular))
+            .foregroundStyle(Color.grayText)
+            .padding(.horizontal)
+            .background(Color.background)
+    }
+    
+    private var maxIcon: some View {
+        Group {
+            if clickedMax {
+                Text("Max 3")
+            } else if clickedUnavailbleDay {
+                Text("Day Unavailable")
+            }
+        }
+        .font(.body(12, .bold))
+        .foregroundStyle(Color.warningYellow)
+        
+        
+        
+        .offset(y: isRespondMode ? 6 : -18)
+    }
 
     private var respondTitle: some View {
         HStack {
             Text("Propose new Time")
-                .font(.custom("SFProRounded-Semibold", size: 16))
+                .font(.custom("SFProRounded-Medium", size: 16))
+                .foregroundStyle(Color.grayText)
             Spacer()
             
             Button {
-                showInvitedTimes.toggle()
+                withAnimation(.easeInOut(duration: 0.2)) { showInvitedTimes.toggle()}
             } label: {
                 Text("Invited Times")
                     .foregroundStyle(Color.appGreen)
                     .font(.custom("SFProRounded-Bold", size: 12))
-                    .padding(8)
-                    .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.8))
+                    .padding(4)
+                    .kerning(0.5)
+                    .padding(.horizontal, 6)
+                    .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
             }
         }
-        .padding(.bottom, 8)
     }
-    
     
     private var days: [Date] {
         let calendar = Calendar.current
@@ -115,11 +130,11 @@ extension SelectTimeView {
     }
     
     private var dayPicker: some View {
-        return LazyVGrid(columns: columns, spacing: 12) {
+        return LazyVGrid(columns: columns, spacing: isRespondMode ? 6 : 12) {
             ForEach(0..<7) {idx in
                 Text(days[idx], format: .dateTime.weekday(.abbreviated))
-                    .font(.body(12, .bold))
-                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                    .font(.body(12, isRespondMode ? .regular : .bold))
+                    .foregroundStyle(isRespondMode ?  Color(red: 0.6, green: 0.6, blue: 0.6) : Color(red: 0.2, green: 0.2, blue: 0.2))
             }
             ForEach(days.indices, id: \.self) { idx in
                 event(idx: idx)
@@ -128,7 +143,6 @@ extension SelectTimeView {
     }
     
     private var doneButton: some View {
-        
             ZStack {
                 Image("TickButton")
                     .scaleEffect(0.9)
@@ -142,9 +156,11 @@ extension SelectTimeView {
             .contentShape(Circle())
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.3)) {
+                    showInvitedTimes = false
                     ui.showTimePopup.toggle()
                 }
             }
+            .padding(.bottom, 80)
     }
 
     @ViewBuilder
@@ -153,10 +169,8 @@ extension SelectTimeView {
         let isToday = Calendar.current.isDateInToday(day)
         let isSelected = vm.event.proposedTimes.contains(day: day)
         
-        
         let keyDay = Calendar.current.startOfDay(for: day)
         let shakeValue = shakeTicksByDay[keyDay, default: 0]
-        
         
         Button {
             if isToday {
@@ -229,3 +243,8 @@ extension SelectTimeView {
         }
     }
 }
+
+/*
+ doneButton
+     .position(x: 260, y: isRespondMode ? 170 : 140)
+ */
