@@ -39,7 +39,7 @@ struct RespondCard: View {
         .background(CardBackground())
         .padding(.horizontal, 24)
         .offset(y: 24)
-        .zIndex(ui.showTimePopup ? 0 : 1)
+        .zIndex(1)
     }
 }
 
@@ -65,7 +65,6 @@ extension RespondCard {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .layoutPriority(1)
-
     }
     
     private var eventType: some View {
@@ -118,75 +117,3 @@ extension RespondCard {
         }
     }
 }
-
-
-
-
-/*
- VStack(alignment: .leading, spacing: 4) {
-     if let first = event.proposedTimes.firstAvailableDate {
-         if let message = event.message {
-             Text(EventFormatting.fullDateAndTime(first))
-                 .font(.body(16, .medium))
-             
-             Text(message)
-                 .font(.footnote)
-                 .foregroundStyle(.gray)
-         } else {
-             Text(EventFormatting.fullDate(first, wideMonth: true))
-             
-             Text(EventFormatting.hourTime(first))
-                 .font(.footnote)
-                 .foregroundStyle(.gray)
-         }
-     }
- }
-
- 
- private var newEventInfoButton: some View {
-     Group {
-         Text("\(event.type.description.emoji) Double Date ") //\(event.type.description.label)
-             .font(.body(16, .medium))
-         +
-         Text(Image(systemName: "info.circle"))
-             .foregroundStyle(Color.grayText.opacity(0.5))
-             .font(.body(14, .medium))
-     }
- }
- 
- 
- private var eventInfoButton: some View {
-     Button {
-         isFlipped = true
-     } label: {
-         HStack(alignment: .center, spacing: 2) {
-             Text("\(event.type.description.emoji)")
-                 .font(.body(16, .medium))
-             Text("Double Date") //\(event.type.title)]
-                 .font(.body(16, .medium))
-                 .frame(width: 80, alignment: .leading)
-             Image(systemName: "info.circle")
-                 .foregroundStyle(Color.grayText).opacity(0.6)
-                 .font(.body(14, .medium))
-         }
-     }
- }
- private var typeRow: some View {
-     
-     HStack(spacing: 24) {
-         Image("CupContainer")
-         VStack(alignment: .leading, spacing: 4) {
-             Text("Double Date")
-                 .font(.body(16, .medium))
-             
-         
-             Text(message)
-                 .font(.footnote)
-                 .foregroundStyle(.gray)
-         }
-     }
- }
-
-
- 
- */

@@ -49,10 +49,10 @@ struct RespondAcceptContainer: View {
         }
     }
     
+    
     @ViewBuilder
     private var infoButton: some View {
         if isFlipped {
-            
             
         } else {
             TabInfoButton(showScreen: $isFlipped)

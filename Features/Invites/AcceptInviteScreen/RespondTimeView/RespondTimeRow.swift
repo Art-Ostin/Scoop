@@ -22,6 +22,7 @@ struct RespondTimeView: View {
             timeRow
         } dropDown: {
             SelectRespondTime(selectedDay: $selectedDate, dates: event.proposedTimes.availableDates())
+            .zIndex(10)
             .onTapGesture {ui.showTimePopup.toggle()}
         }
     }
