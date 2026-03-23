@@ -6,32 +6,25 @@
 //
 import SwiftUI
 
-struct RespondCard: View {
+struct RespondAcceptCard: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
-    
-    
-    @Bindable var ui: ProfileUIState
+    @Bindable var vm: RespondViewModel
     @Binding var isFlipped: Bool
-    
-    @State var selectedDate: Date?
-    
-    let event: UserEvent
-    let image: UIImage
-    let name: String
-    
-    let onAccept: (UserEvent) -> ()
-    let onDecline: (UserEvent) -> ()
+    @State private var showTimePopup: Bool
+
+    var event: UserEvent {
+        vm.respondDraft.event
+    }
     
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-    }    
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
-                    .opacity(ui.showTimePopup ? 0.3 : 1)
+                    .opacity(showTimePopup ? 0.3 : 1)
                 
                 RespondTimeView(vm: vm, ui: ui, selectedDate: $selectedDate, event: event)
             }
@@ -45,11 +38,11 @@ struct RespondCard: View {
         .background(CardBackground())
         .padding(.horizontal, 24)
         .offset(y: 24)
-        .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
+        .animation(.easeInOut(duration: 0.2), value: showTimePopup)
     }
 }
 
-extension RespondCard {
+extension RespondAcceptCard {
     
     private var titleRow: some View {
         HStack(spacing: 16) {
@@ -62,8 +55,8 @@ extension RespondCard {
     
     private var eventTitle: some View {
         HStack(spacing: 8) {
-            CirclePhoto(image: image, showShadow: false, height: 30)
-            Text("Meet \(name)")
+            CirclePhoto(image: vm.image, showShadow: false, height: 30)
+            Text("Meet \(event.otherUserName)")
                 .font(.custom("SFProRounded-Bold", size: 24))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -117,9 +110,9 @@ extension RespondCard {
 
     private var actionSection: some View {
         HStack {
-            DeclineButton {onDecline(event) }
+            DeclineButton {vm.onAccept() }
             Spacer()
-            AcceptButton {onAccept(event)}
+            AcceptButton {vm.onDecline()}
         }
     }
 }

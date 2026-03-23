@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-@Observable class RespondViewModel {
+@Observable class InvitesViewModel {
     
     let s: SessionManager
     let d: DefaultsManaging
@@ -25,12 +25,11 @@ import SwiftUI
     var invites: [EventProfile] {s.invites}
     
     //Set up here -> I pass in an eventResponseDraft to the view, not an invite.
-    var respondDrafts: [EventResponseDraft] {
+    var respondDrafts: [RespondDraft] {
         invites.map { invite in
-            EventResponseDraft(event: invite.event, userId: s.user.id)
+            RespondDraft(event: invite.event, userId: s.user.id)
         }
     }
-    
     
     func acceptInvite(eventProfile: EventProfile, acceptedTime: Date) async throws {
         var eventProfile = eventProfile

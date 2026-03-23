@@ -9,29 +9,39 @@ import SwiftUI
 
 struct RespondPopupContainer: View {
     
+    @Binding var showPopup: Bool
     
+    @State var image: UIImage?
+    @State var showInfo: Bool
+    @State var tabSelection: Int
+
+    @State var vm: RespondViewModel
     
-    @Bindable var ui: ProfileUIState
-    @Bindable var vm: ProfileViewModel
-    
-    let eventProfile: EventProfile
-    let onAccept: (UserEvent) -> ()
-    let onDecline: (UserEvent) -> ()
-    let onInvite: (EventDraft) -> ()
     
     var body: some View {
-            ZStack {
-                CustomScreenCover { ui.showRespondPopup = false }
-            if let image = eventProfile.image {
-                TabView(selection: $ui.inviteTabSelection) {
-                    acceptInvitePage(image)
+        ZStack {
+            CustomScreenCover { showPopup = false }
+            if let image {
+                                                
+                TabView(selection: $tabSelection) {
+                    acceptInvitePage
                         .tag(0)
                     counterInvitePage(image)
                         .tag(1)
                 }
-                .sheet(isPresented: $ui.showInfoSheet) {Text("Info Screen")}
+                .sheet(isPresented: $showInfo) {Text("Info Screen")}
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .hideTabBar()
+            }
+        }
+        .task {
+            if let url = URL(string: respondDraft.event.otherUserPhoto) {
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    image = UIImage(data: data)
+                } catch {
+                    print(error)
+                }
             }
         }
     }
@@ -40,13 +50,15 @@ struct RespondPopupContainer: View {
 
 extension RespondPopupContainer {
     
-    private func acceptInvitePage(_ image: UIImage) -> some View {
+    private var acceptInvitePage: some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture {
-                    ui.showRespondPopup = false
-                }
+                .onTapGesture {showPopup = false}
+            
+            
+            
+            
             RespondAcceptContainer(ui: ui, vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), event: eventProfile.event, image: image, name: eventProfile.profile.name) { userEvent in
                 onAccept(userEvent)
             } onDecline: { userEvent in
@@ -68,3 +80,4 @@ extension RespondPopupContainer {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+

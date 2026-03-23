@@ -13,21 +13,19 @@ enum TimeStatus: String {
 
 struct SelectRespondTime: View {
 
-    @Bindable var vm: TimeAndPlaceViewModel
-    @Binding var selectedDay: Date?
-    @Binding var showTime: Bool
+    @Bindable var vm: RespondViewModel
+    @Binding var showTimePopup: Bool
 
     let times: [ProposedTime]
-
+    
+    //UI State for code
     @State var showCustomTime: Bool = false
-    private let cornerRadius: CGFloat = 16
     private let horizontalInset: CGFloat = 18
     private let contentWidth: CGFloat = 290
-    
     private var cardWidth: CGFloat {
         contentWidth + (horizontalInset * 2)
     }
-        
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             timeDropDownTitle
@@ -37,8 +35,8 @@ struct SelectRespondTime: View {
         .frame(width: cardWidth, alignment: .leading)
         .padding(.top, horizontalInset)
         .compositingGroup()
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        .background(CardBackground(cornerRadius: cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(CardBackground(cornerRadius: 16))
         .animation(.smooth(duration: 0.2), value: showCustomTime)
     }
 }
@@ -139,19 +137,3 @@ extension SelectRespondTime {
             .kerning(0.5)
     }
 }
-/*
- //
- //        Text("Options")
- //            .foregroundStyle(Color.appGreen)
- //            .font(.custom("SFProRounded-Bold", size: 12))
- //            .kerning(0.5)
- //            .padding(4)
- //            .padding(.horizontal, 6)
- //            .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
- //            .offset(y: -2)
-
- */
-
-
-////                    proposedTimes
-/////                    customTimeView

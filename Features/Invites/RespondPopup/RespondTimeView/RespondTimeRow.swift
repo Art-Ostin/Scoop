@@ -7,17 +7,14 @@
 
 import SwiftUI
 
-struct RespondTimeView: View {
+struct RespondTimeRow: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
+    @Bindable var vm: RespondViewModel
+    @Binding var showTimePopup: Bool
     
-    @Bindable var ui: ProfileUIState
-    @Binding var selectedDate: Date?
-    
-    let event: UserEvent
         
     var body: some View {
-        DropDownView(verticalOffset: 58, showOptions: $ui.showTimePopup) {
+        DropDownView(verticalOffset: 58, showOptions: $showTimePopup) {
             timeRow
         } dropDown: {
             SelectRespondTime(vm: vm, selectedDay: $selectedDate, showTime: $ui.showTimePopup, times: event.proposedTimes.dates)
@@ -25,8 +22,7 @@ struct RespondTimeView: View {
     }
 }
 
-extension RespondTimeView {
-    
+extension RespondTimeRow {
     
     private var timeRow: some View {
         HStack(spacing: 24) {

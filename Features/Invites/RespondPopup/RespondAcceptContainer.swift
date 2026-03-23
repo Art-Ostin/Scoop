@@ -9,18 +9,9 @@ import SwiftUI
 
 struct RespondAcceptContainer: View {
     
-    @Bindable var ui: ProfileUIState
-    @Bindable var vm: TimeAndPlaceViewModel
-    
-    @State var isFlipped: Bool = false
-    let event: UserEvent
-    let image: UIImage
-    let name: String
-    
-    let onAccept: (UserEvent) -> ()
-    let onDecline: (UserEvent) -> ()
+    @Bindable var vm: RespondViewModel
 
-    
+    @State var isFlipped: Bool = false
     var body: some View {
         
         ZStack {
@@ -32,7 +23,7 @@ struct RespondAcceptContainer: View {
                 }
                 .zIndex(0)
             } else {
-                RespondDetailsCard(event: event, isFlipped: $isFlipped, image: image)
+                RespondDetailsCard(event: event, isFlipped: $isFlipped, image: vm.profileImage)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             }
         }

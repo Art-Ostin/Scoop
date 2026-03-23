@@ -8,11 +8,11 @@
 //Weird Padding here to deal with
 
 import SwiftUI
-import Foundation
 
 struct SelectTimeView: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
+    @Binding var proposedTimes: [ProposedTimes]
+    
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
     @State private var shakeTicksByDay: [Date: Int] = [:]
@@ -43,9 +43,9 @@ struct SelectTimeView: View {
         .padding(.bottom, isRespondMode ? -12 : 12)
         .background { if !isRespondMode {CardBackground(cornerRadius: 16)}}
         .onAppear { syncTimePickerIfNeeded() }
-        .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
-        .onChange(of: selectedMinute) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
-        .onChange(of: vm.event.proposedTimes.dates) { syncTimePickerIfNeeded()}
+        .onChange(of: selectedHour) { proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
+        .onChange(of: selectedMinute) { proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
+        .onChange(of: proposedTimes.dates) { syncTimePickerIfNeeded()}
         .overlay(alignment: .top) {maxIcon}
         .task(id: clickedMax) {await clickedMaxFunc()}
         .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
@@ -154,7 +154,7 @@ extension SelectTimeView {
     private func event(idx: Int) -> some View {
         let day = days[idx]
         let isToday = Calendar.current.isDateInToday(day)
-        let isSelected = vm.event.proposedTimes.contains(day: day)
+        let isSelected = proposedTimes.contains(day: day)
         
         let keyDay = Calendar.current.startOfDay(for: day)
         let shakeValue = shakeTicksByDay[keyDay, default: 0]
@@ -167,7 +167,7 @@ extension SelectTimeView {
             }
             
             withAnimation(.easeInOut(duration: 0.2)) {
-                let hitMax = vm.event.proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
+                let hitMax = proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
                 if hitMax {
                     shakeTicksByDay[keyDay, default: 0] += 1   // <- triggers shake
                     clickedMax.toggle()
@@ -220,7 +220,7 @@ extension SelectTimeView {
     }
     
     private func syncTimePickerIfNeeded() {
-        guard let first = vm.event.proposedTimes.dates.first else { return }
+        guard let first = proposedTimes.dates.first else { return }
         let calendar = Calendar.current
         let newHour = calendar.component(.hour, from: first.date)
         let newMinute = calendar.component(.minute, from: first.date)
@@ -230,34 +230,3 @@ extension SelectTimeView {
         }
     }
 }
-
-/*
- doneButton
-     .position(x: 260, y: isRespondMode ? 170 : 140)
- */
-
-
-/*
- private var respondTitle: some View {
-     HStack {
-         Text("Propose new Time")
-             .font(.custom("SFProRounded-Medium", size: 16))
-             .foregroundStyle(Color.grayText)
-         Spacer()
-         Button {
-             withAnimation(.easeInOut(duration: 0.2)) {
-                 showInvitedTimes.toggle()
-             }
-         } label: {
-             Text("Invited Times")
-                 .foregroundStyle(Color.appGreen)
-                 .font(.custom("SFProRounded-Bold", size: 12))
-                 .padding(4)
-                 .kerning(0.5)
-                 .padding(.horizontal, 6)
-                 .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
-         }
-     }
- }
-
- */
