@@ -3,7 +3,7 @@
 //  Scoop
 //
 //  Created by Art Ostin on 23/03/2026.
-//
+
 
 import SwiftUI
 
@@ -30,8 +30,9 @@ struct InvitedTimeCell: View {
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background (RoundedRectangle(cornerRadius: 16).fill(Color.white))
+            .opacity(status != .available ? 0.4 : 1)
             .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
-            .overlay(alignment: .topTrailing) {timeStatus}
+            .overlay(alignment: .topTrailing) {if (status != .available) {timeStatus}}
         }
         .disabled(status != .available)
     }
@@ -67,7 +68,6 @@ extension InvitedTimeCell {
                 .font(.body(14))
                 .foregroundStyle(Color.grayText)
         }
-        .opacity(status != .available ? 0.2 : 1)
     }
     
 }
