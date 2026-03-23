@@ -20,7 +20,7 @@ struct RespondTimeView: View {
         DropDownView(verticalOffset: 58, showOptions: $ui.showTimePopup) {
             timeRow
         } dropDown: {
-            RespondTimeContainer(vm: vm, selectedDay: $selectedDate, showTime: $ui.showTimePopup, times: event.proposedTimes.dates)
+            SelectRespondTime(vm: vm, selectedDay: $selectedDate, showTime: $ui.showTimePopup, times: event.proposedTimes.dates)
         }
     }
 }

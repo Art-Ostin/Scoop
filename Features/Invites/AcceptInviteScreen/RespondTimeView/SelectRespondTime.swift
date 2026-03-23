@@ -14,27 +14,27 @@ enum TimeStatus: String {
 
 struct SelectRespondTime: View {
 
+    @Bindable var vm: TimeAndPlaceViewModel
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
     
     let times: [ProposedTime]
 
-    @Binding var showCustomTime: Bool
-    
-    
+    @State var showCustomTime: Bool = true
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             timeDropDownTitle
             
             if showCustomTime {
-                
+                SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
             } else {
-                proposedDays
+                proposedTimes
             }
         }
         .frame(width: 290, alignment: .leading)
-        .padding(18)
+        .padding([.horizontal, .top], 18)
+        .padding(.bottom, showCustomTime ? 0 : 18)
         .background(CardBackground(cornerRadius: 16))
     }
 }
@@ -42,7 +42,7 @@ struct SelectRespondTime: View {
 extension SelectRespondTime {
     
     
-    private var proposedDays: some View {
+    private var proposedTimes: some View {
         ForEach(times.indices, id: \.self) {idx in
             let time = times[idx]
             let status = getTimeStatus(time)
@@ -65,23 +65,28 @@ extension SelectRespondTime {
     
     private var timeDropDownTitle: some View {
         HStack {
-            Text("Invited Days")
+            Text(showCustomTime ? "Propose new Time" : "Invited Days")
                 .font(.custom("SFProRounded-Medium", size: 16))
                 .foregroundStyle(Color.grayText)
+                .padding(.bottom, showCustomTime ? 4 : 0)
             Spacer()
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showCustomTime.toggle()
-                }
+                withAnimation(.easeInOut(duration: 0.2)) {showCustomTime.toggle()}
             } label: {
-                
-                
-                
-                
-                Text("Can't make it?")
-                    .font(.body(12, .bold))
-                    .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
-                    .kerning(0.5)
+                if showCustomTime {
+                    Text("Invited Times")
+                        .foregroundStyle(Color.appGreen)
+                        .font(.custom("SFProRounded-Bold", size: 12))
+                        .padding(4)
+                        .kerning(0.5)
+                        .padding(.horizontal, 6)
+                        .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+                } else {
+                    Text("Can't make it?")
+                        .font(.body(12, .bold))
+                        .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
+                        .kerning(0.5)
+                }
             }
         }
     }

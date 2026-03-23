@@ -31,21 +31,19 @@ struct SelectTimeView: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            if isRespondMode {
-                respondTitle
-            }
             dayPicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
             Divider()
             timePicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
+                .offset(y: isRespondMode ? -6 : 0)
         }
-        .frame(width: isRespondMode ? 290 : 280)
-        .overlay(alignment: .bottomTrailing) { doneButton}
-        .padding(.horizontal, isRespondMode ? 18 : 24)
-        .padding(.top, isRespondMode ? 12 : 24)
-        .padding(.bottom, isRespondMode ? 6 : 12)
-        .background(CardBackground(cornerRadius: 16))
+        .frame(width: 280)
+        .overlay(alignment: .bottomTrailing) {doneButton}
+        .padding(.horizontal, isRespondMode ? 0 : 24)
+        .padding(.top, isRespondMode ? 0 : 24)
+        .padding(.bottom, isRespondMode ? 0 : 12)
+        .background { if !isRespondMode { CardBackground(cornerRadius: 16) } }
         .onAppear { syncTimePickerIfNeeded() }
         .onChange(of: selectedHour) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
         .onChange(of: selectedMinute) { vm.event.proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
@@ -55,12 +53,16 @@ struct SelectTimeView: View {
         .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
         .animation(.easeInOut(duration: 0.2), value: clickedMax)
         .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
-        .overlay(alignment: .top) { if isRespondMode  { infoSection}}
+        .overlay(alignment: .top) { if isRespondMode{ infoSection}}
     }
 }
 
 //Sort out logic if multiple events
-
+/*
+ if isRespondMode {
+     respondTitle
+ }
+ */
 
 //Views
 extension SelectTimeView {
@@ -96,7 +98,7 @@ extension SelectTimeView {
         }
         .padding(.horizontal)
         .background(Color.background)
-        .padding(.top, 135.5)
+        .padding(.top, 96)
     }
     
     @ViewBuilder
@@ -114,28 +116,6 @@ extension SelectTimeView {
             .offset(y: -18)
         }
     }
-
-    private var respondTitle: some View {
-        HStack {
-            Text("Propose new Time")
-                .font(.custom("SFProRounded-Medium", size: 16))
-                .foregroundStyle(Color.grayText)
-            Spacer()
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showInvitedTimes.toggle()
-                }
-            } label: {
-                Text("Invited Times")
-                    .foregroundStyle(Color.appGreen)
-                    .font(.custom("SFProRounded-Bold", size: 12))
-                    .padding(4)
-                    .kerning(0.5)
-                    .padding(.horizontal, 6)
-                    .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
-            }
-        }
-    }
     
     private var days: [Date] {
         let calendar = Calendar.current
@@ -146,7 +126,7 @@ extension SelectTimeView {
     }
     
     private var dayPicker: some View {
-        return LazyVGrid(columns: columns, spacing: isRespondMode ? 6 : 12) {
+        return LazyVGrid(columns: columns, spacing: isRespondMode ? 10 : 12) {
             ForEach(0..<7) {idx in
                 Text(days[idx], format: .dateTime.weekday(.abbreviated))
                     .font(.body(12, isRespondMode ? .regular : .bold))
@@ -262,4 +242,30 @@ extension SelectTimeView {
 /*
  doneButton
      .position(x: 260, y: isRespondMode ? 170 : 140)
+ */
+
+
+/*
+ private var respondTitle: some View {
+     HStack {
+         Text("Propose new Time")
+             .font(.custom("SFProRounded-Medium", size: 16))
+             .foregroundStyle(Color.grayText)
+         Spacer()
+         Button {
+             withAnimation(.easeInOut(duration: 0.2)) {
+                 showInvitedTimes.toggle()
+             }
+         } label: {
+             Text("Invited Times")
+                 .foregroundStyle(Color.appGreen)
+                 .font(.custom("SFProRounded-Bold", size: 12))
+                 .padding(4)
+                 .kerning(0.5)
+                 .padding(.horizontal, 6)
+                 .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+         }
+     }
+ }
+
  */
