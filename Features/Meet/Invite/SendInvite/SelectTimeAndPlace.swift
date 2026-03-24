@@ -7,7 +7,7 @@ import MapKit
 
 
 @MainActor
-struct InviteTimeAndPlaceView {
+struct InviteTimeAndPlaceView: View {
     
     @State var vm: TimeAndPlaceViewModel
     @Binding var showInvite: Bool
@@ -30,7 +30,7 @@ struct InviteTimeAndPlaceView {
 }
 
 @MainActor
-struct RespondTimeAndPlaceView {
+struct RespondTimeAndPlaceView: View {
     
     @Bindable var vm: RespondViewModel
     @Binding var showInvite: Bool

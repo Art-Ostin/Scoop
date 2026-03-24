@@ -9,6 +9,9 @@ import SwiftUI
 
 struct InviteCardInfo: View {
     
+    @Bindable var vm: RespondViewModel
+
+    
     let image: UIImage?
     let name: String
     
@@ -29,8 +32,6 @@ struct InviteCardInfo: View {
  
     @Binding var showTimePopup: Bool
     
-    @Bindable var vm: RespondViewModel
-
     init(vm: RespondViewModel, image: UIImage?, name: String, eventProfile: EventProfile , showTimePopup: Binding<Bool>) {
         self.image = image
         self.name = name
@@ -90,7 +91,7 @@ extension InviteCardInfo {
             DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
                 timeRow(selectedDay: selectedDay)
             } dropDown: {
-                InviteSelectTimeView(event: event, showTimePopup: $showTimePopup, selectedDay: $selectedDay, vm: vm, timeAndPlaceVM: TimeAndPlaceViewModel(defaults: vm.d, sessionManager: vm.s, profile: eventProfile.profile ))
+                SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, showTimePopup: $showTimePopup)
             }
             .frame(height: 0)
         }

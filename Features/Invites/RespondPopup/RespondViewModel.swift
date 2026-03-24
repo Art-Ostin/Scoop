@@ -19,7 +19,12 @@ class RespondViewModel {
         didSet {updateDefaults()}
     }
     
-    
+    init(image: UIImage, defaults: DefaultsManaging, sessionManager: SessionManager, respondDraft: RespondDraft) {
+        self.image = image
+        self.defaults = defaults
+        self.sessionManager = sessionManager
+        self.respondDraft = respondDraft
+    }
     
     
     func updateDraftTime() {

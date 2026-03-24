@@ -50,9 +50,9 @@ extension RespondPopupContainer {
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = false}
             
+            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup)
             
             
-            SelectTimeAndPlace(vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: eventProfile.profile), showInvite: $ui.showRespondPopup, firstImage: image, isCounterInvite: true) {onInvite($0)}
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
