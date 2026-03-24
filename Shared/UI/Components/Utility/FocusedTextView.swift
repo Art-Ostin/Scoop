@@ -11,7 +11,7 @@ import UIKit
 
 //AI Code here
 struct FocusedTextView: UIViewRepresentable {
-    @Binding var text: String
+    @Binding var text: String?
     var font: UIFont
     var lineSpacing: CGFloat
     var placeholderLineSpacing: CGFloat? = nil
@@ -84,12 +84,12 @@ struct FocusedTextView: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
-        @Binding var text: String
+        @Binding var text: String?
         private var placeholderLabel: UILabel?
         private var placeholderWidthConstraint: NSLayoutConstraint?
         private let maxLength: Int?
 
-        init(text: Binding<String>, maxLength: Int?) {
+        init(text: Binding<String?>, maxLength: Int?) {
             _text = text
             self.maxLength = maxLength
         }

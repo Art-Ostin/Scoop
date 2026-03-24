@@ -11,25 +11,17 @@ import UIKit
 
 struct AddMessageView: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
-    @Bindable var ui: TimeAndPlaceUIState
+    @Binding var eventType: Event.EventType
+    @Binding var showMessageScreen: Bool
+    @Binding var message: String?
+    
     @State var showTypePopup: Bool = false
-    
-    
     @State var showSaved: Bool = false
     @State var hasEditedThisSession: Bool = false
     @State private var keyPressToken = 0
-    
+        
     private let messageLimit = 130
     private let warningThreshold = 25
-
-    
-    private var messageBinding: Binding<String> {
-        Binding(
-            get: { vm.event.message ?? "" },
-            set: { vm.event.message = $0 }
-        )
-    }
 
     var body: some View {
         
@@ -54,7 +46,7 @@ struct AddMessageView: View {
         .animation(.easeInOut(duration: 0.2), value: showTypePopup)
         
         //All Logic dealing with SavedIcon
-        .task(id: vm.event) {
+        .task(id: message) {
             guard hasEditedThisSession else { return }
             if keyPressToken != 0 {
                 withAnimation(.smooth()) { showSaved = true }
@@ -66,21 +58,23 @@ struct AddMessageView: View {
             hasEditedThisSession = false
             showSaved = false
         }
-        .onChange(of: vm.event) {
+        .onChange(of: message) {
+            hasEditedThisSession = true
+            keyPressToken &+= 1
+        }
+        .onChange(of: message) {
             hasEditedThisSession = true
             keyPressToken &+= 1
         }
     }
-    
-    
 }
 
 extension AddMessageView {
     
     @ViewBuilder
     private var dropdownTitle: some View {
-        let emoji = vm.event.type.description.emoji
-        let type = vm.event.type.description.label
+        let emoji = eventType.description.emoji
+        let type = eventType.description.label
         
         HStack(spacing: 10) {
             Text("\(emoji) \(type)")
@@ -96,13 +90,13 @@ extension AddMessageView {
     }
     
     private var textFieldSection: some View {
-        FocusedTextView(text: messageBinding, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: vm.event.type.textPlaceholder)
+        FocusedTextView(text: $message, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: eventType.textPlaceholder)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .stroke(12, lineWidth: 1, color: .grayPlaceholder)
             .overlay(alignment: .bottomTrailing) {
-                let remaining = max(0, messageLimit - (vm.event.message ?? "").count)
+                let remaining = max(0, messageLimit - (message ?? "").count)
                 if remaining <= warningThreshold {
                     Text("\(remaining)")
                         .font(.body(14))
@@ -123,10 +117,24 @@ extension AddMessageView {
             DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
                 dropdownTitle
             } dropDown: {
-                SelectTypeView(vm: vm, ui: ui, selectedType: vm.event.type, showTypePopup: $showTypePopup)
+                SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
             }
         }
         .frame(maxWidth: .infinity)
         .zIndex(1)
     }
 }
+
+/*
+ 
+ private var messageBinding: Binding<String> {
+     Binding(
+         get: { vm.event.message ?? "" },
+         set: { vm.event.message = $0 }
+     )
+ }
+
+ @Bindable var vm: TimeAndPlaceViewModel
+ @Bindable var ui: TimeAndPlaceUIState
+
+ */

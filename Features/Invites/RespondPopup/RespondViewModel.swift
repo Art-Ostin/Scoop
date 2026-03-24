@@ -12,28 +12,43 @@ class RespondViewModel {
     
     let image: UIImage
     
+    let defaults: DefaultsManaging
+    let sessionManager: SessionManager
+    
     var respondDraft: RespondDraft {
         didSet {updateDefaults()}
     }
     
-    init(respondDraft: RespondDraft, profileImage: UIImage) {
-        self.respondDraft = respondDraft
-        self.image = profileImage
-    }
+    
     
     
     func updateDraftTime() {
         
     }
     
-    
-    
-    func onAccept() {
+    func accept() {
         
     }
     
-    func onDecline() {
+    func acceptWithNewTime() {
         
+    }
+    
+    func sendNewInvite() {
+        
+    }
+    
+    func decline () {
+        
+    }
+    
+
+    
+    
+    @MainActor func deleteEventDefault() {
+        let profileId = respondDraft.event.otherUserId
+        defaults.deleteEventDraft(profileId: profileId)
+        respondDraft.eventDraft = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId, type: .drink)
     }
     
     private func updateDefaults() {

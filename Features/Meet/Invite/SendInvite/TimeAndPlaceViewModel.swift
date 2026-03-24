@@ -13,6 +13,7 @@ import SwiftUI
     let profile: UserProfile
     let defaults: DefaultsManaging
     let s: SessionManager
+    let image: UIImage
     
     var event: EventDraft {
         didSet {
@@ -20,10 +21,11 @@ import SwiftUI
         }
     }
         
-    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile) {
+    init(defaults: DefaultsManaging, sessionManager: SessionManager, profile: UserProfile, image: UIImage) {
         self.defaults = defaults
         self.profile = profile
         self.s = sessionManager
+        self.image = image
         self.event = Self.loadEvent(d: defaults, s: sessionManager, p: profile)
     }
     

@@ -37,9 +37,6 @@ import UIKit
     
     var markerTint: Color = Color.appColorTint
     
-//    {
-//        selectedMapCategory?.mainColor ?? Color.appColorTint
-//    }
     
     var selectedMapCategory: MapCategory? {
         didSet {onCategorySelect()}
