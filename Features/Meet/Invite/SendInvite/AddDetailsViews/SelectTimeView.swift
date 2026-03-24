@@ -5,13 +5,12 @@
 //  Created by Art Ostin on 02/08/2025.
 //
 
-//Weird Padding here to deal with
-
 import SwiftUI
 
 struct SelectTimeView: View {
     
-    @Binding var proposedTimes: [ProposedTimes]
+    //Updating a proposedTime
+    @Binding var proposedTimes: ProposedTimes
     
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
@@ -23,9 +22,7 @@ struct SelectTimeView: View {
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
     var isRespondMode: Bool = false
-    
-    @Binding var showInvitedTimes: Bool
-    
+        
     var body: some View {
         VStack(spacing: 12) {
             dayPicker

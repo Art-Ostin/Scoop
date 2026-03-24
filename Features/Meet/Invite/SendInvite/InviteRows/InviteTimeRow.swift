@@ -10,11 +10,12 @@ import SwiftUI
 
 struct InviteTimeRow: View {
 
-    @Bindable var vm: TimeAndPlaceViewModel
-    @Bindable var ui: TimeAndPlaceUIState
+    @Binding var showTimePopup: Bool
+    @Binding var proposedTimes: ProposedTimes
+
     
     var times: [Date] {
-        vm.event.proposedTimes.dates.map(\.date)
+        proposedTimes.dates.map(\.date)
     }
     
     var hour: String {
@@ -22,11 +23,10 @@ struct InviteTimeRow: View {
     }
     
     var body: some View {
-        
-        DropDownView(showOptions: $ui.showTimePopup) {
+        DropDownView(showOptions: $showTimePopup) {
             inviteTimeRow
         } dropDown: {
-            SelectTimeView(vm: vm, showTimePopup: $ui.showTimePopup, showInvitedTimes: .constant(false))
+            SelectTimeView(proposedTimes: $proposedTimes, showTimePopup: $showTimePopup)
                 .zIndex(2)
         }
     }
@@ -46,9 +46,9 @@ extension InviteTimeRow {
                 threeDaysView
             }
             Spacer()
-            DropDownButton(isExpanded: $ui.showTimePopup)
+            DropDownButton(isExpanded: $showTimePopup)
         }
-        .frame(height: ui.rowHeight)
+        .frame(height: 60)
     }
     
     private var noTimeView: some View {

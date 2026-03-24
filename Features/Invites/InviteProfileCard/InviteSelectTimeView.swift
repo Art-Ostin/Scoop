@@ -9,7 +9,6 @@
 
  struct InviteSelectTimeView: View {
      
-     
      let event: UserEvent
      
      @State var isFlipped  = false
@@ -18,7 +17,6 @@
      @Binding var selectedDay: Date?
      
      @Bindable var vm: RespondViewModel
-     @Bindable var timeAndPlaceVM: TimeAndPlaceViewModel
 
      @State var ui =  TimeAndPlaceUIState()
          
@@ -28,7 +26,7 @@
              .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
              .opacity(isFlipped ? 0 : 1)
 
-             SelectTimeView(vm: timeAndPlaceVM, showTimePopup: $showTimePopup, showInvitedTimes: .constant(false))
+             SelectTimeView(proposedTimes: $vm.respondDraft.event.proposedTimes, showTimePopup: $showTimePopup, isRespondMode: true)
              .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
              .opacity(isFlipped ? 1 : 0)
          }
