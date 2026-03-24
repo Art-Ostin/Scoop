@@ -4,6 +4,7 @@
 //
 //  Created by Art Ostin on 23/03/2026.
 
+//Don't make InvitedTimeCell a button
 
 import SwiftUI
 
@@ -11,6 +12,7 @@ struct InvitedTimeCell: View {
     
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
+    @Binding var responseType: ResponseType
         
     let status: TimeStatus
     let date: Date
@@ -22,36 +24,23 @@ struct InvitedTimeCell: View {
     var isShaking: Bool { shakeTick > 0 }
     
     var body: some View {
-        Button {
-            guard status == .available else {
-                shakeTick += 1
-                return
-            }
-            selectedDay = date
-            showTime = false
-        } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                optionType
-                eventTime
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background (RoundedRectangle(cornerRadius: 16).fill(Color.white))
-            .opacity(status != .available ? 0.4 : 1)
-            .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
-            .overlay(alignment: .topTrailing) {if (status != .available) {timeStatus}}
+        
+        VStack(alignment: .leading, spacing: 4) {
+            optionType
+            eventTime
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background (RoundedRectangle(cornerRadius: 16).fill(Color.white))
+        .opacity(status != .available ? 0.4 : 1)
+        .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
+        .overlay(alignment: .topTrailing) {if (status != .available) {timeStatus}}
+        .contentShape(.rect)
+        .onTapGesture {clickCell()}
         .modifier(Shake(animatableData: shakeTick == 0 ? 0 : CGFloat(shakeTick)))
         .animation(shakeTick > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeTick)
-        .task(id: shakeTick) {
-            guard shakeTick > 0 else { return }
-            let captured = shakeTick
-            try? await Task.sleep(for: .seconds(1))
-            if shakeTick == captured {
-                withAnimation { shakeTick = 0 }
-            }
-        }
+        .task(id: shakeTick) {await shakeTickFunc()}
     }
 }
 
@@ -87,5 +76,27 @@ extension InvitedTimeCell {
                 .foregroundStyle(Color.grayText)
         }
         .opacity(status != .available ? 0.6 : 1)
+    }
+    
+    private func clickCell() {
+        guard status == .available else {
+            shakeTick += 1
+            return
+        }
+        selectedDay = date
+        responseType = .original
+        Task {
+            try? await Task.sleep(for: .seconds(0.02))
+            showTime = false
+        }
+    }
+    
+    private func shakeTickFunc()  async  {
+        guard shakeTick > 0 else { return }
+        let captured = shakeTick
+        try? await Task.sleep(for: .seconds(1))
+        if shakeTick == captured {
+            withAnimation { shakeTick = 0 }
+        }
     }
 }

@@ -48,7 +48,7 @@ extension InviteTimeRow {
             Spacer()
             DropDownButton(isExpanded: $showTimePopup)
         }
-        .frame(height: 60)
+        .frame(height: 50)
     }
     
     private var noTimeView: some View {

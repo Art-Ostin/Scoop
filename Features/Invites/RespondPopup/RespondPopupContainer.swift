@@ -31,7 +31,6 @@ struct RespondPopupContainer: View {
     }
 }
 
-
 extension RespondPopupContainer {
     
     private var acceptInvitePage: some View {

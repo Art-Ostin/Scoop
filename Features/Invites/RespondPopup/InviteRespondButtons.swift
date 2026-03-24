@@ -9,20 +9,20 @@ import SwiftUI
 
 struct AcceptButton: View {
     
+    var isModified: Bool = false
     let onAccept: () -> Void
-    
     var body: some View {
         Button {
             onAccept()
         } label: {
-            Text("Accept")
+            Text(isModified ? "Invite" : "Accept")
                 .foregroundStyle(Color.white)
                 .font(.body(16, .bold))
                 .padding(.horizontal, 36)
                 .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .foregroundStyle(Color.appGreen)
+                        .foregroundStyle(isModified ? Color.accent : Color.appGreen)
                 )
         }
     }

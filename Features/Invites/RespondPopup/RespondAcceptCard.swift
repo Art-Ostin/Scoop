@@ -4,6 +4,9 @@
 //
 //  Created by Art Ostin on 19/03/2026.
 //
+
+
+//If its in modified mode -> 
 import SwiftUI
 
 struct RespondAcceptCard: View {
@@ -111,9 +114,11 @@ extension RespondAcceptCard {
 
     private var actionSection: some View {
         HStack {
-            DeclineButton {vm.accept() }
+            DeclineButton {vm.decline()}
             Spacer()
-            AcceptButton {vm.decline()}
+            AcceptButton(isModified: vm.respondDraft.respondType != .original) {
+                vm.accept()
+            }
         }
     }
 }

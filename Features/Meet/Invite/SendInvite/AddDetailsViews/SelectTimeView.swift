@@ -129,7 +129,7 @@ extension SelectTimeView {
     
     private var doneButton: some View {
             ZStack {
-                Image(isRespondMode ? "GreenTickMark" : "TickButton")
+                Image("TickButton") //"GreenTickMark"
                     .scaleEffect(0.9)
                 Circle()
                     .stroke(Color.black, lineWidth: 1)

@@ -22,7 +22,7 @@ struct InvitePlaceRow: View {
             Spacer()
             openMapButton
         }
-        .frame(height: 60)
+        .frame(height: 50)
     }
 }
 

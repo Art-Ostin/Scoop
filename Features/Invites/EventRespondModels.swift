@@ -14,14 +14,18 @@ enum ResponseType {
 struct RespondDraft {
     let event: UserEvent
     var selectedDate: Date?
-    var draftState: ResponseType
-    var newTime: NewTimeDraft
+    var respondType: ResponseType
+    var newTime: NewTimeDraft {
+        didSet {
+            respondType = .modified
+        }
+    }
     var eventDraft: EventDraft
     
     init(event: UserEvent, userId: String) {
         self.event = event
         self.selectedDate = event.proposedTimes.firstAvailableDate
-        self.draftState = .original //Initially
+        self.respondType = .original //Initially
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init(), message: nil)
         self.eventDraft = EventDraft(initiatorId: event.otherUserId, recipientId: userId, type: event.type, message: event.message, proposedTimes: event.proposedTimes, location: event.location)
     }

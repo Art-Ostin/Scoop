@@ -12,7 +12,7 @@ enum TimeStatus: String {
 
 
 struct RespondSelectTime: View {
-
+    //Need vm here as modifying a lot
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
 
@@ -79,13 +79,13 @@ extension RespondSelectTime {
             ForEach(vm.respondDraft.event.proposedTimes.dates.indices, id: \.self) { idx in
                 let time = vm.respondDraft.event.proposedTimes.dates[idx]
                 let status = getTimeStatus(time)
-                InvitedTimeCell(selectedDay: $vm.respondDraft.selectedDate, showTime: $showTimePopup, status: status, date: time.date, idx: idx)
+                InvitedTimeCell(selectedDay: $vm.respondDraft.selectedDate, showTime: $showTimePopup, responseType: $vm.respondDraft.respondType, status: status, date: time.date, idx: idx)
             }
         }
         .padding(.bottom, 18)
     }
-    
-    
+
+
     //A time might be unavailable either because other user has new commitment or it has expired, this function checks for both
     private func getTimeStatus(_ time: ProposedTime) -> TimeStatus {
         if !time.stillAvailable {
