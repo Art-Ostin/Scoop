@@ -46,7 +46,7 @@ extension RespondTimeRow {
     private func availableDateWithMessage(message: String, date: Date) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(EventFormatting.fullDateAndTime(date))
+                Text(FormatEvent.dayAndTime(date))
                     .font(.body(16, .medium))
                 Spacer()
                 DropDownButton(isExpanded: $showTimePopup, isAccept: true)
@@ -61,9 +61,9 @@ extension RespondTimeRow {
     
     private func availableDateNoMessage(date: Date) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(EventFormatting.fullDate(date, wideMonth: true))
+            Text(FormatEvent.dayAndTime(date))
                 .font(.body(16, .medium))
-            Text(EventFormatting.hourTime(date))
+            Text(FormatEvent.hourTime(date))
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
@@ -73,7 +73,7 @@ extension RespondTimeRow {
     private var inviteTimeRow: some View {
         VStack(alignment: .leading, spacing: 4) {
             let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date)
-            HStack {
+            HStack(spacing: 2) {
                 if dates.count == 1 {
                     Text(formatTime(date: dates.first))
                         .font(.body(16, .medium))
@@ -82,7 +82,7 @@ extension RespondTimeRow {
                 } else if dates.count == 3 {
                     threeDayView(dates)
                 }
-                Spacer()
+                Spacer(minLength: 12)
                 DropDownButton(isExpanded: $showTimePopup)
             }
             .frame(height: 50)
@@ -90,14 +90,20 @@ extension RespondTimeRow {
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
+            
+            if let message = vm.respondDraft.event.message {
+                Text(message)
+                    .font(.footnote)
+                    .foregroundStyle(.gray)
+                    .opacity(showTimePopup ? 0.3 : 1)
+            }
         }
         .overlay(alignment: .topLeading) {
             if vm.respondDraft.respondType != .original {
                 Text("Custom Time")
                     .kerning(0.5)
                     .foregroundStyle(Color.accent)
-                    .font(.body(12, .bold))
-                    .offset(y: -4)
+                    .font(.body(10, .bold))
             }
         }
     }
@@ -123,8 +129,16 @@ extension RespondTimeRow {
     private func threeDayView(_ dates: [Date]) -> some View {
         HStack {
             ForEach(dates, id: \.self) { date in
-                let text = formatTime(date: date, withHour: false, wideWeek: false) + (date != dates.last ? " | " : " · ")
-
+                
+                if dates.count == 1 {
+                    
+                    
+                    Text(formatTime(date: dates.first))
+                        .font(.body(16, .medium))
+                }
+                
+                
+                let text = formatTime(date: date, withHour: false, wideWeek: false) + (date != dates.last ? ", " : " · ")
                 Text(text)
                     .font(.body(15, .medium))
             }

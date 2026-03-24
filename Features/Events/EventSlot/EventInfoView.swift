@@ -48,7 +48,7 @@ extension EventInfoView {
     }
     
     private var eventInfoTime: some View {
-        Text(EventFormatting.dayAndTime(event.acceptedTime ?? Date()))
+        Text(FormatEvent.dayAndTime(event.acceptedTime ?? Date()))
             .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
             .font(.body(16, .regular))
     }
@@ -57,7 +57,7 @@ extension EventInfoView {
         Button {
             openMaps()
         } label: {
-            Text(removingTrailingCountry(from: EventFormatting.placeFullAddress(place: event.location)))
+            Text(FormatEvent.addressWithoutCountry(event.location.address ?? ""))
                 .font(.body(12, .regular))
                 .underline(color: .grayText)
                 .foregroundStyle(Color.grayText)
@@ -108,10 +108,5 @@ extension EventInfoView {
                     .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
             )
         }
-    }
-
-    private func removingTrailingCountry(from address: String) -> String {
-        guard let i = address.lastIndex(of: ",") else { return address }
-        return String(address[..<i]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

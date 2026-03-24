@@ -102,7 +102,7 @@ extension InviteCardInfo {
             Image("MiniClockIcon")
             
             HStack {
-                Text(EventFormatting.fullDateAndTime(selectedDay))
+                Text(FormatEvent.dayAndTime(selectedDay))
                     .font(.body(16, .regular))
                     .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
                     .offset(y: 0.5)

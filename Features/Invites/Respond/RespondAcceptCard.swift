@@ -102,7 +102,7 @@ extension RespondAcceptCard {
                 VStack(alignment: .leading) {
                     Text(location.name ?? "")
                         .font(.body(16, .medium))
-                    Text(EventFormatting.addressWithoutCountry(location.address))
+                    Text(FormatEvent.addressWithoutCountry(location.address))
                         .font(.footnote)
                         .foregroundStyle(.gray)
                         .underline()

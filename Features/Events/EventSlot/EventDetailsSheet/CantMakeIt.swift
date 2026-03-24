@@ -18,7 +18,7 @@ struct CantMakeIt: View {
     let event: UserEvent
     
     var fullTime: String {
-        EventFormatting.fullDate(event.acceptedTime ?? Date())
+        FormatEvent.dayAndTime(event.acceptedTime ?? Date())
     }
     
     var hour: String {
@@ -115,7 +115,7 @@ extension CantMakeIt {
     
     private var frozenUntilDate: String {
         let frozenUntil = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
-        let full = EventFormatting.fullDate(frozenUntil)
+        let full = FormatEvent.dayAndTime(frozenUntil)
         let monthText = frozenUntil.formatted(.dateTime.month(.wide))
         let secondWord = full.split(whereSeparator: \.isWhitespace).dropFirst().first.map(String.init) ?? ""
         

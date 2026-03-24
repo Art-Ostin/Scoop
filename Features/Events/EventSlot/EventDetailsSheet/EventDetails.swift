@@ -105,7 +105,7 @@ extension EventDetails {
         let name = event.otherUserName
         var place = event.location.name ?? "the venue"
         if place.count > 20 { place = "the venue"}
-        let fullTime = EventFormatting.fullDate(event.acceptedTime ?? Date())
+        let fullTime = FormatEvent.dayAndTime(event.acceptedTime ?? Date())
         let opening = "You’ve both confirmed"
         
         let hour = event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))

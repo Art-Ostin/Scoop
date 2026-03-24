@@ -45,7 +45,7 @@ import FirebaseFirestore
         //Get the fields for the 'blockedContext'
         guard let acceptedTime = event.acceptedTime else {return}
         let profileName = event.otherUserName
-        let eventTime = "\(EventFormatting.expandedDate(acceptedTime)) · \(EventFormatting.hourTime(acceptedTime))"
+        let eventTime = "\(FormatEvent.dayAndTime(acceptedTime))"
         let eventPlace = event.location.name ?? event.location.address.map { String($0.suffix(10)) }  ?? ""
         let blockedContext = BlockedContext(profileImage: event.otherUserPhoto, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
         let userId = sessionManager.user.id

@@ -55,10 +55,10 @@ extension ProfileInviteView {
             
             VStack(alignment: .leading, spacing: 4) {
             if let first = event.proposedTimes.firstAvailableDate {
-                    Text(EventFormatting.fullDate(first))
+                    Text(FormatEvent.dayAndTime(first, withHour: false))
                     .font(.body(16, .medium))
 
-                    Text(EventFormatting.hourTime(first))
+                    Text(FormatEvent.hourTime(first))
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 }
@@ -77,7 +77,7 @@ extension ProfileInviteView {
                 VStack(alignment: .leading) {
                     Text(location.name ?? "")
                         .font(.body(16, .medium))
-                    Text(EventFormatting.addressWithoutCountry(location.address))
+                    Text(FormatEvent.addressWithoutCountry(location.address))
                         .font(.footnote)
                         .foregroundStyle(.gray)
                 }

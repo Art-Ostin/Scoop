@@ -45,7 +45,7 @@ extension InvitePlaceRow {
         VStack(alignment: .leading) {
             Text(location.name ?? "")
                 .font(.body(18, .bold))
-            Text(EventFormatting.addressWithoutCountry(location.address))
+            Text(FormatEvent.addressWithoutCountry(location.address))
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }

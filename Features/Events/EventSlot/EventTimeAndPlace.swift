@@ -26,11 +26,11 @@ struct EventHeaderDetails: View {
     
     private func timeAndPlaceView(_ time: Date) -> some View {
         VStack(spacing: 14) {
-            Text(EventFormatting.dayAndTime(time))
+            Text(FormatEvent.dayAndTime(time))
             Button {
                 openInMaps()
             } label :  {
-                Text(EventFormatting.placeName(event.location))
+                Text(FormatEvent.placeName(event.location))
                     .foregroundStyle(.accent)
             }
         }

@@ -49,7 +49,7 @@ extension FrozenView {
             Text("Account Frozen Until")
                 .font(.body(17, .medium))
             
-            Text(EventFormatting.expandedDate(date))
+            Text(FormatEvent.dayAndTime(date))
                 .font(.custom("SFProRounded-Bold", size: 32))
         }
     }

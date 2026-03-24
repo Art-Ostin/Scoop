@@ -18,7 +18,7 @@ struct AcceptButton: View {
             Text(isModified ? "Invite" : "Accept")
                 .foregroundStyle(Color.white)
                 .font(.body(16, .bold))
-                .padding(.horizontal, 36)
+                .frame(width: 140)
                 .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 16)

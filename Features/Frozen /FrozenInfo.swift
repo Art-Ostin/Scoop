@@ -27,7 +27,7 @@ struct FrozenExplainedScreen: View {
                 } else {
                     Text("Your account is currently frozen as you cancelled on \(name).")
                     
-                    Text("All Scoop functionality will be restored on \(EventFormatting.expandedDate(frozenUntilDate)).")
+                    Text("All Scoop functionality will be restored on \(FormatEvent.dayAndTime(frozenUntilDate)).")
                 }
             }
             .font(.body(17, .italic))

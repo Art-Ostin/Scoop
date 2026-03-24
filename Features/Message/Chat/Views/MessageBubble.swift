@@ -96,7 +96,7 @@ extension MessageBubbleView {
     }
     
     private var hourMessageSent: some View  {
-        Text(EventFormatting.twoDigitHour(chat.dateCreated ?? Date()))
+        Text(FormatEvent.hourTime(chat.dateCreated ?? Date()))
             .font(.body(10, .regular))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)

@@ -89,11 +89,11 @@ extension SelectAvailableDay {
             HStack(spacing: 14) {
                 VStack(alignment: .leading, spacing: 4) {
                     
-                    Text(EventFormatting.fullDate(date))
+                    Text(FormatEvent.dayAndTime(date))
                         .font(.body(16, isSelected ? .bold : .medium))
                         .foregroundStyle(Color.black.opacity(0.88))
                     
-                    Text(EventFormatting.hourTime(date))
+                    Text(FormatEvent.hourTime(date))
                         .font(.body(14, .medium))
                         .foregroundStyle(isSelected ? Color.appGreen : Color.grayText)
                 }
