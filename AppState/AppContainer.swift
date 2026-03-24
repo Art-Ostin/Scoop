@@ -66,9 +66,8 @@ extension AppContainer {
     }
     
     private var invitesView: some View {
-        InvitesContainer(vm: RespondViewModel(s: dep.sessionManager, d: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
+        InvitesContainer(vm: InvitesViewModel(session: dep.sessionManager, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
     }
-    
     
     private var eventsView: some View {
         EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))

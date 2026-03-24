@@ -111,9 +111,9 @@ extension RespondAcceptCard {
 
     private var actionSection: some View {
         HStack {
-            DeclineButton {vm.onAccept() }
+            DeclineButton {vm.accept() }
             Spacer()
-            AcceptButton {vm.onDecline()}
+            AcceptButton {vm.decline()}
         }
     }
 }

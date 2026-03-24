@@ -9,17 +9,17 @@ import SwiftUI
 
 struct RespondPopupContainer: View {
     
-    @Binding var showPopup: Bool
-    
-    @State var showInfo: Bool
-    @State private var selectedTab = 0
     @State var vm: RespondViewModel
+    @Binding var showPopup: Bool
+
+    @State var showInfo: Bool = false
+    @State private var selectedTab = 0
     
     var body: some View {
         ZStack {
             CustomScreenCover { showPopup = false }
             TabView(selection: $selectedTab) {
-                acceptInvitePage()
+                acceptInvitePage
                     .tag(0)
                 counterInvitePage
                     .tag(1)
@@ -34,7 +34,7 @@ struct RespondPopupContainer: View {
 
 extension RespondPopupContainer {
     
-    private func acceptInvitePage() -> some View {
+    private var acceptInvitePage: some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
@@ -44,7 +44,7 @@ extension RespondPopupContainer {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private func counterInvitePage(_ image: UIImage) -> some View {
+    private var counterInvitePage: some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())

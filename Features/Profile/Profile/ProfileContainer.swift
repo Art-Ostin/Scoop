@@ -109,21 +109,21 @@ extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
         if ui.showRespondPopup, let event = vm.event {
-            RespondPopupContainer(ui: ui, vm: vm, eventProfile: EventProfile(event: event, profile: vm.profile, image: profileImages.first)) { userEvent in
-                acceptInvite?(userEvent)
-            } onDecline: { userEvent in
-                declineProfile?(userEvent)
-            } onInvite: { eventDraft in
-                sendInvite?(eventDraft)
-            }
+            RespondPopupContainer (
+                vm: RespondViewModel(
+                    image: profileImages.first ?? UIImage(),
+                    defaults: vm.defaults,
+                    sessionManager: vm.s,
+                    respondDraft: RespondDraft(event: event, userId: vm.userId)),
+                showPopup: $ui.showRespondPopup
+            )
         } else {
-            SelectTimeAndPlace(
-                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile),
-                showInvite: $ui.showRespondPopup,
-                firstImage: profileImages.first ?? UIImage()) { event in
+            InviteTimeAndPlaceView(
+                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, image: profileImages.first ?? UIImage()),
+                showInvite: $ui.showRespondPopup) { event in
                     sendInvite?(event)
                 }
-        }
+            }
     }
     
     private func profileTitle(geo: GeometryProxy) -> some View {

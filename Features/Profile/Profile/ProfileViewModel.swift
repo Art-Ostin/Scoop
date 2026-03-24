@@ -33,6 +33,11 @@ enum ProfileViewType {
         self.viewProfileType = Self.loadProfileViewType(event: event)
     }
     
+    var userId: String {
+        s.user.id
+    }
+    
+    
     private static func loadProfileViewType(event: UserEvent? = nil) -> ProfileViewType {
         if event?.status == .pastAccepted {
             return .view
