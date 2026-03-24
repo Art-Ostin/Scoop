@@ -22,13 +22,13 @@ struct RespondDraft {
         self.event = event
         self.selectedDate = event.proposedTimes.firstAvailableDate
         self.draftState = .original //Initially
-        self.newTime = NewTimeDraft(event: event, proposedTimes: [], message: nil)
+        self.newTime = NewTimeDraft(event: event, proposedTimes: .init(), message: nil)
         self.eventDraft = EventDraft(initiatorId: event.otherUserId, recipientId: userId, type: event.type, message: event.message, proposedTimes: event.proposedTimes, location: event.location)
     }
 }
 
 struct NewTimeDraft {
-    let event: UserEvent
-    let proposedTimes: [ProposedTimes]
-    let message: String?
+    var event: UserEvent
+    var proposedTimes: ProposedTimes
+    var message: String?
 }

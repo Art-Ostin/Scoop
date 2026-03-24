@@ -10,12 +10,13 @@ struct RespondAcceptCard: View {
     
     @Bindable var vm: RespondViewModel
     @Binding var isFlipped: Bool
-    @State private var showTimePopup: Bool
+    
+    @State private var showTimePopup: Bool = false
 
+    
     var event: UserEvent {
         vm.respondDraft.event
     }
-    
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -26,7 +27,7 @@ struct RespondAcceptCard: View {
                 titleRow
                     .opacity(showTimePopup ? 0.3 : 1)
                 
-                RespondTimeView(vm: vm, ui: ui, selectedDate: $selectedDate, event: event)
+                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(2) //Fixes bug so backdrop appears above.

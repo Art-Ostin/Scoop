@@ -11,12 +11,11 @@ enum TimeStatus: String {
 }
 
 
-struct SelectRespondTime: View {
+struct RespondSelectTime: View {
 
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
 
-    let times: [ProposedTime]
     
     //UI State for code
     @State var showCustomTime: Bool = false
@@ -41,7 +40,7 @@ struct SelectRespondTime: View {
     }
 }
 
-extension SelectRespondTime {
+extension RespondSelectTime {
 
     private var contentViewport: some View {
         ZStack(alignment: .topLeading) {
@@ -72,15 +71,15 @@ extension SelectRespondTime {
     }
     
     private var customTimeView: some View {
-        SelectTimeView(vm: vm, showTimePopup: $showTime, isRespondMode: true, showInvitedTimes: $showCustomTime)
+        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, showTimePopup: $showTimePopup, isRespondMode: true)
     }
     
     private var proposedTimes: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ForEach(times.indices, id: \.self) { idx in
-                let time = times[idx]
+            ForEach(vm.respondDraft.event.proposedTimes.dates.indices, id: \.self) { idx in
+                let time = vm.respondDraft.event.proposedTimes.dates[idx]
                 let status = getTimeStatus(time)
-                InvitedTimeCell(selectedDay: $selectedDay, showTime: $showTime, status: status, date: time.date, idx: idx)
+                InvitedTimeCell(selectedDay: $vm.respondDraft.selectedDate, showTime: $showTimePopup, status: status, date: time.date, idx: idx)
             }
         }
         .padding(.bottom, 18)

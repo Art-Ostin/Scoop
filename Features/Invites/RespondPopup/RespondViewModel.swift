@@ -22,8 +22,9 @@ class RespondViewModel {
     }
     
     
-    
-    func updateDraftTime
+    func updateDraftTime() {
+        
+    }
     
     
     

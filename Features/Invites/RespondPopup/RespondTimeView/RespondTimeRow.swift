@@ -12,12 +12,11 @@ struct RespondTimeRow: View {
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
     
-        
     var body: some View {
         DropDownView(verticalOffset: 58, showOptions: $showTimePopup) {
             timeRow
         } dropDown: {
-            SelectRespondTime(vm: vm, selectedDay: $selectedDate, showTime: $ui.showTimePopup, times: event.proposedTimes.dates)
+            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
         }
     }
 }
@@ -28,16 +27,14 @@ extension RespondTimeRow {
         HStack(spacing: 24) {
             Image("MiniClockIcon")
                 .scaleEffect(1.3)
-                .opacity(ui.showTimePopup ? 0.3 : 1)
+                .opacity(showTimePopup ? 0.3 : 1)
             
-            if let date = event.proposedTimes.firstAvailableDate {
-                if let message = event.message {
+            if let date = vm.respondDraft.selectedDate {
+                if let message = vm.respondDraft.event.message {
                     availableDateWithMessage(message: message, date: date)
                 } else {
                     availableDateNoMessage(date: date)
                 }
-            } else {
-                EmptyView()
             }
         }
     }
@@ -48,12 +45,12 @@ extension RespondTimeRow {
                 Text(EventFormatting.fullDateAndTime(date))
                     .font(.body(16, .medium))
                 Spacer()
-                DropDownButton(isExpanded: $ui.showTimePopup, isAccept: true)
+                DropDownButton(isExpanded: $showTimePopup, isAccept: true)
             }
             Text(message)
                 .font(.footnote)
                 .foregroundStyle(.gray)
-                .opacity(ui.showTimePopup ? 0.3 : 1)
+                .opacity(showTimePopup ? 0.3 : 1)
         }
     }
     

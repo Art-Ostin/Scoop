@@ -8,25 +8,21 @@
  import SwiftUI
 
  struct InviteSelectTimeView: View {
-     
-     let event: UserEvent
+          
+     @Binding var showTimePopup: Bool
+     @Bindable var vm: RespondViewModel
      
      @State var isFlipped  = false
      
-     @Binding var showTimePopup: Bool
-     @Binding var selectedDay: Date?
-     
-     @Bindable var vm: RespondViewModel
 
-     @State var ui =  TimeAndPlaceUIState()
          
      var body: some View {
          ZStack {
-             SelectAvailableDay(event: event, selectedDay: $selectedDay,showTimePopup: $showTimePopup)
+             SelectAvailableDay(event: vm.respondDraft.event, selectedDay: $vm.respondDraft.selectedDate ,showTimePopup: $showTimePopup)
              .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
              .opacity(isFlipped ? 0 : 1)
-
-             SelectTimeView(proposedTimes: $vm.respondDraft.event.proposedTimes, showTimePopup: $showTimePopup, isRespondMode: true)
+             
+             SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, showTimePopup: $showTimePopup)
              .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
              .opacity(isFlipped ? 1 : 0)
          }

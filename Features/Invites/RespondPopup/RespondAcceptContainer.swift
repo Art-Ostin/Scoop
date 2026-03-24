@@ -16,14 +16,10 @@ struct RespondAcceptContainer: View {
         
         ZStack {
             if !isFlipped {
-                RespondCard(vm: vm, ui: ui, isFlipped: $isFlipped, event: event, image: image, name: name) { event in
-                    onAccept(event)
-                } onDecline: { event in
-                    onDecline(event)
-                }
+                RespondAcceptCard(vm: vm, isFlipped: $isFlipped)
                 .zIndex(0)
             } else {
-                RespondDetailsCard(event: event, isFlipped: $isFlipped, image: vm.profileImage)
+                RespondDetailsCard(event: vm.respondDraft.event, isFlipped: $isFlipped, image: vm.image)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             }
         }
