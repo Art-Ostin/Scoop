@@ -86,6 +86,10 @@ extension RespondTimeRow {
                 DropDownButton(isExpanded: $showTimePopup)
             }
             .frame(height: 50)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .allowsTightening(true)
         }
         .overlay(alignment: .topLeading) {
             if vm.respondDraft.respondType != .original {
@@ -101,10 +105,10 @@ extension RespondTimeRow {
     
     private func twoDayView(_ dates: [Date]) -> some View {
         Text(formatTime(date: dates.first, withHour: false, wideWeek: false))
-            .font(.body(17, .bold))
+            .font(.body(16, .medium))
         +
         Text(" or ")
-            .font(.body(16, .italic))
+            .font(.body(15, .italic))
             .foregroundStyle(Color.grayText)
         +
         Text("\(formatTime(date: dates.last, withHour: false, wideWeek: false)) · ")
@@ -119,7 +123,7 @@ extension RespondTimeRow {
     private func threeDayView(_ dates: [Date]) -> some View {
         HStack {
             ForEach(dates, id: \.self) { date in
-                let text = formatTime(date: date, withHour: false, wideWeek: false) + (date != dates.last ? ", " : " · ")
+                let text = formatTime(date: date, withHour: false, wideWeek: false) + (date != dates.last ? " | " : " · ")
 
                 Text(text)
                     .font(.body(15, .medium))
