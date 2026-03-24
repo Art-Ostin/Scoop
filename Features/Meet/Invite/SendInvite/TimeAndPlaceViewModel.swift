@@ -43,13 +43,3 @@ import SwiftUI
     }
 }
 
-@Observable class TimeAndPlaceUIState {
-    var showTypePopup: Bool = false
-    var showTimePopup: Bool = false
-    var showMessageScreen: Bool = false
-    var showMapView: Bool = false
-    var showAlert: Bool = false
-    var isMessageTap: Bool = false
-    var showInfoScreen: Bool = false
-    let rowHeight: CGFloat = 50
-}

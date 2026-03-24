@@ -11,7 +11,7 @@ struct InvitesContainer: View {
     
     @State var ui = InvitesUIState()
     
-    @State var vm: RespondViewModel
+    @State var vm: InvitesViewModel
     @State var profileImages: [String : [UIImage]] = [:]
     @State var showTint: Bool = false
     
@@ -43,14 +43,15 @@ extension InvitesContainer {
         VStack(spacing: 24) {
             titleAndTab
             
-            ForEach(vm.invites) { invite in
+            ForEach(vm.invites, id: \.self) { invite in
                 InviteCard(
-                    timeAndPlaceVM: TimeAndPlaceViewModel(
-                        defaults: vm.d,
-                        sessionManager: vm.s,
-                        profile: invite.profile
-                    ),
-                    vm: vm, ui: ui, eventProfile: invite) {profile in
+                    vm: RespondViewModel(
+                        image: profileImages[invite.profile.id]?.first ?? UIImage(),
+                        defaults: vm.defaults,
+                        sessionManager: vm.session,
+                        respondDraft: .init(event: invite.event, userId: vm.userId)
+                    ),ui: ui,
+                    eventProfile: invite) { profile in
                         openProfile(profile)
                     }
                     .task { await loadProfileImages(invite.profile) }
@@ -89,8 +90,8 @@ extension InvitesContainer {
     private func profileView(eventProfile: EventProfile) -> some View {
         ProfileView(
             vm: ProfileViewModel(
-                defaults: vm.d,
-                s: vm.s,
+                defaults: vm.defaults,
+                s: vm.session,
                 profile: eventProfile.profile,
                 event: eventProfile.event,
                 imageLoader: vm.imageLoader
@@ -137,3 +138,21 @@ extension InvitesContainer {
         
     }
 }
+
+
+/*
+ 
+ 
+ 
+ 
+ InviteCard(
+     timeAndPlaceVM: TimeAndPlaceViewModel(
+         defaults: vm.d,
+         sessionManager: vm.s,
+         profile: invite.profile
+     ),
+     vm: vm, ui: ui, eventProfile: invite) {profile in
+         openProfile(profile)
+     }
+
+ */

@@ -11,12 +11,14 @@ struct InvitedTimeCell: View {
     
     @Binding var selectedDay: Date?
     @Binding var showTime: Bool
+        
     let status: TimeStatus
     let date: Date
     let idx: Int
     var isSelected: Bool { selectedDay == date}
-    @State private var shakeTick = 0
     
+    //Shaking animation
+    @State private var shakeTick = 0
     var isShaking: Bool { shakeTick > 0 }
     
     var body: some View {

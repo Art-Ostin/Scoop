@@ -9,8 +9,6 @@ import SwiftUI
 
 struct InviteCard: View {
     
-    @State var timeAndPlaceVM: TimeAndPlaceViewModel
-
     @Bindable var vm: RespondViewModel
     @Bindable var ui: InvitesUIState
     let eventProfile: EventProfile

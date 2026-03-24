@@ -4,6 +4,16 @@
 import SwiftUI
 import MapKit
 
+@Observable class TimeAndPlaceUIState {
+    var showTypePopup: Bool = false
+    var showTimePopup: Bool = false
+    var showMessageScreen: Bool = false
+    var showMapView: Bool = false
+    var showAlert: Bool = false
+    var isMessageTap: Bool = false
+    var showInfoScreen: Bool = false
+    let rowHeight: CGFloat = 50
+}
 
 
 @MainActor
@@ -45,10 +55,10 @@ struct RespondTimeAndPlaceView: View {
 }
 
 
-
 struct SelectTimeAndPlace: View {
-    
     @State private var ui = TimeAndPlaceUIState()
+    
+    
     @Binding var event: EventDraft
     @Binding var showInvite: Bool
     

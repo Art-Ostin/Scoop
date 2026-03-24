@@ -12,14 +12,14 @@ struct RespondPopupContainer: View {
     @Binding var showPopup: Bool
     
     @State var showInfo: Bool
-    @State var tabSelection: Int
+    @State private var selectedTab = 0
     @State var vm: RespondViewModel
     
     var body: some View {
         ZStack {
             CustomScreenCover { showPopup = false }
-            TabView(selection: $tabSelection) {
-                acceptInvitePage
+            TabView(selection: $selectedTab) {
+                acceptInvitePage()
                     .tag(0)
                 counterInvitePage
                     .tag(1)
@@ -34,7 +34,7 @@ struct RespondPopupContainer: View {
 
 extension RespondPopupContainer {
     
-    private var acceptInvitePage: some View {
+    private func acceptInvitePage() -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())

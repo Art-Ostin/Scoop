@@ -10,24 +10,28 @@ import SwiftUI
 @MainActor
 @Observable class InvitesViewModel {
     
-    let s: SessionManager
-    let d: DefaultsManaging
+    let session: SessionManager
+    let defaults: DefaultsManaging
     let imageLoader: ImageLoading
     let eventRepo: EventsRepository
 
-    init(s: SessionManager, d: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
-        self.s = s
-        self.d = d
+    init(session: SessionManager, defaults: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
+        self.session = session
+        self.defaults = defaults
         self.imageLoader = imageLoader
         self.eventRepo = eventRepo
     }
     
-    var invites: [EventProfile] {s.invites}
+    var invites: [EventProfile] {session.invites}
+    
+    var userId: String {
+        session.user.id
+    }
     
     //Set up here -> I pass in an eventResponseDraft to the view, not an invite.
     var respondDrafts: [RespondDraft] {
         invites.map { invite in
-            RespondDraft(event: invite.event, userId: s.user.id)
+            RespondDraft(event: invite.event, userId: session.user.id)
         }
     }
     
@@ -39,8 +43,8 @@ import SwiftUI
         var acceptedEvent = eventProfile.event
         acceptedEvent.acceptedTime = acceptedTime
         
-        s.invites.removeAll { $0.id == eventProfile.id }
-        s.events.append(eventProfile)
+        session.invites.removeAll { $0.id == eventProfile.id }
+        session.events.append(eventProfile)
     }
     
     //For Defaults to update it
