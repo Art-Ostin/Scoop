@@ -109,10 +109,14 @@ extension MeetContainer {
     @ViewBuilder
     private var quickInviteView: some View {
         if let profile = ui.profileInvite {
-            SelectTimeAndPlace(
-                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: profile),
-                showInvite: $ui.quickInvite,
-                firstImage: profileImages[profile.id]?.first ?? UIImage()) { draft in
+            InviteTimeAndPlaceView(
+                vm: TimeAndPlaceViewModel(
+                    defaults: vm.defaults,
+                    sessionManager: vm.s,
+                    profile: profile,
+                    image: profileImages[profile.id]?.first ?? UIImage()
+                ),
+                showInvite: $ui.quickInvite) { draft in
                     Task{ @MainActor in
                         await respondToProfile(event: draft, profile: profile)
                     }

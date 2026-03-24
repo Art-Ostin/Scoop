@@ -7,7 +7,7 @@ import MapKit
 
 
 @MainActor
-struct SendTimeAndPlaceView {
+struct InviteTimeAndPlaceView {
     
     @State var vm: TimeAndPlaceViewModel
     @Binding var showInvite: Bool
