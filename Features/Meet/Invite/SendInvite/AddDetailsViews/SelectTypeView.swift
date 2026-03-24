@@ -9,11 +9,11 @@ import SwiftUI
 
 struct SelectTypeView: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
-    @Bindable var ui: TimeAndPlaceUIState
-    
-    let selectedType: Event.EventType?
+    @Binding var type: Event.EventType
+    @Binding var showMessageScreen: Bool
     @Binding var showTypePopup: Bool
+    
+    let message: String
     
     var body: some View {
         DropDownMenu {
@@ -36,41 +36,19 @@ extension SelectTypeView {
             }
             if notLastRow { CustomDivider().padding(.trailing, -24)}
         }
-        .foregroundStyle(selectedType == eventType ? Color.accent : Color.black)
+        .foregroundStyle(type == eventType ? Color.accent : Color.black)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture { selectType(eventType: eventType)}
     }
     private func selectType(eventType: Event.EventType) {
-        let message = (vm.event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         if eventType == .custom && message.isEmpty {
-            ui.showMessageScreen = true
+            showMessageScreen = true
         }
-        vm.event.type = eventType
+        type = eventType
         withAnimation(.easeInOut(duration: 0.25)) {
             showTypePopup = false
         }
     }
 }
 
-
-
-/*
- 
- DropDownRow(
-     image: eventType.description.emoji ?? "",
-     text: eventType.description.label
- )
- .foregroundStyle(selectedType == eventType ? .accent : .black)
- .onTapGesture {
-     let message = (vm.event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-     if eventType == .custom && message.isEmpty {
-         ui.showMessageScreen = true
-     }
-     vm.event.type = eventType
-     withAnimation(.easeInOut(duration: 0.25)) {
-         showTypePopup.toggle()
-     }
- }
-
- */

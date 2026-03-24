@@ -154,19 +154,3 @@ extension GenericSex {
         }
     }
 }
-
-/*
- 
- private var saveIcon: some View {
-     HStack(alignment: .firstTextBaseline, spacing: 12) {
-         Text("Saved")
-             .font(.body(14, .bold))
-             .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
-         
-         Image("GreenTick")
-     }
-     .padding(.top, 72)
-     .padding(.horizontal, 36)
- }
-
- */

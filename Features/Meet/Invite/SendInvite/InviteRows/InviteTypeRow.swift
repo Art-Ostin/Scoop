@@ -9,19 +9,20 @@ import SwiftUI
 
 struct InviteTypeRow: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
     @Bindable var ui: TimeAndPlaceUIState
     
-    var event: EventDraft {vm.event}
+    @Binding var eventType: Event.EventType
+    @Binding var unparsedMessage: String?
+    
     var message: String  {
-        (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        (unparsedMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     var body: some View {
         DropDownView(showOptions: $ui.showTypePopup) {
             inviteTypeRow
         } dropDown: {
-            SelectTypeView(vm: vm, ui: ui, selectedType: vm.event.type, showTypePopup: $ui.showTypePopup)
+            SelectTypeView(type: $eventType, showMessageScreen: $ui.showMessageScreen, showTypePopup: $ui.showTypePopup, message: message)
         }
     }
 }
@@ -52,7 +53,7 @@ extension InviteTypeRow {
     }
     
     private var inviteType: Text {
-        Text(verbatim: "\(event.type.description.emoji) \(event.type.description.label): ")
+        Text(verbatim: "\(eventType.description.emoji) \(eventType.description.label): ")
             .font(.body(16, .bold))
     }
     
@@ -74,8 +75,8 @@ extension InviteTypeRow {
 //With No Message Views
 extension InviteTypeRow {
     @ViewBuilder private var typeWithNoMessage: some View {
-        let type = event.type.description.label
-        let emoji = event.type.description.emoji
+        let type = eventType.description.label
+        let emoji = eventType.description.emoji
             VStack(alignment: .leading, spacing: 6) {
                 Text("\(emoji) \(type)")
                     .font(.body(18))

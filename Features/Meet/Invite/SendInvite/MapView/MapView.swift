@@ -11,10 +11,12 @@ import MapKit
 
 struct MapView: View {
     
-    @State var  vm: MapViewModel
+    @State var vm: MapViewModel
     
     @Environment(\.dismiss) var dismiss
-    @Bindable var eventVM: TimeAndPlaceViewModel
+    
+    @Binding var eventLocation: EventLocation?
+    
     @State private var sheet: MapSheets = .optionsAndSearchBar
     
     @State var useSelectedDetent =  false
@@ -23,9 +25,9 @@ struct MapView: View {
     
     private let selectedSheetTransitionDuration: TimeInterval = 0.12
     
-    init(defaults: DefaultsManaging, eventVM: TimeAndPlaceViewModel) {
+    init(defaults: DefaultsManaging, eventLocation: Binding<EventLocation?>) {
         self._vm = State(initialValue: MapViewModel(defaults: defaults))
-        self._eventVM = Bindable(wrappedValue: eventVM)
+        self._eventLocation = eventLocation
     }
     
     private var detentSelection: Binding<PresentationDetent> {
@@ -160,7 +162,7 @@ extension MapView {
             useSelectedDetent: $useSelectedDetent,
             onExitSelection: transitionFromSelectedSheet
         ) { mapItem in
-            eventVM.event.location = EventLocation(mapItem: mapItem)
+            eventLocation = EventLocation(mapItem: mapItem)
             dismiss()
         }
         .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil || useSelectedDetent), selection: detentSelection)
@@ -205,8 +207,6 @@ extension MapView {
                 let center = offsetCenter(for: coord, heading: base.heading)
                 // Exit user-follow mode before centering the selected place.
                 vm.cameraPosition = .camera(base)
-
-
                 camTarget = MapCamera(centerCoordinate: center, distance: base.distance, heading: base.heading, pitch: base.pitch)
                 camDuration = (base.distance < 1500) ? 1.0 : 0.85
                 camTrigger &+= 1

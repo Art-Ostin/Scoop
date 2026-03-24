@@ -9,12 +9,12 @@ import SwiftUI
 
 struct InvitePlaceRow: View {
     
-    @Bindable var vm: TimeAndPlaceViewModel
-    @Bindable var ui: TimeAndPlaceUIState
-    
+    @Binding var eventLocation: EventLocation?
+    @Binding var showMapView: Bool
+        
     var body: some View {
         HStack {
-            if let location = vm.event.location {
+            if let location = eventLocation {
                 addressText(location: location)
             } else {
                 noLocationPlaceholder
@@ -22,7 +22,7 @@ struct InvitePlaceRow: View {
             Spacer()
             openMapButton
         }
-        .frame(height: ui.rowHeight)
+        .frame(height: 60)
     }
 }
 
@@ -35,7 +35,7 @@ extension InvitePlaceRow {
     
     private var openMapButton: some View {
         Button {
-            withAnimation(.snappy) { ui.showMapView.toggle() }
+            withAnimation(.snappy) { showMapView.toggle() }
         } label:  {
             Image("InvitePlace")
         }

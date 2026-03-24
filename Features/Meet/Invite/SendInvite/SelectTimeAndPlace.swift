@@ -1,10 +1,25 @@
+
+
+
 import SwiftUI
 import MapKit
 
+
+
+
+
+
+
+
+
+
+
+
 struct SelectTimeAndPlace: View {
     
-    @State var vm: TimeAndPlaceViewModel
     @State private var ui = TimeAndPlaceUIState()
+    
+    @State var vm: TimeAndPlaceViewModel
     @Binding var showInvite: Bool
     
     let firstImage: UIImage
@@ -33,7 +48,7 @@ struct SelectTimeAndPlace: View {
             onSubmit(vm.event)
         }
         .fullScreenCover(isPresented: $ui.showMapView) {
-            MapView(defaults: vm.defaults, eventVM: vm)
+            MapView(defaults: vm.defaults, eventLocation: $vm.event.location)
         }
         .sheet(isPresented: $ui.showMessageScreen) {AddMessageView(vm: vm, ui: ui)}
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
@@ -48,11 +63,11 @@ extension SelectTimeAndPlace {
         VStack(spacing: 16) {
             popupTitle
             VStack(spacing: 10) {
-                InviteTypeRow(vm: vm, ui: ui)
+                InviteTypeRow(ui: ui, eventType: $vm.event.type, unparsedMessage: $vm.event.message)
                 Divider()
                 InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $vm.event.proposedTimes)
                 Divider()
-                InvitePlaceRow(vm: vm, ui: ui)
+                InvitePlaceRow(eventLocation: $vm.event.location, showMapView: $ui.showMapView)
             }
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
@@ -81,6 +96,7 @@ extension SelectTimeAndPlace {
 
     private var clearButton: some View {
         Button {
+            //HERE IS ONE
             vm.deleteEventDefault()
         } label: {
             if !vm.event.proposedTimes.dates.isEmpty || vm.event.location != nil || vm.event.type != .drink || vm.event.message != nil {
@@ -129,6 +145,7 @@ extension SelectTimeAndPlace {
     private var popupTitle: some View {
         HStack(spacing: 16) {
             CirclePhoto(image: firstImage, showShadow: false)
+            //HERE IS ONE
             Text("Meet \(vm.profile.name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
@@ -150,3 +167,4 @@ extension SelectTimeAndPlace {
         return !vm.event.proposedTimes.dates.isEmpty && vm.event.location != nil
     }
 }
+
