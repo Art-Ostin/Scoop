@@ -854,7 +854,6 @@
 				655D92DB2F6B358E00A99685 /* CustomDivider.swift */,
 				657B8D4A2F2CFA5F00583ADA /* SaveIcon.swift */,
 				65CA5E342F2263A600694981 /* EventFormatting.swift */,
-				65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */,
 				65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
 			);
@@ -1042,6 +1041,7 @@
 		6576831A2F590ED20094A02D /* Delete */ = {
 			isa = PBXGroup;
 			children = (
+				65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */,
 				65ED38872F6461E400AD5600 /* ProfileCardEvent.swift */,
 				654C589E2F6B7858002060C5 /* CardFlipAnimationTest.swift */,
 				6567FC772F42A63500A93846 /* AcceptInviteView.swift */,

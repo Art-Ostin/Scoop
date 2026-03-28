@@ -12,7 +12,6 @@ struct InviteTimeRow: View {
 
     @Binding var showTimePopup: Bool
     @Binding var proposedTimes: ProposedTimes
-
     
     var times: [Date] {
         proposedTimes.dates.map(\.date)
@@ -39,11 +38,11 @@ extension InviteTimeRow {
             if times.isEmpty {
                 noTimeView
             } else if times.count == 1 {
-                oneDayView
+                EmptyView() //Update here 
             } else if times.count == 2 {
-                twoDaysView
+                EmptyView() //Update here
             } else if times.count == 3 {
-                threeDaysView
+                EmptyView() //Update here
             }
             Spacer()
             DropDownButton(isExpanded: $showTimePopup)
@@ -55,50 +54,4 @@ extension InviteTimeRow {
         Text("Select Time")
             .font(.body(18, .bold))
     }
-    
-    private var oneDayView: some View {
-        Text(formatTime(date: times.first))
-            .font(.body(18, .bold))
-    }
-    
-    private var twoDaysView: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            (
-                Text(formatTime(date: times.first, withHour: false, wideWeek: false))
-                    .font(.body(17, .bold))
-                    .foregroundStyle(.black)
-                +
-                Text(" or ")
-                    .font(.body(16, .medium))
-                    .foregroundStyle(Color.grayText)
-                +
-                Text(formatTime(date: times.last, withHour: false, wideWeek: false))
-                    .font(.body(17, .bold))
-                    .foregroundStyle(.black)
-            )
-            Text(hour)
-                .font(.body(16, .regular))
-                .kerning(0.7)
-        }
-    }
-    
-    private var threeDaysView: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 0) {
-                ForEach(times, id: \.self) { time in
-                    
-                    let text = formatTime(date: time, withHour: false, wideWeek: false) + (time != times.last ? ", " : "")
-                    
-                    Text(text)
-                        .font(.body(15, .bold))
-                }
-            }
-            Text(hour)
-                .font(.body(16, .regular))
-                .kerning(0.7)
-        }
-    }
 }
-
-
-

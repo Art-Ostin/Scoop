@@ -55,7 +55,7 @@ extension ProfileInviteView {
             
             VStack(alignment: .leading, spacing: 4) {
             if let first = event.proposedTimes.firstAvailableDate {
-                    Text(FormatEvent.dayAndTime(first, withHour: false))
+                Text(FormatEvent.dayAndTime(first, wide: true, withHour: false))
                     .font(.body(16, .medium))
 
                     Text(FormatEvent.hourTime(first))

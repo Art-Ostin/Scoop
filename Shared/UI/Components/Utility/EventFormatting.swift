@@ -10,13 +10,14 @@ import Foundation
 public enum FormatEvent {
     
     //Format event Time
-    static func dayAndTime(_ date: Date, wideDay: Bool = false, wideMonth: Bool = false, withHour: Bool = true) -> String {
-        let day = date.formatted(.dateTime.weekday(wideDay ? .wide : .abbreviated))
-        let month = date.formatted(.dateTime.month(wideMonth ? .wide : .abbreviated))
-        let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute((.twoDigits)))
+    static func dayAndTime(_ date: Date, wide: Bool = true, withHour: Bool = true) -> String {
+        let day = date.formatted( .dateTime .weekday(wide ? .wide : .abbreviated).day())
+        let month = date.formatted(.dateTime.month(wide ? .wide : .abbreviated))
+        let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
         
-        return withHour ? "\(day), \(month) · \(hour)" : "\(day), \(month)"
+        return withHour ? "\(day) \(month) · \(hour)" : "\(day) \(month)"
     }
+    
     
     static func hourTime(_ date: Date) -> String {
         date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))

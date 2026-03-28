@@ -19,10 +19,8 @@ struct InvitesContainer: View {
         if vm.invites.isEmpty {
             invitesPlaceholder
         } else {
-            
             ZStack {
                 invitesView
-                
                 if let profile = ui.selectedProfile {
                     if let eventProfile = fetchEventProfile(profile) {
                         profileView(eventProfile: eventProfile)
@@ -138,21 +136,3 @@ extension InvitesContainer {
         
     }
 }
-
-
-/*
- 
- 
- 
- 
- InviteCard(
-     timeAndPlaceVM: TimeAndPlaceViewModel(
-         defaults: vm.d,
-         sessionManager: vm.s,
-         profile: invite.profile
-     ),
-     vm: vm, ui: ui, eventProfile: invite) {profile in
-         openProfile(profile)
-     }
-
- */
