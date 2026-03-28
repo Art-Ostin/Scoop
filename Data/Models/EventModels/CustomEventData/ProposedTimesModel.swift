@@ -26,7 +26,7 @@ struct ProposedTimes: Codable, Equatable  {
     func availableDates() -> [Date] {
         dates
             .filter(\.stillAvailable)
-            .sorted { $0.date > $1.date }
+            .sorted { $0.date < $1.date }
             .map(\.date)
     }
     
@@ -72,7 +72,7 @@ struct ProposedTimes: Codable, Equatable  {
     }
     
     private mutating func normalize() {
-        dates.sort { $0.date > $1.date }
+        dates.sort { $0.date < $1.date }
         if dates.count > Self.maxCount {
             dates = Array(dates.prefix(Self.maxCount))
         }

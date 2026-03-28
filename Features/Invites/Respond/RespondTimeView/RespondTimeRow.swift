@@ -80,7 +80,7 @@ extension RespondTimeRow {
     
     @ViewBuilder
     private var customTimeRow: some View {
-        let dates = vm.respondDraft.newTime.proposedTimes.dates.compactMap {$0.date }
+        let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
         let title = "New Proposed Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s:" : ":")
         
         VStack(alignment: .leading, spacing: 6) {
@@ -96,7 +96,7 @@ extension RespondTimeRow {
                     Text(hour)
                         .font(.body(13, .regular))
                         .foregroundStyle(Color.grayText)
-                        .padding(.horizontal, 33)
+                        .padding(.horizontal, 30)
                 }
             }
             
@@ -130,7 +130,7 @@ extension RespondTimeRow {
         for (index, date) in dates.enumerated() {
             result = result
             + Text(FormatEvent.dayAndTime(date, wide: (dates.count == 3 ? false : true), withHour: false))
-                + Text(index == dates.count - 1 ? "" : ",  ")
+            + Text(index == dates.count - 1 ? "" : ",  ")
         }
         return result.frame(maxWidth: .infinity, alignment: .leading).font(.body(16, .medium))
     }
