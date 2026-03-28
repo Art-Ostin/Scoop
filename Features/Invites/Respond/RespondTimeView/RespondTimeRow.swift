@@ -77,19 +77,6 @@ extension RespondTimeRow {
 
 //Logic with CustomTimeRow
 extension RespondTimeRow {
-
-    
-    /*
-     if let message = vm.respondDraft.event.message {
-         Text(message)
-             .font(.footnote)
-             .foregroundStyle(.gray)
-             .opacity(showTimePopup ? 0.3 : 1)
-             .lineLimit(2)
-     }
-     */
-    
-    
     
     @ViewBuilder
     private var customTimeRow: some View {
@@ -112,14 +99,16 @@ extension RespondTimeRow {
                 DropDownButton(isExpanded: $showTimePopup)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .minimumScaleFactor(0.8)
+            .minimumScaleFactor(0.9)
             .lineLimit(1)
             .allowsTightening(true)
+            .background(Color.blue)
             
             Text(FormatEvent.hourTime(dates.first ?? Date()))
                 .font(.footnote)
                 .foregroundStyle(.gray)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func datesText(dates: [Date]) -> Text {

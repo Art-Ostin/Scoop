@@ -15,7 +15,6 @@ struct RespondSelectTime: View {
     //Need vm here as modifying a lot
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
-
     
     //UI State for code
     @State var showCustomTime: Bool = false

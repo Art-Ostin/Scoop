@@ -15,7 +15,7 @@ struct RespondAcceptCard: View {
     @Binding var isFlipped: Bool
     
     @State private var showTimePopup: Bool = false
-
+    @State private var showTypeMessageScreen: Bool = false
     
     var event: UserEvent {
         vm.respondDraft.event
@@ -29,11 +29,14 @@ struct RespondAcceptCard: View {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
                     .opacity(showTimePopup ? 0.3 : 1)
-                
-                
-                
-                
+                                
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
+                
+                if vm.respondDraft.respondType == .modified  {
+                    if let message = event.message {
+                        RespondMessageRow(showTypeMessage: $showTypeMessageScreen, eventMessage: message)
+                    }
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(2) //Fixes bug so backdrop appears above.
