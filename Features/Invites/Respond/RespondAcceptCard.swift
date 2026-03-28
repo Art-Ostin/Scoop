@@ -39,7 +39,7 @@ struct RespondAcceptCard: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity)
-        .background(CardBackground())
+        .background(customBackground)
         .padding(.horizontal, 24)
         .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
@@ -120,6 +120,17 @@ extension RespondAcceptCard {
             AcceptButton(isModified: vm.respondDraft.respondType != .original) {
                 vm.accept()
             }
+        }
+    }
+    
+    private var customBackground: some View {
+        ZStack { //Background done like this to fix bugs when popping up
+            RoundedRectangle(cornerRadius: 30)
+                .fill(Color.background)
+                .shadow(color: Color.background.opacity(showTimePopup ? 0 : 0.1), radius: 5, x: 0, y: 4)
+            RoundedRectangle(cornerRadius: 30)
+                .inset(by: 0.5)
+                .stroke(Color.grayBackground, lineWidth: 0.5)
         }
     }
 }
