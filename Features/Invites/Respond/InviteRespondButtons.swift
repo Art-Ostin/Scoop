@@ -15,9 +15,9 @@ struct AcceptButton: View {
         Button {
             onAccept()
         } label: {
-            Text(isModified ? "Invite" : "Accept")
+            Text(isModified ? "Invite With Your Times" : "Accept")
                 .foregroundStyle(Color.white)
-                .font(.body(16, .bold))
+                .font(.body(isModified ? 14 : 16, .bold))
                 .frame(width: 135)
                 .frame(height: 40)
                 .background(
