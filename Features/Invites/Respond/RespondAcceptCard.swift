@@ -28,7 +28,7 @@ struct RespondAcceptCard: View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
-                    .opacity(showTimePopup ? 0.1 : 1)
+                    .opacity(showTimePopup ? 0.05 : 1)
                                 
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
             }

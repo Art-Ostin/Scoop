@@ -39,7 +39,10 @@ struct DropDownButton: View {
         if showGlass {
             base
                 .padding(6)
-                .glassIfAvailable()
+                .glassIfAvailable(Circle(), isClear: true)
+                .padding(-6)
+                .padding(.vertical, -3)
+            
         } else {
             base
         }

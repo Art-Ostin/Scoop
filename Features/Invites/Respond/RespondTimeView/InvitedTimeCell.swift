@@ -83,10 +83,9 @@ extension InvitedTimeCell {
             shakeTick += 1
             return
         }
-        selectedDay = date
-        responseType = .original
-        Task {
-            try? await Task.sleep(for: .seconds(0.02))
+        withAnimation(.easeInOut(duration: 0.2)) {
+            selectedDay = date
+            responseType = .original
             showTime = false
         }
     }

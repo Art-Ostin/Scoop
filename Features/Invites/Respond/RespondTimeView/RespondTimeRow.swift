@@ -17,7 +17,7 @@ struct RespondTimeRow: View {
     }
     
     var body: some View {
-        DropDownView(verticalOffset: 58, showOptions: $showTimePopup) {
+        DropDownView(verticalOffset: 48, showOptions: $showTimePopup) {
             HStack(spacing: 24) {
                 imageIcon
                 if showOriginal {originalTimeRow} else {customTimeRow}
@@ -59,8 +59,7 @@ extension RespondTimeRow {
             Text(FormatEvent.dayAndTime(date))
                 .font(.body(16, showTimePopup ? .bold : .medium))
             Spacer()
-            DropDownButton(isExpanded: $showTimePopup, isAccept: true, showGlass: showTimePopup)
-                .offset(y: showTimePopup ? -12 : 0)
+            DropDownButton(isExpanded: $showTimePopup, isAccept: true, showGlass: true)
         }
     }
 }
@@ -77,8 +76,10 @@ extension RespondTimeRow {
             
             if let message = vm.respondDraft.event.message {
                 Text(message)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundStyle(.gray)
+                    .opacity(showTimePopup ? 0.1 : 1)
+                    .lineLimit(4)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
