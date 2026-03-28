@@ -18,12 +18,16 @@ struct RespondMessageRow: View {
     var body: some View {
         HStack(spacing: 24) {
             Image("SmallMessageIcon")
-                .scaleEffect(1.1)
+                .scaleEffect(1.2)
             
-            Text(eventMessage)
-                .font(.body(14, .regular))
-                .lineSpacing(4)
-                .foregroundStyle(Color(red: 0.21, green: 0.21, blue: 0.21))
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Message")
+                    .font(.body(16, .medium))
+                Text(eventMessage)
+                    .font(.footnote)
+                    .foregroundStyle(Color.grayText)
+                    .lineLimit(4)
+            }
         }
     }
 }

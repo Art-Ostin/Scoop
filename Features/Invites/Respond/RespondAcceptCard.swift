@@ -31,12 +31,6 @@ struct RespondAcceptCard: View {
                     .opacity(showTimePopup ? 0.3 : 1)
                                 
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
-                
-                if vm.respondDraft.respondType == .modified  {
-                    if let message = event.message {
-                        RespondMessageRow(showTypeMessage: $showTypeMessageScreen, eventMessage: message)
-                    }
-                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(2) //Fixes bug so backdrop appears above.
@@ -49,6 +43,7 @@ struct RespondAcceptCard: View {
         .padding(.horizontal, 24)
         .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
+        .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
     }
 }
 
@@ -128,3 +123,12 @@ extension RespondAcceptCard {
         }
     }
 }
+
+
+/*
+ if vm.respondDraft.respondType == .modified  {
+     if let message = event.message {
+         RespondMessageRow(showTypeMessage: $showTypeMessageScreen, eventMessage: message)
+     }
+ }
+ */
