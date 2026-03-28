@@ -36,7 +36,6 @@ struct DropDownView<Row: View, DropDown: View> : View {
     
     var body: some View {
         row()
-            .frame(height: 50)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .contentShape(.rect)
             .overlay(alignment: opensAbove ? .bottom : .top) {

@@ -94,28 +94,28 @@ extension RespondTimeRow {
     @ViewBuilder
     private var customTimeView: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.compactMap {$0.date }
-        HStack(alignment: .center) {
-            if dates.count == 1 {
-                oneDateView(dates: dates)
-            } else {
-                datesLoop(dates: dates)
-                Text(hour)
-                    .font(.body(14, .regular))
-                    .foregroundStyle(Color.grayText)
-            }
-            Spacer(minLength: 12)
-            DropDownButton(isExpanded: $showTimePopup)
-        }
-        .frame(height: 50)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .allowsTightening(true)
-        .overlay(alignment: .topLeading) {
-            Text("Custom Time")
+        let title = "Your Proposed Time" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s" : "")
+        
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
                 .kerning(0.5)
                 .foregroundStyle(Color.accent)
                 .font(.body(10, .bold))
+            
+            HStack(alignment: .center) {
+                if dates.count == 1 {
+                    oneDateView(dates: dates)
+                } else {
+                    datesLoop(dates: dates)
+                    Text(hour)
+                        .font(.body(14, .regular))
+                        .foregroundStyle(Color.grayText)
+                }
+                Spacer(minLength: 12)
+                DropDownButton(isExpanded: $showTimePopup)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .allowsTightening(true)
         }
     }
 
