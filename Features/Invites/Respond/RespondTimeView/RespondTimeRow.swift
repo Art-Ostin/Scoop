@@ -18,7 +18,7 @@ struct RespondTimeRow: View {
     
     var body: some View {
         DropDownView(verticalOffset: 58, showOptions: $showTimePopup) {
-            HStack(spacing: 24) {
+            HStack(spacing: showOriginal ? 24 : 8) {
                 imageIcon
                 if showOriginal {originalTimeRow} else {customTimeRow}
             }
@@ -31,10 +31,23 @@ struct RespondTimeRow: View {
 //Logic with the standardTimeRow
 extension RespondTimeRow {
     
+    @ViewBuilder
     private var imageIcon: some View {
-        Image("MiniClockIcon")
-            .scaleEffect(1.3)
-            .opacity(showTimePopup ? 0.3 : 1)
+//        let title = "New Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s:" : ":")
+        VStack(alignment: .leading, spacing: 6) {
+            if !showOriginal {
+                Text("New")
+                    .font(.body(11, .bold))
+                    .foregroundStyle(Color.background)
+                    .kerning(0.5)
+                    .frame(width: 26, alignment: .leading)
+                    
+            }
+            Image("MiniClockIcon")
+                .scaleEffect(1.3)
+                .opacity(showTimePopup ? 0.3 : 1)
+        }
+        .frame(width: showOriginal ? 10 : 26, alignment: .topLeading)
     }
     
     @ViewBuilder
@@ -56,6 +69,7 @@ extension RespondTimeRow {
                 Spacer()
                 DropDownButton(isExpanded: $showTimePopup, isAccept: true)
             }
+            
             Text(message)
                 .font(.footnote)
                 .foregroundStyle(.gray)
@@ -97,12 +111,21 @@ extension RespondTimeRow {
                 .minimumScaleFactor(0.8)
                 .allowsTightening(true)
 
-                DropDownButton(isExpanded: $showTimePopup)
+                DropDownButton(isExpanded: $showTimePopup, color: .black)
             }
-
-            Text(vm.respondDraft.event.message ?? "")
-                .font(.footnote)
-                .foregroundStyle(.gray)
+            .overlay(alignment: .leading) {
+                Text("New")
+                    .foregroundStyle(Color.accent)
+                    .kerning(0.5)
+                    .font(.body(10, .bold))
+                    .frame(width: 25)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .offset(x: -36)
+            }
+            if let message = vm.respondDraft.event.message {
+                Text(message)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -127,27 +150,8 @@ extension RespondTimeRow {
         guard let date = vm.respondDraft.newTime.proposedTimes.dates.compactMap({ $0.date }).first else {return ""}
         return FormatEvent.hourTime(date)
     }
-    
-    @ViewBuilder
-    private var customTimeHeader: some View {
-        let title = "New Proposed Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s:" : ":")
-        HStack {
-            Text(title)
-                .kerning(0.5)
-                .foregroundStyle(Color.accent)
-                .font(.body(10, .bold))
-            
-            Spacer()
-            
-            if (vm.respondDraft.event.message != nil) && vm.respondDraft.respondType == .modified {
-                Text(hour)
-                    .font(.body(13, .regular))
-                    .foregroundStyle(Color.grayText)
-                    .padding(.horizontal, 26)
-            }
-        }
-    }
 }
+
 
 /*
  private var customTimeRow: some View {
@@ -155,5 +159,26 @@ extension RespondTimeRow {
          customTimeView
      }
  }
+ 
+ @ViewBuilder
+ private var customTimeHeader: some View {
+     let title = "New Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s:" : ":")
+     HStack {
+         Text(title)
+             .kerning(0.5)
+             .foregroundStyle(Color.accent)
+             .font(.body(10, .bold))
+         
+         Spacer()
+         
+         if (vm.respondDraft.event.message != nil) && vm.respondDraft.respondType == .modified {
+             Text(hour)
+                 .font(.body(13, .regular))
+                 .foregroundStyle(Color.grayText)
+                 .padding(.horizontal, 26)
+         }
+     }
+ }
+
 
  */
