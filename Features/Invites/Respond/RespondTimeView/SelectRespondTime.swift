@@ -77,10 +77,12 @@ extension RespondSelectTime {
     private var proposedTimes: some View {
         let orderedTimes = vm.respondDraft.event.proposedTimes.dates.sorted { $0.date < $1.date }
 
-        ForEach(orderedTimes.indices, id: \.self) { idx in
-            let time = orderedTimes[idx]
-            let status = getTimeStatus(time)
-            InvitedTimeCell(selectedDay: $vm.respondDraft.selectedDate, showTime: $showTimePopup, responseType: $vm.respondDraft.respondType, status: status, date: time.date, idx: idx)
+        VStack(alignment: .leading, spacing: 10){
+            ForEach(orderedTimes.indices, id: \.self) { idx in
+                let time = orderedTimes[idx]
+                let status = getTimeStatus(time)
+                InvitedTimeCell(selectedDay: $vm.respondDraft.selectedDate, showTime: $showTimePopup, responseType: $vm.respondDraft.respondType, status: status, date: time.date, idx: idx)
+            }
         }
         .padding(.bottom, 18)
     }

@@ -81,24 +81,8 @@ extension RespondTimeRow {
     @ViewBuilder
     private var customTimeRow: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
-        let title = "New Proposed Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s:" : ":")
         
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(title)
-                    .kerning(0.5)
-                    .foregroundStyle(Color.accent)
-                    .font(.body(10, .bold))
-                
-                Spacer()
-                
-                if (vm.respondDraft.event.message != nil) && vm.respondDraft.respondType == .modified {
-                    Text(hour)
-                        .font(.body(13, .regular))
-                        .foregroundStyle(Color.grayText)
-                        .padding(.horizontal, 30)
-                }
-            }
             
             HStack(alignment: .bottom, spacing: 12) {
                 Group {
@@ -115,7 +99,6 @@ extension RespondTimeRow {
 
                 DropDownButton(isExpanded: $showTimePopup)
             }
-            
 
             Text(vm.respondDraft.event.message ?? "")
                 .font(.footnote)
@@ -143,6 +126,26 @@ extension RespondTimeRow {
     private var hour: String {
         guard let date = vm.respondDraft.newTime.proposedTimes.dates.compactMap({ $0.date }).first else {return ""}
         return FormatEvent.hourTime(date)
+    }
+    
+    @ViewBuilder
+    private var customTimeHeader: some View {
+        let title = "New Proposed Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s:" : ":")
+        HStack {
+            Text(title)
+                .kerning(0.5)
+                .foregroundStyle(Color.accent)
+                .font(.body(10, .bold))
+            
+            Spacer()
+            
+            if (vm.respondDraft.event.message != nil) && vm.respondDraft.respondType == .modified {
+                Text(hour)
+                    .font(.body(13, .regular))
+                    .foregroundStyle(Color.grayText)
+                    .padding(.horizontal, 26)
+            }
+        }
     }
 }
 
