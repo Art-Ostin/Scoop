@@ -34,7 +34,7 @@ struct RespondSelectTime: View {
         .padding(.top, horizontalInset)
         .compositingGroup()
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .background(CardBackground(cornerRadius: 16))
+        .background(customBackground)
         .animation(.smooth(duration: 0.2), value: showCustomTime)
     }
 }
@@ -110,6 +110,11 @@ extension RespondSelectTime {
             
             Button {
                 showCustomTime.toggle()
+                if vm.respondDraft.respondType == .original {
+                    vm.respondDraft.respondType = .modified
+                } else {
+                    vm.respondDraft.respondType = .original
+                }
             } label: {
                 if showCustomTime {
                     optionsLabel
@@ -136,5 +141,16 @@ extension RespondSelectTime {
             .font(.body(12, .bold))
             .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
             .kerning(0.5)
+    }
+    
+    private var customBackground: some View {
+        ZStack { //Background done like this to fix bugs when popping up
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.background)
+                .shadow(color: (showCustomTime ? Color.accent : .appGreen).opacity(0.1), radius: 2, x: 0, y: 3)
+            RoundedRectangle(cornerRadius: 16)
+                .inset(by: 0.5)
+                .stroke(Color.grayBackground, lineWidth: 0.5)
+        }
     }
 }

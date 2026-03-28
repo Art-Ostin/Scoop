@@ -12,23 +12,37 @@ struct DropDownButton: View {
     @Binding var isExpanded: Bool
     
     var isAccept: Bool = false
-    var color: Color = Color.accent
-        
+    var color: Color = .accent
+    var showGlass: Bool = false
+    
     var body: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.25)) {
                 isExpanded.toggle()
             }
         } label: {
-                Image(systemName: "chevron.down")
-                .font(.body(isAccept ? 15 : 17, .bold))
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    .foregroundStyle(isAccept ? Color.black : color)
-                    .padding(12)
-                    .contentShape(Rectangle())
-                    .padding(-12)
+            buttonImage
         }
         .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private var buttonImage: some View {
+        let base = Image(systemName: "chevron.down")
+            .font(.body(isAccept ? 15 : 17, .bold))
+            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+            .foregroundStyle(isAccept ? .black : color)
+            .padding(12)
+            .contentShape(Rectangle())
+            .padding(-12)
+        
+        if showGlass {
+            base
+                .padding(6)
+                .glassIfAvailable()
+        } else {
+            base
+        }
     }
 }
 

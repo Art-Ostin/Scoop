@@ -34,7 +34,7 @@ extension RespondTimeRow {
     private var imageIcon: some View {
         Image("MiniClockIcon")
             .scaleEffect(1.3)
-            .opacity(showTimePopup ? 0.3 : 1)
+            .opacity(showTimePopup ? 0.1 : 1)
     }
     
     @ViewBuilder
@@ -48,7 +48,7 @@ extension RespondTimeRow {
                 Text(hasMessage ? message! : hour)
                     .font(.footnote)
                     .foregroundStyle(.gray)
-                    .opacity(hasMessage && showTimePopup ? 0.3 : 1)
+                    .opacity(hasMessage && showTimePopup ? 0.1 : 1)
                     .lineLimit(hasMessage ? 4 : nil)
             }
         }
@@ -57,9 +57,10 @@ extension RespondTimeRow {
     private func selectedTime(date: Date) -> some View {
         HStack {
             Text(FormatEvent.dayAndTime(date))
-                .font(.body(16, .medium))
+                .font(.body(16, showTimePopup ? .bold : .medium))
             Spacer()
-            DropDownButton(isExpanded: $showTimePopup, isAccept: true)
+            DropDownButton(isExpanded: $showTimePopup, isAccept: true, showGlass: showTimePopup)
+                .offset(y: showTimePopup ? -12 : 0)
         }
     }
 }
