@@ -30,6 +30,9 @@ struct RespondAcceptCard: View {
                 titleRow
                     .opacity(showTimePopup ? 0.3 : 1)
                 
+                
+                
+                
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

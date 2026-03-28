@@ -14,7 +14,6 @@
      
      @State var isFlipped  = false
      
-
          
      var body: some View {
          ZStack {

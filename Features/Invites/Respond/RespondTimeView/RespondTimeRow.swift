@@ -78,23 +78,23 @@ extension RespondTimeRow {
 //Logic with CustomTimeRow
 extension RespondTimeRow {
 
-    private var customTimeRow: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            customTimeView
-            if let message = vm.respondDraft.event.message {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
-                    .opacity(showTimePopup ? 0.3 : 1)
-                    .lineLimit(2)
-            }
-        }
-    }
+    
+    /*
+     if let message = vm.respondDraft.event.message {
+         Text(message)
+             .font(.footnote)
+             .foregroundStyle(.gray)
+             .opacity(showTimePopup ? 0.3 : 1)
+             .lineLimit(2)
+     }
+     */
+    
+    
     
     @ViewBuilder
-    private var customTimeView: some View {
+    private var customTimeRow: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.compactMap {$0.date }
-        let title = "Your Proposed Time" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s" : "")
+        let title = "Your Proposed Day" + (vm.respondDraft.newTime.proposedTimes.dates.count > 1 ? "s" : "")
         
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
@@ -102,34 +102,39 @@ extension RespondTimeRow {
                 .foregroundStyle(Color.accent)
                 .font(.body(10, .bold))
             
-            HStack(alignment: .center) {
+            HStack(alignment: .bottom) {
                 if dates.count == 1 {
                     oneDateView(dates: dates)
                 } else {
-                    datesLoop(dates: dates)
-                    Text(hour)
-                        .font(.body(14, .regular))
-                        .foregroundStyle(Color.grayText)
+                    datesText(dates: dates)
                 }
                 Spacer(minLength: 12)
                 DropDownButton(isExpanded: $showTimePopup)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .minimumScaleFactor(0.8)
+            .lineLimit(1)
             .allowsTightening(true)
+            
+            Text(FormatEvent.hourTime(dates.first ?? Date()))
+                .font(.footnote)
+                .foregroundStyle(.gray)
         }
     }
 
-    private func datesLoop(dates: [Date]) -> some View {
-        ForEach(dates, id: \.self) { date in
-            Text(FormatEvent.dayAndTime(date, wide: false, withHour: false))
-                .font(.body(15, .medium))
-            +
-            Text(date != dates.last ? "," : " · ")
+    private func datesText(dates: [Date]) -> Text {
+        var result = Text("")
+
+        for (index, date) in dates.enumerated() {
+            result = result
+            + Text(FormatEvent.dayAndTime(date, wide: (dates.count == 3 ? false : true), withHour: false))
+                + Text(index == dates.count - 1 ? "" : ",  ")
         }
+        return result.font(.body(16, .medium))
     }
-    
+
     private func oneDateView(dates: [Date]) ->  some View {
-        Text(FormatEvent.dayAndTime(dates.first ?? Date(), wide: true, withHour: true))
+        Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: false))
             .font(.body(16, .medium))
     }
     
@@ -138,3 +143,12 @@ extension RespondTimeRow {
         return FormatEvent.hourTime(date)
     }
 }
+
+/*
+ private var customTimeRow: some View {
+     VStack(alignment: .leading, spacing: 4) {
+         customTimeView
+     }
+ }
+
+ */
