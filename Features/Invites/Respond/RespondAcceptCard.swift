@@ -44,6 +44,15 @@ struct RespondAcceptCard: View {
         .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
+        .overlay(alignment: .top) {
+            if showTimePopup && vm.respondDraft.respondType == .modified {
+                VStack(alignment: .center, spacing: 12) {
+                    Text("Propose 2 to 3 different days to Meet")
+                }
+                .font(.body(16))
+                .offset(y: -36)
+            }
+        }
     }
 }
 

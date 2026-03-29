@@ -29,7 +29,7 @@ struct ProposedTimesRow: View {
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .allowsTightening(true)
-            DropDownButton(isExpanded: $showTimePopup, isAccept: isAccept)
+            DropDownButton(isExpanded: $showTimePopup, isAccept: isAccept, showGlass: true)
         }
     }
     
