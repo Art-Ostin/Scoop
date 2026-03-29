@@ -10,6 +10,7 @@ import SwiftUI
 struct DropDownView<Row: View, DropDown: View> : View {
 
     @Binding var showOptions: Bool
+    let showDropDownShadow: Bool
     let row: () -> Row
     let dropDown: () -> DropDown
     
@@ -25,10 +26,11 @@ struct DropDownView<Row: View, DropDown: View> : View {
     let opensAbove: Bool
     let verticalOffset: CGFloat
 
-    init(shiftLeft: Bool = false, opensAbove: Bool = false, verticalOffset: CGFloat = 24, showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
+    init(shiftLeft: Bool = false, opensAbove: Bool = false, verticalOffset: CGFloat = 24, showDropDownShadow: Bool = false, showOptions: Binding<Bool>, @ViewBuilder row: @escaping () -> Row, @ViewBuilder dropDown: @escaping () -> DropDown) {
         self.shiftLeft = shiftLeft
         self.opensAbove = opensAbove
         self.verticalOffset = verticalOffset
+        self.showDropDownShadow = showDropDownShadow
         _showOptions = showOptions
         self.row = row
         self.dropDown = dropDown
@@ -75,7 +77,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
                     .frame(height: revealedMenuHeight + shadowAllowance * 2)
                     .offset(y: opensAbove ? shadowAllowance : -shadowAllowance)
             }
-            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+            .shadow(color: .black.opacity(showDropDownShadow ? 0.15 : 0), radius: 5, x: 0, y: 4)
             .offset(y: opensAbove ? verticalOffset : -verticalOffset)
             .offset(x: shiftLeft ? -60 : 0)
     }

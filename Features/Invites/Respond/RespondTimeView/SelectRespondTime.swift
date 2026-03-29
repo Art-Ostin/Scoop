@@ -147,7 +147,7 @@ extension RespondSelectTime {
         ZStack { //Background done like this to fix bugs when popping up
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.background)
-//                .shadow(color: (showCustomTime ? Color.accent : .appGreen).opacity(0.1), radius: 2, x: 0, y: 3)
+                .shadow(color: (showCustomTime ? Color.accent : .appGreen).opacity(0.1), radius: 2, x: 0, y: 4)
             RoundedRectangle(cornerRadius: 16)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
