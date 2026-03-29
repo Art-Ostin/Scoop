@@ -13,6 +13,8 @@ struct InviteTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var proposedTimes: ProposedTimes
     
+    let type: Event.EventType
+    
     var times: [Date] {
         proposedTimes.dates.map(\.date)
     }
@@ -25,7 +27,7 @@ struct InviteTimeRow: View {
         DropDownView(showOptions: $showTimePopup) {
             inviteTimeRow
         } dropDown: {
-            SelectTimeView(proposedTimes: $proposedTimes, showTimePopup: $showTimePopup)
+            SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         }
     }

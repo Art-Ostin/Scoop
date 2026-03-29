@@ -102,7 +102,7 @@ extension SelectTimeAndPlace {
             VStack(spacing: 10) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
                 Divider()
-                InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes)
+                InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
                 Divider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
             }

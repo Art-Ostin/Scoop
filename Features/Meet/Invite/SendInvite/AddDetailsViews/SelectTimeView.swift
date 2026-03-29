@@ -11,7 +11,7 @@ struct SelectTimeView: View {
     
     //Updating a proposedTime
     @Binding var proposedTimes: ProposedTimes
-    
+    let type: Event.EventType
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
     @State private var shakeTicksByDay: [Date: Int] = [:]
@@ -48,7 +48,7 @@ struct SelectTimeView: View {
         .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
         .animation(.easeInOut(duration: 0.2), value: clickedMax)
         .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
-//        .overlay(alignment: .top) { if isRespondMode{ infoSection}}
+        .overlay(alignment: .top) { if isRespondMode{ infoSection}}
     }
 }
 
@@ -80,9 +80,11 @@ extension SelectTimeView {
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.warningYellow)
             } else {
-                Text("Propose at least two days")
-                    .font(.body(12, .regular))
-                    .foregroundStyle(Color.grayText)
+                if proposedTimes.dates.map(\.date).count < 2 && type == .drink || type == .doubleDate {
+                    Text("Propose at least two days")
+                        .font(.body(12, .regular))
+                        .foregroundStyle(Color.grayText)
+                }
             }
         }
         .padding(.horizontal)

@@ -70,7 +70,7 @@ extension RespondSelectTime {
     }
     
     private var customTimeView: some View {
-        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, showTimePopup: $showTimePopup, isRespondMode: true)
+        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.event.type, showTimePopup: $showTimePopup, isRespondMode: true)
     }
     
     @ViewBuilder

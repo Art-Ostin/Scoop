@@ -21,7 +21,7 @@
              .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
              .opacity(isFlipped ? 0 : 1)
              
-             SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, showTimePopup: $showTimePopup)
+             SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.event.type, showTimePopup: $showTimePopup)
              .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
              .opacity(isFlipped ? 1 : 0)
          }

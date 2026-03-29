@@ -44,24 +44,6 @@ struct RespondAcceptCard: View {
         .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
-        .overlay(alignment: .top) {
-            if showTimePopup && vm.respondDraft.respondType == .modified {
-                VStack(alignment: .center, spacing: 8) {
-                    let event = vm.respondDraft.event
-                    Text("\(event.type.description.emoji) \(event.type.description.label)")
-                    
-                    if event.type == .drink || event.type == .doubleDate {
-                        Text("Propose at least 2 different days to meet")
-                            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                    } else {
-                        Text("Propose 1 to 3 different days to meet")
-                            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                    }
-                }
-                .font(.body(16))
-                .offset(y: -56)
-            }
-        }
     }
 }
 

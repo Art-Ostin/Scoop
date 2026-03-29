@@ -91,7 +91,7 @@ extension InviteCardInfo {
             DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
                 timeRow(selectedDay: selectedDay)
             } dropDown: {
-                SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, showTimePopup: $showTimePopup)
+                SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.event.type, showTimePopup: $showTimePopup)
             }
             .frame(height: 0)
         }
