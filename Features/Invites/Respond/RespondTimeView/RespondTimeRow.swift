@@ -34,7 +34,7 @@ extension RespondTimeRow {
     private var imageIcon: some View {
         Image("MiniClockIcon")
             .scaleEffect(1.3)
-            .opacity(showTimePopup ? 0.05 : 1)
+            .opacity(showTimePopup ? 0.02 : 1)
     }
     
     @ViewBuilder
@@ -48,7 +48,7 @@ extension RespondTimeRow {
                 Text(hasMessage ? message! : hour)
                     .font(.footnote)
                     .foregroundStyle(.gray)
-                    .opacity(hasMessage && showTimePopup ? 0.1 : 1)
+                    .opacity(hasMessage && showTimePopup ? 0.05 : 1)
                     .lineLimit(hasMessage ? 4 : nil)
             }
         }

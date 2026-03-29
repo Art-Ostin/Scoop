@@ -28,7 +28,7 @@ struct RespondAcceptCard: View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                 titleRow
-                    .opacity(showTimePopup ? 0.05 : 1)
+                    .opacity(showTimePopup ? 0.03 : 1)
                                 
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
             }
@@ -46,12 +46,20 @@ struct RespondAcceptCard: View {
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .overlay(alignment: .top) {
             if showTimePopup && vm.respondDraft.respondType == .modified {
-                VStack(alignment: .center, spacing: 12) {
-                    Text("Propose 2 to 3 different days to Meet")
-                        .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                VStack(alignment: .center, spacing: 8) {
+                    let event = vm.respondDraft.event
+                    Text("\(event.type.description.emoji) \(event.type.description.label)")
+                    
+                    if event.type == .drink || event.type == .doubleDate {
+                        Text("Propose at least 2 different days to meet")
+                            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                    } else {
+                        Text("Propose 1 to 3 different days to meet")
+                            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                    }
                 }
                 .font(.body(16))
-                .offset(y: -36)
+                .offset(y: -56)
             }
         }
     }
