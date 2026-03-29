@@ -18,7 +18,11 @@ struct ProposedTimesRow: View {
         
         HStack(alignment: .center, spacing: 12) {
             Group {
-                if dates.count == 1 {
+                if dates.count == 0 {
+                    Text("Select a day to meet")
+                        .font(.body(15, .italic))
+                    
+                } else if dates.count == 1 {
                     Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: false))
                         .font(.body(16, .medium))
                 } else {

@@ -48,6 +48,7 @@ struct RespondAcceptCard: View {
             if showTimePopup && vm.respondDraft.respondType == .modified {
                 VStack(alignment: .center, spacing: 12) {
                     Text("Propose 2 to 3 different days to Meet")
+                        .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
                 }
                 .font(.body(16))
                 .offset(y: -36)
