@@ -149,7 +149,7 @@ extension RespondSelectTime {
                 .fill(Color.background)
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .inset(by: 0.5)
-                .stroke(Color.grayBackground, lineWidth: 0.5)
+                .stroke(Color.grayBackground, lineWidth: 1)
         }
     }
 }
