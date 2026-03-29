@@ -77,7 +77,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
                     .frame(height: revealedMenuHeight + shadowAllowance * 2)
                     .offset(y: opensAbove ? shadowAllowance : -shadowAllowance)
             }
-            .shadow(color: .black.opacity(showDropDownShadow ? 0.15 : 0), radius: 5, x: 0, y: 4)
+            .surfaceShadow(.floating, strength: showDropDownShadow ? 1 : 0)
             .offset(y: opensAbove ? verticalOffset : -verticalOffset)
             .offset(x: shiftLeft ? -60 : 0)
     }

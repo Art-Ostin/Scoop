@@ -17,7 +17,7 @@ struct RespondTimeRow: View {
     }
     
     var body: some View {
-        DropDownView(verticalOffset: 48, showDropDownShadow: false, showOptions: $showTimePopup) {
+        DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
             HStack(spacing: 24) {
                 imageIcon
                 if showOriginal {originalTimeRow} else {customTimeRow}

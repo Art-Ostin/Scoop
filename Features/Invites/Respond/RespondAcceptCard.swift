@@ -124,10 +124,10 @@ extension RespondAcceptCard {
     
     private var customBackground: some View {
         ZStack { //Background done like this to fix bugs when popping up
-            RoundedRectangle(cornerRadius: 30)
+            RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .fill(Color.background)
-                .shadow(color: showTimePopup ? .clear : Color.background.opacity(0.4), radius: 5, x: 0, y: 10)
-            RoundedRectangle(cornerRadius: 30)
+                .surfaceShadow(.card, strength: showTimePopup ? 0.55 : 1)
+            RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         }

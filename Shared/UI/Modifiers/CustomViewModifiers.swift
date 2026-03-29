@@ -26,6 +26,63 @@ struct BackgroundFill: ViewModifier {
     }
 }
 
+enum SurfaceShadowStyle {
+    case card
+    case floating
+
+    var ambientOpacity: Double {
+        switch self {
+        case .card: 0.04
+        case .floating: 0.06
+        }
+    }
+
+    var ambientRadius: CGFloat {
+        switch self {
+        case .card: 8
+        case .floating: 10
+        }
+    }
+
+    var ambientYOffset: CGFloat {
+        2
+    }
+
+    var keyOpacity: Double {
+        switch self {
+        case .card: 0.1
+        case .floating: 0.14
+        }
+    }
+
+    var keyRadius: CGFloat {
+        switch self {
+        case .card: 20
+        case .floating: 24
+        }
+    }
+
+    var keyYOffset: CGFloat {
+        switch self {
+        case .card: 10
+        case .floating: 14
+        }
+    }
+}
+
+private struct SurfaceShadowModifier: ViewModifier {
+    let style: SurfaceShadowStyle
+    let strength: Double
+
+    func body(content: Content) -> some View {
+        let clampedStrength = min(max(strength, 0), 1)
+
+        content
+            .shadow(color: .black.opacity(style.ambientOpacity * clampedStrength), radius: style.ambientRadius, x: 0, y: style.ambientYOffset)
+            .shadow(color: .black.opacity(style.keyOpacity * clampedStrength), radius: style.keyRadius, x: 0, y: style.keyYOffset)
+    }
+}
+
 
 
 
@@ -40,6 +97,10 @@ extension View {
     
     func defaultShadow() -> some View {
         shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
+    }
+
+    func surfaceShadow(_ style: SurfaceShadowStyle = .card, strength: Double = 1) -> some View {
+        modifier(SurfaceShadowModifier(style: style, strength: strength))
     }
     
     func containerShadow(
@@ -62,6 +123,5 @@ extension View {
         modifier(BackgroundFill(color: color, top: top))
     }
 }
-
 
 

@@ -145,10 +145,9 @@ extension RespondSelectTime {
     
     private var customBackground: some View {
         ZStack { //Background done like this to fix bugs when popping up
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color.background)
-                .shadow(color: (showCustomTime ? Color.accent : .appGreen).opacity(0.1), radius: 2, x: 0, y: 4)
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         }
