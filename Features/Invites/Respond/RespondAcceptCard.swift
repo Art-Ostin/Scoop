@@ -32,43 +32,16 @@ struct RespondAcceptCard: View {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty ?? true)
     }
-
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 20) {
                 titleRow
                     .opacity(showTimePopup ? 0.03 : 1)
-                
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
             }
-            
-            
-            
-        }
-    }
-        
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            VStack(alignment: .leading, spacing: shortenSpacing ? 0 : 24) {
-                VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
-                    titleRow
-                        .opacity(showTimePopup ? 0.03 : 1)
-                                    
-                    RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .zIndex(2) //Fixes bug so backdrop appears above.
-                placeRow
-            }
             .zIndex(2) //Fixes bug so backdrop appears above.
+            placeRow
             actionSection
         }
         .padding(22)
@@ -89,7 +62,7 @@ extension RespondAcceptCard {
     private var titleRow: some View {
         HStack(spacing: 16) {
             eventTitle
-            eventType
+            eventTypeButton
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -107,7 +80,7 @@ extension RespondAcceptCard {
         .layoutPriority(1)
     }
     
-    private var eventType: some View {
+    private var eventTypeButton: some View {
         Button {
             isFlipped.toggle()
         } label: {
@@ -153,9 +126,7 @@ extension RespondAcceptCard {
         HStack {
             DeclineButton {vm.decline()}
             Spacer()
-            AcceptButton(isModified: vm.respondDraft.respondType != .original) {
-                vm.accept()
-            }
+            AcceptButton(isModified: vm.respondDraft.respondType != .original) { vm.accept()}
         }
     }
     
@@ -172,10 +143,31 @@ extension RespondAcceptCard {
 }
 
 
+
+
 /*
  if vm.respondDraft.respondType == .modified  {
      if let message = event.message {
          RespondMessageRow(showTypeMessage: $showTypeMessageScreen, eventMessage: message)
      }
  }
+ */
+
+/*
+ 
+ 
+ VStack(alignment: .leading, spacing: shortenSpacing ? 0 : 24) {
+     VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
+         titleRow
+             .opacity(showTimePopup ? 0.03 : 1)
+                         
+         RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+     }
+     .frame(maxWidth: .infinity, alignment: .leading)
+     .zIndex(2) //Fixes bug so backdrop appears above.
+     placeRow
+ }
+ .zIndex(2) //Fixes bug so backdrop appears above.
+ actionSection
+}
  */
