@@ -108,14 +108,14 @@ extension RespondTimeRow {
     
     private func messageResponse(_ message: String) -> some View {
         VStack(alignment: .trailing, spacing: 4) {
-                addMessageButton(isEdit: true)
-
                 Text(message)
                     .font(.footnote)
                     .foregroundStyle(.gray)
                     .opacity(showTimePopup ? 0.1 : 1)
                     .lineLimit(4)
                     .multilineTextAlignment(.trailing)
+            
+            addMessageButton(isEdit: true)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.top, 6) // Gives it 16 padding in total
