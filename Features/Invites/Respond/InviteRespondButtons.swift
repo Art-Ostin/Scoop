@@ -12,7 +12,6 @@ struct AcceptButton: View {
     let onAccept: () -> Void
     var multipleTimes: Bool 
     
-    
     var body: some View {
         Button {
             onAccept()
