@@ -91,7 +91,7 @@ extension RespondTimeRow {
             .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
             .overlay(alignment: .bottomTrailing) {
                 if showAddMessageButton {
-                    OpenMessageButton(isEdit: false, showTimePopup: $showTimePopup)
+                    OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
                 }
             }
     }

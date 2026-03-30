@@ -27,7 +27,7 @@ struct RespondMessageSection: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            OpenMessageButton(isEdit: false, showTimePopup: $showTimePopup)
+            OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }

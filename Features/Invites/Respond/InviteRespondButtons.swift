@@ -10,11 +10,14 @@ import SwiftUI
 struct AcceptButton: View {
     var isModified: Bool = false
     let onAccept: () -> Void
+    var multipleTimes: Bool 
+    
+    
     var body: some View {
         Button {
             onAccept()
         } label: {
-            Text(isModified ? "Invite with New Times" : "Accept")
+            Text(isModified ? "Invite with new time" + "s" : "Accept")
                 .foregroundStyle(Color.white)
                 .font(.body(isModified ? 14 : 16, .bold))
                 .frame(width: 135)
@@ -47,11 +50,11 @@ struct DeclineButton: View {
 
 struct OpenMessageButton: View {
     let isEdit: Bool
-    @Binding var showTimePopup: Bool
+    @Binding var showMessageView: Bool
     
     var body: some View {
         Button {
-            showTimePopup = true
+            showMessageView = true
         } label:  {
             HStack(spacing: 6) {
                 Image(systemName: isEdit ? "square.and.pencil" : "plus")
@@ -72,9 +75,9 @@ struct OpenMessageButton: View {
                 Capsule(style: .continuous)
                     .stroke(isEdit ? Color.accent.opacity(0.18) : Color.grayBackground, lineWidth: 1)
             }
-            .surfaceShadow(.card, strength: showTimePopup ? 0 : 0.14)
+            .frame(minWidth: 44, minHeight: 44)
         }
-        .offset(y: isEdit ? 0 : 16)
+        .offset(y: isEdit ? 0 : 32)
     }
 }
 
