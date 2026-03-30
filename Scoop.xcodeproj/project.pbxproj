@@ -239,6 +239,7 @@
 		65F450BF2E45567900AE3503 /* ImageModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450BE2E45567900AE3503 /* ImageModifiers.swift */; };
 		65F450CB2E463E7900AE3503 /* MeetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CA2E463E7900AE3503 /* MeetContainer.swift */; };
 		65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450D22E482B2F00AE3503 /* ProfileCard.swift */; };
+		65F5C29C2F7AECC10072B4ED /* RespondMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F5C29B2F7AECC10072B4ED /* RespondMessageRow.swift */; };
 		65F660C02F23DC4A00AF791F /* FrozenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */; };
 		65F660C22F23E4B900AF791F /* BlockedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C12F23E4B900AF791F /* BlockedView.swift */; };
 		65F660C42F23E79600AF791F /* InfoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660C32F23E79600AF791F /* InfoButton.swift */; };
@@ -507,6 +508,7 @@
 		65F450BE2E45567900AE3503 /* ImageModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifiers.swift; sourceTree = "<group>"; };
 		65F450CA2E463E7900AE3503 /* MeetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetContainer.swift; sourceTree = "<group>"; };
 		65F450D22E482B2F00AE3503 /* ProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCard.swift; sourceTree = "<group>"; };
+		65F5C29B2F7AECC10072B4ED /* RespondMessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondMessageRow.swift; sourceTree = "<group>"; };
 		65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenInfo.swift; sourceTree = "<group>"; };
 		65F660C12F23E4B900AF791F /* BlockedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedView.swift; sourceTree = "<group>"; };
 		65F660C32F23E79600AF791F /* InfoButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoButton.swift; sourceTree = "<group>"; };
@@ -702,6 +704,7 @@
 			isa = PBXGroup;
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
+				65F5C29B2F7AECC10072B4ED /* RespondMessageRow.swift */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
@@ -1539,6 +1542,7 @@
 				659568242ED26A350091163E /* ClearRectangle.swift in Sources */,
 				653FB57C2F688B8300440E41 /* EventSlot 2.swift in Sources */,
 				657B8D592F2D73EE00583ADA /* ProposedTimesModel.swift in Sources */,
+				65F5C29C2F7AECC10072B4ED /* RespondMessageRow.swift in Sources */,
 				653FB57A2F688A2E00440E41 /* EventInfoView.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MessagesViewModel.swift in Sources */,

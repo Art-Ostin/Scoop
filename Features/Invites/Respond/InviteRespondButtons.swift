@@ -45,3 +45,42 @@ struct DeclineButton: View {
     }
 }
 
+struct OpenMessageButton: View {
+    let isEdit: Bool
+    @Binding var showTimePopup: Bool
+    
+    var body: some View {
+        Button {
+            showTimePopup = true
+        } label:  {
+            HStack(spacing: 6) {
+                Image(systemName: isEdit ? "square.and.pencil" : "plus")
+                    .font(.system(size: 10, weight: .bold))
+                
+                Text(isEdit ? "Edit note" : "Add note")
+                    .font(.custom("SFProRounded-Bold", size: 11))
+                    .kerning(0.4)
+            }
+            .foregroundStyle(Color.grayText)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+        }
+    }
+}
+
+//Respond Text View 
+extension View {
+    func respondTextFormat(showTimePopup: Bool) -> some View {
+        self
+            .font(.footnote)
+            .foregroundStyle(.gray)
+            .opacity(showTimePopup ? 0.1 : 1)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .layoutPriority(1)
+            .italic()
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment:.leading)
+    }
+}
+
