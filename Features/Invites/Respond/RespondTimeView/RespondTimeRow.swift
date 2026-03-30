@@ -74,13 +74,14 @@ extension RespondTimeRow {
         VStack(alignment: .leading, spacing: 6) {
     
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
-            messageSection
-                .overlay(alignment: .bottomTrailing) {
-                    if vm.respondDraft.newTime.message == nil {
-                        addMessageButton(isEdit: false)
+            if let message = vm.respondDraft.newTime.event.message {
+                respondMessage(name: vm.respondDraft.newTime.event.otherUserName, message: message, isResponse: false)
+                    .overlay(alignment: .bottomTrailing) {
+                        if vm.respondDraft.newTime.message == nil {
+                            addMessageButton(isEdit: false)
+                        }
                     }
-                }
-            
+            }
             if let message = vm.respondDraft.newTime.message {
                 messageResponse(message)
             }
@@ -92,40 +93,35 @@ extension RespondTimeRow {
         guard let date = vm.respondDraft.newTime.proposedTimes.dates.compactMap({ $0.date }).first else {return ""}
         return FormatEvent.hourTime(date)
     }
-    
-    
-    @ViewBuilder
-    private var messageSection: some View {
-        if let message = vm.respondDraft.event.message {
-            Text(message)
-                .font(.footnote)
-                .foregroundStyle(.gray)
-                .opacity(showTimePopup ? 0.1 : 1)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .layoutPriority(1)
-                .italic()
+        
+    private func respondMessage(name: String = "You", message: String, isResponse: Bool) -> some View {
+        Group {
+            Text(name)
+                .foregroundStyle(isResponse ? .accent.opacity(0.4) : Color.gray)
+            +
+            
+            Text(" - \(message)")
         }
+        .font(.footnote)
+        .foregroundStyle(.gray)
+        .opacity(showTimePopup ? 0.1 : 1)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
+        .layoutPriority(1)
+        .italic()
+        .multilineTextAlignment(isResponse ? .trailing : .leading)
+        .frame(maxWidth: .infinity, alignment: isResponse ? .leading : .trailing)
     }
+    
     
     
     private func messageResponse(_ message: String) -> some View {
         VStack(alignment: .trailing, spacing: 4) {
-            Text(message)
-                .font(.footnote)
-                .foregroundStyle(.gray)
-                .opacity(showTimePopup ? 0.1 : 1)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .layoutPriority(1)
-                .italic()
-                .multilineTextAlignment(.trailing)
-            
+            respondMessage(message: message, isResponse: true)
             addMessageButton(isEdit: true)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.top, 6) // Gives it 16 padding in total
-//        .padding(.bottom, -12)
     }
     
     private func addMessageButton(isEdit: Bool) -> some View {
@@ -143,3 +139,21 @@ extension RespondTimeRow {
         }
     }
 }
+
+/*
+ 
+ @ViewBuilder
+ private var messageSection: some View {
+     if let message = vm.respondDraft.event.message {
+         Text(message)
+             .font(.footnote)
+             .foregroundStyle(.gray)
+             .opacity(showTimePopup ? 0.1 : 1)
+             .lineLimit(nil)
+             .fixedSize(horizontal: false, vertical: true)
+             .layoutPriority(1)
+             .italic()
+     }
+ }
+
+ */
