@@ -47,9 +47,6 @@ class RespondViewModel {
         
     }
     
-
-    
-    
     @MainActor func deleteEventDefault() {
         let profileId = respondDraft.event.otherUserId
         defaults.deleteEventDraft(profileId: profileId)

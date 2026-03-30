@@ -21,17 +21,19 @@ struct RespondAcceptCard: View {
     var event: UserEvent {
         vm.respondDraft.event
     }
+    
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
-    var hasMessageResponse: Bool {
-        vm.respondDraft.respondType == .modified && vm.respondDraft.newTime.message != nil
+    var shortenSpacing: Bool {
+        vm.respondDraft.respondType == .modified &&
+        !(vm.respondDraft.newTime.message?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: hasMessageResponse ? 8 : 24) {
+            VStack(alignment: .leading, spacing: shortenSpacing ? 0 : 24) {
                 VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
                     titleRow
                         .opacity(showTimePopup ? 0.03 : 1)

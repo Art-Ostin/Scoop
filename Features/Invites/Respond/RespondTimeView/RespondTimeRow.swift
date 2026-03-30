@@ -13,6 +13,10 @@ struct RespondTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
     
+    var showAddNote: Bool {
+        vm.respondDraft.newTime.message?.isEmpty != false
+    }
+
     var showOriginal: Bool {
         vm.respondDraft.respondType == .original
     }
@@ -77,12 +81,12 @@ extension RespondTimeRow {
             if let message = vm.respondDraft.newTime.event.message {
                 respondMessage(name: vm.respondDraft.newTime.event.otherUserName, message: message, isResponse: false)
                     .overlay(alignment: .bottomTrailing) {
-                        if vm.respondDraft.newTime.message == nil {
+                        if vm.respondDraft.newTime.message?.isEmpty != false {
                             addMessageButton(isEdit: false)
                         }
                     }
             }
-            if let message = vm.respondDraft.newTime.message {
+            if let message = vm.respondDraft.newTime.message, !message.isEmpty {
                 messageResponse(message)
             }
         }
@@ -111,8 +115,8 @@ extension RespondTimeRow {
         .fixedSize(horizontal: false, vertical: true)
         .layoutPriority(1)
         .italic()
-        .multilineTextAlignment(isResponse ? .trailing : .leading)
-        .frame(maxWidth: .infinity, alignment: isResponse ? .leading : .trailing)
+        .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity, alignment:.leading)
     }
     
     
@@ -137,7 +141,7 @@ extension RespondTimeRow {
                     .font(.custom("SFProRounded-Bold", size: 11))
                     .kerning(0.4)
             }
-            .foregroundStyle(isEdit ? Color.accent : Color.grayText)
+            .foregroundStyle(Color.grayText)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background {
