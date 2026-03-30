@@ -14,7 +14,7 @@ struct RespondMessageSection: View {
     let message: String
     
     var body: some View {
-        VStack {
+        VStack(spacing: 2) {
             HStack(spacing: 24) {
                 Image("SmallMessageIcon")
                     .scaleEffect(1.3)
@@ -23,10 +23,11 @@ struct RespondMessageSection: View {
                     Text("You - ")
                         .foregroundStyle(Color.accent)
                     Text(message)
-                        .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
                 }
+                .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            
             OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }

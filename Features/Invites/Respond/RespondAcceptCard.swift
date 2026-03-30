@@ -35,13 +35,11 @@ struct RespondAcceptCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 20) {
-                titleRow
-                    .opacity(showTimePopup ? 0.03 : 1)
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+            VStack(alignment: .leading, spacing: showMessageRow ? 6 : 24) {
+                titleAndTime
+                messageRow
+                placeRow
             }
-            .zIndex(2) //Fixes bug so backdrop appears above.
-            placeRow
             actionSection
         }
         .padding(22)
@@ -65,6 +63,22 @@ extension RespondAcceptCard {
             eventTypeButton
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private var titleAndTime: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            titleRow
+                .opacity(showTimePopup ? 0.03 : 1)
+            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+        }
+        .zIndex(2) //Fixes bug so backdrop appears above.
+    }
+    
+    @ViewBuilder
+    private var messageRow: some View {
+        if showMessageRow {
+            RespondMessageSection(showMessageScreen: $showMessageScreen, showTimePopup: $showTimePopup, message: message)
+        }
     }
     
     private var eventTitle: some View {
@@ -140,6 +154,8 @@ extension RespondAcceptCard {
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         }
     }
+    
+    
 }
 
 

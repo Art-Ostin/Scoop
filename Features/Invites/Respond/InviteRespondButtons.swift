@@ -10,7 +10,6 @@ import SwiftUI
 struct AcceptButton: View {
     var isModified: Bool = false
     let onAccept: () -> Void
-    var multipleTimes: Bool 
     
     var body: some View {
         Button {
@@ -25,6 +24,7 @@ struct AcceptButton: View {
                     RoundedRectangle(cornerRadius: 16)
                         .foregroundStyle(isModified ? Color.accent : Color.appGreen)
                 )
+                .zIndex(0)
         }
     }
 }
@@ -43,6 +43,7 @@ struct DeclineButton: View {
                 .frame(width: 135)
                 .frame(height: 40)
                 .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
+                .zIndex(0)
         }
     }
 }
