@@ -55,7 +55,7 @@ struct RespondAcceptCard: View {
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .sheet(isPresented: $showMessageScreen) {
-            AddMessageView(eventType: $vm.respondDraft.newTime.event.type , showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message)
+            AddMessageView(eventType: $vm.respondDraft.newTime.event.type , showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message, isRespondMessage: true)
         }
     }
 }

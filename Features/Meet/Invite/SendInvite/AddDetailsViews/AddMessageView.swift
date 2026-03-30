@@ -14,7 +14,8 @@ struct AddMessageView: View {
     @Binding var eventType: Event.EventType
     @Binding var showMessageScreen: Bool
     @Binding var message: String?
-    
+    let isRespondMessage: Bool
+
     @State var showTypePopup: Bool = false
     @State var showSaved: Bool = false
     @State var hasEditedThisSession: Bool = false
@@ -22,6 +23,7 @@ struct AddMessageView: View {
         
     private let messageLimit = 130
     private let warningThreshold = 25
+    
 
     var body: some View {
         
@@ -109,15 +111,23 @@ extension AddMessageView {
     
     private var headerSection: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text("Add Message")
+            Text(isRespondMessage ? "Add Note" : "Add Message")
                 .font(.custom("SFProRounded-Bold", size: 24))
             
             Spacer()
             
-            DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
-                dropdownTitle
-            } dropDown: {
-                SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
+            if !isRespondMessage {
+                DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
+                    dropdownTitle
+                } dropDown: {
+                    SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
+                }
+            } else {
+                let emoji = eventType.description.emoji
+                let type = eventType.description.label
+                Text("\(emoji) \(type)")
+                    .font(.body(17, .bold))
+                    .offset(y: -2)
             }
         }
         .frame(maxWidth: .infinity)

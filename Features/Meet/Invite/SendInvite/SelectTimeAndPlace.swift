@@ -86,14 +86,14 @@ struct SelectTimeAndPlace: View {
             MapView(defaults: defaults, eventLocation: $event.location)
         }
         .sheet(isPresented: $ui.showMessageScreen) {
-            AddMessageView(eventType: $event.type, showMessageScreen: $ui.showMessageScreen, message: $event.message)
+            AddMessageView(eventType: $event.type, showMessageScreen: $ui.showMessageScreen, message: $event.message, isRespondMessage: false)
         }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
 }
 
 extension SelectTimeAndPlace {
-    
+
     @ViewBuilder
     private var sendInviteScreen: some View {
         

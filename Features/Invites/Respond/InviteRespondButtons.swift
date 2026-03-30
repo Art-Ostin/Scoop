@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct AcceptButton: View {
-    
     var isModified: Bool = false
     let onAccept: () -> Void
     var body: some View {
         Button {
             onAccept()
         } label: {
-            Text(isModified ? "Invite With New Times" : "Accept")
+            Text(isModified ? "Invite with New Times" : "Accept")
                 .foregroundStyle(Color.white)
                 .font(.body(isModified ? 14 : 16, .bold))
                 .frame(width: 135)
