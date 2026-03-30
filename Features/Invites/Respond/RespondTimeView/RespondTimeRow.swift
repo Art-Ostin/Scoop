@@ -13,7 +13,7 @@ struct RespondTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
     
-    var showAddNote: Bool {
+    var showAddMessageButton: Bool {
         vm.respondDraft.newTime.message?.isEmpty != false
     }
 
@@ -50,7 +50,7 @@ extension RespondTimeRow {
             
             VStack(alignment: .leading, spacing: 4) {
                 selectedTime(date: date)
-                Text(hasMessage ? message! : hour)
+                Text(hasMessage ? message! : FormatEvent.hourTime(date))
                     .font(.footnote)
                     .foregroundStyle(.gray)
                     .opacity(hasMessage && showTimePopup ? 0.05 : 1)
@@ -75,48 +75,24 @@ extension RespondTimeRow {
     @ViewBuilder
     private var customTimeRow: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
+        let showName: Bool = vm.respondDraft.respondType == .modified && vm.respondDraft.newTime.message != nil
+        
         VStack(alignment: .leading, spacing: 6) {
-            
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
             if let message = vm.respondDraft.newTime.event.message {
-                respondMessage(name: vm.respondDraft.newTime.event.otherUserName, message: message, isResponse: false)
-                    .overlay(alignment: .bottomTrailing) {
-                        if vm.respondDraft.newTime.message?.isEmpty != false {
-                            OpenMessageButton(isEdit: false, showTimePopup: $showTimePopup)
-                        }
-                    }
-            }
-            if let message = vm.respondDraft.newTime.message, !message.isEmpty {
-                messageResponse(message)
+                messageSection(showName: showName, message: message)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private var hour: String {
-        guard let date = vm.respondDraft.newTime.proposedTimes.dates.compactMap({ $0.date }).first else {return ""}
-        return FormatEvent.hourTime(date)
-    }
-    
-    @ViewBuilder
-    private func respondMessage(name: String = "You", message: String, isResponse: Bool) -> some View {
-        
-        
-        let showName: Bool = vm.respondDraft.respondType == .modified && vm.respondDraft.newTime.message != nil
-        Text("\(showName ? "\(name) - " : "")\(message)")
+    private func messageSection(showName: Bool, message: String) -> some View {
+        Text("\(showName ? "\(vm.respondDraft.newTime.event.otherUserName) - " : "")\(message)")
             .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
+            .overlay(alignment: .bottomTrailing) {
+                if showAddMessageButton {
+                    OpenMessageButton(isEdit: false, showTimePopup: $showTimePopup)
+                }
+            }
     }
 }
-
-
-/*
- private func messageResponse(_ message: String) -> some View {
-     VStack(alignment: .trailing, spacing: 6) {
-         respondMessage(message: message, isResponse: true)
-         OpenMessageButton(isEdit: true, showTimePopup: $showTimePopup)
-     }
-     .frame(maxWidth: .infinity, alignment: .trailing)
-     .padding(.top, 6) // Gives it 16 padding in total
- }
-
- */
