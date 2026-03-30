@@ -64,7 +64,17 @@ struct OpenMessageButton: View {
             .foregroundStyle(Color.grayText)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(isEdit ? Color.accent.opacity(0.08) : Color.white.opacity(0.92))
+            }
+            .overlay {
+                Capsule(style: .continuous)
+                    .stroke(isEdit ? Color.accent.opacity(0.18) : Color.grayBackground, lineWidth: 1)
+            }
+            .surfaceShadow(.card, strength: showTimePopup ? 0 : 0.14)
         }
+        .offset(y: isEdit ? 0 : 16)
     }
 }
 
