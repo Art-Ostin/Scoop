@@ -25,17 +25,24 @@ struct RespondAcceptCard: View {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
+    var hasMessageResponse: Bool {
+        vm.respondDraft.respondType == .modified && vm.respondDraft.newTime.message != nil
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
-                titleRow
-                    .opacity(showTimePopup ? 0.03 : 1)
-                                
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+            VStack(alignment: .leading, spacing: hasMessageResponse ? 8 : 24) {
+                VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
+                    titleRow
+                        .opacity(showTimePopup ? 0.03 : 1)
+                                    
+                    RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .zIndex(2) //Fixes bug so backdrop appears above.
+                placeRow
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(2) //Fixes bug so backdrop appears above.
-            placeRow
             actionSection
         }
         .padding(22)

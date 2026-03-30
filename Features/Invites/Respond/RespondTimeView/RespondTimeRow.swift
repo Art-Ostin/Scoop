@@ -104,6 +104,7 @@ extension RespondTimeRow {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .layoutPriority(1)
+                .italic()
         }
     }
     
@@ -117,13 +118,14 @@ extension RespondTimeRow {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .layoutPriority(1)
+                .italic()
                 .multilineTextAlignment(.trailing)
             
             addMessageButton(isEdit: true)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.top, 6) // Gives it 16 padding in total
-        .padding(.bottom, -12)
+//        .padding(.bottom, -12)
     }
     
     private func addMessageButton(isEdit: Bool) -> some View {
