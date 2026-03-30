@@ -101,32 +101,36 @@ extension RespondTimeRow {
                 .font(.footnote)
                 .foregroundStyle(.gray)
                 .opacity(showTimePopup ? 0.1 : 1)
-                .lineLimit(4)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .layoutPriority(1)
         }
     }
     
     
     private func messageResponse(_ message: String) -> some View {
         VStack(alignment: .trailing, spacing: 4) {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(.gray)
-                    .opacity(showTimePopup ? 0.1 : 1)
-                    .lineLimit(4)
-                    .multilineTextAlignment(.trailing)
+            Text(message)
+                .font(.footnote)
+                .foregroundStyle(.gray)
+                .opacity(showTimePopup ? 0.1 : 1)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .layoutPriority(1)
+                .multilineTextAlignment(.trailing)
             
             addMessageButton(isEdit: true)
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.top, 6) // Gives it 16 padding in total
-            .padding(.bottom, -12)
         }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.top, 6) // Gives it 16 padding in total
+        .padding(.bottom, -12)
+    }
     
     private func addMessageButton(isEdit: Bool) -> some View {
         Button {
             showMessageScreen.toggle()
         } label: {
-            Text(isEdit ? "Edit" : "Add Message")
+            Text(isEdit ? "Edit Message" : "Add Message")
             .foregroundStyle(Color.accent)
             .font(.custom("SFProRounded-Bold", size: 10))
             .kerning(0.5)
