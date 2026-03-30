@@ -15,6 +15,7 @@ struct RespondDraft {
     let event: UserEvent
     var selectedDate: Date?
     var respondType: ResponseType
+    
     var newTime: NewTimeDraft {
         didSet {
             respondType = .modified

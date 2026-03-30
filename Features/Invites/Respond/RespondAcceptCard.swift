@@ -16,6 +16,7 @@ struct RespondAcceptCard: View {
     
     @State private var showTimePopup: Bool = false
     @State private var showTypeMessageScreen: Bool = false
+    @State private var showMessageScreen: Bool = false
     
     var event: UserEvent {
         vm.respondDraft.event
@@ -30,7 +31,7 @@ struct RespondAcceptCard: View {
                 titleRow
                     .opacity(showTimePopup ? 0.03 : 1)
                                 
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup)
+                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(2) //Fixes bug so backdrop appears above.
@@ -44,6 +45,9 @@ struct RespondAcceptCard: View {
         .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
+        .sheet(isPresented: $showMessageScreen) {
+            AddMessageView(eventType: $vm.respondDraft.newTime.event.type , showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message)
+        }
     }
 }
 

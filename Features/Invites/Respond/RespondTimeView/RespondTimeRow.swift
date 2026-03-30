@@ -11,6 +11,7 @@ struct RespondTimeRow: View {
     //Using vm as multiple respond models
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
+    @Binding var showMessageScreen: Bool
     
     var showOriginal: Bool {
         vm.respondDraft.respondType == .original
@@ -73,19 +74,66 @@ extension RespondTimeRow {
         VStack(alignment: .leading, spacing: 6) {
     
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
+            messageSection
+                .overlay(alignment: .bottomTrailing) {
+                    if vm.respondDraft.newTime.message == nil {
+                        addMessageButton(isEdit: false)
+                    }
+                }
             
-            if let message = vm.respondDraft.event.message {
+            if let message = vm.respondDraft.newTime.message {
+                messageResponse(message)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private var hour: String {
+        guard let date = vm.respondDraft.newTime.proposedTimes.dates.compactMap({ $0.date }).first else {return ""}
+        return FormatEvent.hourTime(date)
+    }
+    
+    
+    @ViewBuilder
+    private var messageSection: some View {
+        if let message = vm.respondDraft.event.message {
+            Text(message)
+                .font(.footnote)
+                .foregroundStyle(.gray)
+                .opacity(showTimePopup ? 0.1 : 1)
+                .lineLimit(4)
+        }
+    }
+    
+    
+    private func messageResponse(_ message: String) -> some View {
+        VStack(alignment: .trailing, spacing: 4) {
+                addMessageButton(isEdit: true)
+
                 Text(message)
                     .font(.footnote)
                     .foregroundStyle(.gray)
                     .opacity(showTimePopup ? 0.1 : 1)
                     .lineLimit(4)
+                    .multilineTextAlignment(.trailing)
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.top, 6) // Gives it 16 padding in total
+            .padding(.bottom, -12)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    private var hour: String {
-        guard let date = vm.respondDraft.newTime.proposedTimes.dates.compactMap({ $0.date }).first else {return ""}
-        return FormatEvent.hourTime(date)
+    
+    private func addMessageButton(isEdit: Bool) -> some View {
+        Button {
+            showMessageScreen.toggle()
+        } label: {
+            Text(isEdit ? "Edit" : "Add Message")
+            .foregroundStyle(Color.accent)
+            .font(.custom("SFProRounded-Bold", size: 10))
+            .kerning(0.5)
+            .padding(12)
+            .contentShape(.rect)
+            .padding(-12)
+            .offset(y: isEdit ? 0 : 16)
+        }
     }
 }
