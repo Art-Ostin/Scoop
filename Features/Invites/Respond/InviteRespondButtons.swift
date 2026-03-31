@@ -80,20 +80,22 @@ struct DeclineButton: View {
  }
  */
 
+/*
+ extension View {
+     func respondTextFormat(showTimePopup: Bool) -> some View {
+         self
+             .font(.footnote)
+             .foregroundStyle(.gray)
+             .opacity(showTimePopup ? 0.1 : 1)
+             .lineLimit(nil)
+             .fixedSize(horizontal: false, vertical: true)
+             .layoutPriority(1)
+             .italic()
+             .multilineTextAlignment(.leading)
+             .frame(maxWidth: .infinity, alignment:.leading)
+     }
+ }
 
-//Respond Text View 
-extension View {
-    func respondTextFormat(showTimePopup: Bool) -> some View {
-        self
-            .font(.footnote)
-            .foregroundStyle(.gray)
-            .opacity(showTimePopup ? 0.1 : 1)
-            .lineLimit(nil)
-            .fixedSize(horizontal: false, vertical: true)
-            .layoutPriority(1)
-            .italic()
-            .multilineTextAlignment(.leading)
-            .frame(maxWidth: .infinity, alignment:.leading)
-    }
-}
 
+ */
+//Respond Text View

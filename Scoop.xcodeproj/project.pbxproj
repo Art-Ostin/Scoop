@@ -195,6 +195,7 @@
 		65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14932F6445EB00031513 /* InvitesContainer.swift */; };
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
+		65BC0D0D2F7C15B4001683C6 /* RespondMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
 		65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */; };
@@ -465,6 +466,7 @@
 		65AF14912F64456000031513 /* InvitesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesViewModel.swift; sourceTree = "<group>"; };
 		65AF14932F6445EB00031513 /* InvitesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesContainer.swift; sourceTree = "<group>"; };
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
+		65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondMessages.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
 		65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePhoto.swift; sourceTree = "<group>"; };
@@ -704,6 +706,7 @@
 			isa = PBXGroup;
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
+				65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
@@ -1636,6 +1639,7 @@
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
 				652972632F62D410007943C6 /* ColorBackground.swift in Sources */,
 				65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */,
+				65BC0D0D2F7C15B4001683C6 /* RespondMessages.swift in Sources */,
 				65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */,
 				651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */,
 				655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */,
