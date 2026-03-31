@@ -75,32 +75,10 @@ extension RespondTimeRow {
     @ViewBuilder
     private var customTimeRow: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
-        
         VStack(alignment: .leading, spacing: 6) {
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
-            
-            
+            RespondMessages(showMessageScreen: $showMessageScreen, vm: vm, showRespondMessage: showMessageResponse, showTimePopup: $showTimePopup.wrappedValue)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
-
-//Components
-
-
-/*
- if let message = vm.respondDraft.newTime.event.message {
-     messageResponse(message: message, isMine: false)
-         .overlay(alignment: .bottomTrailing) {
-             if showMessageResponse {addMessageButton(isEdit: false)}
-         }
- } else {
-     Text(FormatEvent.hourTime(dates.first ?? Date()))
- }
- if !showMessageResponse {
-     if let newMessage = vm.respondDraft.newTime.message {
-         messageResponse(message: newMessage, isMine: true)
-     }
- }
-
- */

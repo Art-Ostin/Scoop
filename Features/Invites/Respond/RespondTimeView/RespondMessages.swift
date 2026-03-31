@@ -12,14 +12,12 @@ struct RespondMessages: View {
     @Binding var showMessageScreen: Bool
     
     @Bindable var vm: RespondViewModel
-    
     let showRespondMessage: Bool
     let showTimePopup: Bool
-    let inviteMessage: String
     
     var body: some View {
         
-        VStack(spacing: 24) {
+        VStack(spacing: 6) {
             messageOrHourSubtitle
             
             if let response = vm.respondDraft.newTime.message {
@@ -34,7 +32,7 @@ extension RespondMessages {
     @ViewBuilder
     private var messageOrHourSubtitle: some View {
         if let message = vm.respondDraft.event.message {
-            messageSection(message: inviteMessage, isMine: false)
+            messageSection(message: message, isMine: false)
                 .overlay(alignment: .bottomTrailing) {
                     if !showRespondMessage {
                         addMessageButton(isEdit: false)
