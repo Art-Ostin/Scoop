@@ -704,7 +704,6 @@
 			isa = PBXGroup;
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
-				65F5C29B2F7AECC10072B4ED /* RespondMessageRow.swift */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
@@ -1051,6 +1050,7 @@
 			children = (
 				65C7D6242E53AB7F00B726B8 /* EventFormatter.swift */,
 				65ED38872F6461E400AD5600 /* ProfileCardEvent.swift */,
+				65F5C29B2F7AECC10072B4ED /* RespondMessageRow.swift */,
 				654C589E2F6B7858002060C5 /* CardFlipAnimationTest.swift */,
 				6567FC772F42A63500A93846 /* AcceptInviteView.swift */,
 				65F371EC2F785DE100D0239F /* OldRespondMessage.swift */,

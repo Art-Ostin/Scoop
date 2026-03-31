@@ -13,7 +13,7 @@ struct RespondTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
     
-    var showAddMessageButton: Bool {
+    var showMessageResponse: Bool {
         vm.respondDraft.newTime.message?.isEmpty != false
     }
 
@@ -75,16 +75,15 @@ extension RespondTimeRow {
     @ViewBuilder
     private var customTimeRow: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
-        let showName: Bool = vm.respondDraft.respondType == .modified && vm.respondDraft.newTime.message != nil
         
         VStack(alignment: .leading, spacing: 6) {
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
             if let message = vm.respondDraft.newTime.event.message {
-                messageSection(showName: showName, message: message)
+                messageSection(message: message)
             } else {
                 Text(FormatEvent.hourTime(dates.first ?? Date()))
             }
-            if !showAddMessageButton {
+            if !showMessageResponse {
                 if let newMessage = vm.respondDraft.newTime.message {
                     messageResponse(message: newMessage)
                 }
@@ -93,11 +92,11 @@ extension RespondTimeRow {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private func messageSection(showName: Bool, message: String) -> some View {
-        Text("\(showName ? "\(vm.respondDraft.newTime.event.otherUserName) - " : "")\(message)")
+    private func messageSection(message: String) -> some View {
+        Text("\(!showMessageResponse ? "\(vm.respondDraft.newTime.event.otherUserName) - " : "")\(message)")
             .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
             .overlay(alignment: .bottomTrailing) {
-                if showAddMessageButton {addMessageButton(isEdit: false)}
+                if showMessageResponse {addMessageButton(isEdit: false)}
             }
     }
     
@@ -116,27 +115,28 @@ extension RespondTimeRow {
     
     
     private func addMessageButton(isEdit: Bool) ->  some View {
-        HStack(spacing: 6) {
-            Image(systemName: isEdit ? "square.and.pencil" : "plus")
-                .font(.system(size: 10, weight: .bold))
-            
-            Text(isEdit ? "Edit note" : "Add note")
-                .font(.custom("SFProRounded-Bold", size: 11))
-                .kerning(0.4)
-        }
-        .foregroundStyle(Color.grayText)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background {
-            Capsule(style: .continuous)
-                .fill(Color.white.opacity(0.92))
-        }
-        .stroke(24, lineWidth: 1, color: Color.grayBackground)
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .offset(y: isEdit ?  0 : 20)
-        .contentShape(.rect)
-        .onTapGesture {
+        Button {
             showMessageScreen = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: isEdit ? "square.and.pencil" : "plus")
+                    .font(.system(size: 10, weight: .bold))
+                
+                Text(isEdit ? "Edit note" : "Add note")
+                    .font(.custom("SFProRounded-Bold", size: 11))
+                    .kerning(0.4)
+            }
+            .foregroundStyle(Color.grayText)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(Color.white.opacity(0.92))
+            }
+            .stroke(24, lineWidth: 1, color: Color.grayBackground)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .contentShape(.rect)
         }
+        .offset(y: isEdit ?  0 : 20)
     }
 }

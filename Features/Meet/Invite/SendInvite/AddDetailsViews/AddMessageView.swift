@@ -34,6 +34,7 @@ struct AddMessageView: View {
                 .padding(.top, 24)
             
             OkDismissButton()
+                .padding(.top, 36)
             
         }
         .overlay(alignment: .topTrailing) {
