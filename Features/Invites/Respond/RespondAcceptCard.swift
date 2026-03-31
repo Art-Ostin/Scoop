@@ -35,11 +35,13 @@ struct RespondAcceptCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: showMessageRow ? 6 : 24) {
+            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 24) {
                 titleAndTime
-                messageRow
+                    .zIndex(3)
                 placeRow
+                    .zIndex(1)
             }
+            .zIndex(2) //Fixes bug so backdrop appears above.
             actionSection
         }
         .padding(22)
@@ -71,16 +73,8 @@ extension RespondAcceptCard {
                 .opacity(showTimePopup ? 0.03 : 1)
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
         }
-        .zIndex(2) //Fixes bug so backdrop appears above.
     }
-    
-    @ViewBuilder
-    private var messageRow: some View {
-        if showMessageRow {
-            RespondMessageSection(showMessageScreen: $showMessageScreen, showTimePopup: $showTimePopup, message: message)
-        }
-    }
-    
+        
     private var eventTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: vm.image, showShadow: false, height: 30)
@@ -155,8 +149,19 @@ extension RespondAcceptCard {
         }
     }
     
-    
 }
+
+/*
+ @ViewBuilder
+ private var messageRow: some View {
+     if showMessageRow {
+         if let message = vm.respondDraft.newTime.message {
+             RespondMessageSection(showMessageScreen: $showMessageScreen, showTimePopup: $showTimePopup, message: message)
+         }
+     }
+ }
+
+ */
 
 
 

@@ -81,6 +81,13 @@ extension RespondTimeRow {
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
             if let message = vm.respondDraft.newTime.event.message {
                 messageSection(showName: showName, message: message)
+            } else {
+                Text(FormatEvent.hourTime(dates.first ?? Date()))
+            }
+            if !showAddMessageButton {
+                if let newMessage = vm.respondDraft.newTime.message {
+                    messageResponse(message: newMessage)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -90,9 +97,46 @@ extension RespondTimeRow {
         Text("\(showName ? "\(vm.respondDraft.newTime.event.otherUserName) - " : "")\(message)")
             .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
             .overlay(alignment: .bottomTrailing) {
-                if showAddMessageButton {
-                    OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
-                }
+                if showAddMessageButton {addMessageButton(isEdit: false)}
             }
+    }
+    
+    private func messageResponse(message: String) -> some View {
+        VStack(spacing: 2) {
+            Group  {
+                Text("You - ")
+                    .foregroundStyle(Color.accent)
+                +
+                Text(message)
+            }
+            .respondTextFormat(showTimePopup: $showTimePopup.wrappedValue)
+            addMessageButton(isEdit: true)
+        }
+    }
+    
+    
+    private func addMessageButton(isEdit: Bool) ->  some View {
+        HStack(spacing: 6) {
+            Image(systemName: isEdit ? "square.and.pencil" : "plus")
+                .font(.system(size: 10, weight: .bold))
+            
+            Text(isEdit ? "Edit note" : "Add note")
+                .font(.custom("SFProRounded-Bold", size: 11))
+                .kerning(0.4)
+        }
+        .foregroundStyle(Color.grayText)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background {
+            Capsule(style: .continuous)
+                .fill(Color.white.opacity(0.92))
+        }
+        .stroke(24, lineWidth: 1, color: Color.grayBackground)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .offset(y: isEdit ?  0 : 20)
+        .contentShape(.rect)
+        .onTapGesture {
+            showMessageScreen = true
+        }
     }
 }

@@ -24,7 +24,6 @@ struct AcceptButton: View {
                     RoundedRectangle(cornerRadius: 16)
                         .foregroundStyle(isModified ? Color.accent : Color.appGreen)
                 )
-                .zIndex(0)
         }
     }
 }
@@ -43,7 +42,6 @@ struct DeclineButton: View {
                 .frame(width: 135)
                 .frame(height: 40)
                 .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
-                .zIndex(0)
         }
     }
 }
@@ -75,7 +73,6 @@ struct OpenMessageButton: View {
                 Capsule(style: .continuous)
                     .stroke(isEdit ? Color.accent.opacity(0.18) : Color.grayBackground, lineWidth: 1)
             }
-            .frame(minWidth: 44, minHeight: 44)
         }
         .offset(y: isEdit ? 0 : 32)
     }
