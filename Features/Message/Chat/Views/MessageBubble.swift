@@ -18,27 +18,31 @@ struct MessageBubbleView: View {
     let nextIsNewAuthor: Bool
     let isMyChat: Bool
     
+
+    var isInviteMessage: Bool = false
+    
+    
     var backgroundColor: Color {
         isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
     }
     
     var body: some View {
         Text(chat.content)
-            .font(.body(16, .medium))
+            .font(isInviteMessage ?.body(14, .regular) : .body(16, .medium))
             .foregroundStyle(isMyChat ? Color.white : Color.black)
             .lineSpacing(5)
             .padding(.horizontal)
             .padding(.vertical, 10)
-            .padding(.bottom, isTimeBelow ? 12 : 0)
+            .padding(.bottom, isTimeBelow && !isInviteMessage ? 12 : 0)
             .background (messageCorners)
             .background(geometryMeasure)
-            .overlay(alignment: .bottomTrailing) { hourMessageSent }
+            .overlay(alignment: .bottomTrailing) {  if !isInviteMessage { hourMessageSent} }
             .overlay(alignment: isMyChat ? .bottomTrailing : .bottomLeading) {
                 messageTriangle
             }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
-            .padding(.horizontal, 24)
-            .padding(isMyChat ? .leading : .trailing, 48)
+            .padding(.horizontal, isInviteMessage ? 0 : 24)
+            .padding(isMyChat ? .leading : .trailing, (isInviteMessage ? 0 : 48))
             .padding(.bottom, nextIsNewAuthor ? 12 : 0)
     }
     

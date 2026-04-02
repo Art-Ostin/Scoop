@@ -1,5 +1,5 @@
 {
-  "originHash" : "1171b84d6f9d01b9ef84f5bc7c6c3361b574ffbf488ece8c45d3e3af477f632d",
+  "originHash" : "f76b7e439a2d68cfef93b54cb9002bd5acaf09a5166511fa5d9e8702f8bb63e8",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "chatbubble",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zunda-pixel/ChatBubble",
+      "state" : {
+        "revision" : "c42c58ad937f74ebd12d4a487fa9701d1323e409",
+        "version" : "1.1.0"
       }
     },
     {

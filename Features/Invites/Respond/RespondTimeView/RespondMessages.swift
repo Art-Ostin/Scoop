@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import ChatBubble
+
 
 struct RespondMessages: View {
     
@@ -26,11 +28,11 @@ struct RespondMessages: View {
             } else {
                 VStack(alignment: .leading, spacing: 16) {
                     if let message = vm.respondDraft.event.message {
-                        messageCard(message: message, name: vm.respondDraft.event.otherUserName, isMyChat: false)
+                        MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: message), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true)
                     }
                     
                     if let newMessage = vm.respondDraft.newTime.message  {
-                        messageCard(message: newMessage, name: "You", isMyChat: true)
+                        MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: newMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true)
                     }
                 }
             }
@@ -143,6 +145,7 @@ extension RespondMessages {
             .onTapGesture {
                 if isMyChat {showMessageScreen.toggle()}
             }
+        
     }
     
     private func messageCardTitle(_ name: String) -> some View {
@@ -180,3 +183,18 @@ extension RespondMessages {
         }
     }
 }
+
+/*
+ 
+ Text(message)
+     .font(.body(14, .regular))
+     .lineSpacing(6)
+     .fixedSize(horizontal: false, vertical: true)
+     .frame(maxWidth: .infinity, alignment: .leading)
+     .frame(maxWidth: .infinity, alignment: .leading)
+     .chatBubble(
+         position: .leadingBottom,
+         cornerRadius: 18,
+         color: .white
+     )
+ */
