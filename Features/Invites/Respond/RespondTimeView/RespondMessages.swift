@@ -14,22 +14,21 @@ struct RespondMessages: View {
     @Bindable var vm: RespondViewModel
     let showTimePopup: Bool
     
-    var showRespondMessage: Bool {
-        vm.respondDraft.newTime.message?.isEmpty != true
+    var showMessageResponse: Bool {
+        vm.respondDraft.newTime.message?.isEmpty == false
     }
-    
+
     var body: some View {
         
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             messageOrHourSubtitle
             
             if let response = vm.respondDraft.newTime.message {
-                VStack(spacing: 4) {
-                    messageSection(message: response, isMine: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    OpenMessageButton(isEdit: true, showMessageView: $showMessageScreen)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                if showMessageResponse {
+                    VStack(spacing: 4) {
+                        messageSection(message: response, isMine: true)
+                        addMessageButton(isEdit: true)
+                    }
                 }
             }
         }
@@ -43,7 +42,7 @@ extension RespondMessages {
         if let message = vm.respondDraft.event.message {
             messageSection(message: message, isMine: false)
                 .overlay(alignment: .bottomTrailing) {
-                    if !showRespondMessage {
+                    if !showMessageResponse {
                         addMessageButton(isEdit: false)
                     }
                 }
@@ -88,7 +87,7 @@ extension RespondMessages {
         let name = isMine ? "You" : vm.respondDraft.event.otherUserName
         
         Group {
-            Text( showRespondMessage ? "\(name) - " : "")
+            Text( showMessageResponse ? "\(name) - " : "")
                 .foregroundStyle(isMine ? Color.accent.opacity(0.4) : Color.gray)
             +
             Text(message)

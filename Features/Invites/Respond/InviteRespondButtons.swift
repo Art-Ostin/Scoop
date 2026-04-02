@@ -46,7 +46,8 @@ struct DeclineButton: View {
     }
 }
 
-
+/*
+ 
  struct OpenMessageButton: View {
      let isEdit: Bool
      @Binding var showMessageView: Bool
@@ -78,6 +79,8 @@ struct DeclineButton: View {
          .offset(y: isEdit ? 0 : 20)
      }
  }
+ */
+
 
 
 /*

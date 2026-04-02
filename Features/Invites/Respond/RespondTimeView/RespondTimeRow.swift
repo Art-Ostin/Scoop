@@ -80,10 +80,14 @@ extension RespondTimeRow {
             RespondMessages(showMessageScreen: $showMessageScreen, vm: vm, showTimePopup: $showTimePopup.wrappedValue)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .bottomTrailing) {
-            if !showMessageResponse {
-                OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
-            }
-        }
     }
 }
+
+/*
+ .overlay(alignment: .bottomTrailing) {
+     if !showMessageResponse {
+         OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
+     }
+ }
+
+ */
