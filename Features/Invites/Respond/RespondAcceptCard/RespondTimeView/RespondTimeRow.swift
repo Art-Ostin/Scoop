@@ -34,7 +34,7 @@ extension RespondTimeRow {
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack {
                 timeTitle
-                if newMessageEmpty || vm.responseType == .modified {
+                if newMessageEmpty || vm.responseType == .original {
                     timeSubHeader
                 }
             }
@@ -92,6 +92,7 @@ extension RespondTimeRow {
         }
     }
     
+
     private var addMessageButton: some View {
         Button {
             showMessageScreen = true

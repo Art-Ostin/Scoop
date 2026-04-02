@@ -44,16 +44,22 @@ struct RespondAcceptCard: View {
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .sheet(isPresented: $showMessageScreen) {
-            AddMessageView(eventType: $vm.respondDraft.newTime.event.type , showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message, isRespondMessage: true)
+            AddMessageView(eventType: $vm.respondDraft.newTime.event.type, showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message, isRespondMessage: true)
         }
+        .onChange(of: vm.responseType, { oldValue, newValue in
+            print("Old value is: \(oldValue)")
+            print("New value is: \(newValue)")
+        })
     }
 }
 
 extension RespondAcceptCard {
     @ViewBuilder
     private var respondMessagesView: some View {
-        if let originalMessage = vm.respondDraft.event.message, let newMessage = vm.respondDraft.newTime.message {
-            RespondMessagesView(originalMessage: originalMessage, replyMessage: newMessage)
+        if vm.responseType != .original {
+            if let originalMessage = vm.respondDraft.event.message, let newMessage = vm.respondDraft.newTime.message {
+                RespondMessagesView(showTimePopup: showTimePopup, originalMessage: originalMessage, replyMessage: newMessage)
+            }
         }
     }
         

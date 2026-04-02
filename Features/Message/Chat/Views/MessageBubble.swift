@@ -21,13 +21,13 @@ struct MessageBubbleView: View {
     var isInviteMessage: Bool = false
     
     var backgroundColor: Color {
-        isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
+        isMyChat && !isInviteMessage ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
     }
     
     var body: some View {
         Text(chat.content)
             .font(isInviteMessage ?.body(14, .regular) : .body(16, .medium))
-            .foregroundStyle(isMyChat ? Color.white : Color.black)
+            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : Color.black)
             .lineSpacing(5)
             .padding(.horizontal)
             .padding(.vertical, 10)
