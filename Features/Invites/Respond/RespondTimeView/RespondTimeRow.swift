@@ -76,7 +76,7 @@ extension RespondTimeRow {
     @ViewBuilder
     private var customTimeRow: some View {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
-        VStack(alignment: .leading, spacing: showMessageResponse ? 16 : 6) {
+        VStack(alignment: .leading, spacing: showMessageResponse ? 24 : 6) {
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
             RespondMessages(showMessageScreen: $showMessageScreen, vm: vm, showTimePopup: $showTimePopup.wrappedValue)
         }

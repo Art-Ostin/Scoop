@@ -122,9 +122,6 @@ extension RespondMessages {
             .overlay {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(Color.grayBackground, lineWidth: 1)
-                    .overlay(alignment: isMyChat ? .bottomTrailing : .bottomLeading) {
-                        NewMessageTriangle(color: Color.background, isMyChat: isMyChat)
-                    }
             }
             .opacity(showTimePopup ? 0.08 : 1)
             .overlay(alignment: .topLeading) {
@@ -155,61 +152,3 @@ extension RespondMessages {
             )
     }
 }
-
-/*
- Text(name)
-     .font(.custom("SFProRounded-Bold", size: 12))
-     .foregroundStyle(name == "You" ? Color.accent.opacity(0.8) : Color.black.opacity(0.72))
-     .padding(.horizontal)
-     .background(
-         RoundedRectangle(cornerRadius: 12, style: .continuous)
-             .fill(
-                 
-                 LinearGradient(
-                     gradient: Gradient(stops: [
-                         .init(color: Color.background, location: 0.0),
-                             .init(color: Color.white, location: 1.0)
-                     ]),
-                     startPoint: .top,
-                     endPoint: .bottom
-                 )
-             )
-     )
-     .offset(y: -6)
-     .offset(x: 8)
-
- */
-
-/*
- //            .overlay(alignment: .topLeading) { addMessageButton(isEdit: true)}
- */
-
-/*
- messageOrHourSubtitle
- 
- if let response = vm.respondDraft.newTime.message {
-     if showMessageResponse {
-         VStack(spacing: 4) {
-             messageSection(message: response, isMine: true)
-             addMessageButton(isEdit: true)
-         }
-     }
- }
-}
-.padding(!showMessageResponse ? 0 : 12)
-.background(
- RoundedRectangle(cornerRadius: 16)
-     .foregroundStyle(showMessageResponse ? Color.white.opacity(0.5) : Color.clear)
-)
-.stroke(16, lineWidth: 1, color: showMessageResponse ? Color.grayPlaceholder.opacity(0.3) : Color.clear)
-.padding(.leading, showMessageResponse ? -36 : 0)
-
- */
-
-
-/*
- Text(name)
-     .font(.custom("SFProRounded-Bold", size: 12))
-     .foregroundStyle(Color.black.opacity(0.72))
-
- */
