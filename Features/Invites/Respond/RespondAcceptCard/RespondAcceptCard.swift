@@ -31,10 +31,14 @@ struct RespondAcceptCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-            respondMessagesView
-            placeRow
+            VStack(alignment: .leading, spacing: showMessageRow ? 6 : 20) {
+                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+                respondMessagesView
+                placeRow
+            }
+            .zIndex(3)
             actionSection
+                .zIndex(1)
         }
         .padding(22)
         .frame(maxWidth: .infinity)

@@ -15,7 +15,7 @@ struct RespondMessagesView: View {
     let replyMessage: String
     
     var body: some View {
-            VStack {
+        VStack(spacing: 10) {
                 MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true)
                 
                 MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true)
@@ -35,7 +35,6 @@ struct RespondMessagesView: View {
                         )
                     )
                     .frame(width: 2)
-                    .padding(.vertical, 10)
                     .padding(.leading, 5)
         }
     }

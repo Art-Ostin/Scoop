@@ -22,7 +22,7 @@ struct MessageBubbleView: View {
     var isInviteMessage: Bool = false
     var includeStroke: Bool { isInviteMessage ? true : false}
     var strokeColor: Color  {
-        isMyChat ? Color.accent : Color.grayPlaceholder
+        isMyChat ? Color.accent.opacity(0.3) : Color.grayPlaceholder.opacity(0.8)
     }
     
     var backgroundColor: Color {
