@@ -26,11 +26,11 @@ struct RespondMessages: View {
             } else {
                 VStack(alignment: .leading, spacing: 16) {
                     if let message = vm.respondDraft.event.message {
-                        messageCard(message: message, name: vm.respondDraft.event.otherUserName, isEdit: false)
+                        messageCard(message: message, name: vm.respondDraft.event.otherUserName, isMyChat: false)
                     }
                     
                     if let newMessage = vm.respondDraft.newTime.message  {
-                        messageCard(message: newMessage, name: "You", isEdit: false)
+                        messageCard(message: newMessage, name: "You", isMyChat: false)
                     }
                 }
             }
@@ -106,7 +106,7 @@ extension RespondMessages {
     }
     
     
-    private func messageCard(message: String, name: String, isEdit: Bool) -> some View {
+    private func messageCard(message: String, name: String, isMyChat: Bool) -> some View {
         Text(message)
             .font(.body(14, .regular))
             .lineSpacing(6)
@@ -122,6 +122,9 @@ extension RespondMessages {
             .overlay {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(Color.grayBackground, lineWidth: 1)
+                    .overlay(alignment: isMyChat ? .bottomTrailing : .bottomLeading) {
+                        NewMessageTriangle(color: Color.background, isMyChat: isMyChat)
+                    }
             }
             .opacity(showTimePopup ? 0.08 : 1)
             .overlay(alignment: .topLeading) {

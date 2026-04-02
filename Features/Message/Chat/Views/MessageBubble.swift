@@ -82,6 +82,23 @@ struct MessageBubbleView: View {
     }
 }
 
+
+
+struct NewMessageTriangle : View {
+    let color: Color
+    let isMyChat: Bool
+    
+    var body: some View {
+        MessageTriangle(radius: 4)
+            .scaleEffect(x: isMyChat ? 1 : -1, y: 1)
+            .foregroundStyle(color)
+            .frame(width: 10, height: 15)
+            .offset(x: isMyChat ? 10 : -10)
+    }
+}
+
+
+
 extension MessageBubbleView {
     
     @ViewBuilder
