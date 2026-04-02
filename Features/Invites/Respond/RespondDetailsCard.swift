@@ -38,6 +38,7 @@ enum DetailInfo: CaseIterable {
         }
     }
 }
+
 struct RespondDetailsCard: View {
     
     let event: UserEvent

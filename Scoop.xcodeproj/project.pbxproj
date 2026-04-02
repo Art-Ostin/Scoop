@@ -41,6 +41,7 @@
 		6514B60B2EB2FB9500551C3A /* OnboardingImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */; };
 		6517952C2F7EE546001D70E4 /* ChatBubble in Frameworks */ = {isa = PBXBuildFile; productRef = 6517952B2F7EE546001D70E4 /* ChatBubble */; };
 		6517952E2F7EF3B2001D70E4 /* RespondMessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */; };
+		651795312F7F062A001D70E4 /* RespondTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651795302F7F062A001D70E4 /* RespondTitle.swift */; };
 		651975842F1EF2CA0002F6A2 /* LoadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */; };
 		651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */; };
 		6519758C2F1EFCE90002F6A2 /* SandyLoading.json in Resources */ = {isa = PBXBuildFile; fileRef = 6519758B2F1EFCE90002F6A2 /* SandyLoading.json */; };
@@ -315,6 +316,7 @@
 		65140B302F56066B00ED1DDE /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImageViewModel.swift; sourceTree = "<group>"; };
 		6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondMessagesView.swift; sourceTree = "<group>"; };
+		651795302F7F062A001D70E4 /* RespondTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTitle.swift; sourceTree = "<group>"; };
 		651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LoadingAnimation.json; sourceTree = "<group>"; };
 		651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
 		6519758B2F1EFCE90002F6A2 /* SandyLoading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SandyLoading.json; sourceTree = "<group>"; };
@@ -687,6 +689,17 @@
 				6561C8D52E04587D006A72DF /* Onboarding */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		6517952F2F7F0616001D70E4 /* RespondAcceptCard */ = {
+			isa = PBXGroup;
+			children = (
+				650DA36A2F6C51900013EB30 /* RespondAcceptCard.swift */,
+				651795302F7F062A001D70E4 /* RespondTitle.swift */,
+				652882E32F708AE1000B724D /* RespondTimeView */,
+				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
+			);
+			path = RespondAcceptCard;
 			sourceTree = "<group>";
 		};
 		6522EF242E1EE61A004531F9 /* EditProfilePage */ = {
@@ -1265,10 +1278,8 @@
 				657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */,
 				650DA36C2F6C5FFA0013EB30 /* RespondPopupContainer.swift */,
 				65F704532F6EE15400CE29C5 /* RespondAcceptContainer.swift */,
-				650DA36A2F6C51900013EB30 /* RespondAcceptCard.swift */,
+				6517952F2F7F0616001D70E4 /* RespondAcceptCard */,
 				65F7044D2F6EDA4100CE29C5 /* RespondDetailsCard.swift */,
-				652882E32F708AE1000B724D /* RespondTimeView */,
-				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 				654C58942F6B5021002060C5 /* InviteRespondButtons.swift */,
 			);
 			path = Respond;
@@ -1515,6 +1526,7 @@
 				65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */,
 				65C7D6252E53AB7F00B726B8 /* EventFormatter.swift in Sources */,
 				659A89732F1D43AD00806C02 /* ImageModels.swift in Sources */,
+				651795312F7F062A001D70E4 /* RespondTitle.swift in Sources */,
 				659109332E19C87B0065696F /* VerifyEmailView.swift in Sources */,
 				656373B52F50152F003A922D /* MinimalistButton.swift in Sources */,
 				657BD3272F71FC9A00D7C29A /* RespondViewModel.swift in Sources */,

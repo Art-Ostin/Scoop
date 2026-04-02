@@ -28,10 +28,9 @@ struct AcceptButton: View {
     }
 }
 
+
 struct DeclineButton: View {
-    
     let onDecline: () -> Void
-    
     var body: some View {
         Button {
             onDecline()
@@ -45,60 +44,3 @@ struct DeclineButton: View {
         }
     }
 }
-
-/*
- 
- struct OpenMessageButton: View {
-     let isEdit: Bool
-     @Binding var showMessageView: Bool
-     
-     var body: some View {
-         Button {
-             showMessageView = true
-         } label:  {
-             HStack(spacing: 6) {
-                 Image(systemName: isEdit ? "square.and.pencil" : "plus")
-                     .font(.system(size: 10, weight: .bold))
-                 
-                 Text(isEdit ? "Edit note" : "Add note")
-                     .font(.custom("SFProRounded-Bold", size: 11))
-                     .kerning(0.4)
-             }
-             .foregroundStyle(Color.grayText)
-             .padding(.horizontal, 8)
-             .padding(.vertical, 4)
-             .background {
-                 Capsule(style: .continuous)
-                     .fill(isEdit ? Color.accent.opacity(0.08) : Color.white.opacity(0.92))
-             }
-             .overlay {
-                 Capsule(style: .continuous)
-                     .stroke(isEdit ? Color.accent.opacity(0.18) : Color.grayBackground, lineWidth: 1)
-             }
-         }
-         .offset(y: isEdit ? 0 : 20)
-     }
- }
- */
-
-
-
-/*
- extension View {
-     func respondTextFormat(showTimePopup: Bool) -> some View {
-         self
-             .font(.footnote)
-             .foregroundStyle(.gray)
-             .opacity(showTimePopup ? 0.1 : 1)
-             .lineLimit(nil)
-             .fixedSize(horizontal: false, vertical: true)
-             .layoutPriority(1)
-             .italic()
-             .multilineTextAlignment(.leading)
-             .frame(maxWidth: .infinity, alignment:.leading)
-     }
- }
-
-
- */
-//Respond Text View
