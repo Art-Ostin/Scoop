@@ -14,9 +14,9 @@ struct RespondTimeRow: View {
     @Binding var showMessageScreen: Bool
     
     var showMessageResponse: Bool {
-        vm.respondDraft.newTime.message?.isEmpty != false
+        vm.respondDraft.newTime.message?.isEmpty == false
     }
-
+    
     var showOriginal: Bool {
         vm.respondDraft.respondType == .original
     }
@@ -81,7 +81,9 @@ extension RespondTimeRow {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .bottomTrailing) {
-            OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
+            if !showMessageResponse {
+                OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
+            }
         }
     }
 }

@@ -28,9 +28,7 @@ struct RespondAcceptCard: View {
     
     var showMessageRow: Bool {
         vm.respondDraft.respondType == .modified &&
-        !(vm.respondDraft.newTime.message?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .isEmpty ?? true)
+        vm.respondDraft.newTime.message?.isEmpty == false
     }
     
     var body: some View {

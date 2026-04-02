@@ -15,7 +15,7 @@ struct RespondMessages: View {
     let showTimePopup: Bool
     
     var showRespondMessage: Bool {
-        vm.respondDraft.newTime.message?.isEmpty != false
+        vm.respondDraft.newTime.message?.isEmpty != true
     }
     
     var body: some View {
@@ -24,7 +24,13 @@ struct RespondMessages: View {
             messageOrHourSubtitle
             
             if let response = vm.respondDraft.newTime.message {
-                messageSection(message: response, isMine: true)
+                VStack(spacing: 4) {
+                    messageSection(message: response, isMine: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    OpenMessageButton(isEdit: true, showMessageView: $showMessageScreen)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
             }
         }
     }
@@ -82,7 +88,7 @@ extension RespondMessages {
         let name = isMine ? "You" : vm.respondDraft.event.otherUserName
         
         Group {
-            Text( !showRespondMessage ? "\(name) - " : "")
+            Text( showRespondMessage ? "\(name) - " : "")
                 .foregroundStyle(isMine ? Color.accent.opacity(0.4) : Color.gray)
             +
             Text(message)
