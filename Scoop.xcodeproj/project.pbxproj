@@ -724,7 +724,6 @@
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
-				65BC0D0C2F7C15B4001683C6 /* TimeSubheader.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
 			);
@@ -1082,6 +1081,7 @@
 				65FAF9852E413B100015E231 /* EventContainer.swift */,
 				653FB57B2F688B8300440E41 /* EventSlot 2.swift */,
 				6560CE2E2F71667B0078CFDF /* RespondTimeContainer.swift */,
+				65BC0D0C2F7C15B4001683C6 /* TimeSubheader.swift */,
 			);
 			path = Delete;
 			sourceTree = "<group>";

@@ -10,7 +10,6 @@ enum TimeStatus: String {
     case available, unavailable, expired
 }
 
-
 struct RespondSelectTime: View {
     //Need vm here as modifying a lot
     @Bindable var vm: RespondViewModel

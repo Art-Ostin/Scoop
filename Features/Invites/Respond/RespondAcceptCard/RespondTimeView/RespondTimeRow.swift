@@ -12,9 +12,9 @@ struct RespondTimeRow: View {
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
-    
-    var message: String {vm.respondDraft.event.message ?? ""}
-    
+
+    var message: String? {vm.respondDraft.event.message}
+    var messageEmpty: Bool { message?.isEmpty == true}
 
     var body: some View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
@@ -28,19 +28,13 @@ struct RespondTimeRow: View {
 //Logic with the standardTimeRow
 extension RespondTimeRow {
     
-    private var imageIcon: some View {
-        Image("MiniClockIcon")
-            .scaleEffect(1.3)
-            .opacity(showTimePopup ? 0.02 : 1)
-            .offset(y: showMessageResponse ? 4 : 0)
-    }
-    
     private var timeView: some View {
         HStack(spacing: 24) {
-            imageIcon
+            Image("MiniClockIcon").scaleEffect(1.3)
+                .opacity(showTimePopup ? 0.03 : 1)
             VStack {
                 timeTitle
-                timeSubHeader(text: <#T##String#>)
+                timeSubHeader
             }
         }
     }
@@ -48,43 +42,82 @@ extension RespondTimeRow {
     @ViewBuilder
     private var timeTitle: some View {
         if vm.responseType == .original {
-            selectedTime(date: date)
+            selectedTime
         } else {
-            let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
-            ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup, isAccept: true)
+            ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
         }
     }
 
-    
-    
-    
-    private func timeSubHeader(text: String) -> some View {
-        
-        let subHeaderText = vm.respondDraft.event.proposedTimes.firstAvailableDate.
-        
-        
-        Text(text)
-            .font(.footnote)
-            .foregroundStyle(.grayText)
-            .opacity(showTimePopup ? 0.1 : 1)
-            .lineLimit(nil)
-            .fixedSize(horizontal: false, vertical: true)
-            .layoutPriority(1)
-            .multilineTextAlignment(.leading)
-            .frame(maxWidth: .infinity, alignment:.leading)
+    private var timeSubHeader: some View {
+        Group {
+            if let message {
+                Text(message)
+            } else if let date = vm.respondDraft.eventDraft.proposedTimes.firstAvailableDate {
+                Text(FormatEvent.hourTime(date))
+            }
+        }
+        .font(.footnote)
+        .foregroundStyle(Color.grayText)
+        .opacity(showTimePopup ? 0.1 : 1)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
+        .layoutPriority(1)
+        .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity, alignment:.leading)
+        .overlay(alignment: .bottomTrailing) {
+            if messageEmpty && vm.responseType == .new {
+                addMessageButton
+            }
+        }
     }
-
     
-    
-    private func selectedTime(date: Date) -> some View {
+    private var selectedTime: some View {
         HStack {
-            Text(FormatEvent.dayAndTime(date))
-                .font(.body(16, showTimePopup ? .bold : .medium))
+            //1. If there is a selectedDate Show that
+            if let date = vm.respondDraft.selectedDate {
+                Text(FormatEvent.dayAndTime(date))
+                    .font(.body(16, showTimePopup ? .bold : .medium))
+                
+            //2. Otherwise prompt user to select a new availableTime
+            } else {
+                Text("Select a day to meet")
+                    .font(.body(16, showTimePopup ? .bold : .medium))
+            }
+            
+            //3. Then have drop down button to select available times or a newTime
             Spacer()
             DropDownButton(isExpanded: $showTimePopup, isAccept: true, showGlass: true)
         }
     }
+    
+    private var addMessageButton: some View {
+        Button {
+            showMessageScreen = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName:"plus")
+                    .font(.system(size: 10, weight: .bold))
+                
+                Text("Add note")
+                    .font(.custom("SFProRounded-Bold", size: 11))
+                    .kerning(0.4)
+            }
+            .foregroundStyle(Color.grayText)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(Color.white.opacity(0.92))
+            }
+            .stroke(24, lineWidth: 1, color: Color.grayBackground)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .contentShape(.rect)
+        }
+        .offset(y: 20)
+    }
 }
+
+
 
 
 
