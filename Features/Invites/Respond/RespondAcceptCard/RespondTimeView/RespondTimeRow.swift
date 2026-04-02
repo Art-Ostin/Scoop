@@ -13,8 +13,7 @@ struct RespondTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
 
-    var message: String? {vm.respondDraft.event.message}
-    var messageEmpty: Bool { message?.isEmpty == true}
+    var message: String {vm.respondDraft.event.message ?? ""}
 
     var body: some View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
@@ -34,7 +33,9 @@ extension RespondTimeRow {
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack {
                 timeTitle
-                timeSubHeader
+                if vm.respondDraft.newTime.message?.isEmpty == true || vm.respondDraft.respondType == .original {
+                    timeSubHeader
+                }
             }
         }
     }
@@ -50,7 +51,7 @@ extension RespondTimeRow {
 
     private var timeSubHeader: some View {
         Group {
-            if let message {
+            if !message.isEmpty{
                 Text(message)
             } else if let date = vm.respondDraft.eventDraft.proposedTimes.firstAvailableDate {
                 Text(FormatEvent.hourTime(date))
@@ -65,7 +66,7 @@ extension RespondTimeRow {
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment:.leading)
         .overlay(alignment: .bottomTrailing) {
-            if messageEmpty && vm.responseType == .new {
+            if message.isEmpty && vm.responseType == .original {
                 addMessageButton
             }
         }
