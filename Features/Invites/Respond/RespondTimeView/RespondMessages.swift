@@ -32,11 +32,16 @@ struct RespondMessages: View {
                 }
             }
         }
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .foregroundStyle(showMessageResponse ? Color.white : Color.clear)
+        )
+        .padding(!showMessageResponse ? 0 : 12)
+        .stroke(16, lineWidth: 1, color: showMessageResponse ? Color.grayPlaceholder : Color.clear)
     }
 }
 
 extension RespondMessages {
-
     @ViewBuilder
     private var messageOrHourSubtitle: some View {
         if let message = vm.respondDraft.event.message {

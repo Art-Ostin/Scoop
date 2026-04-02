@@ -23,7 +23,7 @@ struct RespondTimeRow: View {
     
     var body: some View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
-            HStack(spacing: 24) {
+            HStack(alignment: showMessageResponse ? .top : .center, spacing: 24) {
                 imageIcon
                 if showOriginal {originalTimeRow} else {customTimeRow}
             }
@@ -40,6 +40,7 @@ extension RespondTimeRow {
         Image("MiniClockIcon")
             .scaleEffect(1.3)
             .opacity(showTimePopup ? 0.02 : 1)
+            .offset(y: showMessageResponse ? 4 : 0)
     }
     
     @ViewBuilder
