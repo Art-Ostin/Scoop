@@ -30,7 +30,7 @@ struct RespondMessages: View {
                     }
                     
                     if let newMessage = vm.respondDraft.newTime.message  {
-                        messageCard(message: newMessage, name: "You", isMyChat: false)
+                        messageCard(message: newMessage, name: "You", isMyChat: true)
                     }
                 }
             }
@@ -131,6 +131,18 @@ extension RespondMessages {
                         dimensions[VerticalAlignment.center]
                     }
             }
+            .overlay(alignment: .topTrailing) {
+                if isMyChat {
+                    editButton
+                        .padding(.trailing, 18)
+                        .alignmentGuide(.top) { dimensions in
+                            dimensions[VerticalAlignment.center]
+                        }
+                }
+            }
+            .onTapGesture {
+                if isMyChat {showMessageScreen.toggle()}
+            }
     }
     
     private func messageCardTitle(_ name: String) -> some View {
@@ -150,5 +162,21 @@ extension RespondMessages {
                         )
                     )
             )
+    }
+    
+    private var editButton: some View {
+        HStack(spacing: 2) {
+            Text("Edit")
+                .font(.custom("SFProRounded-Bold", size: 12))
+                .foregroundStyle(Color.accent)
+
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 10, weight: .bold))
+                .padding(.trailing, 18)
+                .alignmentGuide(.top) {dimensions in
+                    dimensions[VerticalAlignment.top]
+                }
+                .foregroundStyle(Color.accent)
+        }
     }
 }
