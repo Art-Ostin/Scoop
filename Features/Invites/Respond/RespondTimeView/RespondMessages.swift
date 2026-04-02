@@ -24,7 +24,7 @@ struct RespondMessages: View {
             if !showMessageResponse {
                 messageOrHourSubtitle
             } else {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 16) {
                     if let message = vm.respondDraft.event.message {
                         messageCard(message: message, name: vm.respondDraft.event.otherUserName, isEdit: false)
                     }
@@ -109,42 +109,74 @@ extension RespondMessages {
     private func messageCard(message: String, name: String, isEdit: Bool) -> some View {
         Text(message)
             .font(.body(14, .regular))
+            .lineSpacing(6)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color.white.opacity(0.92))
                     .surfaceShadow(.card, strength: showTimePopup ? 0 : 0.3)
             }
             .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(Color.grayBackground, lineWidth: 1)
             }
             .opacity(showTimePopup ? 0.08 : 1)
             .overlay(alignment: .topLeading) {
-                Text(name)
-                    .font(.custom("SFProRounded-Bold", size: 12))
-                    .foregroundStyle(Color.black.opacity(0.72))
-                    .padding(.horizontal)
-                    .background(
+                messageCardTitle(name)
+                    .padding(.leading, 18)
+                    .alignmentGuide(.top) { dimensions in
+                        dimensions[VerticalAlignment.center]
+                    }
+            }
+    }
+    
+    private func messageCardTitle(_ name: String) -> some View {
+        Text("  \(name)  ")
+            .font(.custom("SFProRounded-Bold", size: 12))
+            .foregroundStyle(name == "You" ? Color.accent.opacity(0.8) : Color.black.opacity(0.72))
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(
                         LinearGradient(
                             gradient: Gradient(stops: [
                                 .init(color: Color.background, location: 0.0),
-                                .init(color: Color.background, location: 0.5),
-                                .init(color: Color.white, location: 0.5),
                                 .init(color: Color.white, location: 1.0)
                             ]),
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .offset(y: -4)
-                    .offset(x: 8)
-            }
+            )
     }
 }
+
+/*
+ Text(name)
+     .font(.custom("SFProRounded-Bold", size: 12))
+     .foregroundStyle(name == "You" ? Color.accent.opacity(0.8) : Color.black.opacity(0.72))
+     .padding(.horizontal)
+     .background(
+         RoundedRectangle(cornerRadius: 12, style: .continuous)
+             .fill(
+                 
+                 LinearGradient(
+                     gradient: Gradient(stops: [
+                         .init(color: Color.background, location: 0.0),
+                             .init(color: Color.white, location: 1.0)
+                     ]),
+                     startPoint: .top,
+                     endPoint: .bottom
+                 )
+             )
+     )
+     .offset(y: -6)
+     .offset(x: 8)
+
+ */
+
 /*
  //            .overlay(alignment: .topLeading) { addMessageButton(isEdit: true)}
  */
