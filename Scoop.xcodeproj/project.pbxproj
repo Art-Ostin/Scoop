@@ -41,6 +41,7 @@
 		6514B60B2EB2FB9500551C3A /* OnboardingImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */; };
 		651795292F7EE3AC001D70E4 /* CustomMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651795282F7EE3AC001D70E4 /* CustomMessageCell.swift */; };
 		6517952C2F7EE546001D70E4 /* ChatBubble in Frameworks */ = {isa = PBXBuildFile; productRef = 6517952B2F7EE546001D70E4 /* ChatBubble */; };
+		6517952E2F7EF3B2001D70E4 /* RespondMessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */; };
 		651975842F1EF2CA0002F6A2 /* LoadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */; };
 		651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */; };
 		6519758C2F1EFCE90002F6A2 /* SandyLoading.json in Resources */ = {isa = PBXBuildFile; fileRef = 6519758B2F1EFCE90002F6A2 /* SandyLoading.json */; };
@@ -315,6 +316,7 @@
 		65140B302F56066B00ED1DDE /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImageViewModel.swift; sourceTree = "<group>"; };
 		651795282F7EE3AC001D70E4 /* CustomMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMessageCell.swift; sourceTree = "<group>"; };
+		6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondMessagesView.swift; sourceTree = "<group>"; };
 		651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LoadingAnimation.json; sourceTree = "<group>"; };
 		651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
 		6519758B2F1EFCE90002F6A2 /* SandyLoading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SandyLoading.json; sourceTree = "<group>"; };
@@ -711,6 +713,7 @@
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
 				65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */,
+				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
@@ -1701,6 +1704,7 @@
 				652D3D202F2E39AC00AE491D /* ChangeLogModel.swift in Sources */,
 				652882D22F706C8C000B724D /* RespondTimeRow.swift in Sources */,
 				653FB5742F6882FC00440E41 /* EventImageView.swift in Sources */,
+				6517952E2F7EF3B2001D70E4 /* RespondMessagesView.swift in Sources */,
 				650E8E4E2EB5829E009F5454 /* ImageCell.swift in Sources */,
 				654C00932E3549EA00FFD504 /* UserModel.swift in Sources */,
 				65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */,

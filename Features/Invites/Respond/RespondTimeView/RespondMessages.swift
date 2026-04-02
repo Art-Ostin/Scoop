@@ -27,7 +27,11 @@ struct RespondMessages: View {
                 messageOrHourSubtitle
             } else {
                 VStack(alignment: .leading, spacing: 16) {
-                    if let message = vm.respondDraft.event.message {
+                    if let message = vm.respondDraft.event.message
+                    
+                    
+                    
+                    {
                         MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: message), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true)
                     }
                     

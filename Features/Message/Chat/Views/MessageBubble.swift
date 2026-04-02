@@ -18,9 +18,7 @@ struct MessageBubbleView: View {
     let nextIsNewAuthor: Bool
     let isMyChat: Bool
     
-
     var isInviteMessage: Bool = false
-    
     
     var backgroundColor: Color {
         isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
