@@ -78,9 +78,59 @@ extension RespondTimeRow {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
         VStack(alignment: .leading, spacing: showMessageResponse ? 24 : 6) {
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
+            TimeSubheader
+            
+            
+            
             RespondMessages(showMessageScreen: $showMessageScreen, vm: vm, showTimePopup: $showTimePopup.wrappedValue)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    
+    private func hourView(_ date: Date)  -> some View {
+        Text(FormatEvent.hourTime(date))
+            .font(.caption)
+            .foregroundStyle(Color.grayText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func singleMessageView(_ message: String) -> some View {
+        Text(message)
+            .font(.footnote)
+            .foregroundStyle(.gray)
+            .opacity(showTimePopup ? 0.1 : 1)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .layoutPriority(1)
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment:.leading)
+    }
+    
+    private var addMessageButton: some View {
+        Button {
+            showMessageScreen = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName:"plus")
+                    .font(.system(size: 10, weight: .bold))
+                
+                Text("Add note")
+                    .font(.custom("SFProRounded-Bold", size: 11))
+                    .kerning(0.4)
+            }
+            .foregroundStyle(Color.grayText)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(Color.white.opacity(0.92))
+            }
+            .stroke(24, lineWidth: 1, color: Color.grayBackground)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .contentShape(.rect)
+        }
+        .offset(y: 20)
     }
 }
 

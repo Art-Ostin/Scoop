@@ -146,47 +146,4 @@ extension RespondAcceptCard {
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         }
     }
-    
 }
-
-/*
- @ViewBuilder
- private var messageRow: some View {
-     if showMessageRow {
-         if let message = vm.respondDraft.newTime.message {
-             RespondMessageSection(showMessageScreen: $showMessageScreen, showTimePopup: $showTimePopup, message: message)
-         }
-     }
- }
-
- */
-
-
-
-
-/*
- if vm.respondDraft.respondType == .modified  {
-     if let message = event.message {
-         RespondMessageRow(showTypeMessage: $showTypeMessageScreen, eventMessage: message)
-     }
- }
- */
-
-/*
- 
- 
- VStack(alignment: .leading, spacing: shortenSpacing ? 0 : 24) {
-     VStack(alignment: .leading, spacing: 20) { //Camera pushes it down more, this makes it more natural
-         titleRow
-             .opacity(showTimePopup ? 0.03 : 1)
-                         
-         RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-     }
-     .frame(maxWidth: .infinity, alignment: .leading)
-     .zIndex(2) //Fixes bug so backdrop appears above.
-     placeRow
- }
- .zIndex(2) //Fixes bug so backdrop appears above.
- actionSection
-}
- */

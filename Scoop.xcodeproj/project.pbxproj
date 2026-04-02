@@ -39,7 +39,6 @@
 		65140B252F55F05C00ED1DDE /* ChatContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B242F55F05C00ED1DDE /* ChatContainer.swift */; };
 		65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B302F56066B00ED1DDE /* MessageBubble.swift */; };
 		6514B60B2EB2FB9500551C3A /* OnboardingImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */; };
-		651795292F7EE3AC001D70E4 /* CustomMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651795282F7EE3AC001D70E4 /* CustomMessageCell.swift */; };
 		6517952C2F7EE546001D70E4 /* ChatBubble in Frameworks */ = {isa = PBXBuildFile; productRef = 6517952B2F7EE546001D70E4 /* ChatBubble */; };
 		6517952E2F7EF3B2001D70E4 /* RespondMessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */; };
 		651975842F1EF2CA0002F6A2 /* LoadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */; };
@@ -198,7 +197,7 @@
 		65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14932F6445EB00031513 /* InvitesContainer.swift */; };
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
-		65BC0D0D2F7C15B4001683C6 /* RespondMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */; };
+		65BC0D0D2F7C15B4001683C6 /* TimeSubheader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BC0D0C2F7C15B4001683C6 /* TimeSubheader.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
 		65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */; };
@@ -315,7 +314,6 @@
 		65140B242F55F05C00ED1DDE /* ChatContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatContainer.swift; sourceTree = "<group>"; };
 		65140B302F56066B00ED1DDE /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		6514B60A2EB2FB9500551C3A /* OnboardingImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImageViewModel.swift; sourceTree = "<group>"; };
-		651795282F7EE3AC001D70E4 /* CustomMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMessageCell.swift; sourceTree = "<group>"; };
 		6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondMessagesView.swift; sourceTree = "<group>"; };
 		651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LoadingAnimation.json; sourceTree = "<group>"; };
 		651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
@@ -471,7 +469,7 @@
 		65AF14912F64456000031513 /* InvitesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesViewModel.swift; sourceTree = "<group>"; };
 		65AF14932F6445EB00031513 /* InvitesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesContainer.swift; sourceTree = "<group>"; };
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
-		65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondMessages.swift; sourceTree = "<group>"; };
+		65BC0D0C2F7C15B4001683C6 /* TimeSubheader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeSubheader.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
 		65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePhoto.swift; sourceTree = "<group>"; };
@@ -712,12 +710,10 @@
 			isa = PBXGroup;
 			children = (
 				652882D12F706C8C000B724D /* RespondTimeRow.swift */,
-				65BC0D0C2F7C15B4001683C6 /* RespondMessages.swift */,
-				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
+				65BC0D0C2F7C15B4001683C6 /* TimeSubheader.swift */,
 				652882D32F707331000B724D /* SelectRespondTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
-				651795282F7EE3AC001D70E4 /* CustomMessageCell.swift */,
 			);
 			path = RespondTimeView;
 			sourceTree = "<group>";
@@ -1272,6 +1268,7 @@
 				650DA36A2F6C51900013EB30 /* RespondAcceptCard.swift */,
 				65F7044D2F6EDA4100CE29C5 /* RespondDetailsCard.swift */,
 				652882E32F708AE1000B724D /* RespondTimeView */,
+				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 				654C58942F6B5021002060C5 /* InviteRespondButtons.swift */,
 			);
 			path = Respond;
@@ -1593,7 +1590,6 @@
 				65F993D52F5893B200EC810B /* UserEventChatState.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,
-				651795292F7EE3AC001D70E4 /* CustomMessageCell.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,
 				65140B222F55EEE500ED1DDE /* ChatRowCellView.swift in Sources */,
 				65ED388A2F64656600AD5600 /* InviteCard.swift in Sources */,
@@ -1650,7 +1646,7 @@
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
 				652972632F62D410007943C6 /* ColorBackground.swift in Sources */,
 				65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */,
-				65BC0D0D2F7C15B4001683C6 /* RespondMessages.swift in Sources */,
+				65BC0D0D2F7C15B4001683C6 /* TimeSubheader.swift in Sources */,
 				65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */,
 				651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */,
 				655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */,
