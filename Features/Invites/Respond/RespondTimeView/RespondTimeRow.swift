@@ -77,8 +77,11 @@ extension RespondTimeRow {
         let dates = vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted()
         VStack(alignment: .leading, spacing: 6) {
             ProposedTimesRow(dates: dates, showTimePopup: $showTimePopup)
-            RespondMessages(showMessageScreen: $showMessageScreen, vm: vm, showRespondMessage: showMessageResponse, showTimePopup: $showTimePopup.wrappedValue)
+            RespondMessages(showMessageScreen: $showMessageScreen, vm: vm, showTimePopup: $showTimePopup.wrappedValue)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .bottomTrailing) {
+            OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
+        }
     }
 }

@@ -45,8 +45,8 @@ struct DeclineButton: View {
         }
     }
 }
-/*
- 
+
+
  struct OpenMessageButton: View {
      let isEdit: Bool
      @Binding var showMessageView: Bool
@@ -75,10 +75,10 @@ struct DeclineButton: View {
                      .stroke(isEdit ? Color.accent.opacity(0.18) : Color.grayBackground, lineWidth: 1)
              }
          }
-         .offset(y: isEdit ? 0 : 32)
+         .offset(y: isEdit ? 0 : 20)
      }
  }
- */
+
 
 /*
  extension View {

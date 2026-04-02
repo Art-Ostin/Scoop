@@ -12,8 +12,11 @@ struct RespondMessages: View {
     @Binding var showMessageScreen: Bool
     
     @Bindable var vm: RespondViewModel
-    let showRespondMessage: Bool
     let showTimePopup: Bool
+    
+    var showRespondMessage: Bool {
+        vm.respondDraft.newTime.message?.isEmpty != false
+    }
     
     var body: some View {
         
@@ -77,8 +80,9 @@ extension RespondMessages {
     @ViewBuilder
     private func messageSection(message: String, isMine: Bool) -> some View {
         let name = isMine ? "You" : vm.respondDraft.event.otherUserName
+        
         Group {
-            Text(showRespondMessage ? "\(name) - " : "")
+            Text( !showRespondMessage ? "\(name) - " : "")
                 .foregroundStyle(isMine ? Color.accent.opacity(0.4) : Color.gray)
             +
             Text(message)
