@@ -15,10 +15,7 @@ struct TimeSubheader: View {
     let showTimePopup: Bool
     let event: UserEvent
     
-    
-    
     var body: some View {
-        
         if let message = event.message {
             singleMessageView(message)
         } else if let first = event.proposedTimes.firstAvailableDate {
@@ -84,6 +81,50 @@ extension TimeSubheader {
  
  
  
+ private func hourView(_ date: Date)  -> some View {
+     Text(FormatEvent.hourTime(date))
+         .font(.caption)
+         .foregroundStyle(Color.grayText)
+         .frame(maxWidth: .infinity, alignment: .leading)
+ }
+
+ private func singleMessageView(_ message: String) -> some View {
+     Text(message)
+         .font(.footnote)
+         .foregroundStyle(.gray)
+         .opacity(showTimePopup ? 0.1 : 1)
+         .lineLimit(nil)
+         .fixedSize(horizontal: false, vertical: true)
+         .layoutPriority(1)
+         .multilineTextAlignment(.leading)
+         .frame(maxWidth: .infinity, alignment:.leading)
+ }
+ 
+ private var addMessageButton: some View {
+     Button {
+         showMessageScreen = true
+     } label: {
+         HStack(spacing: 6) {
+             Image(systemName:"plus")
+                 .font(.system(size: 10, weight: .bold))
+             
+             Text("Add note")
+                 .font(.custom("SFProRounded-Bold", size: 11))
+                 .kerning(0.4)
+         }
+         .foregroundStyle(Color.grayText)
+         .padding(.horizontal, 8)
+         .padding(.vertical, 4)
+         .background {
+             Capsule(style: .continuous)
+                 .fill(Color.white.opacity(0.92))
+         }
+         .stroke(24, lineWidth: 1, color: Color.grayBackground)
+         .frame(maxWidth: .infinity, alignment: .trailing)
+         .contentShape(.rect)
+     }
+     .offset(y: 20)
+
  
  
  

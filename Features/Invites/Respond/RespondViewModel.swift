@@ -19,6 +19,8 @@ class RespondViewModel {
         didSet {updateDefaults()}
     }
     
+    var responseType: ResponseType {respondDraft.respondType}
+    
     init(image: UIImage, defaults: DefaultsManaging, sessionManager: SessionManager, respondDraft: RespondDraft) {
         self.image = image
         self.defaults = defaults

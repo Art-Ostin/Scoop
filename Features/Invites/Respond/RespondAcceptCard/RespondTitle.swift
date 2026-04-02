@@ -10,8 +10,10 @@ import SwiftUI
 struct RespondTitle: View {
     
     @Binding var isFlipped: Bool
-    let vm: RespondViewModel
-    var event: UserEvent {vm.respondDraft.event}
+    
+    let showTimePopup: Bool
+    let event: UserEvent
+    let image: UIImage
     
     var body: some View {
         
@@ -20,15 +22,15 @@ struct RespondTitle: View {
             eventTypeButton
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .opacity(showTimePopup ? 0.03 : 1)
     }
 }
 
 extension RespondTitle {
     
-    
     private var eventTitle: some View {
         HStack(spacing: 8) {
-            CirclePhoto(image: vm.image, showShadow: false, height: 30)
+            CirclePhoto(image: image, showShadow: false, height: 30)
             Text("Meet \(event.otherUserName)")
                 .font(.custom("SFProRounded-Bold", size: 24))
                 .lineLimit(1)

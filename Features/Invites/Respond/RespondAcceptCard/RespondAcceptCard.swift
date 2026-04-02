@@ -1,12 +1,9 @@
-//
 //  AcceptInvitePopup.swift
 //  Scoop
 //
 //  Created by Art Ostin on 19/03/2026.
 //
 
-
-//If its in modified mode -> 
 import SwiftUI
 
 struct RespondAcceptCard: View {
@@ -32,24 +29,11 @@ struct RespondAcceptCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            RespondTitle(isFlipped: $isFlipped, vm: vm)
+        VStack(alignment: .leading, spacing: 20) {
+            RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-            
-            
-            
+            respondMessagesView
             placeRow
-            actionSection
-            
-            
-            
-            VStack(alignment: .leading, spacing: showMessageRow ? 20 : 24) {
-                titleAndTime
-                    .zIndex(3)
-                placeRow
-                    .zIndex(1)
-            }
-            .zIndex(2) //Fixes bug so backdrop appears above.
             actionSection
         }
         .padding(22)
@@ -66,8 +50,12 @@ struct RespondAcceptCard: View {
 }
 
 extension RespondAcceptCard {
-    
-    
+    @ViewBuilder
+    private var respondMessagesView: some View {
+        if let originalMessage = vm.respondDraft.event.message, let newMessage = vm.respondDraft.newTime.message {
+            RespondMessagesView(originalMessage: originalMessage, replyMessage: newMessage)
+        }
+    }
         
     private var placeRow: some View {
         HStack(spacing: 24) {
@@ -111,6 +99,16 @@ extension RespondAcceptCard {
 }
 
 
+/*
+ VStack(alignment: .leading, spacing: showMessageRow ? 20 : 24) {
+     titleAndTime
+         .zIndex(3)
+     placeRow
+         .zIndex(1)
+ }
+ .zIndex(2) //Fixes bug so backdrop appears above.
+
+ */
 
 
 /*
