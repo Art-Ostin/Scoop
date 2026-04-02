@@ -30,7 +30,7 @@ struct RespondMessages: View {
                     }
                     
                     if let newMessage = vm.respondDraft.newTime.message  {
-                        messageCard(message: newMessage, name: "You", isEdit: true)
+                        messageCard(message: newMessage, name: "You", isEdit: false)
                     }
                 }
             }

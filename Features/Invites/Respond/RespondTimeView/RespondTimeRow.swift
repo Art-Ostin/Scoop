@@ -84,11 +84,3 @@ extension RespondTimeRow {
     }
 }
 
-/*
- .overlay(alignment: .bottomTrailing) {
-     if !showMessageResponse {
-         OpenMessageButton(isEdit: false, showMessageView: $showMessageScreen)
-     }
- }
-
- */
