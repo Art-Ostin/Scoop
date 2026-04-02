@@ -10,6 +10,7 @@ import UIKit
 
 
 struct MessageBubbleView: View {
+    private let bubbleBorderWidth: CGFloat = 1
     
     @State var isTimeBelow: Bool = true
 
@@ -19,25 +20,26 @@ struct MessageBubbleView: View {
     let isMyChat: Bool
     
     var isInviteMessage: Bool = false
+    var includeStroke: Bool { isInviteMessage ? true : false}
+    var strokeColor: Color  {
+        isMyChat ? Color.accent : Color.grayPlaceholder
+    }
     
     var backgroundColor: Color {
-        isMyChat && !isInviteMessage ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
+        isInviteMessage ? Color.clear : isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
     }
     
     var body: some View {
         Text(chat.content)
             .font(isInviteMessage ?.body(14, .regular) : .body(16, .medium))
-            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : Color.black)
+            .foregroundStyle(isMyChat ? Color.white : Color.black)
             .lineSpacing(5)
             .padding(.horizontal)
             .padding(.vertical, 10)
             .padding(.bottom, isTimeBelow && !isInviteMessage ? 12 : 0)
-            .background (messageCorners)
+            .background(messageBackground)
             .background(geometryMeasure)
             .overlay(alignment: .bottomTrailing) {  if !isInviteMessage { hourMessageSent} }
-            .overlay(alignment: isMyChat ? .bottomTrailing : .bottomLeading) {
-                messageTriangle
-            }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
             .padding(.horizontal, isInviteMessage ? 0 : 24)
             .padding(isMyChat ? .leading : .trailing, (isInviteMessage ? 0 : 48))
@@ -86,32 +88,18 @@ struct MessageBubbleView: View {
 
 
 
-struct NewMessageTriangle : View {
-    let color: Color
-    let isMyChat: Bool
-    
-    var body: some View {
-        MessageTriangle(radius: 4)
-            .scaleEffect(x: isMyChat ? 1 : -1, y: 1)
-            .foregroundStyle(color)
-            .frame(width: 10, height: 15)
-            .offset(x: isMyChat ? 10 : -10)
-    }
-}
-
-
-
 extension MessageBubbleView {
-    
-    @ViewBuilder
-    private var messageTriangle: some View {
-        if nextIsNewAuthor {
-            MessageTriangle(radius: 4)
-                .scaleEffect(x: isMyChat ? 1 : -1, y: 1)
-                .foregroundStyle(backgroundColor)
-                .frame(width: 10, height: 15)
-                .offset(x: isMyChat ? 10 : -10)
-        }
+    private var messageBackground: some View {
+        bubbleShape
+            .fill(backgroundColor)
+            .overlay {
+                if includeStroke {
+                    bubbleShape.stroke(
+                        strokeColor,
+                        style: StrokeStyle(lineWidth: bubbleBorderWidth, lineJoin: .round)
+                    )
+                }
+            }
     }
     
     private var hourMessageSent: some View  {
@@ -123,15 +111,14 @@ extension MessageBubbleView {
             .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
     }
     
-    private var messageCorners: some View {
-        UnevenRoundedRectangle(
+    private var bubbleShape: MessageBubbleShape {
+        MessageBubbleShape(
             topLeadingRadius: isMyChat ? 16 : (newAuthor ? 16 : 4),
             bottomLeadingRadius: isMyChat ? 16 : (nextIsNewAuthor ? 0 : 4),
             bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): 16,
             topTrailingRadius: isMyChat ? (newAuthor ? 16 : 4) : 16,
-            style: .continuous
+            tail: nextIsNewAuthor ? (isMyChat ? .trailing : .leading) : .none
         )
-        .fill(backgroundColor)
     }
     
     private var geometryMeasure: some View {
