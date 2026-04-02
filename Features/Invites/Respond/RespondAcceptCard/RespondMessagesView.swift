@@ -14,12 +14,18 @@ struct RespondMessagesView: View {
     
     let replyMessage: String
     
+    @Binding var showMessageScreen: Bool
+    
+    
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 6) {
                 MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true)
                 
                 MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true)
                     .offset(x: -10)
+                    .onTapGesture {
+                        showMessageScreen = true
+                    }
             }
             .padding(.leading, 44)
             .overlay(alignment: .leading) {
@@ -37,6 +43,7 @@ struct RespondMessagesView: View {
                     .frame(width: 2)
                     .padding(.leading, 5)
         }
+            .padding(.top, 18)
     }
     
     private var lineProgression: some View {

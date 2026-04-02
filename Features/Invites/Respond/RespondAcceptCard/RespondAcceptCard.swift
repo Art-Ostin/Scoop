@@ -31,7 +31,7 @@ struct RespondAcceptCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-            VStack(alignment: .leading, spacing: showMessageRow ? 6 : 20) {
+            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 20) {
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
                 respondMessagesView
                 placeRow
@@ -62,7 +62,7 @@ extension RespondAcceptCard {
     private var respondMessagesView: some View {
         if vm.responseType != .original {
             if let originalMessage = vm.respondDraft.event.message, let newMessage = vm.respondDraft.newTime.message {
-                RespondMessagesView(showTimePopup: showTimePopup, originalMessage: originalMessage, replyMessage: newMessage)
+                RespondMessagesView(showTimePopup: showTimePopup, originalMessage: originalMessage, replyMessage: newMessage, showMessageScreen: $showMessageScreen)
             }
         }
     }

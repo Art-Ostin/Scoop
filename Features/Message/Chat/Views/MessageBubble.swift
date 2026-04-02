@@ -32,14 +32,14 @@ struct MessageBubbleView: View {
     var body: some View {
         Text(chat.content)
             .font(isInviteMessage ?.body(14, .regular) : .body(16, .medium))
-            .foregroundStyle(isMyChat ? Color.white : Color.black)
+            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : Color.black)
             .lineSpacing(5)
             .padding(.horizontal)
             .padding(.vertical, 10)
-            .padding(.bottom, isTimeBelow && !isInviteMessage ? 12 : 0)
+            .padding(.bottom, isTimeBelow ? 12 : 0)
             .background(messageBackground)
             .background(geometryMeasure)
-            .overlay(alignment: .bottomTrailing) {  if !isInviteMessage { hourMessageSent} }
+            .overlay(alignment: .bottomTrailing) {  hourMessageSent }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
             .padding(.horizontal, isInviteMessage ? 0 : 24)
             .padding(isMyChat ? .leading : .trailing, (isInviteMessage ? 0 : 48))
@@ -102,13 +102,16 @@ extension MessageBubbleView {
             }
     }
     
+    @ViewBuilder
     private var hourMessageSent: some View  {
-        Text(FormatEvent.hourTime(chat.dateCreated ?? Date()))
-            .font(.body(10, .regular))
+        let text: String = isInviteMessage && isMyChat ? "Edit" : isInviteMessage ? "" : FormatEvent.hourTime(chat.dateCreated ?? Date())
+        
+        Text(text)
+            .font(.body(10, isInviteMessage ? .bold : .regular))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .kerning(1)
-            .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
+            .kerning(isInviteMessage ? 0.3 : 1)
+            .foregroundStyle(isInviteMessage ? Color.accent : isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
     }
     
     private var bubbleShape: MessageBubbleShape {
