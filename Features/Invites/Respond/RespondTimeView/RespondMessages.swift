@@ -27,10 +27,10 @@ struct RespondMessages: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if let message = vm.respondDraft.event.message {
                         messageCard(message: message, name: vm.respondDraft.event.otherUserName, isEdit: false)
-                    } else if let newMessage = vm.respondDraft.newTime.message {
+                    }
+                    
+                    if let newMessage = vm.respondDraft.newTime.message  {
                         messageCard(message: newMessage, name: "You", isEdit: true)
-                    } else {
-                        Text("Hello World")
                     }
                 }
             }
@@ -107,56 +107,47 @@ extension RespondMessages {
     
     
     private func messageCard(message: String, name: String, isEdit: Bool) -> some View {
-        VStack(spacing: 6) {
-            Text(name)
-                .font(.custom("SFProRounded-Bold", size: 12))
-                .foregroundStyle(Color.black.opacity(0.72))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Text(message)
-                .font(.body(14, .regular))
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.white.opacity(0.92))
-                .surfaceShadow(.card, strength: showTimePopup ? 0 : 0.3)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.grayBackground, lineWidth: 1)
-        }
-        .opacity(showTimePopup ? 0.08 : 1)
-        .overlay(alignment: .topLeading) {
-            HStack {
-                addMessageButton(isEdit: true)
+        Text(message)
+            .font(.body(14, .regular))
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.white.opacity(0.92))
+                    .surfaceShadow(.card, strength: showTimePopup ? 0 : 0.3)
             }
-        }
-        .overlay(alignment: .topLeading) {
-            Text(name)
-                .font(.custom("SFProRounded-Bold", size: 12))
-                .foregroundStyle(Color.black.opacity(0.72))
-                .padding(.horizontal)
-                .padding(.vertical, 2)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: .Color.background, location: 0.0),
-                            .init(color: .Color.background, location: 0.5),
-                            .init(color: .Color.white, location: 0.5),
-                            .init(color: .Color.white, location: 1.0)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
+            .overlay {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(Color.grayBackground, lineWidth: 1)
+            }
+            .opacity(showTimePopup ? 0.08 : 1)
+            .overlay(alignment: .topLeading) {
+                Text(name)
+                    .font(.custom("SFProRounded-Bold", size: 12))
+                    .foregroundStyle(Color.black.opacity(0.72))
+                    .padding(.horizontal)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color.background, location: 0.0),
+                                .init(color: Color.background, location: 0.5),
+                                .init(color: Color.white, location: 0.5),
+                                .init(color: Color.white, location: 1.0)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     )
-                )
-                .offset(y: -4)
-        }
+                    .offset(y: -4)
+                    .offset(x: 8)
+            }
     }
-    
 }
+/*
+ //            .overlay(alignment: .topLeading) { addMessageButton(isEdit: true)}
+ */
 
 /*
  messageOrHourSubtitle
@@ -177,5 +168,13 @@ extension RespondMessages {
 )
 .stroke(16, lineWidth: 1, color: showMessageResponse ? Color.grayPlaceholder.opacity(0.3) : Color.clear)
 .padding(.leading, showMessageResponse ? -36 : 0)
+
+ */
+
+
+/*
+ Text(name)
+     .font(.custom("SFProRounded-Bold", size: 12))
+     .foregroundStyle(Color.black.opacity(0.72))
 
  */
