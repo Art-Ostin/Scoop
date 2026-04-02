@@ -33,7 +33,7 @@ struct RespondAcceptCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 24) {
+            VStack(alignment: .leading, spacing: showMessageRow ? 16 : 24) {
                 titleAndTime
                     .zIndex(3)
                 placeRow

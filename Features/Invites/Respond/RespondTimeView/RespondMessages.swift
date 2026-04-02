@@ -20,24 +20,21 @@ struct RespondMessages: View {
 
     var body: some View {
         
-        VStack(spacing: 4) {
-            messageOrHourSubtitle
-            
-            if let response = vm.respondDraft.newTime.message {
-                if showMessageResponse {
-                    VStack(spacing: 4) {
-                        messageSection(message: response, isMine: true)
-                        addMessageButton(isEdit: true)
+        VStack(spacing: showMessageResponse ? 24 : 10) {
+            if !showMessageResponse {
+                messageOrHourSubtitle
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    if let message = vm.respondDraft.event.message {
+                        messageCard(message: message, name: vm.respondDraft.event.otherUserName, isEdit: false)
+                    } else if let newMessage = vm.respondDraft.newTime.message {
+                        messageCard(message: newMessage, name: "You", isEdit: true)
+                    } else {
+                        Text("Hello World")
                     }
                 }
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .foregroundStyle(showMessageResponse ? Color.white : Color.clear)
-        )
-        .padding(!showMessageResponse ? 0 : 12)
-        .stroke(16, lineWidth: 1, color: showMessageResponse ? Color.grayPlaceholder : Color.clear)
     }
 }
 
@@ -78,14 +75,15 @@ extension RespondMessages {
             .padding(.vertical, 4)
             .background {
                 Capsule(style: .continuous)
-                    .fill(Color.white.opacity(0.92))
+                    .fill(showMessageResponse ? Color.clear : Color.white.opacity(0.92))
             }
-            .stroke(24, lineWidth: 1, color: Color.grayBackground)
+            .stroke(24, lineWidth: 1, color: showMessageResponse ? Color.clear : Color.grayBackground)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .contentShape(.rect)
         }
         .offset(y: isEdit ?  0 : 20)
     }
+    
     
     @ViewBuilder
     private func messageSection(message: String, isMine: Bool) -> some View {
@@ -106,4 +104,78 @@ extension RespondMessages {
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment:.leading)
     }
+    
+    
+    private func messageCard(message: String, name: String, isEdit: Bool) -> some View {
+        VStack(spacing: 6) {
+            Text(name)
+                .font(.custom("SFProRounded-Bold", size: 12))
+                .foregroundStyle(Color.black.opacity(0.72))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(message)
+                .font(.body(14, .regular))
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.white.opacity(0.92))
+                .surfaceShadow(.card, strength: showTimePopup ? 0 : 0.3)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.grayBackground, lineWidth: 1)
+        }
+        .opacity(showTimePopup ? 0.08 : 1)
+        .overlay(alignment: .topLeading) {
+            HStack {
+                addMessageButton(isEdit: true)
+            }
+        }
+        .overlay(alignment: .topLeading) {
+            Text(name)
+                .font(.custom("SFProRounded-Bold", size: 12))
+                .foregroundStyle(Color.black.opacity(0.72))
+                .padding(.horizontal)
+                .padding(.vertical, 2)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: .Color.background, location: 0.0),
+                            .init(color: .Color.background, location: 0.5),
+                            .init(color: .Color.white, location: 0.5),
+                            .init(color: .Color.white, location: 1.0)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .offset(y: -4)
+        }
+    }
+    
 }
+
+/*
+ messageOrHourSubtitle
+ 
+ if let response = vm.respondDraft.newTime.message {
+     if showMessageResponse {
+         VStack(spacing: 4) {
+             messageSection(message: response, isMine: true)
+             addMessageButton(isEdit: true)
+         }
+     }
+ }
+}
+.padding(!showMessageResponse ? 0 : 12)
+.background(
+ RoundedRectangle(cornerRadius: 16)
+     .foregroundStyle(showMessageResponse ? Color.white.opacity(0.5) : Color.clear)
+)
+.stroke(16, lineWidth: 1, color: showMessageResponse ? Color.grayPlaceholder.opacity(0.3) : Color.clear)
+.padding(.leading, showMessageResponse ? -36 : 0)
+
+ */
