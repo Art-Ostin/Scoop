@@ -9,26 +9,21 @@ import SwiftUI
 
 struct RespondMessagesView: View {
     
-    let showTimePopup: Bool
     let originalMessage: String
-    
     let replyMessage: String
     
     @Binding var showMessageScreen: Bool
     
-    private let rowSpacing: CGFloat = 12
-    private let bubbleSpacing: CGFloat = 18
-
-
     var body: some View {
-        VStack(spacing: bubbleSpacing - 12) {
-            
-            MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true, bottomSpacing: 0)
+        VStack(spacing: 6) {
+            messageBubble(originalMessage, isMyChat: false)
 
-            MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true, bottomSpacing: 0)
-                .onTapGesture {
-                    showMessageScreen = true
-                }
+            Button {
+                showMessageScreen = true
+            } label: {
+                messageBubble(replyMessage, isMyChat: true)
+            }
+            .buttonStyle(.plain)
         }
         .offset(x: -10)
         .padding(.vertical, 6)
@@ -36,29 +31,29 @@ struct RespondMessagesView: View {
         .padding(.trailing, 6)
         .padding(.bottom, 4)
         .overlay(alignment: .leading) {
-                Capsule(style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.accent.opacity(0.2),
-                                Color.accent.opacity(0.04)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: 2)
-                    .padding(.leading, 5)
-                    .padding(.top, 6)
+            messageThreadIndicator
         }
     }
-    
-    private var lineProgression: some View {
+}
+
+extension RespondMessagesView {
+    private func messageBubble(_ content: String, isMyChat: Bool) -> some View {
+        MessageBubbleView(
+            chat: MessageModel(authorId: "", recipientId: "", content: content),
+            newAuthor: true,
+            nextIsNewAuthor: true,
+            isMyChat: isMyChat,
+            isInviteMessage: true,
+            bottomSpacing: 0
+        )
+    }
+
+    private var messageThreadIndicator: some View {
         Capsule(style: .continuous)
             .fill(
                 LinearGradient(
                     colors: [
-                        Color.accent.opacity(showTimePopup ? 0.04 : 0.2),
+                        Color.accent.opacity(0.2),
                         Color.accent.opacity(0.04)
                     ],
                     startPoint: .top,
@@ -66,6 +61,7 @@ struct RespondMessagesView: View {
                 )
             )
             .frame(width: 2)
-            .padding(.vertical, 10)
+            .padding(.leading, 5)
+            .padding(.top, 6)
     }
 }

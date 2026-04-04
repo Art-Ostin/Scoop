@@ -12,20 +12,24 @@ struct RespondAcceptCard: View {
     @Binding var isFlipped: Bool
     
     @State private var showTimePopup: Bool = false
-    @State private var showTypeMessageScreen: Bool = false
     @State private var showMessageScreen: Bool = false
     
     var event: UserEvent {
         vm.respondDraft.event
     }
     
-    var message: String  {
-        (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    private var displayedMessages: (original: String, reply: String)? {
+        guard vm.responseType != .original,
+              let originalMessage = nonEmptyMessage(event.message),
+              let replyMessage = nonEmptyMessage(vm.respondDraft.newTime.message) else {
+            return nil
+        }
+
+        return (originalMessage, replyMessage)
     }
     
     var showMessageRow: Bool {
-        vm.respondDraft.respondType == .modified &&
-        vm.respondDraft.newTime.message?.isEmpty == false
+        displayedMessages != nil
     }
     
     var body: some View {
@@ -47,23 +51,22 @@ struct RespondAcceptCard: View {
         .offset(y: showMessageRow ? 0 : 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
+        .animation(.easeInOut(duration: 0.2), value: showMessageRow)
         .sheet(isPresented: $showMessageScreen) {
             AddMessageView(eventType: $vm.respondDraft.newTime.event.type, showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message, isRespondMessage: true)
         }
-        .onChange(of: vm.responseType, { oldValue, newValue in
-            print("Old value is: \(oldValue)")
-            print("New value is: \(newValue)")
-        })
     }
 }
 
 extension RespondAcceptCard {
     @ViewBuilder
     private var respondMessagesView: some View {
-        if vm.responseType != .original {
-            if let originalMessage = vm.respondDraft.event.message, let newMessage = vm.respondDraft.newTime.message {
-                RespondMessagesView(showTimePopup: showTimePopup, originalMessage: originalMessage, replyMessage: newMessage, showMessageScreen: $showMessageScreen)
-            }
+        if let messages = displayedMessages {
+            RespondMessagesView(
+                originalMessage: messages.original,
+                replyMessage: messages.reply,
+                showMessageScreen: $showMessageScreen
+            )
         }
     }
         
@@ -104,7 +107,16 @@ extension RespondAcceptCard {
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
+            }
+    }
+
+    private func nonEmptyMessage(_ message: String?) -> String? {
+        guard let trimmed = message?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty else {
+            return nil
         }
+
+        return trimmed
     }
 }
 
