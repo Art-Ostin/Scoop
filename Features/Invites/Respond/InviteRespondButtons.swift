@@ -69,7 +69,7 @@ struct AddMessageButton: View {
                     .fill(Color.white.opacity(0.92))
             }
             .stroke(24, lineWidth: 1, color: Color.grayBackground)
-            .surfaceShadow(.floating, strength: 0.7)
+            .surfaceShadow(.floating, strength: 0.5)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .contentShape(.rect)
         }
