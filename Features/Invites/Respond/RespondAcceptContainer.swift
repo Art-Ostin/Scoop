@@ -10,14 +10,18 @@ import SwiftUI
 struct RespondAcceptContainer: View {
     
     @Bindable var vm: RespondViewModel
-
+    
     @State var isFlipped: Bool = false
     var body: some View {
         
         ZStack {
             if !isFlipped {
-                RespondAcceptCard(vm: vm, isFlipped: $isFlipped)
-                .zIndex(0)
+                VStack(spacing: 0) {
+//                    eventTitle
+//                        .frame(maxWidth: .infinity, alignment: .center)
+                    RespondAcceptCard(vm: vm, isFlipped: $isFlipped)
+                        .zIndex(0)
+                }
             } else {
                 RespondDetailsCard(event: vm.respondDraft.originalInvite.event, isFlipped: $isFlipped, image: vm.image)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
@@ -25,5 +29,14 @@ struct RespondAcceptContainer: View {
         }
         .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y:1, z:0))
         .animation(.easeInOut, value: isFlipped)
+    }
+    
+    private var eventTitle: some View {
+        HStack(spacing: 8) {
+            CirclePhoto(image: vm.image, showShadow: false, height: 30)
+            Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
+                .font(.custom("SFProRounded-Bold", size: 20))
+        }
+        .layoutPriority(1)
     }
 }

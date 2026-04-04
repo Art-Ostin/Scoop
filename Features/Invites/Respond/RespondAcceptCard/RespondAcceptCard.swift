@@ -33,11 +33,10 @@ struct RespondAcceptCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 20) {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 16) {
+                RespondTypeRow(isFlipped: $isFlipped, type: vm.respondDraft.originalInvite.event.type, message: vm.respondDraft.originalInvite.event.message, showTimePopup: showTimePopup)
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                respondMessagesView
                 placeRow
             }
             .zIndex(3)
@@ -48,7 +47,15 @@ struct RespondAcceptCard: View {
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, 24)
-        .offset(y: showMessageRow ? 0 : 24)
+        .offset(y: showMessageRow ? 0 : 8)
+        .overlay(alignment: .topTrailing) {
+            HStack(spacing: 8) {
+                CirclePhoto(image: vm.image, showShadow: false, height: 30)
+                Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
+                    .font(.custom("SFProRounded-Semibold", size: 20))
+            }
+            .padding(6)
+        }
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .animation(.easeInOut(duration: 0.2), value: showMessageRow)
@@ -119,3 +126,9 @@ extension RespondAcceptCard {
         return trimmed
     }
 }
+
+/*
+ RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
+ //                respondMessagesView
+
+ */
