@@ -21,7 +21,7 @@ struct RespondMessagesView: View {
 
 
     var body: some View {
-        VStack(spacing: bubbleSpacing - 16) {
+        VStack(spacing: bubbleSpacing - 12) {
             
             MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true, bottomSpacing: 0)
 
@@ -34,6 +34,7 @@ struct RespondMessagesView: View {
         .padding(.vertical, 6)
         .padding(.leading, 44)
         .padding(.trailing, 6)
+        .padding(.bottom, 4)
         .overlay(alignment: .leading) {
                 Capsule(style: .continuous)
                     .fill(
@@ -48,8 +49,7 @@ struct RespondMessagesView: View {
                     )
                     .frame(width: 2)
                     .padding(.leading, 5)
-                    .padding(.top, 8)
-                    .padding(.vertical, 10)
+                    .padding(.top, 6)
         }
     }
     
@@ -69,14 +69,3 @@ struct RespondMessagesView: View {
             .padding(.vertical, 10)
     }
 }
-
-/*
- 
- MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true, bottomSpacing: 0)
-
- MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true, bottomSpacing: 0)
-     .offset(x: -10)
-     .onTapGesture {
-         showMessageScreen = true
-     }
- */

@@ -24,7 +24,7 @@ struct MessageBubbleView: View {
 
     var includeStroke: Bool { isInviteMessage ? true : false}
     var strokeColor: Color  {
-        isMyChat ? Color.accent.opacity(0.1) : Color.grayPlaceholder.opacity(0.2)
+        isMyChat ? Color.accent.opacity(0.05) : Color.grayPlaceholder.opacity(0.1)
     }
     
     var backgroundColor: Color {
@@ -34,7 +34,7 @@ struct MessageBubbleView: View {
     var body: some View {
         Text(chat.content)
             .font(isInviteMessage ?.footnote : .body(16, .medium))
-            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : Color.black)
+            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : isInviteMessage ? Color.gray : Color.black)
             .lineSpacing(isInviteMessage ? 3 : 5)
             .padding(.horizontal, isInviteMessage ? 6 : 16)
             .padding(.leading, isInviteMessage ? 2 : 0)
@@ -107,7 +107,7 @@ extension MessageBubbleView {
     
     @ViewBuilder
     private var hourMessageSent: some View  {
-        let text: String = isInviteMessage && isMyChat ? "Edit" : isInviteMessage ? "" : FormatEvent.hourTime(chat.dateCreated ?? Date())
+        let text: String = isInviteMessage && isMyChat ? "Edit note" : isInviteMessage ? "" : FormatEvent.hourTime(chat.dateCreated ?? Date())
         
         Text(text)
             .font(.body(10, isInviteMessage ? .bold : .regular))
@@ -119,10 +119,10 @@ extension MessageBubbleView {
     
     private var bubbleShape: MessageBubbleShape {
         MessageBubbleShape(
-            topLeadingRadius: isMyChat ? (isInviteMessage ? 8 : 16) : (newAuthor ? 16 : 4),
-            bottomLeadingRadius: isMyChat ? (isInviteMessage ? 8 : 16) : (nextIsNewAuthor ? 0 : 4),
-            bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): (isInviteMessage ? 8 : 16),
-            topTrailingRadius: isMyChat ? (newAuthor ? (isInviteMessage ? 8 : 16) : 4) : (isInviteMessage ? 8 : 16),
+            topLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (newAuthor ? (isInviteMessage ? 12 : 16) : 4),
+            bottomLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (nextIsNewAuthor ? 0 : 4),
+            bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): (isInviteMessage ? 12 : 16),
+            topTrailingRadius: isMyChat ? (newAuthor ? (isInviteMessage ? 12 : 16) : 4) : (isInviteMessage ? 12 : 16),
             tail: nextIsNewAuthor ? (isMyChat ? .trailing : .leading) : .none
         )
     }
