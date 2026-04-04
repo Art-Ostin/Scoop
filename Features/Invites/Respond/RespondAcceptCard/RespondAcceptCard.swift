@@ -19,7 +19,7 @@ struct RespondAcceptCard: View {
     }
     
     private var displayedMessages: (original: String, reply: String)? {
-        guard vm.responseType != .original,
+        guard
               let originalMessage = nonEmptyMessage(event.message),
               let replyMessage = nonEmptyMessage(vm.respondDraft.newTime.message) else {
             return nil

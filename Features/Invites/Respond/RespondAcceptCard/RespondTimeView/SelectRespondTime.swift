@@ -76,7 +76,7 @@ extension RespondSelectTime {
     private var proposedTimes: some View {
         let orderedTimes = vm.respondDraft.originalInvite.event.proposedTimes.dates.sorted { $0.date < $1.date }
         
-        VStack(alignment: .leading, spacing: 10){
+        VStack(alignment: .leading, spacing: 10) {
             ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
                 let status = getTimeStatus(time)
                 InvitedTimeCell(
