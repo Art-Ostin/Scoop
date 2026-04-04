@@ -40,8 +40,6 @@ struct RespondAcceptCard: View {
             actionSection
         }
         .padding(22)
-        .padding(.top, -8)
-        .padding(.bottom, -6)
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, 24)
@@ -127,16 +125,22 @@ extension RespondAcceptCard {
             
             VStack(alignment: .leading) {
                 (
-                    Text("Drink with \(vm.respondDraft.originalInvite.event.otherUserName)")
-                    + Text("  🍻").baselineOffset(2)
+                    Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName) · ")
+                        .font(.custom("SFProRounded-Semibold", size: 20))
+                    + Text("Drink 🍻").baselineOffset(2).font(.custom("SFProRounded-Medium", size: 16))
                 )
-                .font(.custom("SFProRounded-Semibold", size: 20))
                 
                 if let message = vm.respondDraft.originalInvite.event.message {
-                    Text(message)
-                        .font(.footnote)
-                        .foregroundStyle(Color.grayText)
-                        .opacity(showTimePopup ? 0.1 : 1)
+                    (
+                        Text(message)
+                            .font(.footnote)
+                            .foregroundStyle(Color.grayText)
+
+                        + Text("   Add Response")
+                            .font(.body(10, .bold))
+                            .foregroundStyle(Color.appGreen)
+                    )
+                    .opacity(showTimePopup ? 0.1 : 1)
                 }
             }
         }
