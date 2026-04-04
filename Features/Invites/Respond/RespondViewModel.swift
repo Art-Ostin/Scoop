@@ -50,9 +50,9 @@ class RespondViewModel {
     }
     
     @MainActor func deleteEventDefault() {
-        let profileId = respondDraft.event.otherUserId
+        let profileId = respondDraft.originalInvite.event.otherUserId
         defaults.deleteEventDraft(profileId: profileId)
-        respondDraft.eventDraft = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId, type: .drink)
+        respondDraft.newEvent = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId, type: .drink)
     }
     
     private func updateDefaults() {

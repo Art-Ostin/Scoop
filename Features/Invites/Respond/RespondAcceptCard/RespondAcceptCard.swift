@@ -118,27 +118,3 @@ extension RespondAcceptCard {
         return trimmed
     }
 }
-
-
-/*
- VStack(alignment: .leading, spacing: showMessageRow ? 20 : 24) {
-     titleAndTime
-         .zIndex(3)
-     placeRow
-         .zIndex(1)
- }
- .zIndex(2) //Fixes bug so backdrop appears above.
-
- */
-
-
-/*
- private var titleAndTime: some View {
-     VStack(alignment: .leading, spacing: 20) {
-         titleRow
-             .opacity(showTimePopup ? 0.03 : 1)
-         RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-     }
- }
-
- */

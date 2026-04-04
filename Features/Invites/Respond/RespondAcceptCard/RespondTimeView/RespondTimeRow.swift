@@ -50,12 +50,15 @@ extension RespondTimeRow {
         }
     }
 
+    @ViewBuilder
     private var timeSubHeader: some View {
         Group {
-            if !message.isEmpty{
+            if !message.isEmpty {
                 Text(message)
-            } else if let date = vm.respondDraft.eventDraft.proposedTimes.firstAvailableDate {
+            } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
                 Text(FormatEvent.hourTime(date))
+            } else {
+                EmptyView()
             }
         }
         .font(.footnote)
@@ -72,7 +75,7 @@ extension RespondTimeRow {
             }
         }
     }
-    
+        
     private var selectedTime: some View {
         HStack {
             //1. If there is a selectedDate Show that

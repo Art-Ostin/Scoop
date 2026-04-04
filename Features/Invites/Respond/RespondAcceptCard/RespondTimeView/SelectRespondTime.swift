@@ -69,23 +69,28 @@ extension RespondSelectTime {
     }
     
     private var customTimeView: some View {
-        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.event.type, showTimePopup: $showTimePopup, isRespondMode: true)
+        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.originalInvite.event.type, showTimePopup: $showTimePopup, isRespondMode: true)
     }
     
     @ViewBuilder
     private var proposedTimes: some View {
-        let orderedTimes = vm.respondDraft.event.proposedTimes.dates.sorted { $0.date < $1.date }
-
+        let orderedTimes = vm.respondDraft.originalInvite.event.proposedTimes.dates.sorted { $0.date < $1.date }
+        
         VStack(alignment: .leading, spacing: 10){
-            ForEach(orderedTimes.indices, id: \.self) { idx in
-                let time = orderedTimes[idx]
+            ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
                 let status = getTimeStatus(time)
-                InvitedTimeCell(selectedDay: $vm.respondDraft.selectedDate, showTime: $showTimePopup, responseType: $vm.respondDraft.respondType, status: status, date: time.date, idx: idx)
+                InvitedTimeCell(
+                    selectedDay: $vm.respondDraft.originalInvite.selectedDay,
+                    showTime: $showTimePopup,
+                    responseType: $vm.respondDraft.respondType,
+                    status: status,
+                    date: time.date,
+                    idx: idx
+                )
             }
         }
         .padding(.bottom, 18)
     }
-
 
     //A time might be unavailable either because other user has new commitment or it has expired, this function checks for both
     private func getTimeStatus(_ time: ProposedTime) -> TimeStatus {

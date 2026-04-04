@@ -19,7 +19,7 @@ struct RespondAcceptContainer: View {
                 RespondAcceptCard(vm: vm, isFlipped: $isFlipped)
                 .zIndex(0)
             } else {
-                RespondDetailsCard(event: vm.respondDraft.event, isFlipped: $isFlipped, image: vm.image)
+                RespondDetailsCard(event: vm.respondDraft.originalInvite.event, isFlipped: $isFlipped, image: vm.image)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             }
         }

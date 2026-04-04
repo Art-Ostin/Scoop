@@ -46,7 +46,7 @@ struct RespondTimeAndPlaceView: View {
     @Binding var showInvite: Bool
     
     var body: some View {
-        SelectTimeAndPlace(event: $vm.respondDraft.eventDraft, showInvite: $showInvite, name: vm.respondDraft.event.otherUserName, image: vm.image, defaults: vm.defaults, respondWithInvite: true) {
+        SelectTimeAndPlace(event: $vm.respondDraft.newEvent, showInvite: $showInvite, name: vm.respondDraft.originalInvite.event.otherUserName, image: vm.image, defaults: vm.defaults, respondWithInvite: true) {
             vm.deleteEventDefault()
         } sendInvite: {
             vm.sendNewInvite()
