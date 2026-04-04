@@ -14,7 +14,8 @@ struct RespondTimeRow: View {
     @Binding var showMessageScreen: Bool
 
     var message: String {vm.respondDraft.originalInvite.event.message ?? ""}
-    var newMessageEmpty: Bool {vm.respondDraft.newTime.message?.isEmpty != false || vm.respondDraft.originalInvite.acceptMessage?.isEmpty != false}
+    var respondMessageEmpty: Bool {vm.respondDraft.respondMessage?.isEmpty != false}
+    var hasMessage: Bool { message.isEmpty == false }
     
     var body: some View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
@@ -34,7 +35,7 @@ extension RespondTimeRow {
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack {
                 timeTitle
-                if newMessageEmpty {
+                if respondMessageEmpty {
                     timeSubHeader
                 }
             }
@@ -53,7 +54,7 @@ extension RespondTimeRow {
     @ViewBuilder
     private var timeSubHeader: some View {
         Group {
-            if !newMessageEmpty {
+            if let message = vm.respondDraft.originalInvite.event.message {
                 Text(message)
             } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
                 Text(FormatEvent.hourTime(date))
@@ -70,7 +71,7 @@ extension RespondTimeRow {
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment:.leading)
         .overlay(alignment: .bottomTrailing) {
-            if newMessageEmpty {
+            if !respondMessageEmpty {
                 AddMessageButton(showMessageScreen: $showMessageScreen)
             }
         }
@@ -80,7 +81,7 @@ extension RespondTimeRow {
         HStack {
             //1. If there is a selectedDate Show that
             if let date = vm.respondDraft.originalInvite.selectedDay {
-                Text(FormatEvent.dayAndTime(date))
+                Text(FormatEvent.dayAndTime(date, withHour: (hasMessage && respondMessageEmpty ? false : true)))
                     .font(.body(16, showTimePopup ? .bold : .medium))
                 
             //2. Otherwise prompt user to select a new availableTime
