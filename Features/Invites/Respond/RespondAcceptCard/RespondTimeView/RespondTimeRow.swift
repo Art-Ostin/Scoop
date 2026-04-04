@@ -13,7 +13,7 @@ struct RespondTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
 
-    var message: String {vm.respondDraft.event.message ?? ""}
+    var message: String {vm.respondDraft.originalInvite.event.message ?? ""}
     var newMessageEmpty: Bool {vm.respondDraft.newTime.message?.isEmpty != false}
     
     var body: some View {
@@ -76,7 +76,7 @@ extension RespondTimeRow {
     private var selectedTime: some View {
         HStack {
             //1. If there is a selectedDate Show that
-            if let date = vm.respondDraft.selectedDate {
+            if let date = vm.respondDraft.originalInvite.selectedDay {
                 Text(FormatEvent.dayAndTime(date))
                     .font(.body(16, showTimePopup ? .bold : .medium))
                 
