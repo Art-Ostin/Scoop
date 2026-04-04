@@ -12,28 +12,28 @@ enum ResponseType {
 }
 
 struct RespondDraft {
-    let event: UserEvent
-    var selectedDate: Date?
+    var originalInvite: OriginalInvite
+    var newTime: NewTimeDraft { didSet { respondType = .modified}}
+    var newEvent: EventDraft { didSet { respondType = .new}}
     var respondType: ResponseType
     
-    var newTime: NewTimeDraft {
-        didSet {
-            respondType = .modified
-        }
-    }
-    var eventDraft: EventDraft
-    
     init(event: UserEvent, userId: String) {
-        self.event = event
-        self.selectedDate = event.proposedTimes.firstAvailableDate
-        self.respondType = .original //Initially
+        let selectedDay = event.proposedTimes.firstAvailableDate
+        self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay, acceptMessage: nil)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init(), message: nil)
-        self.eventDraft = EventDraft(initiatorId: event.otherUserId, recipientId: userId, type: event.type, message: event.message, proposedTimes: event.proposedTimes, location: event.location)
+        self.newEvent = EventDraft(initiatorId: event.otherUserId, recipientId: userId, type: event.type, message: event.message, proposedTimes: event.proposedTimes, location: event.location)
+        self.respondType = .original
     }
 }
 
+struct OriginalInvite {
+    let event: UserEvent
+    var selectedDay: Date?
+    var acceptMessage: String?
+}
+
 struct NewTimeDraft {
-    var event: UserEvent
+    let event: UserEvent
     var proposedTimes: ProposedTimes
     var message: String?
 }

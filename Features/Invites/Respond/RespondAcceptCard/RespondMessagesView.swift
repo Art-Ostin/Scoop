@@ -17,7 +17,6 @@ struct RespondMessagesView: View {
     var body: some View {
         VStack(spacing: 6) {
             messageBubble(originalMessage, isMyChat: false)
-
             Button {
                 showMessageScreen = true
             } label: {

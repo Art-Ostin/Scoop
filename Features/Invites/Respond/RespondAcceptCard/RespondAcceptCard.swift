@@ -15,7 +15,7 @@ struct RespondAcceptCard: View {
     @State private var showMessageScreen: Bool = false
     
     var event: UserEvent {
-        vm.respondDraft.event
+        vm.respondDraft.originalInvite.event
     }
     
     private var displayedMessages: (original: String, reply: String)? {
@@ -52,7 +52,7 @@ struct RespondAcceptCard: View {
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .animation(.easeInOut(duration: 0.2), value: showMessageRow)
         .sheet(isPresented: $showMessageScreen) {
-            AddMessageView(eventType: $vm.respondDraft.newTime.event.type, showMessageScreen: $showMessageScreen, message: $vm.respondDraft.newTime.message, isRespondMessage: true)
+            AddMessageView(eventType: .constant(event.type), showMessageScreen: $showMessageScreen, message: vm.responseType == .modified ? $vm.respondDraft.newTime.message : $vm.respondDraft.originalInvite.acceptMessage, isRespondMessage: true)
         }
     }
 }
