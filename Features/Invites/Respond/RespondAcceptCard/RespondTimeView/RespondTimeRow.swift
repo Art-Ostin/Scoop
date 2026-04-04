@@ -101,10 +101,30 @@ extension RespondTimeRow {
 }
 
 
+/*
+ HStack(spacing: 2) {
+     Text("\(type.description.label)")
+         .font(.body(16, .medium))
+     Image(systemName: "info.circle")
+         .foregroundStyle(Color.grayText).opacity(0.8)
+         .font(.body(14, .medium))
+         .offset(y: -4)
+ }
+
+ */
 
 /*
  if respondMessageEmpty {
      timeSubHeader
  }
 
+ 
+ //                if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
+ //                    Text(FormatEvent.hourTime(date))
+ //                        .font(.footnote)
+ //                        .foregroundStyle(Color.grayText)
+ //                        .opacity(showTimePopup ? 0.1 : 1)
+ //                }
+
+ 
  */
