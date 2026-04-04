@@ -24,7 +24,6 @@ struct RespondAcceptCard: View {
               let replyMessage = nonEmptyMessage(vm.respondDraft.newTime.message) else {
             return nil
         }
-
         return (originalMessage, replyMessage)
     }
     

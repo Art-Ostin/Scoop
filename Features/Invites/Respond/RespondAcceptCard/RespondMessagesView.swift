@@ -62,6 +62,6 @@ extension RespondMessagesView {
             )
             .frame(width: 2)
             .padding(.leading, 5)
-            .padding(.top, 6)
+            .padding(.top, 10)
     }
 }

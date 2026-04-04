@@ -23,7 +23,7 @@ struct ProposedTimesRow: View {
                         .font(.body(15, .italic))
                     
                 } else if dates.count == 1 {
-                    Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: false))
+                    Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: true))
                         .font(.body(16, .medium))
                 } else {
                     datesText
@@ -41,9 +41,10 @@ struct ProposedTimesRow: View {
         var result = Text("")
         for (index, date) in dates.enumerated() {
             result = result
-            + Text(FormatEvent.dayAndTime(date, wide: (dates.count == 3 ? false : true), withHour: false))
-            + Text(index == dates.count - 1 ? "" : ",  ")
+            + Text(FormatEvent.dayAndTime(date, wide: false, withHour: false))
+            + Text(index == dates.count - 1 ? " · ": ",  ")
         }
+        result = result + Text(FormatEvent.hourTime(dates.last ?? Date()))
         return result.frame(maxWidth: .infinity, alignment: .leading).font(.body(16, .medium))
     }
 }
