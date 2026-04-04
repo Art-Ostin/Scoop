@@ -15,7 +15,7 @@ enum DetailInfo: CaseIterable {
         switch self {
         case .time: return "Select A Time"
         case .message: return "Message"
-        case .event: return event.type.longTitle
+        case .event: return "Meet"
         }
     }
     
@@ -75,7 +75,7 @@ struct RespondDetailsCard: View {
 extension RespondDetailsCard {
     
     private var title: some View {
-        Text("How it Works")
+        Text(event.type.description.emoji + " " + event.type.longTitle)
             .font(.custom("SFProRounded-Bold", size: 18))
             .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -94,6 +94,11 @@ extension RespondDetailsCard {
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .stroke(24, lineWidth: 1, color: .appGreen.opacity(0.2))
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(Color.white)
+            )
+            .surfaceShadow(.floating, strength: 0.7)
         }
     }
 }

@@ -71,7 +71,7 @@ extension RespondTimeRow {
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment:.leading)
         .overlay(alignment: .bottomTrailing) {
-            if !respondMessageEmpty {
+            if respondMessageEmpty {
                 AddMessageButton(showMessageScreen: $showMessageScreen)
             }
         }
