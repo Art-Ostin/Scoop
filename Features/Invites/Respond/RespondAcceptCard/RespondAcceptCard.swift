@@ -33,28 +33,21 @@ struct RespondAcceptCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            
-            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 16) {
-                title
-//                RespondTypeRow(isFlipped: $isFlipped, type: vm.respondDraft.originalInvite.event.type, message: vm.respondDraft.originalInvite.event.message, showTimePopup: showTimePopup)
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                placeRow
-            }
-            .zIndex(3)
+        VStack(alignment: .leading, spacing: 14) {
+            title
+            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+            placeRow
             actionSection
-                .zIndex(1)
         }
         .padding(22)
+        .padding(.top, -8)
+        .padding(.bottom, -6)
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, 24)
         .offset(y: showMessageRow ? 0 : 8)
         .overlay(alignment: .topTrailing) {
-            Image(systemName: "info.circle")
-                .foregroundStyle(Color.grayText).opacity(0.8)
-                .font(.body(14, .medium))
-                .padding()
+            infoCircle
         }
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
@@ -125,31 +118,85 @@ extension RespondAcceptCard {
         
         return trimmed
     }
-    
+
     
     private var title: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 12) {
-                CirclePhoto(image: vm.image, showShadow: false, height: 25)
+        HStack(spacing: 13) {
+            CirclePhoto(image: vm.image, showShadow: false, height: 25)
+                .offset(x: -4)
+            
+            VStack(alignment: .leading) {
                 (
                     Text("Drink with \(vm.respondDraft.originalInvite.event.otherUserName)")
-                    + Text(" 🍻").baselineOffset(4)
+                    + Text("  🍻").baselineOffset(2)
                 )
                 .font(.custom("SFProRounded-Semibold", size: 20))
-            }
-            
-            if let message = vm.respondDraft.originalInvite.event.message {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(Color.grayText)
-                    .opacity(showTimePopup ? 0.1 : 1)
-                    .padding(.leading, 38)
+                
+                if let message = vm.respondDraft.originalInvite.event.message {
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundStyle(Color.grayText)
+                        .opacity(showTimePopup ? 0.1 : 1)
+                }
             }
         }
     }
+    
+    private var infoCircle: some View {
+        Image(systemName: "info.circle")
+            .foregroundStyle(Color.grayText).opacity(0.8)
+            .font(.body(14, .medium))
+            .padding()
+            .padding(.horizontal, 30)
+            .padding(.top, 8)
+    }
 }
 
+
+
+
 /*
+ VStack(alignment: .leading, spacing: 0) {
+     HStack(spacing: 12) {
+         CirclePhoto(image: vm.image, showShadow: false, height: 25)
+         (
+             Text("Drink with \(vm.respondDraft.originalInvite.event.otherUserName)")
+             + Text("  🍻").baselineOffset(4)
+         )
+         .font(.custom("SFProRounded-Semibold", size: 20))
+     }
+     
+     if let message = vm.respondDraft.originalInvite.event.message {
+         Text(message)
+             .font(.footnote)
+             .foregroundStyle(Color.grayText)
+             .opacity(showTimePopup ? 0.1 : 1)
+             .padding(.leading, 38)
+     }
+ }
+
+ 
+ private var title: some View {
+     VStack(alignment: .leading, spacing: 0) {
+         HStack(spacing: 12) {
+             CirclePhoto(image: vm.image, showShadow: false, height: 25)
+             (
+                 Text("Drink with \(vm.respondDraft.originalInvite.event.otherUserName)")
+                 + Text("  🍻").baselineOffset(4)
+             )
+             .font(.custom("SFProRounded-Semibold", size: 20))
+         }
+         
+         if let message = vm.respondDraft.originalInvite.event.message {
+             Text(message)
+                 .font(.footnote)
+                 .foregroundStyle(Color.grayText)
+                 .opacity(showTimePopup ? 0.1 : 1)
+                 .padding(.leading, 38)
+         }
+     }
+ }
+
  
  Image(systemName: "info.circle")
      .foregroundStyle(Color.grayText).opacity(0.8)

@@ -30,7 +30,7 @@ struct RespondTimeRow: View {
 extension RespondTimeRow {
     
     private var timeView: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 23) {
             Image("MiniClockIcon").scaleEffect(1.3)
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack(alignment: .leading) {
