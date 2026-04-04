@@ -20,13 +20,14 @@ struct RespondAcceptCard: View {
     
     private var displayedMessages: (original: String, reply: String)? {
         guard
-              let originalMessage = nonEmptyMessage(event.message),
-              let replyMessage = nonEmptyMessage(vm.respondDraft.newTime.message) else {
+            let originalMessage = nonEmptyMessage(event.message),
+            let replyMessage = nonEmptyMessage(vm.responseType == .modified ? vm.respondDraft.newTime.message: vm.respondDraft.originalInvite.acceptMessage)
+        else {
             return nil
         }
         return (originalMessage, replyMessage)
     }
-    
+
     var showMessageRow: Bool {
         displayedMessages != nil
     }

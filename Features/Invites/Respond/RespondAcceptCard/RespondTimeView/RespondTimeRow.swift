@@ -14,7 +14,7 @@ struct RespondTimeRow: View {
     @Binding var showMessageScreen: Bool
 
     var message: String {vm.respondDraft.originalInvite.event.message ?? ""}
-    var newMessageEmpty: Bool {vm.respondDraft.newTime.message?.isEmpty != false}
+    var newMessageEmpty: Bool {vm.respondDraft.newTime.message?.isEmpty != false || vm.respondDraft.originalInvite.acceptMessage?.isEmpty != false}
     
     var body: some View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
@@ -53,7 +53,7 @@ extension RespondTimeRow {
     @ViewBuilder
     private var timeSubHeader: some View {
         Group {
-            if !message.isEmpty {
+            if !newMessageEmpty {
                 Text(message)
             } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
                 Text(FormatEvent.hourTime(date))
