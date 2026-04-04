@@ -33,14 +33,16 @@ extension RespondTimeRow {
         HStack(spacing: 23) {
             Image("MiniClockIcon").scaleEffect(1.3)
                 .opacity(showTimePopup ? 0.03 : 1)
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 timeTitle
-                if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
-                    Text(FormatEvent.hourTime(date))
-                        .font(.footnote)
-                        .foregroundStyle(Color.grayText)
-                        .opacity(showTimePopup ? 0.1 : 1)
-                }
+                timeSubHeader
+                
+//                if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
+//                    Text(FormatEvent.hourTime(date))
+//                        .font(.footnote)
+//                        .foregroundStyle(Color.grayText)
+//                        .opacity(showTimePopup ? 0.1 : 1)
+//                }
             }
         }
     }
@@ -56,35 +58,54 @@ extension RespondTimeRow {
 
     @ViewBuilder
     private var timeSubHeader: some View {
-        Group {
-            if let message = vm.respondDraft.originalInvite.event.message {
+        
+        if let message = vm.respondDraft.originalInvite.event.message {
+            (
                 Text(message)
-            } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
-                Text(FormatEvent.hourTime(date))
-            } else {
-                EmptyView()
-            }
+                    .font(.footnote)
+                    .foregroundStyle(Color.grayText)
+
+                + Text("   Add Response")
+                    .font(.body(10, .bold))
+                    .foregroundStyle(Color.appGreen)
+            )
+            .opacity(showTimePopup ? 0.1 : 1)
         }
-        .font(.footnote)
-        .foregroundStyle(Color.grayText)
-        .opacity(showTimePopup ? 0.1 : 1)
-        .lineLimit(nil)
-        .fixedSize(horizontal: false, vertical: true)
-        .layoutPriority(1)
-        .multilineTextAlignment(.leading)
-        .frame(maxWidth: .infinity, alignment:.leading)
-        .overlay(alignment: .bottomTrailing) {
-            if respondMessageEmpty {
-                AddMessageButton(showMessageScreen: $showMessageScreen)
-            }
-        }
+
+        
+        
+        
+        /*
+         Group {
+             if let message = vm.respondDraft.originalInvite.event.message {
+                 Text(message)
+             } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
+                 Text(FormatEvent.hourTime(date))
+             } else {
+                 EmptyView()
+             }
+         }
+         .font(.footnote)
+         .foregroundStyle(Color.grayText)
+         .opacity(showTimePopup ? 0.1 : 1)
+         .lineLimit(nil)
+         .fixedSize(horizontal: false, vertical: true)
+         .layoutPriority(1)
+         .multilineTextAlignment(.leading)
+         .frame(maxWidth: .infinity, alignment:.leading)
+         .overlay(alignment: .bottomTrailing) {
+             if respondMessageEmpty {
+                 AddMessageButton(showMessageScreen: $showMessageScreen)
+             }
+         }
+         */
     }
         
     private var selectedTime: some View {
         HStack {
             //1. If there is a selectedDate Show that
             if let date = vm.respondDraft.originalInvite.selectedDay {
-                Text(FormatEvent.dayAndTime(date, withHour: false))
+                Text(FormatEvent.dayAndTime(date, withHour: true))
                     .font(.body(16, showTimePopup ? .bold : .medium))
                 
             //2. Otherwise prompt user to select a new availableTime
@@ -95,8 +116,24 @@ extension RespondTimeRow {
             
             //3. Then have drop down button to select available times or a newTime
             Spacer()
-            DropDownButton(isExpanded: $showTimePopup, isAccept: true, showGlass: true)
+            customDropDown
         }
+    }
+    
+    private var customDropDown: some View {
+        Image(systemName: "chevron.down")
+            .font(.body(15, .bold))
+            .rotationEffect(.degrees(showTimePopup == true ? 180 : 0))
+            .padding(12)
+            .padding(6)
+            .contentShape(Rectangle())
+            .padding(-12)
+            .background(
+                Circle()
+                    .foregroundStyle(Color.white)
+                    .stroke(100, lineWidth: 0.5, color: Color.grayText.opacity(0.2))
+            )
+            .surfaceShadow(.floating)
     }
 }
 

@@ -34,8 +34,10 @@ struct RespondAcceptCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            title
-            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+            VStack(alignment: .leading, spacing: 10) {
+                title
+                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+            }
             placeRow
             actionSection
         }
@@ -44,9 +46,6 @@ struct RespondAcceptCard: View {
         .background(customBackground)
         .padding(.horizontal, 24)
         .offset(y: showMessageRow ? 0 : 8)
-        .overlay(alignment: .topTrailing) {
-            infoCircle
-        }
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .animation(.easeInOut(duration: 0.2), value: showMessageRow)
@@ -119,29 +118,42 @@ extension RespondAcceptCard {
 
     
     private var title: some View {
-        HStack(spacing: 13) {
-            CirclePhoto(image: vm.image, showShadow: false, height: 25)
+        HStack(spacing: 8) {
+            CirclePhoto(image: vm.image, showShadow: false, height: 30)
                 .offset(x: -4)
             
             VStack(alignment: .leading) {
-                (
-                    Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName) · ")
-                        .font(.custom("SFProRounded-Semibold", size: 20))
-                    + Text("Drink 🍻").baselineOffset(2).font(.custom("SFProRounded-Medium", size: 16))
-                )
-                
-                if let message = vm.respondDraft.originalInvite.event.message {
-                    (
-                        Text(message)
-                            .font(.footnote)
-                            .foregroundStyle(Color.grayText)
+                HStack(spacing: 4) {
+                    Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
+                            .font(.custom("SFProRounded-Semibold", size: 24))
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 2) {
+                        Text("🍻 Drink")
+                            .font(.body(16, .medium))
 
-                        + Text("   Add Response")
-                            .font(.body(10, .bold))
-                            .foregroundStyle(Color.appGreen)
-                    )
-                    .opacity(showTimePopup ? 0.1 : 1)
+                        Image(systemName: "info.circle")
+                            .foregroundStyle(Color.grayText).opacity(0.8)
+                            .font(.body(14, .medium))
+                            .offset(y: -4)
+                    }
+                    .offset(y: -4)
+                    
                 }
+                
+//                if let message = vm.respondDraft.originalInvite.event.message {
+//                    (
+//                        Text(message)
+//                            .font(.footnote)
+//                            .foregroundStyle(Color.grayText)
+//
+//                        + Text("   Add Response")
+//                            .font(.body(10, .bold))
+//                            .foregroundStyle(Color.appGreen)
+//                    )
+//                    .opacity(showTimePopup ? 0.1 : 1)
+//                }
             }
         }
     }
