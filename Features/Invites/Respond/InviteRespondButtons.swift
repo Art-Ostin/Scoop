@@ -44,3 +44,35 @@ struct DeclineButton: View {
         }
     }
 }
+
+struct AddMessageButton: View {
+
+    @Binding var showMessageScreen: Bool
+    
+    var body: some View {
+        Button {
+            showMessageScreen = true
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName:"plus")
+                    .font(.system(size: 10, weight: .bold))
+                
+                Text("Add note")
+                    .font(.custom("SFProRounded-Medium", size: 11))
+                    .kerning(0.4)
+            }
+            .foregroundStyle(Color.grayText)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(Color.white.opacity(0.92))
+            }
+            .stroke(24, lineWidth: 1, color: Color.grayBackground)
+            .surfaceShadow(.floating, strength: 0.7)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .contentShape(.rect)
+        }
+        .offset(y: 20)
+    }
+}
