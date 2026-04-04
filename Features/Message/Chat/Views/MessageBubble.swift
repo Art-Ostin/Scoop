@@ -20,22 +20,25 @@ struct MessageBubbleView: View {
     let isMyChat: Bool
     
     var isInviteMessage: Bool = false
+    var bottomSpacing: CGFloat? = nil
+
     var includeStroke: Bool { isInviteMessage ? true : false}
     var strokeColor: Color  {
-        isMyChat ? Color.accent.opacity(0.3) : Color.grayPlaceholder.opacity(0.8)
+        isMyChat ? Color.accent.opacity(0.1) : Color.grayPlaceholder.opacity(0.2)
     }
     
     var backgroundColor: Color {
-        isInviteMessage ? Color.clear : isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
+        isInviteMessage ? Color.white : isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
     }
     
     var body: some View {
         Text(chat.content)
-            .font(isInviteMessage ?.body(14, .regular) : .body(16, .medium))
+            .font(isInviteMessage ?.footnote : .body(16, .medium))
             .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : Color.black)
-            .lineSpacing(5)
-            .padding(.horizontal)
-            .padding(.vertical, 10)
+            .lineSpacing(isInviteMessage ? 3 : 5)
+            .padding(.horizontal, isInviteMessage ? 6 : 16)
+            .padding(.leading, isInviteMessage ? 2 : 0)
+            .padding(.vertical, isInviteMessage ? 4 : 10)
             .padding(.bottom, isTimeBelow ? 12 : 0)
             .background(messageBackground)
             .background(geometryMeasure)
@@ -43,7 +46,7 @@ struct MessageBubbleView: View {
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
             .padding(.horizontal, isInviteMessage ? 0 : 24)
             .padding(isMyChat ? .leading : .trailing, (isInviteMessage ? 0 : 48))
-            .padding(.bottom, nextIsNewAuthor ? 12 : 0)
+            .padding(.bottom, bottomSpacing ?? (nextIsNewAuthor ? (isInviteMessage ? 0 : 12) : 0))
     }
     
     private func updateTimePlacement(bubbleWidth: CGFloat) {
@@ -109,17 +112,17 @@ extension MessageBubbleView {
         Text(text)
             .font(.body(10, isInviteMessage ? .bold : .regular))
             .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.vertical, isInviteMessage ? 0 : 6)
             .kerning(isInviteMessage ? 0.3 : 1)
             .foregroundStyle(isInviteMessage ? Color.accent : isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
     }
     
     private var bubbleShape: MessageBubbleShape {
         MessageBubbleShape(
-            topLeadingRadius: isMyChat ? 16 : (newAuthor ? 16 : 4),
-            bottomLeadingRadius: isMyChat ? 16 : (nextIsNewAuthor ? 0 : 4),
-            bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): 16,
-            topTrailingRadius: isMyChat ? (newAuthor ? 16 : 4) : 16,
+            topLeadingRadius: isMyChat ? (isInviteMessage ? 8 : 16) : (newAuthor ? 16 : 4),
+            bottomLeadingRadius: isMyChat ? (isInviteMessage ? 8 : 16) : (nextIsNewAuthor ? 0 : 4),
+            bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): (isInviteMessage ? 8 : 16),
+            topTrailingRadius: isMyChat ? (newAuthor ? (isInviteMessage ? 8 : 16) : 4) : (isInviteMessage ? 8 : 16),
             tail: nextIsNewAuthor ? (isMyChat ? .trailing : .leading) : .none
         )
     }

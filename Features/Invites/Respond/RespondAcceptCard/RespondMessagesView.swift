@@ -16,19 +16,25 @@ struct RespondMessagesView: View {
     
     @Binding var showMessageScreen: Bool
     
-    
+    private let rowSpacing: CGFloat = 12
+    private let bubbleSpacing: CGFloat = 18
+
+
     var body: some View {
-        VStack(spacing: 6) {
-                MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true)
-                
-                MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true)
-                    .offset(x: -10)
-                    .onTapGesture {
-                        showMessageScreen = true
-                    }
-            }
-            .padding(.leading, 44)
-            .overlay(alignment: .leading) {
+        VStack(spacing: bubbleSpacing - 16) {
+            
+            MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true, bottomSpacing: 0)
+
+            MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true, bottomSpacing: 0)
+                .onTapGesture {
+                    showMessageScreen = true
+                }
+        }
+        .offset(x: -10)
+        .padding(.vertical, 6)
+        .padding(.leading, 44)
+        .padding(.trailing, 6)
+        .overlay(alignment: .leading) {
                 Capsule(style: .continuous)
                     .fill(
                         LinearGradient(
@@ -42,12 +48,12 @@ struct RespondMessagesView: View {
                     )
                     .frame(width: 2)
                     .padding(.leading, 5)
+                    .padding(.top, 8)
+                    .padding(.vertical, 10)
         }
-            .padding(.top, 18)
     }
     
     private var lineProgression: some View {
-        
         Capsule(style: .continuous)
             .fill(
                 LinearGradient(
@@ -61,6 +67,16 @@ struct RespondMessagesView: View {
             )
             .frame(width: 2)
             .padding(.vertical, 10)
-
     }
 }
+
+/*
+ 
+ MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: originalMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: false, isInviteMessage: true, bottomSpacing: 0)
+
+ MessageBubbleView(chat: MessageModel(authorId: "", recipientId: "", content: replyMessage), newAuthor: true, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: true, bottomSpacing: 0)
+     .offset(x: -10)
+     .onTapGesture {
+         showMessageScreen = true
+     }
+ */
