@@ -49,37 +49,46 @@ extension RespondTimeRow {
     private var selectedTime: some View {
         HStack {
             //1. If there is a selectedDate Show that
-            if let date = vm.respondDraft.originalInvite.selectedDay {
-                Text(FormatEvent.dayAndTime(date, withHour: (!hasMessage && respondMessageEmpty ? false : true)))
-                
-            //2. Otherwise prompt user to select a new availableTime
-            } else {
-                Text("Select a day to meet")
+            Group {
+                if let date = vm.respondDraft.originalInvite.selectedDay {
+                    Text(FormatEvent.dayAndTime(date, withHour: (!hasMessage && respondMessageEmpty ? false : true)))
+                    
+                //2. Otherwise prompt user to select a new availableTime
+                } else {
+                    Text("Select a day to meet")
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             //3. Then have drop down button to select available times or a newTime
-            Spacer()
-            dropDownButton
+            customDropDownButton
+                .fixedSize()
         }
         .font(.body(17, showTimePopup ? .bold : .medium))
         .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
     }
     
-    private var dropDownButton: some View {
+    private var customDropDownButton: some View {
         Button {
-            showTimePopup.toggle()
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showTimePopup.toggle()
+            }
         } label: {
             Image(systemName: "chevron.down")
                 .font(.body(15, .bold))
                 .rotationEffect(.degrees(showTimePopup ? 180 : 0))
-                .contentShape(Rectangle())
+                .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
                 .padding(6)
                 .background(
-                    Circle()
-                        .foregroundStyle(Color.white)
+                    Circle().foregroundStyle(.white)
                 )
                 .surfaceShadow(.floating, strength: 0.5)
+                .contentShape(Rectangle())
+                .padding(14)
         }
+        .buttonStyle(.plain)
+        .padding(-14)
+        .offset(x: 3)
     }
 }
 

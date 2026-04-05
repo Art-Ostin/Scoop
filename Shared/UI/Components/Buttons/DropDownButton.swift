@@ -28,6 +28,10 @@ struct DropDownButton: View {
     
     @ViewBuilder
     private var buttonImage: some View {
+        
+        
+        
+        
         let base = Image(systemName: "chevron.down")
             .font(.body(isAccept ? 15 : 17, .bold))
             .rotationEffect(.degrees(isExpanded ? 180 : 0))
@@ -46,6 +50,28 @@ struct DropDownButton: View {
         } else {
             base
         }
+    }
+    
+    private var customButton: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isExpanded.toggle()
+            }
+        } label: {
+            Image(systemName: "chevron.down")
+                .font(.body(isAccept ? 15 : 17, .bold))
+                .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                .padding(6)
+                .background(
+                    Circle().foregroundStyle(.white)
+                )
+                .surfaceShadow(.floating, strength: 0.5)
+                .contentShape(Rectangle())
+                .padding(14)     // bigger hit area
+        }
+        .buttonStyle(.plain)
+        .padding(-14)            // cancels layout expansion
     }
 }
 
