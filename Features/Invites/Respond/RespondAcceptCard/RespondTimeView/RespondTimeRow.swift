@@ -45,8 +45,6 @@ extension RespondTimeRow {
             ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
         }
     }
-    
-    
         
     private var selectedTime: some View {
         HStack {
@@ -74,17 +72,13 @@ extension RespondTimeRow {
             Image(systemName: "chevron.down")
                 .font(.body(15, .bold))
                 .rotationEffect(.degrees(showTimePopup ? 180 : 0))
-                .padding(12)
                 .contentShape(Rectangle())
-                .padding(-12)
                 .padding(6)
                 .background(
                     Circle()
                         .foregroundStyle(Color.white)
                 )
                 .surfaceShadow(.floating, strength: 0.5)
-                .padding(-6)
-                .padding(.vertical, -3)
         }
     }
 }

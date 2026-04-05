@@ -13,14 +13,14 @@ struct RespondPlaceRow: View {
     let location: EventLocation
     
     var body: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 0) {
             Image("MiniMapIcon")
+                .padding(.trailing, 24)
             eventNameAndAddress
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.clear)
+                .layoutPriority(1)
+            Spacer(minLength: 12)
             addMessageButton
-                .frame(maxWidth: 20, alignment: .trailing)
-                .background(Color.red)
+                .fixedSize()
         }
     }
 }
