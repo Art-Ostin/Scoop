@@ -29,8 +29,8 @@ struct RespondTitle: View {
 extension RespondTitle {
     
     private var eventTitle: some View {
-        HStack(spacing: 8) {
-            CirclePhoto(image: image, showShadow: false, height: 30)
+        HStack(spacing: 11) {
+            CirclePhoto(image: image, showShadow: false, height: 25).offset(x: -2)
             Text("Meet \(event.otherUserName)")
                 .font(.custom("SFProRounded-Bold", size: 24))
                 .lineLimit(1)
@@ -48,12 +48,15 @@ extension RespondTitle {
         } label: {
             HStack(spacing: 2) {
                 Text("\(event.type.description.emoji) \(event.type.description.label)")
-                    .font(.body(16, .medium))
-                
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.grayText).opacity(0.8)
-                    .font(.body(14, .medium))
-                    .offset(y: -4)
+                    .font(.body(14, .bold))
+                    .padding(6)
+                    .padding(.horizontal, 4)
+                    .stroke(24, lineWidth: 0.75, color: Color(red: 0.8, green: 0.8, blue: 0.8).opacity(0.5))
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .foregroundStyle(Color.white)
+                    )
+                    .surfaceShadow(.floating, strength: 0.3)
             }
             .lineLimit(1)
             .minimumScaleFactor(0.7)
@@ -65,3 +68,11 @@ extension RespondTitle {
 
     
 }
+
+/*
+ 
+ Image(systemName: "info.circle")
+     .foregroundStyle(Color.grayText).opacity(0.8)
+     .font(.body(14, .medium))
+     .offset(y: -4)
+ */

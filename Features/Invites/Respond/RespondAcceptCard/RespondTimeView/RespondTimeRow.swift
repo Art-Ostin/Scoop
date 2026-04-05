@@ -30,15 +30,10 @@ struct RespondTimeRow: View {
 extension RespondTimeRow {
     
     private var timeView: some View {
-        HStack(spacing: 24) {
-            Image("MiniClockIcon").scaleEffect(1.3)
+        HStack(spacing: 22) {
+            Image("MiniClockIcon")
                 .opacity(showTimePopup ? 0.03 : 1)
-            VStack {
-                timeTitle
-                if respondMessageEmpty {
-                    timeSubHeader
-                }
-            }
+            timeTitle
         }
     }
     
@@ -50,52 +45,93 @@ extension RespondTimeRow {
             ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
         }
     }
-
-    @ViewBuilder
-    private var timeSubHeader: some View {
-        Group {
-            if let message = vm.respondDraft.originalInvite.event.message {
-                (
-                    Text(message)
-                    +
-                    Text(respondMessageEmpty ? "  Add Response" : "")
-                        .font(.body(10, .bold))
-                        .foregroundStyle(Color.appGreen)
-                )
-            } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
-                Text(FormatEvent.hourTime(date))
-            } else {
-                EmptyView()
-            }
-        }
-        .font(.footnote)
-        .foregroundStyle(Color.grayText)
-        .opacity(showTimePopup ? 0.1 : 1)
-        .lineLimit(nil)
-        .fixedSize(horizontal: false, vertical: true)
-        .layoutPriority(1)
-        .multilineTextAlignment(.leading)
-        .frame(maxWidth: .infinity, alignment:.leading)
-    }
+    
+    
         
     private var selectedTime: some View {
         HStack {
             //1. If there is a selectedDate Show that
             if let date = vm.respondDraft.originalInvite.selectedDay {
                 Text(FormatEvent.dayAndTime(date, withHour: (!hasMessage && respondMessageEmpty ? false : true)))
-                    .font(.body(16, showTimePopup ? .bold : .medium))
                 
             //2. Otherwise prompt user to select a new availableTime
             } else {
                 Text("Select a day to meet")
-                    .font(.body(16, showTimePopup ? .bold : .medium))
             }
             
             //3. Then have drop down button to select available times or a newTime
             Spacer()
-            DropDownButton(isExpanded: $showTimePopup, isAccept: true, showGlass: true)
+            dropDownButton
+        }
+        .font(.body(17, showTimePopup ? .bold : .medium))
+        .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+    }
+    
+    private var dropDownButton: some View {
+        Button {
+            showTimePopup.toggle()
+        } label: {
+            Image(systemName: "chevron.down")
+                .font(.body(15, .bold))
+                .rotationEffect(.degrees(showTimePopup ? 180 : 0))
+                .foregroundStyle(.black)
+                .padding(12)
+                .contentShape(Rectangle())
+                .padding(-12)
+                .padding(6)
+                .background(
+                    Circle()
+                        .foregroundStyle(Color.white)
+                )
+                .surfaceShadow(.floating, strength: 0.5)
+                .padding(-6)
+                .padding(.vertical, -3)
         }
     }
 }
 
+/*
+ 
+ .background(
+     RoundedRectangle(cornerRadius: 24)
+         .foregroundStyle(Color.white)
+ )
+ .surfaceShadow(.floating, strength: 0.7)
+ */
 
+
+/*
+ 
+ @ViewBuilder
+ private var timeSubHeader: some View {
+     Group {
+         if let message = vm.respondDraft.originalInvite.event.message {
+             (
+                 Text(message)
+                 +
+                 Text(respondMessageEmpty ? "  Add Response" : "")
+                     .font(.body(10, .bold))
+                     .foregroundStyle(Color.appGreen)
+             )
+         } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
+             Text(FormatEvent.hourTime(date))
+         } else {
+             EmptyView()
+         }
+     }
+     .font(.footnote)
+     .foregroundStyle(Color.grayText)
+     .opacity(showTimePopup ? 0.1 : 1)
+     .lineLimit(nil)
+     .fixedSize(horizontal: false, vertical: true)
+     .layoutPriority(1)
+     .multilineTextAlignment(.leading)
+     .frame(maxWidth: .infinity, alignment:.leading)
+ }
+
+ 
+ if respondMessageEmpty {
+     timeSubHeader
+ }
+
+ */

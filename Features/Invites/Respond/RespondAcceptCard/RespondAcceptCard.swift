@@ -33,16 +33,11 @@ struct RespondAcceptCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 22) {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-            VStack(alignment: .leading, spacing: showMessageRow ? 0 : 20) {
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                respondMessagesView
-                placeRow
-            }
-            .zIndex(3)
+            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+            placeRow
             actionSection
-                .zIndex(1)
         }
         .padding(22)
         .frame(maxWidth: .infinity)
@@ -73,21 +68,20 @@ extension RespondAcceptCard {
     private var placeRow: some View {
         HStack(spacing: 24) {
             Image("MiniMapIcon")
-                .scaleEffect(1.3)
-                .foregroundStyle(Color.appGreen)
             
-            VStack {
+            
                 let location = event.location
-                VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 4) {
                     Text(location.name ?? "")
-                        .font(.body(16, .medium))
+                        .font(.body(17, .medium))
+                        .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                    
                     Text(FormatEvent.addressWithoutCountry(location.address))
-                        .font(.footnote)
-                        .foregroundStyle(.gray)
+                        .font(.body(12, .medium))
                         .underline()
+                        .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
                         .lineLimit(1)
                 }
-            }
         }
     }
 
@@ -119,3 +113,9 @@ extension RespondAcceptCard {
         return trimmed
     }
 }
+
+/*
+ respondMessagesView
+ 
+ 
+ */
