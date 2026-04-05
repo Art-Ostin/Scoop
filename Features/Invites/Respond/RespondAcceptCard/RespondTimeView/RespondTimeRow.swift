@@ -74,7 +74,6 @@ extension RespondTimeRow {
             Image(systemName: "chevron.down")
                 .font(.body(15, .bold))
                 .rotationEffect(.degrees(showTimePopup ? 180 : 0))
-                .foregroundStyle(.black)
                 .padding(12)
                 .contentShape(Rectangle())
                 .padding(-12)

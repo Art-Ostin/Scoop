@@ -16,8 +16,11 @@ struct RespondPlaceRow: View {
         HStack(spacing: 24) {
             Image("MiniMapIcon")
             eventNameAndAddress
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.clear)
             addMessageButton
+                .frame(maxWidth: 20, alignment: .trailing)
+                .background(Color.red)
         }
     }
 }
@@ -53,7 +56,6 @@ extension RespondPlaceRow {
                     .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
                     .lineLimit(1)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
