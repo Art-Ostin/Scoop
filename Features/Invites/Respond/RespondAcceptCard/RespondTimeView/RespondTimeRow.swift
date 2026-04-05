@@ -55,7 +55,13 @@ extension RespondTimeRow {
     private var timeSubHeader: some View {
         Group {
             if let message = vm.respondDraft.originalInvite.event.message {
-                Text(message)
+                (
+                    Text(message)
+                    +
+                    Text(respondMessageEmpty ? "  Add Response" : "")
+                        .font(.body(10, .bold))
+                        .foregroundStyle(Color.appGreen)
+                )
             } else if let date = vm.respondDraft.originalInvite.event.proposedTimes.firstAvailableDate {
                 Text(FormatEvent.hourTime(date))
             } else {
@@ -70,11 +76,6 @@ extension RespondTimeRow {
         .layoutPriority(1)
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment:.leading)
-        .overlay(alignment: .bottomTrailing) {
-            if respondMessageEmpty {
-                AddMessageButton(showMessageScreen: $showMessageScreen)
-            }
-        }
     }
         
     private var selectedTime: some View {
