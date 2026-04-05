@@ -36,7 +36,7 @@ struct RespondAcceptCard: View {
         VStack(alignment: .leading, spacing: 22) {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-            placeRow
+            RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location)
             actionSection
         }
         .padding(22)
@@ -64,26 +64,6 @@ extension RespondAcceptCard {
             )
         }
     }
-        
-    private var placeRow: some View {
-        HStack(spacing: 24) {
-            Image("MiniMapIcon")
-            
-            
-                let location = event.location
-            VStack(alignment: .leading, spacing: 4) {
-                    Text(location.name ?? "")
-                        .font(.body(17, .medium))
-                        .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
-                    
-                    Text(FormatEvent.addressWithoutCountry(location.address))
-                        .font(.body(12, .medium))
-                        .underline()
-                        .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
-                        .lineLimit(1)
-                }
-        }
-    }
 
     private var actionSection: some View {
         HStack {
@@ -109,12 +89,37 @@ extension RespondAcceptCard {
               !trimmed.isEmpty else {
             return nil
         }
-
         return trimmed
     }
 }
 
+
+
+
 /*
+ private var placeRow: some View {
+     HStack(spacing: 24) {
+         Image("MiniMapIcon")
+         let location = event.location
+         VStack(alignment: .leading, spacing: 4) {
+                 Text(location.name ?? "")
+                     .font(.body(17, .medium))
+                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                 
+                 Text(FormatEvent.addressWithoutCountry(location.address))
+                     .font(.body(12, .medium))
+                     .underline()
+                     .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
+                     .lineLimit(1)
+             }
+         .frame(maxWidth: .infinity, alignment: .leading)
+         
+         Image("AddMessageIcon")
+             .frame(maxWidth: 40, alignment: .trailing)
+     }
+ }
+
+ 
  respondMessagesView
  
  

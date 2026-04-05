@@ -65,7 +65,6 @@ extension RespondTitle {
         }
         .fixedSize(horizontal: true, vertical: false)
     }
-
     
 }
 
