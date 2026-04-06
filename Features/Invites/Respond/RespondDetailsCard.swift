@@ -88,16 +88,17 @@ extension RespondDetailsCard {
                 CirclePhoto(image: image, showShadow: false, height: 24)
                 
                 Text("Invite")
-                    .font(.body(14, .bold))
+                    .font(.custom("SFProRounded-Bold", size: 14))
                     .foregroundStyle(Color.appGreen)
             }
-            .padding(.horizontal, 8)
+            .padding(.leading, 6)
+            .padding(.trailing, 8)
             .padding(.vertical, 3)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color.white.opacity(0.7))
+                    .foregroundStyle(Color.white.opacity(0.3))
             )
-            .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+            .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 2)
             .stroke(100, lineWidth: 0.5, color: .appGreen.opacity(0.2))
         }
     }

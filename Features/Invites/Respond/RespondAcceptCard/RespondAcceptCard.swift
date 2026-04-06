@@ -11,6 +11,8 @@ struct RespondAcceptCard: View {
     @Bindable var vm: RespondViewModel
     @Binding var isFlipped: Bool
     
+    private let sectionSpacing: CGFloat = 24
+    
     @State private var showTimePopup: Bool = false
     @State private var showMessageScreen: Bool = false
     
@@ -33,14 +35,13 @@ struct RespondAcceptCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 22) {
-                RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-            }
+        VStack(alignment: .leading, spacing: 36) {
+            RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
+            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
             RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location)
             actionSection
         }
+        .zIndex(1)
         .padding(22)
         .frame(maxWidth: .infinity)
         .background(customBackground)
