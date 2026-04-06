@@ -34,7 +34,7 @@ struct ProposedTimesRow: View {
             .minimumScaleFactor(0.8)
             .allowsTightening(true)
             DropDownChevron(showTimePopup: $showTimePopup)
-                .offset(x: -2.6)
+                .offset(x: 2.6)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
     }

@@ -46,18 +46,24 @@ extension RespondTitle {
         Button {
             isFlipped.toggle()
         } label: {
-            HStack(spacing: 2) {
-                Text("\(event.type.description.emoji) \(event.type.description.label)")
+            HStack(spacing: 0) {
+                Text("\(event.type.description.emoji)\(event.type.description.label)")
                     .font(.body(14, .bold))
-                    .padding(6)
-                    .padding(.horizontal, 4)
-                    .stroke(24, lineWidth: 0.75, color: Color(red: 0.8, green: 0.8, blue: 0.8).opacity(0.5))
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .foregroundStyle(Color.white)
-                    )
-                    .surfaceShadow(.floating, strength: 0.3)
+                
+                Image(systemName: "info.circle")
+                    .font(.body(8, .medium))
+                    .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
+                    .offset(y: -3)
             }
+            .padding(6)
+            .padding(.leading, 2)
+            .padding(.trailing, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .foregroundStyle(Color.white.opacity(0.7))
+            )
+            .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
+            .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)

@@ -22,9 +22,10 @@ struct DropDownChevron: View {
                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
                     .padding(6)
                     .background(
-                        Circle().foregroundStyle(.white)
+                        Circle().foregroundStyle(.white).opacity(0.7)
                     )
-                    .surfaceShadow(.floating)
+                    .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
+                    .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
                     .contentShape(Rectangle())
                     .padding(14)
             }

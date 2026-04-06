@@ -72,6 +72,7 @@ extension RespondTimeRow {
             //3. Then have drop down button to select available times or a newTime
             DropDownChevron(showTimePopup: $showTimePopup)
                 .fixedSize()
+                .offset(x: 3)
         }
         .font(.body(17, showTimePopup ? .bold : .medium))
         .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
