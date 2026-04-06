@@ -96,10 +96,10 @@ extension RespondDetailsCard {
             .padding(.vertical, 3)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color.white.opacity(0.3))
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 2)
-                    .stroke(100, lineWidth: 0.5, color: .appGreen.opacity(0.2))
+                    .foregroundStyle(Color.white.opacity(0.7))
             )
+            .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+            .stroke(100, lineWidth: 1, color: .green.opacity(0.1))
         }
     }
 }
