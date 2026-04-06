@@ -15,6 +15,7 @@ struct AddMessageView: View {
     @Binding var showMessageScreen: Bool
     @Binding var message: String?
     let isRespondMessage: Bool
+    var name: String? = nil
 
     @State var showTypePopup: Bool = false
     @State var showSaved: Bool = false
@@ -34,8 +35,7 @@ struct AddMessageView: View {
                 .padding(.top, 24)
             
             OkDismissButton()
-                .padding(.top, 36)
-            
+                .padding(.top, isRespondMessage ? 24 : 36)
         }
         .overlay(alignment: .topTrailing) {
             if showSaved {
@@ -43,7 +43,16 @@ struct AddMessageView: View {
                     .offset(y: -36)
             }
         }
-        .padding(.top, 96)
+        .overlay(alignment: .top) {
+            if isRespondMessage {
+                Text("Accept \(name ?? "")'s invite with a message")
+                    .font(.body(14, .medium))
+                    .foregroundStyle(Color.grayText).opacity(0.8)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .offset(y: -60)
+            }
+        }
+        .padding(.top, isRespondMessage ? 108 : 96)
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
         .animation(.easeInOut(duration: 0.2), value: showTypePopup)
@@ -112,7 +121,7 @@ extension AddMessageView {
     
     private var headerSection: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(isRespondMessage ? "Add Note" : "Add Message")
+            Text("Add Message")
                 .font(.custom("SFProRounded-Bold", size: 24))
             
             Spacer()
