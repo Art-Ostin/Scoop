@@ -33,8 +33,9 @@ struct ProposedTimesRow: View {
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .allowsTightening(true)
-            DropDownButton(isExpanded: $showTimePopup, isAccept: isAccept, showGlass: true)
+            DropDownChevron(showTimePopup: $showTimePopup)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var datesText: some View {
@@ -42,9 +43,11 @@ struct ProposedTimesRow: View {
         for (index, date) in dates.enumerated() {
             result = result
             + Text(FormatEvent.dayAndTime(date, wide: false, withHour: false))
-            + Text(index == dates.count - 1 ? " · ": ",  ")
+            + Text(dates.count != 3 ? (index == dates.count - 1 ? " · ": ",  ") : "")
         }
-        result = result + Text(FormatEvent.hourTime(dates.last ?? Date()))
+        if dates.count != 3 {
+            result = result + Text(FormatEvent.hourTime(dates.last ?? Date()))
+        }
         return result.frame(maxWidth: .infinity, alignment: .leading).font(.body(16, .medium))
     }
 }

@@ -42,7 +42,16 @@ extension RespondTimeRow {
         if vm.responseType == .original {
             selectedTime
         } else {
-            ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
+            VStack(alignment: .leading, spacing: 4) {
+                ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
+                if vm.respondDraft.newTime.proposedTimes.dates.count == 3 {
+                    if let firstDate = vm.respondDraft.newTime.proposedTimes.dates.first?.date {
+                        Text(FormatEvent.hourTime(firstDate))
+                            .font(.body(12, .medium))
+                            .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
+                    }
+                }
+            }
         }
     }
         
@@ -61,34 +70,11 @@ extension RespondTimeRow {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             //3. Then have drop down button to select available times or a newTime
-            customDropDownButton
+            DropDownChevron(showTimePopup: $showTimePopup)
                 .fixedSize()
         }
         .font(.body(17, showTimePopup ? .bold : .medium))
         .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
-    }
-    
-    private var customDropDownButton: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                showTimePopup.toggle()
-            }
-        } label: {
-            Image(systemName: "chevron.down")
-                .font(.body(15, .bold))
-                .rotationEffect(.degrees(showTimePopup ? 180 : 0))
-                .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
-                .padding(6)
-                .background(
-                    Circle().foregroundStyle(.white)
-                )
-                .surfaceShadow(.floating, strength: 0.5)
-                .contentShape(Rectangle())
-                .padding(14)
-        }
-        .buttonStyle(.plain)
-        .padding(-14)
-        .offset(x: 3)
     }
 }
 

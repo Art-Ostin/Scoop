@@ -7,6 +7,34 @@
 
 import SwiftUI
 
+
+struct DropDownChevron: View {
+    @Binding var showTimePopup: Bool
+    var body: some View {
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    showTimePopup.toggle()
+                }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.body(15, .bold))
+                    .rotationEffect(.degrees(showTimePopup ? 180 : 0))
+                    .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                    .padding(6)
+                    .background(
+                        Circle().foregroundStyle(.white)
+                    )
+                    .surfaceShadow(.floating)
+                    .contentShape(Rectangle())
+                    .padding(14)
+            }
+            .buttonStyle(.plain)
+            .padding(-14)
+    }
+}
+
+
+
 struct DropDownButton: View {
     
     @Binding var isExpanded: Bool
@@ -28,9 +56,6 @@ struct DropDownButton: View {
     
     @ViewBuilder
     private var buttonImage: some View {
-        
-        
-        
         
         let base = Image(systemName: "chevron.down")
             .font(.body(isAccept ? 15 : 17, .bold))

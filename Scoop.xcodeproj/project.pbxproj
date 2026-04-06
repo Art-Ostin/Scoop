@@ -944,14 +944,6 @@
 			path = MapView;
 			sourceTree = "<group>";
 		};
-		653BAFA92E0C664F00C1AB9E /* Invite */ = {
-			isa = PBXGroup;
-			children = (
-				65AF14952F64486C00031513 /* SendInvite */,
-			);
-			path = Invite;
-			sourceTree = "<group>";
-		};
 		653FB5722F6880DD00440E41 /* EventSlot */ = {
 			isa = PBXGroup;
 			children = (
@@ -1026,7 +1018,7 @@
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				65D1C40D2F3FCA1C00B61C00 /* MeetInfoView.swift */,
 				65E963D52F3F7C090022595F /* RespondedToProfileView.swift */,
-				653BAFA92E0C664F00C1AB9E /* Invite */,
+				65AF14952F64486C00031513 /* SendInvite */,
 			);
 			path = Meet;
 			sourceTree = "<group>";

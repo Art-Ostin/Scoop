@@ -40,7 +40,7 @@ extension RespondPlaceRow {
                     Circle()
                         .foregroundStyle(Color.white)
                 )
-                .surfaceShadow(.floating, strength: 0.5)
+                .surfaceShadow(.floating)
         }
     }
     
