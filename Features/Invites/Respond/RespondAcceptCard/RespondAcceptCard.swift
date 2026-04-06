@@ -35,10 +35,13 @@ struct RespondAcceptCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 36) {
-            RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-            RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location)
+        VStack(alignment: .leading, spacing: 28) {
+            VStack(alignment: .leading, spacing: 22) {
+                RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
+                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+                RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location)
+            }
+            .zIndex(2)
             actionSection
         }
         .zIndex(1)
@@ -46,7 +49,7 @@ struct RespondAcceptCard: View {
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, 24)
-        .offset(y: showMessageRow ? 0 : 24)
+        .offset(y: 24) // showMessageRow ? 0 :
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .animation(.easeInOut(duration: 0.2), value: showMessageRow)

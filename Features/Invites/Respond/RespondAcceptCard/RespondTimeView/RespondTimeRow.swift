@@ -23,8 +23,6 @@ struct RespondTimeRow: View {
         } dropDown: {
             RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
         }
-        .frame(height: 0)
-//        .background(Color.blue)
     }
 }
 
