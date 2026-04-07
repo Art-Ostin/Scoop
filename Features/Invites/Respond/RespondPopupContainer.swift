@@ -15,7 +15,7 @@ struct RespondPopupContainer: View {
     @State var showInfo: Bool = false
     @State private var selectedTab = 0
     
-    private let peek: CGFloat = 12
+    private let peek: CGFloat = 16
     private let spacing: CGFloat = 0
     
     var body: some View {
@@ -23,19 +23,21 @@ struct RespondPopupContainer: View {
             CustomScreenCover { showPopup = false }
             
             GeometryReader { proxy in
-                let cardWidth = proxy.size.width - (peek * 2)
+                let cardWidth = proxy.size.width
+                let pageWidth = max(cardWidth - peek, 0)
 
                 ScrollView(.horizontal) {
                     HStack(spacing: spacing) {
-                        acceptInvitePage
-                            .frame(width: cardWidth)
+                        acceptInvitePage(cardWidth: cardWidth)
+                            .frame(width: pageWidth, alignment: .leading)
                             .tag(0)
 
-                        counterInvitePage
-                            .frame(width: cardWidth)
+                        counterInvitePage(cardWidth: cardWidth)
+                            .frame(width: pageWidth, alignment: .bottomLeading)
                             .tag(1)
                     }
                     .scrollTargetLayout()
+                    .padding(.trailing, peek)
                     .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .scrollTargetBehavior(.viewAligned)
@@ -49,7 +51,7 @@ struct RespondPopupContainer: View {
 
 extension RespondPopupContainer {
     
-    private var acceptInvitePage: some View {
+    private func acceptInvitePage(cardWidth: CGFloat) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
@@ -58,13 +60,14 @@ extension RespondPopupContainer {
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
-                    return content.scaleEffect(scale, anchor: .trailing)
+                    return content.scaleEffect(scale, anchor: .trailing).offset(y: 12)
                 }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: cardWidth, alignment: .topLeading)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
     }
     
-    private var counterInvitePage: some View {
+    private func counterInvitePage(cardWidth: CGFloat) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
@@ -75,10 +78,11 @@ extension RespondPopupContainer {
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
 
-                    return content.scaleEffect(scale, anchor: .leading)
+                    return content.scaleEffect(scale, anchor: .leading).offset(y: 32)
                 }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: cardWidth, alignment: .topLeading)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
