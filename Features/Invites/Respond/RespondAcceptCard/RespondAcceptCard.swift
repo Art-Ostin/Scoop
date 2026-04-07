@@ -11,7 +11,15 @@ struct RespondAcceptCard: View {
     @Bindable var vm: RespondViewModel
     @Binding var isFlipped: Bool
     
-    private let sectionSpacing: CGFloat = 24
+    private enum Layout {
+        static let horizontalPadding: CGFloat = 22
+        static let topPadding: CGFloat = 18
+        static let bottomPadding: CGFloat = 18
+        static let titleToTimeSpacing: CGFloat = 12
+        static let timeToDetailsSpacing: CGFloat = 10
+        static let placeToMessageSpacing: CGFloat = 12
+        static let actionTopSpacing: CGFloat = 18
+    }
     
     @State private var showTimePopup: Bool = false
     @State private var showMessageScreen: Bool = false
@@ -31,6 +39,10 @@ struct RespondAcceptCard: View {
     }
     
     private var showMessages: Bool { displayedMessages != nil}
+
+    private var hasEventMessage: Bool {
+        nonEmptyMessage(event.message) != nil
+    }
     
     private var hasNoEventMessages: Bool {
         nonEmptyMessage(vm.respondDraft.respondMessage) == nil
@@ -44,24 +56,29 @@ struct RespondAcceptCard: View {
     
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 16) {
-                RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-                RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                VStack(alignment: .leading, spacing: showMessages ? 16 : 24) {
-                    RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-                                        
-                    if let originalMessage = nonEmptyMessage(event.message) {
-                        RespondMessageBubble(message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, addMessageScreen: $showMessageScreen)
-                        
-                    }
+        VStack(alignment: .leading, spacing: 0) {
+            RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
+                .padding(.bottom, Layout.titleToTimeSpacing)
+
+            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
+                .padding(.bottom, Layout.timeToDetailsSpacing)
+
+            VStack(alignment: .leading, spacing: hasEventMessage ? Layout.placeToMessageSpacing : 0) {
+                RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
+
+                if let originalMessage = nonEmptyMessage(event.message) {
+                    RespondMessageBubble(message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, addMessageScreen: $showMessageScreen)
                 }
             }
             .zIndex(2)
+
             actionSection
+                .padding(.top, Layout.actionTopSpacing)
         }
         .zIndex(1)
-        .padding(22)
+        .padding(.horizontal, Layout.horizontalPadding)
+        .padding(.top, Layout.topPadding)
+        .padding(.bottom, Layout.bottomPadding)
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, 24)
