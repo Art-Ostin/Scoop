@@ -48,15 +48,12 @@ struct RespondAcceptCard: View {
             VStack(alignment: .leading, spacing: 16) {
                 RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                VStack(alignment: .leading, spacing: showMessages ? 16 : 20) {
+                VStack(alignment: .leading, spacing: showMessages ? 16 : 24) {
                     RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
                                         
                     if let originalMessage = nonEmptyMessage(event.message) {
                         RespondMessageBubble(message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, addMessageScreen: $showMessageScreen)
                         
-                        
-                        
-//                        RespondMessagesView(originalMessage: originalMessage, replyMessage: vm.respondDraft.respondMessage, showMessageScreen: $showMessageScreen)
                     }
                 }
             }

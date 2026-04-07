@@ -9,27 +9,30 @@ import SwiftUI
 
 struct RespondMessageBubble: View {
     
+    @Binding var showMessageScreen: Bool
     @State var isRespondBelow: Bool = false
     
     let message: String
     let isMyChat: Bool
     let hasMessageResponse: Bool
-
-    @Binding var addMessageScreen: Bool
         
     var body: some View {
-        Text(message)
-            .font(.body(14, .medium))
-            .foregroundStyle(isMyChat ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2))
-            .lineSpacing(3)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(messageBackground)
-            .background(geometryMeasure)
-            .overlay(alignment: .bottomTrailing) { messageBubbleAction }
-            .frame(maxWidth: .infinity, alignment: isMyChat ? .leading : .trailing)
-            .padding(.leading, 12)
+        Button {
+            showMessageScreen = true
+        } label: {
+            Text(message)
+                .font(.body(14, .medium))
+                .foregroundStyle(isMyChat ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2))
+                .lineSpacing(3)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(messageBackground)
+                .background(geometryMeasure)
+                .overlay(alignment: .bottomTrailing) { messageBubbleAction }
+                .frame(maxWidth: .infinity, alignment: isMyChat ? .leading : .trailing)
+                .padding(.leading, 14)
+        }
     }
 }
 
