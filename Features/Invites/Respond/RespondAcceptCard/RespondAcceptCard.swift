@@ -128,10 +128,10 @@ extension RespondAcceptCard {
     private var messageSection: some View {
         if let originalMessage = nonEmptyMessage(event.message) {
             VStack(alignment: .leading, spacing: 12) {
-                RespondMessageBubble(showMessageScreen: $showMessageScreen, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage)
+                RespondMessageBubble(showMessageScreen: $showMessageScreen, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, isNewTime: vm.responseType == .modified)
                 
                 if let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage) {
-                    RespondMessageBubble(showMessageScreen: $showMessageScreen, message: replyMessage, isMyChat: true, hasMessageResponse: true)
+                    RespondMessageBubble(showMessageScreen: $showMessageScreen, message: replyMessage, isMyChat: true, hasMessageResponse: true, isNewTime: vm.responseType == .modified)
                 }
             }
         }

@@ -15,6 +15,8 @@ struct RespondMessageBubble: View {
     let message: String
     let isMyChat: Bool
     let hasMessageResponse: Bool
+    
+    let isNewTime: Bool
         
     var body: some View {
         Button {
@@ -46,7 +48,7 @@ extension RespondMessageBubble {
             .fill(isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93))
             .overlay {
                 bubbleShape.stroke (
-                    isMyChat ? Color.appGreen : Color.grayPlaceholder.opacity(0.1),
+                    isMyChat ? isNewTime ? Color.accent.opacity(0.5) : Color.appGreen : Color.grayPlaceholder.opacity(0.1),
                     style: StrokeStyle(lineWidth: 1, lineJoin: .round)
                 )
             }
@@ -84,7 +86,7 @@ extension RespondMessageBubble {
             .font(.body(10, .bold))
             .padding(.horizontal, 10)
             .kerning(0.3)
-            .foregroundStyle(Color.appGreen)
+            .foregroundStyle(isNewTime ? Color.accent : Color.appGreen)
             .padding(.bottom, 4)
     }
 }
