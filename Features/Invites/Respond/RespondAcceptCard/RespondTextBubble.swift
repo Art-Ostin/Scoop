@@ -22,7 +22,7 @@ struct RespondMessageBubble: View {
         } label: {
             Text(message)
                 .font(.body(14, .medium))
-                .foregroundStyle(isMyChat ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2))
+                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
                 .lineSpacing(3)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -33,7 +33,9 @@ struct RespondMessageBubble: View {
                 .frame(maxWidth: .infinity, alignment: isMyChat ? .leading : .trailing)
                 .padding(.leading, 14)
                 .multilineTextAlignment(.leading)
+                .padding((isMyChat ? .leading : .trailing), hasMessageResponse ? 16 : 0)
         }
+        .disabled(hasMessageResponse && !isMyChat)
     }
 }
 
@@ -44,7 +46,7 @@ extension RespondMessageBubble {
             .fill(isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93))
             .overlay {
                 bubbleShape.stroke (
-                    isMyChat ? Color.accent.opacity(0.5) : Color.grayPlaceholder.opacity(0.1),
+                    isMyChat ? Color.appGreen : Color.grayPlaceholder.opacity(0.1),
                     style: StrokeStyle(lineWidth: 1, lineJoin: .round)
                 )
             }
@@ -77,7 +79,7 @@ extension RespondMessageBubble {
     
     @ViewBuilder
     private var messageBubbleAction: some View  {
-        let text: String = isMyChat ? "Edit Note" : "Respond"
+        let text: String = isMyChat ? "Edit" : hasMessageResponse ? "" : "Respond"
         Text(text)
             .font(.body(10, .bold))
             .padding(.horizontal, 10)

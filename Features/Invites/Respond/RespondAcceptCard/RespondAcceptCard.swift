@@ -14,12 +14,15 @@ struct RespondAcceptCard: View {
     private enum Layout {
         static let titleToTimeSpacing: CGFloat = 12
         static let timeToPlaceSpacing: CGFloat = 14
-        static let placeToMessageSpacing: CGFloat = 20
         static let actionTopSpacing: CGFloat = 20
         
         static let horizontalPadding: CGFloat = 22
         static let topPadding: CGFloat = 18
         static let bottomPadding: CGFloat = 18
+        
+        static func placeToMessageSpacing(hasResponseMessage: Bool) ->  CGFloat {
+            hasResponseMessage ? 16 : 22
+        }
     }
     
     @State private var showTimePopup: Bool = false
@@ -51,7 +54,7 @@ struct RespondAcceptCard: View {
     }
     
     private var hasResponseMessage: Bool {
-        vm.respondDraft.respondMessage?.isEmpty != false
+        vm.respondDraft.respondMessage?.isEmpty == false
     }
 
     var body: some View {
@@ -62,7 +65,7 @@ struct RespondAcceptCard: View {
                 .padding(.bottom, Layout.timeToPlaceSpacing)
             RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
             messageSection
-                .padding(.top, Layout.placeToMessageSpacing)
+                .padding(.top, Layout.placeToMessageSpacing(hasResponseMessage: hasResponseMessage))
             actionSection
                 .padding(.top, Layout.actionTopSpacing)
         }
@@ -124,7 +127,13 @@ extension RespondAcceptCard {
     @ViewBuilder
     private var messageSection: some View {
         if let originalMessage = nonEmptyMessage(event.message) {
-            RespondMessageBubble(showMessageScreen: $showMessageScreen, isRespondBelow: hasResponseMessage, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage)
+            VStack(alignment: .leading, spacing: 12) {
+                RespondMessageBubble(showMessageScreen: $showMessageScreen, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage)
+                
+                if let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage) {
+                    RespondMessageBubble(showMessageScreen: $showMessageScreen, message: replyMessage, isMyChat: true, hasMessageResponse: true)
+                }
+            }
         }
     }
 }
