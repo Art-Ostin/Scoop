@@ -39,7 +39,12 @@ struct RespondAcceptCard: View {
             VStack(alignment: .leading, spacing: 16) {
                 RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location)
+                VStack(alignment: .leading, spacing: 14)  {
+                    RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, respondMessage: vm.respondDraft.respondMessage, eventMessage: vm.respondDraft.newTime.event.message)
+                    if let originalMessage = event.message {
+                        RespondWithMessage(message: originalMessage)
+                    }
+                }
             }
             .zIndex(2)
             actionSection
@@ -96,6 +101,41 @@ extension RespondAcceptCard {
             return nil
         }
         return trimmed
+    }
+    
+    private func messageSection(originalMessage: String) -> some View {
+        HStack {
+            Text(originalMessage)
+                .font(.body(14, .italic))
+                .foregroundStyle(Color.black.opacity(0.8))
+                .padding( .leading, 32)
+                .multilineTextAlignment( .leading)
+                .layoutPriority(1)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            Spacer(minLength: 12)
+            
+            addMessageButton
+                .fixedSize()
+        }
+    }
+    
+    private var addMessageButton: some View {
+        Button {
+            showMessageScreen = true
+        } label : {
+            Image("AddMessageIcon")
+                .padding(12)
+                .contentShape(Rectangle())
+                .padding(-12)
+                .padding(6)
+                .background(
+                    Circle()
+                        .foregroundStyle(Color.white).opacity(0.3)
+                )
+                .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
+        }
     }
 }
 

@@ -85,6 +85,7 @@
 		653FB5782F68886700440E41 /* EventMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5772F68886700440E41 /* EventMapView.swift */; };
 		653FB57A2F688A2E00440E41 /* EventInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5792F688A2E00440E41 /* EventInfoView.swift */; };
 		653FB57C2F688B8300440E41 /* EventSlot 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB57B2F688B8300440E41 /* EventSlot 2.swift */; };
+		6541B2F62F84657F009A7730 /* RespondWithMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6541B2F52F84657F009A7730 /* RespondWithMessage.swift */; };
 		654982BC2E2E66A500CA335F /* VerifyEmailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982BB2E2E66A500CA335F /* VerifyEmailViewModel.swift */; };
 		654982C02E2FA54100CA335F /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982BF2E2FA54100CA335F /* StorageService.swift */; };
 		654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982D32E3101BE00CA335F /* OnboardingImages.swift */; };
@@ -358,6 +359,7 @@
 		653FB5772F68886700440E41 /* EventMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMapView.swift; sourceTree = "<group>"; };
 		653FB5792F688A2E00440E41 /* EventInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfoView.swift; sourceTree = "<group>"; };
 		653FB57B2F688B8300440E41 /* EventSlot 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EventSlot 2.swift"; sourceTree = "<group>"; };
+		6541B2F52F84657F009A7730 /* RespondWithMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondWithMessage.swift; sourceTree = "<group>"; };
 		654982BB2E2E66A500CA335F /* VerifyEmailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyEmailViewModel.swift; sourceTree = "<group>"; };
 		654982BF2E2FA54100CA335F /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		654982D32E3101BE00CA335F /* OnboardingImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImages.swift; sourceTree = "<group>"; };
@@ -699,6 +701,7 @@
 				650DA36A2F6C51900013EB30 /* RespondAcceptCard.swift */,
 				651795302F7F062A001D70E4 /* RespondTitle.swift */,
 				65AD49132F82CFDB002B91BA /* RespondPlaceRow.swift */,
+				6541B2F52F84657F009A7730 /* RespondWithMessage.swift */,
 				652882E32F708AE1000B724D /* RespondTimeView */,
 				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 			);
@@ -1662,6 +1665,7 @@
 				651975952F1FC67E0002F6A2 /* ExpandTapArea.swift in Sources */,
 				656B31D52F252E90008641C1 /* FrozenContainer.swift in Sources */,
 				655FADCB2E89F0FC00AFAD5F /* ProfileImageView.swift in Sources */,
+				6541B2F62F84657F009A7730 /* RespondWithMessage.swift in Sources */,
 				655FADCC2E89F0FC00AFAD5F /* ProfileViewModel.swift in Sources */,
 				650E8E5C2EB80D9E009F5454 /* DetailsSections.swift in Sources */,
 				650DA36B2F6C51900013EB30 /* RespondAcceptCard.swift in Sources */,

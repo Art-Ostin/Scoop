@@ -10,19 +10,22 @@ import SwiftUI
 struct RespondMessagesView: View {
     
     let originalMessage: String
-    let replyMessage: String
+    
+    let replyMessage: String?
     
     @Binding var showMessageScreen: Bool
     
     var body: some View {
         VStack(spacing: 6) {
             messageBubble(originalMessage, isMyChat: false)
-            Button {
-                showMessageScreen = true
-            } label: {
-                messageBubble(replyMessage, isMyChat: true)
+            if let replyMessage {
+                Button {
+                    showMessageScreen = true
+                } label: {
+                    messageBubble(replyMessage, isMyChat: true)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .offset(x: -10)
         .padding(.vertical, 6)

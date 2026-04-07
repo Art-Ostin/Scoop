@@ -12,6 +12,9 @@ struct RespondPlaceRow: View {
     
     let location: EventLocation
     
+    let respondMessage: String?
+    let eventMessage: String?
+    
     var body: some View {
         HStack(spacing: 0) {
             Image("MiniMapIcon")
@@ -19,8 +22,12 @@ struct RespondPlaceRow: View {
             eventNameAndAddress
                 .layoutPriority(1)
             Spacer(minLength: 12)
-            addMessageButton
-                .fixedSize()
+            
+            
+            if respondMessage?.isEmpty == false && eventMessage?.isEmpty == false {
+                addMessageButton
+                    .fixedSize()
+            }
         }
     }
 }
@@ -42,7 +49,6 @@ extension RespondPlaceRow {
                 )
                 .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
                 .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
-
         }
     }
     
