@@ -13,9 +13,9 @@ struct RespondAcceptCard: View {
     
     private enum Layout {
         static let titleToTimeSpacing: CGFloat = 12
-        static let timeToPlaceSpacing: CGFloat = 10
-        static let placeToMessageSpacing: CGFloat = 12
-        static let actionTopSpacing: CGFloat = 18
+        static let timeToPlaceSpacing: CGFloat = 14
+        static let placeToMessageSpacing: CGFloat = 20
+        static let actionTopSpacing: CGFloat = 20
         
         static let horizontalPadding: CGFloat = 22
         static let topPadding: CGFloat = 18
@@ -58,15 +58,11 @@ struct RespondAcceptCard: View {
         VStack(alignment: .leading, spacing: 0) {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 .padding(.bottom, Layout.titleToTimeSpacing)
-
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
                 .padding(.bottom, Layout.timeToPlaceSpacing)
-            
             RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-            
             messageSection
                 .padding(.top, Layout.placeToMessageSpacing)
-
             actionSection
                 .padding(.top, Layout.actionTopSpacing)
         }
