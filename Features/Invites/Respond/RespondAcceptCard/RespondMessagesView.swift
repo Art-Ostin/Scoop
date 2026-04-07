@@ -20,7 +20,7 @@ struct RespondMessagesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 6) {
             messageBubble(originalMessage, isMyChat: false)
             if let replyMessage {
                 Button {
@@ -29,11 +29,11 @@ struct RespondMessagesView: View {
                     messageBubble(replyMessage, isMyChat: true)
                 }
                 .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .offset(x: onlyOriginal ? 0 : -10)
         .padding(.leading, onlyOriginal ? 14 : 24)
-//        .padding(.trailing, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -48,10 +48,11 @@ extension RespondMessagesView {
             bottomSpacing: 0
         )
         .overlay(alignment: .bottomTrailing) {
-            Text("Add Response")
+            Text("Respond")
                 .font(.body(12, .bold))
                 .foregroundStyle(Color.appGreen)
-                .padding(4)
+                .padding(3)
+                .padding(.horizontal, 9)
         }
     }
 
@@ -84,3 +85,6 @@ extension RespondMessagesView {
 
  
  */
+
+//         .offset(x: onlyOriginal ? 0 : -10)
+

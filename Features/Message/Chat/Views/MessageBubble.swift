@@ -27,6 +27,14 @@ struct MessageBubbleView: View {
         isMyChat ? Color.accent.opacity(0.5) : Color.grayPlaceholder.opacity(0.1)
     }
     
+    private var bubbleContentLeadingPadding: CGFloat {
+        isInviteMessage ? 8 : 16
+    }
+
+    private var bubbleContentTrailingPadding: CGFloat {
+        isInviteMessage ? 20 : 16
+    }
+    
     var backgroundColor: Color {
         isInviteMessage ? isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93) : isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
     }
@@ -36,8 +44,8 @@ struct MessageBubbleView: View {
             .font(.body(isInviteMessage ? 14 : 16, .medium))
             .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : isInviteMessage ?  Color(red: 0.2, green: 0.2, blue: 0.2) : Color.black)
             .lineSpacing(isInviteMessage ? 3 : 5)
-            .padding(.horizontal, isInviteMessage ? 6 : 16)
-            .padding(.leading, isInviteMessage ? 2 : 0)
+            .padding(.leading, bubbleContentLeadingPadding)
+            .padding(.trailing, bubbleContentTrailingPadding)
             .padding(.vertical, isInviteMessage ? 4 : 10)
             .padding(.bottom, isTimeBelow ? 12 : 0)
             .background(messageBackground)
