@@ -39,11 +39,17 @@ extension RespondMessagesView {
         MessageBubbleView(
             chat: MessageModel(authorId: "", recipientId: "", content: content),
             newAuthor: true,
-            nextIsNewAuthor: false, //Change to true for next one
+            nextIsNewAuthor: true, //Change to true for next one
             isMyChat: isMyChat,
             isInviteMessage: true,
             bottomSpacing: 0
         )
+        .overlay(alignment: .bottomTrailing) {
+            Text("Add Response")
+                .font(.body(12, .bold))
+                .foregroundStyle(Color.appGreen)
+                .padding(4)
+        }
     }
 
     private var messageThreadIndicator: some View {

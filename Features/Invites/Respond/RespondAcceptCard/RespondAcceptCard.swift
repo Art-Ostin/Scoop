@@ -42,7 +42,7 @@ struct RespondAcceptCard: View {
             VStack(alignment: .leading, spacing: 16) {
                 RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                VStack(alignment: .leading, spacing: showMessages ? 16 : 20) {
+                VStack(alignment: .leading, spacing: showMessages ? 16 : 16) {
                     RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
                                         
                     if let originalMessage = nonEmptyMessage(event.message) {
