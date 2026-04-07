@@ -15,8 +15,8 @@ struct RespondPopupContainer: View {
     @State var showInfo: Bool = false
     @State private var selectedTab = 0
     
-    private let peek: CGFloat = 0
-    private let spacing: CGFloat = 16
+    private let peek: CGFloat = 12
+    private let spacing: CGFloat = 0
     
     var body: some View {
         ZStack {
@@ -38,7 +38,6 @@ struct RespondPopupContainer: View {
                     .scrollTargetLayout()
                     .frame(maxHeight: .infinity, alignment: .center)
                 }
-                .safeAreaPadding(.horizontal, peek)
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
             }
@@ -59,7 +58,7 @@ extension RespondPopupContainer {
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
-                    return content.scaleEffect(scale, anchor: .center)
+                    return content.scaleEffect(scale, anchor: .trailing)
                 }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -76,10 +75,8 @@ extension RespondPopupContainer {
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
 
-                    return content.scaleEffect(scale, anchor: .center)
+                    return content.scaleEffect(scale, anchor: .leading)
                 }
-            
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
