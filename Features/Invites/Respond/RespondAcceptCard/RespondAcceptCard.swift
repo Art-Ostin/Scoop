@@ -12,13 +12,14 @@ struct RespondAcceptCard: View {
     @Binding var isFlipped: Bool
     
     private enum Layout {
+        static let titleToTimeSpacing: CGFloat = 12
+        static let timeToPlaceSpacing: CGFloat = 10
+        static let placeToMessageSpacing: CGFloat = 12
+        static let actionTopSpacing: CGFloat = 18
+        
         static let horizontalPadding: CGFloat = 22
         static let topPadding: CGFloat = 18
         static let bottomPadding: CGFloat = 18
-        static let titleToTimeSpacing: CGFloat = 12
-        static let timeToDetailsSpacing: CGFloat = 10
-        static let placeToMessageSpacing: CGFloat = 12
-        static let actionTopSpacing: CGFloat = 18
     }
     
     @State private var showTimePopup: Bool = false
@@ -52,8 +53,6 @@ struct RespondAcceptCard: View {
     private var hasResponseMessage: Bool {
         vm.respondDraft.respondMessage?.isEmpty != false
     }
-    
-    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -61,16 +60,12 @@ struct RespondAcceptCard: View {
                 .padding(.bottom, Layout.titleToTimeSpacing)
 
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                .padding(.bottom, Layout.timeToDetailsSpacing)
-
-            VStack(alignment: .leading, spacing: hasEventMessage ? Layout.placeToMessageSpacing : 0) {
-                RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-
-                if let originalMessage = nonEmptyMessage(event.message) {
-                    RespondMessageBubble(message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, addMessageScreen: $showMessageScreen)
-                }
-            }
-            .zIndex(2)
+                .padding(.bottom, Layout.timeToPlaceSpacing)
+            
+            RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
+            
+            messageSection
+                .padding(.top, Layout.placeToMessageSpacing)
 
             actionSection
                 .padding(.top, Layout.actionTopSpacing)
@@ -130,94 +125,10 @@ extension RespondAcceptCard {
         return trimmed
     }
     
-    private func messageSection(originalMessage: String) -> some View {
-        HStack {
-            Text(originalMessage)
-                .font(.body(14, .italic))
-                .foregroundStyle(Color.black.opacity(0.8))
-                .padding( .leading, 32)
-                .multilineTextAlignment( .leading)
-                .layoutPriority(1)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            Spacer(minLength: 12)
-            
-            addMessageButton
-                .fixedSize()
-        }
-    }
-    
-    private var addMessageButton: some View {
-        Button {
-            showMessageScreen = true
-        } label : {
-            Image("AddMessageIcon")
-                .padding(12)
-                .contentShape(Rectangle())
-                .padding(-12)
-                .padding(6)
-                .background(
-                    Circle()
-                        .foregroundStyle(Color.white).opacity(0.3)
-                )
-                .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
-                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
+    @ViewBuilder
+    private var messageSection: some View {
+        if let originalMessage = nonEmptyMessage(event.message) {
+            RespondMessageBubble(showMessageScreen: $showMessageScreen, isRespondBelow: hasResponseMessage, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage)
         }
     }
 }
-
-
-/*
- //        .animation(.easeInOut(duration: 0.2), value: showMessageRow)
- 
- private var displayedMessages: (original: String, reply: String)? {
-     guard
-         let originalMessage = nonEmptyMessage(event.message),
-         let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage)
-     else {
-         return nil
-     }
-     return (originalMessage, replyMessage)
- }
-
- var showMessageRow: Bool {
-     displayedMessages != nil
- }
-
- */
-
-
-/*
- private var placeRow: some View {
-     HStack(spacing: 24) {
-         Image("MiniMapIcon")
-         let location = event.location
-         VStack(alignment: .leading, spacing: 4) {
-                 Text(location.name ?? "")
-                     .font(.body(17, .medium))
-                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
-                 
-                 Text(FormatEvent.addressWithoutCountry(location.address))
-                     .font(.body(12, .medium))
-                     .underline()
-                     .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
-                     .lineLimit(1)
-             }
-         .frame(maxWidth: .infinity, alignment: .leading)
-         
-         Image("AddMessageIcon")
-             .frame(maxWidth: 40, alignment: .trailing)
-     }
- }
-
- 
- respondMessagesView
- 
- 
- if let messages = displayedMessages {
-     RespondMessagesView(originalMessage: messages.original, replyMessage: messages.reply, showMessageScreen: $showMessageScreen)
- } else if let originalMessage = nonEmptyMessage(event.message) {
-     RespondWithMessage(message: originalMessage, messageResponse: vm.respondDraft.respondMessage, showMessageButton: $showMessageScreen)
- }
-
- */

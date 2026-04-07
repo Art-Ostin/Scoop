@@ -32,6 +32,7 @@ struct RespondMessageBubble: View {
                 .overlay(alignment: .bottomTrailing) { messageBubbleAction }
                 .frame(maxWidth: .infinity, alignment: isMyChat ? .leading : .trailing)
                 .padding(.leading, 14)
+                .multilineTextAlignment(.leading)
         }
     }
 }
