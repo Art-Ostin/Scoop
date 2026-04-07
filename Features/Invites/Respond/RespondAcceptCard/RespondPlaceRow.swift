@@ -24,10 +24,10 @@ struct RespondPlaceRow: View {
             Spacer(minLength: 12)
             
             
-            if respondMessage?.isEmpty == false && eventMessage?.isEmpty == false {
-                addMessageButton
-                    .fixedSize()
-            }
+//            if respondMessage?.isEmpty == false && eventMessage?.isEmpty == false {
+//            MessageAddButton(showMessageScreen: $showMessageScreen)
+//                    .fixedSize()
+//            }
         }
     }
 }
@@ -63,6 +63,29 @@ extension RespondPlaceRow {
                     .underline()
                     .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
                     .lineLimit(1)
+        }
+    }
+}
+
+struct MessageAddButton: View {
+    
+    @Binding var showMessageScreen: Bool
+    
+    var body: some View {
+        Button {
+            showMessageScreen = true
+        } label : {
+            Image("AddMessageIcon")
+                .padding(12)
+                .contentShape(Rectangle())
+                .padding(-12)
+                .padding(6)
+                .background(
+                    Circle()
+                        .foregroundStyle(Color.white).opacity(0.3)
+                )
+                .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
         }
     }
 }

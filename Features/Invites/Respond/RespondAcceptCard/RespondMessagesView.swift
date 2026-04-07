@@ -28,13 +28,8 @@ struct RespondMessagesView: View {
             }
         }
         .offset(x: -10)
-        .padding(.vertical, 6)
-        .padding(.leading, 44)
+        .padding(.leading, 24)
         .padding(.trailing, 6)
-        .padding(.bottom, 4)
-        .overlay(alignment: .leading) {
-            messageThreadIndicator
-        }
     }
 }
 
@@ -67,3 +62,15 @@ extension RespondMessagesView {
             .padding(.top, 10)
     }
 }
+
+/*
+ Modifiers I've removed
+ 
+ .overlay(alignment: .leading) {
+     messageThreadIndicator
+ }
+ .padding(.leading, 44)
+
+
+ 
+ */

@@ -33,8 +33,8 @@ struct MessageBubbleView: View {
     
     var body: some View {
         Text(chat.content)
-            .font(isInviteMessage ?.footnote : .body(16, .medium))
-            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : isInviteMessage ? Color.gray : Color.black)
+            .font(.body(isInviteMessage ? 14 : 16, .medium))
+            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : isInviteMessage ?  Color(red: 0.2, green: 0.2, blue: 0.2) : Color.black)
             .lineSpacing(isInviteMessage ? 3 : 5)
             .padding(.horizontal, isInviteMessage ? 6 : 16)
             .padding(.leading, isInviteMessage ? 2 : 0)
@@ -136,4 +136,3 @@ extension MessageBubbleView {
         }
     }
 }
-
