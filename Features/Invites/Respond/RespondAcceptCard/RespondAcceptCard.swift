@@ -44,11 +44,9 @@ struct RespondAcceptCard: View {
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
                 VStack(alignment: .leading, spacing: showMessages ? 16 : 20) {
                     RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-                    
-                    if let messages = displayedMessages {
-                        RespondMessagesView(originalMessage: messages.original, replyMessage: messages.reply, showMessageScreen: $showMessageScreen)
-                    } else if let originalMessage = nonEmptyMessage(event.message) {
-                        RespondWithMessage(message: originalMessage, messageResponse: vm.respondDraft.respondMessage, showMessageButton: $showMessageScreen)
+                                        
+                    if let originalMessage = nonEmptyMessage(event.message) {
+                        RespondMessagesView(originalMessage: originalMessage, replyMessage: vm.respondDraft.respondMessage, showMessageScreen: $showMessageScreen)
                     }
                 }
             }
@@ -192,4 +190,10 @@ extension RespondAcceptCard {
  respondMessagesView
  
  
+ if let messages = displayedMessages {
+     RespondMessagesView(originalMessage: messages.original, replyMessage: messages.reply, showMessageScreen: $showMessageScreen)
+ } else if let originalMessage = nonEmptyMessage(event.message) {
+     RespondWithMessage(message: originalMessage, messageResponse: vm.respondDraft.respondMessage, showMessageButton: $showMessageScreen)
+ }
+
  */

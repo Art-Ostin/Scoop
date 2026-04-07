@@ -7,6 +7,44 @@
 
 import SwiftUI
 
+
+struct NewRespondWithMessage: View {
+    
+    @Binding var showMessageButton: Bool
+
+    let message: String
+    
+    var body: some View {
+        Button {
+            showMessageButton = true
+        } label: {
+            Text(message)
+                .font(.body(14, .medium))
+                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                .lineSpacing(3)
+                .padding(.horizontal, 6)
+                .padding(.leading, 2)
+                .padding(.vertical, 4)
+                .background (
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.background)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.grayPlaceholder.opacity(0.1),
+                                    style: StrokeStyle(lineWidth: 1, lineJoin: .round)
+                                )
+                        }
+                )
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .multilineTextAlignment(.leading)
+        }
+    }
+}
+
+
+
+
+
 struct RespondWithMessage: View {
     let message: String
     let messageResponse: String?

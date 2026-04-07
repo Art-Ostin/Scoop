@@ -29,7 +29,8 @@ struct RespondMessagesView: View {
         }
         .offset(x: -10)
         .padding(.leading, 24)
-        .padding(.trailing, 6)
+        .padding(.trailing, -20)
+//        .padding(.trailing, 6)
     }
 }
 
@@ -38,7 +39,7 @@ extension RespondMessagesView {
         MessageBubbleView(
             chat: MessageModel(authorId: "", recipientId: "", content: content),
             newAuthor: true,
-            nextIsNewAuthor: true,
+            nextIsNewAuthor: false, //Change to true for next one
             isMyChat: isMyChat,
             isInviteMessage: true,
             bottomSpacing: 0

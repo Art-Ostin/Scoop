@@ -120,7 +120,7 @@ extension MessageBubbleView {
     private var bubbleShape: MessageBubbleShape {
         MessageBubbleShape(
             topLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (newAuthor ? (isInviteMessage ? 12 : 16) : 4),
-            bottomLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (nextIsNewAuthor ? 0 : 4),
+            bottomLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (nextIsNewAuthor ? 0 : isInviteMessage ? 12 : 4),
             bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): (isInviteMessage ? 12 : 16),
             topTrailingRadius: isMyChat ? (newAuthor ? (isInviteMessage ? 12 : 16) : 4) : (isInviteMessage ? 12 : 16),
             tail: nextIsNewAuthor ? (isMyChat ? .trailing : .leading) : .none
