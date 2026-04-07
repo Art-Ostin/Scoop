@@ -30,7 +30,6 @@ struct DropDownChevron: View {
                             .strokeBorder(Color.grayPlaceholder.opacity(0.3), lineWidth: 0.5)
                     }
                     .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-
                     .contentShape(Rectangle())
                     .padding(14)
             }

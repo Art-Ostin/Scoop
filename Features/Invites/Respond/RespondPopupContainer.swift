@@ -77,7 +77,6 @@ extension RespondPopupContainer {
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
-
                     return content.scaleEffect(scale, anchor: .leading).offset(y: 32)
                 }
         }

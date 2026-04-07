@@ -32,24 +32,41 @@ extension InviteTypeRow {
     
     private var inviteTypeRow: some View {
         HStack {
-            if message.isEmpty {
-                typeWithNoMessage
-            } else {
-                typeWithMessage
+            Group {
+                if message.isEmpty {
+                    typeWithNoMessage
+                } else {
+                    typeWithMessage
+                }
             }
+            .layoutPriority(1)
             Spacer()
-            DropDownButton(isExpanded: $ui.showTypePopup)
+            
+            DropDownChevron(showTimePopup: $ui.showTypePopup)
+                .fixedSize()
         }
         .frame(height: ui.rowHeight)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var typeWithMessage: some View {
-        (inviteType + inviteMessage(trimmed: message) + editButton)
-            .lineSpacing(6)
-            .contentShape(.rect)
-            .onTapGesture { openMessageScreen() }
-            .onLongPressGesture(minimumDuration: 0.1, pressing: { ui.isMessageTap = $0 },perform: {}) //Have no actual pressing
+        Button {
+            openMessageScreen()
+        } label: {
+            (
+                Text("\(eventType.description.emoji) \(eventType.description.label): ")
+                    .font(.body(16, .bold))
+                + Text(message)
+                    .font(.body(14, .medium))
+                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                + Text("  Edit")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
+            )
+            .lineSpacing(3)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(.leading)
+        }
     }
     
     private var inviteType: Text {
@@ -68,7 +85,6 @@ extension InviteTypeRow {
         Text(" edit")
             .font(.body(12, .italic))
             .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
-
     }
 }
 
@@ -102,3 +118,15 @@ extension InviteTypeRow {
         }
     }
 }
+
+/*
+ 
+ (inviteType + Text(message) + editButton)
+     .font(.body(16))
+     .lineSpacing(6)
+     .contentShape(.rect)
+     .onTapGesture { openMessageScreen() }
+     .onLongPressGesture(minimumDuration: 0.1, pressing: { ui.isMessageTap = $0 },perform: {}) //Have no actual pressing
+     .frame(maxWidth: .infinity, alignment: .leading)
+
+ */
