@@ -5,6 +5,8 @@
 //  Created by Art Ostin on 02/03/2026.
 //
 
+//Simplify KEY!!! Not using IsInviteMessage Here anymore
+
 import SwiftUI
 import UIKit
 
@@ -116,7 +118,6 @@ extension MessageBubbleView {
     @ViewBuilder
     private var hourMessageSent: some View  {
         let text: String = isInviteMessage && isMyChat ? "Edit note" : isInviteMessage ? "" : FormatEvent.hourTime(chat.dateCreated ?? Date())
-        
         Text(text)
             .font(.body(10, isInviteMessage ? .bold : .regular))
             .padding(.horizontal, 10)
@@ -144,3 +145,36 @@ extension MessageBubbleView {
         }
     }
 }
+
+func textLayoutMetrics(text: String, width: CGFloat, font: UIFont) -> (lineCount: Int, trailingSpace: CGFloat) {
+    guard !text.isEmpty, width > 0 else { return (1, width) }
+    let paragraph = NSMutableParagraphStyle()
+    paragraph.lineSpacing = 5
+    let attr = NSAttributedString(
+        string: text,
+        attributes: [
+            .font: font,
+            .paragraphStyle: paragraph
+        ]
+    )
+    let storage = NSTextStorage(attributedString: attr)
+    let layout = NSLayoutManager()
+    let container = NSTextContainer(size: CGSize(width: width, height: .greatestFiniteMagnitude))
+    container.lineFragmentPadding = 0
+    container.lineBreakMode = .byWordWrapping
+
+    storage.addLayoutManager(layout)
+    layout.addTextContainer(container)
+    layout.ensureLayout(for: container)
+
+    var lineCount = 0
+    var lastUsedRect = CGRect.zero
+    let glyphs = layout.glyphRange(for: container)
+    layout.enumerateLineFragments(forGlyphRange: glyphs) { _, usedRect, _, _, _ in
+        lineCount += 1
+        lastUsedRect = usedRect
+    }
+
+    return (max(1, lineCount), max(0, width - lastUsedRect.maxX))
+}
+

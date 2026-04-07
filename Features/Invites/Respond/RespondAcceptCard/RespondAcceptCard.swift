@@ -36,6 +36,12 @@ struct RespondAcceptCard: View {
         nonEmptyMessage(vm.respondDraft.respondMessage) == nil
         && nonEmptyMessage(event.message) == nil
     }
+    
+    private var hasResponseMessage: Bool {
+        vm.respondDraft.respondMessage?.isEmpty != false
+    }
+    
+    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -46,7 +52,11 @@ struct RespondAcceptCard: View {
                     RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
                                         
                     if let originalMessage = nonEmptyMessage(event.message) {
-                        RespondMessagesView(originalMessage: originalMessage, replyMessage: vm.respondDraft.respondMessage, showMessageScreen: $showMessageScreen)
+                        RespondMessageBubble(message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, addMessageScreen: $showMessageScreen)
+                        
+                        
+                        
+//                        RespondMessagesView(originalMessage: originalMessage, replyMessage: vm.respondDraft.respondMessage, showMessageScreen: $showMessageScreen)
                     }
                 }
             }
