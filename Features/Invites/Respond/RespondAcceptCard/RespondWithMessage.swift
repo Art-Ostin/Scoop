@@ -14,39 +14,52 @@ struct RespondWithMessage: View {
     @Binding var showMessageButton: Bool
     
     var body: some View {
-        Text(message)
-            .font(.body(14, .medium))
-            .lineSpacing(2)
-            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-            .frame(maxWidth: .infinity, alignment: .center)
-            .multilineTextAlignment(.leading)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 24)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(Color(red: 0.93, green: 0.93, blue: 0.93))
-            )
-            .overlay(alignment: .topLeading) {overlayQuote}
-            .overlay(alignment: .bottomTrailing) {overlayQuote}
-            .layoutPriority(1)
-            .overlay(alignment: .topTrailing) {
-                if messageResponse?.isEmpty != false {
-                    AddMessageButton(showMessageScreen: $showMessageButton, hasEventMessage: true)
-                        .offset(x: 6, y: -8)
+        
+        Button {
+            showMessageButton = true
+        } label: {
+            Text(message)
+                .font(.body(14, .medium))
+                .lineSpacing(5)
+                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.leading)
+                .padding(.vertical, 9)
+                .padding(.horizontal, 20)
+                .padding(.trailing, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .foregroundStyle(Color(red: 0.93, green: 0.93, blue: 0.93))
+                )
+                .overlay(alignment: .topLeading) {overlayQuoteTop}
+                .overlay(alignment: .bottomTrailing) {overlayQuoteBottom}
+                .layoutPriority(1)
+                .overlay(alignment: .topTrailing) {
+                    if messageResponse?.isEmpty != false {
+                        Image("GreenMessageIcon")
+                            .padding(6)
+                            .padding(.horizontal, 1.8)
+                    }
                 }
-            }
+        }
     }
 }
 
 extension RespondWithMessage {
 
-    private var overlayQuote: some View {
-        Text("\"")
-            .padding(.vertical, 4)
-            .padding(.horizontal, 12)
-            .font(.body(16, .medium))
+    private var overlayQuoteTop: some View {
+        Text("“")
+            .font(.system(size: 18, weight: .bold, design: .serif))
+            .padding(.leading, 7)
+            .offset(y: 3)
     }
     
+    private var overlayQuoteBottom: some View {
+        Text("”")
+            .font(.system(size: 18, weight: .bold, design: .serif))
+            .padding(.trailing, 7)
+            .offset(y: 1)
+    }
 }
 
 

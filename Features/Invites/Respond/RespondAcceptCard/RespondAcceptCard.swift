@@ -32,17 +32,18 @@ struct RespondAcceptCard: View {
     
     private var showMessages: Bool { displayedMessages != nil}
     
-    private var anyEventMessages: Bool {
-        vm.respondDraft.respondMessage?.isEmpty != false || event.message?.isEmpty != false
+    private var hasNoEventMessages: Bool {
+        nonEmptyMessage(vm.respondDraft.respondMessage) == nil
+        && nonEmptyMessage(event.message) == nil
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 16) {
                 RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
                 VStack(alignment: .leading, spacing: showMessages ? 8 : 20) {
-                    RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: anyEventMessages)
+                    RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
                     
                     if let messages = displayedMessages {
                         RespondMessagesView(originalMessage: messages.original, replyMessage: messages.reply, showMessageScreen: $showMessageScreen)
