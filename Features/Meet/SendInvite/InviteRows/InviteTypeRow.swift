@@ -31,7 +31,7 @@ struct InviteTypeRow: View {
 extension InviteTypeRow {
     
     private var inviteTypeRow: some View {
-        HStack {
+        HStack(spacing: 2) {
             Group {
                 if message.isEmpty {
                     typeWithNoMessage
@@ -39,11 +39,11 @@ extension InviteTypeRow {
                     typeWithMessage
                 }
             }
-            .layoutPriority(1)
-            Spacer()
-            
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             DropDownChevron(showTimePopup: $ui.showTypePopup)
                 .fixedSize()
+                .offset(x: 4)
         }
         .frame(height: ui.rowHeight)
         .frame(maxWidth: .infinity, alignment: .leading)

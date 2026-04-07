@@ -106,6 +106,7 @@ extension SelectTimeAndPlace {
                 Divider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
             sendInviteButton
@@ -187,7 +188,7 @@ extension SelectTimeAndPlace {
     }
     
     private var sendInviteButton: some View {
-        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Confirm & Send") {
+        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
             ui.showAlert.toggle()
         }
     }

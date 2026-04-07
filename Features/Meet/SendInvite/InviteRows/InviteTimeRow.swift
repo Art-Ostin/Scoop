@@ -25,7 +25,7 @@ struct InviteTimeRow: View {
     
     var body: some View {
         DropDownView(showOptions: $showTimePopup) {
-            ProposedTimesRow(dates: times, showTimePopup: $showTimePopup)
+            ProposedTimesRow(dates: times, showTimePopup: $showTimePopup, isAccept: false)
                 .frame(height: 50)
         } dropDown: {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)

@@ -14,13 +14,15 @@ struct ActionButton: View {
     var isInvite: Bool
     var onTap: () -> Void
     var cornerRadius: CGFloat
+    var showShadow: Bool
     
-    init(isValid: Bool = true, text: String, isInvite: Bool = false, cornerRadius: CGFloat = 24, onTap: @escaping () -> Void) {
+    init(isValid: Bool = true, text: String, isInvite: Bool = false, cornerRadius: CGFloat = 24, showShadow: Bool = true, onTap: @escaping () -> Void) {
         self.isValid = isValid
         self.text = text
         self.onTap = onTap
         self.cornerRadius = cornerRadius
         self.isInvite = isInvite
+        self.showShadow = showShadow
     }
     
     var body: some View {
@@ -31,13 +33,13 @@ struct ActionButton: View {
         } label: {
             Text(text)
                 .font(.body(18, .bold))
-                .padding(.horizontal, 24)
+                .padding(.horizontal, showShadow ? 24 : 36)
                 .padding(.vertical, 12)
                 .buttonStyle(.plain)
                 .background(isValid ? (isInvite ? Color.appGreen : Color.accent) : Color.grayBackground)
                 .foregroundStyle(.white)
                 .cornerRadius(cornerRadius)
-                .shadow(color: isValid ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 2)
+                .shadow(color: isValid ? .black.opacity(showShadow ? 0.2 : 0) : .clear, radius: 4, x: 0, y: 2)
         }
     }
 }
