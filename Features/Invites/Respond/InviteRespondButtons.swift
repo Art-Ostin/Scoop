@@ -46,33 +46,118 @@ struct DeclineButton: View {
 }
 
 struct AddMessageButton: View {
-
+    
     @Binding var showMessageScreen: Bool
+    
+    let hasEventMessage: Bool
     
     var body: some View {
         Button {
             showMessageScreen = true
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName:"plus")
-                    .font(.system(size: 10, weight: .bold))
-                
-                Text("Add note")
-                    .font(.custom("SFProRounded-Medium", size: 11))
-                    .kerning(0.4)
-            }
-            .foregroundStyle(Color.grayText)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background {
-                Capsule(style: .continuous)
-                    .fill(Color.white.opacity(0.92))
-            }
-            .stroke(24, lineWidth: 1, color: Color.grayBackground)
-            .surfaceShadow(.floating, strength: 0.5)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .contentShape(.rect)
+        } label : {
+            Image("AddMessageIcon")
+                .padding(12)
+                .contentShape(Rectangle())
+                .padding(-12)
+                .padding(6)
+                .background(
+                    Circle()
+                        .foregroundStyle(Color.white).opacity(hasEventMessage ? 0.7 : 0.3)
+                )
+                .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
+                .shadow(color: .black.opacity(hasEventMessage ? 0 : 0.05), radius: 1, x: 0, y: 1.5)
+
         }
-        .offset(y: 20)
     }
 }
+
+
+
+/*
+ struct MessageAddButton: View {
+     
+     @Binding var showMessageScreen: Bool
+     
+     var body: some View {
+         Button {
+             showMessageScreen = true
+         } label : {
+             Image("AddMessageIcon")
+                 .padding(12)
+                 .contentShape(Rectangle())
+                 .padding(-12)
+                 .padding(6)
+                 .background(
+                     Circle()
+                         .foregroundStyle(Color.white).opacity(0.3)
+                 )
+                 .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
+                 .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
+         }
+     }
+ }
+
+
+ */
+
+
+
+
+/*
+ Button {
+     showMessageScreen = true
+ } label : {
+     Image("AddMessageIcon")
+         .padding(12)
+         .contentShape(Rectangle())
+         .padding(-12)
+         .padding(6)
+         .background(
+             Circle()
+                 .foregroundStyle(Color.white).opacity(0.3)
+         )
+         .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
+         .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
+ }
+
+ */
+
+
+
+
+
+/*
+ 
+ struct AddMessageButton: View {
+
+     @Binding var showMessageScreen: Bool
+     
+     var body: some View {
+         Button {
+             showMessageScreen = true
+         } label: {
+             HStack(spacing: 4) {
+                 Image(systemName:"plus")
+                     .font(.system(size: 10, weight: .bold))
+                 
+                 Text("Add note")
+                     .font(.custom("SFProRounded-Medium", size: 11))
+                     .kerning(0.4)
+             }
+             .foregroundStyle(Color.grayText)
+             .padding(.horizontal, 8)
+             .padding(.vertical, 4)
+             .background {
+                 Capsule(style: .continuous)
+                     .fill(Color.white.opacity(0.92))
+             }
+             .stroke(24, lineWidth: 1, color: Color.grayBackground)
+             .surfaceShadow(.floating, strength: 0.5)
+             .frame(maxWidth: .infinity, alignment: .trailing)
+             .contentShape(.rect)
+         }
+         .offset(y: 20)
+     }
+ }
+
+ */

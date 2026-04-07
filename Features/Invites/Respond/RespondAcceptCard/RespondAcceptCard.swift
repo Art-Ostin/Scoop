@@ -20,10 +20,6 @@ struct RespondAcceptCard: View {
         vm.respondDraft.originalInvite.event
     }
     
-    var hasMessageResponse: Bool {
-        event.message?.isEmpty != false && vm.respondDraft.respondMessage?.isEmpty != false
-    }
-    
     private var displayedMessages: (original: String, reply: String)? {
         guard
             let originalMessage = nonEmptyMessage(event.message),
@@ -33,9 +29,11 @@ struct RespondAcceptCard: View {
         }
         return (originalMessage, replyMessage)
     }
-
-    var showMessageRow: Bool {
-        displayedMessages != nil
+    
+    private var showMessages: Bool { displayedMessages != nil}
+    
+    private var anyEventMessages: Bool {
+        vm.respondDraft.respondMessage?.isEmpty != false || event.message?.isEmpty != false
     }
     
     var body: some View {
@@ -43,13 +41,13 @@ struct RespondAcceptCard: View {
             VStack(alignment: .leading, spacing: 16) {
                 RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                VStack(alignment: .leading, spacing: hasMessageResponse ? 64 : 20)  {
-                    RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, respondMessage: vm.respondDraft.respondMessage, eventMessage: vm.respondDraft.newTime.event.message)
+                VStack(alignment: .leading, spacing: showMessages ? 8 : 20) {
+                    RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: anyEventMessages)
                     
-                    if let originalMessage = event.message, let responseMessage = vm.respondDraft.respondMessage {
-                        RespondMessagesView(originalMessage: originalMessage, replyMessage: responseMessage, showMessageScreen: $showMessageScreen)
-                    } else if let originalMessage = event.message {
-                        RespondWithMessage(message: originalMessage, showMessageButton: $showMessageScreen, messageResponse: vm.respondDraft.respondMessage)
+                    if let messages = displayedMessages {
+                        RespondMessagesView(originalMessage: messages.original, replyMessage: messages.reply, showMessageScreen: $showMessageScreen)
+                    } else if let originalMessage = nonEmptyMessage(event.message) {
+                        RespondWithMessage(message: originalMessage, messageResponse: vm.respondDraft.respondMessage, showMessageButton: $showMessageScreen)
                     }
                 }
             }
@@ -64,7 +62,6 @@ struct RespondAcceptCard: View {
         .offset(y: 24) // showMessageRow ? 0 :
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
-        .animation(.easeInOut(duration: 0.2), value: showMessageRow)
         .sheet(isPresented: $showMessageScreen) {
             AddMessageView(eventType: .constant(event.type), showMessageScreen: $showMessageScreen, message: $vm.respondDraft.respondMessage, isRespondMessage: true, name: vm.respondDraft.newTime.event.otherUserName)
         }
@@ -147,6 +144,24 @@ extension RespondAcceptCard {
 }
 
 
+/*
+ //        .animation(.easeInOut(duration: 0.2), value: showMessageRow)
+ 
+ private var displayedMessages: (original: String, reply: String)? {
+     guard
+         let originalMessage = nonEmptyMessage(event.message),
+         let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage)
+     else {
+         return nil
+     }
+     return (originalMessage, replyMessage)
+ }
+
+ var showMessageRow: Bool {
+     displayedMessages != nil
+ }
+
+ */
 
 
 /*
