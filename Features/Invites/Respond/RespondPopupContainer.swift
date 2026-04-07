@@ -15,7 +15,7 @@ struct RespondPopupContainer: View {
     @State var showInfo: Bool = false
     @State private var selectedTab = 0
     
-    private let peek: CGFloat = 82
+    private let peek: CGFloat = 0
     private let spacing: CGFloat = 16
     
     var body: some View {
@@ -38,7 +38,7 @@ struct RespondPopupContainer: View {
                     .scrollTargetLayout()
                     .frame(maxHeight: .infinity, alignment: .center)
                 }
-//                .safeAreaPadding(.horizontal, peek)
+                .safeAreaPadding(.horizontal, peek)
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
             }
