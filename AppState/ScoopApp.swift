@@ -28,6 +28,7 @@ struct ScoopApp: App {
     
     var body: some Scene {
         WindowGroup {
+//            TwoCardSwipeTest()
              RootView()
                  .appDependencies(dep)
                  .onAppear { dep.sessionManager.userStream(appState: $appState) }
