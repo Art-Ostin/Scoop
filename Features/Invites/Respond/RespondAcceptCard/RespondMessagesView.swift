@@ -15,6 +15,10 @@ struct RespondMessagesView: View {
     
     @Binding var showMessageScreen: Bool
     
+    var onlyOriginal: Bool {
+        replyMessage?.isEmpty != false
+    }
+    
     var body: some View {
         VStack(spacing: 6) {
             messageBubble(originalMessage, isMyChat: false)
@@ -27,9 +31,8 @@ struct RespondMessagesView: View {
                 .buttonStyle(.plain)
             }
         }
-        .offset(x: -10)
-        .padding(.leading, 24)
-        .padding(.trailing, -20)
+        .offset(x: onlyOriginal ? 0 : -10)
+        .padding(.leading, onlyOriginal ? 14 : 24)
 //        .padding(.trailing, 6)
     }
 }
