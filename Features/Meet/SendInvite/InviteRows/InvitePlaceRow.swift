@@ -32,8 +32,8 @@ struct InvitePlaceRow: View {
 extension InvitePlaceRow {
     
     private var noLocationPlaceholder: some View {
-        Text("Select a day to meet")
-            .font(.body(20, .bold))
+        Text("Select place")
+            .font(.body(15, .italic))
     }
     
     

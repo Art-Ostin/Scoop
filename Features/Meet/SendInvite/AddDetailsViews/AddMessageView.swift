@@ -96,7 +96,7 @@ extension AddMessageView {
                     .contentShape(.rect)
                     .onTapGesture { showTypePopup.toggle()}
             } else {
-                Text("Choose a meetup type")
+                Text("Choose a type")
                     .font(.body(15, .italic))
             }
             

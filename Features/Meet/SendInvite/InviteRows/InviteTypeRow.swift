@@ -85,7 +85,7 @@ extension InviteTypeRow {
                     addMessageButton
                 }
         } else {
-            Text("Choose a meetup type")
+            Text("Choose a type")
                 .font(.body(15, .italic))
         }
     }
