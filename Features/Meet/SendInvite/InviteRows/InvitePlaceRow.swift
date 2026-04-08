@@ -40,7 +40,7 @@ extension InvitePlaceRow {
     private func addressText(location: EventLocation) -> some View {
         VStack(alignment: .leading) {
             Text(location.name ?? "")
-                .font(.body(18, .bold))
+                .font(.body(16, .medium))
             Text(FormatEvent.addressWithoutCountry(location.address))
                 .font(.footnote)
                 .foregroundStyle(.gray)

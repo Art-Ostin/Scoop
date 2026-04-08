@@ -75,11 +75,12 @@ extension InviteTypeRow {
     private var eventSelectedType: some View {
         HStack(spacing: 0){
             Text(eventType.description.label)
-                .font(.body(18, .bold))
+                .font(.body(16, .medium))
             
             Text(eventType.description.emoji)
                 .font(.body(15, .medium))
-                .offset(y: -4)
+                .offset(y: eventType == .drink || eventType == .socialMeet ? -4 : 0)
+                .offset(x: eventType == .socialMeet ? 1 : 0)
         }
         .offset(x: -1)
     }
@@ -88,11 +89,8 @@ extension InviteTypeRow {
 //With No Message Views
 extension InviteTypeRow {
     @ViewBuilder private var typeWithNoMessage: some View {
-        let type = eventType.description.label
-        let emoji = eventType.description.emoji
         VStack(alignment: .leading, spacing: 2) {
-            Text("\(emoji)\(type)")
-                .font(.body(18))
+            eventSelectedType
             addMessageButton
         }
     }

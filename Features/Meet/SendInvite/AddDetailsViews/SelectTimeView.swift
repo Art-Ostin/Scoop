@@ -26,19 +26,21 @@ struct SelectTimeView: View {
     var body: some View {
         VStack(spacing: 12) {
             dayPicker
+//                .scaleEffect(isRespondMode ? 0.95 : 1)
                 .scaleEffect(isRespondMode ? 0.95 : 1)
+
             Divider()
                 .padding(.horizontal, isRespondMode ? 16 : 0)
             timePicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
                 .offset(y: isRespondMode ? -10 : 0)
         }
-        .frame(width: 280)
+        .frame(width: isRespondMode ? 280 : 260)
         .overlay(alignment: .bottomTrailing) {doneButton}
         .padding(.horizontal, isRespondMode ? 0 : 24)
         .padding(.top, isRespondMode ? 0 : 24)
-        .padding(.bottom, isRespondMode ? -12 : 12)
-        .background { if !isRespondMode {CardBackground(cornerRadius: 16)}}
+        .padding(.bottom, isRespondMode ? -12 : 0)
+        .background { if !isRespondMode {CardBackground(color: .black, cornerRadius: 16)}}
         .onAppear { syncTimePickerIfNeeded() }
         .onChange(of: selectedHour) { proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
         .onChange(of: selectedMinute) { proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
@@ -117,7 +119,7 @@ extension SelectTimeView {
     }
     
     private var dayPicker: some View {
-        return LazyVGrid(columns: columns, spacing: isRespondMode ? 10 : 12) {
+        return LazyVGrid(columns: columns, spacing: 10) {
             ForEach(0..<7) {idx in
                 Text(days[idx], format: .dateTime.weekday(.abbreviated))
                     .font(.body(12, .regular))
@@ -233,4 +235,5 @@ extension SelectTimeView {
 /*
  .font(.body(12, isRespondMode ? .regular : .bold))
  .foregroundStyle(isRespondMode ?  Color(red: 0.6, green: 0.6, blue: 0.6) : Color(red: 0.2, green: 0.2, blue: 0.2))
+ return LazyVGrid(columns: columns, spacing: isRespondMode ? 10 : 12) {
  */

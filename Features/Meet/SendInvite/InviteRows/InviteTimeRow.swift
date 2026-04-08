@@ -24,16 +24,9 @@ struct InviteTimeRow: View {
     }
     
     var body: some View {
-        DropDownView(showOptions: $showTimePopup) {
+        DropDownView(verticalOffset: 42, showOptions: $showTimePopup) {
             VStack(alignment: .leading, spacing: -2) {
                 ProposedTimesRow(dates: times, showTimePopup: $showTimePopup, isAccept: false)
-                if times.count > 1 {
-                    if let firstDate = times.first {
-                        Text(FormatEvent.hourTime(firstDate))
-                            .font(.footnote)
-                            .foregroundStyle(Color.gray)
-                    }
-                }
             }
             .frame(minHeight: 40)
         } dropDown: {
@@ -42,3 +35,14 @@ struct InviteTimeRow: View {
         }
     }
 }
+
+/*
+ if times.count > 1 {
+     if let firstDate = times.first {
+         Text(FormatEvent.hourTime(firstDate))
+             .font(.footnote)
+             .foregroundStyle(Color.gray)
+     }
+ }
+
+ */

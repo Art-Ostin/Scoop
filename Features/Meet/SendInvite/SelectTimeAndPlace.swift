@@ -103,11 +103,11 @@ extension SelectTimeAndPlace {
         
         VStack(spacing: 0) {
             popupTitle
-            VStack(spacing: 12) {
+            VStack(spacing: 16) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
-                MapDivider()
+//                MapDivider()
                 InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
-                MapDivider()
+//                MapDivider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
             }
             .padding(.bottom, event.location == nil ? 20 : 16)
@@ -220,4 +220,6 @@ extension SelectTimeAndPlace {
 
         return (messageLarge && dateLarge) || (messageLarge && placeLarge) || (placeLarge && dateLarge)
     }
+    
+//    private var decreaseEventInfoVerticalPadding: some
 }
