@@ -35,7 +35,7 @@ struct InviteTimeRow: View {
                     }
                 }
             }
-            .frame(height: 40)
+            .frame(height: (times.count > 1) ? 50 : 40)
         } dropDown: {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)

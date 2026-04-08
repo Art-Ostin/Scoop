@@ -70,6 +70,10 @@ struct SelectTimeAndPlace: View {
     let deleteEventDefault: () -> ()
     let sendInvite: () -> ()
     
+    var isLotsOfText: Bool {
+        (event.message?.count ?? 0) > 40
+    }
+    
     var body: some View {
         ZStack {
             if !respondWithInvite {
@@ -101,13 +105,13 @@ extension SelectTimeAndPlace {
             popupTitle
             VStack(spacing: 10) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
-                Divider()
+                MapDivider()
                 InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
-                Divider()
+                MapDivider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
             }
-            .padding(.top, (event.message?.count ?? 0) > 70 ? 6 : 12)
-            .padding(.bottom, 16)
+            .padding(.top, (event.message?.count ?? 0) > 70 ? 6 : 16)
+            .padding(.bottom, event.location != nil ? 16 : 0)
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
@@ -115,10 +119,10 @@ extension SelectTimeAndPlace {
         }
         .frame(alignment: .top)
         .padding(.vertical, 24)
-        .padding(.horizontal, 28)
+        .padding(.horizontal, isLotsOfText ? 28 : 32) //If more text, decrease padding
         .frame(maxWidth: .infinity)
         .background (cardBackground)
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24 - (event.proposedTimes.dates.count > 1 && event.location != nil ? 4 : 0))
         .onChange(of: ui.showTypePopup) {_, newValue in
             if newValue { ui.showTimePopup = false}
         }
@@ -183,7 +187,7 @@ extension SelectTimeAndPlace {
     
     private var popupTitle: some View {
         HStack(spacing: respondWithInvite ? 8 : 16) {
-            CirclePhoto(image: image, showShadow: false)
+            CirclePhoto(image: image, showShadow: false, height: 30)
             Text(respondWithInvite ? "New Event" : "Meet \(name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
