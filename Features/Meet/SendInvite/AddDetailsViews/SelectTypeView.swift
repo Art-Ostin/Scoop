@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SelectTypeView: View {
     
-    @Binding var type: Event.EventType? 
+    @Binding var type: Event.EventType
     @Binding var showMessageScreen: Bool
     @Binding var showTypePopup: Bool
     
@@ -51,4 +51,3 @@ extension SelectTypeView {
         }
     }
 }
-

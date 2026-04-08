@@ -11,7 +11,7 @@ import UIKit
 
 struct AddMessageView: View {
     
-    @Binding var eventType: Event.EventType?
+    @Binding var eventType: Event.EventType
     @Binding var showMessageScreen: Bool
     @Binding var message: String?
     let isRespondMessage: Bool
@@ -87,25 +87,20 @@ extension AddMessageView {
     private var dropdownTitle: some View {
         
         HStack(spacing: 10) {
-            if let eventType {
-                let emoji = eventType.description.emoji
-                let type = eventType.description.label
-                Text("\(emoji) \(type)")
-                    .foregroundStyle(.black)
-                    .font(.body(17))
-                    .contentShape(.rect)
-                    .onTapGesture { showTypePopup.toggle()}
-            } else {
-                Text("Choose a type")
-                    .font(.body(15, .italic))
-            }
+            let emoji = eventType.description.emoji
+            let type = eventType.description.label
+            Text("\(emoji) \(type)")
+                .foregroundStyle(.black)
+                .font(.body(17))
+                .contentShape(.rect)
+                .onTapGesture { showTypePopup.toggle()}
             
             DropDownButton(isExpanded: $showTypePopup)
         }
     }
     
     private var textFieldSection: some View {
-        FocusedTextView(text: $message, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: eventType?.textPlaceholder)
+        FocusedTextView(text: $message, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: eventType.textPlaceholder)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
@@ -136,16 +131,11 @@ extension AddMessageView {
                     SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
                 }
             } else {
-                if let eventType {
-                    let emoji = eventType.description.emoji
-                    let type = eventType.description.label
-                    Text("\(emoji) \(type)")
-                        .font(.body(17, .bold))
-                        .offset(y: -2)
-                } else {
-                    Text("Choose type")
-                        .font(.body(15, .italic))
-                }
+                let emoji = eventType.description.emoji
+                let type = eventType.description.label
+                Text("\(emoji) \(type)")
+                    .font(.body(17, .bold))
+                    .offset(y: -2)
             }
         }
         .frame(maxWidth: .infinity)

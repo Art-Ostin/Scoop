@@ -11,7 +11,7 @@ struct SelectTimeView: View {
     
     //Updating a proposedTime
     @Binding var proposedTimes: ProposedTimes
-    let type: Event.EventType?
+    let type: Event.EventType
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
     @State private var shakeTicksByDay: [Date: Int] = [:]

@@ -44,13 +44,13 @@ struct Event: Identifiable, Codable {
     @ServerTimestamp var date_created: Date?
     
     init?(draft: EventDraft) {
-        guard let type = draft.type, let location = draft.location else {
+        guard let location = draft.location else {
             return nil
         }
 
         self.initiatorId = draft.initiatorId
         self.recipientId = draft.recipientId
-        self.type = type
+        self.type = draft.type
         self.proposedTimes = draft.proposedTimes
         self.location = location
         self.message = draft.message
