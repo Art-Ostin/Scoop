@@ -180,7 +180,7 @@ extension SelectTimeAndPlace {
     }
     
     private var popupTitle: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: respondWithInvite ? 8 : 16) {
             CirclePhoto(image: image, showShadow: false)
             Text(respondWithInvite ? "New Event" : "Meet \(name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
