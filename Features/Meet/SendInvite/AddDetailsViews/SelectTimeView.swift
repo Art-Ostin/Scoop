@@ -120,8 +120,8 @@ extension SelectTimeView {
         return LazyVGrid(columns: columns, spacing: isRespondMode ? 10 : 12) {
             ForEach(0..<7) {idx in
                 Text(days[idx], format: .dateTime.weekday(.abbreviated))
-                    .font(.body(12, isRespondMode ? .regular : .bold))
-                    .foregroundStyle(isRespondMode ?  Color(red: 0.6, green: 0.6, blue: 0.6) : Color(red: 0.2, green: 0.2, blue: 0.2))
+                    .font(.body(12, .regular))
+                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
             }
             ForEach(days.indices, id: \.self) { idx in
                 event(idx: idx)
@@ -229,3 +229,8 @@ extension SelectTimeView {
         }
     }
 }
+
+/*
+ .font(.body(12, isRespondMode ? .regular : .bold))
+ .foregroundStyle(isRespondMode ?  Color(red: 0.6, green: 0.6, blue: 0.6) : Color(red: 0.2, green: 0.2, blue: 0.2))
+ */
