@@ -142,6 +142,7 @@ struct MapView: View {
             }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
+        .tint(.blue)
     }
 }
 

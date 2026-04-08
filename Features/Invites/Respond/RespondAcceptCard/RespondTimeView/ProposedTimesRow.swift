@@ -43,10 +43,10 @@ struct ProposedTimesRow: View {
         var result = Text("")
         for (index, date) in dates.enumerated() {
             result = result
-            + Text(FormatEvent.dayAndTime(date, wide: false, withHour: false))
-            + Text(index == dates.count - 1 ? (dates.count != 3 ?  " · " :"") : ",  ")
+            + Text(FormatEvent.dayAndTime(date, wide: isAccept ? false : (dates.count != 3 ? true : false) , withHour: false))
+            + Text(index == dates.count - 1 ? (dates.count != 3 && isAccept ?  " · " :"") : ",  ")
         }
-        if dates.count != 3 {
+        if dates.count != 3 && isAccept {
             result = result + Text(FormatEvent.hourTime(dates.last ?? Date()))
         }
         return result.frame(maxWidth: .infinity, alignment: .leading).font(.body(16, .medium))

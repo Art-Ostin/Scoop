@@ -45,7 +45,7 @@ extension InviteTypeRow {
                 .fixedSize()
                 .offset(x: 4)
         }
-        .frame(height: ui.rowHeight)
+        .frame(minHeight: 40, alignment: .top)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
@@ -54,20 +54,34 @@ extension InviteTypeRow {
         Button {
             openMessageScreen()
         } label: {
-            (
-                Text("\(eventType.description.emoji) \(eventType.description.label): ")
-                    .font(.body(16, .bold))
-                + Text(message)
-                    .font(.body(14, .medium))
-                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                + Text("  Edit")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
-            )
-            .lineSpacing(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .multilineTextAlignment(.leading)
+            VStack(alignment: .leading) {
+                eventSelectedType
+                
+                (
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundStyle(Color.gray)
+                    + Text("  Edit")
+                        .font(.body(12, .bold))
+                        .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
+                )
+                .lineSpacing(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.leading)
+            }
         }
+    }
+    
+    private var eventSelectedType: some View {
+        HStack(spacing: 0){
+            Text(eventType.description.label)
+                .font(.body(18, .bold))
+            
+            Text(eventType.description.emoji)
+                .font(.body(15, .medium))
+                .offset(y: -4)
+        }
+        .offset(x: -1)
     }
 }
 
@@ -77,7 +91,7 @@ extension InviteTypeRow {
         let type = eventType.description.label
         let emoji = eventType.description.emoji
         VStack(alignment: .leading, spacing: 2) {
-            Text("\(emoji) \(type)")
+            Text("\(emoji)\(type)")
                 .font(.body(18))
             addMessageButton
         }
@@ -100,37 +114,26 @@ extension InviteTypeRow {
         }
     }
 }
-
 /*
- 
- (inviteType + Text(message) + editButton)
-     .font(.body(16))
-     .lineSpacing(6)
-     .contentShape(.rect)
-     .onTapGesture { openMessageScreen() }
-     .onLongPressGesture(minimumDuration: 0.1, pressing: { ui.isMessageTap = $0 },perform: {}) //Have no actual pressing
-     .frame(maxWidth: .infinity, alignment: .leading)
-
- 
  @ViewBuilder
- private var inviteType: some View {
-     if let eventType {
-         Text(verbatim: "\(eventType.description.emoji) \(eventType.description.label): ")
-             .font(.body(16, .bold))
+ private var typeWithMessage: some View {
+     Button {
+         openMessageScreen()
+     } label: {
+         (
+             Text("\(eventType.description.emoji)\(eventType.description.label): ")
+                 .font(.body(16, .bold))
+             + Text(message)
+                 .font(.body(14, .medium))
+                 .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+             + Text("  Edit")
+                 .font(.body(12, .bold))
+                 .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
+         )
+         .lineSpacing(3)
+         .frame(maxWidth: .infinity, alignment: .leading)
+         .multilineTextAlignment(.leading)
      }
- }
- 
- @ViewBuilder private func inviteMessage(trimmed: String) -> Text {
-     let parsedMessage = trimmed.count > 65 ? "\(trimmed.prefix(65))..." : trimmed
-     Text(" \(parsedMessage)")
-         .font(.body(12, .italic))
-         .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.grayText)
- }
- 
- private var editButton: Text {
-     Text(" edit")
-         .font(.body(12, .italic))
-         .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
  }
 
  */

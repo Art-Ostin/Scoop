@@ -97,7 +97,7 @@ extension SelectTimeAndPlace {
     @ViewBuilder
     private var sendInviteScreen: some View {
         
-        VStack(spacing: 16) {
+        VStack(spacing: 0) {
             popupTitle
             VStack(spacing: 10) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
@@ -106,6 +106,8 @@ extension SelectTimeAndPlace {
                 Divider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
             }
+            .padding(.top, (event.message?.count ?? 0) > 70 ? 6 : 12)
+            .padding(.bottom, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
@@ -113,10 +115,10 @@ extension SelectTimeAndPlace {
         }
         .frame(alignment: .top)
         .padding(.vertical, 24)
-        .padding(.horizontal, 32)
+        .padding(.horizontal, 28)
         .frame(maxWidth: .infinity)
         .background (cardBackground)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .onChange(of: ui.showTypePopup) {_, newValue in
             if newValue { ui.showTimePopup = false}
         }

@@ -25,8 +25,17 @@ struct InviteTimeRow: View {
     
     var body: some View {
         DropDownView(showOptions: $showTimePopup) {
-            ProposedTimesRow(dates: times, showTimePopup: $showTimePopup, isAccept: false)
-                .frame(height: 50)
+            VStack(alignment: .leading, spacing: -2) {
+                ProposedTimesRow(dates: times, showTimePopup: $showTimePopup, isAccept: false)
+                if times.count > 1 {
+                    if let firstDate = times.first {
+                        Text(FormatEvent.hourTime(firstDate))
+                            .font(.footnote)
+                            .foregroundStyle(Color.gray)
+                    }
+                }
+            }
+            .frame(height: 40)
         } dropDown: {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)

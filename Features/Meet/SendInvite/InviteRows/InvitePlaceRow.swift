@@ -25,7 +25,7 @@ struct InvitePlaceRow: View {
             openMapButton
                 .fixedSize()
         }
-        .frame(height: 50)
+        .frame(height: 40, alignment: .top)
     }
 }
 
