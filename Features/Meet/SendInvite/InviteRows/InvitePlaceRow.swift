@@ -25,15 +25,16 @@ struct InvitePlaceRow: View {
             openMapButton
                 .fixedSize()
         }
-        .frame(height: 40, alignment: eventLocation == nil ? .top : .center)
+//        .frame(height: 40, alignment: eventLocation == nil ? .top : .center)
     }
 }
 
 extension InvitePlaceRow {
     
     private var noLocationPlaceholder: some View {
-        Text("Select place")
-            .font(.body(15, .italic))
+        Text("Select Place")
+            .font(.body(15, .medium))
+            .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
     }
     
     

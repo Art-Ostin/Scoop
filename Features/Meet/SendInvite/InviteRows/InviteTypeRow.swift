@@ -45,7 +45,7 @@ extension InviteTypeRow {
                 .fixedSize()
                 .offset(x: 4)
         }
-        .frame(minHeight: 40, alignment: .top)
+//        .frame(minHeight: 40, alignment: .top)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     

@@ -64,8 +64,10 @@ extension RespondTimeRow {
                     
                 //2. Otherwise prompt user to select a new availableTime
                 } else {
-                    Text("Select time")
-                        .font(.body(15, .italic))
+                    Text("Select Time")
+                        .font(.body(15, .medium))
+                        .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
+
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

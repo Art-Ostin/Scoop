@@ -19,8 +19,9 @@ struct ProposedTimesRow: View {
         HStack(alignment: .center, spacing: 12) {
             Group {
                 if dates.count == 0 {
-                    Text("Select time")
-                        .font(.body(15, .italic))
+                    Text("Select Time")
+                        .font(.body(15, .medium))
+                        .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
                     
                 } else if dates.count == 1 {
                     Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: true))

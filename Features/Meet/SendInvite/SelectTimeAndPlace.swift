@@ -74,6 +74,9 @@ struct SelectTimeAndPlace: View {
         (event.message?.count ?? 0) > 40
     }
     
+    var cardOuterPadding: CGFloat = 28
+    var cardInnerPadding: CGFloat = 28
+    
     var body: some View {
         ZStack {
             if !respondWithInvite {
@@ -105,13 +108,18 @@ extension SelectTimeAndPlace {
             popupTitle
             VStack(spacing: 10) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
+//                    .background(Color.green)
                 MapDivider()
                 InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
                 MapDivider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
+//                    .background(Color.green)
             }
-            .padding(.top, (event.message?.count ?? 0) > 70 ? 6 : 16)
-            .padding(.bottom, event.location != nil ? 16 : 0)
+            .padding(.vertical, 12)
+            
+            
+            .padding(.top, (event.message?.count ?? 0) > 70 ? 12 : 16)
+            .padding(.bottom, event.location != nil ? 24 : 8)
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
@@ -122,7 +130,7 @@ extension SelectTimeAndPlace {
         .padding(.horizontal, isLotsOfText ? 28 : 32) //If more text, decrease padding
         .frame(maxWidth: .infinity)
         .background (cardBackground)
-        .padding(.horizontal, 24 - (event.proposedTimes.dates.count > 1 && event.location != nil ? 4 : 0))
+        .padding(.horizontal, cardOuterPadding - (event.proposedTimes.dates.count > 1 && event.location != nil ? 4 : 0))
         .onChange(of: ui.showTypePopup) {_, newValue in
             if newValue { ui.showTimePopup = false}
         }
