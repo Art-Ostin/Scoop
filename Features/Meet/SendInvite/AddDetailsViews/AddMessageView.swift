@@ -11,7 +11,7 @@ import UIKit
 
 struct AddMessageView: View {
     
-    @Binding var eventType: Event.EventType
+    @Binding var eventType: Event.EventType?
     @Binding var showMessageScreen: Bool
     @Binding var message: String?
     let isRespondMessage: Bool
@@ -85,24 +85,27 @@ extension AddMessageView {
     
     @ViewBuilder
     private var dropdownTitle: some View {
-        let emoji = eventType.description.emoji
-        let type = eventType.description.label
         
         HStack(spacing: 10) {
-            Text("\(emoji) \(type)")
-                .foregroundStyle(.black)
-                .font(.body(17))
-                .contentShape(.rect)
-                .onTapGesture {
-                    showTypePopup.toggle()
-                }
+            if let eventType {
+                let emoji = eventType.description.emoji
+                let type = eventType.description.label
+                Text("\(emoji) \(type)")
+                    .foregroundStyle(.black)
+                    .font(.body(17))
+                    .contentShape(.rect)
+                    .onTapGesture { showTypePopup.toggle()}
+            } else {
+                Text("Choose a meetup type")
+                    .font(.body(15, .italic))
+            }
             
             DropDownButton(isExpanded: $showTypePopup)
         }
     }
     
     private var textFieldSection: some View {
-        FocusedTextView(text: $message, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: eventType.textPlaceholder)
+        FocusedTextView(text: $message, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: eventType?.textPlaceholder)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
@@ -133,11 +136,16 @@ extension AddMessageView {
                     SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
                 }
             } else {
-                let emoji = eventType.description.emoji
-                let type = eventType.description.label
-                Text("\(emoji) \(type)")
-                    .font(.body(17, .bold))
-                    .offset(y: -2)
+                if let eventType {
+                    let emoji = eventType.description.emoji
+                    let type = eventType.description.label
+                    Text("\(emoji) \(type)")
+                        .font(.body(17, .bold))
+                        .offset(y: -2)
+                } else {
+                    Text("Choose type")
+                        .font(.body(15, .italic))
+                }
             }
         }
         .frame(maxWidth: .infinity)

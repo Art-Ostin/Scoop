@@ -33,13 +33,13 @@ import SwiftUI
         if let storedEvent = d.fetchEventDraft(profileId: p.id) {
             return storedEvent
         } else {
-            return EventDraft(initiatorId: s.user.id, recipientId: p.id, type: .drink)
+            return EventDraft(initiatorId: s.user.id, recipientId: p.id)
         }
     }
     
     func deleteEventDefault() {
         defaults.deleteEventDraft(profileId: profile.id)
-        event = EventDraft(initiatorId: s.user.id, recipientId: profile.id, type: .drink)
+        event = EventDraft(initiatorId: s.user.id, recipientId: profile.id)
     }
 }
 

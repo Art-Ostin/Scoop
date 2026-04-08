@@ -9,7 +9,7 @@
 struct EventDraft: Equatable, Codable {
     var initiatorId: String
     var recipientId: String
-    var type: Event.EventType
+    var type: Event.EventType?
     var message: String?
     var proposedTimes: ProposedTimes = .init()
     var location: EventLocation?

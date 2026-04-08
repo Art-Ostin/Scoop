@@ -32,7 +32,7 @@ struct InvitePlaceRow: View {
 extension InvitePlaceRow {
     
     private var noLocationPlaceholder: some View {
-        Text("Place")
+        Text("Select a day to meet")
             .font(.body(20, .bold))
     }
     
@@ -51,8 +51,8 @@ extension InvitePlaceRow {
         Button {
             withAnimation(.snappy) { showMapView.toggle() }
         } label: {
-            Image("LightBlackMapIcon") //LightBlackMapIcon
-                .padding(6.5)
+            Image("LightBlackMapIcon")
+                .padding(6)
                 .background(
                     Circle().foregroundStyle(.white).opacity(0.7)
                 )
@@ -67,6 +67,5 @@ extension InvitePlaceRow {
         }
         .buttonStyle(.plain)
         .padding(-14)
-        
     }
 }

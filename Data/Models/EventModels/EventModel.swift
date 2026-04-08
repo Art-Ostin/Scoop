@@ -47,7 +47,7 @@ struct Event: Identifiable, Codable {
     init(draft: EventDraft) {
         self.initiatorId = draft.initiatorId
         self.recipientId = draft.recipientId
-        self.type = draft.type
+        self.type = draft.type ?? .drink
         self.proposedTimes = draft.proposedTimes
         self.location = draft.location ?? EventLocation(mapItem: MKMapItem())
         self.message = draft.message

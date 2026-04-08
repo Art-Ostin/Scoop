@@ -65,6 +65,7 @@ extension RespondTimeRow {
                 //2. Otherwise prompt user to select a new availableTime
                 } else {
                     Text("Select a day to meet")
+                        .font(.body(15, .italic))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

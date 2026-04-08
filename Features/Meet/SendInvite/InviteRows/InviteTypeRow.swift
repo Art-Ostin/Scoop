@@ -11,7 +11,7 @@ struct InviteTypeRow: View {
     
     @Bindable var ui: TimeAndPlaceUIState
     
-    @Binding var eventType: Event.EventType
+    @Binding var eventType: Event.EventType?
     @Binding var unparsedMessage: String?
     
     var message: String  {
@@ -49,62 +49,51 @@ extension InviteTypeRow {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
+    @ViewBuilder
     private var typeWithMessage: some View {
         Button {
             openMessageScreen()
         } label: {
-            (
-                Text("\(eventType.description.emoji) \(eventType.description.label): ")
-                    .font(.body(16, .bold))
-                + Text(message)
-                    .font(.body(14, .medium))
-                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                + Text("  Edit")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
-            )
-            .lineSpacing(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .multilineTextAlignment(.leading)
+            if let eventType {
+                (
+                    Text("\(eventType.description.emoji) \(eventType.description.label): ")
+                        .font(.body(16, .bold))
+                    + Text(message)
+                        .font(.body(14, .medium))
+                        .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                    + Text("  Edit")
+                        .font(.body(12, .bold))
+                        .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
+                )
+                .lineSpacing(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.leading)
+            }
         }
-    }
-    
-    private var inviteType: Text {
-        Text(verbatim: "\(eventType.description.emoji) \(eventType.description.label): ")
-            .font(.body(16, .bold))
-    }
-    
-    @ViewBuilder private func inviteMessage(trimmed: String) -> Text {
-        let parsedMessage = trimmed.count > 65 ? "\(trimmed.prefix(65))..." : trimmed
-        Text(" \(parsedMessage)")
-            .font(.body(12, .italic))
-            .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.grayText)
-    }
-    
-    private var editButton: Text {
-        Text(" edit")
-            .font(.body(12, .italic))
-            .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
     }
 }
 
 //With No Message Views
 extension InviteTypeRow {
     @ViewBuilder private var typeWithNoMessage: some View {
-        let type = eventType.description.label
-        let emoji = eventType.description.emoji
-            VStack(alignment: .leading, spacing: 6) {
-                Text("\(emoji) \(type)")
-                    .font(.body(18))
-                
-                addMessageButton
-            }
+        if let eventType {
+            let type = eventType.description.label
+            let emoji = eventType.description.emoji
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(emoji) \(type)")
+                        .font(.body(18))
+                    addMessageButton
+                }
+        } else {
+            Text("Choose a meetup type")
+                .font(.body(15, .italic))
+        }
     }
     
     private var addMessageButton: some View {
-        Text("Add a Message")
+        Text("Add Message")
             .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
-            .font(.body(14))
+            .font(.body(12, .bold))
             .onTapGesture { openMessageScreen() }
             .onLongPressGesture(minimumDuration: 0.1, pressing: { ui.isMessageTap = $0 }, perform: {})
     }
@@ -128,5 +117,27 @@ extension InviteTypeRow {
      .onTapGesture { openMessageScreen() }
      .onLongPressGesture(minimumDuration: 0.1, pressing: { ui.isMessageTap = $0 },perform: {}) //Have no actual pressing
      .frame(maxWidth: .infinity, alignment: .leading)
+
+ 
+ @ViewBuilder
+ private var inviteType: some View {
+     if let eventType {
+         Text(verbatim: "\(eventType.description.emoji) \(eventType.description.label): ")
+             .font(.body(16, .bold))
+     }
+ }
+ 
+ @ViewBuilder private func inviteMessage(trimmed: String) -> Text {
+     let parsedMessage = trimmed.count > 65 ? "\(trimmed.prefix(65))..." : trimmed
+     Text(" \(parsedMessage)")
+         .font(.body(12, .italic))
+         .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.grayText)
+ }
+ 
+ private var editButton: Text {
+     Text(" edit")
+         .font(.body(12, .italic))
+         .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
+ }
 
  */

@@ -13,7 +13,7 @@ struct InviteTimeRow: View {
     @Binding var showTimePopup: Bool
     @Binding var proposedTimes: ProposedTimes
     
-    let type: Event.EventType
+    let type: Event.EventType?
     
     var times: [Date] {
         proposedTimes.dates.map(\.date)
