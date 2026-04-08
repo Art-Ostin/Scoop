@@ -8,7 +8,9 @@
 import Foundation
 import FirebaseFirestore
 
-
+enum EventsRepoError: Error {
+    case invalidDraft
+}
 
 enum UserEventKind { case invite, accepted, pastAccepted, remove }
 
@@ -40,7 +42,9 @@ class EventsRepo: EventsRepository {
     //Part 2: Creating and modifying events
     func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
         //1. Create the event, and add it to the collection 'events'
-        let event = Event(draft: draft)
+        guard let event = Event(draft: draft) else {
+            throw EventsRepoError.invalidDraft
+        }
         let id = try fs.add("events", value: event)
         
         //2 Create the two UserEvents

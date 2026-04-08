@@ -5,7 +5,6 @@
 //  Created by Art Ostin on 26/06/2025.
 //
 import Foundation
-import MapKit
 import FirebaseFirestore
 
 struct Event: Identifiable, Codable {
@@ -44,12 +43,16 @@ struct Event: Identifiable, Codable {
     var changeLog: [ChangeLogEntry] = []
     @ServerTimestamp var date_created: Date?
     
-    init(draft: EventDraft) {
+    init?(draft: EventDraft) {
+        guard let type = draft.type, let location = draft.location else {
+            return nil
+        }
+
         self.initiatorId = draft.initiatorId
         self.recipientId = draft.recipientId
-        self.type = draft.type ?? .drink
+        self.type = type
         self.proposedTimes = draft.proposedTimes
-        self.location = draft.location ?? EventLocation(mapItem: MKMapItem())
+        self.location = location
         self.message = draft.message
     }
 }
@@ -137,4 +140,3 @@ extension Event.EventType {
         }
     }
 }
-

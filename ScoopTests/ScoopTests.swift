@@ -8,6 +8,7 @@
 import Testing
 @testable import Scoop
 import Foundation
+import MapKit
 
 @MainActor
 struct ScoopTests {
@@ -59,6 +60,35 @@ struct ScoopTests {
 
         #expect(manager.recentMapSearches.count == 4)
         #expect(manager.recentMapSearches.last == RecentPlace(title: "a", town: "montreal"))
+    }
+
+    @Test
+    func eventInitRequiresTypeAndLocation() {
+        let incompleteDraft = EventDraft(
+            initiatorId: "u1",
+            recipientId: "u2",
+            proposedTimes: ProposedTimes(items: [.init(date: .now)])
+        )
+
+        #expect(Event(draft: incompleteDraft) == nil)
+
+        let location = EventLocation(
+            mapItem: MKMapItem(
+                placemark: MKPlacemark(
+                    coordinate: CLLocationCoordinate2D(latitude: 45.5017, longitude: -73.5673)
+                )
+            )
+        )
+        let validDraft = EventDraft(
+            initiatorId: "u1",
+            recipientId: "u2",
+            type: .drink,
+            proposedTimes: ProposedTimes(items: [.init(date: .now)]),
+            location: location
+        )
+
+        #expect(Event(draft: validDraft)?.type == .drink)
+        #expect(Event(draft: validDraft)?.location == location)
     }
 }
 

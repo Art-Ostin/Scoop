@@ -136,7 +136,7 @@ extension SelectTimeAndPlace {
         Button {
             deleteEventDefault()
         } label: {
-            if !event.proposedTimes.dates.isEmpty || event.location != nil || event.type != .drink || event.message != nil {
+            if hasDraftChanges {
                 Text("Clear")
                     .font(.body(12, .regular))
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
@@ -198,8 +198,12 @@ extension SelectTimeAndPlace {
         !ui.showTypePopup &&
         ((ui.showTimePopup && event.proposedTimes.dates.count < 2) || event.proposedTimes.dates.count == 1)
     }
+
+    private var hasDraftChanges: Bool {
+        !event.proposedTimes.dates.isEmpty || event.location != nil || event.type != nil || event.message != nil
+    }
     
     private var InviteIsValid: Bool {
-        return !event.proposedTimes.dates.isEmpty && event.location != nil
+        event.type != nil && !event.proposedTimes.dates.isEmpty && event.location != nil
     }
 }
