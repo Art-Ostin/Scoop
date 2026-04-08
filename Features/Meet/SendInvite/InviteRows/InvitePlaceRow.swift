@@ -25,7 +25,6 @@ struct InvitePlaceRow: View {
             openMapButton
                 .fixedSize()
         }
-//        .frame(height: 40, alignment: eventLocation == nil ? .top : .center)
     }
 }
 
@@ -45,6 +44,7 @@ extension InvitePlaceRow {
             Text(FormatEvent.addressWithoutCountry(location.address))
                 .font(.footnote)
                 .foregroundStyle(.gray)
+                .lineLimit(1)
         }
     }
     
@@ -64,7 +64,6 @@ extension InvitePlaceRow {
                 .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
                 .contentShape(Rectangle())
                 .padding(14)
-                .offset(x: 0.5)
         }
         .buttonStyle(.plain)
         .padding(-14)

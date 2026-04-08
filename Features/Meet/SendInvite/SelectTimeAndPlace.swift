@@ -74,9 +74,6 @@ struct SelectTimeAndPlace: View {
         (event.message?.count ?? 0) > 40
     }
     
-    var cardOuterPadding: CGFloat = 28
-    var cardInnerPadding: CGFloat = 28
-    
     var body: some View {
         ZStack {
             if !respondWithInvite {
@@ -106,31 +103,26 @@ extension SelectTimeAndPlace {
         
         VStack(spacing: 0) {
             popupTitle
-            VStack(spacing: 10) {
+            VStack(spacing: 12) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
-//                    .background(Color.green)
                 MapDivider()
                 InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
                 MapDivider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
-//                    .background(Color.green)
             }
-            .padding(.vertical, 12)
-            
-            
-            .padding(.top, (event.message?.count ?? 0) > 70 ? 12 : 16)
-            .padding(.bottom, event.location != nil ? 24 : 8)
+            .padding(.bottom, event.location == nil ? 20 : 16)
+            .padding(.top, ((event.message?.count ?? 0) > 40) ? 16 : 24)
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
             sendInviteButton
         }
         .frame(alignment: .top)
-        .padding(.vertical, 24)
         .padding(.horizontal, isLotsOfText ? 28 : 32) //If more text, decrease padding
+        .padding(.vertical, 24)
         .frame(maxWidth: .infinity)
         .background (cardBackground)
-        .padding(.horizontal, cardOuterPadding - (event.proposedTimes.dates.count > 1 && event.location != nil ? 4 : 0))
+        .padding(.horizontal, 28 - (event.proposedTimes.dates.count > 1 && event.location != nil ? 4 : 0))
         .onChange(of: ui.showTypePopup) {_, newValue in
             if newValue { ui.showTimePopup = false}
         }
@@ -219,5 +211,13 @@ extension SelectTimeAndPlace {
     
     private var InviteIsValid: Bool {
         !event.proposedTimes.dates.isEmpty && event.location != nil
+    }
+    
+    private var decreaseHorizontalPadding: Bool {
+        let messageLarge: Bool = (event.message?.count ?? 0) > 40
+        let dateLarge: Bool = event.proposedTimes.dates.count > 1
+        let placeLarge: Bool = event.location != nil
+
+        return (messageLarge && dateLarge) || (messageLarge && placeLarge) || (placeLarge && dateLarge)
     }
 }
