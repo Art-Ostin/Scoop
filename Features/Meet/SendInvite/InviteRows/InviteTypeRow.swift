@@ -11,7 +11,7 @@ struct InviteTypeRow: View {
     
     @Bindable var ui: TimeAndPlaceUIState
     
-    @Binding var eventType: Event.EventType?
+    @Binding var eventType: Event.EventType
     @Binding var unparsedMessage: String?
     
     var message: String  {
@@ -54,21 +54,19 @@ extension InviteTypeRow {
         Button {
             openMessageScreen()
         } label: {
-            if let eventType {
-                (
-                    Text("\(eventType.description.emoji) \(eventType.description.label): ")
-                        .font(.body(16, .bold))
-                    + Text(message)
-                        .font(.body(14, .medium))
-                        .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                    + Text("  Edit")
-                        .font(.body(12, .bold))
-                        .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
-                )
-                .lineSpacing(3)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .multilineTextAlignment(.leading)
-            }
+            (
+                Text("\(eventType.description.emoji) \(eventType.description.label): ")
+                    .font(.body(16, .bold))
+                + Text(message)
+                    .font(.body(14, .medium))
+                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                + Text("  Edit")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(ui.isMessageTap ? Color.grayPlaceholder : Color.accent)
+            )
+            .lineSpacing(3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(.leading)
         }
     }
 }
@@ -76,17 +74,12 @@ extension InviteTypeRow {
 //With No Message Views
 extension InviteTypeRow {
     @ViewBuilder private var typeWithNoMessage: some View {
-        if let eventType {
-            let type = eventType.description.label
-            let emoji = eventType.description.emoji
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(emoji) \(type)")
-                        .font(.body(18))
-                    addMessageButton
-                }
-        } else {
-            Text("Choose a type")
-                .font(.body(15, .italic))
+        let type = eventType.description.label
+        let emoji = eventType.description.emoji
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(emoji) \(type)")
+                .font(.body(18))
+            addMessageButton
         }
     }
     

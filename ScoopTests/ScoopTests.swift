@@ -90,6 +90,13 @@ struct ScoopTests {
         #expect(Event(draft: validDraft)?.type == .drink)
         #expect(Event(draft: validDraft)?.location == location)
     }
+
+    @Test
+    func eventDraftDecodesNilTypeAsDrink() throws {
+        let data = #"{"initiatorId":"u1","recipientId":"u2","type":null}"#.data(using: .utf8)!
+        let draft = try JSONDecoder().decode(EventDraft.self, from: data)
+        #expect(draft.type == .drink)
+    }
 }
 
 private struct DefaultsTestContext {

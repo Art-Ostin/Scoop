@@ -200,10 +200,10 @@ extension SelectTimeAndPlace {
     }
 
     private var hasDraftChanges: Bool {
-        !event.proposedTimes.dates.isEmpty || event.location != nil || event.type != nil || event.message != nil
+        !event.proposedTimes.dates.isEmpty || event.location != nil || event.type != .drink || event.message != nil
     }
     
     private var InviteIsValid: Bool {
-        event.type != nil && !event.proposedTimes.dates.isEmpty && event.location != nil
+        !event.proposedTimes.dates.isEmpty && event.location != nil
     }
 }
