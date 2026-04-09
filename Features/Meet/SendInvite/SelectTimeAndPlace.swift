@@ -103,15 +103,15 @@ extension SelectTimeAndPlace {
         
         VStack(spacing: 0) {
             popupTitle
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
-//                MapDivider()
+                MapDivider()
                 InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
-//                MapDivider()
+                MapDivider()
                 InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
             }
-            .padding(.bottom, event.location == nil ? 20 : 16)
             .padding(.top, ((event.message?.count ?? 0) > 40) ? 16 : 24)
+            .padding(.bottom, decreaseVerticalPadding ? 20 : 16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .zIndex(1) //so pop ups always appear above the Action Button
             .overlay(alignment: .top) {proposeTwoDaysText}
@@ -221,5 +221,8 @@ extension SelectTimeAndPlace {
         return (messageLarge && dateLarge) || (messageLarge && placeLarge) || (placeLarge && dateLarge)
     }
     
+    private var decreaseVerticalPadding: Bool {
+        return (event.message?.count ?? 0) > 40 && event.location != nil
+    }
 //    private var decreaseEventInfoVerticalPadding: some
 }

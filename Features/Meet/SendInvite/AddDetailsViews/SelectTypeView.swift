@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SelectTypeView: View {
-    
     @Binding var type: Event.EventType
     @Binding var showMessageScreen: Bool
     @Binding var showTypePopup: Bool
@@ -16,11 +15,19 @@ struct SelectTypeView: View {
     let message: String
     
     var body: some View {
-        DropDownMenu {
+        VStack(spacing: 18) {
             ForEach(Event.EventType.allCases, id: \.self) {eventType in
                 inviteDropDownRow(eventType: eventType)
             }
         }
+        .padding(24)
+        .frame(width: 325)
+        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background {
+            CardBackground(color: .black, cornerRadius: 12)
+        }
+        .font(.body(18))
     }
 }
 extension SelectTypeView {

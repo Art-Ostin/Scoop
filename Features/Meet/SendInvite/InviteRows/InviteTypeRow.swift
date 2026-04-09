@@ -19,7 +19,7 @@ struct InviteTypeRow: View {
     }
     
     var body: some View {
-        DropDownView(showOptions: $ui.showTypePopup) {
+        DropDownView(verticalOffset: message.isEmpty ? 48 : 24, showOptions: $ui.showTypePopup) {
             inviteTypeRow
         } dropDown: {
             SelectTypeView(type: $eventType, showMessageScreen: $ui.showMessageScreen, showTypePopup: $ui.showTypePopup, message: message)
@@ -71,7 +71,6 @@ extension InviteTypeRow {
             }
         }
     }
-    
     private var eventSelectedType: some View {
         HStack(spacing: 0){
             Text(eventType.description.label)

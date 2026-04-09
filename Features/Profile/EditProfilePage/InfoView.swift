@@ -56,7 +56,7 @@ struct InfoView: View {
                             VStack(spacing: 0) {
                                 ListItem(title: info.title, response: info.response, value: info.route)
                                 if info.id != section.data.last?.id {
-                                        SoftDivider()
+                                        MapDivider()
                                             .padding(.leading, 24)
                                             .foregroundStyle(.red)
                                     }
