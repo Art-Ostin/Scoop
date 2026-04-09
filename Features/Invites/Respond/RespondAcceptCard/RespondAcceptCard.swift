@@ -13,7 +13,7 @@ struct RespondAcceptCard: View {
     
     private enum Layout {
         static let titleToTimeSpacing: CGFloat = 16 //12
-        static let timeToPlaceSpacing: CGFloat = 20
+        static let timeToPlaceSpacing: CGFloat = 20.5 //For Precise spacing
         static let actionTopSpacing: CGFloat = 26
         
         static let horizontalPadding: CGFloat = 22
