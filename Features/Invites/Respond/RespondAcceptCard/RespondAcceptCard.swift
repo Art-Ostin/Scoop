@@ -54,7 +54,7 @@ struct RespondAcceptCard: View {
     }
     
     private var hasResponseMessage: Bool {
-        vm.respondDraft.respondMessage?.isEmpty == false
+        nonEmptyMessage(vm.respondDraft.respondMessage) != nil
     }
 
     var body: some View {
@@ -62,10 +62,12 @@ struct RespondAcceptCard: View {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
                 .padding(.bottom, Layout.titleToTimeSpacing)
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                .padding(.bottom, Layout.timeToPlaceSpacing)
+                .padding(.bottom, showMessages ? 12 : Layout.timeToPlaceSpacing)
             RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-//            messageSection
-//                .padding(.top, Layout.placeToMessageSpacing(hasResponseMessage: hasResponseMessage))
+            if showMessages {
+                respondMessagesView
+                    .padding(.top, Layout.placeToMessageSpacing(hasResponseMessage: hasResponseMessage))
+            }
             actionSection
                 .padding(.top, Layout.actionTopSpacing)
         }

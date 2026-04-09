@@ -48,11 +48,13 @@ extension RespondMessagesView {
             bottomSpacing: 0
         )
         .overlay(alignment: .bottomTrailing) {
-            Text("Respond")
-                .font(.body(12, .bold))
-                .foregroundStyle(Color.appGreen)
-                .padding(3)
-                .padding(.horizontal, 9)
+            if (replyMessage?.isEmpty != false) {
+                Text("Respond")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.appGreen)
+                    .padding(3)
+                    .padding(.horizontal, 9)
+            }
         }
     }
 
@@ -73,7 +75,6 @@ extension RespondMessagesView {
             .padding(.top, 10)
     }
 }
-
 /*
  Modifiers I've removed
  

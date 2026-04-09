@@ -705,9 +705,9 @@
 				650DA36A2F6C51900013EB30 /* RespondAcceptCard.swift */,
 				651795302F7F062A001D70E4 /* RespondTitle.swift */,
 				65AD49132F82CFDB002B91BA /* RespondPlaceRow.swift */,
+				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 				6541B2F52F84657F009A7730 /* RespondWithMessage.swift */,
 				652882E32F708AE1000B724D /* RespondTimeView */,
-				6517952D2F7EF3B2001D70E4 /* RespondMessagesView.swift */,
 				65DFBFF22F8558E1005EC298 /* RespondTextBubble.swift */,
 			);
 			path = RespondAcceptCard;

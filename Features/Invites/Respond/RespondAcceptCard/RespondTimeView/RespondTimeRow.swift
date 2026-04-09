@@ -14,7 +14,8 @@ struct RespondTimeRow: View {
     @Binding var showMessageScreen: Bool
 
     var message: String {vm.respondDraft.originalInvite.event.message ?? ""}
-    var respondMessageEmpty: Bool {vm.respondDraft.respondMessage?.isEmpty != false}
+    var respondMessageEmpty: Bool { trimmedMessage(vm.respondDraft.respondMessage) == nil }
+    var hasRespondMessage: Bool { !respondMessageEmpty }
     var hasMessage: Bool { message.isEmpty == false }
     
     var body: some View {
@@ -35,7 +36,9 @@ extension RespondTimeRow {
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack(alignment: .leading, spacing: 0) {
                 timeTitle
-                eventMessageSection
+                if !hasRespondMessage {
+                    eventMessageSection
+                }
             }
         }
     }
@@ -92,6 +95,14 @@ extension RespondTimeRow {
         }
         .font(.body(17, showTimePopup ? .bold : .medium))
         .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+    }
+
+    private func trimmedMessage(_ message: String?) -> String? {
+        guard let trimmed = message?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
     }
 }
 
