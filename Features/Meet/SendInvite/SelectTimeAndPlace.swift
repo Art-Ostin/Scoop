@@ -71,7 +71,7 @@ struct SelectTimeAndPlace: View {
     let sendInvite: () -> ()
     
     var isLotsOfText: Bool {
-        (event.message?.count ?? 0) > 38
+        (event.message?.count ?? 0) > 35
     }
     
     var body: some View {
@@ -102,7 +102,7 @@ struct SelectTimeAndPlace: View {
                 sendInviteButton
             }
             .frame(alignment: .top)
-            .padding(.horizontal, isLotsOfText ? 28 : 32)
+            .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)
             .padding(.vertical, 24)
             .frame(maxWidth: .infinity)
             .background (cardBackground)
@@ -215,14 +215,14 @@ extension SelectTimeAndPlace {
     }
     
     private func horizontalPadding() -> CGFloat {
-        let messageLarge: Bool = (event.message?.count ?? 0) > 38
+        let messageLarge: Bool = (event.message?.count ?? 0) > 35
         let messageVLarge: Bool = (event.message?.count ?? 0) > 80
         let placeLarge: Bool = event.location != nil
         
         var originalHPadding:CGFloat = 30
         
         if messageLarge {
-            originalHPadding -= 3
+            originalHPadding -= 2
         }
         
         if messageVLarge {
@@ -230,7 +230,7 @@ extension SelectTimeAndPlace {
         }
         
         if placeLarge {
-            originalHPadding -= 1
+            originalHPadding -= 2
         }
         return originalHPadding
     }
