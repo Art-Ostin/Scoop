@@ -78,7 +78,7 @@ struct RespondAcceptCard: View {
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, 24)
-        .offset(y: 24) // showMessageRow ? 0 :
+        .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .sheet(isPresented: $showMessageScreen) {

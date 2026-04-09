@@ -5,100 +5,105 @@
 //  Created by Art Ostin on 06/04/2026.
 //
 
-import SwiftUI
+/*
+ 
+ import SwiftUI
 
 
-struct NewRespondWithMessage: View {
-    
-    @Binding var showMessageButton: Bool
+ struct NewRespondWithMessage: View {
+     
+     @Binding var showMessageButton: Bool
 
-    let message: String
-    
-    var body: some View {
-        Button {
-            showMessageButton = true
-        } label: {
-            Text(message)
-                .font(.body(14, .medium))
-                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                .lineSpacing(3)
-                .padding(.horizontal, 6)
-                .padding(.leading, 2)
-                .padding(.vertical, 4)
-                .background (
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.background)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.grayPlaceholder.opacity(0.1),
-                                    style: StrokeStyle(lineWidth: 1, lineJoin: .round)
-                                )
-                        }
-                )
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .multilineTextAlignment(.leading)
-        }
-    }
-}
-
-
+     let message: String
+     
+     var body: some View {
+         Button {
+             showMessageButton = true
+         } label: {
+             Text(message)
+                 .font(.body(14, .medium))
+                 .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                 .lineSpacing(3)
+                 .padding(.horizontal, 6)
+                 .padding(.leading, 2)
+                 .padding(.vertical, 4)
+                 .background (
+                     RoundedRectangle(cornerRadius: 12)
+                         .fill(Color.background)
+                         .overlay {
+                             RoundedRectangle(cornerRadius: 12)
+                                 .stroke(Color.grayPlaceholder.opacity(0.1),
+                                     style: StrokeStyle(lineWidth: 1, lineJoin: .round)
+                                 )
+                         }
+                 )
+                 .frame(maxWidth: .infinity, alignment: .trailing)
+                 .multilineTextAlignment(.leading)
+         }
+     }
+ }
 
 
 
-struct RespondWithMessage: View {
-    let message: String
-    let messageResponse: String?
 
-    @Binding var showMessageButton: Bool
-    
-    var body: some View {
-        
-        Button {
-            showMessageButton = true
-        } label: {
-            Text(message)
-                .font(.body(14, .medium))
-                .lineSpacing(5)
-                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.leading)
-                .padding(.vertical, 9)
-                .padding(.horizontal, 20)
-                .padding(.trailing, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .foregroundStyle(Color(red: 0.93, green: 0.93, blue: 0.93))
-                )
-                .overlay(alignment: .topLeading) {overlayQuoteTop}
-                .overlay(alignment: .bottomTrailing) {overlayQuoteBottom}
-                .layoutPriority(1)
-                .overlay(alignment: .topTrailing) {
-                    if messageResponse?.isEmpty != false {
-                        Image("GreenMessageIcon")
-                            .padding(6)
-                            .padding(.horizontal, 1.8)
-                    }
-                }
-        }
-    }
-}
 
-extension RespondWithMessage {
+ struct RespondWithMessage: View {
+     let message: String
+     let messageResponse: String?
 
-    private var overlayQuoteTop: some View {
-        Text("“")
-            .font(.system(size: 18, weight: .bold, design: .serif))
-            .padding(.leading, 7)
-            .offset(y: 3)
-    }
-    
-    private var overlayQuoteBottom: some View {
-        Text("”")
-            .font(.system(size: 18, weight: .bold, design: .serif))
-            .padding(.trailing, 7)
-            .offset(y: 1)
-    }
-}
+     @Binding var showMessageButton: Bool
+     
+     var body: some View {
+         
+         Button {
+             showMessageButton = true
+         } label: {
+             Text(message)
+                 .font(.body(14, .medium))
+                 .lineSpacing(5)
+                 .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                 .frame(maxWidth: .infinity, alignment: .center)
+                 .multilineTextAlignment(.leading)
+                 .padding(.vertical, 9)
+                 .padding(.horizontal, 20)
+                 .padding(.trailing, 8)
+                 .background(
+                     RoundedRectangle(cornerRadius: 12)
+                         .foregroundStyle(Color(red: 0.93, green: 0.93, blue: 0.93))
+                 )
+                 .overlay(alignment: .topLeading) {overlayQuoteTop}
+                 .overlay(alignment: .bottomTrailing) {overlayQuoteBottom}
+                 .layoutPriority(1)
+                 .overlay(alignment: .topTrailing) {
+                     if messageResponse?.isEmpty != false {
+                         Image("GreenMessageIcon")
+                             .padding(6)
+                             .padding(.horizontal, 1.8)
+                     }
+                 }
+         }
+     }
+ }
+
+ extension RespondWithMessage {
+
+     private var overlayQuoteTop: some View {
+         Text("“")
+             .font(.system(size: 18, weight: .bold, design: .serif))
+             .padding(.leading, 7)
+             .offset(y: 3)
+     }
+     
+     private var overlayQuoteBottom: some View {
+         Text("”")
+             .font(.system(size: 18, weight: .bold, design: .serif))
+             .padding(.trailing, 7)
+             .offset(y: 1)
+     }
+ }
+
+ 
+ */
 
 
 /*

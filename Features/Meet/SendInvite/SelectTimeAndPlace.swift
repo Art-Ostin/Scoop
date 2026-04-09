@@ -71,7 +71,7 @@ struct SelectTimeAndPlace: View {
     let sendInvite: () -> ()
     
     var isLotsOfText: Bool {
-        (event.message?.count ?? 0) > 40
+        (event.message?.count ?? 0) > 38
     }
     
     var body: some View {
@@ -79,8 +79,42 @@ struct SelectTimeAndPlace: View {
             if !respondWithInvite {
                 CustomScreenCover {showInvite = false}
             }
-            sendInviteScreen
-                .overlay(alignment: .topTrailing) { infoButton }
+            VStack(spacing: 0) {
+                popupTitle
+                VStack(spacing: 12) {
+                    InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
+                    MapDivider()
+                    InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
+                    MapDivider()
+                    InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
+                }
+//                .padding(.vertical, decreaseVerticalPadding ? 16 : 24)
+                .padding(.top, decreaseVerticalPadding ? 16 : 24)
+                .padding(.bottom, (event.location != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18)) //Works for complex reasons
+                
+                
+                
+//                .padding(.top, decreaseVerticalPadding ? 16 : 24)
+//                .padding(.bottom, decreaseVerticalPadding ? 16 : 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .zIndex(1) //so pop ups always appear above the Action Button
+                .overlay(alignment: .top) {proposeTwoDaysText}
+                sendInviteButton
+            }
+            .frame(alignment: .top)
+            .padding(.horizontal, isLotsOfText ? 28 : 32)
+            .padding(.vertical, 24)
+            .frame(maxWidth: .infinity)
+            .background (cardBackground)
+            .padding(.horizontal, horizontalPadding())
+            .onChange(of: ui.showTypePopup) {_, newValue in
+                if newValue { ui.showTimePopup = false}
+            }
+            .onChange(of: ui.showTimePopup) { _, newValue in
+                if newValue { ui.showTypePopup = false}
+            }
+            .overlay(alignment: .topLeading) { clearButton}
+            .overlay(alignment: .topTrailing) { infoButton }
         }
         .hideTabBar()
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
@@ -97,45 +131,12 @@ struct SelectTimeAndPlace: View {
 }
 
 extension SelectTimeAndPlace {
-
-    @ViewBuilder
-    private var sendInviteScreen: some View {
-        
-        VStack(spacing: 0) {
-            popupTitle
-            VStack(spacing: 12) {
-                InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
-                MapDivider()
-                InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
-                MapDivider()
-                InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
-            }
-            .padding(.top, ((event.message?.count ?? 0) > 40) ? 16 : 24)
-            .padding(.bottom, decreaseVerticalPadding ? 20 : 16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .zIndex(1) //so pop ups always appear above the Action Button
-            .overlay(alignment: .top) {proposeTwoDaysText}
-            sendInviteButton
-        }
-        .frame(alignment: .top)
-        .padding(.horizontal, isLotsOfText ? 28 : 32) //If more text, decrease padding
-        .padding(.vertical, 24)
-        .frame(maxWidth: .infinity)
-        .background (cardBackground)
-        .padding(.horizontal, 28 - (event.proposedTimes.dates.count > 1 && event.location != nil ? 4 : 0))
-        .onChange(of: ui.showTypePopup) {_, newValue in
-            if newValue { ui.showTimePopup = false}
-        }
-        .onChange(of: ui.showTimePopup) { _, newValue in
-            if newValue { ui.showTypePopup = false}
-        }
-        .overlay(alignment: .topLeading) { clearButton}
-    }
     
     private var infoButton: some View {
         TabInfoButton(showScreen: $ui.showInfoScreen)
             .scaleEffect(0.9)
-            .offset(x: -16, y: -48)
+            .offset(y: -48)
+            .padding(.horizontal, horizontalPadding())
     }
 
     private var clearButton: some View {
@@ -146,9 +147,9 @@ extension SelectTimeAndPlace {
                 Text("Clear")
                     .font(.body(12, .regular))
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
-                    .padding()
-                    .padding()
-                    .offset(x: 4)
+                    .padding(.vertical)
+                    .padding(.vertical)
+                    .padding(.horizontal, isLotsOfText ? 28 : 32)
                     .offset(y: -12)
             }
         }
@@ -213,13 +214,32 @@ extension SelectTimeAndPlace {
         !event.proposedTimes.dates.isEmpty && event.location != nil
     }
     
-    private var decreaseHorizontalPadding: Bool {
-        let messageLarge: Bool = (event.message?.count ?? 0) > 40
-        let dateLarge: Bool = event.proposedTimes.dates.count > 1
+    private func horizontalPadding() -> CGFloat {
+        let messageLarge: Bool = (event.message?.count ?? 0) > 38
+        let messageVLarge: Bool = (event.message?.count ?? 0) > 80
         let placeLarge: Bool = event.location != nil
-
-        return (messageLarge && dateLarge) || (messageLarge && placeLarge) || (placeLarge && dateLarge)
+        
+        var originalHPadding:CGFloat = 30
+        
+        if messageLarge {
+            originalHPadding -= 3
+        }
+        
+        if messageVLarge {
+            originalHPadding -= 2
+        }
+        
+        if placeLarge {
+            originalHPadding -= 1
+        }
+        return originalHPadding
     }
+    
+    //        return (messageLarge && dateLarge) || (messageLarge && placeLarge) || (placeLarge && dateLarge)
+
+    
+    
+    
     
     private var decreaseVerticalPadding: Bool {
         return (event.message?.count ?? 0) > 40 && event.location != nil
