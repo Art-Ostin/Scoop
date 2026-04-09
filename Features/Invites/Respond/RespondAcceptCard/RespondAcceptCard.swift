@@ -64,8 +64,8 @@ struct RespondAcceptCard: View {
             RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
                 .padding(.bottom, Layout.timeToPlaceSpacing)
             RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-            messageSection
-                .padding(.top, Layout.placeToMessageSpacing(hasResponseMessage: hasResponseMessage))
+//            messageSection
+//                .padding(.top, Layout.placeToMessageSpacing(hasResponseMessage: hasResponseMessage))
             actionSection
                 .padding(.top, Layout.actionTopSpacing)
         }

@@ -33,7 +33,10 @@ extension RespondTimeRow {
         HStack(spacing: 22) {
             Image("MiniClockIcon")
                 .opacity(showTimePopup ? 0.03 : 1)
-            timeTitle
+            VStack(alignment: .leading, spacing: 0) {
+                timeTitle
+                eventMessageSection
+            }
         }
     }
     
@@ -42,16 +45,27 @@ extension RespondTimeRow {
         if vm.responseType == .original {
             selectedTime
         } else {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
-                if vm.respondDraft.newTime.proposedTimes.dates.count == 3 {
-                    if let firstDate = vm.respondDraft.newTime.proposedTimes.dates.first?.date {
-                        Text(FormatEvent.hourTime(firstDate))
-                            .font(.body(12, .medium))
-                            .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
-                    }
-                }
             }
+        }
+    }
+    
+    private var eventMessageSection: some View {
+        Button {
+            showMessageScreen.toggle()
+        } label: {
+            (
+                Text(message)
+                    .font(.footnote)
+                    .foregroundStyle(Color.gray)
+                + Text("  Respond")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(showMessageScreen ? Color.grayPlaceholder : (vm.responseType == .modified ? .accent : .appGreen))
+            )
+            .lineSpacing(3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(.leading)
         }
     }
         
@@ -67,7 +81,6 @@ extension RespondTimeRow {
                     Text("Select Time")
                         .font(.body(15, .medium))
                         .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
-
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -126,4 +139,14 @@ extension RespondTimeRow {
      timeSubHeader
  }
 
+ if vm.respondDraft.newTime.proposedTimes.dates.count == 3 {
+     if let firstDate = vm.respondDraft.newTime.proposedTimes.dates.first?.date {
+         Text(FormatEvent.hourTime(firstDate))
+             .font(.body(12, .medium))
+             .foregroundStyle(Color(red: 0.72, green: 0.72, blue: 0.72))
+     }
+ }
+
+ 
+ 
  */
