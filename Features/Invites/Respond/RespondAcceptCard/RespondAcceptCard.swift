@@ -65,11 +65,11 @@ struct RespondAcceptCard: View {
                 .padding(.bottom, showMessages ? 12 : Layout.timeToPlaceSpacing)
             RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
             if showMessages {
-                respondMessagesView
-                    .padding(.top, Layout.placeToMessageSpacing(hasResponseMessage: hasResponseMessage))
+                respondMessages
+                    .padding(.top, 20)
             }
             actionSection
-                .padding(.top, Layout.actionTopSpacing)
+                .padding(.top, showMessages ? 20 : Layout.actionTopSpacing) //decrease vertical spacing when there are messages
         }
         .zIndex(1)
         .padding(.horizontal, Layout.horizontalPadding)
@@ -88,16 +88,17 @@ struct RespondAcceptCard: View {
 }
 
 extension RespondAcceptCard {
+    
     @ViewBuilder
-    private var respondMessagesView: some View {
+    private var respondMessages: some View {
         if let messages = displayedMessages {
-            RespondMessagesView(
-                originalMessage: messages.original,
-                replyMessage: messages.reply,
-                showMessageScreen: $showMessageScreen
-            )
+            VStack(alignment: .leading, spacing: 12) {
+                RespondTextBubble(showMessageScreen: $showMessageScreen, message: messages.original, isMyChat: false)
+                RespondTextBubble(showMessageScreen: $showMessageScreen, message: messages.reply, isMyChat: true, isNewTime: vm.responseType == .modified)
+            }
         }
     }
+    
 
     private var actionSection: some View {
         HStack {
@@ -125,17 +126,33 @@ extension RespondAcceptCard {
         }
         return trimmed
     }
-    
-    @ViewBuilder
-    private var messageSection: some View {
-        if let originalMessage = nonEmptyMessage(event.message) {
-            VStack(alignment: .leading, spacing: 12) {
-                RespondMessageBubble(showMessageScreen: $showMessageScreen, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, isNewTime: vm.responseType == .modified)
-                
-                if let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage) {
-                    RespondMessageBubble(showMessageScreen: $showMessageScreen, message: replyMessage, isMyChat: true, hasMessageResponse: true, isNewTime: vm.responseType == .modified)
-                }
-            }
-        }
-    }
 }
+
+
+/*
+ @ViewBuilder
+ private var messageSection: some View {
+     if let originalMessage = nonEmptyMessage(event.message) {
+         VStack(alignment: .leading, spacing: 12) {
+             RespondMessageBubble(showMessageScreen: $showMessageScreen, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, isNewTime: vm.responseType == .modified)
+             
+             if let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage) {
+                 RespondMessageBubble(showMessageScreen: $showMessageScreen, message: replyMessage, isMyChat: true, hasMessageResponse: true, isNewTime: vm.responseType == .modified)
+             }
+         }
+     }
+ }
+ 
+ @ViewBuilder
+ private var respondMessagesView: some View {
+     if let messages = displayedMessages {
+         RespondMessagesView(
+             originalMessage: messages.original,
+             replyMessage: messages.reply,
+             showMessageScreen: $showMessageScreen
+         )
+     }
+ }
+ 
+
+ */

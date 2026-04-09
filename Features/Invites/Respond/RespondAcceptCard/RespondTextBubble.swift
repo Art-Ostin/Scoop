@@ -7,16 +7,15 @@
 
 import SwiftUI
 
-struct RespondMessageBubble: View {
+struct RespondTextBubble: View {
     
     @Binding var showMessageScreen: Bool
-    @State var isRespondBelow: Bool = false
+    @State var isTextBelow = false
     
     let message: String
     let isMyChat: Bool
-    let hasMessageResponse: Bool
     
-    let isNewTime: Bool
+    var isNewTime: Bool = false
         
     var body: some View {
         Button {
@@ -35,13 +34,13 @@ struct RespondMessageBubble: View {
                 .frame(maxWidth: .infinity, alignment: isMyChat ? .leading : .trailing)
                 .padding(.leading, 14)
                 .multilineTextAlignment(.leading)
-                .padding((isMyChat ? .leading : .trailing), hasMessageResponse ? 16 : 0)
+                .padding((isMyChat ? .leading : .trailing), 16)
         }
-        .disabled(hasMessageResponse && !isMyChat)
+        .disabled(!isMyChat)
     }
 }
 
-extension RespondMessageBubble {
+extension RespondTextBubble {
         
     private var messageBackground: some View {
         bubbleShape
@@ -75,14 +74,12 @@ extension RespondMessageBubble {
     private func updateTimePlacement(bubbleWidth: CGFloat) {
         let textWidth = max(0, bubbleWidth - 32)
         let metrics = textLayoutMetrics(text: message, width: textWidth, font: UIFont.body(16, .regular))
-
-        isRespondBelow = metrics.lineCount <= 1 || metrics.trailingSpace < 50
+//
+        isTextBelow = metrics.lineCount <= 1 || metrics.trailingSpace < 50
     }
     
-    @ViewBuilder
     private var messageBubbleAction: some View  {
-        let text: String = isMyChat ? "Edit" : hasMessageResponse ? "" : "Respond"
-        Text(text)
+        Text(isMyChat ? "Edit" : "")
             .font(.body(10, .bold))
             .padding(.horizontal, 10)
             .kerning(0.3)
