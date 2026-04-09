@@ -52,7 +52,7 @@ extension RespondTitle {
                 
                 Image(systemName: "info.circle")
                     .font(.body(8, .medium))
-                    .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
+                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
                     .offset(y: -3)
             }
             .padding(6)
@@ -60,7 +60,8 @@ extension RespondTitle {
             .padding(.trailing, 2)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color.white.opacity(0.7))
+                    .foregroundStyle(Color(red: 0.93, green: 0.93, blue: 0.93))
+//                    .foregroundStyle(Color.white.opacity(0.7))
             )
             .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
             .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.3))

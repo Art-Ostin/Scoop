@@ -12,9 +12,9 @@ struct RespondAcceptCard: View {
     @Binding var isFlipped: Bool
     
     private enum Layout {
-        static let titleToTimeSpacing: CGFloat = 12
-        static let timeToPlaceSpacing: CGFloat = 14
-        static let actionTopSpacing: CGFloat = 20
+        static let titleToTimeSpacing: CGFloat = 16 //12
+        static let timeToPlaceSpacing: CGFloat = 20
+        static let actionTopSpacing: CGFloat = 26
         
         static let horizontalPadding: CGFloat = 22
         static let topPadding: CGFloat = 18
