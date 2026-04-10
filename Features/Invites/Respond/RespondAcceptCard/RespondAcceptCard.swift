@@ -77,7 +77,7 @@ struct RespondAcceptCard: View {
         .padding(.bottom, Layout.bottomPadding)
         .frame(maxWidth: .infinity)
         .background(customBackground)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, hasResponseMessage ? 24 : 30)
         .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
