@@ -13,7 +13,7 @@ struct InvitePlaceRow: View {
     @Binding var showMapView: Bool
         
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 6) {
             Group {
                 if let location = eventLocation {
                     addressText(location: location)

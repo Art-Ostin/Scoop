@@ -106,6 +106,7 @@ struct SelectTimeAndPlace: View {
             .padding(.vertical, 24)
             .frame(maxWidth: .infinity)
             .background (cardBackground)
+            .overlay(alignment: .topLeading) { clearButton }
             .padding(.horizontal, horizontalPadding())
             .onChange(of: ui.showTypePopup) {_, newValue in
                 if newValue { ui.showTimePopup = false}
@@ -113,7 +114,6 @@ struct SelectTimeAndPlace: View {
             .onChange(of: ui.showTimePopup) { _, newValue in
                 if newValue { ui.showTypePopup = false}
             }
-            .overlay(alignment: .topLeading) { clearButton}
             .overlay(alignment: .topTrailing) { infoButton }
         }
         .hideTabBar()
@@ -140,20 +140,16 @@ extension SelectTimeAndPlace {
     }
 
     private var clearButton: some View {
-        Button {
-            deleteEventDefault()
-        } label: {
-            if hasDraftChanges {
-                Text("Clear")
-                    .font(.body(12, .regular))
-                    .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
-                    .padding(.vertical)
-                    .padding(.vertical)
-                    .padding(.horizontal, isLotsOfText ? 28 : 32)
-                    .offset(y: -12)
+                Button {
+                    deleteEventDefault()
+                } label: {
+                    Text("Clear")
+                        .font(.body(12, .regular))
+                        .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
+                }
+                .padding(.top, 24)
+                .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)
             }
-        }
-    }
     
     private var cardBackground: some View {
         ZStack { //Background done like this to fix bugs when popping up
