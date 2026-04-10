@@ -41,7 +41,6 @@ extension RespondTitle {
         .layoutPriority(1)
     }
     
-    
     private var eventTypeButton: some View {
         Button {
             isFlipped.toggle()

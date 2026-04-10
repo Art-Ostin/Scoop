@@ -16,16 +16,16 @@ struct InviteCard: View {
     let openProfile: (UserProfile) -> ()
     
     @State private var imageSize: CGFloat = 0
-    private let contentPadding: CGFloat = 8
+    private let contentPadding: CGFloat = 6
+    @State var showMessageScreen: Bool = false
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             profileImage
-
-            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $ui.showTimePopup)
+            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $ui.showTimePopup, showMessageScreen: $showMessageScreen)
         }
-        .padding(contentPadding)
-        .padding(.bottom, 12)
+        .padding(.horizontal, contentPadding)
+        .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) { cardWidth in
@@ -37,7 +37,9 @@ struct InviteCard: View {
                 .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
         )
         .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
-        
+        .sheet(isPresented: $showMessageScreen) {
+            AddMessageView(eventType: .constant(eventProfile.event.type), showMessageScreen: $showMessageScreen, message: $vm.respondDraft.respondMessage, isRespondMessage: true, name: vm.respondDraft.newTime.event.otherUserName)
+        }
         .onTapGesture {
             if ui.showTimePopup {
                 withAnimation(.easeInOut(duration: 0.15)) {
@@ -58,8 +60,5 @@ extension InviteCard {
             .opacity(ui.showTimePopup ? 0.3 : 1)
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
-    }
-    
-    
-    
+    }    
 }
