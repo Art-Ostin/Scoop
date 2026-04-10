@@ -21,7 +21,6 @@ struct ProposedTimesRow: View {
                 proposedDays
                 hourIfNeeded
             }
-            
             DropDownChevron(showTimePopup: $showTimePopup)
                 .offset(x: isAccept ? 2.6 : 4)
         }

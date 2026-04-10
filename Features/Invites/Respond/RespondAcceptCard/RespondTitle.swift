@@ -61,10 +61,7 @@ extension RespondTitle {
             .background(
                 RoundedRectangle(cornerRadius: 24)
                     .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
-//                    .foregroundStyle(Color.white.opacity(0.7))
             )
-//            .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-//            .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.3))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
