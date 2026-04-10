@@ -762,7 +762,6 @@
 		652B15492F301E970042A3E1 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				652B154B2F301EAF0042A3E1 /* Styles */,
 				652B154C2F301EC30042A3E1 /* Modifiers */,
 				652B154D2F301ECD0042A3E1 /* Animations */,
 				652B154A2F301EA10042A3E1 /* Components */,
@@ -1085,6 +1084,7 @@
 				653FB57B2F688B8300440E41 /* EventSlot 2.swift */,
 				6560CE2E2F71667B0078CFDF /* RespondTimeContainer.swift */,
 				65BC0D0C2F7C15B4001683C6 /* TimeSubheader.swift */,
+				652B154B2F301EAF0042A3E1 /* Styles */,
 			);
 			path = Delete;
 			sourceTree = "<group>";

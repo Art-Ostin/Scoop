@@ -139,23 +139,27 @@ extension SelectTimeAndPlace {
             .padding(.horizontal, horizontalPadding())
     }
 
+    @ViewBuilder
     private var clearButton: some View {
-                Button {
-                    deleteEventDefault()
-                } label: {
-                    Text("Clear")
-                        .font(.body(12, .regular))
-                        .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
-                }
-                .padding(.top, 24)
-                .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)
+        if hasDraftChanges {
+            Button {
+                deleteEventDefault()
+            } label: {
+                Text("Clear")
+                    .font(.body(12, .regular))
+                    .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
             }
+            .padding(.top, 24)
+            .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)
+        }
+    }
     
     private var cardBackground: some View {
         ZStack { //Background done like this to fix bugs when popping up
             RoundedRectangle(cornerRadius: 30)
                 .fill(Color.background)
-                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 4)
+                .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
+                .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
             RoundedRectangle(cornerRadius: 30)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
