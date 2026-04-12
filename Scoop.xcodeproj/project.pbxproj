@@ -195,6 +195,8 @@
 		65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D492F393809003F6410 /* MapSearchView.swift */; };
 		65A93D4C2F393B28003F6410 /* MapOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D4B2F393B28003F6410 /* MapOptionsView.swift */; };
 		65AD49142F82CFDB002B91BA /* RespondPlaceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AD49132F82CFDB002B91BA /* RespondPlaceRow.swift */; };
+		65AE44FA2F895136003D019D /* InviteCardPlaceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */; };
+		65AE44FC2F89515C003D019D /* InviteCardTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */; };
 		65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF148E2F63A7C100031513 /* EventProfile.swift */; };
 		65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14912F64456000031513 /* InvitesViewModel.swift */; };
 		65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14932F6445EB00031513 /* InvitesContainer.swift */; };
@@ -473,6 +475,8 @@
 		65A93D492F393809003F6410 /* MapSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchView.swift; sourceTree = "<group>"; };
 		65A93D4B2F393B28003F6410 /* MapOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapOptionsView.swift; sourceTree = "<group>"; };
 		65AD49132F82CFDB002B91BA /* RespondPlaceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondPlaceRow.swift; sourceTree = "<group>"; };
+		65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardPlaceRow.swift; sourceTree = "<group>"; };
+		65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardTimeRow.swift; sourceTree = "<group>"; };
 		65AF148E2F63A7C100031513 /* EventProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProfile.swift; sourceTree = "<group>"; };
 		65AF14912F64456000031513 /* InvitesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesViewModel.swift; sourceTree = "<group>"; };
 		65AF14932F6445EB00031513 /* InvitesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesContainer.swift; sourceTree = "<group>"; };
@@ -1294,6 +1298,8 @@
 			children = (
 				65ED38892F64656600AD5600 /* InviteCard.swift */,
 				655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */,
+				65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */,
+				65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */,
 				654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */,
 				654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */,
 			);
@@ -1529,6 +1535,7 @@
 				657E61522F353B9300262821 /* MapSearchViewModel.swift in Sources */,
 				65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */,
 				65C7D6252E53AB7F00B726B8 /* EventFormatter.swift in Sources */,
+				65AE44FA2F895136003D019D /* InviteCardPlaceRow.swift in Sources */,
 				659A89732F1D43AD00806C02 /* ImageModels.swift in Sources */,
 				651795312F7F062A001D70E4 /* RespondTitle.swift in Sources */,
 				659109332E19C87B0065696F /* VerifyEmailView.swift in Sources */,
@@ -1709,6 +1716,7 @@
 				6501358A2E4C06DF00630CF3 /* EventSlotContainer.swift in Sources */,
 				65DFC0072F858FEF005EC298 /* TwoCardSwipeTest.swift in Sources */,
 				650DA3692F6C25750013EB30 /* ProfileInviteView.swift in Sources */,
+				65AE44FC2F89515C003D019D /* InviteCardTimeRow.swift in Sources */,
 				656373B72F502457003A922D /* ChatRowView.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */,
 				65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */,

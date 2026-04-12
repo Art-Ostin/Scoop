@@ -19,7 +19,7 @@ struct RespondTitle: View {
         
         HStack(spacing: 16) {
             eventTitle
-            eventTypeButton
+            InviteRespondButton(type: event.type, isFlipped: $isFlipped)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(showTimePopup ? 0.03 : 1)
@@ -40,35 +40,6 @@ extension RespondTitle {
         }
         .layoutPriority(1)
     }
-    
-    private var eventTypeButton: some View {
-        Button {
-            isFlipped.toggle()
-        } label: {
-            HStack(spacing: 0) {
-                Text("\(event.type.description.emoji)\(event.type.description.label)")
-                    .font(.body(14, .bold))
-                
-                Image(systemName: "info.circle")
-                    .font(.body(8, .medium))
-                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
-                    .offset(y: -3)
-            }
-            .padding(6)
-            .padding(.leading, 2)
-            .padding(.trailing, 2)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
-            )
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .allowsTightening(true)
-            .frame(maxWidth: 110, alignment: .trailing)
-        }
-        .fixedSize(horizontal: true, vertical: false)
-    }
-    
 }
 
 /*
