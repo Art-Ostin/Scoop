@@ -68,10 +68,8 @@ struct InviteCardInfo: View {
             InviteCardTimeRow(selectedDay: selectedDay, showMessageScreen: $showMessageScreen, showTimePopup: $showTimePopup, vm: vm)
                 .padding(.top, Layout.titleToTimeSpacing(hasMessage))
             
-            InviteCardPlaceRow(location: event.location)
-                .opacity(showTimePopup ? 0.3 : 1)
-                .padding(.top, Layout.timeToPlaceSpacing(hasMessage))
-
+            invitePlaceRow
+            
             responseRow
                 .opacity(showTimePopup ? 0.3 : 1)
                 .allowsHitTesting(!showTimePopup)
@@ -80,13 +78,25 @@ struct InviteCardInfo: View {
         .padding(.horizontal, 20)
         .padding(.top, Layout.topPadding)
         .padding(.bottom, Layout.bottomPadding)
-        .overlay(alignment: .leading) {
-            addMessageButton
-        }
     }
 }
 
 extension InviteCardInfo {
+    
+    
+    private var invitePlaceRow: some View {
+        HStack(spacing: 6) {
+            InviteCardPlaceRow(location: event.location)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
+            
+            viewMessageButton
+                .fixedSize()
+        }
+            .opacity(showTimePopup ? 0.3 : 1)
+            .padding(.top, Layout.timeToPlaceSpacing(hasMessage))
+    }
+    
     
     private var responseRow: some View {
         HStack {
@@ -112,30 +122,26 @@ extension InviteCardInfo {
         }
     }
     
-    private var addMessageButton: some View {
+    private var viewMessageButton: some View {
         Button {
             showMessageScreen = true
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName:"plus")
-                    .font(.system(size: 10, weight: .bold))
-                
-                Text("Add note")
-                    .font(.custom("SFProRounded-Bold", size: 11))
-                    .kerning(0.4)
-            }
-            .foregroundStyle(Color.grayText)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background {
-                Capsule(style: .continuous)
-                    .fill(Color.white.opacity(0.92))
-            }
-            .stroke(24, lineWidth: 1, color: Color.grayBackground)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .contentShape(.rect)
+        } label : {
+            Image("FilledMessageIcon")
+                .scaleEffect(1.1)
+                .padding(7)
+                .background(
+                    Circle().foregroundStyle(.white).opacity(0.7)
+                )
+                .overlay {
+                    Circle()
+                        .strokeBorder(Color.grayPlaceholder.opacity(0.3), lineWidth: 0.5)
+                }
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+                .contentShape(Rectangle())
+                .padding(14)
         }
-        .offset(y: 20)
+        .buttonStyle(.plain)
+        .padding(-14)
     }
 }
 
@@ -145,3 +151,34 @@ struct QuickInviteTime: PreferenceKey {
         value = nextValue()
     }
 }
+
+
+/*
+ 
+ private var addMessageButton: some View {
+     Button {
+         showMessageScreen = true
+     } label: {
+         HStack(spacing: 6) {
+             Image(systemName:"plus")
+                 .font(.system(size: 10, weight: .bold))
+             
+             Text("Add note")
+                 .font(.custom("SFProRounded-Bold", size: 11))
+                 .kerning(0.4)
+         }
+         .foregroundStyle(Color.grayText)
+         .padding(.horizontal, 8)
+         .padding(.vertical, 4)
+         .background {
+             Capsule(style: .continuous)
+                 .fill(Color.white.opacity(0.92))
+         }
+         .stroke(24, lineWidth: 1, color: Color.grayBackground)
+         .frame(maxWidth: .infinity, alignment: .trailing)
+         .contentShape(.rect)
+     }
+     .offset(y: 20)
+ }
+
+ */
