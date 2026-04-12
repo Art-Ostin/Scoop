@@ -16,13 +16,13 @@ struct CardEventContainer: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             title
-            if ui.showMeetInfo {
-                InviteCardInfo(event: event)
-                    .transition(.move(edge: .trailing))
-            } else {
-                InviteCardEvent(vm: vm, ui: ui, name: name)
-                    .transition(.move(edge: .leading))
-            }
+                if ui.showMeetInfo {
+                    InviteCardInfo(event: event)
+                        .transition(.move(edge: .trailing))
+                } else {
+                    InviteCardEvent(vm: vm, ui: ui, name: name)
+                        .transition(.move(edge: .leading))
+                }
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
@@ -35,7 +35,7 @@ extension CardEventContainer {
     
     @ViewBuilder
     private var title: some View {
-        let titleText = ui.showMeetInfo ? "\(event.type.description.emoji) \(event.type.longTitle)" : "\(name)'s Invite"
+        let titleText = ui.showMeetInfo ? "Michael's Invite" : "\(name)'s Invite"
         
         HStack(alignment: .bottom, spacing: 12) {
             Text(titleText)

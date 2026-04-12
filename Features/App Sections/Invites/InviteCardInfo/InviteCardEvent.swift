@@ -19,7 +19,7 @@ struct InviteCardEvent: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             inviteCardTimeRow
-                .padding(.top, layout.titleToTimeSpacing)
+//                .padding(.top, layout.titleToTimeSpacing)
             inviteCardPlaceRow
                 .padding(.top, layout.timeToPlaceSpacing)
             responseRow

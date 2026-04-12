@@ -12,13 +12,13 @@ struct InviteCardInfo: View {
     let event: UserEvent
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 CardDetailSection(event: event, type: detail)
             }
         }
         .lineSpacing(4)
-        .padding(.top, 14.25)
+//        .padding(.top, 14.25)
         .padding(.bottom, 6)//needs bit more padding than 'action' section.
     }
 }
