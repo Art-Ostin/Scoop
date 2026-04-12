@@ -33,10 +33,14 @@ struct CardEventContainer: View {
 
 extension CardEventContainer {
     
+    private enum Layout {
+        static let titleAccessoryHeight: CGFloat = 32
+    }
+    
     @ViewBuilder
     private var title: some View {
-        let titleText = ui.showMeetInfo ? "Michael's Invite" : "\(name)'s Invite"
-        
+        let titleText = ui.showMeetInfo ? "\(event.type.description.emoji) \(event.type.longTitle)" : "\(name)'s Invite"
+    
         HStack(alignment: .bottom, spacing: 12) {
             Text(titleText)
                 .contentTransition(.interpolate)
@@ -47,13 +51,19 @@ extension CardEventContainer {
                 .allowsTightening(true)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            if ui.showMeetInfo {
-                eventButton
-            } else {
-                InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: $ui.showMeetInfo)
-                    .scaleEffect(0.9, anchor: .trailing)
-                    .fixedSize()
-            }
+            titleAccessory
+                .frame(height: Layout.titleAccessoryHeight, alignment: .bottomTrailing)
+        }
+    }
+    
+    @ViewBuilder
+    private var titleAccessory: some View {
+        if ui.showMeetInfo {
+            eventButton
+        } else {
+            InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: $ui.showMeetInfo)
+                .scaleEffect(0.9, anchor: .trailing)
+                .fixedSize()
         }
     }
     
@@ -74,7 +84,6 @@ extension CardEventContainer {
             .kerning(0.5)
             .padding(.horizontal, 6)
             .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
-            .offset(y: -2)
         }
     }
 }
