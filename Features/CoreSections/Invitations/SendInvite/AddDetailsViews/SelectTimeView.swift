@@ -26,7 +26,6 @@ struct SelectTimeView: View {
     var body: some View {
         VStack(spacing: 12) {
             dayPicker
-//                .scaleEffect(isRespondMode ? 0.95 : 1)
                 .scaleEffect(isRespondMode ? 0.95 : 1)
 
             Divider()

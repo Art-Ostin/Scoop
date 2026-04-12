@@ -12,12 +12,12 @@ struct CardEventContainer: View {
     @Bindable var vm: RespondViewModel
     @State var ui = RespondUIState()
     let name: String
-    
+    var event: UserEvent {vm.respondDraft.originalInvite.event}
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             title
             if ui.showMeetInfo {
-                InviteCardHowItWorks()
+                InviteCardInfo(event: event)
                     .transition(.move(edge: .trailing))
             } else {
                 InviteCardEvent(vm: vm, ui: ui, name: name)
@@ -33,9 +33,12 @@ struct CardEventContainer: View {
 
 extension CardEventContainer {
     
+    @ViewBuilder
     private var title: some View {
+        let titleText = ui.showMeetInfo ? "\(event.type.description.emoji) \(event.type.longTitle)" : "\(name)'s Invite"
+        
         HStack(alignment: .bottom, spacing: 12) {
-            Text(ui.showMeetInfo ? "How It works" : "\(name)'s Invite")
+            Text(titleText)
                 .font(.custom("SFProRounded-Bold", size: 20))
                 .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
                 .lineLimit(1)
@@ -58,18 +61,19 @@ extension CardEventContainer {
             ui.showMeetInfo.toggle()
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: "chevron.back")
-                    .font(.body(17, .bold))
-                
+                Image(systemName: "chevron.left")
+                    .font(.body(14, .bold))
+                    .foregroundStyle(Color.appGreen)
+
                 Text("Event")
                     .foregroundStyle(Color.appGreen)
                     .font(.custom("SFProRounded-Bold", size: 12))
-                    .padding(4)
-                    .kerning(0.5)
-                    .padding(.horizontal, 6)
-                    .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
-                    .offset(y: -2)
             }
+            .padding(4)
+            .kerning(0.5)
+            .padding(.horizontal, 6)
+            .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+            .offset(y: -2)
         }
     }
 }

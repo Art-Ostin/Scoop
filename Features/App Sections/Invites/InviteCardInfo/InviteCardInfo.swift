@@ -1,0 +1,47 @@
+//
+//  InviteCardHowItWorks.swift
+//  Scoop
+//
+//  Created by Art Ostin on 12/04/2026.
+//
+
+import SwiftUI
+
+struct InviteCardInfo: View {
+    
+    let event: UserEvent
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(DetailInfo.allCases, id: \.self) {detail in
+                CardDetailSection(event: event, type: detail)
+            }
+        }
+        .lineSpacing(4)
+        .padding(.top, 14.25)
+        .padding(.bottom, 6)//needs bit more padding than 'action' section.
+    }
+}
+
+private struct CardDetailSection: View {
+    let event: UserEvent
+    let type: DetailInfo
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(type.image)
+            (
+                Text("\(type.title(event)): ")
+                    .font(.body(14, .bold))
+                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                +
+                Text(type.message(event))
+            )
+        }
+        .font(.footnote)
+        .foregroundStyle(.gray)
+        .lineLimit(3)
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}

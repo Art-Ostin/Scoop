@@ -22,9 +22,9 @@ enum DetailInfo: CaseIterable {
     func message(_ event: UserEvent) -> String {
         switch self {
         case .time:
-            return "Select a proposed time, or suggest a new time, or send '\(event.otherUserName)' a new invite."
+            return "Select a time, or suggest a new one, or send '\(event.otherUserName)' a new invite."
         case .message:
-            return "Once the event is accepted, you can message to coordinate details and find each other."
+            return "Once accepted, you can message to coordinate details and find each other."
         case .event:
             return event.type.howItWorks(userEvent: event)
         }
@@ -103,7 +103,7 @@ extension RespondDetailsView {
     }
 }
 
-private struct DetailSection: View {
+struct DetailSection: View {
     let event: UserEvent
     let type: DetailInfo
     
