@@ -38,7 +38,7 @@ extension InvitesContainer {
     }
 
     private var invitesView: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             titleAndTab
             
             ForEach(vm.invites, id: \.self) { invite in

@@ -29,7 +29,7 @@ struct InviteCardTimeRow: View {
 
 extension InviteCardTimeRow {
     private func originalTimeRow(selectedDay: Date) -> some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: 8) {
             Image("MiniClockIcon")
 
             VStack(alignment: .leading) {
@@ -38,14 +38,11 @@ extension InviteCardTimeRow {
                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
                     .offset(y: 0.5)
                 
-//                if vm.respondDraft.respondMessage?.isEmpty ?? true {
-//                    if let message = vm.respondDraft.originalInvite.event.message {
-//                        eventMessageSection(message: message)
-//                    }
-//                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             DropDownChevron(showTimePopup: $showTimePopup)
+                .fixedSize()
+                .offset(x: 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

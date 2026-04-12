@@ -68,11 +68,35 @@ struct AddMessageButton: View {
                 )
                 .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
                 .shadow(color: .black.opacity(hasEventMessage ? 0 : 0.05), radius: 1, x: 0, y: 1.5)
-
         }
     }
 }
 
+struct ViewMessageButton: View {
+    @Binding var showMessageSection: Bool
+    
+    var body: some View {
+        Button {
+            showMessageSection = true
+        } label : {
+            Image("FilledMessageIcon")
+                .scaleEffect(1.07)
+                .padding(6)
+                .background(
+                    Circle().foregroundStyle(.white).opacity(0.7)
+                )
+                .overlay {
+                    Circle()
+                        .strokeBorder(Color.grayPlaceholder.opacity(0.3), lineWidth: 0.5)
+                }
+                .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+                .contentShape(Rectangle())
+                .padding(14)
+        }
+        .buttonStyle(.plain)
+        .padding(-14)
+    }
+}
 
 struct InviteRespondButton: View {
     
