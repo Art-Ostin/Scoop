@@ -8,18 +8,25 @@
 import SwiftUI
 
 struct InviteCardInfo: View {
-    
+
     let event: UserEvent
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 CardDetailSection(event: event, type: detail)
             }
         }
         .lineSpacing(4)
         .padding(.top, 14.25)
-        .padding(.bottom, 6)//needs bit more padding than 'action' section.
+        .padding(.bottom, 2)//needs bit more padding than 'action' section.
+        .overlay(alignment: .bottomTrailing) {
+            Text("Can't make it?")
+                .font(.body(12, .bold))
+                .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
+                .kerning(0.5)
+                .padding()
+        }
     }
 }
 

@@ -106,7 +106,7 @@ struct InviteRespondButton: View {
     
     var body: some View {
         Button {
-            showInfo.toggle()
+            showInfo = true
         } label: {
             HStack(spacing: 0) {
                 Text("\(type.description.emoji)\(type.description.label)")
@@ -130,6 +130,7 @@ struct InviteRespondButton: View {
             .frame(maxWidth: 110, alignment: .trailing)
         }
         .fixedSize(horizontal: true, vertical: false)
+        .buttonStyle(.plain)
     }
 
 }

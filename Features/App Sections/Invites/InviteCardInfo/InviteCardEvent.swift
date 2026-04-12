@@ -10,7 +10,7 @@ import SwiftUI
 struct InviteCardEvent: View {
     
     @Bindable var vm: RespondViewModel
-    @State var ui: RespondUIState
+    @Bindable var ui: RespondUIState
     typealias layout = RespondUIState.CardLayout
     
     let name: String

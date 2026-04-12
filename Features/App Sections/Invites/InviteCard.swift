@@ -22,11 +22,11 @@ struct InviteCard: View {
     var body: some View {
         VStack(spacing: 0) {
             profileImage
+                .padding(.horizontal, contentPadding)
             
             CardEventContainer(vm: vm, name: eventProfile.profile.name)
             
         }
-        .padding(.horizontal, contentPadding)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .measure(key: ImageSizeKey.self) { $0.size.width }
