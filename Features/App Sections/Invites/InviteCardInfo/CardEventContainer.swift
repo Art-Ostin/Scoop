@@ -39,6 +39,7 @@ extension CardEventContainer {
         
         HStack(alignment: .bottom, spacing: 12) {
             Text(titleText)
+                .contentTransition(.interpolate)
                 .font(.custom("SFProRounded-Bold", size: 20))
                 .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
                 .lineLimit(1)
