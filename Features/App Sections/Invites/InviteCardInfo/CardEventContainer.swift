@@ -22,16 +22,17 @@ struct CardEventContainer: View {
             TabView(selection: $ui.showMeetInfo) {
                 InviteCardEvent(vm: vm, ui: ui, name: name)
                     .padding(.horizontal, 24)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .transition(.move(edge: .leading))
                     .tag(false)
 
                 InviteCardInfo(event: event)
                     .padding(.horizontal, 24)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .transition(.move(edge: .trailing))
                     .tag(true)
             }
-            .tabViewStyle(.page)
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .tabViewStyle(.page(indexDisplayMode: .never))
             .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true)
             .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false)
             .modifier(ConditionClipped(isClipped: !ui.showTimePopup))
