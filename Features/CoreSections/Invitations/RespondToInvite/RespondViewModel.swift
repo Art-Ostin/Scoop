@@ -27,7 +27,6 @@ class RespondViewModel {
         self.sessionManager = sessionManager
         self.respondDraft = respondDraft
     }
-
     
     func updateDraftTime() {
         
@@ -57,36 +56,5 @@ class RespondViewModel {
     
     private func updateDefaults() {
         
-    }
-}
-
-@Observable final class RespondUIState {
-    var showTimePopup: Bool = false
-    var showMessageSection: Bool = false
-    var showMeetInfo: Bool = false
-    var showAddMessageScreen: Bool = false
-    
-    
-    enum CardLayout {
-        static let titleToTimeSpacing: CGFloat = 14.25
-        static let timeToPlaceSpacing: CGFloat = 16.5
-        static let actionTopSpacing: CGFloat = 25
-        
-        static let topPadding: CGFloat = 12
-        static let bottomPadding: CGFloat = 10
-    }
-    
-    enum PopupLayout {
-        static let titleToTimeSpacing: CGFloat = 16 //12
-        static let timeToPlaceSpacing: CGFloat = 20.5 //For Precise spacing
-        static let actionTopSpacing: CGFloat = 26
-        
-        static let horizontalPadding: CGFloat = 22
-        static let topPadding: CGFloat = 18
-        static let bottomPadding: CGFloat = 18
-        
-        static func placeToMessageSpacing(hasResponseMessage: Bool) ->  CGFloat {
-            hasResponseMessage ? 16 : 22
-        }
     }
 }

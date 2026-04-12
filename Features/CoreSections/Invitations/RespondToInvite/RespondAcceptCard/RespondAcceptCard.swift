@@ -40,7 +40,6 @@ struct RespondAcceptCard: View {
         nonEmptyMessage(vm.respondDraft.respondMessage) != nil
     }
     
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
@@ -72,7 +71,6 @@ struct RespondAcceptCard: View {
 }
 
 extension RespondAcceptCard {
-    
     @ViewBuilder
     private var respondMessages: some View {
         if let messages = displayedMessages {
@@ -83,7 +81,6 @@ extension RespondAcceptCard {
         }
     }
     
-
     private var actionSection: some View {
         HStack {
             DeclineButton {vm.decline()}
