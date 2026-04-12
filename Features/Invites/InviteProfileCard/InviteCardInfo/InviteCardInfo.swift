@@ -9,10 +9,13 @@ import SwiftUI
 
 struct InviteCardInfo: View {
     
-    @State var showEventDetails: Bool = false
+    @Bindable var vm: RespondViewModel
+    @State var ui: RespondUIState
+    
+    
+    
     
     @Bindable var vm: RespondViewModel
-    let image: UIImage?
     let name: String
     
     let eventProfile: EventProfile
@@ -24,36 +27,17 @@ struct InviteCardInfo: View {
     @State var selectedDay: Date?
     @State var newProposedDates: [Date]? = nil
     @State var showProposeDate: Bool = false
-    
-    var isPopup: Bool {
-        image != nil
-    }
- 
-    @Binding var showTimePopup: Bool
-    @Binding var showMessageScreen: Bool
-    
+        
     private var hasMessage: Bool {
         event.message?.isEmpty != false
     }
     
-    private enum Layout {
-        static let titleToTimeSpacing: CGFloat = 14.25
-        static let timeToPlaceSpacing: CGFloat = 16.5
-        static let actionTopSpacing: CGFloat = 25
-        
-        static let topPadding: CGFloat = 12
-        static let bottomPadding: CGFloat = 10
-    }
-
     
-    init(vm: RespondViewModel, image: UIImage?, name: String, eventProfile: EventProfile , showTimePopup: Binding<Bool>, showMessageScreen: Binding<Bool>) {
-        self.image = image
+    init(vm: RespondViewModel, name: String, eventProfile: EventProfile) {
         self.name = name
         self.eventProfile = eventProfile
         self.vm = vm
         self._selectedDay = State(initialValue: eventProfile.event.proposedTimes.firstAvailableDate)
-        self._showTimePopup = showTimePopup
-        self._showMessageScreen = showMessageScreen
     }
     
     var body: some View {
@@ -65,7 +49,7 @@ struct InviteCardInfo: View {
             
             InviteCardPlaceRow(showMessageSection: $showMessageScreen, location: event.location)
                 .opacity(showTimePopup ? 0.3 : 1)
-                .padding(.top, Layout.topPadding)
+                .padding(.top, Layout.timeToPlaceSpacing)
             
             responseRow
                 .opacity(showTimePopup ? 0.3 : 1)

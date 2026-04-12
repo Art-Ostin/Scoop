@@ -139,22 +139,3 @@ extension SelectAvailableDay {
         }
     }
 }
-
-
-
-
-
-
-/*
- Text("OPTION \(idx + 1)")
-     .font(.body(11, .bold))
-     .kerning(0.9)
-     .foregroundStyle(isSelected ? Color.appGreen: Color.grayText)
- */
-
-/*
- //            Text("Choose a day or propose a new time to meet.")
- //                .font(.body(13, .medium))
- //                .foregroundStyle(Color.grayText)
-
- */

@@ -9,25 +9,8 @@ import SwiftUI
 struct RespondAcceptCard: View {
     
     @Bindable var vm: RespondViewModel
-    @Binding var isFlipped: Bool
-    
-    private enum Layout {
-        static let titleToTimeSpacing: CGFloat = 16 //12
-        static let timeToPlaceSpacing: CGFloat = 20.5 //For Precise spacing
-        static let actionTopSpacing: CGFloat = 26
+    @Bindable var ui: RespondUIState
         
-        static let horizontalPadding: CGFloat = 22
-        static let topPadding: CGFloat = 18
-        static let bottomPadding: CGFloat = 18
-        
-        static func placeToMessageSpacing(hasResponseMessage: Bool) ->  CGFloat {
-            hasResponseMessage ? 16 : 22
-        }
-    }
-    
-    @State private var showTimePopup: Bool = false
-    @State private var showMessageScreen: Bool = false
-    
     var event: UserEvent {
         vm.respondDraft.originalInvite.event
     }
@@ -56,6 +39,7 @@ struct RespondAcceptCard: View {
     private var hasResponseMessage: Bool {
         nonEmptyMessage(vm.respondDraft.respondMessage) != nil
     }
+    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -93,8 +77,8 @@ extension RespondAcceptCard {
     private var respondMessages: some View {
         if let messages = displayedMessages {
             VStack(alignment: .leading, spacing: 12) {
-                RespondTextBubble(showMessageScreen: $showMessageScreen, message: messages.original, isMyChat: false)
-                RespondTextBubble(showMessageScreen: $showMessageScreen, message: messages.reply, isMyChat: true, isNewTime: vm.responseType == .modified)
+                RespondTextBubble(showMessageScreen: RespondUIState.PopupLayout.showMessageScreen, message: messages.original, isMyChat: false)
+                RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: messages.reply, isMyChat: true, isNewTime: vm.responseType == .modified)
             }
         }
     }
@@ -112,7 +96,7 @@ extension RespondAcceptCard {
         ZStack { //Background done like this to fix bugs when popping up
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .fill(Color.background)
-                .surfaceShadow(.card, strength: showTimePopup ? 0 : 1)
+                .surfaceShadow(.card, strength: ui.showTimePopup ? 0 : 1)
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
@@ -127,40 +111,3 @@ extension RespondAcceptCard {
         return trimmed
     }
 }
-
-
-/*
- In case I want the coloured shadow.
-.shadow(color: vm.responseType == .original ? .green.opacity(0.15) : .accent.opacity(0.15), radius: 4, y: 2)
-               .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
- */
-
-
-
-/*
- @ViewBuilder
- private var messageSection: some View {
-     if let originalMessage = nonEmptyMessage(event.message) {
-         VStack(alignment: .leading, spacing: 12) {
-             RespondMessageBubble(showMessageScreen: $showMessageScreen, message: originalMessage, isMyChat: false, hasMessageResponse: hasResponseMessage, isNewTime: vm.responseType == .modified)
-             
-             if let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage) {
-                 RespondMessageBubble(showMessageScreen: $showMessageScreen, message: replyMessage, isMyChat: true, hasMessageResponse: true, isNewTime: vm.responseType == .modified)
-             }
-         }
-     }
- }
- 
- @ViewBuilder
- private var respondMessagesView: some View {
-     if let messages = displayedMessages {
-         RespondMessagesView(
-             originalMessage: messages.original,
-             replyMessage: messages.reply,
-             showMessageScreen: $showMessageScreen
-         )
-     }
- }
- 
-
- */

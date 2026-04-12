@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct CardInfoContainer: View {
-    @State var showMessageSection = false
+    
+    @Bindable var vm: RespondViewModel
+    
+    @State var ui = RespondUIState()
+    
+    
     
     
     
@@ -16,8 +21,4 @@ struct CardInfoContainer: View {
         
         
     }
-}
-
-#Preview {
-    CardInfoContainer()
 }

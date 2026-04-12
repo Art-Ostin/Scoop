@@ -979,6 +979,20 @@
 			path = EventDetailsSheet;
 			sourceTree = "<group>";
 		};
+		655CE0EF2F8BFA6A00C9ECE3 /* InviteCardInfo */ = {
+			isa = PBXGroup;
+			children = (
+				655CE0ED2F8BF21C00C9ECE3 /* CardInfoContainer.swift */,
+				655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */,
+				65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */,
+				65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */,
+				654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */,
+				655CE0EB2F8BED3A00C9ECE3 /* InviteCardHowItWorks.swift */,
+				654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */,
+			);
+			path = InviteCardInfo;
+			sourceTree = "<group>";
+		};
 		655D92D82F6B306B00A99685 /* CustomDropDown */ = {
 			isa = PBXGroup;
 			children = (
@@ -1301,13 +1315,7 @@
 			isa = PBXGroup;
 			children = (
 				65ED38892F64656600AD5600 /* InviteCard.swift */,
-				655CE0ED2F8BF21C00C9ECE3 /* CardInfoContainer.swift */,
-				655D92C62F6AEB1500A99685 /* InviteCardInfo.swift */,
-				65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */,
-				65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */,
-				654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */,
-				655CE0EB2F8BED3A00C9ECE3 /* InviteCardHowItWorks.swift */,
-				654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */,
+				655CE0EF2F8BFA6A00C9ECE3 /* InviteCardInfo */,
 			);
 			path = InviteProfileCard;
 			sourceTree = "<group>";
