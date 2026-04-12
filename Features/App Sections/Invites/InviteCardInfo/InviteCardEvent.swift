@@ -7,18 +7,17 @@
 
 import SwiftUI
 
-struct InviteCardInfo: View {
+struct InviteCardEvent: View {
     
     @Bindable var vm: RespondViewModel
     @State var ui: RespondUIState
     typealias layout = RespondUIState.CardLayout
     
     let name: String
-    let event: UserEvent
+    var event: UserEvent { vm.respondDraft.originalInvite.event}
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            title
             inviteCardTimeRow
                 .padding(.top, layout.titleToTimeSpacing)
             inviteCardPlaceRow
@@ -26,29 +25,11 @@ struct InviteCardInfo: View {
             responseRow
                 .padding(.top, layout.actionTopSpacing)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, layout.topPadding)
-        .padding(.bottom, layout.bottomPadding)
     }
 }
 
-extension InviteCardInfo {
+extension InviteCardEvent {
     
-    private var title: some View {
-        HStack(alignment: .bottom, spacing: 12) {
-            Text("\(name)'s Invite")
-                .font(.custom("SFProRounded-Bold", size: 20))
-                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .allowsTightening(true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            InviteRespondButton(type: event.type, showInfo: $ui.showMeetInfo)
-                .scaleEffect(0.9, anchor: .trailing)
-                .fixedSize()
-        }
-    }
     
     private var inviteCardTimeRow: some View {
         InviteCardTimeRow(

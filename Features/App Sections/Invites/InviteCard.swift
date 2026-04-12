@@ -22,7 +22,9 @@ struct InviteCard: View {
     var body: some View {
         VStack(spacing: 0) {
             profileImage
-            InviteCardInfo(vm: vm, image: nil, name: eventProfile.profile.name, eventProfile: eventProfile, showTimePopup: $ui.showTimePopup, showMessageScreen: $showMessageScreen)
+            
+            CardEventContainer(vm: vm, name: eventProfile.profile.name)
+            
         }
         .padding(.horizontal, contentPadding)
         .padding(.vertical, 8)

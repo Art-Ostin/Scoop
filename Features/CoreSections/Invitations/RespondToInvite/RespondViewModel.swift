@@ -27,7 +27,7 @@ class RespondViewModel {
         self.sessionManager = sessionManager
         self.respondDraft = respondDraft
     }
-
+    
     func updateDraftTime() {
         
     }

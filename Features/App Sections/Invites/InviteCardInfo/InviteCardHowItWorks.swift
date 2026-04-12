@@ -10,9 +10,8 @@ import SwiftUI
 struct InviteCardHowItWorks: View {
     var body: some View {
         
+        
+        
+        
     }
-}
-
-#Preview {
-    InviteCardHowItWorks()
 }
