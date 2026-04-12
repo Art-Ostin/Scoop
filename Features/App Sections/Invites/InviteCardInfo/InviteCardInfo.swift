@@ -11,68 +11,28 @@ struct InviteCardInfo: View {
     
     @Bindable var vm: RespondViewModel
     @State var ui: RespondUIState
+    typealias layout = RespondUIState.CardLayout
     
-    
-    
-    
-    @Bindable var vm: RespondViewModel
     let name: String
-    
-    let eventProfile: EventProfile
-    
-    var event: UserEvent {
-        eventProfile.event
-    }
-    
-    @State var selectedDay: Date?
-    @State var newProposedDates: [Date]? = nil
-    @State var showProposeDate: Bool = false
-        
-    private var hasMessage: Bool {
-        event.message?.isEmpty != false
-    }
-    
-    
-    init(vm: RespondViewModel, name: String, eventProfile: EventProfile) {
-        self.name = name
-        self.eventProfile = eventProfile
-        self.vm = vm
-        self._selectedDay = State(initialValue: eventProfile.event.proposedTimes.firstAvailableDate)
-    }
+    let event: UserEvent
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             title
-            
-            InviteCardTimeRow(selectedDay: selectedDay, showMessageScreen: $showMessageScreen, showTimePopup: $showTimePopup, vm: vm)
-                .padding(.top, Layout.titleToTimeSpacing)
-            
-            InviteCardPlaceRow(showMessageSection: $showMessageScreen, location: event.location)
-                .opacity(showTimePopup ? 0.3 : 1)
-                .padding(.top, Layout.timeToPlaceSpacing)
-            
+            inviteCardTimeRow
+                .padding(.top, layout.titleToTimeSpacing)
+            inviteCardPlaceRow
+                .padding(.top, layout.timeToPlaceSpacing)
             responseRow
-                .opacity(showTimePopup ? 0.3 : 1)
-                .allowsHitTesting(!showTimePopup)
-                .padding(.top, Layout.actionTopSpacing)
+                .padding(.top, layout.actionTopSpacing)
         }
         .padding(.horizontal, 20)
-        .padding(.top, Layout.topPadding)
-        .padding(.bottom, Layout.bottomPadding)
+        .padding(.top, layout.topPadding)
+        .padding(.bottom, layout.bottomPadding)
     }
 }
 
 extension InviteCardInfo {
-    
-    
-    
-    private var responseRow: some View {
-        HStack {
-            DeclineButton { }
-            Spacer()
-            AcceptButton {}
-        }
-    }
     
     private var title: some View {
         HStack(alignment: .bottom, spacing: 12) {
@@ -84,11 +44,39 @@ extension InviteCardInfo {
                 .allowsTightening(true)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            InviteRespondButton(type: event.type, isFlipped: $showEventDetails)
+            InviteRespondButton(type: event.type, showInfo: $ui.showMeetInfo)
                 .scaleEffect(0.9, anchor: .trailing)
                 .fixedSize()
         }
     }
+    
+    private var inviteCardTimeRow: some View {
+        InviteCardTimeRow(
+            selectedDay: vm.respondDraft.originalInvite.selectedDay ,
+            showMessageScreen: $ui.showMessageScreen,
+            showTimePopup: $ui.showTimePopup,
+            vm: vm
+        )
+    }
+    
+    private var inviteCardPlaceRow: some View {
+        InviteCardPlaceRow(
+            showMessageSection: $ui.showMessageScreen,
+            location: event.location
+        )
+            .opacity(ui.showTimePopup ? 0.3 : 1)
+    }
+        
+    private var responseRow: some View {
+        HStack {
+            DeclineButton { }
+            Spacer()
+            AcceptButton {}
+        }
+        .opacity(ui.showTimePopup ? 0.3 : 1)
+        .allowsHitTesting(!ui.showTimePopup)
+    }
+    
 }
  struct QuickInviteTime: PreferenceKey {
      static var defaultValue: Bool = false
@@ -96,4 +84,3 @@ extension InviteCardInfo {
          value = nextValue()
      }
  }
-

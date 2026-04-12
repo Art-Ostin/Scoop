@@ -10,82 +10,90 @@ struct RespondAcceptCard: View {
     
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondUIState
-        
-    var event: UserEvent {
-        vm.respondDraft.originalInvite.event
-    }
-    
-    private var displayedMessages: (original: String, reply: String)? {
-        guard
-            let originalMessage = nonEmptyMessage(event.message),
-            let replyMessage = nonEmptyMessage(vm.respondDraft.respondMessage)
-        else {
-            return nil
-        }
-        return (originalMessage, replyMessage)
-    }
-    
-    private var showMessages: Bool { displayedMessages != nil}
-
-    private var hasEventMessage: Bool {
-        nonEmptyMessage(event.message) != nil
-    }
-    
-    private var hasNoEventMessages: Bool {
-        nonEmptyMessage(vm.respondDraft.respondMessage) == nil
-        && nonEmptyMessage(event.message) == nil
-    }
-    
-    private var hasResponseMessage: Bool {
-        nonEmptyMessage(vm.respondDraft.respondMessage) != nil
-    }
+    var event: UserEvent { vm.respondDraft.originalInvite.event}
+    typealias layout = RespondUIState.PopupLayout
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            RespondTitle(isFlipped: $isFlipped, showTimePopup: showTimePopup, event: event, image: vm.image)
-                .padding(.bottom, Layout.titleToTimeSpacing)
-            RespondTimeRow(vm: vm, showTimePopup: $showTimePopup, showMessageScreen: $showMessageScreen)
-                .padding(.bottom, showMessages ? 12 : Layout.timeToPlaceSpacing)
-            RespondPlaceRow(showMessageScreen: $showMessageScreen, location: event.location, noEventMessages: hasNoEventMessages)
-            if showMessages {
-                respondMessages
-                    .padding(.top, 20)
-            }
+            respondTitle
+                .padding(.bottom, layout.titleToTimeSpacing)
+            respondTime
+                .padding(.bottom, ui.hasBothMessages(vm.respondDraft) ? 12 : layout.timeToPlaceSpacing)
+            respondPlace
+            respondMessages
+                .padding(.top, 20)
             actionSection
-                .padding(.top, showMessages ? 20 : Layout.actionTopSpacing) //decrease vertical spacing when there are messages
+                .padding(.top, ui.hasBothMessages(vm.respondDraft) ? 20 : layout.actionTopSpacing) //decrease vertical spacing when there are messages
         }
         .zIndex(1)
-        .padding(.horizontal, Layout.horizontalPadding)
-        .padding(.top, Layout.topPadding)
-        .padding(.bottom, Layout.bottomPadding)
+        .padding(.horizontal, layout.horizontalPadding)
+        .padding(.top, layout.topPadding)
+        .padding(.bottom, layout.bottomPadding)
         .frame(maxWidth: .infinity)
         .background(customBackground)
-        .padding(.horizontal, hasResponseMessage ? 24 : 30)
+        .padding(.horizontal, ui.hasRespondMessage(vm.respondDraft) ? 24 : 30)
         .offset(y: 24)
-        .animation(.easeInOut(duration: 0.2), value: showTimePopup)
+        .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
-        .sheet(isPresented: $showMessageScreen) {
-            AddMessageView(eventType: .constant(event.type), showMessageScreen: $showMessageScreen, message: $vm.respondDraft.respondMessage, isRespondMessage: true, name: vm.respondDraft.newTime.event.otherUserName)
-        }
+        .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
     }
 }
 
 extension RespondAcceptCard {
+    
+    private var respondTitle: some View {
+        RespondTitle(
+            showInfo: $ui.showMeetInfo,
+            showTimePopup: ui.showTimePopup,
+            event: event,
+            image: vm.image
+        )
+    }
+    
+    private var respondTime: some View {
+        RespondTimeRow(
+            vm: vm,
+            showTimePopup: $ui.showTimePopup,
+            showMessageScreen: $ui.showMessageScreen
+        )
+    }
+    
+    private var respondPlace: some View {
+        RespondPlaceRow(
+            showMessageScreen: $ui.showMessageScreen,
+            location: event.location,
+            noEventMessages: !ui.hasBothMessages(vm.respondDraft)
+        )
+    }
+    
+    private var addMessageView: some View {
+        AddMessageView(
+            eventType: .constant(event.type),
+            showMessageScreen: $ui.showMessageScreen,
+            message: $vm.respondDraft.respondMessage,
+            isRespondMessage: true,
+            name: vm.respondDraft.newTime.event.otherUserName)
+    }
+    
+    
     @ViewBuilder
     private var respondMessages: some View {
-        if let messages = displayedMessages {
-            VStack(alignment: .leading, spacing: 12) {
-                RespondTextBubble(showMessageScreen: RespondUIState.PopupLayout.showMessageScreen, message: messages.original, isMyChat: false)
-                RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: messages.reply, isMyChat: true, isNewTime: vm.responseType == .modified)
+        let e = vm.respondDraft
+        if ui.hasBothMessages(vm.respondDraft) {
+            if let eventMessage = e.originalInvite.event.message, let respondMessage = e.respondMessage {
+                VStack(alignment: .leading, spacing: 12) {
+                    RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: eventMessage, isMyChat: false)
+                    RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
+                }
             }
         }
     }
     
     private var actionSection: some View {
         HStack {
-            DeclineButton {vm.decline()}
+            DeclineButton { }
             Spacer()
-            AcceptButton(isModified: vm.respondDraft.respondType != .original) { vm.accept()}
+            AcceptButton(isModified: vm.respondDraft.respondType != .original) {}
         }
     }
     
@@ -98,13 +106,5 @@ extension RespondAcceptCard {
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)
             }
-    }
-
-    private func nonEmptyMessage(_ message: String?) -> String? {
-        guard let trimmed = message?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !trimmed.isEmpty else {
-            return nil
-        }
-        return trimmed
     }
 }

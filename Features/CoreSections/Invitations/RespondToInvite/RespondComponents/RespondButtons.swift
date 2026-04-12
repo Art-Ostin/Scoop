@@ -102,11 +102,11 @@ struct InviteRespondButton: View {
     
     let type: Event.EventType
     
-    @Binding var isFlipped: Bool
+    @Binding var showInfo: Bool
     
     var body: some View {
         Button {
-            isFlipped.toggle()
+            showInfo.toggle()
         } label: {
             HStack(spacing: 0) {
                 Text("\(type.description.emoji)\(type.description.label)")

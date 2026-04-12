@@ -9,25 +9,19 @@ import SwiftUI
 
 struct RespondPopupContainer: View {
     
-    @State var vm: RespondViewModel
     @Binding var showPopup: Bool
 
-    @State var showInfo: Bool = false
-    @State private var selectedTab = 0
-    
-    private let peek: CGFloat = 16
-    private let spacing: CGFloat = 0
+    @State var vm: RespondViewModel
     
     var body: some View {
         ZStack {
             CustomScreenCover { showPopup = false }
-            
             GeometryReader { proxy in
                 let cardWidth = proxy.size.width
-                let pageWidth = max(cardWidth - peek, 0)
+                let pageWidth = max(cardWidth - 16, 0)
 
                 ScrollView(.horizontal) {
-                    HStack(spacing: spacing) {
+                    HStack(spacing: 0) {
                         acceptInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth, alignment: .leading)
                             .tag(0)
@@ -37,14 +31,13 @@ struct RespondPopupContainer: View {
                             .tag(1)
                     }
                     .scrollTargetLayout()
-                    .padding(.trailing, peek)
+                    .padding(.trailing, 16)
                     .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
             }
             .hideTabBar()
-            .sheet(isPresented: $showInfo) {Text("Info Screen")}
         }
     }
 }
@@ -73,7 +66,8 @@ extension RespondPopupContainer {
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = false}
             
-            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup)
+            
+            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup) {eventDraft in}
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
@@ -84,17 +78,3 @@ extension RespondPopupContainer {
         .frame(maxHeight: .infinity, alignment: .topLeading)
     }
 }
-
-
-/*
- 
- TabView(selection: $selectedTab) {
-     acceptInvitePage
-         .tag(0)
-     counterInvitePage
-         .tag(1)
- }
- .tabViewStyle(.page(indexDisplayMode: .never))
- .hideTabBar()
-
- */

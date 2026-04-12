@@ -41,23 +41,22 @@ struct InviteTimeAndPlaceView: View {
 
 @MainActor
 struct RespondTimeAndPlaceView: View {
-    
     @Bindable var vm: RespondViewModel
     @Binding var showInvite: Bool
+    
+    let sendInvite: (EventDraft) -> ()
     
     var body: some View {
         SelectTimeAndPlace(event: $vm.respondDraft.newEvent, showInvite: $showInvite, name: vm.respondDraft.originalInvite.event.otherUserName, image: vm.image, defaults: vm.defaults, respondWithInvite: true) {
             vm.deleteEventDefault()
         } sendInvite: {
-            vm.sendNewInvite()
+            sendInvite(vm.respondDraft.newEvent)
         }
     }
 }
 
-
 struct SelectTimeAndPlace: View {
     @State private var ui = TimeAndPlaceUIState()
-    
     
     @Binding var event: EventDraft
     @Binding var showInvite: Bool
@@ -88,14 +87,8 @@ struct SelectTimeAndPlace: View {
                     MapDivider()
                     InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
                 }
-//                .padding(.vertical, decreaseVerticalPadding ? 16 : 24)
                 .padding(.top, decreaseVerticalPadding ? 16 : 24)
                 .padding(.bottom, (event.location != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18)) //Works for complex reasons
-                
-                
-                
-//                .padding(.top, decreaseVerticalPadding ? 16 : 24)
-//                .padding(.bottom, decreaseVerticalPadding ? 16 : 20)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .zIndex(1) //so pop ups always appear above the Action Button
                 .overlay(alignment: .top) {proposeTwoDaysText}
@@ -234,12 +227,6 @@ extension SelectTimeAndPlace {
         }
         return originalHPadding
     }
-    
-    //        return (messageLarge && dateLarge) || (messageLarge && placeLarge) || (placeLarge && dateLarge)
-
-    
-    
-    
     
     private var decreaseVerticalPadding: Bool {
         return (event.message?.count ?? 0) > 40 && event.location != nil

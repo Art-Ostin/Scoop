@@ -39,11 +39,10 @@ enum DetailInfo: CaseIterable {
     }
 }
 
-struct RespondDetailsCard: View {
+struct RespondDetailsView: View {
     
     let event: UserEvent
-    @Binding var isFlipped: Bool
-    
+    @Binding var showInfo: Bool
     let image: UIImage
     
     var body: some View {
@@ -67,12 +66,12 @@ struct RespondDetailsCard: View {
         .padding(.horizontal, 24)
         .offset(y: 36)
         .onTapGesture {
-            isFlipped.toggle()
+            showInfo.toggle()
         }
     }
 }
 
-extension RespondDetailsCard {
+extension RespondDetailsView {
     
     private var title: some View {
         Text(event.type.description.emoji + " " + event.type.longTitle)
@@ -82,7 +81,7 @@ extension RespondDetailsCard {
     
     private var inviteButton: some View {
         Button {
-            isFlipped.toggle()
+            showInfo.toggle()
         } label: {
             HStack(spacing: 8) {
                 CirclePhoto(image: image, showShadow: false, height: 24)

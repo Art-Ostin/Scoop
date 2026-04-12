@@ -110,12 +110,11 @@ extension ProfileView {
     private var invitePopup: some View {
         if ui.showRespondPopup, let event = vm.event {
             RespondPopupContainer (
-                vm: RespondViewModel(
+                showPopup: $ui.showRespondPopup, vm: RespondViewModel(
                     image: profileImages.first ?? UIImage(),
                     defaults: vm.defaults,
                     sessionManager: vm.s,
-                    respondDraft: RespondDraft(event: event, userId: vm.userId)),
-                showPopup: $ui.showRespondPopup
+                    respondDraft: RespondDraft(event: event, userId: vm.userId))
             )
         } else {
             InviteTimeAndPlaceView(

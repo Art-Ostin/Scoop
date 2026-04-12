@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RespondTitle: View {
     
-    @Binding var isFlipped: Bool
+    @Binding var showInfo: Bool
     
     let showTimePopup: Bool
     let event: UserEvent
@@ -19,7 +19,7 @@ struct RespondTitle: View {
         
         HStack(spacing: 16) {
             eventTitle
-            InviteRespondButton(type: event.type, isFlipped: $isFlipped)
+            InviteRespondButton(type: event.type, showInfo: $showInfo)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(showTimePopup ? 0.03 : 1)
