@@ -4,6 +4,7 @@
 //
 //  Created by Art Ostin on 12/04/2026.
 //
+
 import SwiftUI
 
 struct CardEventContainer: View {
@@ -107,32 +108,46 @@ extension CardEventContainer {
     
     @ViewBuilder
     private var title: some View {
-        let titleText = ui.showMeetInfo ? "\(event.type.description.emoji) \(event.type.longTitle)" : "\(vm.user.name)'s Invite"
-    
         HStack(alignment: .bottom, spacing: 12) {
-            Text(titleText)
-                .contentTransition(.interpolate)
-                .font(.custom("SFProRounded-Bold", size: 20))
-                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .allowsTightening(true)
+            ZStack(alignment: .leading) {
+                if ui.showMeetInfo {
+                    titleLabel("\(event.type.description.emoji) \(event.type.longTitle)")
+                        .transition(.opacity)
+                } else {
+                    titleLabel("\(vm.user.name)'s Invite")
+                        .transition(.opacity)
+                }
+            }
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            titleAccessory
+            ZStack(alignment: .trailing) {
+                titleAccessory
+            }
                 .frame(height: Layout.titleAccessoryHeight, alignment: .bottomTrailing)
         }
+        .animation(Layout.pageAnimation, value: ui.showMeetInfo)
     }
     
     @ViewBuilder
     private var titleAccessory: some View {
         if ui.showMeetInfo {
             eventButton
+                .transition(.opacity)
         } else {
             InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: animatedShowMeetInfo)
                 .scaleEffect(0.9, anchor: .trailing)
                 .fixedSize()
+                .transition(.opacity)
         }
+    }
+
+    private func titleLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.custom("SFProRounded-Bold", size: 20))
+            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .allowsTightening(true)
     }
 
     private var cantMakeItButton: some View {
