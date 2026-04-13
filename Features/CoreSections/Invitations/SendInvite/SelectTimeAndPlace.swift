@@ -146,6 +146,7 @@ extension SelectTimeAndPlace {
                 Text("Clear")
                     .font(.body(12, .regular))
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
+                    .offset(x: -10, y: -8)
             }
             .padding(.top, 24)
             .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)

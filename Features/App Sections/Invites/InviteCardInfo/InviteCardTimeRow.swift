@@ -29,8 +29,6 @@ struct InviteCardTimeRow: View {
                 }
             } else {
                 originalTimeRow(selectedDay: selectedDay)
-                    .opacity(0)
-                    .allowsHitTesting(false)
                     .anchorPreference(key: InviteCardTimeRowBoundsKey.self, value: .bounds) { $0 }
             }
         }
@@ -58,6 +56,26 @@ extension InviteCardTimeRow {
     }
 }
 
+struct InviteCardTimePopup: View {
+    @Binding var showTimePopup: Bool
+    @Bindable var vm: RespondViewModel
+
+    var body: some View {
+        DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .accessibilityHidden(true)
+        } dropDown: {
+            SelectTimeView(
+                proposedTimes: $vm.respondDraft.newTime.proposedTimes,
+                type: vm.respondDraft.originalInvite.event.type,
+                showTimePopup: $showTimePopup
+            )
+        }
+        .allowsHitTesting(showTimePopup)
+    }
+}
+
 struct InviteCardTimeRowBoundsKey: PreferenceKey {
     static var defaultValue: Anchor<CGRect>? = nil
 
@@ -65,4 +83,3 @@ struct InviteCardTimeRowBoundsKey: PreferenceKey {
         value = nextValue() ?? value
     }
 }
-

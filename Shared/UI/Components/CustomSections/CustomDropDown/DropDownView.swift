@@ -57,13 +57,12 @@ struct DropDownView<Row: View, DropDown: View> : View {
         VStack(spacing: 0) {
             if opensAbove {
                 dropdownMenu
-                Color.clear.frame(height: rowHeight)
+                rowSpacer
             } else {
-                Color.clear.frame(height: rowHeight)
+                rowSpacer
                 dropdownMenu
             }
         }
-        .allowsHitTesting(showOptions)
     }
 
     private var dropdownMenu: some View {
@@ -80,6 +79,13 @@ struct DropDownView<Row: View, DropDown: View> : View {
             .surfaceShadow(.floating, strength: showDropDownShadow ? 0.7 : 0)
             .offset(y: opensAbove ? verticalOffset : -verticalOffset)
             .offset(x: shiftLeft ? -60 : 0)
+            .allowsHitTesting(showOptions)
+    }
+
+    private var rowSpacer: some View {
+        Color.clear
+            .frame(height: rowHeight)
+            .allowsHitTesting(false)
     }
 
     private var hiddenOffsetY: CGFloat {

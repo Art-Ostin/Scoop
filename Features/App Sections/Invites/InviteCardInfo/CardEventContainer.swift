@@ -4,7 +4,6 @@
 //
 //  Created by Art Ostin on 12/04/2026.
 //
-
 import SwiftUI
 
 struct CardEventContainer: View {
@@ -100,14 +99,13 @@ extension CardEventContainer {
            vm.respondDraft.originalInvite.selectedDay != nil {
             let rowRect = proxy[anchor]
 
-            InviteCardTimeRow(
-                selectedDay: vm.respondDraft.originalInvite.selectedDay,
+            InviteCardTimePopup(
                 showTimePopup: $ui.showTimePopup,
                 vm: vm
             )
-            .frame(width: rowRect.width, alignment: .leading)
+            .frame(width: rowRect.width, height: 0, alignment: .leading)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .offset(x: rowRect.minX, y: rowRect.minY)
+            .offset(x: rowRect.minX, y: rowRect.maxY)
             .zIndex(2)
         }
     }
