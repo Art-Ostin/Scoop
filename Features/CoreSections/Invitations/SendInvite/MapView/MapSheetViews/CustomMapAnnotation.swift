@@ -30,7 +30,6 @@ struct CustomMapAnnotation: View {
         )
     }
 
-    
     var ringWidth: CGFloat = 4
     var dipWidthRatio: CGFloat = 0.5
     var dipHeightRatio: CGFloat = 0.17

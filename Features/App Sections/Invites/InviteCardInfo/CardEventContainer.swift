@@ -172,7 +172,6 @@ extension CardEventContainer {
         .transition(.opacity)
     }
     
-    
     private var messageToEventButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.2)) {
