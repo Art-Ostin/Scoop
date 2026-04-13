@@ -185,12 +185,13 @@ extension SelectTimeAndPlace {
     }
     
     private var popupTitle: some View {
-        HStack(spacing: respondWithInvite ? 8 : 16) {
+        HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
             Text(respondWithInvite ? "New Event" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
     }
+    
     
     private var sendInviteButton: some View {
         ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {

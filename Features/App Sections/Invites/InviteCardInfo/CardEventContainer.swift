@@ -18,7 +18,6 @@ struct CardEventContainer: View {
     @State private var pageHeights: [Bool: CGFloat] = [:]
     
     
-    
     var event: UserEvent {vm.respondDraft.originalInvite.event}
         
     var body: some View {
@@ -55,6 +54,11 @@ struct CardEventContainer: View {
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
+//        .overlay(alignment: .bottomTrailing) {
+//            if ui.showMeetInfo {
+//                cantMakeItButton
+//            }
+//        }
     }
 }
 
@@ -101,6 +105,18 @@ extension CardEventContainer {
             InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: animatedShowMeetInfo)
                 .scaleEffect(0.9, anchor: .trailing)
                 .fixedSize()
+        }
+    }
+
+    private var cantMakeItButton: some View {
+        Button {
+            showQuickInvite = vm.user
+        } label: {
+            Text("Can't make it?")
+                .font(.body(12, .bold))
+                .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
+                .kerning(0.5)
+                .offset(y: 3)
         }
     }
     
