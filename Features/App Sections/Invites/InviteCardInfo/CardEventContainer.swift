@@ -36,11 +36,6 @@ struct CardEventContainer: View {
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
-//        .overlay(alignment: .bottomTrailing) {
-//            if ui.showMeetInfo {
-//                cantMakeItButton
-//            }
-//        }
     }
 }
 
