@@ -9,16 +9,15 @@ import SwiftUI
 
 struct InviteCardPlaceRow: View {
     
-    @Binding var showMessageSection: Bool
     let location: EventLocation
-    
+    let onTap: () -> ()
     var body: some View {
         HStack (spacing: 6) {
             locationSection
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
             
-            ViewMessageButton(showMessageSection: $showMessageSection)
+            ViewMessageButton() {onTap()}
                 .fixedSize()
         }
     }

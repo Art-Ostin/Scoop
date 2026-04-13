@@ -73,11 +73,12 @@ struct AddMessageButton: View {
 }
 
 struct ViewMessageButton: View {
-    @Binding var showMessageSection: Bool
+    
+    let onTap: () -> ()
     
     var body: some View {
         Button {
-            showMessageSection.toggle()
+            withAnimation(.easeInOut(duration: 0.2)) {onTap()}
         } label : {
             Image("FilledMessageIcon")
                 .scaleEffect(1.07)
@@ -102,12 +103,12 @@ struct InviteRespondButton: View {
     
     let type: Event.EventType
     
-    @Binding var showInfo: Bool
+    let onTap: () -> Void
     
     var body: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.2)) {
-                showInfo = true
+                onTap()
             }
         } label: {
             HStack(spacing: 0) {

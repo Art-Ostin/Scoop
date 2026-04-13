@@ -39,11 +39,12 @@ struct CardEventContainer: View {
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .overlay(alignment: .bottom) {
             HStack(spacing: 6) {
-                tabIndicator(isSelected: !ui.showMeetInfo)
-                tabIndicator(isSelected: ui.showMeetInfo)
+                tabIndicator(isSelected: ui.selectedTab == .message)
+                tabIndicator(isSelected: ui.selectedTab == .event)
+                tabIndicator(isSelected: ui.selectedTab == .details)
             }
             .offset(y: 1)
-            .animation(Layout.pageAnimation, value: ui.showMeetInfo)
+            .animation(Layout.pageAnimation, value: ui.selectedTab)
         }
     }
 }
@@ -54,7 +55,7 @@ extension CardEventContainer {
     private func tabIndicator(isSelected: Bool) -> some View {
         Circle()
             .frame(width: withAnimation {isSelected ? 4 : 3}, height: isSelected ? 4 : 3)
-            .foregroundStyle(isSelected ? Color.white : Color(red: 0.8, green: 0.8, blue: 0.8)) //Color(red: 0.3, green: 0.3, blue: 0.3)
+            .foregroundStyle(isSelected ? Color.white : Color(red: 0.85, green: 0.85, blue: 0.85)) //Color(red: 0.3, green: 0.3, blue: 0.3)
             .stroke(100, lineWidth: isSelected ? 0.7 : 0, color: Color(red: 0.1, green: 0.1, blue: 0.1))
     }
     
@@ -62,22 +63,20 @@ extension CardEventContainer {
         static let titleAccessoryHeight: CGFloat = 32
         static let pageAnimation = Animation.easeInOut(duration: 0.2)
     }
-
+    
     private var pageContentHeight: CGFloat {
         max(pageHeights.values.max() ?? 0, 1)
     }
-
-    private var showMeetInfoBinding: Binding<Bool> {
-        $ui.showMeetInfo
-    }
-
+    
+    
     private var pageContent: some View {
-        TabView(selection: showMeetInfoBinding) {
+        TabView(selection: $ui.selectedTab) {
+            messagePage
+                .tag(RespondUIState.Tab.message)
             eventPage
-                .tag(false)
-
+                .tag(RespondUIState.Tab.event)
             infoPage
-                .tag(true)
+                .tag(RespondUIState.Tab.details)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true, isCardInvite: true)
@@ -85,26 +84,25 @@ extension CardEventContainer {
         .clipped()
     }
     
-
-    private var eventPage: some View {
-        ZStack {
-            InviteCardMessageView(vm: vm, showMessageSection: $ui.showMessageSection, showMessageScreen: $showMessageScreen)
-                .opacity(ui.showMessageSection ? 1 : 0)
-                .onTapGesture {
-                    ui.showMessageSection.toggle()
-                }
-            
-            InviteCardEvent(showMessageSection: $ui.showMessageSection, vm: vm, ui: ui)
-                .opacity(ui.showMessageSection ? 0 : 1)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
-        .measure(key: CardEventPageHeightKey.self) { proxy in
-            [false: proxy.size.height]
-        }
-
+    private var messagePage: some View {
+        InviteCardMessageView(vm: vm, showMessageSection: $ui.showMessageSection, showMessageScreen: $showMessageScreen)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            .measure(key: CardEventPageHeightKey.self) { proxy in
+                [false: proxy.size.height]
+            }
     }
-
+    
+    private var eventPage: some View {
+        InviteCardEvent(showMessageSection: $ui.showMessageSection, vm: vm, ui: ui)
+            .opacity(ui.showMessageSection ? 0 : 1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            .measure(key: CardEventPageHeightKey.self) { proxy in
+                [false: proxy.size.height]
+            }
+    }
+    
     private var infoPage: some View {
         InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite)
             .padding(.horizontal, 24)
@@ -113,13 +111,13 @@ extension CardEventContainer {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
     }
-
+    
     @ViewBuilder
     private func inviteTimeDropdown(anchor: Anchor<CGRect>?, in proxy: GeometryProxy) -> some View {
         if let anchor,
            vm.respondDraft.originalInvite.selectedDay != nil {
             let rowRect = proxy[anchor]
-
+            
             InviteCardTimePopup(
                 showTimePopup: $ui.showTimePopup,
                 vm: vm
@@ -127,8 +125,8 @@ extension CardEventContainer {
             .frame(width: rowRect.width, height: 0, alignment: .leading)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .offset(x: rowRect.minX, y: rowRect.maxY)
-            .opacity(ui.showMeetInfo ? 0 : 1)
-            .allowsHitTesting(!ui.showMeetInfo && ui.showTimePopup)
+            .opacity(ui.selectedTab != .event ? 0 : 1)
+            .allowsHitTesting(ui.selectedTab == .event && ui.showTimePopup)
             .zIndex(2)
         }
     }
@@ -137,37 +135,72 @@ extension CardEventContainer {
     private var title: some View {
         HStack(alignment: .bottom, spacing: 12) {
             ZStack(alignment: .leading) {
-                if ui.showMeetInfo {
-                    titleLabel("\(event.type.description.emoji) \(event.type.longTitle)")
-                        .transition(.opacity)
-                } else {
+                switch ui.selectedTab {
+                case .message:
+                    titleLabel("Invite Messages")
+                case .event:
                     titleLabel("\(vm.user.name)'s Invite")
-                        .transition(.opacity)
+                case .details:
+                    titleLabel("\(event.type.description.emoji) \(event.type.longTitle)")
                 }
             }
-                .frame(maxWidth: .infinity, alignment: .leading)
+            .transition(.opacity)
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             ZStack(alignment: .trailing) {
-                titleAccessory
+                titleButton
             }
-                .frame(height: Layout.titleAccessoryHeight, alignment: .bottomTrailing)
+            .frame(height: Layout.titleAccessoryHeight, alignment: .bottomTrailing)
         }
-        .animation(Layout.pageAnimation, value: ui.showMeetInfo)
+        .animation(Layout.pageAnimation, value: ui.selectedTab)
     }
     
     @ViewBuilder
-    private var titleAccessory: some View {
-        if ui.showMeetInfo {
-            eventButton
-                .transition(.opacity)
-        } else {
-            InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: showMeetInfoBinding)
-                .scaleEffect(0.9, anchor: .trailing)
-                .fixedSize()
-                .transition(.opacity)
+    private var titleButton: some View {
+        ZStack {
+            switch ui.selectedTab {
+            case .message:
+                messageToEventButton
+            case .event:
+                InviteRespondButton(type: vm.respondDraft.originalInvite.event.type) { ui.selectedTab = .details}
+                    .scaleEffect(0.9, anchor: .trailing)
+                    .fixedSize()
+            case .details:
+                eventButton
+            }
         }
+        .transition(.opacity)
     }
-
+    
+    
+    private var messageToEventButton: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                ui.selectedTab = .event
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text("event")
+                
+                Image(systemName: "chevron.right")
+                    .font(.body(12, .bold))
+            }
+            .font(.body(13, .bold))
+            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+            .padding(5)
+            .padding(.horizontal, 6.5)
+            .background(.white)
+            .cornerRadius(100)
+            .overlay(
+                RoundedRectangle(cornerRadius: 100)
+                    .inset(by: 0.1)
+                    .stroke(Color.appGreen, lineWidth: 0.2)
+            )
+            .contentShape(.rect)
+        }
+        .offset(y: -2)
+    }
+    
     private func titleLabel(_ text: String) -> some View {
         Text(text)
             .font(.custom("SFProRounded-Bold", size: 20))
@@ -180,7 +213,7 @@ extension CardEventContainer {
     private var eventButton: some View {
         Button {
             withAnimation(Layout.pageAnimation) {
-                showMeetInfoBinding.wrappedValue = false
+                ui.selectedTab = .event
             }
         } label: {
             HStack(spacing: 4) {

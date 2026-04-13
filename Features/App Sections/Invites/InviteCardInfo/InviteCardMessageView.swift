@@ -27,10 +27,6 @@ struct InviteCardMessageView: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 16)
-        .overlay(alignment: .bottomTrailing) {
-            backToEventButton
-                .padding(.bottom)
-        }
     }
 }
 

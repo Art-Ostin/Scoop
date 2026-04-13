@@ -46,10 +46,17 @@ class RespondViewModel {
 }
 
 @Observable final class RespondUIState {
+    
+    enum Tab {
+        case message, event, details
+    }
+    
+    var selectedTab: Tab = .event
+    
     var showTimePopup: Bool = false
     var showMessageSection: Bool = false
-    var showMeetInfo: Bool = false
     var showMessageScreen: Bool = false
+    var showMeetInfo: Bool = false 
     
     func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {
         respondDraft.originalInvite.event.message != nil

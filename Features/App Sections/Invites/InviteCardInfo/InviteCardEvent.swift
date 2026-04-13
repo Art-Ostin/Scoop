@@ -43,10 +43,7 @@ extension InviteCardEvent {
     }
     
     private var inviteCardPlaceRow: some View {
-        InviteCardPlaceRow(
-            showMessageSection: $ui.showMessageSection,
-            location: event.location
-        )
+        InviteCardPlaceRow(location: event.location) { ui.selectedTab = .message}
             .opacity(ui.showTimePopup ? 0.3 : 1)
     }
         

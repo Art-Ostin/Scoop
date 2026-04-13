@@ -19,7 +19,7 @@ struct RespondTitle: View {
         
         HStack(spacing: 16) {
             eventTitle
-            InviteRespondButton(type: event.type, showInfo: $showInfo)
+            InviteRespondButton(type: event.type) { showInfo = true}
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(showTimePopup ? 0.03 : 1)
