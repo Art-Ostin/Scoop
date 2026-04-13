@@ -11,17 +11,27 @@ struct InviteCardTimeRow: View {
     
     let selectedDay: Date?
     
-    @Binding var showMessageScreen: Bool
     @Binding var showTimePopup: Bool
     @Bindable var vm: RespondViewModel
-    
+    var useDropDown: Bool = true
     
     var body: some View {
         if let selectedDay {
-            DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
+            if useDropDown {
+                DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
+                    originalTimeRow(selectedDay: selectedDay)
+                } dropDown: {
+                    SelectTimeView(
+                        proposedTimes: $vm.respondDraft.newTime.proposedTimes,
+                        type: vm.respondDraft.originalInvite.event.type,
+                        showTimePopup: $showTimePopup
+                    )
+                }
+            } else {
                 originalTimeRow(selectedDay: selectedDay)
-            } dropDown: {
-                SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.originalInvite.event.type, showTimePopup: $showTimePopup)
+                    .opacity(0)
+                    .allowsHitTesting(false)
+                    .anchorPreference(key: InviteCardTimeRowBoundsKey.self, value: .bounds) { $0 }
             }
         }
     }
@@ -46,23 +56,12 @@ extension InviteCardTimeRow {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
 
-    private func eventMessageSection(message: String) -> some View {
-        Button {
-            showMessageScreen.toggle()
-        } label: {
-            (
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(Color.gray)
-                + Text("  Respond")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(showMessageScreen ? Color.grayPlaceholder : (vm.responseType == .modified ? .accent : .appGreen))
-            )
-            .lineSpacing(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .multilineTextAlignment(.leading)
-            .fixedSize(horizontal: false, vertical: true)
-        }
+struct InviteCardTimeRowBoundsKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>? = nil
+
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
     }
 }
