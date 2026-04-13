@@ -14,6 +14,7 @@ class RespondViewModel {
     
     let defaults: DefaultsManaging
     let sessionManager: SessionManager
+    let user: UserProfile
     
     var respondDraft: RespondDraft {
         didSet {updateDefaults()}
@@ -21,8 +22,9 @@ class RespondViewModel {
     
     var responseType: ResponseType {respondDraft.respondType}
     
-    init(image: UIImage, defaults: DefaultsManaging, sessionManager: SessionManager, respondDraft: RespondDraft) {
+    init(image: UIImage, user: UserProfile, defaults: DefaultsManaging, sessionManager: SessionManager, respondDraft: RespondDraft) {
         self.image = image
+        self.user = user
         self.defaults = defaults
         self.sessionManager = sessionManager
         self.respondDraft = respondDraft

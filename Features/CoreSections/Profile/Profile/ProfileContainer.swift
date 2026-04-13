@@ -111,7 +111,7 @@ extension ProfileView {
         if ui.showRespondPopup, let event = vm.event {
             RespondPopupContainer (
                 showPopup: $ui.showRespondPopup, vm: RespondViewModel(
-                    image: profileImages.first ?? UIImage(),
+                    image: profileImages.first ?? UIImage(), user: vm.profile,
                     defaults: vm.defaults,
                     sessionManager: vm.s,
                     respondDraft: RespondDraft(event: event, userId: vm.userId))

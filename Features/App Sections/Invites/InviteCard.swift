@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InviteCard: View {
     
+    @Binding var showQuickInvite: UserProfile?
     @Bindable var vm: RespondViewModel
     @Bindable var ui: InvitesUIState
     let eventProfile: EventProfile
@@ -24,8 +25,7 @@ struct InviteCard: View {
             profileImage
                 .padding(.horizontal, contentPadding)
             
-            CardEventContainer(vm: vm, name: eventProfile.profile.name)
-            
+            CardEventContainer(vm: vm, showQuickInvite: $showQuickInvite)            
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)

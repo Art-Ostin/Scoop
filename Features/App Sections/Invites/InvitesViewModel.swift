@@ -45,6 +45,14 @@ import SwiftUI
         session.events.append(eventProfile)
     }
     
+    func sendNewInvite(draft: EventDraft, profile: UserProfile) async throws {
+        
+    }
+    
+    func declineInvite(event: UserEvent) async throws {
+        
+    }
+    
     //For Defaults to update it
     func updateEventAcceptedTime(eventId: String, acceptedTime: Date) {
         
@@ -57,11 +65,18 @@ import SwiftUI
 
 @Observable final class InvitesUIState {
     var selectedProfile: UserProfile? = nil
+    var quickInvite: Bool = false
     var declineScreen: Bool? = false
     var acceptScreen: Bool = true
     var showDetails: Bool = false
     var showTimePopup: Bool = false
     var dismissOffset: CGFloat? = nil
+    
+    var profileInvite: UserProfile? {
+        didSet {
+            quickInvite = true
+        }
+    }
 }
 
 

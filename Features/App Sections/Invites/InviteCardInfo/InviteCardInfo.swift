@@ -10,6 +10,9 @@ import SwiftUI
 struct InviteCardInfo: View {
 
     let event: UserEvent
+    let user: UserProfile
+    
+    @Binding var showQuickInvite: UserProfile?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -21,11 +24,20 @@ struct InviteCardInfo: View {
         .padding(.top, 14.25)
         .padding(.bottom, 2)//needs bit more padding than 'action' section.
         .overlay(alignment: .bottomTrailing) {
+            cantMakeItButton
+        }
+    }
+    
+    
+    private var cantMakeItButton: some View {
+        Button {
+            showQuickInvite = user
+        } label: {
             Text("Can't make it?")
                 .font(.body(12, .bold))
-                .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
+                .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
                 .kerning(0.5)
-                .padding()
+                .offset(y: 4)
         }
     }
 }

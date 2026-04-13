@@ -21,6 +21,7 @@ struct InviteTimeAndPlaceView: View {
     
     @State var vm: TimeAndPlaceViewModel
     @Binding var showInvite: Bool
+    var isNewEvent: Bool = false
     
     let sendInvite: (EventDraft) -> ()
     
@@ -31,7 +32,8 @@ struct InviteTimeAndPlaceView: View {
             name: vm.profile.name,
             image: vm.image,
             defaults: vm.defaults,
-            respondWithInvite: false) {
+            respondWithInvite: false,
+            isNewEvent: isNewEvent) {
                 vm.deleteEventDefault()
             } sendInvite: {
                 sendInvite(vm.event)
@@ -65,6 +67,7 @@ struct SelectTimeAndPlace: View {
     let image: UIImage
     let defaults: DefaultsManaging
     let respondWithInvite: Bool
+    var isNewEvent: Bool = false
     
     let deleteEventDefault: () -> ()
     let sendInvite: () -> ()
@@ -72,6 +75,7 @@ struct SelectTimeAndPlace: View {
     var isLotsOfText: Bool {
         (event.message?.count ?? 0) > 35
     }
+    
     
     var body: some View {
         ZStack {
@@ -108,6 +112,7 @@ struct SelectTimeAndPlace: View {
                 if newValue { ui.showTypePopup = false}
             }
             .overlay(alignment: .topTrailing) { infoButton }
+            .offset(y: !respondWithInvite ? 24 : 0)
         }
         .hideTabBar()
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
@@ -182,7 +187,7 @@ extension SelectTimeAndPlace {
     private var popupTitle: some View {
         HStack(spacing: respondWithInvite ? 8 : 16) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text(respondWithInvite ? "New Event" : "Meet \(name)")
+            Text(respondWithInvite ? "New Event" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
     }

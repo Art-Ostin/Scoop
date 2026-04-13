@@ -21,11 +21,9 @@ struct InvitesContainer: View {
         } else {
             ZStack {
                 invitesView
-                if let profile = ui.selectedProfile {
-                    if let eventProfile = fetchEventProfile(profile) {
-                        profileView(eventProfile: eventProfile)
-                    }
-                }
+                if let profile = ui.selectedProfile { profileView(profile: profile)}
+                
+                if ui.quickInvite { quickInvite }
             }
         }
     }
@@ -43,12 +41,14 @@ extension InvitesContainer {
             
             ForEach(vm.invites, id: \.self) { invite in
                 InviteCard(
+                    showQuickInvite: $ui.profileInvite,
                     vm: RespondViewModel(
-                        image: profileImages[invite.profile.id]?.first ?? UIImage(),
+                        image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
                         defaults: vm.defaults,
                         sessionManager: vm.session,
                         respondDraft: .init(event: invite.event, userId: vm.userId)
-                    ),ui: ui,
+                    ),
+                    ui: ui,
                     eventProfile: invite) { profile in
                         openProfile(profile)
                     }
@@ -85,32 +85,54 @@ extension InvitesContainer {
 extension InvitesContainer {
     
     @ViewBuilder
-    private func profileView(eventProfile: EventProfile) -> some View {
-        ProfileView(
-            vm: ProfileViewModel(
-                defaults: vm.defaults,
-                s: vm.session,
-                profile: eventProfile.profile,
-                event: eventProfile.event,
-                imageLoader: vm.imageLoader
-            ),
-            profileImages: profileImages[eventProfile.profile.id] ?? [],
-            selectedProfile: $ui.selectedProfile,
-            dismissOffset: $ui.dismissOffset,
-            sendInvite: { draft in
-                // sendInvite
-            },
-            acceptInvite: { acceptInviteModel in
-                // acceptInvite
-            },
-            declineProfile: { declineProfileId in
-                // declineProfile
-            }
-        )
-        .id(eventProfile.profile.id)
-        .zIndex(1)
-        .transition(.move(edge: .bottom))
+    private func profileView(profile: UserProfile) -> some View {
+        if let eventProfile = fetchEventProfile(profile) {
+            ProfileView(
+                vm: ProfileViewModel(
+                    defaults: vm.defaults,
+                    s: vm.session,
+                    profile: eventProfile.profile,
+                    event: eventProfile.event,
+                    imageLoader: vm.imageLoader
+                ),
+                profileImages: profileImages[eventProfile.profile.id] ?? [],
+                selectedProfile: $ui.selectedProfile,
+                dismissOffset: $ui.dismissOffset,
+                sendInvite: { draft in
+                    // sendInvite
+                },
+                acceptInvite: { acceptInviteModel in
+                    // acceptInvite
+                },
+                declineProfile: { declineProfileId in
+                    // declineProfile
+                }
+            )
+            .id(eventProfile.profile.id)
+            .zIndex(1)
+            .transition(.move(edge: .bottom))
+        }
     }
+    
+    @ViewBuilder 
+    private var quickInvite: some View {
+        if let profile = ui.profileInvite {
+            InviteTimeAndPlaceView(
+                vm: TimeAndPlaceViewModel(
+                    defaults: vm.defaults,
+                    sessionManager: vm.session,
+                    profile: profile,
+                    image: profileImages[profile.id]?.first ?? UIImage()
+                ),
+                showInvite: $ui.quickInvite,
+                isNewEvent: true) { draft in
+                    Task{ @MainActor in
+                        await respondToProfile(draft: draft, profile: profile)
+                    }
+                }
+        }
+    }
+    
     
     private func openProfile(_ profile: UserProfile) {
         if ui.selectedProfile == nil {
@@ -122,6 +144,10 @@ extension InvitesContainer {
     private func loadProfileImages(_ profile: UserProfile) async {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
+    }
+    
+    private func respondToProfile(draft: EventDraft, profile: UserProfile) async {
+        try? await vm.sendNewInvite(draft: draft, profile: profile)
     }
     
     private func sendInvite(eventDraft: EventDraft) {

@@ -13,7 +13,7 @@ enum DetailInfo: CaseIterable {
     
     func title(_ event: UserEvent) -> String {
         switch self {
-        case .time: return "Select A Time"
+        case .time: return "Time"
         case .message: return "Message"
         case .event: return "Meet"
         }
