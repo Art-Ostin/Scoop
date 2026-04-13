@@ -35,10 +35,26 @@ struct CardEventContainer: View {
                 }
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
+        .overlay(alignment: .bottom) {
+            HStack(spacing: 6) {
+                tabIndicator(isSelected: !ui.showMeetInfo)
+                tabIndicator(isSelected: ui.showMeetInfo)
+            }
+            .offset(y: 1)
+            .animation(Layout.pageAnimation, value: ui.showMeetInfo)
+        }
     }
 }
 
 extension CardEventContainer {
+    
+    
+    private func tabIndicator(isSelected: Bool) -> some View {
+        Circle()
+            .frame(width: withAnimation {isSelected ? 4 : 3}, height: isSelected ? 4 : 3)
+            .foregroundStyle(isSelected ? Color.white : Color(red: 0.8, green: 0.8, blue: 0.8)) //Color(red: 0.3, green: 0.3, blue: 0.3)
+            .stroke(100, lineWidth: isSelected ? 0.7 : 0, color: Color(red: 0.1, green: 0.1, blue: 0.1))
+    }
     
     private enum Layout {
         static let titleAccessoryHeight: CGFloat = 32
@@ -68,6 +84,10 @@ extension CardEventContainer {
     }
 
     private var eventPage: some View {
+        
+        
+        
+        
         InviteCardEvent(vm: vm, ui: ui, name: vm.user.name)
             .padding(.horizontal, 24)
             .measure(key: CardEventPageHeightKey.self) { proxy in
@@ -129,7 +149,7 @@ extension CardEventContainer {
     @ViewBuilder
     private var titleAccessory: some View {
         if ui.showMeetInfo {
-            eventButton2
+            eventButton
                 .transition(.opacity)
         } else {
             InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: showMeetInfoBinding)
@@ -148,7 +168,7 @@ extension CardEventContainer {
             .allowsTightening(true)
     }
     
-    private var eventButton2: some View {
+    private var eventButton: some View {
         Button {
             withAnimation(Layout.pageAnimation) {
                 showMeetInfoBinding.wrappedValue = false
@@ -160,41 +180,17 @@ extension CardEventContainer {
                 
                 Text("event")
                     .font(.body(13, .bold))
+                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
             }
             .foregroundStyle(Color.appGreen)
-            .padding(4.5)
-            .padding(.horizontal, 4)
+            .padding(5)
+            .padding(.horizontal, 6.5)
             .background(
                 RoundedRectangle(cornerRadius: 24)
                     .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
             )
             .offset(y: -2)
         }
-    }
-    
-    
-    private var eventButton: some View {
-        Button {
-            withAnimation(Layout.pageAnimation) {
-                showMeetInfoBinding.wrappedValue = false
-            }
-        } label: {
-            HStack(spacing: 2) {
-                Image(systemName: "chevron.left")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(Color.appGreen)
-
-                Text("Event")
-                    .foregroundStyle(Color.appGreen)
-                    .font(.custom("SFProRounded-Bold", size: 12))
-            }
-            .padding(2)
-            .kerning(0.5)
-            .padding(.horizontal, 8)
-            .stroke(16, lineWidth: 1, color: Color(red: 0, green: 0.53, blue: 0.45))
-            .offset(y: -3)
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -208,6 +204,34 @@ private struct CardEventPageHeightKey: PreferenceKey {
 
 
 /*
+ 
+ private var eventButton: some View {
+     Button {
+         withAnimation(Layout.pageAnimation) {
+             showMeetInfoBinding.wrappedValue = false
+         }
+     } label: {
+         HStack(spacing: 2) {
+             Image(systemName: "chevron.left")
+                 .font(.body(12, .bold))
+                 .foregroundStyle(Color.appGreen)
+
+             Text("Event")
+                 .foregroundStyle(Color.appGreen)
+                 .font(.custom("SFProRounded-Bold", size: 12))
+         }
+         .padding(2)
+         .kerning(0.5)
+         .padding(.horizontal, 8)
+         .stroke(16, lineWidth: 1, color: Color(red: 0, green: 0.53, blue: 0.45))
+         .offset(y: -3)
+     }
+     .buttonStyle(.plain)
+ }
+
+ 
+ 
+ 
  private var cantMakeItButton: some View {
      Button {
          showQuickInvite = vm.user

@@ -46,7 +46,7 @@ struct RespondDetailsView: View {
     let image: UIImage
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 12) {
             title
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 DetailSection(event: event, type: detail)
