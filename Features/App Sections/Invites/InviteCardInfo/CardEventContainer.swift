@@ -149,18 +149,7 @@ extension CardEventContainer {
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
     }
-
-    private var cantMakeItButton: some View {
-        Button {
-            showQuickInvite = vm.user
-        } label: {
-            Text("Can't make it?")
-                .font(.body(12, .bold))
-                .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
-                .kerning(0.5)
-                .offset(y: 3)
-        }
-    }
+    
     
     private var eventButton: some View {
         Button {
@@ -194,3 +183,21 @@ private struct CardEventPageHeightKey: PreferenceKey {
         value.merge(nextValue(), uniquingKeysWith: max)
     }
 }
+
+/*
+ private var cantMakeItButton: some View {
+     Button {
+         showQuickInvite = vm.user
+     } label: {
+         Text("Can't make it?")
+             .font(.body(12, .bold))
+             .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
+             .kerning(0.5)
+             .offset(y: 3)
+             .padding(8)
+             .contentShape(.rect)
+             .background(Color.blue)
+     }
+ }
+
+ */

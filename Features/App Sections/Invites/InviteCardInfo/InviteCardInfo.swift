@@ -38,7 +38,10 @@ struct InviteCardInfo: View {
                 .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
                 .kerning(0.5)
                 .offset(y: 2.5)
+                .padding(8)
+                .contentShape(.rect)
         }
+        .padding(-8)
     }
 }
 
