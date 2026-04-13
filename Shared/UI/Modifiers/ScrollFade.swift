@@ -36,7 +36,7 @@ extension View {
     }
     
     
-    func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true) -> some View {
+    func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true, isCardInvite: Bool = false) -> some View {
         self.overlay(alignment: fromLeading ? .leading : .trailing) {
             if showFade {
                 LinearGradient(
@@ -47,6 +47,8 @@ extension View {
                 .frame(maxHeight: .infinity)
                 .frame(width: width)
                 .allowsHitTesting(false)
+                .padding(.bottom, isCardInvite ? 10 : 0)
+                .padding(.horizontal,isCardInvite ? 1 : 0)
             }
         }
     }

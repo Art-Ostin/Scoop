@@ -62,8 +62,8 @@ extension CardEventContainer {
                 .tag(true)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true)
-        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false)
+        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true, isCardInvite: true)
+        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false, isCardInvite: true)
         .clipped()
     }
 
@@ -129,7 +129,7 @@ extension CardEventContainer {
     @ViewBuilder
     private var titleAccessory: some View {
         if ui.showMeetInfo {
-            eventButton
+            eventButton2
                 .transition(.opacity)
         } else {
             InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: showMeetInfoBinding)
@@ -147,18 +147,31 @@ extension CardEventContainer {
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
     }
-
-    private var cantMakeItButton: some View {
+    
+    private var eventButton2: some View {
         Button {
-            showQuickInvite = vm.user
+            withAnimation(Layout.pageAnimation) {
+                showMeetInfoBinding.wrappedValue = false
+            }
         } label: {
-            Text("Can't make it?")
-                .font(.body(12, .bold))
-                .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
-                .kerning(0.5)
-                .offset(y: 3)
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.body(12, .bold))
+                
+                Text("event")
+                    .font(.body(13, .bold))
+            }
+            .foregroundStyle(Color.appGreen)
+            .padding(4.5)
+            .padding(.horizontal, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
+            )
+            .offset(y: -2)
         }
     }
+    
     
     private var eventButton: some View {
         Button {
@@ -207,6 +220,22 @@ private struct CardEventPageHeightKey: PreferenceKey {
              .padding(8)
              .contentShape(.rect)
              .background(Color.blue)
+     }
+ }
+
+ */
+
+/*
+ 
+ private var cantMakeItButton: some View {
+     Button {
+         showQuickInvite = vm.user
+     } label: {
+         Text("Can't make it?")
+             .font(.body(12, .bold))
+             .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
+             .kerning(0.5)
+             .offset(y: 3)
      }
  }
 

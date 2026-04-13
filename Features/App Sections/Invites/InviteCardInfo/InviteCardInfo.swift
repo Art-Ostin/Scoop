@@ -28,7 +28,6 @@ struct InviteCardInfo: View {
         }
     }
     
-    
     private var cantMakeItButton: some View {
         Button {
             showQuickInvite = user
@@ -42,6 +41,7 @@ struct InviteCardInfo: View {
                 .contentShape(.rect)
         }
         .padding(-8)
+        .padding(.bottom, 6)
     }
 }
 
