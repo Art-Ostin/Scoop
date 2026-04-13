@@ -25,6 +25,7 @@ struct InviteCardEvent: View {
             responseRow
                 .padding(.top, layout.actionTopSpacing)
         }
+        .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
     }
 }
 

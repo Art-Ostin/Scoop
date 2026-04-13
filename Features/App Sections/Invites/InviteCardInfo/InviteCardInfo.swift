@@ -22,7 +22,7 @@ struct InviteCardInfo: View {
         }
         .lineSpacing(4)
         .padding(.top, 14.25)
-        .padding(.bottom, 2)//needs bit more padding than 'action' section.
+        .padding(.bottom, (RespondUIState.CardLayout.bottomPadding + 2)) //needs bit more padding than 'action' section
         .overlay(alignment: .bottomTrailing) {
             cantMakeItButton
         }

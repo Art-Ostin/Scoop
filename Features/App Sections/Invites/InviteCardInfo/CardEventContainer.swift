@@ -24,8 +24,7 @@ struct CardEventContainer: View {
                 .padding(.horizontal, 24)
             
             pageContent
-                .animation(Layout.pageAnimation, value: selectedPageHeight)
-                .frame(height: selectedPageHeight)
+                .frame(height: pageContentHeight)
                 .overlayPreferenceValue(InviteCardTimeRowBoundsKey.self) { anchor in
                     GeometryReader { proxy in
                         inviteTimeDropdown(anchor: anchor, in: proxy)
@@ -36,7 +35,6 @@ struct CardEventContainer: View {
                 }
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
-        .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
     }
 }
 
@@ -47,17 +45,16 @@ extension CardEventContainer {
         static let pageAnimation = Animation.easeInOut(duration: 0.2)
     }
 
-    private var selectedPageHeight: CGFloat {
-        let fallbackHeight = max(pageHeights.values.max() ?? 0, 1)
-        return max(pageHeights[ui.showMeetInfo] ?? fallbackHeight, 1)
+    private var pageContentHeight: CGFloat {
+        max(pageHeights.values.max() ?? 0, 1)
     }
 
-    private var animatedShowMeetInfo: Binding<Bool> {
-        $ui.showMeetInfo.animation(Layout.pageAnimation)
+    private var showMeetInfoBinding: Binding<Bool> {
+        $ui.showMeetInfo
     }
 
     private var pageContent: some View {
-        TabView(selection: animatedShowMeetInfo) {
+        TabView(selection: showMeetInfoBinding) {
             eventPage
                 .tag(false)
 
@@ -90,8 +87,7 @@ extension CardEventContainer {
 
     @ViewBuilder
     private func inviteTimeDropdown(anchor: Anchor<CGRect>?, in proxy: GeometryProxy) -> some View {
-        if ui.showMeetInfo == false,
-           let anchor,
+        if let anchor,
            vm.respondDraft.originalInvite.selectedDay != nil {
             let rowRect = proxy[anchor]
 
@@ -102,6 +98,8 @@ extension CardEventContainer {
             .frame(width: rowRect.width, height: 0, alignment: .leading)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .offset(x: rowRect.minX, y: rowRect.maxY)
+            .opacity(ui.showMeetInfo ? 0 : 1)
+            .allowsHitTesting(!ui.showMeetInfo && ui.showTimePopup)
             .zIndex(2)
         }
     }
@@ -134,7 +132,7 @@ extension CardEventContainer {
             eventButton
                 .transition(.opacity)
         } else {
-            InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: animatedShowMeetInfo)
+            InviteRespondButton(type: vm.respondDraft.originalInvite.event.type, showInfo: showMeetInfoBinding)
                 .scaleEffect(0.9, anchor: .trailing)
                 .fixedSize()
                 .transition(.opacity)
@@ -149,12 +147,23 @@ extension CardEventContainer {
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
     }
-    
+
+    private var cantMakeItButton: some View {
+        Button {
+            showQuickInvite = vm.user
+        } label: {
+            Text("Can't make it?")
+                .font(.body(12, .bold))
+                .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
+                .kerning(0.5)
+                .offset(y: 3)
+        }
+    }
     
     private var eventButton: some View {
         Button {
-            withAnimation(.easeInOut) {
-                animatedShowMeetInfo.wrappedValue = false
+            withAnimation(Layout.pageAnimation) {
+                showMeetInfoBinding.wrappedValue = false
             }
         } label: {
             HStack(spacing: 2) {
@@ -183,6 +192,7 @@ private struct CardEventPageHeightKey: PreferenceKey {
         value.merge(nextValue(), uniquingKeysWith: max)
     }
 }
+
 
 /*
  private var cantMakeItButton: some View {
