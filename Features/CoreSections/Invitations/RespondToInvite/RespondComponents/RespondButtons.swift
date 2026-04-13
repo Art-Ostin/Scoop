@@ -77,7 +77,7 @@ struct ViewMessageButton: View {
     
     var body: some View {
         Button {
-            showMessageSection = true
+            showMessageSection.toggle()
         } label : {
             Image("FilledMessageIcon")
                 .scaleEffect(1.07)

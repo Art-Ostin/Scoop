@@ -10,11 +10,13 @@ import SwiftUI
 struct CardEventContainer: View {
     
     @Bindable var vm: RespondViewModel
+    
     @Binding var showQuickInvite: UserProfile?
+        
+    @Binding var showMessageScreen: Bool
     
     @State var ui = RespondUIState()
     @State private var pageHeights: [Bool: CGFloat] = [:]
-    
     
     var event: UserEvent {vm.respondDraft.originalInvite.event}
         
@@ -82,18 +84,25 @@ extension CardEventContainer {
         .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false, isCardInvite: true)
         .clipped()
     }
+    
 
     private var eventPage: some View {
-        
-        
-        
-        
-        InviteCardEvent(vm: vm, ui: ui, name: vm.user.name)
-            .padding(.horizontal, 24)
-            .measure(key: CardEventPageHeightKey.self) { proxy in
-                [false: proxy.size.height]
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+        ZStack {
+            InviteCardMessageView(vm: vm, showMessageSection: $ui.showMessageSection, showMessageScreen: $showMessageScreen)
+                .opacity(ui.showMessageSection ? 1 : 0)
+                .onTapGesture {
+                    ui.showMessageSection.toggle()
+                }
+            
+            InviteCardEvent(showMessageSection: $ui.showMessageSection, vm: vm, ui: ui)
+                .opacity(ui.showMessageSection ? 0 : 1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 24)
+        .measure(key: CardEventPageHeightKey.self) { proxy in
+            [false: proxy.size.height]
+        }
+
     }
 
     private var infoPage: some View {
@@ -202,6 +211,27 @@ private struct CardEventPageHeightKey: PreferenceKey {
     }
 }
 
+
+/*
+ @ViewBuilder
+ private var messageSection: some View {
+     let showRespondMessage: Bool =  vm.respondDraft.respondMessage?.isEmpty != false
+     
+     VStack(alignment: .leading, spacing: 12) {
+         if let eventMessage = event.message {
+             RespondTextBubble(showMessageScreen: $showMessageScreen, message: eventMessage, isMyChat: false, showRespondButton: showRespondMessage)
+         } else if showRespondMessage {
+             noMessageScreen
+         }
+         if let respondMessage = vm.respondDraft.respondMessage {
+             RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
+         }
+     }
+     .frame(maxHeight: .infinity, alignment: .top)
+     .padding(.top, 16)
+ }
+
+ */
 
 /*
  

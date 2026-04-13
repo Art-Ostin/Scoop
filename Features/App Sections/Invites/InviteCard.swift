@@ -18,14 +18,15 @@ struct InviteCard: View {
     
     @State private var imageSize: CGFloat = 0
     private let contentPadding: CGFloat = 6
-    @State var showMessageScreen: Bool = false
+    
+    @State var showMessageScreen = false
     
     var body: some View {
         VStack(spacing: 0) {
             profileImage
                 .padding(.horizontal, contentPadding)
             
-            CardEventContainer(vm: vm, showQuickInvite: $showQuickInvite)            
+            CardEventContainer(vm: vm, showQuickInvite: $showQuickInvite, showMessageScreen: $showMessageScreen)
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
@@ -54,7 +55,6 @@ struct InviteCard: View {
 
 extension InviteCard {
     
-    
     private var profileImage: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
@@ -62,5 +62,6 @@ extension InviteCard {
             .opacity(ui.showTimePopup ? 0.3 : 1)
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
-    }    
+            .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+    }
 }

@@ -185,6 +185,7 @@
 		65A070522EE0705A009F798B /* OnboardingHomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070512EE0705A009F798B /* OnboardingHomePage.swift */; };
 		65A070542EE08F4A009F798B /* ProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070532EE08F4A009F798B /* ProfileComponents.swift */; };
 		65A070582EE09F85009F798B /* CustomViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070572EE09F85009F798B /* CustomViewModifiers.swift */; };
+		65A13BB92F8D7EC6009255D4 /* InviteCardMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A13BB82F8D7EC6009255D4 /* InviteCardMessageView.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
@@ -467,6 +468,7 @@
 		65A070512EE0705A009F798B /* OnboardingHomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomePage.swift; sourceTree = "<group>"; };
 		65A070532EE08F4A009F798B /* ProfileComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
 		65A070572EE09F85009F798B /* CustomViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViewModifiers.swift; sourceTree = "<group>"; };
+		65A13BB82F8D7EC6009255D4 /* InviteCardMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardMessageView.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
@@ -976,6 +978,7 @@
 				655CE0ED2F8BF21C00C9ECE3 /* CardEventContainer.swift */,
 				655D92C62F6AEB1500A99685 /* InviteCardEvent.swift */,
 				65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */,
+				65A13BB82F8D7EC6009255D4 /* InviteCardMessageView.swift */,
 				65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */,
 				654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */,
 				655CE0EB2F8BED3A00C9ECE3 /* InviteCardInfo.swift */,
@@ -1609,6 +1612,7 @@
 				653FB57A2F688A2E00440E41 /* EventInfoView.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MessagesViewModel.swift in Sources */,
+				65A13BB92F8D7EC6009255D4 /* InviteCardMessageView.swift in Sources */,
 				6509DCEF2F1D8C0000455AB5 /* ScrollFade.swift in Sources */,
 				6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */,
 				65C4A0322ED0A54C00CA6C1B /* EditSex.swift in Sources */,

@@ -16,12 +16,19 @@ struct RespondTextBubble: View {
     let isMyChat: Bool
     
     var isNewTime: Bool = false
+    var showRespondButton: Bool = false
         
     var body: some View {
         Button {
             showMessageScreen = true
         } label: {
-            Text(message)
+            (
+                Text(message)
+                +
+                Text(showRespondButton ? "  Respond" : "")
+                    .foregroundStyle(isNewTime ? .accent: .appGreen)
+                    .font(.body(12, .bold))
+            )
                 .font(.body(14, .medium))
                 .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
                 .lineSpacing(3)
@@ -36,7 +43,7 @@ struct RespondTextBubble: View {
                 .multilineTextAlignment(.leading)
                 .padding((isMyChat ? .leading : .trailing), 16)
         }
-        .disabled(!isMyChat)
+        .disabled(!isMyChat && !showRespondButton)
     }
 }
 

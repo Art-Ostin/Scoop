@@ -9,11 +9,12 @@ import SwiftUI
 
 struct InviteCardEvent: View {
     
+    @Binding var showMessageSection: Bool
+    
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondUIState
     typealias layout = RespondUIState.CardLayout
     
-    let name: String
     var event: UserEvent { vm.respondDraft.originalInvite.event}
     
     var body: some View {
@@ -43,7 +44,7 @@ extension InviteCardEvent {
     
     private var inviteCardPlaceRow: some View {
         InviteCardPlaceRow(
-            showMessageSection: $ui.showMessageScreen,
+            showMessageSection: $ui.showMessageSection,
             location: event.location
         )
             .opacity(ui.showTimePopup ? 0.3 : 1)
