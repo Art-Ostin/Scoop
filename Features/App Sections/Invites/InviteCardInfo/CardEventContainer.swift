@@ -5,14 +5,12 @@
 //  Created by Art Ostin on 12/04/2026.
 //
 
-
 import SwiftUI
 
 struct CardEventContainer: View {
     
     @Bindable var vm: RespondViewModel
     @Binding var showQuickInvite: UserProfile?
-    
     
     @State var ui = RespondUIState()
     @State private var pageHeights: [Bool: CGFloat] = [:]
@@ -25,32 +23,17 @@ struct CardEventContainer: View {
             title
                 .padding(.horizontal, 24)
             
-            TabView(selection: animatedShowMeetInfo) {
-                InviteCardEvent(vm: vm, ui: ui, name: vm.user.name)
-                    .padding(.horizontal, 24)
-                    .measure(key: CardEventPageHeightKey.self) { proxy in
-                        [false: proxy.size.height]
+            pageContent
+                .animation(Layout.pageAnimation, value: selectedPageHeight)
+                .frame(height: selectedPageHeight)
+                .overlayPreferenceValue(InviteCardTimeRowBoundsKey.self) { anchor in
+                    GeometryReader { proxy in
+                        inviteTimeDropdown(anchor: anchor, in: proxy)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .tag(false)
-
-                InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite)
-                    .padding(.horizontal, 24)
-                    .measure(key: CardEventPageHeightKey.self) { proxy in
-                        [true: proxy.size.height]
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .tag(true)
-            }
-            .animation(Layout.pageAnimation, value: selectedPageHeight)
-            .frame(height: selectedPageHeight)
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true)
-            .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false)
-            .modifier(ConditionClipped(isClipped: !ui.showTimePopup))
-            .onPreferenceChange(CardEventPageHeightKey.self) { pageHeights in
-                self.pageHeights = pageHeights
-            }
+                }
+                .onPreferenceChange(CardEventPageHeightKey.self) { pageHeights in
+                    self.pageHeights = pageHeights
+                }
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
@@ -62,7 +45,7 @@ struct CardEventContainer: View {
     }
 }
 
-extension CardEventContainer {    
+extension CardEventContainer {
     
     private enum Layout {
         static let titleAccessoryHeight: CGFloat = 32
@@ -76,6 +59,57 @@ extension CardEventContainer {
 
     private var animatedShowMeetInfo: Binding<Bool> {
         $ui.showMeetInfo.animation(Layout.pageAnimation)
+    }
+
+    private var pageContent: some View {
+        TabView(selection: animatedShowMeetInfo) {
+            eventPage
+                .tag(false)
+
+            infoPage
+                .tag(true)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true)
+        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false)
+        .clipped()
+    }
+
+    private var eventPage: some View {
+        InviteCardEvent(vm: vm, ui: ui, name: vm.user.name)
+            .padding(.horizontal, 24)
+            .measure(key: CardEventPageHeightKey.self) { proxy in
+                [false: proxy.size.height]
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var infoPage: some View {
+        InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite)
+            .padding(.horizontal, 24)
+            .measure(key: CardEventPageHeightKey.self) { proxy in
+                [true: proxy.size.height]
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func inviteTimeDropdown(anchor: Anchor<CGRect>?, in proxy: GeometryProxy) -> some View {
+        if ui.showMeetInfo == false,
+           let anchor,
+           vm.respondDraft.originalInvite.selectedDay != nil {
+            let rowRect = proxy[anchor]
+
+            InviteCardTimeRow(
+                selectedDay: vm.respondDraft.originalInvite.selectedDay,
+                showTimePopup: $ui.showTimePopup,
+                vm: vm
+            )
+            .frame(width: rowRect.width, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .offset(x: rowRect.minX, y: rowRect.minY)
+            .zIndex(2)
+        }
     }
     
     @ViewBuilder
@@ -142,19 +176,6 @@ extension CardEventContainer {
             .offset(y: -3)
         }
         .buttonStyle(.plain)
-    }
-}
-
-struct ConditionClipped: ViewModifier {
-    let isClipped: Bool
-    
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if isClipped {
-            content.clipped()
-        } else {
-            content
-        }
     }
 }
 
