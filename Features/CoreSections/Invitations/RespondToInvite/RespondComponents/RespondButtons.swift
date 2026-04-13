@@ -106,7 +106,9 @@ struct InviteRespondButton: View {
     
     var body: some View {
         Button {
-            showInfo = true
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showInfo = true
+            }
         } label: {
             HStack(spacing: 0) {
                 Text("\(type.description.emoji)\(type.description.label)")

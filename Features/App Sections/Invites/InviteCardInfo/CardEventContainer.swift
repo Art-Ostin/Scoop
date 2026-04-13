@@ -5,12 +5,14 @@
 //  Created by Art Ostin on 12/04/2026.
 //
 
+
 import SwiftUI
 
 struct CardEventContainer: View {
     
     @Bindable var vm: RespondViewModel
     @State var ui = RespondUIState()
+    @State private var pageHeights: [Bool: CGFloat] = [:]
     let name: String
     var event: UserEvent {vm.respondDraft.originalInvite.event}
         
@@ -22,24 +24,34 @@ struct CardEventContainer: View {
             TabView(selection: $ui.showMeetInfo) {
                 InviteCardEvent(vm: vm, ui: ui, name: name)
                     .padding(.horizontal, 24)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .measure(key: CardEventPageHeightKey.self) { proxy in
+                        [false: proxy.size.height]
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(.move(edge: .leading))
                     .tag(false)
 
                 InviteCardInfo(event: event)
                     .padding(.horizontal, 24)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .measure(key: CardEventPageHeightKey.self) { proxy in
+                        [true: proxy.size.height]
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(.move(edge: .trailing))
                     .tag(true)
             }
+            .animation(.easeInOut(duration: 0.2), value: ui.showMeetInfo)
+            .frame(height: selectedPageHeight)
             .tabViewStyle(.page(indexDisplayMode: .never))
             .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true)
             .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false)
             .modifier(ConditionClipped(isClipped: !ui.showTimePopup))
+            .onPreferenceChange(CardEventPageHeightKey.self) { pageHeights in
+                self.pageHeights = pageHeights
+            }
         }
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .padding(.bottom, RespondUIState.CardLayout.bottomPadding)
-        .animation(.easeInOut(duration: 0.2), value: ui.showMeetInfo)
     }
 }
 
@@ -47,6 +59,11 @@ extension CardEventContainer {
     
     private enum Layout {
         static let titleAccessoryHeight: CGFloat = 32
+    }
+
+    private var selectedPageHeight: CGFloat {
+        let fallbackHeight = max(pageHeights.values.max() ?? 0, 1)
+        return max(pageHeights[ui.showMeetInfo] ?? fallbackHeight, 1)
     }
     
     @ViewBuilder
@@ -81,7 +98,9 @@ extension CardEventContainer {
     
     private var eventButton: some View {
         Button {
-            ui.showMeetInfo = false
+            withAnimation(.easeInOut(duration: 0.2)) {
+                ui.showMeetInfo = false
+            }
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "chevron.left")
@@ -113,6 +132,15 @@ struct ConditionClipped: ViewModifier {
         }
     }
 }
+
+private struct CardEventPageHeightKey: PreferenceKey {
+    static var defaultValue: [Bool: CGFloat] = [:]
+
+    static func reduce(value: inout [Bool: CGFloat], nextValue: () -> [Bool: CGFloat]) {
+        value.merge(nextValue(), uniquingKeysWith: max)
+    }
+}
+
 
 /*
  import SwiftUI
