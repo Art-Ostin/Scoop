@@ -41,8 +41,9 @@ struct InviteCardMessageView: View {
 
 extension InviteCardMessageView {
     
-    
-    
+    private enum Palette {
+        static let supportingText = Color.grayText.opacity(0.95)
+    }
     
     private var noMessageScreen: some View {
         VStack(spacing: 36) {
@@ -86,7 +87,7 @@ extension InviteCardMessageView {
             showMessageScreen = true
         } label: {
             Text(sayRespond ? "Respond" : "Add Message")
-                .font(.body(10, .bold))
+                .font(.body(11, .bold))
                 .foregroundStyle(Color.appGreen)
                 .padding(.vertical, 6)
                 .padding(.horizontal, 8)
@@ -103,8 +104,8 @@ extension InviteCardMessageView {
     
     private var addMessageView: some View {
         Text("Add a message when you Accept")
-            .font(.body(14, .italic))
-            .foregroundStyle(Color(red: 0.4, green: 0.4, blue: 0.4))
+            .font(.body(13, .medium))
+            .foregroundStyle(Palette.supportingText)
             .frame(maxWidth: .infinity, alignment: .center)
     }
 
@@ -129,8 +130,8 @@ extension InviteCardMessageView {
         }
         .padding(-10)
     }
-    
 }
+
 
 /*
  

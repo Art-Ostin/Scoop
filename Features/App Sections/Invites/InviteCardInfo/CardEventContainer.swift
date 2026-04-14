@@ -18,7 +18,7 @@ struct CardEventContainer: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             title
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 24) //selectedTab == .event ? 28 :
                 .opacity(ui.showTimePopup ? 0.2 : 1)
             
             pageContent
@@ -41,6 +41,10 @@ struct CardEventContainer: View {
 
 extension CardEventContainer {
     
+    private enum Palette {
+        static let primaryText = Color(red: 0.12, green: 0.13, blue: 0.16)
+        static let secondaryText = Color(red: 0.36, green: 0.37, blue: 0.4)
+    }
     
     private var tabIndicatorSection: some View {
         HStack(spacing: 6) {
@@ -185,13 +189,13 @@ extension CardEventContainer {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: "chevron.left")
-                    .font(.body(12, .bold))
+                    .font(.body(11, .bold))
 
                 
                 Text("event")
             }
-            .font(.body(13, .bold))
-            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+            .font(.body(12, .bold))
+            .foregroundStyle(Palette.secondaryText)
             .padding(5)
             .padding(.horizontal, 6.5)
             .background(.white)
@@ -208,8 +212,8 @@ extension CardEventContainer {
     
     private func titleLabel(_ text: String) -> some View {
         Text(text)
-            .font(.custom("SFProRounded-Bold", size: 20))
-            .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+            .font(.custom("SFProRounded-Semibold", size: 20))
+            .foregroundStyle(Palette.primaryText)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
@@ -223,14 +227,14 @@ extension CardEventContainer {
         } label: {
             HStack(spacing: 4) {
                 Text("event")
-                    .font(.body(13, .bold))
-                    .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Palette.secondaryText)
 
                 
                 Image(systemName: "chevron.right")
-                    .font(.body(12, .bold))
+                    .font(.body(11, .bold))
             }
-            .foregroundStyle(Color.appGreen)
+            .foregroundStyle(Palette.secondaryText)
             .padding(5)
             .padding(.horizontal, 6.5)
             .background(

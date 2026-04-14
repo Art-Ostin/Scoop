@@ -19,9 +19,15 @@ struct InviteCardTimeRow: View {
 
 extension InviteCardTimeRow {
     
+    private enum Palette {
+        static let primaryText = Color(red: 0.14, green: 0.15, blue: 0.18)
+        static let placeholderText = Color.grayText.opacity(0.95)
+    }
+    
     private var timeView: some View {
         HStack(spacing: 8) {
             Image("MiniClockIcon")
+                .scaleEffect(0.9)
                 .opacity(showTimePopup ? 0.03 : 1)
             timeTitle
         }
@@ -46,8 +52,8 @@ extension InviteCardTimeRow {
                     //2. Otherwise prompt user to select a new availableTime
                 } else {
                     Text("Select Time")
-                        .font(.body(15, .medium))
-                        .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
+                        .font(.body(14, .medium))
+                        .foregroundStyle(Palette.placeholderText)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -57,8 +63,8 @@ extension InviteCardTimeRow {
                 .fixedSize()
                 .offset(x: 4)
         }
-        .font(.body(17, showTimePopup ? .bold : .medium))
-        .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+        .font(.body(16, showTimePopup ? .bold : .medium))
+        .foregroundStyle(Palette.primaryText)
     }
 }
 

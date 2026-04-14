@@ -21,6 +21,11 @@ struct InviteCardPlaceRow: View {
 }
 
 extension InviteCardPlaceRow {
+    
+    private enum Palette {
+        static let primaryText = Color(red: 0.2, green: 0.21, blue: 0.24)
+        static let secondaryText = Color.grayText
+    }
         
     private var locationSection: some View {
         HStack(spacing: 12) {
@@ -38,19 +43,18 @@ extension InviteCardPlaceRow {
     
     private var placeName: some View {
         Text(location.name ?? "")
-            .font(.body(16, .medium))
-            .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+            .font(.body(15, .medium))
+            .foregroundStyle(Palette.primaryText)
     }
     
     private var placeAddress: some View {
         Text(FormatEvent.addressWithoutCountry(location.address))
-            .font(.body(12, .medium))
+            .font(.body(11, .medium))
             .underline()
-            .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+            .foregroundStyle(Palette.secondaryText)
             .lineLimit(1)
     }
 }
-
 /*
  //            ViewMessageButton() {onTap()}
  //                .fixedSize()

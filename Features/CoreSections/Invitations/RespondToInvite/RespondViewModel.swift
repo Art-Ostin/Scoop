@@ -69,12 +69,12 @@ class RespondViewModel {
     }
     
     enum CardLayout {
-        static let titleToTimeSpacing: CGFloat = 11.25
-        static let timeToPlaceSpacing: CGFloat = 13.5
-        static let actionTopSpacing: CGFloat = 22
+        static let titleToTimeSpacing: CGFloat = 9.25
+        static let timeToPlaceSpacing: CGFloat = 11.5
+        static let actionTopSpacing: CGFloat = 20
         
         static let topPadding: CGFloat = 9
-        static let bottomPadding: CGFloat = 16
+        static let bottomPadding: CGFloat = 12
     }
     
     enum PopupLayout {
