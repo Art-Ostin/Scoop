@@ -32,8 +32,6 @@ struct InviteCardMessageView: View {
             } else if hasBothMessages {
                 bothMessagesView
             }
-                        
-//            noMessageScreen
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 16)
@@ -57,12 +55,12 @@ extension InviteCardMessageView {
     
     private var onlyInviteMessageView: some View {
         VStack(spacing: 36) {
-            if let respondMessage = vm.respondDraft.respondMessage {
-                RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
+            if let inviteMessage = vm.respondDraft.originalInvite.event.message {
+                RespondTextBubble(showMessageScreen: $showMessageScreen, message: inviteMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
             }
             
             addMessageButton(sayRespond: true)
-                .frame(maxWidth:.infinity, alignment: .trailing)
+                .frame(maxWidth:.infinity, alignment: .center)
         }
     }
     
@@ -73,7 +71,7 @@ extension InviteCardMessageView {
             }
             
             addMessageButton(sayRespond: true)
-                .frame(maxWidth:.infinity, alignment: .trailing)
+                .frame(maxWidth:.infinity, alignment: .center)
         }
     }
     
@@ -93,7 +91,7 @@ extension InviteCardMessageView {
         Button {
             showMessageScreen = true
         } label: {
-            Text("Add Message")
+            Text(sayRespond ? "Respond" : "Add Message")
                 .font(.body(10, .bold))
                 .foregroundStyle(Color.appGreen)
                 .padding(.vertical, 6)
