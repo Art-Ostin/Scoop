@@ -23,7 +23,7 @@ struct InviteCardInfo: View {
             }
         }
         .lineSpacing(4)
-        .padding(.top, decreasePadding ? 6 : 12.25)
+        .padding(.top, 6) //  .padding(.top, decreasePadding ? 6 : 12.25)
         .padding(.bottom, (RespondUIState.CardLayout.bottomPadding)) //needs bit more padding than 'action' section
         .overlay(alignment: .bottomTrailing) {
             cantMakeItButton
@@ -38,7 +38,7 @@ struct InviteCardInfo: View {
                 .font(.body(12, .bold))
                 .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
                 .kerning(0.5)
-                .offset(y: 2.5)
+                .offset(y: 4)
                 .padding(8)
                 .contentShape(.rect)
         }

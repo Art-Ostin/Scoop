@@ -13,14 +13,14 @@ struct InviteCardMessageView: View {
     @Binding var showMessageSection: Bool
     @Binding var showMessageScreen: Bool
     
-    var isEventMessage: Bool { vm.respondDraft.originalInvite.event.message?.isEmpty != false}
-    var isRespondMessage: Bool {vm.respondDraft.respondMessage?.isEmpty != false}
-    
-    var hasNoMessages: Bool {!isEventMessage && !isRespondMessage}
-    var isOnlyInviteMessage: Bool {isEventMessage && !isRespondMessage}
-    var isOnlyRespondMessage: Bool {!isEventMessage && isRespondMessage}
-    var hasBothMessages: Bool { isEventMessage && isRespondMessage}
-    
+    var hasInviteMessage: Bool { vm.respondDraft.originalInvite.event.message?.isEmpty == false }
+    var hasRespondMessage: Bool { vm.respondDraft.respondMessage?.isEmpty == false }
+
+    var hasNoMessages: Bool { !hasInviteMessage && !hasRespondMessage }
+    var isOnlyInviteMessage: Bool { hasInviteMessage && !hasRespondMessage }
+    var isOnlyRespondMessage: Bool { !hasInviteMessage && hasRespondMessage }
+    var hasBothMessages: Bool { hasInviteMessage && hasRespondMessage }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if hasNoMessages {
@@ -52,26 +52,20 @@ extension InviteCardMessageView {
         .padding(.top, 24)
     }
     
-    
+    @ViewBuilder
     private var onlyInviteMessageView: some View {
-        VStack(spacing: 36) {
             if let inviteMessage = vm.respondDraft.originalInvite.event.message {
-                RespondTextBubble(showMessageScreen: $showMessageScreen, message: inviteMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
+                RespondTextBubble(showMessageScreen: $showMessageScreen, message: inviteMessage, isMyChat: false, showRespondButton: true)
+                    .padding(.top, 24)
             }
-            
-            addMessageButton(sayRespond: true)
-                .frame(maxWidth:.infinity, alignment: .center)
-        }
     }
     
     private var onlyRespondMessageView: some View {
         VStack(spacing: 36) {
             if let respondMessage = vm.respondDraft.respondMessage {
+                addMessageView
                 RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
             }
-            
-            addMessageButton(sayRespond: true)
-                .frame(maxWidth:.infinity, alignment: .center)
         }
     }
     

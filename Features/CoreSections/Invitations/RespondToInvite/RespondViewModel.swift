@@ -57,11 +57,11 @@ class RespondViewModel {
     var showMeetInfo: Bool = false
     
     func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {
-        respondDraft.originalInvite.event.message != nil
+        respondDraft.originalInvite.event.message?.isEmpty == false
     }
     
     func hasRespondMessage(_ respondDraft: RespondDraft) -> Bool {
-        respondDraft.respondMessage?.isEmpty != false
+        respondDraft.respondMessage?.isEmpty == false
     }
     
     func hasBothMessages(_ respondDraft: RespondDraft) -> Bool {
