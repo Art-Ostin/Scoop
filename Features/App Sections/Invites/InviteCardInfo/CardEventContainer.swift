@@ -181,33 +181,33 @@ extension CardEventContainer {
         .transition(.opacity)
     }
     
+    
     private var messageToEventButton: some View {
+        
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(Layout.pageAnimation) {
                 selectedTab = .event
             }
         } label: {
             HStack(spacing: 4) {
+                
                 Image(systemName: "chevron.left")
                     .font(.body(11, .bold))
 
                 
                 Text("event")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Palette.secondaryText)
             }
-            .font(.body(12, .bold))
             .foregroundStyle(Palette.secondaryText)
             .padding(5)
             .padding(.horizontal, 6.5)
-            .background(.white)
-            .cornerRadius(100)
-            .overlay(
-                RoundedRectangle(cornerRadius: 100)
-                    .inset(by: 0.1)
-                    .stroke(Color.appGreen, lineWidth: 0.2)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
             )
-            .contentShape(.rect)
+            .offset(y: -2)
         }
-        .offset(y: -2)
     }
     
     private func titleLabel(_ text: String) -> some View {
@@ -262,3 +262,34 @@ struct IsTimeOpen: PreferenceKey {
     }
 }
 
+
+/*
+ private var messageToEventButton: some View {
+     Button {
+         withAnimation(.easeInOut(duration: 0.2)) {
+             selectedTab = .event
+         }
+     } label: {
+         HStack(spacing: 4) {
+             Image(systemName: "chevron.left")
+                 .font(.body(11, .bold))
+
+             
+             Text("event")
+         }
+         .font(.body(12, .bold))
+         .foregroundStyle(Palette.secondaryText)
+         .padding(5)
+         .padding(.horizontal, 6.5)
+         .background(.white)
+         .cornerRadius(100)
+         .overlay(
+             RoundedRectangle(cornerRadius: 100)
+                 .inset(by: 0.1)
+                 .stroke(Color.appGreen, lineWidth: 0.2)
+         )
+         .contentShape(.rect)
+     }
+     .offset(y: -2)
+ }
+ */
