@@ -32,7 +32,6 @@ struct RespondAcceptCard: View {
         .frame(maxWidth: .infinity)
         .background(customBackground)
         .padding(.horizontal, ui.hasRespondMessage(vm.respondDraft) ? 24 : 30)
-        .offset(y: 24)
         .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}

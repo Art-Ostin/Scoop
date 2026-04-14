@@ -64,7 +64,6 @@ struct RespondDetailsView: View {
         .frame(maxWidth: .infinity)
         .background(CardBackground())
         .padding(.horizontal, 24)
-        .offset(y: 36)
         .onTapGesture {
             showInfo.toggle()
         }
