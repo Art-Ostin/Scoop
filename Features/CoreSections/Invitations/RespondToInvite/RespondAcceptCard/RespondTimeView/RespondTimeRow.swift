@@ -23,7 +23,7 @@ struct RespondTimeRow: View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
             timeView
         } dropDown: {
-            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
+            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup, isRespondPopup: true)
         }
     }
 }

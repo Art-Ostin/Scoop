@@ -18,7 +18,12 @@ struct RespondSelectTime: View {
     //UI State for code
     @State var showCustomTime: Bool = false
     private let horizontalInset: CGFloat = 18
-    private let contentWidth: CGFloat = 290
+    
+    private var contentWidth: CGFloat {
+        isRespondPopup ? 270 : 280
+    }
+    
+    var isRespondPopup: Bool = false
     private var cardWidth: CGFloat {
         contentWidth + (horizontalInset * 2)
     }
@@ -69,7 +74,7 @@ extension RespondSelectTime {
     }
     
     private var customTimeView: some View {
-        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.originalInvite.event.type, showTimePopup: $showTimePopup, isRespondMode: true)
+        SelectTimeView(proposedTimes: $vm.respondDraft.newTime.proposedTimes, type: vm.respondDraft.originalInvite.event.type, showTimePopup: $showTimePopup, isRespondMode: true, isRespondPopup: isRespondPopup)
     }
     
     @ViewBuilder

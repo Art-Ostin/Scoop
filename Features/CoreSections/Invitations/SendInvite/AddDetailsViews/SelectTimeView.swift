@@ -22,7 +22,9 @@ struct SelectTimeView: View {
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
     var isRespondMode: Bool = false
+    var isRespondPopup: Bool = false
         
+    
     var body: some View {
         VStack(spacing: 12) {
             dayPicker
@@ -34,7 +36,7 @@ struct SelectTimeView: View {
                 .scaleEffect(isRespondMode ? 0.95 : 1)
                 .offset(y: isRespondMode ? -10 : 0)
         }
-        .frame(width: isRespondMode ? 280 : 260)
+        .frame(width: (isRespondMode && !isRespondPopup) ? 270 : 260)
         .overlay(alignment: .bottomTrailing) {doneButton}
         .padding(.horizontal, isRespondMode ? 0 : 24)
         .padding(.top, isRespondMode ? 0 : 24)
