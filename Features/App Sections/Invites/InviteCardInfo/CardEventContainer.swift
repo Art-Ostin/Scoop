@@ -11,8 +11,8 @@ struct CardEventContainer: View {
     
     @State var ui = RespondUIState()
     @State private var selectedTab: RespondUIState.Tab = .event
-    @State private var pageHeights: [Bool: CGFloat] = [:]
-    
+    @State private var pageHeights: [RespondUIState.Tab: CGFloat] = [:]
+
     var event: UserEvent {vm.respondDraft.originalInvite.event}
         
     var body: some View {
@@ -29,7 +29,7 @@ struct CardEventContainer: View {
                     }
                 }
                 .onPreferenceChange(CardEventPageHeightKey.self) { pageHeights in
-                    self.pageHeights = pageHeights
+                    self.pageHeights.merge(pageHeights) { _, new in new }
                 }
         }
         .preference(key: IsTimeOpen.self, value: ui.showTimePopup)
@@ -90,7 +90,7 @@ extension CardEventContainer {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
             .measure(key: CardEventPageHeightKey.self) { proxy in
-                [false: proxy.size.height]
+                [.message: proxy.size.height]
             }
     }
     
@@ -100,15 +100,15 @@ extension CardEventContainer {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
             .measure(key: CardEventPageHeightKey.self) { proxy in
-                [false: proxy.size.height]
+                [.event: proxy.size.height]
             }
     }
     
     private var infoPage: some View {
-        InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite)
+        InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite, decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3)
             .padding(.horizontal, 24)
             .measure(key: CardEventPageHeightKey.self) { proxy in
-                [true: proxy.size.height]
+                [.details: proxy.size.height]
             }
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -243,10 +243,10 @@ extension CardEventContainer {
 }
 
 private struct CardEventPageHeightKey: PreferenceKey {
-    static var defaultValue: [Bool: CGFloat] = [:]
+    static var defaultValue: [RespondUIState.Tab: CGFloat] = [:]
 
-    static func reduce(value: inout [Bool: CGFloat], nextValue: () -> [Bool: CGFloat]) {
-        value.merge(nextValue(), uniquingKeysWith: max)
+    static func reduce(value: inout [RespondUIState.Tab: CGFloat], nextValue: () -> [RespondUIState.Tab: CGFloat]) {
+        value.merge(nextValue()) { _, new in new }
     }
 }
 
