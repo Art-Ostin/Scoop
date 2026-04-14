@@ -19,7 +19,7 @@ struct InviteCardTimeRow: View {
             timeView
                 .anchorPreference(key: InviteCardTimeRowBoundsKey.self, value: .bounds) { $0 }
         } dropDown: {
-            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
+//            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
         }
     }
 }
@@ -82,7 +82,6 @@ struct InviteCardTimePopup: View {
                 .accessibilityHidden(true)
         } dropDown: {
             RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
-                .surfaceShadow(.card)
         }
         .allowsHitTesting(showTimePopup)
     }

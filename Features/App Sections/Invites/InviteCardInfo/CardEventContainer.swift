@@ -1,9 +1,3 @@
-//
-//  CardInfoContainer.swift
-//  Scoop
-//
-//  Created by Art Ostin on 12/04/2026.
-//
 
 import SwiftUI
 
@@ -16,6 +10,7 @@ struct CardEventContainer: View {
     @Binding var showMessageScreen: Bool
     
     @State var ui = RespondUIState()
+    @State private var selectedTab: RespondUIState.Tab = .event
     @State private var pageHeights: [Bool: CGFloat] = [:]
     
     var event: UserEvent {vm.respondDraft.originalInvite.event}
@@ -41,12 +36,12 @@ struct CardEventContainer: View {
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .overlay(alignment: .bottom) {
             HStack(spacing: 6) {
-                tabIndicator(isSelected: ui.selectedTab == .message)
-                tabIndicator(isSelected: ui.selectedTab == .event)
-                tabIndicator(isSelected: ui.selectedTab == .details)
+                tabIndicator(isSelected: selectedTab == .message)
+                tabIndicator(isSelected: selectedTab == .event)
+                tabIndicator(isSelected: selectedTab == .details)
             }
             .offset(y: 1)
-            .animation(Layout.pageAnimation, value: ui.selectedTab)
+            .animation(Layout.pageAnimation, value: selectedTab)
             .opacity(ui.showTimePopup ? 0.2 : 1)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -58,7 +53,7 @@ extension CardEventContainer {
     
     private func tabIndicator(isSelected: Bool) -> some View {
         Circle()
-            .frame(width: withAnimation {isSelected ? 4 : 3}, height: isSelected ? 4 : 3)
+            .frame(width: isSelected ? 4 : 3, height: isSelected ? 4 : 3)
             .foregroundStyle(isSelected ? Color.white : Color(red: 0.85, green: 0.85, blue: 0.85)) //Color(red: 0.3, green: 0.3, blue: 0.3)
             .stroke(100, lineWidth: isSelected ? 0.7 : 0, color: Color(red: 0.1, green: 0.1, blue: 0.1))
     }
@@ -74,7 +69,7 @@ extension CardEventContainer {
     
     
     private var pageContent: some View {
-        TabView(selection: $ui.selectedTab) {
+        TabView(selection: $selectedTab) {
             messagePage
                 .tag(RespondUIState.Tab.message)
             eventPage
@@ -129,9 +124,11 @@ extension CardEventContainer {
             .frame(width: rowRect.width, height: 0, alignment: .leading)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .offset(x: rowRect.minX, y: rowRect.maxY)
-            .opacity(ui.selectedTab != .event ? 0 : 1)
-            .allowsHitTesting(ui.selectedTab == .event && ui.showTimePopup)
+            .opacity(selectedTab != .event ? 0 : 1)
+            .allowsHitTesting(selectedTab == .event && ui.showTimePopup)
             .zIndex(2)
+            .offset(y: 16)
+            .surfaceShadow(.card)
         }
     }
     
@@ -139,7 +136,7 @@ extension CardEventContainer {
     private var title: some View {
         HStack(alignment: .bottom, spacing: 12) {
             ZStack(alignment: .leading) {
-                switch ui.selectedTab {
+                switch selectedTab {
                 case .message:
                     titleLabel("Invite Messages")
                 case .event:
@@ -156,17 +153,19 @@ extension CardEventContainer {
             }
             .frame(height: Layout.titleAccessoryHeight, alignment: .bottomTrailing)
         }
-        .animation(Layout.pageAnimation, value: ui.selectedTab)
+        .animation(Layout.pageAnimation, value: selectedTab)
     }
     
     @ViewBuilder
     private var titleButton: some View {
         ZStack {
-            switch ui.selectedTab {
+            switch selectedTab {
             case .message:
                 messageToEventButton
             case .event:
-                InviteRespondButton(type: vm.respondDraft.originalInvite.event.type) { ui.selectedTab = .details}
+                InviteRespondButton(type: vm.respondDraft.originalInvite.event.type) {
+                    selectedTab = .details
+                }
                     .scaleEffect(0.9, anchor: .trailing)
                     .fixedSize()
             case .details:
@@ -179,7 +178,7 @@ extension CardEventContainer {
     private var messageToEventButton: some View {
         Button {
             withAnimation(.easeInOut(duration: 0.2)) {
-                ui.selectedTab = .event
+                selectedTab = .event
             }
         } label: {
             HStack(spacing: 4) {
@@ -216,7 +215,7 @@ extension CardEventContainer {
     private var eventButton: some View {
         Button {
             withAnimation(Layout.pageAnimation) {
-                ui.selectedTab = .event
+                selectedTab = .event
             }
         } label: {
             HStack(spacing: 4) {
@@ -255,89 +254,3 @@ struct IsTimeOpen: PreferenceKey {
     }
 }
 
-
-
-
-
-/*
- @ViewBuilder
- private var messageSection: some View {
-     let showRespondMessage: Bool =  vm.respondDraft.respondMessage?.isEmpty != false
-     
-     VStack(alignment: .leading, spacing: 12) {
-         if let eventMessage = event.message {
-             RespondTextBubble(showMessageScreen: $showMessageScreen, message: eventMessage, isMyChat: false, showRespondButton: showRespondMessage)
-         } else if showRespondMessage {
-             noMessageScreen
-         }
-         if let respondMessage = vm.respondDraft.respondMessage {
-             RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
-         }
-     }
-     .frame(maxHeight: .infinity, alignment: .top)
-     .padding(.top, 16)
- }
-
- */
-
-/*
- 
- private var eventButton: some View {
-     Button {
-         withAnimation(Layout.pageAnimation) {
-             showMeetInfoBinding.wrappedValue = false
-         }
-     } label: {
-         HStack(spacing: 2) {
-             Image(systemName: "chevron.left")
-                 .font(.body(12, .bold))
-                 .foregroundStyle(Color.appGreen)
-
-             Text("Event")
-                 .foregroundStyle(Color.appGreen)
-                 .font(.custom("SFProRounded-Bold", size: 12))
-         }
-         .padding(2)
-         .kerning(0.5)
-         .padding(.horizontal, 8)
-         .stroke(16, lineWidth: 1, color: Color(red: 0, green: 0.53, blue: 0.45))
-         .offset(y: -3)
-     }
-     .buttonStyle(.plain)
- }
-
- 
- 
- 
- private var cantMakeItButton: some View {
-     Button {
-         showQuickInvite = vm.user
-     } label: {
-         Text("Can't make it?")
-             .font(.body(12, .bold))
-             .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
-             .kerning(0.5)
-             .offset(y: 3)
-             .padding(8)
-             .contentShape(.rect)
-             .background(Color.blue)
-     }
- }
-
- */
-
-/*
- 
- private var cantMakeItButton: some View {
-     Button {
-         showQuickInvite = vm.user
-     } label: {
-         Text("Can't make it?")
-             .font(.body(12, .bold))
-             .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
-             .kerning(0.5)
-             .offset(y: 3)
-     }
- }
-
- */
