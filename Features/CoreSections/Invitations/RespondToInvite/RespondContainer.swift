@@ -7,12 +7,20 @@
 
 import SwiftUI
 
+enum RespondScrollType {
+    case acceptPage, counterInvitePage
+}
+
 struct RespondPopupContainer: View {
     
     @Binding var showPopup: Bool
 
     @State var vm: RespondViewModel
     @State var showTimePopup: Bool = false
+    
+    @State var scrollPosition: RespondScrollType? = .acceptPage
+    
+    @State var lastResponseType: ResponseType? = nil
     
     var body: some View {
         ZStack {
@@ -25,11 +33,11 @@ struct RespondPopupContainer: View {
                     HStack(spacing: 0) {
                         acceptInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth, alignment: .leading)
-                            .tag(0)
+                            .id(RespondScrollType.acceptPage)
 
                         counterInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth + 4, alignment: .bottomLeading)
-                            .tag(1)
+                            .id(RespondScrollType.counterInvitePage)
                     }
                     .scrollTargetLayout()
                     .padding(.trailing, 16)
@@ -37,6 +45,7 @@ struct RespondPopupContainer: View {
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
+                .scrollPosition(id: $scrollPosition)
                 .onPreferenceChange(IsTimeOpen.self) { isTimeOpen in
                     showTimePopup = isTimeOpen
                 }
@@ -46,6 +55,18 @@ struct RespondPopupContainer: View {
                 let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
                 if vm.responseType == .modified {
                     SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
+                }
+            }
+            .onChange(of: scrollPosition) { oldValue, newValue in
+                if newValue == .counterInvitePage {
+                    lastResponseType = vm.responseType
+                    vm.respondDraft.respondType = .new
+                } else if newValue == .acceptPage {
+                    if let type = lastResponseType {
+                        vm.respondDraft.respondType = type
+                    } else {
+                        vm.respondDraft.respondType = .original
+                    }
                 }
             }
         }

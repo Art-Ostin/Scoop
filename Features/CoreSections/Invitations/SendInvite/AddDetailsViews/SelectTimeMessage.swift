@@ -36,7 +36,6 @@ struct SelectTimeMessage: View {
                     .padding(.top, 144)
                     .padding(.horizontal, 36)
                     .animation(.easeInOut(duration: 0.2), value: text)
-
             }
     }
 }
