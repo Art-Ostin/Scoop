@@ -62,7 +62,7 @@ extension RespondAcceptCard {
         RespondPlaceRow(
             showMessageScreen: $ui.showMessageScreen,
             location: event.location,
-            noEventMessages: !ui.hasBothMessages(vm.respondDraft)
+            noEventMessages: (!ui.hasEventMessage(vm.respondDraft) && !ui.hasRespondMessage(vm.respondDraft))
         )
     }
     
@@ -89,11 +89,19 @@ extension RespondAcceptCard {
         }
     }
     
+    @ViewBuilder
     private var actionSection: some View {
+        let type: Event.EventType = vm.respondDraft.originalInvite.event.type
+        let timeCount: Int = vm.respondDraft.newTime.proposedTimes.dates.count
+        let isValid: Bool = (
+            ((type == .drink || type == .doubleDate) && timeCount >= 2) ||
+            ((type == .custom || type == .socialMeet) && timeCount >= 1)
+        )
+        
         HStack {
             DeclineButton { }
             Spacer()
-            AcceptButton(isModified: vm.respondDraft.respondType != .original) {}
+            AcceptButton(isModified: vm.respondDraft.respondType != .original, isValid: isValid) {}
         }
     }
     

@@ -11,8 +11,9 @@ struct AcceptButton: View {
     
     
     var isModified: Bool = false
+    let isValid: Bool
     let onAccept: () -> Void
-    
+        
     var body: some View {
         Button {
             onAccept()
@@ -24,9 +25,10 @@ struct AcceptButton: View {
                 .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .foregroundStyle(isModified ? Color.accent : Color.appGreen)
+                        .foregroundStyle(isModified ? (isValid ? Color.accent : Color.grayBackground ) : Color.appGreen)
                 )
         }
+        .disabled(isModified && !isValid)
     }
 }
 

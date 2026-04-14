@@ -43,12 +43,20 @@ extension InviteCardEvent {
         InviteCardPlaceRow(location: event.location)
             .opacity(ui.showTimePopup ? 0.2 : 1)
     }
-        
+    
+    @ViewBuilder
     private var responseRow: some View {
+        let type: Event.EventType = vm.respondDraft.originalInvite.event.type
+        let timeCount: Int = vm.respondDraft.newTime.proposedTimes.dates.count
+        let isValid: Bool = (
+            ((type == .drink || type == .doubleDate) && timeCount >= 2) ||
+            ((type == .custom || type == .socialMeet) && timeCount >= 1)
+        )
+        
         HStack {
             DeclineButton { }
             Spacer()
-            AcceptButton(isModified: vm.responseType == .modified) {}
+            AcceptButton(isModified: vm.responseType == .modified, isValid: isValid) {}
         }
         .opacity(ui.showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!ui.showTimePopup)
