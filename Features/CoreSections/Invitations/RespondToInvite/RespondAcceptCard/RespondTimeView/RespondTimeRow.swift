@@ -39,6 +39,7 @@ extension RespondTimeRow {
                 timeTitle
                 if !hasRespondMessage && !isCardInvite {
                     eventMessageSection
+                        .opacity(showTimePopup ? 0.03 : 1)
                 }
             }
         }

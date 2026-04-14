@@ -46,12 +46,9 @@ struct RespondPopupContainer: View {
                 let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
                 if vm.responseType == .modified {
                     SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
-                        .onAppear {
-                            print(vm.respondDraft.originalInvite.event.type)
-                        }
+                        .animation(.easeInOut(duration: 0.2), value: showTimePopup)
                 }
             }
-            .animation(.easeInOut(duration: 0.25), value: showTimePopup)
         }
     }
 }

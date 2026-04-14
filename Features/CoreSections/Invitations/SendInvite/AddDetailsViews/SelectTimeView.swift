@@ -36,7 +36,7 @@ struct SelectTimeView: View {
                 .scaleEffect(isRespondMode ? 0.95 : 1)
                 .offset(y: isRespondMode ? -10 : 0)
         }
-        .frame(width: (isRespondMode && !isRespondPopup) ? 270 : 260)
+        .frame(width: (isRespondMode && !isRespondPopup) ? 270 : 265)
         .overlay(alignment: .bottomTrailing) {doneButton}
         .padding(.horizontal, isRespondMode ? 0 : 24)
         .padding(.top, isRespondMode ? 0 : 24)
