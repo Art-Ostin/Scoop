@@ -7,10 +7,7 @@
 
 import SwiftUI
 
-struct InviteCardTimeRow: View {
-    
-    let selectedDay: Date?
-    
+struct InviteCardTimeRow: View {    
     @Binding var showTimePopup: Bool
     @Bindable var vm: RespondViewModel
         

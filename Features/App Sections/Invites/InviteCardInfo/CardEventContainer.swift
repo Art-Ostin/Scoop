@@ -34,22 +34,24 @@ struct CardEventContainer: View {
         }
         .preference(key: IsTimeOpen.self, value: ui.showTimePopup)
         .padding(.top, RespondUIState.CardLayout.topPadding)
-        .overlay(alignment: .bottom) {
-            HStack(spacing: 6) {
-                tabIndicator(isSelected: selectedTab == .message)
-                tabIndicator(isSelected: selectedTab == .event)
-                tabIndicator(isSelected: selectedTab == .details)
-            }
-            .offset(y: 1)
-            .animation(Layout.pageAnimation, value: selectedTab)
-            .opacity(ui.showTimePopup ? 0.2 : 1)
-        }
+        .overlay(alignment: .bottom) {tabIndicatorSection}
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
 extension CardEventContainer {
     
+    
+    private var tabIndicatorSection: some View {
+        HStack(spacing: 6) {
+            tabIndicator(isSelected: selectedTab == .message)
+            tabIndicator(isSelected: selectedTab == .event)
+            tabIndicator(isSelected: selectedTab == .details)
+        }
+        .offset(y: 1)
+        .animation(Layout.pageAnimation, value: selectedTab)
+        .opacity(ui.showTimePopup ? 0.2 : 1)
+    }
     
     private func tabIndicator(isSelected: Bool) -> some View {
         Circle()

@@ -10,7 +10,7 @@ import SwiftUI
 struct InviteCard: View {
     
     @Binding var showQuickInvite: UserProfile?
-    @Bindable var vm: RespondViewModel
+    @State private var vm: RespondViewModel
     @Bindable var ui: InvitesUIState
     let eventProfile: EventProfile
     let showTimePopup: Bool
@@ -21,6 +21,23 @@ struct InviteCard: View {
     private let contentPadding: CGFloat = 6
     
     @State var showMessageScreen = false
+    
+    
+    init(
+        showQuickInvite: Binding<UserProfile?>,
+        vm: RespondViewModel,
+        ui: InvitesUIState,
+        eventProfile: EventProfile,
+        showTimePopup: Bool,
+        openProfile: @escaping (UserProfile) -> ()
+    ) {
+        _showQuickInvite = showQuickInvite
+        _vm = State(initialValue: vm)
+        self.ui = ui
+        self.eventProfile = eventProfile
+        self.showTimePopup = showTimePopup
+        self.openProfile = openProfile
+    }
     
     var body: some View {
         VStack(spacing: 0) {

@@ -23,6 +23,7 @@ struct InviteCardMessageView: View {
     }
 }
 
+
 /*
  
  if let eventMessage = vm.respondDraft.originalInvite.event.message {
@@ -36,6 +37,17 @@ struct InviteCardMessageView: View {
  if vm.respondDraft.respondMessage?.isEmpty != false && vm.respondDraft.originalInvite.event.message?.isEmpty != false {
      noMessageScreen
  }
+ */
+
+/*
+ if vm.respondDraft.respondMessage?.isEmpty == true {
+     noMessageScreen
+ } else {
+     if let respondMessage = vm.respondDraft.respondMessage {
+         RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
+     }
+ }
+
  */
 
 extension InviteCardMessageView {
