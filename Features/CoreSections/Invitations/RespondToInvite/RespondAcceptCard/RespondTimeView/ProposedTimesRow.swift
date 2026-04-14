@@ -13,6 +13,7 @@ struct ProposedTimesRow: View {
     @Binding var showTimePopup: Bool
     
     var isAccept: Bool = true
+    var isCardAccept: Bool = false
     
     var body: some View {
         
@@ -59,7 +60,7 @@ extension ProposedTimesRow {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .lineLimit(1)
-        .minimumScaleFactor(0.8)
+        .minimumScaleFactor(isCardAccept ? 1 : 0.8)
         .allowsTightening(true)
     }
     

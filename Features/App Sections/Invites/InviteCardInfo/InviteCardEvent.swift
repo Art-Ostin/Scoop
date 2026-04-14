@@ -48,7 +48,7 @@ extension InviteCardEvent {
         HStack {
             DeclineButton { }
             Spacer()
-            AcceptButton {}
+            AcceptButton(isModified: vm.responseType == .modified) {}
         }
         .opacity(ui.showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!ui.showTimePopup)

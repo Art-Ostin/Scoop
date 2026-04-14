@@ -44,9 +44,9 @@ extension CardEventContainer {
     
     private var tabIndicatorSection: some View {
         HStack(spacing: 6) {
-            tabIndicator(isSelected: selectedTab == .message)
-            tabIndicator(isSelected: selectedTab == .event)
             tabIndicator(isSelected: selectedTab == .details)
+            tabIndicator(isSelected: selectedTab == .event)
+            tabIndicator(isSelected: selectedTab == .message)
         }
         .offset(y: 1)
         .animation(Layout.pageAnimation, value: selectedTab)
@@ -72,12 +72,12 @@ extension CardEventContainer {
     
     private var pageContent: some View {
         TabView(selection: $selectedTab) {
-            messagePage
-                .tag(RespondUIState.Tab.message)
-            eventPage
-                .tag(RespondUIState.Tab.event)
             infoPage
                 .tag(RespondUIState.Tab.details)
+            eventPage
+                .tag(RespondUIState.Tab.event)
+            messagePage
+                .tag(RespondUIState.Tab.message)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true, isCardInvite: true)
@@ -184,10 +184,11 @@ extension CardEventContainer {
             }
         } label: {
             HStack(spacing: 4) {
-                Text("event")
-                
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.left")
                     .font(.body(12, .bold))
+
+                
+                Text("event")
             }
             .font(.body(13, .bold))
             .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
@@ -221,12 +222,13 @@ extension CardEventContainer {
             }
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: "chevron.left")
-                    .font(.body(12, .bold))
-                
                 Text("event")
                     .font(.body(13, .bold))
                     .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+
+                
+                Image(systemName: "chevron.right")
+                    .font(.body(12, .bold))
             }
             .foregroundStyle(Color.appGreen)
             .padding(5)

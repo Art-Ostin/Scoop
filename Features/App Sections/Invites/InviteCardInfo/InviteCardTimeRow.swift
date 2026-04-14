@@ -12,12 +12,8 @@ struct InviteCardTimeRow: View {
     @Bindable var vm: RespondViewModel
         
     var body: some View {
-        DropDownView(opensAbove: true, verticalOffset: 0, showOptions: $showTimePopup) {
-            timeView
-                .anchorPreference(key: InviteCardTimeRowBoundsKey.self, value: .bounds) { $0 }
-        } dropDown: {
-//            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
-        }
+        timeView
+            .anchorPreference(key: InviteCardTimeRowBoundsKey.self, value: .bounds) { $0 }
     }
 }
 
@@ -37,7 +33,7 @@ extension InviteCardTimeRow {
             selectedTime
         } else {
             VStack(alignment: .leading, spacing: 6) {
-                ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
+                ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true, isCardAccept: true)
             }
         }
     }
