@@ -15,7 +15,7 @@ struct InviteCardTimeRow: View {
     @Bindable var vm: RespondViewModel
         
     var body: some View {
-        DropDownView(opensAbove: true, verticalOffset: 36, showOptions: $showTimePopup) {
+        DropDownView(opensAbove: true, verticalOffset: 0, showOptions: $showTimePopup) {
             timeView
                 .anchorPreference(key: InviteCardTimeRowBoundsKey.self, value: .bounds) { $0 }
         } dropDown: {
@@ -81,11 +81,8 @@ struct InviteCardTimePopup: View {
                 .frame(maxWidth: .infinity)
                 .accessibilityHidden(true)
         } dropDown: {
-            SelectTimeView(
-                proposedTimes: $vm.respondDraft.newTime.proposedTimes,
-                type: vm.respondDraft.originalInvite.event.type,
-                showTimePopup: $showTimePopup
-            )
+            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
+                .surfaceShadow(.card)
         }
         .allowsHitTesting(showTimePopup)
     }
@@ -103,7 +100,13 @@ struct InviteCardTimeRowBoundsKey: PreferenceKey {
 
 /*
  
- 
+ //
+ //            SelectTimeView(
+ //                proposedTimes: $vm.respondDraft.newTime.proposedTimes,
+ //                type: vm.respondDraft.originalInvite.event.type,
+ //                showTimePopup: $showTimePopup
+ //            )
+
  
  
  private func originalTimeRow(selectedDay: Date) -> some View {

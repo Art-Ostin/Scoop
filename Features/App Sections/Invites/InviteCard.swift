@@ -13,6 +13,7 @@ struct InviteCard: View {
     @Bindable var vm: RespondViewModel
     @Bindable var ui: InvitesUIState
     let eventProfile: EventProfile
+    let showTimePopup: Bool
     
     let openProfile: (UserProfile) -> ()
     
@@ -25,6 +26,8 @@ struct InviteCard: View {
         VStack(spacing: 0) {
             profileImage
                 .padding(.horizontal, contentPadding)
+                .opacity(showTimePopup ? 0.1 : 1)
+                .animation(.easeInOut(duration: 0.25), value: showTimePopup)
             
             CardEventContainer(vm: vm, showQuickInvite: $showQuickInvite, showMessageScreen: $showMessageScreen)
         }

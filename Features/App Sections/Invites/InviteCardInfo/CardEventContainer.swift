@@ -24,6 +24,7 @@ struct CardEventContainer: View {
         VStack(alignment: .leading, spacing: 0) {
             title
                 .padding(.horizontal, 24)
+                .opacity(ui.showTimePopup ? 0.2 : 1)
             
             pageContent
                 .frame(height: pageContentHeight)
@@ -36,6 +37,7 @@ struct CardEventContainer: View {
                     self.pageHeights = pageHeights
                 }
         }
+        .preference(key: IsTimeOpen.self, value: ui.showTimePopup)
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .overlay(alignment: .bottom) {
             HStack(spacing: 6) {
@@ -45,6 +47,7 @@ struct CardEventContainer: View {
             }
             .offset(y: 1)
             .animation(Layout.pageAnimation, value: ui.selectedTab)
+            .opacity(ui.showTimePopup ? 0.2 : 1)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
@@ -243,6 +246,17 @@ private struct CardEventPageHeightKey: PreferenceKey {
         value.merge(nextValue(), uniquingKeysWith: max)
     }
 }
+
+struct IsTimeOpen: PreferenceKey {
+    static var defaultValue: Bool = false
+    
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = nextValue()
+    }
+}
+
+
+
 
 
 /*

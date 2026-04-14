@@ -42,7 +42,7 @@ extension InviteCardEvent {
     
     private var inviteCardPlaceRow: some View {
         InviteCardPlaceRow(location: event.location) { ui.selectedTab = .message}
-            .opacity(ui.showTimePopup ? 0.3 : 1)
+            .opacity(ui.showTimePopup ? 0.2 : 1)
     }
         
     private var responseRow: some View {
@@ -51,7 +51,7 @@ extension InviteCardEvent {
             Spacer()
             AcceptButton {}
         }
-        .opacity(ui.showTimePopup ? 0.3 : 1)
+        .opacity(ui.showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!ui.showTimePopup)
     }
     

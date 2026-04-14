@@ -14,6 +14,7 @@ struct InvitesContainer: View {
     @State var vm: InvitesViewModel
     @State var profileImages: [String : [UIImage]] = [:]
     @State var showTint: Bool = false
+    @State var showTimePopup: Bool = false
     
     var body: some View {
         if vm.invites.isEmpty {
@@ -26,6 +27,9 @@ struct InvitesContainer: View {
                 if ui.quickInvite { quickInvite }
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
+            .onPreferenceChange(IsTimeOpen.self) { newValue in
+                showTimePopup = newValue
+            }
         }
     }
 }
@@ -39,6 +43,7 @@ extension InvitesContainer {
     private var invitesView: some View {
         VStack(spacing: 20) {
             titleAndTab
+                .opacity(showTimePopup ? 0.2 : 1)
             
             ForEach(vm.invites, id: \.self) { invite in
                 InviteCard(
@@ -50,7 +55,8 @@ extension InvitesContainer {
                         respondDraft: .init(event: invite.event, userId: vm.userId)
                     ),
                     ui: ui,
-                    eventProfile: invite) { profile in
+                    eventProfile: invite,
+                    showTimePopup: showTimePopup) { profile in
                         openProfile(profile)
                     }
                     .task { await loadProfileImages(invite.profile) }
@@ -62,6 +68,7 @@ extension InvitesContainer {
         .onPreferenceChange(QuickInviteTime.self) { newValue in
                 showTint = newValue
         }
+        .animation(.easeInOut(duration: 0.15), value: showTimePopup)
     }
     
     private var titleAndTab: some View {
