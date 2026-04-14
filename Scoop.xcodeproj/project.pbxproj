@@ -186,6 +186,7 @@
 		65A070542EE08F4A009F798B /* ProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070532EE08F4A009F798B /* ProfileComponents.swift */; };
 		65A070582EE09F85009F798B /* CustomViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070572EE09F85009F798B /* CustomViewModifiers.swift */; };
 		65A13BB92F8D7EC6009255D4 /* InviteCardMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A13BB82F8D7EC6009255D4 /* InviteCardMessageView.swift */; };
+		65A273442F8EEB750079D3EF /* SelectTimeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A273432F8EEB750079D3EF /* SelectTimeMessage.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
@@ -469,6 +470,7 @@
 		65A070532EE08F4A009F798B /* ProfileComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
 		65A070572EE09F85009F798B /* CustomViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViewModifiers.swift; sourceTree = "<group>"; };
 		65A13BB82F8D7EC6009255D4 /* InviteCardMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardMessageView.swift; sourceTree = "<group>"; };
+		65A273432F8EEB750079D3EF /* SelectTimeMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeMessage.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
@@ -1308,6 +1310,7 @@
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 				65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
+				65A273432F8EEB750079D3EF /* SelectTimeMessage.swift */,
 			);
 			path = AddDetailsViews;
 			sourceTree = "<group>";
@@ -1609,6 +1612,7 @@
 				653FB57C2F688B8300440E41 /* EventSlot 2.swift in Sources */,
 				657B8D592F2D73EE00583ADA /* ProposedTimesModel.swift in Sources */,
 				65F5C29C2F7AECC10072B4ED /* RespondMessageRow.swift in Sources */,
+				65A273442F8EEB750079D3EF /* SelectTimeMessage.swift in Sources */,
 				653FB57A2F688A2E00440E41 /* EventInfoView.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MessagesViewModel.swift in Sources */,

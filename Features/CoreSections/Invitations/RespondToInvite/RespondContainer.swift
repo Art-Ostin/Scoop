@@ -28,7 +28,7 @@ struct RespondPopupContainer: View {
                             .tag(0)
 
                         counterInvitePage(cardWidth: cardWidth)
-                            .frame(width: pageWidth + 6, alignment: .bottomLeading)
+                            .frame(width: pageWidth + 4, alignment: .bottomLeading)
                             .tag(1)
                     }
                     .scrollTargetLayout()
@@ -43,11 +43,15 @@ struct RespondPopupContainer: View {
             }
             .hideTabBar()
             .overlay(alignment: .top) {
-                if showTimePopup {
-                    Text("Hello World")
-                        .padding(.top, 72)
+                let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
+                if vm.responseType == .modified {
+                    SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
+                        .onAppear {
+                            print(vm.respondDraft.originalInvite.event.type)
+                        }
                 }
             }
+            .animation(.easeInOut(duration: 0.25), value: showTimePopup)
         }
     }
 }

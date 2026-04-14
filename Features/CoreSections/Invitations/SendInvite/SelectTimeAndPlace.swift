@@ -95,7 +95,6 @@ struct SelectTimeAndPlace: View {
                 .padding(.bottom, (event.location != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18)) //Works for complex reasons
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .zIndex(1) //so pop ups always appear above the Action Button
-                .overlay(alignment: .top) {proposeTwoDaysText}
                 sendInviteButton
             }
             .frame(alignment: .top)
@@ -164,27 +163,7 @@ extension SelectTimeAndPlace {
                 .stroke(Color.grayBackground, lineWidth: 0.5)
         }
     }
-    
-    private var proposeTwoDaysText: some View {
-        Group {
-            if showTwoDays {
-                Text("Propose at least two days")
-            } else if ui.showTimePopup && event.proposedTimes.dates.count > 1 {
-                HStack(spacing: 0) {
-                    Text("They only accept ")
-                    Text("one day")
-                        .font(.body(12, .bold))
-                }
-            }
-        }
-        .font(.body(12, .regular))
-        .foregroundStyle(Color.grayText)
-        .padding(.horizontal)
-        .background(Color.background)
-        .padding(.top, 64)
-        .zIndex(0)
-    }
-    
+        
     private var popupTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
@@ -240,3 +219,27 @@ extension SelectTimeAndPlace {
     }
 //    private var decreaseEventInfoVerticalPadding: some
 }
+
+/*
+ private var proposeTwoDaysText: some View {
+     Group {
+         if showTwoDays {
+             Text("Propose at least two days")
+         } else if ui.showTimePopup && event.proposedTimes.dates.count > 1 {
+             HStack(spacing: 0) {
+                 Text("They only accept ")
+                 Text("one day")
+                     .font(.body(12, .bold))
+             }
+         }
+     }
+     .font(.body(12, .regular))
+     .foregroundStyle(Color.grayText)
+     .padding(.horizontal)
+     .background(Color.background)
+     .padding(.top, 64)
+     .zIndex(0)
+ }
+ .overlay(alignment: .top) {proposeTwoDaysText}
+
+ */

@@ -82,12 +82,6 @@ extension SelectTimeView {
                 Text("Day Unavailable")
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.warningYellow)
-            } else {
-                if proposedTimes.dates.map(\.date).count < 2 && type == .drink || type == .doubleDate {
-                    Text("Propose at least two days")
-                        .font(.body(12, .regular))
-                        .foregroundStyle(Color.grayText)
-                }
             }
         }
         .padding(.horizontal)
@@ -232,6 +226,16 @@ extension SelectTimeView {
         }
     }
 }
+
+/*
+ else {
+     if proposedTimes.dates.map(\.date).count < 2 && type == .drink || type == .doubleDate {
+         Text("Propose at least two days")
+             .font(.body(12, .regular))
+             .foregroundStyle(Color.grayText)
+     }
+ }
+ */
 
 /*
  .font(.body(12, isRespondMode ? .regular : .bold))
