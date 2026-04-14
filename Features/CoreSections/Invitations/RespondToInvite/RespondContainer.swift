@@ -12,13 +12,14 @@ struct RespondPopupContainer: View {
     @Binding var showPopup: Bool
 
     @State var vm: RespondViewModel
+    @State var showTimePopup: Bool = false
     
     var body: some View {
         ZStack {
             CustomScreenCover { showPopup = false }
             GeometryReader { proxy in
                 let cardWidth = proxy.size.width
-                let pageWidth = max(cardWidth - 16, 0)
+                let pageWidth = max(cardWidth - 24, 0)
 
                 ScrollView(.horizontal) {
                     HStack(spacing: 0) {
@@ -27,7 +28,7 @@ struct RespondPopupContainer: View {
                             .tag(0)
 
                         counterInvitePage(cardWidth: cardWidth)
-                            .frame(width: pageWidth, alignment: .bottomLeading)
+                            .frame(width: pageWidth + 6, alignment: .bottomLeading)
                             .tag(1)
                     }
                     .scrollTargetLayout()
@@ -36,8 +37,17 @@ struct RespondPopupContainer: View {
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
+                .onPreferenceChange(IsTimeOpen.self) { isTimeOpen in
+                    showTimePopup = isTimeOpen
+                }
             }
             .hideTabBar()
+            .overlay(alignment: .top) {
+                if showTimePopup {
+                    Text("Hello World")
+                        .padding(.top, 72)
+                }
+            }
         }
     }
 }
