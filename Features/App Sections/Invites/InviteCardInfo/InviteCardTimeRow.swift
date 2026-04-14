@@ -32,9 +32,7 @@ extension InviteCardTimeRow {
         if vm.responseType == .original {
             selectedTime
         } else {
-            VStack(alignment: .leading, spacing: 6) {
                 ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true, isCardAccept: true)
-            }
         }
     }
     

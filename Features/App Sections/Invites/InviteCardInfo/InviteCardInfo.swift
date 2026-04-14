@@ -14,6 +14,7 @@ struct InviteCardInfo: View {
     
     @Binding var showQuickInvite: UserProfile?
     
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(DetailInfo.allCases, id: \.self) {detail in
@@ -22,7 +23,7 @@ struct InviteCardInfo: View {
         }
         .lineSpacing(4)
         .padding(.top, 12.25)
-        .padding(.bottom, (RespondUIState.CardLayout.bottomPadding + 4)) //needs bit more padding than 'action' section
+        .padding(.bottom, (RespondUIState.CardLayout.bottomPadding)) //needs bit more padding than 'action' section
         .overlay(alignment: .bottomTrailing) {
             cantMakeItButton
         }
