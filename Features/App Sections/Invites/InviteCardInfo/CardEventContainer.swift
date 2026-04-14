@@ -46,6 +46,7 @@ struct CardEventContainer: View {
             .offset(y: 1)
             .animation(Layout.pageAnimation, value: ui.selectedTab)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 

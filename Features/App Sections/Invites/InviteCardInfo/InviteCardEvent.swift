@@ -37,9 +37,7 @@ extension InviteCardEvent {
         InviteCardTimeRow(
             selectedDay: vm.respondDraft.originalInvite.selectedDay ,
             showTimePopup: $ui.showTimePopup,
-            vm: vm,
-            useDropDown: false
-        )
+            vm: vm)
     }
     
     private var inviteCardPlaceRow: some View {

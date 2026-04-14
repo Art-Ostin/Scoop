@@ -43,7 +43,7 @@ extension InviteCardMessageView {
     
     private var noMessageScreen: some View {
         VStack(spacing: 36) {
-            Text("Add a message with your response")
+            Text("Add a message when you Accept")
                 .font(.body(14, .italic))
                 .foregroundStyle(Color(red: 0.4, green: 0.4, blue: 0.4))
                 .frame(maxWidth: .infinity, alignment: .center)

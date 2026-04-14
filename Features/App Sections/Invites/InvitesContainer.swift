@@ -25,6 +25,7 @@ struct InvitesContainer: View {
                 
                 if ui.quickInvite { quickInvite }
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
     }
 }

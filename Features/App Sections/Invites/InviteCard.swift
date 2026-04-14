@@ -40,9 +40,7 @@ struct InviteCard: View {
                 .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
         )
         .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
-        .sheet(isPresented: $showMessageScreen) {
-            AddMessageView(eventType: .constant(eventProfile.event.type), showMessageScreen: $showMessageScreen, message: $vm.respondDraft.respondMessage, isRespondMessage: true, name: vm.respondDraft.newTime.event.otherUserName)
-        }
+        .sheet(isPresented: $showMessageScreen) {addMessageView}
         .onTapGesture {
             if ui.showTimePopup {
                 withAnimation(.easeInOut(duration: 0.15)) {
@@ -50,10 +48,25 @@ struct InviteCard: View {
                 }
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
 extension InviteCard {
+    
+    private var addMessageView: some View {
+        AddMessageView (
+            eventType: .constant(eventProfile.event.type),
+            showMessageScreen: $showMessageScreen,
+            message: $vm.respondDraft.respondMessage,
+            isRespondMessage: true,
+            name: vm.respondDraft.newTime.event.otherUserName
+        )
+        .presentationBackgroundInteraction(.enabled)
+    }
+    
+    
+    
     
     private var profileImage: some View {
         Image(uiImage: eventProfile.image ?? UIImage())

@@ -12,6 +12,7 @@ struct RespondTimeRow: View {
     @Bindable var vm: RespondViewModel
     @Binding var showTimePopup: Bool
     @Binding var showMessageScreen: Bool
+    var isCardInvite: Bool = false
 
     var message: String {vm.respondDraft.originalInvite.event.message ?? ""}
     var respondMessageEmpty: Bool { trimmedMessage(vm.respondDraft.respondMessage) == nil }
@@ -36,7 +37,7 @@ extension RespondTimeRow {
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack(alignment: .leading, spacing: 0) {
                 timeTitle
-                if !hasRespondMessage {
+                if !hasRespondMessage && !isCardInvite {
                     eventMessageSection
                 }
             }
