@@ -12,6 +12,7 @@ struct SelectTimeMessage: View {
     let type: Event.EventType
     let dayCount: Int
     let showTimePopup: Bool
+    var isCardMessage: Bool = false
     
     var text: String? {
         if (type == .doubleDate || type == .drink) && dayCount == 1 {
@@ -33,7 +34,8 @@ struct SelectTimeMessage: View {
                     .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.1))
                     .transition(.opacity)
                     .frame(maxWidth: .infinity)
-                    .padding(.top, 144)
+                    .padding(.top, isCardMessage ? 0 : 144)
+                    .offset(y: isCardMessage ? -72 : 0)
                     .padding(.horizontal, 36)
                     .animation(.easeInOut(duration: 0.2), value: text)
             }

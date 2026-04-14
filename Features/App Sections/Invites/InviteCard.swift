@@ -22,6 +22,10 @@ struct InviteCard: View {
     
     @State var showMessageScreen = false
     
+    var dayCount: Int { vm.respondDraft.newTime.proposedTimes.dates.count}
+    var type: Event.EventType {vm.respondDraft.originalInvite.event.type}
+    var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  showTimePopup && dayCount >= 2}
+    
     
     init(
         showQuickInvite: Binding<UserProfile?>,
@@ -68,7 +72,13 @@ struct InviteCard: View {
                 }
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .overlay(alignment: .top) {
+            let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
+            if vm.responseType == .modified {
+                SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup, isCardMessage: true)
+            }
+        }
+        .preference(key: HideInvitePreferenceKey.self, value: hideInvite)
     }
 }
 
@@ -96,5 +106,14 @@ extension InviteCard {
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
             .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+    }
+}
+
+
+struct HideInvitePreferenceKey: PreferenceKey {
+    static var defaultValue: Bool = false
+    
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = nextValue()
     }
 }

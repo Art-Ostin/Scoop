@@ -16,6 +16,8 @@ struct InvitesContainer: View {
     @State var showTint: Bool = false
     @State var showTimePopup: Bool = false
     
+    @State var hideInviteTitle: Bool = false
+    
     var body: some View {
         if vm.invites.isEmpty {
             invitesPlaceholder
@@ -43,7 +45,7 @@ extension InvitesContainer {
     private var invitesView: some View {
         VStack(spacing: 20) {
             titleAndTab
-                .opacity(showTimePopup ? 0.2 : 1)
+                .opacity(showTimePopup ? (hideInviteTitle ? 0.05 : 0.2) : 1)
             
             ForEach(vm.invites, id: \.self) { invite in
                 InviteCard(
@@ -68,7 +70,12 @@ extension InvitesContainer {
         .onPreferenceChange(QuickInviteTime.self) { newValue in
                 showTint = newValue
         }
+        .onPreferenceChange(HideInvitePreferenceKey.self) { newValue in
+            hideInviteTitle = newValue
+        }
         .animation(.easeInOut(duration: 0.15), value: showTimePopup)
+        .animation(.easeInOut(duration: 0.15), value: hideInviteTitle)
+
     }
     
     private var titleAndTab: some View {
