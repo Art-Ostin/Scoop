@@ -94,11 +94,11 @@ struct ProfileView: View {
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {
-            if (vm.viewProfileType != .view || vm.viewProfileType != .accepted) && !ui.showRespondPopup {
-                 InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
-                     .padding(.horizontal, 24)
-                     .padding(.bottom, 144)
-             }
+            if vm.viewProfileType != .view && vm.viewProfileType != .accepted && !ui.showRespondPopup {
+                InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 144)
+            }
         }
         .overlay(alignment: .bottomLeading) {
             if vm.viewProfileType == .invite {
@@ -140,7 +140,7 @@ extension ProfileView {
             ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .black) {
+                ProfileDismissButton(color: .black, detailsOpen: ui.detailsOpen) {
                     dismissProfile(using: geo)
                 }
             }
@@ -155,7 +155,7 @@ extension ProfileView {
             Text(displayProfile.name)
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .white) { onDismiss() }
+                ProfileDismissButton(color: .white, detailsOpen: ui.detailsOpen) { onDismiss() }
                     .padding(6)
                     .glassIfAvailable(Circle())
             }

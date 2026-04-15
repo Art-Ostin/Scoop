@@ -73,13 +73,14 @@ struct ProfileTitle: View {
     let p: UserProfile
     @Binding var selectedProfile: EventProfile?
     let onDismiss: (() -> Void)?
+    let detailsOpen: Bool
     
     var body: some View {
         HStack {
             Text(p.name)
             ForEach (p.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
-            ProfileDismissButton(color: .black, onDismiss: onDismiss)
+            ProfileDismissButton(color: .black, detailsOpen: detailsOpen, onDismiss: onDismiss)
         }
         .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))
