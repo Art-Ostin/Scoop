@@ -94,11 +94,19 @@ struct ProfileView: View {
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {
-            if vm.viewProfileType != .view && !ui.showRespondPopup {
+            if (vm.viewProfileType != .view || vm.viewProfileType != .accepted) && !ui.showRespondPopup {
                  InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
                      .padding(.horizontal, 24)
                      .padding(.bottom, 144)
              }
+        }
+        .overlay(alignment: .bottomLeading) {
+            if vm.viewProfileType == .invite {
+                EventDeclineButton() {}
+                    .scaleEffect(1.1)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 6)
+            }
         }
         .hideTabBar()
     }
