@@ -12,7 +12,6 @@ import Zoomable
 struct ProfileImageView: View {
     
     @Bindable var vm: ProfileViewModel
-    @Binding var showInvite: Bool
     @State private var selection = 0
     let imagePadding: CGFloat = 12
     @State var selectedImage = 0
@@ -52,12 +51,6 @@ extension ProfileImageView {
                             .pinchZoom()
                 }
             }
-            .overlay(alignment: .bottomTrailing) {
-                if vm.viewProfileType == .invite {
-                    InviteButton(vm: vm, showInvite: $showInvite)
-                        .padding()
-                }
-            }
             .tabViewStyle(.page(indexDisplayMode: .never))
             //Apply the shadow after the frame so shadow not included in distance between views
             .frame(height: imageSize)
@@ -95,3 +88,13 @@ extension ProfileImageView {
         }
     }
 }
+
+/*
+ .overlay(alignment: .bottomTrailing) {
+     if vm.viewProfileType == .invite {
+         InviteButton(vm: vm, showInvite: $showInvite)
+             .padding()
+     }
+ }
+
+ */

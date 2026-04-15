@@ -65,7 +65,7 @@ struct ProfileView: View {
                             .opacity(1 - overlayTitleOpacity)
                             .padding(.top, 36)
                         
-                        ProfileImageView(vm: vm, showInvite: $ui.showRespondPopup, detailsOffset: detailsOffset, importedImages: profileImages)
+                        ProfileImageView(vm: vm, detailsOffset: detailsOffset, importedImages: profileImages)
                             .offset(y: rangeUpdater(endValue: -100))
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
@@ -94,12 +94,13 @@ struct ProfileView: View {
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {
-             if vm.viewProfileType == .accept && !ui.showRespondPopup {
+            if vm.viewProfileType != .view && !ui.showRespondPopup {
                  InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
                      .padding(.horizontal, 24)
-                     .padding(.bottom, 96)
+                     .padding(.bottom, 144)
              }
         }
+        .hideTabBar()
     }
 }
 

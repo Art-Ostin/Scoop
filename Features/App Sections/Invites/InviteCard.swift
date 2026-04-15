@@ -76,6 +76,7 @@ struct InviteCard: View {
             let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
             if vm.responseType == .modified {
                 SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup, isCardMessage: true)
+                    .padding(.horizontal, -12)
             }
         }
         .preference(key: HideInvitePreferenceKey.self, value: hideInvite)

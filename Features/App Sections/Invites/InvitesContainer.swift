@@ -45,7 +45,7 @@ extension InvitesContainer {
     private var invitesView: some View {
         VStack(spacing: 20) {
             titleAndTab
-                .opacity(showTimePopup ? (hideInviteTitle ? 0.05 : 0.2) : 1)
+                .opacity(showTimePopup ? (hideInviteTitle ? 0.03 : 0.2) : 1)
             
             ForEach(vm.invites, id: \.self) { invite in
                 InviteCard(

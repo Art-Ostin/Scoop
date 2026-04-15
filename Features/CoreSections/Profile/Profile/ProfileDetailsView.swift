@@ -8,11 +8,6 @@ import SwiftUI
 import SwiftUIFlowLayout
 
 
-//    let detailsOffset: CGFloat
-//     @Binding var isTopOfScroll: Bool
-//      @Binding var showInvite: Bool
-//     let detailsOpen: Bool
-
 
 struct ProfileDetailsView: View {
     @Bindable var vm: ProfileViewModel
@@ -59,7 +54,6 @@ struct ProfileDetailsView: View {
         }
         .scrollDisabled(disableDetailsScroll)
         .scrollIndicators(.hidden)
-        .overlay(alignment: .top) { if vm.viewProfileType != .view {profileActionBar}}
         .customScrollFade(height: 80, showFade: !ui.isTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
     }
@@ -90,18 +84,6 @@ extension ProfileDetailsView {
         .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 ; updateInterestScale()}
     }
     
-    @ViewBuilder
-    private var profileActionBar: some View {
-        if vm.viewProfileType == .invite {
-            HStack {
-                EventDeclineButton() {onDecline()}
-                Spacer()
-                InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
-            }
-            .padding(.horizontal, 16)
-            .offset(y: 354)
-        }
-    }
 }
 
 extension ProfileDetailsView {
@@ -124,3 +106,21 @@ extension ProfileDetailsView {
         return event != nil && (event?.status == .accepted)
     }
 }
+
+/*
+ .overlay(alignment: .top) { if vm.viewProfileType != .view {profileActionBar}}
+
+ @ViewBuilder
+ private var profileActionBar: some View {
+     if vm.viewProfileType == .invite {
+         HStack {
+             EventDeclineButton() {onDecline()}
+             Spacer()
+             InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
+         }
+         .padding(.horizontal, 16)
+         .offset(y: 354)
+     }
+ }
+
+ */

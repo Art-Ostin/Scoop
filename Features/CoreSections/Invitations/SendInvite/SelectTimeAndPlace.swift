@@ -112,6 +112,10 @@ struct SelectTimeAndPlace: View {
             }
             .overlay(alignment: .topTrailing) { infoButton }
             .offset(y: !respondWithInvite ? 24 : 0)
+            .overlay(alignment: .top) {
+                    let dayCount = event.proposedTimes.dates.count
+                SelectTimeMessage(type: event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup, isCardMessage: true)
+            }
         }
         .hideTabBar()
         .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
