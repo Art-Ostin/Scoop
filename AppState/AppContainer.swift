@@ -67,7 +67,6 @@ extension AppContainer {
     
     private var invitesView: some View {
         InvitesContainer(vm: InvitesViewModel(session: dep.sessionManager, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
-            .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     private var eventsView: some View {

@@ -68,10 +68,13 @@ extension EventsContainer {
     
     private func eventSlot(eventProfile: EventProfile) -> some View {
         CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
-            EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-            EventHeaderDetails(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
-            EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
-            EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
+            VStack(spacing: 32) {
+                EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
+                LargeClockView(targetTime: eventProfile.event.acceptedTime ?? Date()) {}
+                EventDetailsView(ui: ui, event: eventProfile.event)
+                EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
+                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
+            }
         }
         .customScrollFade(height: 100, showFade: true)
         .task { await loadProfileImages(eventProfile.profile)}

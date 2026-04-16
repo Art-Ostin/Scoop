@@ -81,7 +81,7 @@
 		653BAFC02E0D930900C1AB9E /* SFCompactRounded-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 653BAFBF2E0D930900C1AB9E /* SFCompactRounded-Regular.otf */; };
 		653FB56D2F686D6800440E41 /* HideTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB56C2F686D6800440E41 /* HideTabBar.swift */; };
 		653FB5742F6882FC00440E41 /* EventImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5732F6882FC00440E41 /* EventImageView.swift */; };
-		653FB5762F68854D00440E41 /* EventTimeAndPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5752F68854D00440E41 /* EventTimeAndPlace.swift */; };
+		653FB5762F68854D00440E41 /* EventDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5752F68854D00440E41 /* EventDetailsView.swift */; };
 		653FB5782F68886700440E41 /* EventMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5772F68886700440E41 /* EventMapView.swift */; };
 		653FB57A2F688A2E00440E41 /* EventInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB5792F688A2E00440E41 /* EventInfoView.swift */; };
 		653FB57C2F688B8300440E41 /* EventSlot 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653FB57B2F688B8300440E41 /* EventSlot 2.swift */; };
@@ -363,7 +363,7 @@
 		653BAFBF2E0D930900C1AB9E /* SFCompactRounded-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFCompactRounded-Regular.otf"; sourceTree = "<group>"; };
 		653FB56C2F686D6800440E41 /* HideTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideTabBar.swift; sourceTree = "<group>"; };
 		653FB5732F6882FC00440E41 /* EventImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventImageView.swift; sourceTree = "<group>"; };
-		653FB5752F68854D00440E41 /* EventTimeAndPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTimeAndPlace.swift; sourceTree = "<group>"; };
+		653FB5752F68854D00440E41 /* EventDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsView.swift; sourceTree = "<group>"; };
 		653FB5772F68886700440E41 /* EventMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMapView.swift; sourceTree = "<group>"; };
 		653FB5792F688A2E00440E41 /* EventInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfoView.swift; sourceTree = "<group>"; };
 		653FB57B2F688B8300440E41 /* EventSlot 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EventSlot 2.swift"; sourceTree = "<group>"; };
@@ -957,7 +957,7 @@
 			isa = PBXGroup;
 			children = (
 				653FB5732F6882FC00440E41 /* EventImageView.swift */,
-				653FB5752F68854D00440E41 /* EventTimeAndPlace.swift */,
+				653FB5752F68854D00440E41 /* EventDetailsView.swift */,
 				653FB5772F68886700440E41 /* EventMapView.swift */,
 				653FB5792F688A2E00440E41 /* EventInfoView.swift */,
 				653FB57D2F688ED800440E41 /* EventDetailsSheet */,
@@ -1090,8 +1090,8 @@
 			isa = PBXGroup;
 			children = (
 				65FAF9952E42960A0015E231 /* EventViewModel.swift */,
-				65FAF9892E414D1B0015E231 /* EventsContainer.swift */,
 				65FAF9872E4140740015E231 /* EventPlaceholder.swift */,
+				65FAF9892E414D1B0015E231 /* EventsContainer.swift */,
 				653FB5722F6880DD00440E41 /* EventSlot */,
 			);
 			path = Events;
@@ -1666,7 +1666,7 @@
 				659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */,
 				652D3D2F2F2E9A0600AE491D /* EventLocationModel.swift in Sources */,
 				655D92DA2F6B310400A99685 /* DropDownRow.swift in Sources */,
-				653FB5762F68854D00440E41 /* EventTimeAndPlace.swift in Sources */,
+				653FB5762F68854D00440E41 /* EventDetailsView.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */,
 				6509DCED2F1D79AE00455AB5 /* EditLanguages.swift in Sources */,

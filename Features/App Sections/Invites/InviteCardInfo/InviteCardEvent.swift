@@ -40,7 +40,7 @@ extension InviteCardEvent {
     }
     
     private var inviteCardPlaceRow: some View {
-        InviteCardPlaceRow(location: event.location)
+        InviteCardPlaceRow(location: event.location, isMeetUp: false)
             .opacity(ui.showTimePopup ? 0.2 : 1)
     }
     

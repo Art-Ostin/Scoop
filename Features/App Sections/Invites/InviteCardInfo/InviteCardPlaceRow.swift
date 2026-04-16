@@ -10,6 +10,7 @@ import SwiftUI
 struct InviteCardPlaceRow: View {
     
     let location: EventLocation
+    let isMeetUp: Bool
     var body: some View {
         HStack (spacing: 6) {
             locationSection
@@ -30,6 +31,7 @@ extension InviteCardPlaceRow {
     private var locationSection: some View {
         HStack(spacing: 12) {
             Image("MiniMapIcon")
+                .scaleEffect(isMeetUp ? 1.2 : 1)
             placeDetails
         }
     }
@@ -43,13 +45,13 @@ extension InviteCardPlaceRow {
     
     private var placeName: some View {
         Text(location.name ?? "")
-            .font(.body(15, .medium))
+            .font(.body(isMeetUp ? 18 : 15, .medium))
             .foregroundStyle(Palette.primaryText)
     }
     
     private var placeAddress: some View {
         Text(FormatEvent.addressWithoutCountry(location.address))
-            .font(.body(11, .medium))
+            .font(.body(isMeetUp ? 11 : 12, .medium))
             .underline()
             .foregroundStyle(Palette.secondaryText)
             .lineLimit(1)

@@ -18,7 +18,7 @@ struct EventImageView: View {
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
             .defaultImage(imageSize)
-            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
             .contentShape(Rectangle())
             .onTapGesture {openProfile()}
             .overlay(alignment: .bottomLeading) { nameOverlay}

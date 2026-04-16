@@ -37,7 +37,7 @@ struct CustomTabPage<Content: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 16) //On the Screens 
-        .background(Color.background)
+        .background(Color(red: 0.99, green: 0.98, blue: 0.97))
     }
 }
 
