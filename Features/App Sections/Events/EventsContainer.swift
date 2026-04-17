@@ -78,7 +78,7 @@ extension EventsContainer {
                 if let time = eventProfile.event.acceptedTime { //For testing change later
                     LargeClockView(targetTime: Calendar.current.date(byAdding: .hour, value: 7, to: .now)!, showShadow: false) {}
                 }
-                EventDetailsView(ui: ui, event: eventProfile.event)
+                EventDetailsContainer(ui: ui, event: eventProfile.event)
                     .opacity(disableMap ? 1 : 0.5)
                     .onTapGesture {
                         if !disableMap {
