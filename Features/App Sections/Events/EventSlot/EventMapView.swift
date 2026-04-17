@@ -49,11 +49,9 @@ struct EventMapView: View {
         .surfaceShadow(.floating, strength: !disableMap  ? 0.6 : 0)
         .onChange(of: disableMap) { _, newValue in
             if newValue {
-                withAnimation(.easeInOut(duration: 0.2)) {
                     cameraPosition = .camera(
                         MapCamera(centerCoordinate: coord, distance: 1300)
                     )
-                }
             }
         }
     }
@@ -85,7 +83,9 @@ extension EventMapView {
     
     private func openInMapsButton(event: UserEvent) -> some View {
         Button {
-            openMaps()
+            withAnimation(.easeInOut(duration: 0.2)) {
+                openMaps()
+            }
         } label: {
             Text("Open Maps")
                 .font(.custom("SFProRounded-Semibold", size: 14))

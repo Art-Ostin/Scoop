@@ -35,7 +35,6 @@ struct EventsContainer: View {
             .sheet(item: $ui.showEventDetails) {event in
                 NavigationStack { EventDetails(vm: vm, event: event)}
             }
-            .animation(.easeInOut(duration: 0.2), value: disableMap)
         }
     }
 }
@@ -91,6 +90,7 @@ extension EventsContainer {
                     
 //                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }
+            .animation(.easeInOut(duration: 0.2), value: disableMap)
             .padding(.bottom, 96)
         }
         .customScrollFade(height: 100, showFade: true)
