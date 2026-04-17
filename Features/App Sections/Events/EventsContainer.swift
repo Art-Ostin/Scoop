@@ -19,6 +19,8 @@ struct EventsContainer: View {
     @State private var disableMap: Bool = true
     @State private var mapEnabledScrollOffset: CGFloat?
     
+    @State private var scrollTarget: String?
+    
     var body: some View {
         
         if vm.events.isEmpty  {
@@ -93,11 +95,15 @@ extension EventsContainer {
             .scrollTargetLayout()
             .padding(.bottom, 96)
             .onChange(of: disableMap) { oldValue, newValue in
+                print(newValue)
+                print(oldValue)
                 if newValue == false {
-                    //scrolltoMap
+                    print("Should Scroll")
+                    scrollTarget = "Map"
                 }
             }
         }
+        .scrollPosition(id: $scrollTarget, anchor: .center)
         .customScrollFade(height: 100, showFade: true)
         .scrollClipDisabled()
         .task { await loadProfileImages(eventProfile.profile)}
