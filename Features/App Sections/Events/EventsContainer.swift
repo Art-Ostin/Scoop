@@ -70,7 +70,15 @@ extension EventsContainer {
         CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
             VStack(spacing: 32) {
                 EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                LargeClockView(targetTime: eventProfile.event.acceptedTime ?? Date()) {}
+                if let time = eventProfile.event.acceptedTime {
+                    LargeClockView(targetTime: time) {}
+                }
+
+//                timeView(eventProfile: eventProfile)
+                
+                
+                
+                
                 EventDetailsView(ui: ui, event: eventProfile.event)
                 EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
                 EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
@@ -86,6 +94,24 @@ extension EventsContainer {
 
 //The different Views
 extension EventsContainer {
+    
+    
+    private func timeView(eventProfile: EventProfile) -> some View {
+        VStack(spacing: 12) {
+            if let time = eventProfile.event.acceptedTime {
+                Text(FormatEvent.dayAndTime(time, wide: true, withHour: true))
+                    .font(.custom("SFProRounded-Semibold", size: 22))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .kerning(0.4)
+                LargeClockView(targetTime: time) {}
+            }
+        }
+        .padding(16)
+        .background (
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+        )
+    }
     
     @ViewBuilder
     private var chatView: some View {

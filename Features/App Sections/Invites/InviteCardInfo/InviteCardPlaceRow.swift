@@ -29,7 +29,7 @@ extension InviteCardPlaceRow {
     }
         
     private var locationSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: isMeetUp ? 24 : 12) {
             Image("MiniMapIcon")
                 .scaleEffect(isMeetUp ? 1.2 : 1)
             placeDetails
@@ -53,10 +53,11 @@ extension InviteCardPlaceRow {
         Text(FormatEvent.addressWithoutCountry(location.address))
             .font(.body(isMeetUp ? 11 : 12, .medium))
             .underline()
-            .foregroundStyle(Palette.secondaryText)
+            .foregroundStyle(isMeetUp ? Color(red: 0.65, green: 0.65, blue: 0.65) : Palette.secondaryText)
             .lineLimit(1)
     }
 }
+
 /*
  //            ViewMessageButton() {onTap()}
  //                .fixedSize()
