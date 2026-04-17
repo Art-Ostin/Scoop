@@ -15,16 +15,21 @@ struct EventMapView: View {
     @Binding var disableMap: Bool
     let openMaps: () -> ()
     
-    var coord: CLLocationCoordinate2D  {
-        CLLocationCoordinate2D(latitude: event.location.latitude, longitude: event.location .longitude)
+    @State private var cameraPosition: MapCameraPosition = .automatic
+    
+    var coord: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(
+            latitude: event.location.latitude,
+            longitude: event.location.longitude
+        )
     }
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            Map(initialPosition: .camera(.init(centerCoordinate: coord, distance: 800))) {
-                Marker(event.location.name ?? "",systemImage: "mappin", coordinate: coord)
+            Map(position: $cameraPosition) {
+                Marker(event.location.name ?? "", systemImage: "mappin", coordinate: coord)
                     .tint(.red)
-                
+
                 UserAnnotation()
                     .tint(.blue)
             }
@@ -32,22 +37,51 @@ struct EventMapView: View {
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
             .disabled(disableMap)
-            
+            .onAppear {
+                cameraPosition = .camera(
+                    MapCamera(centerCoordinate: coord, distance: 800)
+                )
+            }
+
             openInMapsButton(event: event)
+
+            if disableMap {
+                enableMapButton
+            }
+        }
+        .onChange(of: disableMap) { _, newValue in
+            if newValue {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    cameraPosition = .camera(
+                        MapCamera(centerCoordinate: coord, distance: 800)
+                    )
+                }
+            }
         }
     }
 }
 
 extension EventMapView {
     
-    
     private var enableMapButton: some View {
         Button {
-            
+            disableMap = false
         } label: {
             Text("Enable Map")
-                .font(.body(14, .bold))
+                .font(.body(10, .bold))
+                .foregroundStyle(Color.black)
+                .padding(6)
+                .padding(.horizontal, 2)
+                .stroke(16, lineWidth: 1, color: .accent.opacity(0.2))
+                .background (
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(.white)
+                )
+                .contentShape(.rect)
+                .padding()
+                .padding(4)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
     }
     
     

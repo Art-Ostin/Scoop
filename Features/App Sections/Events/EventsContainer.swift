@@ -33,6 +33,7 @@ struct EventsContainer: View {
             .sheet(item: $ui.showEventDetails) {event in
                 NavigationStack { EventDetails(vm: vm, event: event)}
             }
+            .animation(.easeInOut(duration: 1), value: disableMap)
         }
     }
 }
@@ -94,6 +95,16 @@ extension EventsContainer {
             buttonOverlay
                 .padding(.bottom, 96)
                 .padding(.horizontal, 24)
+        }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentOffset.y
+        } action: { oldValue, newValue in
+            if newValue > 30 {
+                print("Scroll Detected")
+                if disableMap == false {
+                    disableMap = true
+                }
+            }
         }
     }
     private func openMaps(_ eventProfile: EventProfile) {

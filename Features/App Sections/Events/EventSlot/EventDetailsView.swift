@@ -17,10 +17,9 @@ struct EventDetailsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: hasMessage ? 24 : 28) {
-            detailRow
             timeRow
             placeRow
-            messageRow
+            detailRow
         }
         .padding(.top, hasMessage ? 26 : 22)
         .padding(.bottom, hasMessage ? 16 : 22)
@@ -33,7 +32,7 @@ struct EventDetailsView: View {
         .overlay(alignment: .topLeading) {
             eventDetailsOverlay
         }
-        .overlay(alignment: .topTrailing) {
+        .overlay(alignment: .bottomTrailing) {
             infoOverlay
                 .padding()
                 .padding(.vertical, -2)
@@ -47,9 +46,9 @@ struct EventDetailsView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(event.type.longTitle)")
-//                Text(event.message ?? "")
-//                   .font(.footnote)
-//                   .foregroundStyle(Color.gray)
+                Text(event.message ?? "")
+                   .font(.footnote)
+                   .foregroundStyle(Color.gray)
             }
         }
         .font(.body(18, .medium))
@@ -67,23 +66,6 @@ struct EventDetailsView: View {
                 Text(FormatEvent.dayAndTime(acceptedTime, withHour:  true))
                     .font(.body(18, .medium))
             }
-        }
-    }
-    
-    @ViewBuilder
-    private var messageRow: some View {
-        if let message = event.message {
-            HStack(spacing: 18) {
-                Text("💬")
-                    .offset(x: -2)
-                
-                Text(message)
-                    .font(.body(14))
-                    .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
-                    .lineSpacing(6)
-                    .kerning(0.2)
-            }
-            .padding(.top, -4)
         }
     }
     
@@ -152,4 +134,22 @@ struct EventDetailsView: View {
      .frame(maxWidth: .infinity, alignment: .center)
  }
 
+ @ViewBuilder
+ private var messageRow: some View {
+     if let message = event.message {
+         HStack(spacing: 17) {
+             Text("💬")
+                 .offset(x: -2)
+             
+             Text(message)
+                 .font(.body(14))
+                 .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
+                 .lineSpacing(6)
+                 .kerning(0.2)
+         }
+         .padding(.top, -10)
+     }
+ }
+
+ 
  */
