@@ -39,24 +39,21 @@ struct EventMapView: View {
             openInMapsButton(event: event)
         }
         .overlay(alignment: .topTrailing) {
-            if disableMap {
-                enableMapButton
-            }
+            enableMapButton
         }
         .onAppear {
             cameraPosition = .camera(
-                MapCamera(centerCoordinate: coord, distance: 1000)
+                MapCamera(centerCoordinate: coord, distance: 800)
             )
         }
         .surfaceShadow(.floating, strength: !disableMap  ? 0.7 : 0)
         .onChange(of: disableMap) { _, newValue in
-            withAnimation(.easeInOut(duration: newValue ? 0.2 : 0.3)) {
-                cameraPosition = .camera(
-                    MapCamera(
-                        centerCoordinate: coord,
-                        distance: newValue ? 1000 : 1400
+            if newValue {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    cameraPosition = .camera(
+                        MapCamera(centerCoordinate: coord, distance: 800)
                     )
-                )
+                }
             }
         }
     }
@@ -66,9 +63,9 @@ extension EventMapView {
     
     private var enableMapButton: some View {
         Button {
-            disableMap = false
+            disableMap.toggle()
         } label: {
-            Text("Enable Map")
+            Text(disableMap ? "Enable Map" : "Disable Map")
                 .font(.body(10, .bold))
                 .foregroundStyle(Color.black)
                 .padding(6)

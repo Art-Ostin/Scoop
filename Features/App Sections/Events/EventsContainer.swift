@@ -33,7 +33,7 @@ struct EventsContainer: View {
             .sheet(item: $ui.showEventDetails) {event in
                 NavigationStack { EventDetails(vm: vm, event: event)}
             }
-            .animation(.easeInOut(duration: 1), value: disableMap)
+            .animation(.easeInOut(duration: 0.2), value: disableMap)
         }
     }
 }
@@ -79,6 +79,7 @@ extension EventsContainer {
                 
                 EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
                     .scaleEffect(!disableMap ? 1.03 : 1)
+                
                 CoreInfoPage(event: eventProfile.event)
                 Text("Can't Make It?")
                     .frame(maxWidth: .infinity, alignment: .trailing)
