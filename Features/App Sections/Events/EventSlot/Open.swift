@@ -12,6 +12,7 @@ struct EventMapView: View {
     
     let event: UserEvent
     let imageSize: CGFloat
+    @Binding var disableMap: Bool
     let openMaps: () -> ()
     
     var coord: CLLocationCoordinate2D  {
@@ -30,7 +31,7 @@ struct EventMapView: View {
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
-            .disabled(true)
+            .disabled(disableMap)
             
             openInMapsButton(event: event)
         }
@@ -38,24 +39,48 @@ struct EventMapView: View {
 }
 
 extension EventMapView {
+    
+    
+    private var enableMapButton: some View {
+        Button {
+            
+        } label: {
+            Text("Enable Map")
+                .font(.body(14, .bold))
+        }
+    }
+    
+    
+    
     private func openInMapsButton(event: UserEvent) -> some View {
         Button {
             openMaps()
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "map")
-                    .font(.body(14, .bold))
-                
-                Text("Open Maps")
-                    .foregroundStyle(Color.blue)
-                    .font(.body(12, .bold))
-            }
-            .padding(.horizontal, 8)
-            .tint(.blue)
-            .padding(.vertical, 6)
-            .glassIfAvailable()
-            .padding(.horizontal)
-            .padding(.vertical, 10)
+            Text("Open Maps")
+                .font(.custom("SFProRounded-Semibold", size: 14))
+                .foregroundStyle(Color.black)
+                .opacity(0.6)
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .underline()
         }
     }
 }
+
+/*
+ HStack(spacing: 6) {
+     Image(systemName: "map")
+         .font(.body(14, .bold))
+     
+     Text("Open Maps")
+         .foregroundStyle(Color.blue)
+         .font(.body(12, .bold))
+ }
+ .padding(.horizontal, 8)
+ .tint(.blue)
+ .padding(.vertical, 6)
+ .glassIfAvailable()
+ .padding(.horizontal)
+ .padding(.vertical, 10)
+
+ */

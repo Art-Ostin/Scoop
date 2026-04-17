@@ -15,6 +15,7 @@ struct EventsContainer: View {
     @State private var profileImages: [String: [UIImage]] = [:]
     
     @State private var imageSize: CGFloat = 0
+    @State private var disableMap: Bool = true
     
     var body: some View {
         
@@ -75,7 +76,7 @@ extension EventsContainer {
                 }
                 EventDetailsView(ui: ui, event: eventProfile.event)                
                 
-                EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
+                EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
                 CoreInfoPage(event: eventProfile.event)
                 Text("Can't Make It?")
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -91,7 +92,7 @@ extension EventsContainer {
         .task { await loadProfileImages(eventProfile.profile)}
         .overlay(alignment: .bottomTrailing) {
             buttonOverlay
-                .padding(.bottom, 24)
+                .padding(.bottom, 96)
                 .padding(.horizontal, 24)
         }
     }
@@ -155,15 +156,19 @@ extension EventsContainer {
     }
     
     private var buttonOverlay: some View {
-    Image("NewMessageIcon") //NewMessageIcon
-        .resizable()
-        .scaledToFit()
-        .frame(width: 22, height: 22)
-        .font(.body(17, .bold))
-        .padding(10)
-        .glassIfAvailable(isClear: true)
-        .padding(24) //Expands Tap Area
-        .contentShape(Rectangle())
-        .padding(-24)
+        Button {
+            
+        } label: {
+            Image("NewMessageIcon") //NewMessageIcon
+                .resizable()
+                .scaledToFit()
+                .frame(width: 22, height: 22)
+                .font(.body(17, .bold))
+                .padding(10)
+                .glassIfAvailable(isClear: true)
+                .padding(24) //Expands Tap Area
+                .contentShape(Rectangle())
+                .padding(-24)
+        }
     }
 }

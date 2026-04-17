@@ -92,7 +92,7 @@ struct EventDetailsView: View {
     }
     
     private var eventDetailsOverlay: some View {
-        Text("Event Details")
+        Text("Details")
             .font(.custom("SFProRounded-Medium", size: 10))
             .foregroundStyle(Color(red: 0.68, green: 0.68, blue: 0.68))
             .padding(.horizontal, 6)
