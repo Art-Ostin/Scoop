@@ -49,6 +49,9 @@ struct EventMapView: View {
                 enableMapButton
             }
         }
+        .surfaceShadow(.floating, strength: !disableMap  ? 1 : 0)
+        
+//        .shadow(color: .black.opacity(!disableMap ? 0.1 : 0), radius: 4, y: 2)
         .onChange(of: disableMap) { _, newValue in
             if newValue {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -72,10 +75,10 @@ extension EventMapView {
                 .foregroundStyle(Color.black)
                 .padding(6)
                 .padding(.horizontal, 2)
-                .stroke(16, lineWidth: 1, color: .accent.opacity(0.2))
+                .stroke(16, lineWidth: 1, color: .accent)
                 .background (
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(.white)
+                        .fill(.white).opacity(0.9)
                 )
                 .contentShape(.rect)
                 .padding()

@@ -72,8 +72,8 @@ extension EventsContainer {
         CustomTabPage(page: .meetingEvent, tabAction: $ui.showMessageScreen) {
             VStack(spacing: 32) {
                 EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                if let time = eventProfile.event.acceptedTime {
-                    LargeClockView(targetTime: time) {}
+                if let time = eventProfile.event.acceptedTime { //For testing change later
+                    LargeClockView(targetTime: Calendar.current.date(byAdding: .hour, value: 7, to: .now)!, showShadow: false) {}
                 }
                 EventDetailsView(ui: ui, event: eventProfile.event)                
                 
@@ -100,7 +100,6 @@ extension EventsContainer {
             geometry.contentOffset.y
         } action: { oldValue, newValue in
             if newValue > 30 {
-                print("Scroll Detected")
                 if disableMap == false {
                     disableMap = true
                 }

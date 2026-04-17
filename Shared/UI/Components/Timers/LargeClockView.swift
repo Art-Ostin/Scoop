@@ -10,6 +10,7 @@ import SwiftUI
 struct LargeClockView: View {
     
     let targetTime: Date
+    var showShadow: Bool = true
     let onFinished: () -> Void
     
     var body: some View {
@@ -38,7 +39,7 @@ struct LargeClockView: View {
         .frame(width: 253, height: 52)
         .background( Color.accent)
         .cornerRadius(15)
-        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+        .shadow(color: .black.opacity(showShadow ?  0.15 : 0), radius: 1, x: 0, y: 2)
     }
     func clockSection(time: Int, sign: String) -> some View {
         HStack(spacing: 5) {
