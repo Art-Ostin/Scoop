@@ -4,8 +4,6 @@
 //
 //  Created by Art Ostin on 16/03/2026.
 //
-
-
 import SwiftUI
 import MapKit
 
@@ -47,17 +45,18 @@ struct EventMapView: View {
         }
         .onAppear {
             cameraPosition = .camera(
-                MapCamera(centerCoordinate: coord, distance: 800)
+                MapCamera(centerCoordinate: coord, distance: 1000)
             )
         }
-        .surfaceShadow(.floating, strength: !disableMap  ? 1 : 0)
+        .surfaceShadow(.floating, strength: !disableMap  ? 0.7 : 0)
         .onChange(of: disableMap) { _, newValue in
-            if newValue {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    cameraPosition = .camera(
-                        MapCamera(centerCoordinate: coord, distance: 800)
+            withAnimation(.easeInOut(duration: newValue ? 0.2 : 0.3)) {
+                cameraPosition = .camera(
+                    MapCamera(
+                        centerCoordinate: coord,
+                        distance: newValue ? 1000 : 1400
                     )
-                }
+                )
             }
         }
     }
