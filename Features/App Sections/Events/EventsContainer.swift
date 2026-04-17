@@ -90,6 +90,7 @@ extension EventsContainer {
             .padding(.bottom, 96)
         }
         .customScrollFade(height: 100, showFade: true)
+        .scrollClipDisabled()
         .task { await loadProfileImages(eventProfile.profile)}
         .overlay(alignment: .bottomTrailing) {
             buttonOverlay
