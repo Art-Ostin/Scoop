@@ -18,6 +18,10 @@ struct EventMapView: View {
     
     private let toggleAnimation = Animation.easeInOut(duration: 0.2)
     
+    private var mapHeight: CGFloat {
+        imageSize > 50 ? imageSize - 24 : imageSize
+    }
+    
     private var defaultCamera: MapCamera {
         MapCamera(centerCoordinate: coord, distance: 1300)
     }
@@ -30,18 +34,27 @@ struct EventMapView: View {
     }
     
     var body: some View {
-        Map(position: $cameraPosition) {
-            Marker(event.location.name ?? "", systemImage: "mappin", coordinate: coord)
-                .tint(.red)
-
-            UserAnnotation()
-                .tint(.blue)
+        ZStack {
+            Map(position: $cameraPosition) {
+                Marker(event.location.name ?? "", systemImage: "mappin", coordinate: coord)
+                    .tint(.red)
+                
+                UserAnnotation()
+                    .tint(.blue)
+            }
+            .allowsHitTesting(!disableMap)
+            
+            if disableMap {
+                TwoFingerActivationOverlay {
+                    enableMapFromGesture()
+                }
+            }
         }
         .tint(.blue)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
+        .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .frame(width: imageSize, height: mapHeight)
         .scaleEffect(disableMap ? 1 : 1.03)
-        .allowsHitTesting(!disableMap)
         .overlay(alignment: .bottomTrailing) {
             openInMapsButton(event: event)
         }
@@ -68,7 +81,6 @@ struct EventMapView: View {
 }
 
 extension EventMapView {
-    
     private var enableMapButton: some View {
         Button {
             withAnimation(toggleAnimation) {
@@ -80,7 +92,7 @@ extension EventMapView {
                 .foregroundStyle(Color.black)
                 .padding(6)
                 .padding(.horizontal, 2)
-                .stroke(16, lineWidth: 1, color: .accent)
+//                .stroke(16, lineWidth: 1, color: .accent)
                 .background (
                     RoundedRectangle(cornerRadius: 12)
                         .fill(.white).opacity(0.9)
@@ -91,7 +103,13 @@ extension EventMapView {
         }
     }
     
-    
+    private func enableMapFromGesture() {
+        guard disableMap else { return }
+        
+        withAnimation(toggleAnimation) {
+            disableMap = false
+        }
+    }
     
     private func openInMapsButton(event: UserEvent) -> some View {
         Button {
@@ -109,6 +127,70 @@ extension EventMapView {
         }
     }
 }
+
+private struct TwoFingerActivationOverlay: UIViewRepresentable {
+    let onActivate: () -> Void
+    
+    func makeUIView(context: Context) -> TouchView {
+        let view = TouchView()
+        view.backgroundColor = .clear
+        view.isMultipleTouchEnabled = true
+        view.onTwoFingerTouch = onActivate
+        return view
+    }
+    
+    func updateUIView(_ uiView: TouchView, context: Context) {
+        uiView.onTwoFingerTouch = onActivate
+    }
+    
+    final class TouchView: UIView {
+        var onTwoFingerTouch: (() -> Void)?
+        private var didTriggerCurrentTouchSequence = false
+        
+        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            triggerIfNeeded(with: event)
+        }
+        
+        override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesMoved(touches, with: event)
+            triggerIfNeeded(with: event)
+        }
+        
+        override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesEnded(touches, with: event)
+            resetIfNeeded(with: event)
+        }
+        
+        override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesCancelled(touches, with: event)
+            didTriggerCurrentTouchSequence = false
+        }
+        
+        private func triggerIfNeeded(with event: UIEvent?) {
+            guard didTriggerCurrentTouchSequence == false else { return }
+            
+            let touchCount = event?.allTouches?.filter {
+                $0.phase != .ended && $0.phase != .cancelled
+            }.count ?? 0
+            
+            guard touchCount >= 2 else { return }
+            didTriggerCurrentTouchSequence = true
+            onTwoFingerTouch?()
+        }
+        
+        private func resetIfNeeded(with event: UIEvent?) {
+            let touchCount = event?.allTouches?.filter {
+                $0.phase != .ended && $0.phase != .cancelled
+            }.count ?? 0
+            
+            if touchCount < 2 {
+                didTriggerCurrentTouchSequence = false
+            }
+        }
+    }
+}
+
 
 
 /*

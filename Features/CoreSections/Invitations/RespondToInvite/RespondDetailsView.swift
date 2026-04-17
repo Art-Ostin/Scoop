@@ -22,7 +22,7 @@ enum DetailInfo: CaseIterable {
     func message(_ event: UserEvent) -> String {
         switch self {
         case .time:
-            return "Choose a time, or suggest a new one, or send '\(event.otherUserName)' a new invite."
+            return "Choose a time, or suggest a new one, or send \(event.otherUserName) a new invite."
         case .message:
             return "Once accepted, you can message to coordinate details and find each other."
         case .event:

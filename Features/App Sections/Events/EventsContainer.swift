@@ -18,7 +18,6 @@ struct EventsContainer: View {
     @State private var imageSize: CGFloat = 0
     @State private var disableMap: Bool = true
     @State private var mapEnabledScrollOffset: CGFloat?
-
     
     var body: some View {
         
@@ -80,6 +79,7 @@ extension EventsContainer {
                 EventDetailsView(ui: ui, event: eventProfile.event)
                 
                 EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
+                    .id("Map")
                 
                 CoreInfoPage(event: eventProfile.event)
                 Text("Can't Make It?")
@@ -90,7 +90,13 @@ extension EventsContainer {
                     
 //                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }
+            .scrollTargetLayout()
             .padding(.bottom, 96)
+            .onChange(of: disableMap) { oldValue, newValue in
+                if newValue == false {
+                    //scrolltoMap
+                }
+            }
         }
         .customScrollFade(height: 100, showFade: true)
         .scrollClipDisabled()
