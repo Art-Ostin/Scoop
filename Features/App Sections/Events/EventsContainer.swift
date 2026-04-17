@@ -4,6 +4,7 @@
 //
 //  Created by Art Ostin on 04/08/2025.
 
+
 import SwiftUI
 
 struct EventsContainer: View {
@@ -79,7 +80,6 @@ extension EventsContainer {
                 EventDetailsView(ui: ui, event: eventProfile.event)
                 
                 EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
-                    .scaleEffect(!disableMap ? 1.03 : 1)
                 
                 CoreInfoPage(event: eventProfile.event)
                 Text("Can't Make It?")
@@ -90,7 +90,6 @@ extension EventsContainer {
                     
 //                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }
-            .animation(.easeInOut(duration: 0.2), value: disableMap)
             .padding(.bottom, 96)
         }
         .customScrollFade(height: 100, showFade: true)

@@ -16,6 +16,12 @@ struct EventMapView: View {
     
     @State private var cameraPosition: MapCameraPosition = .automatic
     
+    private let toggleAnimation = Animation.easeInOut(duration: 0.2)
+    
+    private var defaultCamera: MapCamera {
+        MapCamera(centerCoordinate: coord, distance: 1300)
+    }
+    
     var coord: CLLocationCoordinate2D {
         CLLocationCoordinate2D(
             latitude: event.location.latitude,
@@ -34,6 +40,7 @@ struct EventMapView: View {
         .tint(.blue)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
+        .scaleEffect(disableMap ? 1 : 1.03)
         .allowsHitTesting(!disableMap)
         .overlay(alignment: .bottomTrailing) {
             openInMapsButton(event: event)
@@ -42,16 +49,19 @@ struct EventMapView: View {
             enableMapButton
         }
         .onAppear {
-            cameraPosition = .camera(
-                MapCamera(centerCoordinate: coord, distance: 1300)
-            )
+            cameraPosition = .camera(defaultCamera)
         }
         .surfaceShadow(.floating, strength: !disableMap  ? 0.6 : 0)
-        .onChange(of: disableMap) { _, newValue in
-            if newValue {
-                    cameraPosition = .camera(
-                        MapCamera(centerCoordinate: coord, distance: 1300)
-                    )
+        .animation(toggleAnimation, value: disableMap)
+        .task(id: disableMap) {
+            guard disableMap else { return }
+            await Task.yield()
+            guard disableMap else { return }
+            
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.45)) {
+                    cameraPosition = .camera(defaultCamera)
+                }
             }
         }
     }
@@ -61,7 +71,9 @@ extension EventMapView {
     
     private var enableMapButton: some View {
         Button {
-            disableMap.toggle()
+            withAnimation(toggleAnimation) {
+                disableMap.toggle()
+            }
         } label: {
             Text(disableMap ? "Enable Map" : "Disable Map")
                 .font(.body(10, .bold))
@@ -97,6 +109,7 @@ extension EventMapView {
         }
     }
 }
+
 
 /*
  HStack(spacing: 6) {
