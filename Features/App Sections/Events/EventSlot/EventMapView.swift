@@ -30,6 +30,7 @@ struct EventMapView: View {
             .tint(.blue)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
+            .disabled(true)
             
             openInMapsButton(event: event)
         }

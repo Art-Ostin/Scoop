@@ -30,7 +30,7 @@ extension Color {
     
     static let appBackground = Color(red: 0.42, green: 0.40, blue: 0.30)
         
-    static let background = Color(red: 0.98, green: 0.98, blue: 0.99)
+    static let background = Color(red: 0.99, green: 0.98, blue: 0.97)
 
     static let grayBackground = Color (red: 0.93, green: 0.93, blue: 0.93)
     

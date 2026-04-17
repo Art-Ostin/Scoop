@@ -73,12 +73,7 @@ extension EventsContainer {
                 if let time = eventProfile.event.acceptedTime {
                     LargeClockView(targetTime: time) {}
                 }
-                EventDetailsView(ui: ui, event: eventProfile.event)
-                
-//                timeView(eventProfile: eventProfile)
-                
-                
-                
+                EventDetailsView(ui: ui, event: eventProfile.event)                
                 
                 EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
                 CoreInfoPage(event: eventProfile.event)
@@ -90,9 +85,15 @@ extension EventsContainer {
                     
 //                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }
+            .padding(.bottom, 96)
         }
         .customScrollFade(height: 100, showFade: true)
         .task { await loadProfileImages(eventProfile.profile)}
+        .overlay(alignment: .bottomTrailing) {
+            buttonOverlay
+                .padding(.bottom, 24)
+                .padding(.horizontal, 24)
+        }
     }
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
@@ -151,5 +152,18 @@ extension EventsContainer {
     private func fetchEvent(_ profile: UserProfile) -> UserEvent? {
         let eventProfile = vm.events.first { $0.profile.id == profile.id }
         return eventProfile?.event
+    }
+    
+    private var buttonOverlay: some View {
+    Image("NewMessageIcon") //NewMessageIcon
+        .resizable()
+        .scaledToFit()
+        .frame(width: 22, height: 22)
+        .font(.body(17, .bold))
+        .padding(10)
+        .glassIfAvailable(isClear: true)
+        .padding(24) //Expands Tap Area
+        .contentShape(Rectangle())
+        .padding(-24)
     }
 }

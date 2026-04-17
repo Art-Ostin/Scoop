@@ -89,16 +89,16 @@ extension CustomTabPage {
         Button {
             tabAction = true
         } label: {
-            Image("roundMessageIcon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 22, height: 22)
-                .font(.body(17, .bold))
-                .padding(6)
-                .glassIfAvailable(isClear: true)
-                .padding(24) //Expands Tap Area
-                .contentShape(Rectangle())
-                .padding(-24)
+//            Image("") //roundMessageIcon
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 22, height: 22)
+//                .font(.body(17, .bold))
+//                .padding(6)
+//                .glassIfAvailable(isClear: true)
+//                .padding(24) //Expands Tap Area
+//                .contentShape(Rectangle())
+//                .padding(-24)
         }
     }
 }

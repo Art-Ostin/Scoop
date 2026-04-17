@@ -41,14 +41,13 @@ enum TextCoreInfo: CaseIterable {
     }
 }
 
-
 struct CoreInfoPage: View {
     let event: UserEvent
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             ForEach(TextCoreInfo.allCases, id: \.self) { textInfo in
-                eventSection(image: textInfo.image(event: event), text: textInfo.text(event: event))
+                eventSection(type: textInfo)
             }
         }
         .padding(.top, 26)
@@ -90,18 +89,28 @@ struct CoreInfoPage: View {
     }
     
     @ViewBuilder
-    private func eventSection(image: String, text: String) -> some View {
+    private func eventSection(type: TextCoreInfo) -> some View {
         HStack(spacing: 16) {
-            if image == "TickVector" {
+            if type.image(event: event) == "TickVector" {
                 Image("TickVector")
             } else {
-                Text(image)
+                Text(type.image(event: event))
                     .font(.body(16))
             }
-            Text(text)
+            Text("\(type.text(event: event))")
                 .font(.body(15))
-                .lineSpacing(5)
+            +
+            (
+                type == .type ?
+                Text(Image(systemName: "info.circle"))
+                  .font(.body(11, .medium))
+                  .foregroundStyle(Color(red: 0.66, green: 0.66, blue: 0.66))
+                  .baselineOffset(4)
+                :
+                    Text("")
+            )
         }
+        .lineSpacing(5)
         .foregroundStyle(Color(red: 0.25, green: 0.25, blue: 0.25))
     }
 }
