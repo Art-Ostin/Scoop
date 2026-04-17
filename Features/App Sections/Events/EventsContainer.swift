@@ -79,11 +79,24 @@ extension EventsContainer {
                     LargeClockView(targetTime: Calendar.current.date(byAdding: .hour, value: 7, to: .now)!, showShadow: false) {}
                 }
                 EventDetailsView(ui: ui, event: eventProfile.event)
+                    .opacity(disableMap ? 1 : 0.5)
+                    .onTapGesture {
+                        if !disableMap {
+                            disableMap.toggle()
+                        }
+                    }
                 
                 EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
                     .id("Map")
                 
                 CoreInfoPage(event: eventProfile.event)
+                    .opacity(disableMap ? 1 : 0.5)
+                    .onTapGesture {
+                        if !disableMap {
+                            disableMap.toggle()
+                        }
+                    }
+                
                 Text("Can't Make It?")
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .font(.body(14, .bold))
@@ -111,6 +124,12 @@ extension EventsContainer {
             buttonOverlay
                 .padding(.bottom, 96)
                 .padding(.horizontal, 24)
+                .opacity(disableMap ? 1 : 0.5)
+                .onTapGesture {
+                    if !disableMap {
+                        disableMap.toggle()
+                    }
+                }
         }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
@@ -125,12 +144,13 @@ extension EventsContainer {
             }
 
             if let enabledOffset = mapEnabledScrollOffset,
-               abs(newValue - enabledOffset) > 90 {
+               abs(newValue - enabledOffset) > 10 { //Virtually as soon start scrolling disable Maps View
                 disableMap = true
                 mapEnabledScrollOffset = nil
             }
         }
     }
+    
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }

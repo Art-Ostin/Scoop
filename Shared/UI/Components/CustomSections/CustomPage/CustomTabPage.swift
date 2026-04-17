@@ -11,7 +11,7 @@ struct CustomTabPage<Content: View>: View {
     
     @State var scrollViewOffset: CGFloat = 0
     @Binding var tabAction: Bool
-    
+
     let page: Page
     let content: Content
     
