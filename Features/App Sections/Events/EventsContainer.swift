@@ -73,15 +73,22 @@ extension EventsContainer {
                 if let time = eventProfile.event.acceptedTime {
                     LargeClockView(targetTime: time) {}
                 }
-
+                EventDetailsView(ui: ui, event: eventProfile.event)
+                
 //                timeView(eventProfile: eventProfile)
                 
                 
                 
                 
-                EventDetailsView(ui: ui, event: eventProfile.event)
                 EventMapView(event: eventProfile.event, imageSize: imageSize) {openMaps(eventProfile)}
-                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
+                CoreInfoPage(event: eventProfile.event)
+                Text("Can't Make It?")
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .font(.body(14, .bold))
+                    .foregroundStyle(Color.accent)
+                    .padding(.trailing, 24)
+                    
+//                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }
         }
         .customScrollFade(height: 100, showFade: true)

@@ -13,26 +13,30 @@ struct EventDetailsView: View {
     
     let event: UserEvent
     
+    var hasMessage: Bool { event.message?.isEmpty == false }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: hasMessage ? 24 : 28) {
             detailRow
             timeRow
             placeRow
+            messageRow
         }
-        .padding(.top, 26)
-        .padding(.bottom, 22)
+        .padding(.top, hasMessage ? 26 : 22)
+        .padding(.bottom, hasMessage ? 16 : 22)
         .padding(.horizontal, 24)
         .background (
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.white)
         )
-        .stroke(24, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93))
+        .stroke(24, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93)) //Color(red: 0.93, green: 0.93, blue: 0.93)
         .overlay(alignment: .topLeading) {
             eventDetailsOverlay
         }
         .overlay(alignment: .topTrailing) {
             infoOverlay
                 .padding()
+                .padding(.vertical, -2)
         }
     }
     
@@ -40,14 +44,13 @@ struct EventDetailsView: View {
         HStack(spacing: 16) {
             Text(event.type.description.emoji)
                 .offset(x: -3)
-            (
-                Text("\(event.type.description.label): ")
-                +
-                Text(event.message ?? "")
-                   .font(.footnote)
-                   .foregroundStyle(Color.gray)
-            )
-            Spacer()
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(event.type.longTitle)")
+//                Text(event.message ?? "")
+//                   .font(.footnote)
+//                   .foregroundStyle(Color.gray)
+            }
         }
         .font(.body(18, .medium))
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -55,13 +58,32 @@ struct EventDetailsView: View {
     }
     
     private var timeRow: some View{
-        HStack(spacing: 24) {
-            Image("MiniClockIcon")
-                .scaleEffect(1.1)
+        HStack(spacing: 18) {
+            Image("Clock")
+                .resizable()
+                .frame(width: 20, height: 20)
+                .offset(x: -4)
             if let acceptedTime =  event.acceptedTime {
                 Text(FormatEvent.dayAndTime(acceptedTime, withHour:  true))
                     .font(.body(18, .medium))
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var messageRow: some View {
+        if let message = event.message {
+            HStack(spacing: 18) {
+                Text("💬")
+                    .offset(x: -2)
+                
+                Text(message)
+                    .font(.body(14))
+                    .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
+                    .lineSpacing(6)
+                    .kerning(0.2)
+            }
+            .padding(.top, -4)
         }
     }
     
