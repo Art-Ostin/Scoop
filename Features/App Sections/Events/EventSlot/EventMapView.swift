@@ -5,6 +5,7 @@
 //  Created by Art Ostin on 16/03/2026.
 //
 
+
 import SwiftUI
 import MapKit
 
@@ -25,33 +26,31 @@ struct EventMapView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Map(position: $cameraPosition) {
-                Marker(event.location.name ?? "", systemImage: "mappin", coordinate: coord)
-                    .tint(.red)
+        Map(position: $cameraPosition) {
+            Marker(event.location.name ?? "", systemImage: "mappin", coordinate: coord)
+                .tint(.red)
 
-                UserAnnotation()
-                    .tint(.blue)
-            }
-            .tint(.blue)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
-            .disabled(disableMap)
-            .onAppear {
-                cameraPosition = .camera(
-                    MapCamera(centerCoordinate: coord, distance: 800)
-                )
-            }
-
+            UserAnnotation()
+                .tint(.blue)
+        }
+        .tint(.blue)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .frame(width: imageSize, height: imageSize > 50 ? imageSize - 24 : imageSize)
+        .allowsHitTesting(!disableMap)
+        .overlay(alignment: .bottomTrailing) {
             openInMapsButton(event: event)
-
+        }
+        .overlay(alignment: .topTrailing) {
             if disableMap {
                 enableMapButton
             }
         }
+        .onAppear {
+            cameraPosition = .camera(
+                MapCamera(centerCoordinate: coord, distance: 800)
+            )
+        }
         .surfaceShadow(.floating, strength: !disableMap  ? 1 : 0)
-        
-//        .shadow(color: .black.opacity(!disableMap ? 0.1 : 0), radius: 4, y: 2)
         .onChange(of: disableMap) { _, newValue in
             if newValue {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -84,7 +83,6 @@ extension EventMapView {
                 .padding()
                 .padding(4)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
     }
     
     

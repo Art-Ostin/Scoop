@@ -16,6 +16,8 @@ struct EventsContainer: View {
     
     @State private var imageSize: CGFloat = 0
     @State private var disableMap: Bool = true
+    @State private var scrollOffset: CGFloat = 0
+    @State private var mapEnabledScrollOffset: CGFloat?
     
     var body: some View {
         
@@ -33,7 +35,7 @@ struct EventsContainer: View {
             .sheet(item: $ui.showEventDetails) {event in
                 NavigationStack { EventDetails(vm: vm, event: event)}
             }
-            .animation(.easeInOut(duration: 1), value: disableMap)
+            .animation(.easeInOut(duration: 0.2), value: disableMap)
         }
     }
 }
@@ -51,6 +53,7 @@ extension EventsContainer {
         }
         .scrollIndicators(.hidden)
         .customScrollFade(height: 100, showFade: true)
+        .scrollClipDisabled()
     }
     
     private var eventPages: some View {
@@ -75,7 +78,7 @@ extension EventsContainer {
                 if let time = eventProfile.event.acceptedTime { //For testing change later
                     LargeClockView(targetTime: Calendar.current.date(byAdding: .hour, value: 7, to: .now)!, showShadow: false) {}
                 }
-                EventDetailsView(ui: ui, event: eventProfile.event)                
+                EventDetailsView(ui: ui, event: eventProfile.event)
                 
                 EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
                 CoreInfoPage(event: eventProfile.event)
@@ -84,8 +87,8 @@ extension EventsContainer {
                     .font(.body(14, .bold))
                     .foregroundStyle(Color.accent)
                     .padding(.trailing, 24)
-                    
-//                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
+                
+                //                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }
             .padding(.bottom, 96)
         }
@@ -98,12 +101,20 @@ extension EventsContainer {
         }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
-        } action: { oldValue, newValue in
-            if newValue > 30 {
-                if disableMap == false {
-                    disableMap = true
-                }
+        } action: { _, newValue in
+            scrollOffset = newValue
+            
+            guard disableMap == false, let mapEnabledScrollOffset else {
+                return
             }
+            
+            if abs(newValue - mapEnabledScrollOffset) > 100 {
+                disableMap = true
+                self.mapEnabledScrollOffset = nil
+            }
+        }
+        .onChange(of: disableMap) { _, newValue in
+            mapEnabledScrollOffset = newValue ? nil : scrollOffset
         }
     }
     private func openMaps(_ eventProfile: EventProfile) {
@@ -179,6 +190,47 @@ extension EventsContainer {
                 .padding(24) //Expands Tap Area
                 .contentShape(Rectangle())
                 .padding(-24)
+        }
+    }
+}
+
+struct TwoFingerEnableOverlay: UIViewRepresentable {
+    let onEnable: () -> Void
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+
+        let press = UILongPressGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handlePress(_:))
+        )
+        press.numberOfTouchesRequired = 2
+        press.minimumPressDuration = 0
+        press.allowableMovement = .greatestFiniteMagnitude
+        press.cancelsTouchesInView = false
+
+        view.addGestureRecognizer(press)
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onEnable: onEnable)
+    }
+
+    final class Coordinator: NSObject {
+        let onEnable: () -> Void
+
+        init(onEnable: @escaping () -> Void) {
+            self.onEnable = onEnable
+        }
+
+        @objc func handlePress(_ gesture: UILongPressGestureRecognizer) {
+            if gesture.state == .began {
+                onEnable()
+            }
         }
     }
 }
