@@ -16,6 +16,8 @@ struct EventsContainer: View {
     
     @State private var imageSize: CGFloat = 0
     @State private var disableMap: Bool = true
+    @State private var mapEnabledScrollOffset: CGFloat?
+
     
     var body: some View {
         
@@ -102,10 +104,19 @@ extension EventsContainer {
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
         } action: { oldValue, newValue in
-            if newValue > 30 {
-                if disableMap == false {
-                    disableMap = true
-                }
+            guard disableMap == false else {
+                mapEnabledScrollOffset = nil
+                return
+            }
+            
+            if mapEnabledScrollOffset == nil {
+                mapEnabledScrollOffset = oldValue
+            }
+
+            if let enabledOffset = mapEnabledScrollOffset,
+               abs(newValue - enabledOffset) > 90 {
+                disableMap = true
+                mapEnabledScrollOffset = nil
             }
         }
     }

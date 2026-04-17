@@ -43,15 +43,15 @@ struct EventMapView: View {
         }
         .onAppear {
             cameraPosition = .camera(
-                MapCamera(centerCoordinate: coord, distance: 800)
+                MapCamera(centerCoordinate: coord, distance: 1300)
             )
         }
-        .surfaceShadow(.floating, strength: !disableMap  ? 0.7 : 0)
+        .surfaceShadow(.floating, strength: !disableMap  ? 0.6 : 0)
         .onChange(of: disableMap) { _, newValue in
             if newValue {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     cameraPosition = .camera(
-                        MapCamera(centerCoordinate: coord, distance: 800)
+                        MapCamera(centerCoordinate: coord, distance: 1300)
                     )
                 }
             }
