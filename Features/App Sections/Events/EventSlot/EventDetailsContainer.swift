@@ -11,7 +11,9 @@ struct EventDetailsContainer: View {
     @Bindable var ui: EventUIState
     let event: UserEvent
     var hasMessage: Bool { event.message?.isEmpty == false }
+    
     @State var selectedTab: Int = 1
+    @State var frameHeight: CGFloat = 0
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -22,7 +24,7 @@ struct EventDetailsContainer: View {
                 EventDetailsInfo()
                     .tag(2)
             }
-            .frame(height: 100)
+            .frame(height: frameHeight)
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .padding(.top, hasMessage ? 26 : 22)
@@ -40,6 +42,9 @@ struct EventDetailsContainer: View {
             infoOverlay
                 .padding()
                 .padding(.vertical, -2)
+        }
+        .onPreferenceChange(EventDetailsHeight.self) { measuredFrameHeight in
+            frameHeight = measuredFrameHeight
         }
     }
 }
@@ -70,5 +75,14 @@ extension EventDetailsContainer {
         Image(systemName: "info.circle")
             .font(.body(13, .medium))
             .foregroundStyle(Color(red: 0.66, green: 0.66, blue: 0.66))
+    }
+}
+
+
+struct EventPageHeightPreference: PreferenceKey {
+    static var defaultValue: CGFloat = 150
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value += nextValue()
     }
 }

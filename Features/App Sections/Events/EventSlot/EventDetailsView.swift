@@ -21,6 +21,11 @@ struct EventDetailsView: View {
             InviteCardPlaceRow(location: event.location, isMeetUp: true)
             detailRow
         }
+        .measure(key: EventDetailsHeight.self) { geo in
+           let height =  geo.size.height
+            print("HEigh is \(height)")
+            return height
+        }
     }
     
     private var detailRow: some View {
@@ -31,8 +36,9 @@ struct EventDetailsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(event.type.longTitle)")
                 Text(event.message ?? "")
-                   .font(.footnote)
-                   .foregroundStyle(Color.gray)
+                    .font(.footnote)
+                    .foregroundStyle(Color.gray)
+                    .layoutPriority(1)
             }
         }
         .font(.body(18, .medium))
@@ -52,82 +58,12 @@ struct EventDetailsView: View {
             }
         }
     }
-    
-    private var placeRow: some View {
-        InviteCardPlaceRow(location: event.location, isMeetUp: true)
-    }
-        
 }
 
-
-
-/*
- .padding(.top, hasMessage ? 26 : 22)
- .padding(.bottom, hasMessage ? 16 : 22)
- .padding(.horizontal, 24)
- .background (
-     RoundedRectangle(cornerRadius: 24)
-         .fill(Color.white)
- )
- .stroke(24, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93)) //Color(red: 0.93, green: 0.93, blue: 0.93)
- .overlay(alignment: .topLeading) {
-     eventDetailsOverlay
- }
- .overlay(alignment: .bottomTrailing) {
-     infoOverlay
-         .padding()
-         .padding(.vertical, -2)
- }
-
- */
-
-/*
- 
- 
- private func clockView(_ time: Date) -> some View {
-     LargeClockView(targetTime: time) {}
-         .onTapGesture {ui.showEventDetails = event}
- }
-
- 
- if let time = event.acceptedTime {
-     timeAndPlaceView(time)
-     clockView(time)
- }
- */
-
-/*
- private func timeAndPlaceView(_ time: Date) -> some View {
-     VStack(spacing: 14) {
-         Text(FormatEvent.dayAndTime(time))
-         Button {
-             openInMaps()
-         } label :  {
-             Text(FormatEvent.placeName(event.location))
-                 .foregroundStyle(.accent)
-         }
-     }
-     .font(.body(24, .bold))
-     .multilineTextAlignment(.center)
-     .frame(maxWidth: .infinity, alignment: .center)
- }
-
- @ViewBuilder
- private var messageRow: some View {
-     if let message = event.message {
-         HStack(spacing: 17) {
-             Text("💬")
-                 .offset(x: -2)
-             
-             Text(message)
-                 .font(.body(14))
-                 .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
-                 .lineSpacing(6)
-                 .kerning(0.2)
-         }
-         .padding(.top, -10)
-     }
- }
-
- 
- */
+struct EventDetailsHeight: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value += nextValue()
+    }
+}

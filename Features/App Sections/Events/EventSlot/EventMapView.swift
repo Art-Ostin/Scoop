@@ -111,6 +111,8 @@ extension EventMapView {
         }
     }
     
+    
+    
     private func openInMapsButton(event: UserEvent) -> some View {
         Button {
             withAnimation(.easeInOut(duration: 0.2)) {
