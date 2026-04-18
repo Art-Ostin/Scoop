@@ -16,7 +16,7 @@ struct ChatScrollView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 4) {
-                    ClearRectangle(size: isEvent ? 0 : 72)
+                    ClearRectangle(size: 72)
                     ChatEventView(event: vm.eventProfile.event)
 //                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
 //                        MessageSection(vm: vm, idx: idx, message: chat)

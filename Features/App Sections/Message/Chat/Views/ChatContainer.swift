@@ -17,7 +17,6 @@ struct ChatContainer: View {
     @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [UIImage] = []
     @FocusState private var isFocused
-    
     var isEvent = true
     
     var body: some View {
@@ -28,21 +27,42 @@ struct ChatContainer: View {
                 profileView
             }
         }
-        .overlay(alignment: .top) {if !isEvent {chatHeaderBar}}
+        .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
         .task { profileImages = await vm.loadImages(profile: vm.eventProfile)}
         .hideTabBar()
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                
-                ProfileButton(image: vm.image, profile: profile, dismissOffset: $dismissOffset, isProfileOpen: $isProfileOpen, isFocused: isFocused)
-            }
-        }
+        .toolbar(.hidden)
     }
 }
 
 //Other Views
 extension ChatContainer {
+    
+    @ViewBuilder
+    private var profileButtonMessage: some View {
+        if !isEvent {
+            Button {
+                openProfile()
+            } label: {
+                HStack(spacing: 6) {
+                    CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
+                        .scaleEffect(0.9)
+                    
+                    Text(vm.eventProfile.profile.name)
+                        .font(.body(16, .bold))
+                }
+                .padding(.horizontal, -4)
+                .padding(.vertical, -3)
+            }
+        }
+    }
+    
+    private func openProfile() {
+        isFocused = false
+        dismissOffset = nil
+        withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = vm.eventProfile.profile}
+    }
+
     
     private var chatHeaderBar: some View {
         ChatHeaderBar(

@@ -31,7 +31,7 @@ struct MessagesContainer: View {
                     messagesAppearHereView
                 } else {
                     matchesView
-                        .padding(.top, -24)
+                        .padding(.top, -12)
                 }
             }
             .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
@@ -53,7 +53,7 @@ extension MessagesContainer {
                     .padding(.leading, 16)
                 ForEach(vm.events) { eventProfile in
                     NavigationLink {
-                            ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile))
+                        ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
                     } label: {
                         ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
                             .task {
