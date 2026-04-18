@@ -24,7 +24,12 @@ struct EventDetailsContainer: View {
                 EventDetailsInfo()
                     .tag(2)
             }
-            .frame(height: frameHeight)
+            .frame(height: max(frameHeight, 1))
+            .onPreferenceChange(EventDetailsHeight.self) { measuredFrameHeight in
+                print("THe parent Measured Height IS: \(measuredFrameHeight)")
+                frameHeight = measuredFrameHeight
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .padding(.top, hasMessage ? 26 : 22)
@@ -42,9 +47,6 @@ struct EventDetailsContainer: View {
             infoOverlay
                 .padding()
                 .padding(.vertical, -2)
-        }
-        .onPreferenceChange(EventDetailsHeight.self) { measuredFrameHeight in
-            frameHeight = measuredFrameHeight
         }
     }
 }
@@ -78,11 +80,3 @@ extension EventDetailsContainer {
     }
 }
 
-
-struct EventPageHeightPreference: PreferenceKey {
-    static var defaultValue: CGFloat = 150
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
-    }
-}

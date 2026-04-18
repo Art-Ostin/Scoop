@@ -23,7 +23,7 @@ struct EventDetailsView: View {
         }
         .measure(key: EventDetailsHeight.self) { geo in
            let height =  geo.size.height
-            print("HEigh is \(height)")
+            print("the Height is \(height)")
             return height
         }
     }
@@ -39,6 +39,7 @@ struct EventDetailsView: View {
                     .font(.footnote)
                     .foregroundStyle(Color.gray)
                     .layoutPriority(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .font(.body(18, .medium))
@@ -64,6 +65,6 @@ struct EventDetailsHeight: PreferenceKey {
     static var defaultValue: CGFloat = 0
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value += nextValue()
+        value = max(value, nextValue())
     }
 }
