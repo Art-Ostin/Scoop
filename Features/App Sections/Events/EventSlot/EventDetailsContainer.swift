@@ -20,8 +20,10 @@ struct EventDetailsContainer: View {
             TabView(selection: $selectedTab) {
                 EventDetailsView(ui: ui, event: event)
                     .tag(1)
+                    .padding(.horizontal, 24)
                 
                 EventDetailsInfo()
+                    .padding(.horizontal, 24)
                     .tag(2)
             }
             .frame(height: max(frameHeight, 1))
