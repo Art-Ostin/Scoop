@@ -70,7 +70,8 @@ final class EventUIState {
     var showCantMakeIt: UserProfile? = nil
     var selectedProfile: UserProfile? = nil
     var dismissOffset: CGFloat? = nil
+    var deleteLater: Bool = false
     
-    var showMessageScreen: Bool = false
+    var messageProfile: EventProfile?  = nil
 }
 
