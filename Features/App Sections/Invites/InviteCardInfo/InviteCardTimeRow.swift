@@ -25,8 +25,10 @@ extension InviteCardTimeRow {
     }
     
     private var timeView: some View {
-        HStack(spacing: 8) {
-            Image("MiniClockIcon")
+        HStack(spacing: 15) { //8
+            Image("Clock")
+                .resizable()
+                .frame(width: 20, height: 20)
                 .scaleEffect(0.9)
                 .opacity(showTimePopup ? 0.03 : 1)
             timeTitle
@@ -140,4 +142,14 @@ struct InviteCardTimeRowBoundsKey: PreferenceKey {
  } else {
      originalTimeRow(selectedDay: selectedDay)
  }
+ */
+
+//Old Clock
+
+
+/*
+ Image("MiniClockIcon")
+     .scaleEffect(0.9)
+     .opacity(showTimePopup ? 0.03 : 1)
+
  */

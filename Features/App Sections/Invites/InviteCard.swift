@@ -60,9 +60,9 @@ struct InviteCard: View {
          }
         .background(
             RoundedRectangle(cornerRadius: 22)
-                .fill(Color.background)
-                .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
+                .foregroundStyle(Color.background)
         )
+        .surfaceShadow(.floating, strength: 0.4)
         .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
         .sheet(isPresented: $showMessageScreen) {addMessageView}
         .onTapGesture {
@@ -94,10 +94,7 @@ extension InviteCard {
             name: vm.respondDraft.newTime.event.otherUserName
         )
         .presentationBackgroundInteraction(.enabled)
-    }
-    
-    
-    
+    }    
     
     private var profileImage: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
@@ -106,7 +103,6 @@ extension InviteCard {
             .opacity(ui.showTimePopup ? 0.3 : 1)
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
-            .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
     }
 }
 
@@ -118,3 +114,12 @@ struct HideInvitePreferenceKey: PreferenceKey {
         value = nextValue()
     }
 }
+
+/*
+ .background(
+     RoundedRectangle(cornerRadius: 22)
+         .fill(Color.background)
+         .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
+ )
+
+ */
