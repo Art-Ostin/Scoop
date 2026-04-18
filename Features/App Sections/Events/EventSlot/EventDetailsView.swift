@@ -22,16 +22,13 @@ struct EventDetailsView: View {
             detailRow
         }
         .measure(key: EventDetailsHeight.self) { geo in
-           let height =  geo.size.height
-            print("the Height is \(height)")
-            return height
+            return geo.size.height
         }
     }
     
     private var detailRow: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 18) {
             Text(event.type.description.emoji)
-                .offset(x: -3)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(event.type.longTitle)")
@@ -48,11 +45,13 @@ struct EventDetailsView: View {
     }
     
     private var timeRow: some View{
-        HStack(spacing: 18) {
+        HStack(spacing: 22) {
             Image("Clock")
                 .resizable()
                 .frame(width: 20, height: 20)
-                .offset(x: -4)
+                .offset(x: 1)
+            
+            
             if let acceptedTime =  event.acceptedTime {
                 Text(FormatEvent.dayAndTime(acceptedTime, withHour:  true))
                     .font(.body(18, .medium))

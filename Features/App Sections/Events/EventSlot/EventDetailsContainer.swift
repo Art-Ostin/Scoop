@@ -25,16 +25,16 @@ struct EventDetailsContainer: View {
                     .tag(2)
             }
             .frame(height: max(frameHeight, 1))
-            .onPreferenceChange(EventDetailsHeight.self) { measuredFrameHeight in
-                print("THe parent Measured Height IS: \(measuredFrameHeight)")
-                frameHeight = measuredFrameHeight
+            .onPreferenceChange(EventDetailsHeight.self) { height in
+                frameHeight = height
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .padding(.top, hasMessage ? 26 : 22)
         .padding(.bottom, hasMessage ? 16 : 22)
-        .padding(.horizontal, 24)
+        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true, isCardInvite: false)
+        .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: false, isCardInvite: false)
         .background (
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.white)

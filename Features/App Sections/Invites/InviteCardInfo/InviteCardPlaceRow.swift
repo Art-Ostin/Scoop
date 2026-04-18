@@ -29,8 +29,9 @@ extension InviteCardPlaceRow {
     }
         
     private var locationSection: some View {
-        HStack(spacing: isMeetUp ? 24 : 12) {
+        HStack(spacing: isMeetUp ? 28 : 12) {
             Image(isMeetUp ? "GoogleMapsIcon" : "MiniMapIcon")
+                .offset(x: isMeetUp ? 3 : 0)
 //                .scaleEffect(isMeetUp ? 1.2 : 1)
             placeDetails
         }
