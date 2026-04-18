@@ -67,7 +67,7 @@ import FirebaseFirestore
 @Observable
 final class EventUIState {
     var showEventDetails: UserEvent? = nil
-    var showCantMakeIt: UserProfile? = nil
+    var showCantMakeIt: EventProfile? = nil
     var selectedProfile: UserProfile? = nil
     var dismissOffset: CGFloat? = nil
     var deleteLater: Bool = false

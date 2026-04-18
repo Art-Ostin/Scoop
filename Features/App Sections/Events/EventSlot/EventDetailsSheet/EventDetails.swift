@@ -25,8 +25,8 @@ struct EventDetails: View {
                 .font(.body(20, .bold))
                 .padding(.top, 24)
             
-            cantMakeItButton
-                .padding(.top, 24)
+//            cantMakeItButton
+//                .padding(.top, 24)
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 60)
@@ -139,19 +139,19 @@ extension EventDetails {
         return eventDetailsFormat(text1: text1, text2: text2, text3: text3)
     }
     
-    private var cantMakeItButton: some View {
-        NavigationLink {
-            CantMakeIt(vm: vm, event: event)
-                .navigationBarTitleDisplayMode(.inline)
-        } label: {
-            HStack(spacing: 6){
-                Text("Can't make it?")
-            }
-            .font(.body(15, .medium))
-            .foregroundStyle(.accent)
-            .contentShape(Rectangle())
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal)
-        }
-    }
+//    private var cantMakeItButton: some View {
+//        NavigationLink {
+//            CantMakeIt(vm: vm, event: event)
+//                .navigationBarTitleDisplayMode(.inline)
+//        } label: {
+//            HStack(spacing: 6){
+//                Text("Can't make it?")
+//            }
+//            .font(.body(15, .medium))
+//            .foregroundStyle(.accent)
+//            .contentShape(Rectangle())
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//            .padding(.horizontal)
+//        }
+//    }
 }

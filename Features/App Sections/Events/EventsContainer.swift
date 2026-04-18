@@ -39,8 +39,8 @@ struct EventsContainer: View {
             .fullScreenCover(item: $tabProfile) { eventProfile in
                 chatView(eventProfile: eventProfile)
             }
-            .sheet(item: $ui.showEventDetails) {event in
-                NavigationStack { EventDetails(vm: vm, event: event)}
+            .sheet(item: $ui.showCantMakeIt) {eventProfile in
+               CantMakeIt(vm: vm, eventProfile: eventProfile)
             }
         }
     }
@@ -179,11 +179,15 @@ extension EventsContainer {
                         }
                     }
                 
-                Text("Can't Make It?")
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .font(.body(14, .bold))
-                    .foregroundStyle(Color.accent)
-                    .padding(.trailing, 24)
+                Button {
+                    ui.showCantMakeIt = eventProfile
+                } label: {
+                    Text("Can't Make It?")
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .font(.body(14, .bold))
+                        .foregroundStyle(Color.accent)
+                        .padding(.trailing, 24)
+                }
                     
 //                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
             }

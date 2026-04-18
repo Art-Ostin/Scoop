@@ -15,18 +15,17 @@ struct CantMakeIt: View {
     
     let vm: EventViewModel
     
-    let event: UserEvent
+    let eventProfile: EventProfile
     
     var fullTime: String {
-        FormatEvent.dayAndTime(event.acceptedTime ?? Date())
+        FormatEvent.dayAndTime(eventProfile.event.acceptedTime ?? Date())
     }
     
     var hour: String {
-        return event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)) ?? "22"
+        return eventProfile.event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)) ?? "22"
     }
     
     var body: some View {
-
         VStack(alignment: .leading, spacing: 24){
             Text("Can’t Make It?")
                 .font(.body(24, .bold))
@@ -49,7 +48,7 @@ struct CantMakeIt: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             
             VStack(spacing: 16) {
-                Text("Meeting \(event.otherUserName)")
+                Text("Meeting \(eventProfile.event.otherUserName)")
                 
                 Text("\(fullTime) · \(hour)")
             }
@@ -69,7 +68,7 @@ struct CantMakeIt: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "xmark")
                         .font(.body(17, .bold))
                         .foregroundStyle(Color.primary)
                         .padding(14)
@@ -85,7 +84,7 @@ struct CantMakeIt: View {
         .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",cancelTitle: "Back", okTitle: "Confirm", emoji: "🚨", message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", showTwoButtons: true) {
             Task {
                 do {
-                    try await vm.cancelEvent(event: event)
+                    try await vm.cancelEvent(event: eventProfile.event)
                     print("Updated")
                     appState.wrappedValue = .frozen 
                 } catch {
