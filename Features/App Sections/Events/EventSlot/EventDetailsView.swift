@@ -10,6 +10,7 @@ import SwiftUI
 struct EventDetailsView: View {
     
     @Bindable var ui: EventUIState
+    @Binding var selectedTab: Int
     
     let event: UserEvent
     
@@ -27,21 +28,28 @@ struct EventDetailsView: View {
     }
     
     private var detailRow: some View {
-        HStack(spacing: 18) {
-            Text(event.type.description.emoji)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(event.type.longTitle)")
-                Text(event.message ?? "")
-                    .font(.footnote)
-                    .foregroundStyle(Color.gray)
-                    .layoutPriority(1)
-                    .fixedSize(horizontal: false, vertical: true)
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedTab = 2
             }
+        } label: {
+            HStack(spacing: 18) {
+                Text(event.type.description.emoji)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(event.type.longTitle)")
+                    Text(event.message ?? "")
+                        .font(.footnote)
+                        .foregroundStyle(Color.gray)
+                        .layoutPriority(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .font(.body(18, .medium))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, -20)
         }
-        .font(.body(18, .medium))
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.trailing, -20)
     }
     
     private var timeRow: some View{

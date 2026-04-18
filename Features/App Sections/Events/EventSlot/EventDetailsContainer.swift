@@ -18,16 +18,17 @@ struct EventDetailsContainer: View {
     var body: some View {
         ZStack(alignment: .top) {
             TabView(selection: $selectedTab) {
-                EventDetailsView(ui: ui, event: event)
+                EventDetailsView(ui: ui, selectedTab: $selectedTab, event: event)
                     .tag(1)
                     .padding(.horizontal, 24)
                 
-                EventDetailsInfo()
+                EventDetailsInfo(event: event)
                     .padding(.horizontal, 24)
                     .tag(2)
             }
             .frame(height: max(frameHeight, 1))
             .onPreferenceChange(EventDetailsHeight.self) { height in
+                guard height > 0 else { return }
                 frameHeight = height
             }
             .frame(maxWidth: .infinity, alignment: .leading)

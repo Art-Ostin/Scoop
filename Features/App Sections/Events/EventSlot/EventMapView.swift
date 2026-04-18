@@ -19,7 +19,7 @@ struct EventMapView: View {
     private let toggleAnimation = Animation.easeInOut(duration: 0.2)
     
     private var mapHeight: CGFloat {
-        imageSize > 50 ? imageSize - 24 : imageSize
+        imageSize > 50 ? imageSize - 36 : imageSize
     }
     
     private var defaultCamera: MapCamera {
