@@ -25,18 +25,20 @@ struct MessagesContainer: View {
     }
     
     var body: some View {
-        CustomTabPage(page: .pastMatches, tabAction: $showSettingsView) {
-            if vm.events.isEmpty {
-                messagesAppearHereView
-            } else {
-                matchesView
-                    .padding(.top, -24)
+        NavigationStack {
+            CustomTabPage(page: .pastMatches, tabAction: $showSettingsView) {
+                if vm.events.isEmpty {
+                    messagesAppearHereView
+                } else {
+                    matchesView
+                        .padding(.top, -24)
+                }
             }
+            .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
+            .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
+            .overlay(alignment: .topTrailing) {actionBar}
+            .task(id: vm.user.imagePathURL) { await prepareUserImages() }
         }
-        .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
-        .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
-        .overlay(alignment: .topTrailing) {actionBar}
-        .task(id: vm.user.imagePathURL) { await prepareUserImages() }
     }
 }
 
@@ -45,30 +47,26 @@ extension MessagesContainer {
     
     @ViewBuilder
     private var matchesView: some View {
-        NavigationStack {
-            
-        }
-        
-        VStack(spacing: 0) {
-            MapDivider()
-                .padding(.trailing, -20)
-                .padding(.leading, 16)
-            ForEach(vm.events) { eventProfile in
-                NavigationLink {
-                        ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile))
-                } label: {
+            VStack(spacing: 0) {
+                MapDivider()
+                    .padding(.trailing, -20)
+                    .padding(.leading, 16)
+                ForEach(vm.events) { eventProfile in
+                    NavigationLink {
+                            ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile))
+                    } label: {
+                        ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
+                            .task {
+                                firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
+                            }
+                    }
+
                     ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
                         .task {
                             firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
                         }
                 }
-
-                ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
-                    .task {
-                        firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
-                    }
             }
-        }
     }
     
     private var messagesAppearHereView: some View {

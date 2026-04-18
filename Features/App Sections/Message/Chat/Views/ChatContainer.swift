@@ -22,15 +22,22 @@ struct ChatContainer: View {
     
     var body: some View {
         ZStack {
-            ChatScrollView(vm: vm, isFocused: $isFocused)
+            ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
 
             if isProfileOpen != nil {
                 profileView
             }
         }
-        .overlay(alignment: .top) {chatHeaderBar}
+        .overlay(alignment: .top) {if !isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
         .task { profileImages = await vm.loadImages(profile: vm.eventProfile)}
+        .hideTabBar()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                
+                ProfileButton(image: vm.image, profile: profile, dismissOffset: $dismissOffset, isProfileOpen: $isProfileOpen, isFocused: isFocused)
+            }
+        }
     }
 }
 

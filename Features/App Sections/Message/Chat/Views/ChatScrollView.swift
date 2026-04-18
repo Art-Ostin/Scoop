@@ -11,12 +11,12 @@ struct ChatScrollView: View {
     let bottomID = "bottomID"
     @Bindable var vm: ChatViewModel
     var isFocused: FocusState<Bool>.Binding
-    
+    let isEvent: Bool
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 4) {
-                    ClearRectangle(size: 72)
+                    ClearRectangle(size: isEvent ? 0 : 72)
                     ChatEventView(event: vm.eventProfile.event)
 //                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
 //                        MessageSection(vm: vm, idx: idx, message: chat)
