@@ -17,13 +17,15 @@ import UIKit
     let authService: AuthServicing
     let userRepo: UserRepository
     let profilesRepo: ProfilesRepository
+    let chatRepo: ChatRepository
     let eventsRepo: EventsRepository
     let imageLoader: ImageLoading
     
-    init(s: SessionManager, storageService: StorageServicing, defaults: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository, profilesRepo: ProfilesRepository, eventsRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(s: SessionManager, storageService: StorageServicing, defaults: DefaultsManaging, authService: AuthServicing, chatRepo: ChatRepository, userRepo: UserRepository, profilesRepo: ProfilesRepository, eventsRepo: EventsRepository, imageLoader: ImageLoading) {
         self.s = s
         self.storageService = storageService
         self.authService = authService
+        self.chatRepo = chatRepo
         self.userRepo = userRepo
         self.profilesRepo = profilesRepo
         self.eventsRepo = eventsRepo
@@ -33,6 +35,10 @@ import UIKit
         
     func fetchFirstImage() async throws -> UIImage {
         try await imageLoader.fetchFirstImage(profile: user) ?? UIImage()
+    }
+    
+    func fetchFirstProfileImage(profile: UserProfile) async throws -> UIImage {
+        try await imageLoader.fetchFirstImage(profile: profile) ?? UIImage()
     }
     
     var user: UserProfile {s.user}
@@ -46,5 +52,4 @@ import UIKit
     func loadUserImages() async -> [UIImage] {
         return await imageLoader.loadProfileImages(s.user)
     }
-    
 }

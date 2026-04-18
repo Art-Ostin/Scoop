@@ -16,7 +16,9 @@ struct MessagesContainer: View {
     @State var showProfileView = false
     @State var showSettingsView = false
     @State var userProfileImages: [UIImage] = []
+    @State var firstProfileImages: [String : UIImage] = [:]
     
+    @State var selectedProfile: EventProfile? = nil
     
     init(vm: MessagesViewModel) {
         _vm = State(initialValue: vm)
@@ -24,7 +26,12 @@ struct MessagesContainer: View {
     
     var body: some View {
         CustomTabPage(page: .pastMatches, tabAction: $showSettingsView) {
-            messagesAppearHereView
+            if vm.events.isEmpty {
+                messagesAppearHereView
+            } else {
+                matchesView
+                    .padding(.top, -24)
+            }
         }
         .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
         .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
@@ -38,16 +45,28 @@ extension MessagesContainer {
     
     @ViewBuilder
     private var matchesView: some View {
+        NavigationStack {
+            
+        }
         
         VStack(spacing: 0) {
-            ForEach(0..<10) {idx in
-                
-                if let img = userProfileImages.first, img.size != .zero {
-//                    ChatRowView(image: UIImage, event: UserEvent)
-
-                    MapDivider()
-                        .padding(.horizontal, -16)                    
+            MapDivider()
+                .padding(.trailing, -20)
+                .padding(.leading, 16)
+            ForEach(vm.events) { eventProfile in
+                NavigationLink {
+                        ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile))
+                } label: {
+                    ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
+                        .task {
+                            firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
+                        }
                 }
+
+                ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
+                    .task {
+                        firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
+                    }
             }
         }
     }

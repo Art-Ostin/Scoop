@@ -25,6 +25,7 @@ struct CustomTabPage<Content: View>: View {
         ScrollView {
             VStack(spacing: 36) {
                 headerBar
+                    .padding(.horizontal, page == .pastMatches ? 16 : 0)
                 content
             }
             .padding(.bottom, 48)
@@ -36,7 +37,7 @@ struct CustomTabPage<Content: View>: View {
             scrollViewOffset = value[page] ?? 0
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal, 16) //On the Screens 
+        .padding(.horizontal, page != .pastMatches ? 16 : 0) //On the Screens 
         .background(Color(red: 0.99, green: 0.98, blue: 0.97))
     }
 }
