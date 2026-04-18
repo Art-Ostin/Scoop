@@ -29,19 +29,23 @@ struct EventDetailsView: View {
     
     private var detailRow: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
                 selectedTab = 2
-            }
         } label: {
             HStack(spacing: 18) {
                 Text(event.type.description.emoji)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(event.type.longTitle)")
+                        .overlay(alignment: .topTrailing) {
+                            infoOverlay
+                                .offset(y: -4)
+                                .offset(x: 16)
+                        }
                     Text(event.message ?? "")
                         .font(.footnote)
                         .foregroundStyle(Color.gray)
                         .layoutPriority(1)
+                        .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -59,12 +63,17 @@ struct EventDetailsView: View {
                 .frame(width: 20, height: 20)
                 .offset(x: 1)
             
-            
             if let acceptedTime =  event.acceptedTime {
                 Text(FormatEvent.dayAndTime(acceptedTime, withHour:  true))
                     .font(.body(18, .medium))
             }
         }
+    }
+    
+    private var infoOverlay: some View {
+        Image(systemName: "info.circle")
+            .font(.body(10, .medium))
+            .foregroundStyle(Color(red: 0.75, green: 0.75, blue: 0.75))
     }
 }
 

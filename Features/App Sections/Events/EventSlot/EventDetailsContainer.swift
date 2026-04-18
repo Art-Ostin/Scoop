@@ -22,7 +22,7 @@ struct EventDetailsContainer: View {
                     .tag(1)
                     .padding(.horizontal, 24)
                 
-                EventDetailsInfo(event: event)
+                EventDetailsInfo(event: event, selectedTab: $selectedTab)
                     .padding(.horizontal, 24)
                     .tag(2)
             }
@@ -46,11 +46,7 @@ struct EventDetailsContainer: View {
         .overlay(alignment: .topLeading) {
             eventDetailsOverlay
         }
-        .overlay(alignment: .bottomTrailing) {
-            infoOverlay
-                .padding()
-                .padding(.vertical, -2)
-        }
+        .animation(.easeInOut(duration: 0.2), value: selectedTab)
     }
 }
 
@@ -75,11 +71,19 @@ extension EventDetailsContainer {
             .padding(.horizontal, 24)
             .offset(y: -5)
     }
-    
-    private var infoOverlay: some View {
-        Image(systemName: "info.circle")
-            .font(.body(13, .medium))
-            .foregroundStyle(Color(red: 0.66, green: 0.66, blue: 0.66))
-    }
 }
 
+
+/*
+ .overlay(alignment: .bottomTrailing) {
+     infoOverlay
+         .padding()
+         .padding(.vertical, -2)
+ }
+
+ private var infoOverlay: some View {
+     Image(systemName: "info.circle")
+         .font(.body(13, .medium))
+         .foregroundStyle(Color(red: 0.66, green: 0.66, blue: 0.66))
+ }
+ */

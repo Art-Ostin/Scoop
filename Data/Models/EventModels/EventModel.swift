@@ -114,6 +114,19 @@ extension Event.EventType {
         }
     }
     
+    var typeExplanation: String {
+        switch self {
+        case . drink:
+            return "Meet up"
+        case .doubleDate:
+            return "E.g. My friends instagram is @, let do a double dateee if you're down!"
+        case .socialMeet:
+            return "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
+        case .custom:
+            return "E.g. Throwing a house party on Friday, you should come along with your friends"
+        }
+    }
+    
     func howItWorks(userEvent: UserEvent?) -> String {
         if let event = userEvent {
             switch self {
