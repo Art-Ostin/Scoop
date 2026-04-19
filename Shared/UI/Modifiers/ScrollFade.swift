@@ -16,7 +16,7 @@ struct CustomScrollFade: ViewModifier {
         let isDetails = height == 80
         let isLanguage = height == 48
         content
-            .overlay(alignment: .top){
+            .overlay(alignment: .top) {
                 if showFade {
                     LinearGradient(
                         colors: [.background, .background.opacity(0.9), .background.opacity(0.6), .background.opacity(0.25), .background.opacity(0.0)], startPoint: .top, endPoint: .bottom)

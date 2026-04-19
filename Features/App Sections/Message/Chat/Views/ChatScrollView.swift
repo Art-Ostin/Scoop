@@ -19,41 +19,45 @@ struct ChatScrollView: View {
                     ClearRectangle(size: 72)
                     ChatEventView(event: vm.eventProfile.event)
                     messageScrollSection
-                    ClearRectangle(size: 1).id(bottomID)
+                    ClearRectangle(size: 72).id(bottomID)
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {proxy.scrollTo(bottomID, anchor: .bottom)}
+            .background(Color.blue)
             .customScrollFade(height: 100, showFade: true)
+            
             .scrollIndicators(.hidden)
             .onChange(of: isFocused.wrappedValue) { _, focused in
                 if focused { withAnimation(.easeInOut) { proxy.scrollTo(bottomID, anchor: .bottom) } }
             }
-            .onAppear {proxy.scrollTo(bottomID, anchor: .bottom)}
-            .background(Color(red: 0.96, green: 0.95, blue: 0.92).opacity(0.08))
-            .background(
-                Color(red: 0.96, green: 0.95, blue: 0.92)
-                    .opacity(0.08)
-                    .ignoresSafeArea(.keyboard)
-            )
             .onScrollGeometryChange(for: CGFloat.self) {scrollGeo in
                 scrollGeo.contentOffset.y
             } action: {oldY, newY in
                 //Get total contentOffset for swipe, if big enough swipe, dismiss keyboard.
                 let totalMove = newY - oldY
-                if totalMove < -10 {
+                if totalMove < -30 {
                     isFocused.wrappedValue = false
                 }
             }
         }
     }
     
-    
     private var messageScrollSection: some View {
         ForEach(vm.messages.indices, id: \.self) { idx in
-            Text("Hello World")
             let messageModel  = vm.messages[idx]
             MessageSection(vm: vm, idx: idx, message: messageModel)
         }
     }
 }
+
+/*
+ .background(Color(red: 0.96, green: 0.95, blue: 0.92).opacity(0.08))
+ .background(
+     Color(red: 0.96, green: 0.95, blue: 0.5)
+         .opacity(0.08)
+         .ignoresSafeArea(.keyboard)
+ )
+
+ */

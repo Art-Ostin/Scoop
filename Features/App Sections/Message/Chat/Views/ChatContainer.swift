@@ -35,6 +35,7 @@ struct ChatContainer: View {
         .onAppear {
             vm.fetchImages()
         }
+        .customScrollFade(height: 100, showFade: true)
     }
 }
 
