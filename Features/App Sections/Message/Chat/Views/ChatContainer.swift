@@ -68,7 +68,6 @@ extension ChatContainer {
         withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = vm.eventProfile.profile}
     }
 
-    
     private var chatHeaderBar: some View {
         ChatHeaderBar(
             isProfileOpen: $isProfileOpen,

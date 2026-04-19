@@ -53,7 +53,7 @@ import UIKit
         return await imageLoader.loadProfileImages(s.user)
     }
     
-    func fetchUserMessages(eventId: String) -> [MessageModel] {
+    func fetchUserMessages(eventId: String) async throws -> [MessageModel] {
             if let messages = try? await chatRepo.fetchMessages(eventId: eventId) {
                 return messages
             } else {

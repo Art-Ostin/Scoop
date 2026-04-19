@@ -19,13 +19,12 @@ class ChatViewModel {
     
     var messages: [MessageModel] = []
     
-    init(defaults: DefaultsManaging, session: SessionManager, chatRepo: ChatRepository, imageLoader: ImageLoading, eventProfile: EventProfile, messages: [MessageModel]){
+    init(defaults: DefaultsManaging, session: SessionManager, chatRepo: ChatRepository, imageLoader: ImageLoading, eventProfile: EventProfile) {
         self.defaults = defaults
         self.session = session
         self.chatRepo = chatRepo
         self.imageLoader = imageLoader
         self.eventProfile = eventProfile
-        self.messages = messages
     }
 
     var userId: String {session.user.id}
@@ -42,7 +41,6 @@ class ChatViewModel {
     func loadImages(profile: EventProfile) async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile.profile)
     }
-    
     
     func loadMessages()  {
         Task {

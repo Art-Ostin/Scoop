@@ -60,7 +60,6 @@ extension UIColor {
 extension Font {
     
     enum bodyFontWeight: String {
-        
         case regular = "ModernEra-Regular"
         case medium = "ModernEra-Medium"
         case bold = "ModernEra-Bold"
