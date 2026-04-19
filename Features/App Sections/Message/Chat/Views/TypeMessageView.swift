@@ -53,6 +53,8 @@ extension TypeMessageView {
     }
     
     private func sendMessage() async throws {
+        let messageModel = MessageModel(authorId: vm.userId, recipientId: vm.eventProfile.profile.id, content: text)
+        withAnimation(.easeInOut(duration: 0.2)) {vm.messages.append(messageModel)} 
         try await vm.sendMessage(text: text)
         text = ""
     }

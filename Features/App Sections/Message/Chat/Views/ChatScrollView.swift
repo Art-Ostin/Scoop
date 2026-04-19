@@ -43,7 +43,7 @@ struct ChatScrollView: View {
                     isFocused.wrappedValue = false
                 }
             }
-            .id(vm.messages)
+//            .id(vm.messages)
         }
     }
     
