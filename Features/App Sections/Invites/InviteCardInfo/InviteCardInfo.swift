@@ -18,14 +18,21 @@ struct InviteCardInfo: View {
     let decreasePadding: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
+            
+            
+            
+            
+            
+            
+            
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 CardDetailSection(event: event, type: detail)
             }
         }
         .lineSpacing(4)
-        .padding(.top, 6) //  .padding(.top, decreasePadding ? 6 : 12.25)
-        .padding(.bottom, (RespondUIState.CardLayout.bottomPadding)) //needs bit more padding than 'action' section
+        .padding(.top, 16) //  .padding(.top, decreasePadding ? 6 : 12.25)
+        .padding(.bottom, 20) //needs bit more padding than 'action' section
         .overlay(alignment: .bottomTrailing) {
             cantMakeItButton
         }
@@ -44,7 +51,12 @@ struct InviteCardInfo: View {
                 .contentShape(.rect)
         }
         .padding(-8)
-        .padding(.bottom, 6)
+        .padding(.bottom, 12)
+    }
+    
+    
+    private var timeRow: some View {
+        Text("Hello World")
     }
 }
 

@@ -32,6 +32,7 @@ struct CustomTabPage<Content: View>: View {
         }
         .overlay(alignment: .top) {scrollNavBar}
         .scrollIndicators(.never)
+        .scrollClipDisabled(page == .meet)
         .coordinateSpace(name: page)
         .onPreferenceChange(TitleOffsetsKey.self) { value in
             scrollViewOffset = value[page] ?? 0

@@ -69,6 +69,7 @@ extension MeetContainer {
                 .contentShape(Rectangle())
                 .onTapGesture {openProfile(profile)}
                 .task { await loadProfileImages(profile.profile) }
+                .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
         }
     }
     

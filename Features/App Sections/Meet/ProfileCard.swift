@@ -11,24 +11,20 @@ struct ProfileCard : View {
     
     @Binding var openProfile: UserProfile?
     @Binding var profileInvite: UserProfile?
-    
+    private let cardCornerRadius: CGFloat = 22
+
     let profile: PendingProfile
     let size: CGFloat
         
     var body: some View {
-        Image(uiImage: profile.image)
-            .resizable()
-            .defaultImage(size)
-            .background(
-                RoundedRectangle(cornerRadius: 22)
-                    .foregroundStyle(Color.background)
-            )
-            .customSubtleShadow(strength: 0.8)
-
-        
-        
-        
-//            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+            Image(uiImage: profile.image)
+                .resizable()
+                .defaultImage(size, cardCornerRadius)
+                .background(
+                    RoundedRectangle(cornerRadius: cardCornerRadius)
+                        .fill(Color.background)
+                )
+            .customSubtleShadow(strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
     }
 }
