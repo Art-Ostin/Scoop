@@ -26,6 +26,7 @@ struct CustomScrollFade: ViewModifier {
                         .offset(y: isDetails ? 0.5 : 0)
                         .ignoresSafeArea()
                         .padding(.horizontal, isDetails ? 1 : 0)
+                        .allowsHitTesting(false)
                 }
             }
     }

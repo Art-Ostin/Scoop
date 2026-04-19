@@ -46,7 +46,7 @@ class ChatRepo: ChatRepository {
                 .order(by: MessageModel.Field.dateCreated.rawValue, descending: true)
                 .limit(to: 100)
         }
-        return messages
+        return Array(messages.reversed())
     }
 }
     

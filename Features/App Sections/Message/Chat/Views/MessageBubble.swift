@@ -178,3 +178,137 @@ func textLayoutMetrics(text: String, width: CGFloat, font: UIFont) -> (lineCount
     return (max(1, lineCount), max(0, width - lastUsedRect.maxX))
 }
 
+
+
+struct NewMessageBubble: View {
+    let text: String
+    let time: String
+    let isMyChat: Bool
+    let showsTail: Bool
+
+    init(text: String, time: String, isMyChat: Bool = false, showsTail: Bool = true) {
+        self.text = text
+        self.time = time
+        self.isMyChat = isMyChat
+        self.showsTail = showsTail
+    }
+
+    init(chat: MessageModel, isMyChat: Bool, showsTail: Bool = true) {
+        self.text = chat.content
+        self.time = FormatEvent.hourTime(chat.dateCreated ?? Date())
+        self.isMyChat = isMyChat
+        self.showsTail = showsTail
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.body(16, .medium))
+            .foregroundStyle(isMyChat ? Color.white : Color.black)
+            .lineSpacing(5)
+            .padding(.leading, leadingPadding)
+            .padding(.trailing, trailingPadding)
+            .padding(.top, 10)
+            .padding(.bottom, 18)
+            .background(messageBackground)
+            .overlay(alignment: .bottomTrailing) {
+                Text(time)
+                    .font(.body(10, .regular))
+                    .kerning(1)
+                    .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
+                    .padding(.trailing, isMyChat && showsTail ? 26 : 12)
+                    .padding(.bottom, 6)
+            }
+            .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
+            .padding(.horizontal, 24)
+            .padding(isMyChat ? .leading : .trailing, 48)
+    }
+
+    private var bubbleTail: MessageBubbleTail {
+        guard showsTail else { return .none }
+        return isMyChat ? .trailing : .leading
+    }
+
+    private var bubbleShape: NewMessageBubbleShape {
+        NewMessageBubbleShape(tail: bubbleTail)
+    }
+
+    private var messageBackground: some View {
+        bubbleShape.fill(isMyChat ? Color.accent : Color(uiColor: .systemGray6).opacity(0.8))
+    }
+
+    private var leadingPadding: CGFloat {
+        isMyChat ? 16 : (showsTail ? 30 : 16)
+    }
+
+    private var trailingPadding: CGFloat {
+        isMyChat ? (showsTail ? 74 : 60) : 60
+    }
+}
+
+struct NewMessageBubbleShape: Shape {
+    var tail: MessageBubbleTail = .leading
+    var cornerRadius: CGFloat = 18
+    var tailWidth: CGFloat = 14
+    var tailHeight: CGFloat = 15
+
+    func path(in rect: CGRect) -> Path {
+        switch tail {
+        case .leading:
+            leadingTailPath(in: rect)
+        case .trailing:
+            leadingTailPath(in: rect).applying(
+                CGAffineTransform(translationX: rect.minX + rect.maxX, y: 0)
+                    .scaledBy(x: -1, y: 1)
+            )
+        case .none:
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .path(in: rect)
+        }
+    }
+
+    private func leadingTailPath(in rect: CGRect) -> Path {
+        let tailWidth = min(tailWidth, max(0, rect.width * 0.2))
+        let tailHeight = min(tailHeight, max(0, rect.height * 0.7))
+        let bodyMinX = rect.minX + tailWidth
+        let bodyMaxX = rect.maxX
+        let bodyWidth = max(0, bodyMaxX - bodyMinX)
+        let radius = min(cornerRadius, bodyWidth / 2, rect.height / 2)
+
+        guard bodyWidth > 0, rect.height > 0 else { return Path() }
+
+        var path = Path()
+        path.move(to: CGPoint(x: bodyMinX + radius, y: rect.minY))
+        path.addLine(to: CGPoint(x: bodyMaxX - radius, y: rect.minY))
+        path.addQuadCurve(
+            to: CGPoint(x: bodyMaxX, y: rect.minY + radius),
+            control: CGPoint(x: bodyMaxX, y: rect.minY)
+        )
+        path.addLine(to: CGPoint(x: bodyMaxX, y: rect.maxY - radius))
+        path.addQuadCurve(
+            to: CGPoint(x: bodyMaxX - radius, y: rect.maxY),
+            control: CGPoint(x: bodyMaxX, y: rect.maxY)
+        )
+        path.addLine(to: CGPoint(x: bodyMinX + radius, y: rect.maxY))
+
+        let tip = CGPoint(x: rect.minX + 1, y: rect.maxY)
+        let shoulder = CGPoint(x: bodyMinX, y: rect.maxY - tailHeight)
+
+        path.addCurve(
+            to: tip,
+            control1: CGPoint(x: bodyMinX + 8, y: rect.maxY),
+            control2: CGPoint(x: rect.minX + 7, y: rect.maxY)
+        )
+        path.addCurve(
+            to: shoulder,
+            control1: CGPoint(x: rect.minX + 7, y: rect.maxY - 2),
+            control2: CGPoint(x: bodyMinX, y: rect.maxY - 7)
+        )
+        path.addLine(to: CGPoint(x: bodyMinX, y: rect.minY + radius))
+        path.addQuadCurve(
+            to: CGPoint(x: bodyMinX + radius, y: rect.minY),
+            control: CGPoint(x: bodyMinX, y: rect.minY)
+        )
+        path.closeSubpath()
+        return path
+    }
+}
