@@ -25,7 +25,6 @@ class ChatViewModel {
         self.chatRepo = chatRepo
         self.imageLoader = imageLoader
         self.eventProfile = eventProfile
-        self.messages = messages
     }
 
     var userId: String {session.user.id}
@@ -40,5 +39,15 @@ class ChatViewModel {
     
     func loadImages(profile: EventProfile) async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile.profile)
+    }
+    
+    func fetchImages() {
+        Task {
+            if let loadedMessages = try? await chatRepo.fetchMessages(eventId: eventProfile.event.id) {
+                self.messages = loadedMessages
+            } else {
+                print("No messages Available")
+            }
+        }
     }
 }

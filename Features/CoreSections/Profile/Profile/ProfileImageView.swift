@@ -54,7 +54,7 @@ extension ProfileImageView {
             .tabViewStyle(.page(indexDisplayMode: .never))
             //Apply the shadow after the frame so shadow not included in distance between views
             .frame(height: imageSize)
-            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+//            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
     
     private var imageScroller : some View {
@@ -66,10 +66,15 @@ extension ProfileImageView {
                         Image(uiImage: image)
                             .resizable()
                             .defaultImage(60, 10)
-                            .shadow(color: .black.opacity(selection == index ? 0.2 : 0.15),
-                                    radius: selection == index ? 3 : 1, y: selection == index ? 5 : 2)
+                            .customSubtleShadow(strength: selection == index ? 4 : 0)
+                            .customSubtleShadow(strength: selection == index ? 4 : 0)
+                        
+                        
+                        
+//                            .shadow(color: .black.opacity(selection == index ? 0.2 : 0),
+//                                    radius: selection == index ? 3 : 1, y: selection == index ? 5 : 2)
                             .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index} }
-                            .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
+//                            .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
                     }
                     ClearRectangle(size: 0)
                 }

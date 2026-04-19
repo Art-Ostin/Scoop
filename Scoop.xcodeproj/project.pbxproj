@@ -651,7 +651,6 @@
 		65140B192F55E3F300ED1DDE /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */,
 				65F993CA2F58847400EC810B /* ChatViewModel.swift */,
 				65140B232F55EEF300ED1DDE /* Views */,
 				65140B1A2F55E40700ED1DDE /* Models */,
@@ -933,6 +932,7 @@
 				654C009A2E35689000FFD504 /* UserRepo.swift */,
 				65BFE7DC2E400D3C00B31A58 /* EventsRepo.swift */,
 				652D3D282F2E942000AE491D /* ProfilesRepo.swift */,
+				65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";

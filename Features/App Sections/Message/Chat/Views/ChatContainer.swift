@@ -32,6 +32,9 @@ struct ChatContainer: View {
         .task { profileImages = await vm.loadImages(profile: vm.eventProfile)}
         .hideTabBar()
         .toolbar(.hidden)
+        .onAppear {
+            vm.fetchImages()
+        }
     }
 }
 

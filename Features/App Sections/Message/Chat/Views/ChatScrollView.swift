@@ -18,9 +18,7 @@ struct ChatScrollView: View {
                 LazyVStack(spacing: 4) {
                     ClearRectangle(size: 72)
                     ChatEventView(event: vm.eventProfile.event)
-//                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, chat in
-//                        MessageSection(vm: vm, idx: idx, message: chat)
-//                    }
+                    messageScrollSection
                     ClearRectangle(size: 1).id(bottomID)
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -47,6 +45,15 @@ struct ChatScrollView: View {
                     isFocused.wrappedValue = false
                 }
             }
+        }
+    }
+    
+    
+    private var messageScrollSection: some View {
+        ForEach(vm.messages.indices, id: \.self) { idx in
+            Text("Hello World")
+            let messageModel  = vm.messages[idx]
+            MessageSection(vm: vm, idx: idx, message: messageModel)
         }
     }
 }
