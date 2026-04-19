@@ -13,6 +13,7 @@ struct InviteCardInfo: View {
     let user: UserProfile
     
     @Binding var showQuickInvite: UserProfile?
+    let isNewInvite: Bool
     
     let decreasePadding: Bool
     
@@ -36,7 +37,7 @@ struct InviteCardInfo: View {
         } label: {
             Text("Can't make it?")
                 .font(.body(12, .bold))
-                .foregroundStyle((Color(red: 0.35, green: 0.35, blue: 0.35)))
+                .foregroundStyle(isNewInvite ? .accent : .appGreen)
                 .kerning(0.5)
                 .offset(y: 4)
                 .padding(8)

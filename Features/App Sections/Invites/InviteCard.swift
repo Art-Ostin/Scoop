@@ -62,8 +62,7 @@ struct InviteCard: View {
             RoundedRectangle(cornerRadius: 22)
                 .foregroundStyle(Color.background)
         )
-        .surfaceShadow(.floating, strength: 0.4)
-        .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
+        .customSubtleShadow(strength: 0.8)
         .sheet(isPresented: $showMessageScreen) {addMessageView}
         .onTapGesture {
             if ui.showTimePopup {
@@ -121,5 +120,8 @@ struct HideInvitePreferenceKey: PreferenceKey {
          .fill(Color.background)
          .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
  )
+ //v        .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
+
+ 
 
  */

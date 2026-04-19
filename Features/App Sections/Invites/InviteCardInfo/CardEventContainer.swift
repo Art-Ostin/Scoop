@@ -48,9 +48,9 @@ extension CardEventContainer {
     
     private var tabIndicatorSection: some View {
         HStack(spacing: 6) {
-            tabIndicator(isSelected: selectedTab == .details)
-            tabIndicator(isSelected: selectedTab == .event)
             tabIndicator(isSelected: selectedTab == .message)
+            tabIndicator(isSelected: selectedTab == .event)
+            tabIndicator(isSelected: selectedTab == .details)
         }
         .offset(y: 1)
         .animation(Layout.pageAnimation, value: selectedTab)
@@ -76,12 +76,12 @@ extension CardEventContainer {
     
     private var pageContent: some View {
         TabView(selection: $selectedTab) {
-            infoPage
-                .tag(RespondUIState.Tab.details)
-            eventPage
-                .tag(RespondUIState.Tab.event)
             messagePage
                 .tag(RespondUIState.Tab.message)
+            eventPage
+                .tag(RespondUIState.Tab.event)
+            infoPage
+                .tag(RespondUIState.Tab.details)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .customHorizontalScrollFade(width: 24, showFade: true, fromLeading: true, isCardInvite: true)
@@ -109,7 +109,7 @@ extension CardEventContainer {
     }
     
     private var infoPage: some View {
-        InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite, decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3)
+        InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite, isNewInvite: vm.respondDraft.respondType == .modified, decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3)
             .padding(.horizontal, 24)
             .measure(key: CardEventPageHeightKey.self) { proxy in
                 [.details: proxy.size.height]
@@ -190,14 +190,12 @@ extension CardEventContainer {
             }
         } label: {
             HStack(spacing: 4) {
-                
-                Image(systemName: "chevron.left")
-                    .font(.body(11, .bold))
-
-                
                 Text("event")
                     .font(.body(12, .bold))
                     .foregroundStyle(Palette.secondaryText)
+                
+                Image(systemName: "chevron.right")
+                    .font(.body(11, .bold))
             }
             .foregroundStyle(Palette.secondaryText)
             .padding(5)
@@ -226,21 +224,22 @@ extension CardEventContainer {
             }
         } label: {
             HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.body(11, .bold))
+                    .foregroundStyle(Color.appGreen)
+                
                 Text("event")
                     .font(.body(12, .bold))
-                    .foregroundStyle(Palette.secondaryText)
-
-                
-                Image(systemName: "chevron.right")
-                    .font(.body(11, .bold))
+                    .foregroundStyle(Color.appGreen)
             }
             .foregroundStyle(Palette.secondaryText)
             .padding(5)
             .padding(.horizontal, 6.5)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
-            )
+            .stroke(15, lineWidth: 0.5, color: .black)
+//            .background(
+//                RoundedRectangle(cornerRadius: 24)
+//                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
+//            )
             .offset(y: -2)
         }
     }

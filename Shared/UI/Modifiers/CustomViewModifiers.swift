@@ -83,6 +83,18 @@ private struct SurfaceShadowModifier: ViewModifier {
     }
 }
 
+private struct CustomSubtleShadow: ViewModifier {
+    let strength: Double
+
+    func body(content: Content) -> some View {
+        let clampedStrength = min(max(strength, 0), 1)
+
+        content
+            .shadow(color: .black.opacity(0.05 * clampedStrength), radius: 4, x: 0, y: 0)
+            .shadow(color: .black.opacity(0.07 * clampedStrength), radius: 6, x: 0, y: 7)
+    }
+}
+
 
 
 
@@ -101,6 +113,10 @@ extension View {
 
     func surfaceShadow(_ style: SurfaceShadowStyle = .card, strength: Double = 1) -> some View {
         modifier(SurfaceShadowModifier(style: style, strength: strength))
+    }
+    
+    func customSubtleShadow(strength: Double = 1) -> some View {
+        modifier(CustomSubtleShadow(strength: strength))
     }
     
     func containerShadow(

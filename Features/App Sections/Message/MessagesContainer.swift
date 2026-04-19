@@ -48,9 +48,9 @@ extension MessagesContainer {
     @ViewBuilder
     private var matchesView: some View {
             VStack(spacing: 0) {
-                MapDivider()
-                    .padding(.trailing, -20)
-                    .padding(.leading, 16)
+//                MapDivider()
+//                    .padding(.trailing, -20)
+//                    .padding(.leading, 16)
                 ForEach(vm.events) { eventProfile in
                     NavigationLink {
                         ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)

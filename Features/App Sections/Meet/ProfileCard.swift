@@ -19,7 +19,16 @@ struct ProfileCard : View {
         Image(uiImage: profile.image)
             .resizable()
             .defaultImage(size)
-            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+            .background(
+                RoundedRectangle(cornerRadius: 22)
+                    .foregroundStyle(Color.background)
+            )
+            .customSubtleShadow(strength: 0.8)
+
+        
+        
+        
+//            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
             .overlay(alignment: .bottomLeading) { cardOverlay }
     }
 }
