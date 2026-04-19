@@ -27,13 +27,14 @@ struct ChatScrollView: View {
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
+            .customScrollFade(height: 100, showFade: true, edge: .bottom)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear { scrollToBottom(proxy) }
             .background(Color.background)
             .task(id: vm.messages.count) {
                 try? await scrollToBottomLogic(proxy)
             }
-            .customScrollFade(height: 100, showFade: true)
+            .customScrollFade(height: 160, showFade: true)
             .scrollIndicators(.hidden)
             .onChange(of: isFocused.wrappedValue) { _, focused in
                 if focused { scrollToBottom(proxy, animated: true) }

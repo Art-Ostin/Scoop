@@ -20,12 +20,10 @@ struct ChatContainer: View {
     var isEvent = true
     
     var body: some View {
-        ZStack {
+        ZStack{
+            Color.background.ignoresSafeArea()
             ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
-
-            if isProfileOpen != nil {
-                profileView
-            }
+            if isProfileOpen != nil { profileView}
         }
         .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
@@ -36,6 +34,7 @@ struct ChatContainer: View {
         .onAppear {
             vm.fetchImages()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .customScrollFade(height: 100, showFade: true)
     }
 }
