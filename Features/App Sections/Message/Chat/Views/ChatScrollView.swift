@@ -12,6 +12,9 @@ struct ChatScrollView: View {
     @Bindable var vm: ChatViewModel
     var isFocused: FocusState<Bool>.Binding
     let isEvent: Bool
+    private let messageAnimation = Animation.spring(response: 0.32, dampingFraction: 0.86)
+    @State var isFirstAppear: Bool = true
+    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -19,15 +22,16 @@ struct ChatScrollView: View {
                     ClearRectangle(size: 72)
                     ChatEventView(event: vm.eventProfile.event)
                     messageScrollSection
-                    ClearRectangle(size: 72).id(bottomID)
+                    ClearRectangle(size: isFocused.wrappedValue ? 56 : 48)
+                        .id(bottomID)
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear { scrollToBottom(proxy) }
             .background(Color.background)
-            .onChange(of: vm.messages.count) { _, _ in
-                scrollToBottom(proxy)
+            .task(id: vm.messages.count) {
+                try? await scrollToBottomLogic(proxy)
             }
             .customScrollFade(height: 100, showFade: true)
             .scrollIndicators(.hidden)
@@ -43,7 +47,6 @@ struct ChatScrollView: View {
                     isFocused.wrappedValue = false
                 }
             }
-//            .id(vm.messages)
         }
     }
     
@@ -51,14 +54,23 @@ struct ChatScrollView: View {
         ForEach(vm.messages.indices, id: \.self) { idx in
             let messageModel  = vm.messages[idx]
             MessageSection(vm: vm, idx: idx, message: messageModel)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+    
+    private func scrollToBottomLogic(_ proxy: ScrollViewProxy) async throws {
+        guard !vm.messages.isEmpty else { return }
+        scrollToBottom(proxy, animated: isFirstAppear ? false : true)
+        try? await Task.sleep(for: .milliseconds(50))
+        scrollToBottom(proxy, animated:  isFirstAppear ? false : true)
+        isFirstAppear = false //So it doesn't appear with animation initially
     }
     
     
     private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = false) {
         DispatchQueue.main.async {
             if animated {
-                withAnimation(.easeInOut) { proxy.scrollTo(bottomID, anchor: .bottom) }
+                withAnimation(messageAnimation) { proxy.scrollTo(bottomID, anchor: .bottom) }
             } else {
                 proxy.scrollTo(bottomID, anchor: .bottom)
             }

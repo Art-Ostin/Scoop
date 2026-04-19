@@ -10,6 +10,8 @@ import SwiftUI
 struct TypeMessageView: View {
     @Bindable var vm: ChatViewModel
     @State var text = ""
+    private let messageAnimation = Animation.spring(response: 0.32, dampingFraction: 0.86)
+
     var isFocused: FocusState<Bool>.Binding
 
     var body: some View {
@@ -53,9 +55,10 @@ extension TypeMessageView {
     }
     
     private func sendMessage() async throws {
-        let messageModel = MessageModel(authorId: vm.userId, recipientId: vm.eventProfile.profile.id, content: text)
-        withAnimation(.easeInOut(duration: 0.2)) {vm.messages.append(messageModel)} 
-        try await vm.sendMessage(text: text)
+        let savedText = text
         text = ""
+        let messageModel = MessageModel(authorId: vm.userId, recipientId: vm.eventProfile.profile.id, content: savedText)
+        withAnimation(messageAnimation) {vm.messages.append(messageModel)}
+        try await vm.sendMessage(text: savedText)
     }
 }
