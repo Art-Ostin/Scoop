@@ -29,7 +29,8 @@ struct ChatContainer: View {
         }
         .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
-        .task { profileImages = await vm.loadImages(profile: vm.eventProfile)}
+        .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile)}
+        .task(id: vm.eventProfile.id) { await vm.loadMessages() }
         .hideTabBar()
         .toolbar(.hidden)
         .onAppear {

@@ -41,6 +41,16 @@ class ChatViewModel {
         return await imageLoader.loadProfileImages(profile.profile)
     }
     
+    
+    func loadMessages() async {
+        do {
+            try await fetchMessages()
+        } catch {
+            print("No messages Available")
+        }
+    }
+
+    
     func fetchImages() {
         Task {
             if let loadedMessages = try? await chatRepo.fetchMessages(eventId: eventProfile.event.id) {

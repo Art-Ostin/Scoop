@@ -24,12 +24,15 @@ struct ChatScrollView: View {
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onAppear {proxy.scrollTo(bottomID, anchor: .bottom)}
+            .onAppear { scrollToBottom(proxy) }
             .background(Color.background)
+            .onChange(of: vm.messages.count) { _, _ in
+                scrollToBottom(proxy)
+            }
             .customScrollFade(height: 100, showFade: true)
             .scrollIndicators(.hidden)
             .onChange(of: isFocused.wrappedValue) { _, focused in
-                if focused { withAnimation(.easeInOut) { proxy.scrollTo(bottomID, anchor: .bottom) } }
+                if focused { scrollToBottom(proxy, animated: true) }
             }
             .onScrollGeometryChange(for: CGFloat.self) {scrollGeo in
                 scrollGeo.contentOffset.y
@@ -47,6 +50,17 @@ struct ChatScrollView: View {
         ForEach(vm.messages.indices, id: \.self) { idx in
             let messageModel  = vm.messages[idx]
             MessageSection(vm: vm, idx: idx, message: messageModel)
+        }
+    }
+    
+    
+    private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = false) {
+        DispatchQueue.main.async {
+            if animated {
+                withAnimation(.easeInOut) { proxy.scrollTo(bottomID, anchor: .bottom) }
+            } else {
+                proxy.scrollTo(bottomID, anchor: .bottom)
+            }
         }
     }
 }

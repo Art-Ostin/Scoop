@@ -60,11 +60,6 @@ extension MessagesContainer {
                                 firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
                             }
                     }
-
-                    ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
-                        .task {
-                            firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
-                        }
                 }
             }
     }
