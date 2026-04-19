@@ -25,9 +25,8 @@ struct ChatScrollView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {proxy.scrollTo(bottomID, anchor: .bottom)}
-            .background(Color.blue)
+            .background(Color.background)
             .customScrollFade(height: 100, showFade: true)
-            
             .scrollIndicators(.hidden)
             .onChange(of: isFocused.wrappedValue) { _, focused in
                 if focused { withAnimation(.easeInOut) { proxy.scrollTo(bottomID, anchor: .bottom) } }
