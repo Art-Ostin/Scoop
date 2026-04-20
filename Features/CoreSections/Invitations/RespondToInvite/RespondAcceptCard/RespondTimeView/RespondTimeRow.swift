@@ -89,6 +89,12 @@ extension RespondTimeRow {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .onAppear {
+                if let date = vm.respondDraft.originalInvite.selectedDay {
+                    print("DATE IS HERE: IT Is \(date)")
+                }
+            }
+            
             
             //3. Then have drop down button to select available times or a newTime
             DropDownChevron(showTimePopup: $showTimePopup)
