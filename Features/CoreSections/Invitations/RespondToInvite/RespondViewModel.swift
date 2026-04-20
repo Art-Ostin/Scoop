@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 @Observable
 class RespondViewModel {
     
@@ -27,7 +28,7 @@ class RespondViewModel {
         self.user = user
         self.defaults = defaults
         self.sessionManager = sessionManager
-        self.respondDraft = Self.loadRespondDraft(d: defaults, s: sessionManager, p: user, event: event)
+        self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: user, event: event, currentUserId: sessionManager.user.id)
     }
         
     @MainActor func deleteEventDefault() {
@@ -40,11 +41,11 @@ class RespondViewModel {
         defaults.updateRespondDraft(profileId: user.id, respondDraft: respondDraft)
     }
     
-    private static func loadRespondDraft(d: DefaultsManaging, s: SessionManager, p: UserProfile, event: UserEvent) -> RespondDraft {
-        if let storedDraft = d.fetchRespondDraft(profileId: p.id) {
+    private static func loadRespondDraft(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent, currentUserId: String) -> RespondDraft {
+        if let storedDraft = defaults.fetchRespondDraft(profileId: profile.id) {
             return storedDraft
         } else {
-            return RespondDraft(event: event, userId: p.id)
+            return RespondDraft(event: event, userId: profile.id)
         }
     }
 }

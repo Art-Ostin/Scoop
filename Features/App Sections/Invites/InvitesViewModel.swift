@@ -55,11 +55,6 @@ import SwiftUI
         defaults.deleteRespondDraft(profileId: event.otherUserId)
     }
     
-    //For Defaults to update it
-    func updateEventAcceptedTime(eventId: String, acceptedTime: Date) {
-        
-    }
-    
     func loadImages(profile: UserProfile) async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile)
     }

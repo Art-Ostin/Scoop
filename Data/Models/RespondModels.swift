@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-enum ResponseType: Encodable {
+enum ResponseType: Codable {
     case original, modified, new
 }
 
-struct RespondDraft: Encodable {
+struct RespondDraft: Codable  {
     
     var originalInvite: OriginalInvite
     var newTime: NewTimeDraft { didSet { respondType = .modified}}
@@ -28,12 +28,12 @@ struct RespondDraft: Encodable {
     }
 }
 
-struct OriginalInvite: Encodable {
+struct OriginalInvite: Codable {
     let event: UserEvent
     var selectedDay: Date?
 }
 
-struct NewTimeDraft: Encodable {
+struct NewTimeDraft: Codable {
     let event: UserEvent
     var proposedTimes: ProposedTimes
 }

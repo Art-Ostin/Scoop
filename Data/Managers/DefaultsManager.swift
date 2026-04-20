@@ -132,11 +132,11 @@ extension DefaultsManager {
     
     func updateRespondDraft(profileId: String, respondDraft: RespondDraft) {
         respondDrafts[profileId] = respondDraft
-        persistEventDrafts()
+        persistResponseDrafts()
     }
     
     func fetchRespondDraft(profileId: String) -> RespondDraft? {
-        respondDrafts.removeValue(forKey: profileId)
+        respondDrafts[profileId]
     }
     
     func deleteRespondDraft(profileId: String) {
@@ -154,6 +154,7 @@ private extension DefaultsManager {
         preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue)
             .flatMap(PreferredMapType.init(rawValue:))
         eventDrafts = decode([String: EventDraft].self, for: .eventDrafts) ?? [:]
+        respondDrafts = decode([String: RespondDraft].self, for: .responseDrafts) ?? [:]
     }
     
     func persistResponseDrafts() {
