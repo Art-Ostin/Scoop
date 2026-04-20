@@ -21,8 +21,7 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var recentMapSearches: [RecentPlace] = []
     private(set) var preferredMapType: PreferredMapType?
     private(set) var eventDrafts: [String: EventDraft] = [:]
-    private(set) var responseDrafts: [String : RespondDraft] = [:]
-
+    private(set) var respondDrafts: [String : RespondDraft] = [:]
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -131,16 +130,16 @@ extension DefaultsManager {
 private extension DefaultsManager {
     
     func updateRespondDraft(profileId: String, respondDraft: RespondDraft) {
-        responseDrafts[profileId] = respondDraft
+        respondDrafts[profileId] = respondDraft
         persistEventDrafts()
     }
     
     func fetchRespondDraft(profileId: String) -> RespondDraft? {
-        responseDrafts.removeValue(forKey: profileId)
+        respondDrafts.removeValue(forKey: profileId)
     }
     
     func deleteRespondDraft(profileId: String) {
-        responseDrafts.removeValue(forKey: profileId)
+        respondDrafts.removeValue(forKey: profileId)
         persistResponseDrafts()
     }
 }
@@ -157,11 +156,11 @@ private extension DefaultsManager {
     }
     
     func persistResponseDrafts() {
-        guard !responseDrafts.isEmpty else {
+        guard !respondDrafts.isEmpty else {
             defaults.removeObject(forKey: Keys.responseDrafts.rawValue)
             return
         }
-        encode(responseDrafts, for: .responseDrafts)
+        encode(respondDrafts, for: .responseDrafts)
     }
 
     func persistOnboardingStep() {

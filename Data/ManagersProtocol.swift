@@ -92,10 +92,13 @@ protocol DefaultsManaging: AnyObject {
     func deleteDefaults()
     func advanceOnboarding()
     func retreatOnboarding()
+    func updateRespondDraft(profileId: String, respondDraft: RespondDraft)
+    func deleteRespondDraft(profileId: String)
     func updateRecentMapSearches(title: String, town: String)
     func removeFromRecentMapSearches(place: RecentPlace)
     func updatePreferredMapType(mapType: PreferredMapType?)
     func updateEventDraft(profileId: String, eventDraft: EventDraft)
     func fetchEventDraft(profileId: String) -> EventDraft?
+    func fetchRespondDraft(profileId: String) -> RespondDraft?
     func deleteEventDraft(profileId: String)
 }

@@ -43,14 +43,17 @@ import SwiftUI
         
         session.invites.removeAll { $0.id == eventProfile.id }
         session.events.append(eventProfile)
+        defaults.deleteRespondDraft(profileId: eventProfile.profile.id)
     }
     
     func sendNewInvite(draft: EventDraft, profile: UserProfile) async throws {
         
+        defaults.deleteRespondDraft(profileId: profile.id)
     }
     
     func declineInvite(event: UserEvent) async throws {
         
+        defaults.deleteRespondDraft(profileId: event.otherUserId)
     }
     
     //For Defaults to update it

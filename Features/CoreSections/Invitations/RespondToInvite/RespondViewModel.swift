@@ -29,19 +29,15 @@ class RespondViewModel {
         self.sessionManager = sessionManager
         self.respondDraft = respondDraft
     }
-    
-    func updateDraftTime() {
         
-    }
-    
     @MainActor func deleteEventDefault() {
         let profileId = respondDraft.originalInvite.event.otherUserId
         defaults.deleteEventDraft(profileId: profileId)
         respondDraft.newEvent = EventDraft(initiatorId: sessionManager.user.id, recipientId: profileId)
-    }
+    }    
     
     private func updateDefaults() {
-        
+        defaults.updateRespondDraft(profileId: user.id, respondDraft: respondDraft)
     }
 }
 
