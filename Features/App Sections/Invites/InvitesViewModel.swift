@@ -52,7 +52,6 @@ import SwiftUI
     }
     
     func declineInvite(event: UserEvent) async throws {
-        
         defaults.deleteRespondDraft(profileId: event.otherUserId)
     }
     

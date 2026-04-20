@@ -85,6 +85,7 @@ protocol DefaultsManaging: AnyObject {
     var recentMapSearches: [RecentPlace] { get }
     var preferredMapType: PreferredMapType? { get }
     var eventDrafts: [String: EventDraft] { get }
+    var respondDrafts: [String: RespondDraft] { get }
     func createDraftProfile(user: User)
     func clearSignUpDraft()
     func mutateSignUpDraft(_ mutation: (inout DraftProfile) -> Void)

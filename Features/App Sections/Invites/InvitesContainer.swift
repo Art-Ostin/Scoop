@@ -54,7 +54,7 @@ extension InvitesContainer {
                         image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
                         defaults: vm.defaults,
                         sessionManager: vm.session,
-                        respondDraft: .init(event: invite.event, userId: vm.userId)
+                        event: invite.event
                     ),
                     ui: ui,
                     eventProfile: invite,

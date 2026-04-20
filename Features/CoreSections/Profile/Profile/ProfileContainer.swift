@@ -123,7 +123,7 @@ extension ProfileView {
                     image: profileImages.first ?? UIImage(), user: vm.profile,
                     defaults: vm.defaults,
                     sessionManager: vm.s,
-                    respondDraft: RespondDraft(event: event, userId: vm.userId))
+                    event: event)
             )
         } else {
             InviteTimeAndPlaceView(

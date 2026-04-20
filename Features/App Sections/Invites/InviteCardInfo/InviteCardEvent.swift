@@ -32,7 +32,6 @@ struct InviteCardEvent: View {
 
 extension InviteCardEvent {
     
-    
     private var inviteCardTimeRow: some View {
         InviteCardTimeRow(
             showTimePopup: $ui.showTimePopup,

@@ -38,6 +38,7 @@ final class DefaultsManager: DefaultsManaging {
         recentMapSearches = []
         preferredMapType = nil
         eventDrafts = [:]
+        respondDrafts = [:]
     }
 }
 
@@ -127,7 +128,7 @@ extension DefaultsManager {
 }
 
 //Logic for saving Respond Drafts
-private extension DefaultsManager {
+extension DefaultsManager {
     
     func updateRespondDraft(profileId: String, respondDraft: RespondDraft) {
         respondDrafts[profileId] = respondDraft

@@ -22,12 +22,12 @@ class RespondViewModel {
     
     var responseType: ResponseType {respondDraft.respondType}
     
-    init(image: UIImage, user: UserProfile, defaults: DefaultsManaging, sessionManager: SessionManager, respondDraft: RespondDraft) {
+    init(image: UIImage, user: UserProfile, defaults: DefaultsManaging, sessionManager: SessionManager, event: UserEvent) {
         self.image = image
         self.user = user
         self.defaults = defaults
         self.sessionManager = sessionManager
-        self.respondDraft = respondDraft
+        self.respondDraft = Self.loadRespondDraft(d: defaults, s: sessionManager, p: user, event: event)
     }
         
     @MainActor func deleteEventDefault() {
@@ -38,6 +38,14 @@ class RespondViewModel {
     
     private func updateDefaults() {
         defaults.updateRespondDraft(profileId: user.id, respondDraft: respondDraft)
+    }
+    
+    private static func loadRespondDraft(d: DefaultsManaging, s: SessionManager, p: UserProfile, event: UserEvent) -> RespondDraft {
+        if let storedDraft = d.fetchRespondDraft(profileId: p.id) {
+            return storedDraft
+        } else {
+            return RespondDraft(event: event, userId: p.id)
+        }
     }
 }
 
