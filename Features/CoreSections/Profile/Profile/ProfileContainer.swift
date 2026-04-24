@@ -166,6 +166,7 @@ extension ProfileView {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity)
+        
     }
 }
 

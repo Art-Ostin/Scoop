@@ -119,13 +119,19 @@ extension InvitesContainer {
                 selectedProfile: $ui.selectedProfile,
                 dismissOffset: $ui.dismissOffset,
                 sendInvite: { draft in
-                    // sendInvite
+                    Task {
+                        await respondToProfile(respondType: .newInvite, event: draft, profile: profile)
+                    }
                 },
                 acceptInvite: { acceptInviteModel in
-                    // acceptInvite
+                    Task {
+                        await respondToProfile(respondType: .accepted, profile: profile)
+                    }
                 },
                 declineProfile: { declineProfileId in
-                    // declineProfile
+                    Task {
+                        await respondToProfile(respondType: .decline, profile: profile)
+                    }
                 }
             )
             .id(eventProfile.profile.id)

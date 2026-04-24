@@ -60,7 +60,6 @@ extension InviteCardEvent {
         .opacity(ui.showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!ui.showTimePopup)
     }
-    
 }
  struct QuickInviteTime: PreferenceKey {
      static var defaultValue: Bool = false
