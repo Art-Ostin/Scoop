@@ -173,21 +173,55 @@ extension InvitesContainer {
     
     
     
-    private func respondToProfile(respondType: ProfileResponse, event: EventDraft? = nil, profile: UserProfile) async {
+    private func respondToProfile(
+        respondType: ProfileResponse,
+        event: EventDraft? = nil,
+        originalInvite: OriginalInvite? = nil,
+        newTime: NewTimeDraft? = nil,
+        profile: UserProfile
+    ) async {
         //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         //2. Trigger the Overlay Screen
+        
+        do {
+            try await respondToProfileActions(respondType: respondType, event: event, originalInvite: originalInvite, newTime: newTime, profile: profile)
+        } catch {
+            print("Error Thrown: \(error)")
+        }
         ui.respondedToProfile = respondType
-        
-        try? await Task.sleep(for: .milliseconds(750))
+        try? await Task.sleep(for: .milliseconds(550))
         ui.selectedProfile = nil
-        
-        //3. Actually call the function in the View Model
-        print("Would actually send invite Here")
+
         
         //4.if the minimum of 0.75s done, dismiss the screen overlay
         try? await minDelay
         ui.respondedToProfile = nil
+    }
+    
+    private func respondToProfileActions(
+        respondType: ProfileResponse,
+        event: EventDraft?,
+        originalInvite: OriginalInvite?,
+        newTime: NewTimeDraft?,
+        profile: UserProfile
+    ) async throws {
+        switch respondType {
+        case .accepted:
+            if let originalInvite {
+                try await vm.acceptInvite(acceptedInvite: originalInvite)
+            }
+        case .newTime:
+            if let newTime {
+                try await vm.sendNewTime(newTimeEvent: newTime)
+            }
+        case .newInvite:
+            if let event {
+                try await vm.sendInvite(event: event)
+            }
+        case .decline:
+            try await vm.declineInvite(profile: profile)
+        }
     }
     
     /*
