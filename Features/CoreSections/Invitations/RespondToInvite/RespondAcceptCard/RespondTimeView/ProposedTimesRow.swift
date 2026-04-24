@@ -17,15 +17,21 @@ struct ProposedTimesRow: View {
     
     var body: some View {
         
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: 0) {
             VStack(alignment: .leading, spacing: 0){
                 proposedDays
                 hourIfNeeded
             }
+            .layoutPriority(1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, -12)
+            
             DropDownChevron(showTimePopup: $showTimePopup)
                 .offset(x: isAccept ? 2.6 : 4)
+                .fixedSize()
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
+        .lineSpacing(1)
     }
     
     private var datesText: some View {
@@ -38,7 +44,7 @@ struct ProposedTimesRow: View {
         if dates.count != 3 && isAccept {
             result = result + Text(FormatEvent.hourTime(dates.last ?? Date()))
         }
-        return result.frame(maxWidth: .infinity, alignment: .leading).font(.body(16, .medium))
+        return result.frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -53,9 +59,11 @@ extension ProposedTimesRow {
                 
             } else if dates.count == 1 {
                 Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: true))
-                    .font(.body(16, .medium))
+                    .font(.body(17, .medium))
             } else {
                 datesText
+                    .font(.body(17, .medium))
+                    .minimumScaleFactor(0.8)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
