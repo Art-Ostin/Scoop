@@ -43,8 +43,10 @@ class RespondViewModel {
     
     private static func loadRespondDraft(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent, currentUserId: String) -> RespondDraft {
         if let storedDraft = defaults.fetchRespondDraft(profileId: profile.id) {
+            print("Fetched Response Draft")
             return storedDraft
         } else {
+            print("Created new Response Draft")
             return RespondDraft(event: event, userId: profile.id)
         }
     }

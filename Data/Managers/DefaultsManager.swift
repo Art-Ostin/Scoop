@@ -154,7 +154,8 @@ private extension DefaultsManager {
         preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue)
             .flatMap(PreferredMapType.init(rawValue:))
         eventDrafts = decode([String: EventDraft].self, for: .eventDrafts) ?? [:]
-        respondDrafts = decode([String: RespondDraft].self, for: .responseDrafts) ?? [:]
+        let storedRespondDrafts = decode([String: PersistableRespondDraft].self, for: .responseDrafts) ?? [:]
+        respondDrafts = storedRespondDrafts.mapValues { RespondDraft($0) }
     }
     
     func persistResponseDrafts() {
@@ -162,7 +163,8 @@ private extension DefaultsManager {
             defaults.removeObject(forKey: Keys.responseDrafts.rawValue)
             return
         }
-        encode(respondDrafts, for: .responseDrafts)
+        let dto = respondDrafts.mapValues { PersistableRespondDraft($0) }
+        encode(dto, for: .responseDrafts)
     }
 
     func persistOnboardingStep() {
@@ -202,13 +204,24 @@ private extension DefaultsManager {
     }
 
     private func encode<T: Encodable>(_ value: T, for key: Keys) {
-        guard let data = try? encoder.encode(value) else { return }
-        defaults.set(data, forKey: key.rawValue)
+        do {
+            let data = try encoder.encode(value)
+            defaults.set(data, forKey: key.rawValue)
+        } catch {
+            // TEMP DIAGNOSTIC — remove once persistence bug is resolved.
+            print("⚠️ DefaultsManager.encode failed for key \(key.rawValue) (\(T.self)): \(error)")
+        }
     }
 
     private func decode<T: Decodable>(_ type: T.Type, for key: Keys) -> T? {
         guard let data = defaults.data(forKey: key.rawValue) else { return nil }
-        return try? decoder.decode(type, from: data)
+        do {
+            return try decoder.decode(type, from: data)
+        } catch {
+            // TEMP DIAGNOSTIC — remove once persistence bug is resolved.
+            print("⚠️ DefaultsManager.decode failed for key \(key.rawValue) (\(T.self)): \(error)")
+            return nil
+        }
     }
 
     private enum Keys: String, CaseIterable {
