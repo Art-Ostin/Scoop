@@ -16,8 +16,12 @@ struct InvitesContainer: View {
     @State var profileImages: [String : [UIImage]] = [:]
     @State var showTint: Bool = false
     @State var showTimePopup: Bool = false
-    
     @State var hideInviteTitle: Bool = false
+    
+    @State var confirmAcceptInvite: Bool = false
+    @State var confirmNewTimeInvite: Bool = false
+    @State var confirmSendNewInvite: Bool = false
+    
     
     var body: some View {
         if vm.invites.isEmpty {
@@ -34,6 +38,13 @@ struct InvitesContainer: View {
                 }
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
+            .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            }
+            .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            }
+            .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                
+            }
             .onPreferenceChange(IsTimeOpen.self) { newValue in
                 showTimePopup = newValue
             }
