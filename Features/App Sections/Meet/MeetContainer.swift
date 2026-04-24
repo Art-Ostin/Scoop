@@ -132,7 +132,7 @@ extension MeetContainer {
         let isInvite = event != nil
         //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-        ui.respondedToProfile = isInvite ? .invite : .declined
+        ui.respondedToProfile = isInvite ? .newInvite : .decline
         
         //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
         ui.openProfile = nil

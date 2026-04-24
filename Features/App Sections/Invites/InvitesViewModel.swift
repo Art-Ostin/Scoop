@@ -69,6 +69,9 @@ import SwiftUI
     var showTimePopup: Bool = false
     var dismissOffset: CGFloat? = nil
     
+    var respondedToProfile: ProfileResponse?
+    
+    
     var profileInvite: UserProfile? {
         didSet {
             quickInvite = true
