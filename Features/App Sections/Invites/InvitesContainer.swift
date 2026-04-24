@@ -119,11 +119,11 @@ extension InvitesContainer {
                 selectedProfile: $ui.selectedProfile,
                 dismissOffset: $ui.dismissOffset) { acceptedInvite in
                     Task {
-                        await respondToProfile(respondType: .accepted, profile: profile)
+                        await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: profile)
                     }
                 } sendNewTime: { newTime in
                     Task {
-                        await respondToProfile(respondType: .newTime, profile: profile)
+                        await respondToProfile(respondType: .newTime, newTime: newTime, profile: profile)
                     }
                 } sendInvite: { eventDraft in
                     Task {
@@ -210,22 +210,28 @@ extension InvitesContainer {
         case .accepted:
             if let originalInvite {
                 try await vm.acceptInvite(acceptedInvite: originalInvite)
+            } else {
+                print("NO originalInvite")
             }
         case .newTime:
             if let newTime {
                 try await vm.sendNewTime(newTimeEvent: newTime)
+            } else {
+                print("No New Time Event")
             }
         case .newInvite:
             if let event {
                 try await vm.sendInvite(event: event)
+            } else  {
+                print("No Event to pass in")
             }
         case .decline:
             try await vm.declineInvite(profile: profile)
         }
     }
     
+    
     /*
-     
      switch respondType {
      case .accept:
          try? await respondToProfile(event: event, profile: profile, isNewTime: false)
