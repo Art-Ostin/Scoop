@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+
+enum RespondType {
+    case accept, newTime, newEvent, decline
+}
+
+
 struct InvitesContainer: View {
     
     @State var ui = InvitesUIState()
@@ -27,6 +33,8 @@ struct InvitesContainer: View {
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
                 
                 if ui.quickInvite { quickInvite }
+                
+                
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .onPreferenceChange(IsTimeOpen.self) { newValue in
@@ -148,7 +156,6 @@ extension InvitesContainer {
         }
     }
     
-    
     private func openProfile(_ profile: UserProfile) {
         if ui.selectedProfile == nil {
             ui.dismissOffset = nil
@@ -160,6 +167,69 @@ extension InvitesContainer {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
     }
+    
+    
+    
+    private func respondToProfile(respondType: RespondType, event: EventDraft? = nil, profile: UserProfile) async {
+        //1. Set a minimum of 0.75s timer for the response view to be showing
+        async let minDelay: Void = Task.sleep(for: .milliseconds(750))
+        
+        //2. Trigger the Overlay Screen
+        
+        
+        //3. Actually call the function in the View Model.
+        
+        //4.if the minimum of 0.75s done, dismiss the screen
+        try? await minDelay
+        ui.respondedToProfile = nil
+    }
+    
+    /*
+     
+     switch respondType {
+     case .accept:
+         try? await respondToProfile(event: event, profile: profile, isNewTime: false)
+     case .decline:
+         try? await respondToProfile(profile: profile, isNewTime: false)
+     case .newTime:
+         try? await respondToProfile(event: event, profile: profile, isNewTime: true)
+     }
+     */
+        
+        
+        
+        event: EventDraft? = nil, profile: UserProfile, isNewTime: Bool) async {
+        let isNewEvent = event != nil
+        
+        
+        
+        let isInvite = event != nil
+        
+        
+        
+        
+        
+        ui.respondedToProfile = isInvite ? .invite : .declined
+        
+        //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
+        ui.openProfile = nil
+        ui.quickInvite = false
+        
+        //3. Actually send invite or decline profile
+        if let event {
+            try? await vm.sendInvite(event: event, profile: profile)
+        } else {
+            try? await vm.declineProfile(profile: profile)
+        }
+        
+        //4.if the minimum of 0.75s done, dismiss the screen
+        try? await minDelay
+        ui.respondedToProfile = nil
+    }
+    
+    
+    
+    
     
     private func respondToProfile(draft: EventDraft, profile: UserProfile) async {
         try? await vm.sendNewInvite(draft: draft, profile: profile)

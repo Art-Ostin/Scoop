@@ -106,6 +106,7 @@ struct ProfileView: View {
                     .scaleEffect(1.1)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 6)
+                    .opacity(ui.showRespondPopup ? 0 : 1)
             }
         }
         .hideTabBar()

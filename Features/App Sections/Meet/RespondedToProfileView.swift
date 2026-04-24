@@ -8,9 +8,10 @@
 import SwiftUI
 
 enum ProfileResponse {
-    case invite
     case accepted
-    case declined
+    case newTime
+    case newInvite
+    case decline
 }
 
 struct RespondedToProfileView: View {
@@ -19,16 +20,21 @@ struct RespondedToProfileView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 36) {
             switch response {
-            case .invite:
-                Image("CoolGuys")
-                Text("Invite Sent")
-                    .font(.body(16, .bold))
             case .accepted:
                 Image("DancingCats")
                 Text("Accepted")
                     .font(.body(16, .bold))
                     .foregroundStyle(Color(Color.appGreen))
-            case .declined:
+            case .newTime:
+                Image("DancingCats")
+                Text("Accepted")
+                    .font(.body(16, .bold))
+                    .foregroundStyle(Color(Color.appGreen))
+            case .newInvite:
+                Image("CoolGuys")
+                Text("Invite Sent")
+                    .font(.body(16, .bold))
+            case .decline:
                 Image("Monkey")
                 Text("Declined")
                     .font(.body(16, .bold))
