@@ -12,13 +12,13 @@ struct RespondAcceptContainer: View {
     @Bindable var vm: RespondViewModel
     @Binding var confirmNewTimeInvite: Bool
     @Binding var confirmAcceptInvite: Bool
-    
     @State var ui = RespondUIState()
+    let onDecline: () -> Void
     
     var body: some View {
         
         ZStack(alignment: .top) {
-            RespondAcceptCard(vm: vm, ui: ui, confirmNewTimePopup: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite)
+            RespondAcceptCard(vm: vm, ui: ui, confirmNewTimePopup: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite) { onDecline()}
                 .opacity(ui.showMeetInfo ? 0 : 1)
                 .allowsHitTesting(!ui.showMeetInfo)
                 .zIndex(ui.showMeetInfo ? 0 : 1)

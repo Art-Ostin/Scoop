@@ -31,7 +31,7 @@ struct RespondPopupContainer: View {
     let acceptInvite: (OriginalInvite) -> ()
     let sendNewTime: (NewTimeDraft) -> ()
     let sendNewInvite: (EventDraft) -> ()
-    let declineInvite: (_ id: String) -> ()
+    let declineInvite: (_ event: UserEvent) -> ()
     
     var body: some View {
         ZStack {
@@ -93,7 +93,8 @@ extension RespondPopupContainer {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = false}
-            RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite)
+            RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite) {                declineInvite(vm.respondDraft.originalInvite.event)
+            }
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)

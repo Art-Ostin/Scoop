@@ -12,6 +12,7 @@ struct RespondAcceptCard: View {
     @Bindable var ui: RespondUIState
     @Binding var confirmNewTimePopup: Bool
     @Binding var confirmAcceptInvite: Bool
+    let onDecline: () -> ()
     
     var popupShown: Bool { confirmNewTimePopup || confirmAcceptInvite }
     
@@ -107,7 +108,7 @@ extension RespondAcceptCard {
         let isModified = vm.respondDraft.respondType != .original
         
         HStack {
-            DeclineButton { }
+            DeclineButton { onDecline() }
             Spacer()
             AcceptButton(isModified: isModified, isValid: isValid && !popupShown) {
                 if isModified {

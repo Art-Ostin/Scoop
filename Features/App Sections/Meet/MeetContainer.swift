@@ -98,7 +98,7 @@ extension MeetContainer {
             dismissOffset: $dismissOffset,
             sendInvite: { draft in
                 Task { await respondToProfile(event: draft, profile: profile) }
-            }, declineProfile: {_ in
+            }, declineInvite: {_ in
                 Task { await respondToProfile(profile: profile) }
             }
         )

@@ -30,10 +30,12 @@ struct ProfileView: View {
         draftProfile ?? vm.profile
     }
     
-    let sendInvite: ((EventDraft) -> Void)?
-    let acceptInvite: ((UserEvent) -> Void)?
-    let declineProfile: ((UserEvent?) -> Void)?
-    
+    //Optional Invite as not all event Drafts Require it.
+    let acceptInvite: ((OriginalInvite) -> ())?
+    let sendNewTime: ((NewTimeDraft) -> ())?
+    let sendInvite: ((EventDraft) -> ())?
+    let declineInvite: ((UserEvent?) -> ())?
+
     init(
         vm: ProfileViewModel,
         profileImages: [UIImage],
@@ -41,18 +43,20 @@ struct ProfileView: View {
         dismissOffset: Binding<CGFloat?>,
         draftProfile: UserProfile? = nil,
         isMessageProfile: Bool = false,
+        acceptInvite: ((OriginalInvite) -> Void)? = nil,
+        sendNewTime: ((NewTimeDraft) -> Void)? = nil,
         sendInvite: ((EventDraft) -> Void)? = nil,
-        acceptInvite: ((UserEvent) -> Void)? = nil,
-        declineProfile: ((UserEvent?) -> Void)? = nil
+        declineInvite: ((UserEvent?) -> Void)? = nil,
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
-        self.sendInvite = sendInvite
         self.acceptInvite = acceptInvite
-        self.declineProfile = declineProfile
+        self.sendNewTime = sendNewTime
+        self.sendInvite = sendInvite
+        self.declineInvite = declineInvite
     }
     
     var body: some View {
@@ -71,7 +75,7 @@ struct ProfileView: View {
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                         
                         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event) {
-                            declineProfile?(nil)
+                            declineInvite?(nil)
                         }
                             .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                             .offset(y: detailsSectionOffset())
@@ -119,20 +123,30 @@ extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
         if ui.showRespondPopup, let event = vm.event {
-            RespondPopupContainer (
-                showPopup: $ui.showRespondPopup, vm: RespondViewModel(
-                    image: profileImages.first ?? UIImage(), user: vm.profile,
+            RespondPopupContainer(
+                showPopup: $ui.showRespondPopup,
+                vm: RespondViewModel(
+                    image: profileImages.first ?? UIImage(),
+                    user: vm.profile,
                     defaults: vm.defaults,
                     sessionManager: vm.s,
-                    event: event)
-            )
+                    event: event
+                )) { acceptInviteDraft in
+                    acceptInvite?(acceptInviteDraft)
+                } sendNewTime: { newTimeDraft in
+                    sendNewTime?(newTimeDraft)
+                } sendNewInvite: { eventDraft in
+                    sendInvite?(eventDraft)
+                } declineInvite: { event in
+                    declineInvite?(event)
+                }
         } else {
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, image: profileImages.first ?? UIImage()),
                 showInvite: $ui.showRespondPopup) { event in
                     sendInvite?(event)
                 }
-            }
+        }
     }
     
     private func profileTitle(geo: GeometryProxy) -> some View {

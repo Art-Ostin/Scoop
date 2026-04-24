@@ -117,30 +117,30 @@ extension InvitesContainer {
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset,
-                sendInvite: { draft in
-                    Task {
-                        await respondToProfile(respondType: .newInvite, event: draft, profile: profile)
-                    }
-                },
-                acceptInvite: { acceptInviteModel in
+                dismissOffset: $ui.dismissOffset) { acceptedInvite in
                     Task {
                         await respondToProfile(respondType: .accepted, profile: profile)
                     }
-                },
-                declineProfile: { declineProfileId in
+                } sendNewTime: { newTime in
+                    Task {
+                        await respondToProfile(respondType: .decline, profile: profile)
+                    }
+                } sendInvite: { eventDraft in
+                    Task {
+                        await respondToProfile(respondType: .newInvite, event: eventDraft, profile: profile)
+                    }
+                } declineInvite: { userEvent in
                     Task {
                         await respondToProfile(respondType: .decline, profile: profile)
                     }
                 }
-            )
-            .id(eventProfile.profile.id)
-            .zIndex(1)
-            .transition(.move(edge: .bottom))
+                .id(eventProfile.profile.id)
+                .zIndex(1)
+                .transition(.move(edge: .bottom))
         }
     }
-    
-    @ViewBuilder 
+            
+    @ViewBuilder
     private var quickInvite: some View {
         if let profile = ui.profileInvite {
             InviteTimeAndPlaceView(
@@ -153,7 +153,7 @@ extension InvitesContainer {
                 showInvite: $ui.quickInvite,
                 isNewEvent: true) { draft in
                     Task{ @MainActor in
-                        await respondToProfile(draft: draft, profile: profile)
+                        await respondToProfile(respondType: .newInvite, event: draft, profile: profile)
                     }
                 }
         }
@@ -198,32 +198,55 @@ extension InvitesContainer {
          try? await respondToProfile(event: event, profile: profile, isNewTime: true)
      }
      */
-        
-    
-    
-    
-    
-    
-    private func respondToProfile(draft: EventDraft, profile: UserProfile) async {
-        try? await vm.sendNewInvite(draft: draft, profile: profile)
-    }
-    
-    private func sendInvite(eventDraft: EventDraft) {
-        
-    }
-    
-    private func acceptInvite(eventDraft: UserEvent) {
-        
-    }
-    
-    private func declineProfile(userEvent: UserEvent) {
-        
-    }
 }
 
 /*
  
+ private func respondToProfile(draft: EventDraft, profile: UserProfile) async {
+     try? await vm.sendNewInvite(draft: draft, profile: profile)
+ }
  
+ private func sendInvite(eventDraft: EventDraft) {
+     
+ }
+ 
+ private func acceptInvite(eventDraft: UserEvent) {
+     
+ }
+ 
+ private func declineProfile(userEvent: UserEvent) {
+     
+ }
+
+ 
+ ProfileView(
+     vm: ProfileViewModel(
+         defaults: vm.defaults,
+         s: vm.session,
+         profile: eventProfile.profile,
+         event: eventProfile.event,
+         imageLoader: vm.imageLoader
+     ),
+     profileImages: profileImages[eventProfile.profile.id] ?? [],
+     selectedProfile: $ui.selectedProfile,
+     dismissOffset: $ui.dismissOffset,
+     sendInvite: { draft in
+         Task {
+             await respondToProfile(respondType: .newInvite, event: draft, profile: profile)
+         }
+     },
+     acceptInvite: { acceptInviteModel in
+         Task {
+             await respondToProfile(respondType: .accepted, profile: profile)
+         }
+     },
+     declineProfile: { declineProfileId in
+         Task {
+             await respondToProfile(respondType: .decline, profile: profile)
+         }
+     }
+ )
+}
  
  event: EventDraft? = nil, profile: UserProfile, isNewTime: Bool) async {
  let isNewEvent = event != nil
