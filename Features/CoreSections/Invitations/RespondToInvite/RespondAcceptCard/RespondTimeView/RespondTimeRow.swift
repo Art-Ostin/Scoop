@@ -23,7 +23,7 @@ struct RespondTimeRow: View {
         DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
             timeView
         } dropDown: {
-            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup, isRespondPopup: true)
+            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup, showCustomTime: vm.respondDraft.respondType != .original, isRespondPopup: true)
         }
     }
 }
@@ -48,7 +48,7 @@ extension RespondTimeRow {
     @ViewBuilder
     private var timeTitle: some View {
         if vm.responseType == .modified {
-                ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
+            ProposedTimesRow(dates: vm.respondDraft.newTime.proposedTimes.dates.map(\.date).sorted(), showTimePopup: $showTimePopup, isAccept: true)
         } else {
             selectedTime
         }

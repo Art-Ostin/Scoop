@@ -80,7 +80,7 @@ struct InviteCardTimePopup: View {
                 .frame(maxWidth: .infinity)
                 .accessibilityHidden(true)
         } dropDown: {
-            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup)
+            RespondSelectTime(vm: vm, showTimePopup: $showTimePopup, showCustomTime: vm.respondDraft.respondType != .original)
         }
         .allowsHitTesting(showTimePopup)
     }
