@@ -84,7 +84,7 @@ extension RespondPopupContainer {
                 .onTapGesture {showPopup = false}
             
             
-            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup) {eventDraft in}
+            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup, isNewEvent: true) {eventDraft in}
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)

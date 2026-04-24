@@ -45,11 +45,11 @@ struct InviteTimeAndPlaceView: View {
 struct RespondTimeAndPlaceView: View {
     @Bindable var vm: RespondViewModel
     @Binding var showInvite: Bool
-    
+    var isNewEvent: Bool = false
     let sendInvite: (EventDraft) -> ()
     
     var body: some View {
-        SelectTimeAndPlace(event: $vm.respondDraft.newEvent, showInvite: $showInvite, name: vm.respondDraft.originalInvite.event.otherUserName, image: vm.image, defaults: vm.defaults, respondWithInvite: true) {
+        SelectTimeAndPlace(event: $vm.respondDraft.newEvent, showInvite: $showInvite, name: vm.respondDraft.originalInvite.event.otherUserName, image: vm.image, defaults: vm.defaults, respondWithInvite: true, isNewEvent: isNewEvent) {
             vm.deleteEventDefault()
         } sendInvite: {
             sendInvite(vm.respondDraft.newEvent)
@@ -171,10 +171,10 @@ extension SelectTimeAndPlace {
     private var popupTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text(respondWithInvite ? "New Event" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
+            Text(respondWithInvite ? "New Invite" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
-    }
+    } //respondWithInvite ? "New Event" : (
     
     
     private var sendInviteButton: some View {
