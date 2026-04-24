@@ -45,11 +45,20 @@ struct InviteTimeAndPlaceView: View {
 struct RespondTimeAndPlaceView: View {
     @Bindable var vm: RespondViewModel
     @Binding var showInvite: Bool
+    @Binding var showConfirmSendInvite: Bool
     var isNewEvent: Bool = false
     let sendInvite: (EventDraft) -> ()
     
     var body: some View {
-        SelectTimeAndPlace(event: $vm.respondDraft.newEvent, showInvite: $showInvite, name: vm.respondDraft.originalInvite.event.otherUserName, image: vm.image, defaults: vm.defaults, respondWithInvite: true, isNewEvent: isNewEvent) {
+        SelectTimeAndPlace(
+            event: $vm.respondDraft.newEvent,
+            showInvite: $showInvite,
+            showConfirmSendInvite: $showConfirmSendInvite,
+            name: vm.respondDraft.originalInvite.event.otherUserName,
+            image: vm.image, defaults: vm.defaults,
+            respondWithInvite: true,
+            isNewEvent: isNewEvent
+        ) {
             vm.deleteEventDefault()
         } sendInvite: {
             sendInvite(vm.respondDraft.newEvent)
@@ -62,6 +71,7 @@ struct SelectTimeAndPlace: View {
     
     @Binding var event: EventDraft
     @Binding var showInvite: Bool
+    var showConfirmSendInvite: Binding<Bool>?
     
     let name: String
     let image: UIImage
@@ -71,6 +81,7 @@ struct SelectTimeAndPlace: View {
     
     let deleteEventDefault: () -> ()
     let sendInvite: () -> ()
+    
     
     var isLotsOfText: Bool {
         (event.message?.count ?? 0) > 35
@@ -179,7 +190,11 @@ extension SelectTimeAndPlace {
     
     private var sendInviteButton: some View {
         ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
-            ui.showAlert.toggle()
+            if let showConfirmSendInvite {
+                showConfirmSendInvite.wrappedValue = true
+            } else {
+                ui.showAlert.toggle()
+            }
         }
     }
     
@@ -223,27 +238,3 @@ extension SelectTimeAndPlace {
     }
 //    private var decreaseEventInfoVerticalPadding: some
 }
-
-/*
- private var proposeTwoDaysText: some View {
-     Group {
-         if showTwoDays {
-             Text("Propose at least two days")
-         } else if ui.showTimePopup && event.proposedTimes.dates.count > 1 {
-             HStack(spacing: 0) {
-                 Text("They only accept ")
-                 Text("one day")
-                     .font(.body(12, .bold))
-             }
-         }
-     }
-     .font(.body(12, .regular))
-     .foregroundStyle(Color.grayText)
-     .padding(.horizontal)
-     .background(Color.background)
-     .padding(.top, 64)
-     .zIndex(0)
- }
- .overlay(alignment: .top) {proposeTwoDaysText}
-
- */

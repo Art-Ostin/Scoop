@@ -34,14 +34,14 @@ struct RespondPopupContainer: View {
             GeometryReader { proxy in
                 let cardWidth = proxy.size.width
                 let pageWidth = max(cardWidth - 24, 0)
-
+                
                 ScrollView(.horizontal) {
                     HStack(spacing: 0) {
                         acceptInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth, alignment: .leading)
                             .id(RespondScrollType.acceptPage)
                             .opacity(popupShown ? 0 : 1)
-
+                        
                         counterInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth + 4, alignment: .bottomLeading)
                             .id(RespondScrollType.counterInvitePage)
@@ -65,10 +65,16 @@ struct RespondPopupContainer: View {
                     SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
                 }
             }
-            .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                
             }
-            .customAlert(isPresented: $confirmNewTimeInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                
             }
+            .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                
+            }
+
         }
     }
 }
@@ -98,7 +104,7 @@ extension RespondPopupContainer {
                 .onTapGesture {showPopup = false}
             
             
-            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup, isNewEvent: true) {eventDraft in}
+            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup, showConfirmSendInvite: $confirmSendNewInvite, isNewEvent: true) {eventDraft in}
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
