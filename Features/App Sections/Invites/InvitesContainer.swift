@@ -123,7 +123,7 @@ extension InvitesContainer {
                     }
                 } sendNewTime: { newTime in
                     Task {
-                        await respondToProfile(respondType: .decline, profile: profile)
+                        await respondToProfile(respondType: .newTime, profile: profile)
                     }
                 } sendInvite: { eventDraft in
                     Task {
@@ -178,6 +178,9 @@ extension InvitesContainer {
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         //2. Trigger the Overlay Screen
         ui.respondedToProfile = respondType
+        
+        try? await Task.sleep(for: .milliseconds(750))
+        ui.selectedProfile = nil
         
         //3. Actually call the function in the View Model
         print("Would actually send invite Here")

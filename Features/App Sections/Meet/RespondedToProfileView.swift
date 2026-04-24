@@ -27,9 +27,9 @@ struct RespondedToProfileView: View {
                     .foregroundStyle(Color(Color.appGreen))
             case .newTime:
                 Image("DancingCats")
-                Text("Accepted")
+                Text("NEW TIME SENT")
                     .font(.body(16, .bold))
-                    .foregroundStyle(Color(Color.appGreen))
+                    .foregroundStyle(Color(Color.accent))
             case .newInvite:
                 Image("CoolGuys")
                 Text("Invite Sent")
