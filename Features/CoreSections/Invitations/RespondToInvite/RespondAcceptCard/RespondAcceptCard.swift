@@ -10,6 +10,11 @@ struct RespondAcceptCard: View {
     
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondUIState
+    @Binding var confirmNewTimePopup: Bool
+    @Binding var confirmAcceptInvite: Bool
+    
+    var popupShown: Bool { confirmNewTimePopup || confirmAcceptInvite }
+    
     var event: UserEvent { vm.respondDraft.originalInvite.event}
     typealias layout = RespondUIState.PopupLayout
     
@@ -17,6 +22,7 @@ struct RespondAcceptCard: View {
         VStack(alignment: .leading, spacing: 0) {
             respondTitle
                 .padding(.bottom, layout.titleToTimeSpacing)
+                .opacity(popupShown ? 0 : 1)
             respondTime
                 .padding(.bottom, ui.hasBothMessages(vm.respondDraft) ? 12 : layout.timeToPlaceSpacing)
             respondPlace
@@ -34,6 +40,7 @@ struct RespondAcceptCard: View {
         .padding(.horizontal, ui.hasRespondMessage(vm.respondDraft) ? 24 : 30)
         .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
+        .animation(.easeInOut(duration: 0.2), value: popupShown)
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
     }
 }
@@ -97,10 +104,18 @@ extension RespondAcceptCard {
             ((type == .custom || type == .socialMeet) && timeCount >= 1)
         )
         
+        let isModified = vm.respondDraft.respondType != .original
+        
         HStack {
             DeclineButton { }
             Spacer()
-            AcceptButton(isModified: vm.respondDraft.respondType != .original, isValid: isValid) {}
+            AcceptButton(isModified: isModified, isValid: isValid && !popupShown) {
+                if isModified {
+                    confirmNewTimePopup = true
+                } else {
+                    confirmAcceptInvite = true
+                }
+            }
         }
     }
     

@@ -10,16 +10,20 @@ import SwiftUI
 struct RespondAcceptContainer: View {
     
     @Bindable var vm: RespondViewModel
+    @Binding var confirmNewTimeInvite: Bool
+    @Binding var confirmAcceptInvite: Bool
+    
     @State var ui = RespondUIState()
     
     var body: some View {
         
         ZStack(alignment: .top) {
-            RespondAcceptCard(vm: vm, ui: ui)
+            RespondAcceptCard(vm: vm, ui: ui, confirmNewTimePopup: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite)
                 .opacity(ui.showMeetInfo ? 0 : 1)
                 .allowsHitTesting(!ui.showMeetInfo)
                 .zIndex(ui.showMeetInfo ? 0 : 1)
                 .offset(y: 16)
+                .opacity(confirmNewTimeInvite ? 0 : 1)
             
             RespondDetailsView(event: vm.respondDraft.originalInvite.event, showInfo: $ui.showMeetInfo, image: vm.image)
                 .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))

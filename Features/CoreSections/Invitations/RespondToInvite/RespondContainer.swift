@@ -20,6 +20,14 @@ struct RespondPopupContainer: View {
     @State var scrollPosition: RespondScrollType? = .acceptPage
     @State var lastResponseType: ResponseType? = nil
     
+    
+    //Different Custom Popup
+    @State var confirmNewTimeInvite: Bool = false
+    @State var confirmAcceptInvite: Bool = false
+    @State var confirmSendNewInvite: Bool = false
+    
+    var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
+    
     var body: some View {
         ZStack {
             CustomScreenCover { showPopup = false }
@@ -32,10 +40,12 @@ struct RespondPopupContainer: View {
                         acceptInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth, alignment: .leading)
                             .id(RespondScrollType.acceptPage)
+                            .opacity(popupShown ? 0 : 1)
 
                         counterInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth + 4, alignment: .bottomLeading)
                             .id(RespondScrollType.counterInvitePage)
+                            .opacity(popupShown ? 0 : 1)
                     }
                     .scrollTargetLayout()
                     .padding(.trailing, 16)
@@ -55,6 +65,10 @@ struct RespondPopupContainer: View {
                     SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
                 }
             }
+            .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            }
+            .customAlert(isPresented: $confirmNewTimeInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            }
         }
     }
 }
@@ -66,7 +80,7 @@ extension RespondPopupContainer {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = false}
-            RespondAcceptContainer(vm: vm)
+            RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite)
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
