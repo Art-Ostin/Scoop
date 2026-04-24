@@ -16,10 +16,13 @@ struct InviteCard: View {
     let showTimePopup: Bool
     
     let openProfile: (UserProfile) -> ()
+    let acceptInvite: (OriginalInvite) -> ()
+    let newTime: (NewTimeDraft) -> ()
+    let declineInvite: (UserEvent) -> ()
+
     
     @State private var imageSize: CGFloat = 0
     private let contentPadding: CGFloat = 6
-    
     @State var showMessageScreen = false
     
     var dayCount: Int { vm.respondDraft.newTime.proposedTimes.dates.count}
@@ -33,7 +36,10 @@ struct InviteCard: View {
         ui: InvitesUIState,
         eventProfile: EventProfile,
         showTimePopup: Bool,
-        openProfile: @escaping (UserProfile) -> ()
+        openProfile: @escaping (UserProfile) -> (),
+        acceptInvite: @escaping (OriginalInvite) -> (),
+        inviteNewtime: @escaping (NewTimeDraft) -> (),
+        declineInvite: @escaping (UserEvent) -> ()
     ) {
         _showQuickInvite = showQuickInvite
         _vm = State(initialValue: vm)
@@ -41,6 +47,9 @@ struct InviteCard: View {
         self.eventProfile = eventProfile
         self.showTimePopup = showTimePopup
         self.openProfile = openProfile
+        self.acceptInvite = acceptInvite
+        self.newTime = inviteNewtime
+        self.declineInvite = declineInvite
     }
     
     var body: some View {
@@ -55,19 +64,10 @@ struct InviteCard: View {
                 vm: vm,
                 showQuickInvite: $showQuickInvite,
                 showMessageScreen: $showMessageScreen) { originalInvite in
-                    <#code#>
-                } onDecline: { <#UserEvent#> in
-                    <#code#>
+                    acceptInvite(originalInvite)
+                } onDecline: { userEvent in
+                    declineInvite(userEvent)
                 }
-
-            
-            
-            
-            CardEventContainer(
-                vm: vm,
-                showQuickInvite: $showQuickInvite,
-                showMessageScreen: $showMessageScreen
-            )
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)

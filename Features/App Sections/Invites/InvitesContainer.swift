@@ -53,19 +53,37 @@ extension InvitesContainer {
                 .opacity(showTimePopup ? (hideInviteTitle ? 0.03 : 0.2) : 1)
             
             ForEach(vm.invites, id: \.self) { invite in
+                
                 InviteCard(
                     showQuickInvite: $ui.profileInvite,
                     vm: RespondViewModel(
-                        image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
+                        image: profileImages[invite.profile.id]?.first ?? UIImage(),
+                        user: invite.profile,
                         defaults: vm.defaults,
                         sessionManager: vm.session,
                         event: invite.event
                     ),
                     ui: ui,
                     eventProfile: invite,
-                    showTimePopup: showTimePopup) { profile in
+                    showTimePopup: showTimePopup,
+                    openProfile: { profile in
                         openProfile(profile)
-                    }
+                    },
+                    acceptInvite: { acceptedInvite in
+                        Task {
+                            await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: invite.profile)
+                        }
+                    },
+                    inviteNewtime: { newTime in
+                        Task {
+                            await respondToProfile(respondType: .newTime, newTime: newTime, profile: invite.profile)
+                        }
+                    },
+                    declineInvite: { userEvent in
+                        Task {
+                            await respondToProfile(respondType: .decline, profile: invite.profile)
+                        }
+                    })
                     .task { await loadProfileImages(invite.profile) }
             }
         }
@@ -245,6 +263,78 @@ extension InvitesContainer {
 
 /*
  
+ 
+ 
+ /*
+  
+  InviteCard(
+      showQuickInvite: $ui.profileInvite,
+      vm: RespondViewModel(
+          image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
+          defaults: vm.defaults,
+          sessionManager: vm.session,
+          event: invite.event
+      ),
+      ui: ui,
+      eventProfile: invite,
+      showTimePopup: showTimePopup) { profile in
+          openProfile(profile)
+      },
+      acceptInvite: {originalInvite in
+          respondPr
+      },
+      inviteNewtime: { newTimeDraft in
+          <#code#>
+      },
+      declineInvite: { userEvent in
+          <#code#>
+      }
+  */
+ 
+
+ 
+ 
+ showQuickInvite: $ui.profileInvite,
+ vm: RespondViewModel(
+     image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
+     defaults: vm.defaults,
+     sessionManager: vm.session,
+     event: invite.event
+ ),
+ ui: ui,
+ eventProfile: invite,
+ showTimePopup: showTimePopup)
+ 
+
+ 
+ InviteCard(
+     showQuickInvite: $ui.profileInvite,
+     vm: RespondViewModel(
+         image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
+         defaults: vm.defaults,
+         sessionManager: vm.session,
+         event: invite.event
+     ),
+     ui: ui,
+     eventProfile: invite,
+     showTimePopup: showTimePopup)
+ 
+ InviteCard(
+     showQuickInvite: $ui.profileInvite,
+     vm: RespondViewModel(
+         image: profileImages[invite.profile.id]?.first ?? UIImage(), user: invite.profile,
+         defaults: vm.defaults,
+         sessionManager: vm.session,
+         event: invite.event
+     ),
+     ui: ui,
+     eventProfile: invite,
+     showTimePopup: showTimePopup) { profile in
+         openProfile(profile)
+     }
+
+ 
+ 
  private func respondToProfile(draft: EventDraft, profile: UserProfile) async {
      try? await vm.sendNewInvite(draft: draft, profile: profile)
  }
@@ -319,4 +409,8 @@ extension InvitesContainer {
  try? await minDelay
  ui.respondedToProfile = nil
 }
+ */
+
+/*
+ 
  */
