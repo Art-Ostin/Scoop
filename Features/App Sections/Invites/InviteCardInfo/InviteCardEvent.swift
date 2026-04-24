@@ -15,7 +15,11 @@ struct InviteCardEvent: View {
     @Bindable var ui: RespondUIState
     typealias layout = RespondUIState.CardLayout
     
-    var event: UserEvent { vm.respondDraft.originalInvite.event}
+    var event: UserEvent {vm.respondDraft.originalInvite.event}
+    var isModified: Bool {vm.responseType == .modified}
+    
+    let onDecline: (UserEvent) -> ()
+    let onAccept: (OriginalInvite) -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -55,7 +59,9 @@ extension InviteCardEvent {
         HStack {
             DeclineButton { }
             Spacer()
-            AcceptButton(isModified: vm.responseType == .modified, isValid: isValid) {}
+            AcceptButton(isModified: isModified, isValid: isValid) {
+                
+            }
         }
         .opacity(ui.showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!ui.showTimePopup)

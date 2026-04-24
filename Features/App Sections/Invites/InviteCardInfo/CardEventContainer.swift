@@ -9,6 +9,9 @@ struct CardEventContainer: View {
         
     @Binding var showMessageScreen: Bool
     
+    let onAccept: (OriginalInvite) -> ()
+    let onDecline: (UserEvent) -> ()
+    
     @State var ui = RespondUIState()
     @State private var selectedTab: RespondUIState.Tab = .event
     @State private var pageHeights: [RespondUIState.Tab: CGFloat] = [:]
@@ -99,7 +102,14 @@ extension CardEventContainer {
     }
     
     private var eventPage: some View {
-        InviteCardEvent(showMessageSection: $ui.showMessageSection, vm: vm, ui: ui)
+        InviteCardEvent(
+            showMessageSection: $ui.showMessageScreen,
+            vm: vm,
+            ui: ui) { declinedEvent in
+                onDecline(declinedEvent)
+            } onAccept: { originalInvite in
+                onAccept(originalInvite)
+            }
             .opacity(ui.showMessageSection ? 0 : 1)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
@@ -236,10 +246,6 @@ extension CardEventContainer {
             .padding(5)
             .padding(.horizontal, 6.5)
             .stroke(15, lineWidth: 0.5, color: .black)
-//            .background(
-//                RoundedRectangle(cornerRadius: 24)
-//                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
-//            )
             .offset(y: -2)
         }
     }
@@ -260,35 +266,3 @@ struct IsTimeOpen: PreferenceKey {
         value = value || nextValue()
     }
 }
-
-
-/*
- private var messageToEventButton: some View {
-     Button {
-         withAnimation(.easeInOut(duration: 0.2)) {
-             selectedTab = .event
-         }
-     } label: {
-         HStack(spacing: 4) {
-             Image(systemName: "chevron.left")
-                 .font(.body(11, .bold))
-
-             
-             Text("event")
-         }
-         .font(.body(12, .bold))
-         .foregroundStyle(Palette.secondaryText)
-         .padding(5)
-         .padding(.horizontal, 6.5)
-         .background(.white)
-         .cornerRadius(100)
-         .overlay(
-             RoundedRectangle(cornerRadius: 100)
-                 .inset(by: 0.1)
-                 .stroke(Color.appGreen, lineWidth: 0.2)
-         )
-         .contentShape(.rect)
-     }
-     .offset(y: -2)
- }
- */

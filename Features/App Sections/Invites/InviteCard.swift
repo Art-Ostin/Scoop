@@ -50,7 +50,24 @@ struct InviteCard: View {
                 .opacity(showTimePopup ? 0.1 : 1)
                 .animation(.easeInOut(duration: 0.25), value: showTimePopup)
             
-            CardEventContainer(vm: vm, showQuickInvite: $showQuickInvite, showMessageScreen: $showMessageScreen)
+            
+            CardEventContainer(
+                vm: vm,
+                showQuickInvite: $showQuickInvite,
+                showMessageScreen: $showMessageScreen) { originalInvite in
+                    <#code#>
+                } onDecline: { <#UserEvent#> in
+                    <#code#>
+                }
+
+            
+            
+            
+            CardEventContainer(
+                vm: vm,
+                showQuickInvite: $showQuickInvite,
+                showMessageScreen: $showMessageScreen
+            )
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
