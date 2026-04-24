@@ -43,8 +43,8 @@ struct SelectTimeView: View {
         .padding(.bottom, isRespondMode ? -12 : 0)
         .background { if !isRespondMode {CardBackground(color: .black, cornerRadius: 16)}}
         .onAppear { syncTimePickerIfNeeded() }
-        .onChange(of: selectedHour) { proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
-        .onChange(of: selectedMinute) { proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute) }
+        .onChange(of: selectedHour)   { _, _ in commitTimeIfChanged() }
+        .onChange(of: selectedMinute) { _, _ in commitTimeIfChanged() }
         .onChange(of: proposedTimes.dates) { syncTimePickerIfNeeded()}
         .overlay(alignment: .top) {maxIcon}
         .task(id: clickedMax) {await clickedMaxFunc()}
@@ -225,20 +225,12 @@ extension SelectTimeView {
             selectedMinute = newMinute
         }
     }
+    private func commitTimeIfChanged() {
+        guard let firstDate = proposedTimes.dates.first?.date else { return}
+        let cal = Calendar.current
+        let storedHour   = cal.component(.hour,   from: firstDate)
+        let storedMinute = cal.component(.minute, from: firstDate)
+        guard storedHour != selectedHour || storedMinute != selectedMinute else { return }
+        proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
+    }
 }
-
-/*
- else {
-     if proposedTimes.dates.map(\.date).count < 2 && type == .drink || type == .doubleDate {
-         Text("Propose at least two days")
-             .font(.body(12, .regular))
-             .foregroundStyle(Color.grayText)
-     }
- }
- */
-
-/*
- .font(.body(12, isRespondMode ? .regular : .bold))
- .foregroundStyle(isRespondMode ?  Color(red: 0.6, green: 0.6, blue: 0.6) : Color(red: 0.2, green: 0.2, blue: 0.2))
- return LazyVGrid(columns: columns, spacing: isRespondMode ? 10 : 12) {
- */

@@ -17,9 +17,7 @@ struct RespondPopupContainer: View {
 
     @State var vm: RespondViewModel
     @State var showTimePopup: Bool = false
-    
     @State var scrollPosition: RespondScrollType? = .acceptPage
-    
     @State var lastResponseType: ResponseType? = nil
     
     var body: some View {
@@ -55,18 +53,6 @@ struct RespondPopupContainer: View {
                 let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
                 if vm.responseType == .modified {
                     SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
-                }
-            }
-            .onChange(of: scrollPosition) { oldValue, newValue in
-                if newValue == .counterInvitePage {
-                    lastResponseType = vm.responseType
-                    vm.respondDraft.respondType = .new
-                } else if newValue == .acceptPage {
-                    if let type = lastResponseType {
-                        vm.respondDraft.respondType = type
-                    } else {
-                        vm.respondDraft.respondType = .original
-                    }
                 }
             }
         }
@@ -109,3 +95,16 @@ extension RespondPopupContainer {
         .frame(maxHeight: .infinity, alignment: .topLeading)
     }
 }
+
+/*
+ .onChange(of: scrollPosition) { oldValue, newValue in
+     guard didAppear, let newValue, newValue != oldValue else { return }
+     if newValue == .counterInvitePage {
+         lastResponseType = vm.responseType
+         vm.respondDraft.respondType = .new
+     } else if newValue == .acceptPage {
+         vm.respondDraft.respondType = lastResponseType ?? vm.respondDraft.respondType
+     }
+ }
+
+ */

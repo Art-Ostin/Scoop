@@ -80,7 +80,9 @@ extension RespondTimeRow {
             Group {
                 if let date = vm.respondDraft.originalInvite.selectedDay {
                     Text(FormatEvent.dayAndTime(date, withHour: (!hasMessage && respondMessageEmpty ? false : true)))
-                    
+                        .onAppear {
+                            print("This is appearing")
+                        }
                 //2. Otherwise prompt user to select a new availableTime
                 } else {
                     Text("Select Time")
@@ -92,6 +94,12 @@ extension RespondTimeRow {
             .onAppear {
                 if let date = vm.respondDraft.originalInvite.selectedDay {
                     print("DATE IS HERE: IT Is \(date)")
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    if let date = vm.respondDraft.originalInvite.selectedDay {
+                        print("DATE IS HERE: IT Is \(date)")
+                    }
                 }
             }
             
