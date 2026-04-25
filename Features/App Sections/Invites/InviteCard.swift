@@ -41,14 +41,12 @@ struct InviteCard: View {
                 .opacity(showTimePopup ? 0.1 : 1)
                 .animation(.easeInOut(duration: 0.25), value: showTimePopup)
             
-            
             CardEventContainer(
                 vm: vm,
                 showQuickInvite: $showQuickInvite,
-                showMessageScreen: $showMessageScreen) { originalInvite in
-                    acceptInvite(originalInvite)
-                } onDecline: { userEvent in
-                    declineInvite(userEvent)
+                showMessageScreen: $showMessageScreen,
+                showConfirmAcceptPopup: $showAcceptInvite) { userEvent in
+                    onDecline(userEvent)
                 }
         }
         .padding(.vertical, 8)
@@ -143,5 +141,14 @@ struct HideInvitePreferenceKey: PreferenceKey {
  }
 
  
+ CardEventContainer(
+     vm: vm,
+     showQuickInvite: $showQuickInvite,
+     showMessageScreen: $showMessageScreen) { originalInvite in
+         acceptInvite(originalInvite)
+     } onDecline: { userEvent in
+         declineInvite(userEvent)
+     }
+
 
  */

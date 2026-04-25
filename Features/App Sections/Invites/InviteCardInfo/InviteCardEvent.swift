@@ -10,6 +10,7 @@ import SwiftUI
 struct InviteCardEvent: View {
     
     @Binding var showMessageSection: Bool
+    @Binding var showConfirmAcceptInvite: String?
     
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondUIState
@@ -17,9 +18,8 @@ struct InviteCardEvent: View {
     
     var event: UserEvent {vm.respondDraft.originalInvite.event}
     var isModified: Bool {vm.responseType == .modified}
-    
+
     let onDecline: (UserEvent) -> ()
-    let onAccept: (OriginalInvite) -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -57,10 +57,10 @@ extension InviteCardEvent {
         )
         
         HStack {
-            DeclineButton { }
+            DeclineButton { onDecline(vm.respondDraft.originalInvite.event)}
             Spacer()
             AcceptButton(isModified: isModified, isValid: isValid) {
-                
+                showConfirmAcceptInvite = vm.respondDraft.originalInvite.event.otherUserId
             }
         }
         .opacity(ui.showTimePopup ? 0.1 : 1)

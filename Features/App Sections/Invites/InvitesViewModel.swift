@@ -91,9 +91,9 @@ extension InvitesViewModel {
     }
     
     //4. Decline Invite
-    func declineInvite(profile: UserProfile) async throws  {
+    func declineInvite(profileId: String) async throws  {
         print("Invite Declined")
-        defaults.deleteRespondDraft(profileId: profile.id)
+        defaults.deleteRespondDraft(profileId: profileId)
     }
 }
 

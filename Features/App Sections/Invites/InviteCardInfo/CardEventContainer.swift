@@ -4,17 +4,9 @@ import SwiftUI
 struct CardEventContainer: View {
     
     @Bindable var vm: RespondViewModel
-    
     @Binding var showQuickInvite: UserProfile?
-        
     @Binding var showMessageScreen: Bool
-    
     @Binding var showConfirmAcceptPopup: String?
-    
-    
-    
-    
-    let onAccept: (OriginalInvite) -> ()
     let onDecline: (UserEvent) -> ()
     
     @State var ui = RespondUIState()
@@ -108,12 +100,11 @@ extension CardEventContainer {
     
     private var eventPage: some View {
         InviteCardEvent(
-            showMessageSection: $ui.showMessageScreen,
+            showMessageSection: $ui.showMessageSection,
+            showConfirmAcceptInvite: $showConfirmAcceptPopup,
             vm: vm,
-            ui: ui) { declinedEvent in
-                onDecline(declinedEvent)
-            } onAccept: { originalInvite in
-                onAccept(originalInvite)
+            ui: ui) { userEvent in
+                onDecline(userEvent)
             }
             .opacity(ui.showMessageSection ? 0 : 1)
             .frame(maxWidth: .infinity, alignment: .leading)

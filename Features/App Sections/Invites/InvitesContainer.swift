@@ -67,8 +67,6 @@ extension InvitesContainer {
             
             ForEach(vm.invites, id: \.self) { invite in
                 
-                
-                
                 InviteCard(
                     showQuickInvite: $ui.profileInvite,
                     vm: vm.respondVM(for: invite, image: profileImages[invite.profile.id]?.first ?? UIImage()),
@@ -78,10 +76,11 @@ extension InvitesContainer {
                     showAcceptInvite: $showConfirmAccept,
                     showNewTimeInvite: $showConfirmNewInvite) { profile in
                         openProfile(profile)
-                    }, onDecline: { event in
-                        
+                    } onDecline: { userEvent in
+                        Task {
+                            await respondToProfile(respondType: .decline)
+                        }
                     }
-                
                     .task { await loadProfileImages(invite.profile) }
             }
         }
@@ -194,7 +193,7 @@ extension InvitesContainer {
         event: EventDraft? = nil,
         originalInvite: OriginalInvite? = nil,
         newTime: NewTimeDraft? = nil,
-        profile: UserProfile
+        profile: UserProfile? = nil
     ) async {
         //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
@@ -220,7 +219,7 @@ extension InvitesContainer {
         event: EventDraft?,
         originalInvite: OriginalInvite?,
         newTime: NewTimeDraft?,
-        profile: UserProfile
+        profile: UserProfile?
     ) async throws {
         switch respondType {
         case .accepted:
@@ -242,7 +241,9 @@ extension InvitesContainer {
                 print("No Event to pass in")
             }
         case .decline:
-            try await vm.declineInvite(profile: profile)
+            if let profileId = profile?.id {
+                try await vm.declineInvite(profileId: profileId)
+            }
         }
     }
 }
