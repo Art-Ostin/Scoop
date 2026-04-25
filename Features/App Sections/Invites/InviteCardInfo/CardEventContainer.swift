@@ -9,6 +9,11 @@ struct CardEventContainer: View {
         
     @Binding var showMessageScreen: Bool
     
+    @Binding var showConfirmAcceptPopup: String?
+    
+    
+    
+    
     let onAccept: (OriginalInvite) -> ()
     let onDecline: (UserEvent) -> ()
     

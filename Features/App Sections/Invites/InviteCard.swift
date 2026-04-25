@@ -10,17 +10,20 @@ import SwiftUI
 struct InviteCard: View {
     
     @Binding var showQuickInvite: UserProfile?
-    @State private var vm: RespondViewModel
+    @Bindable var vm: RespondViewModel
+    
     @Bindable var ui: InvitesUIState
     let eventProfile: EventProfile
     let showTimePopup: Bool
     
-    let openProfile: (UserProfile) -> ()
-    let acceptInvite: (OriginalInvite) -> ()
-    let newTime: (NewTimeDraft) -> ()
-    let declineInvite: (UserEvent) -> ()
-
     
+    //Need to give the profile id for the Binding, so optional Strings
+    @Binding var showAcceptInvite: String?
+    @Binding var showNewTimeInvite: String?
+    
+    let openProfile: (UserProfile) -> ()
+    let onDecline: (UserEvent) -> ()
+
     @State private var imageSize: CGFloat = 0
     private let contentPadding: CGFloat = 6
     @State var showMessageScreen = false
@@ -30,27 +33,6 @@ struct InviteCard: View {
     var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  showTimePopup && dayCount >= 2}
     
     
-    init(
-        showQuickInvite: Binding<UserProfile?>,
-        vm: RespondViewModel,
-        ui: InvitesUIState,
-        eventProfile: EventProfile,
-        showTimePopup: Bool,
-        openProfile: @escaping (UserProfile) -> (),
-        acceptInvite: @escaping (OriginalInvite) -> (),
-        inviteNewtime: @escaping (NewTimeDraft) -> (),
-        declineInvite: @escaping (UserEvent) -> ()
-    ) {
-        _showQuickInvite = showQuickInvite
-        _vm = State(initialValue: vm)
-        self.ui = ui
-        self.eventProfile = eventProfile
-        self.showTimePopup = showTimePopup
-        self.openProfile = openProfile
-        self.acceptInvite = acceptInvite
-        self.newTime = inviteNewtime
-        self.declineInvite = declineInvite
-    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -138,6 +120,27 @@ struct HideInvitePreferenceKey: PreferenceKey {
          .shadow(color: .black.opacity(0.25), radius: 1.8, x: 0, y: 3.6)
  )
  //v        .stroke(22, lineWidth: 1, color: Color(red: 0.96, green: 0.96, blue: 0.96))
+
+ init(
+     showQuickInvite: Binding<UserProfile?>,
+     vm: RespondViewModel,
+     ui: InvitesUIState,
+     eventProfile: EventProfile,
+     showTimePopup: Bool,
+     openProfile: @escaping (UserProfile) -> (),
+     acceptInvite: @escaping (OriginalInvite) -> (),
+     inviteNewtime: @escaping (NewTimeDraft) -> (),
+     declineInvite: @escaping (UserEvent) -> ()
+ ) {
+     _showQuickInvite = showQuickInvite
+     self.ui = ui
+     self.eventProfile = eventProfile
+     self.showTimePopup = showTimePopup
+     self.openProfile = openProfile
+     self.acceptInvite = acceptInvite
+     self.newTime = inviteNewtime
+     self.declineInvite = declineInvite
+ }
 
  
 

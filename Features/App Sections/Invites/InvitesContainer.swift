@@ -18,10 +18,10 @@ struct InvitesContainer: View {
     @State var showTimePopup: Bool = false
     @State var hideInviteTitle: Bool = false
     
-    @State var confirmAcceptInvite: Bool = false
-    @State var confirmNewTimeInvite: Bool = false
-    @State var confirmSendNewInvite: Bool = false
-    
+    @State var showConfirmAccept: String? = nil
+    @State var showConfirmNewTime: String? = nil
+    @State var showConfirmNewInvite: String? = nil
+        
     
     var body: some View {
         if vm.invites.isEmpty {
@@ -39,7 +39,9 @@ struct InvitesContainer: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                
             }
+            
             .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
             }
             .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
@@ -65,36 +67,21 @@ extension InvitesContainer {
             
             ForEach(vm.invites, id: \.self) { invite in
                 
+                
+                
                 InviteCard(
                     showQuickInvite: $ui.profileInvite,
-                    vm: RespondViewModel(
-                        image: profileImages[invite.profile.id]?.first ?? UIImage(),
-                        user: invite.profile,
-                        defaults: vm.defaults,
-                        sessionManager: vm.session,
-                        event: invite.event
-                    ),
+                    vm: vm.respondVM(for: invite, image: profileImages[invite.profile.id]?.first ?? UIImage()),
                     ui: ui,
                     eventProfile: invite,
                     showTimePopup: showTimePopup,
-                    openProfile: { profile in
+                    showAcceptInvite: $showConfirmAccept,
+                    showNewTimeInvite: $showConfirmNewInvite) { profile in
                         openProfile(profile)
-                    },
-                    acceptInvite: { acceptedInvite in
-                        Task {
-                            await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: invite.profile)
-                        }
-                    },
-                    inviteNewtime: { newTime in
-                        Task {
-                            await respondToProfile(respondType: .newTime, newTime: newTime, profile: invite.profile)
-                        }
-                    },
-                    declineInvite: { userEvent in
-                        Task {
-                            await respondToProfile(respondType: .decline, profile: invite.profile)
-                        }
-                    })
+                    }, onDecline: { event in
+                        
+                    }
+                
                     .task { await loadProfileImages(invite.profile) }
             }
         }
@@ -258,6 +245,9 @@ extension InvitesContainer {
             try await vm.declineInvite(profile: profile)
         }
     }
+}
+
+    
     
     
     /*
@@ -270,13 +260,76 @@ extension InvitesContainer {
          try? await respondToProfile(event: event, profile: profile, isNewTime: true)
      }
      */
-}
-
 /*
  
  
  
  /*
+  
+  InviteCard(
+      showQuickInvite: $ui.profileInvite,
+      vm: RespondViewModel(
+          image: profileImages[invite.profile.id]?.first ?? UIImage(),
+          user: invite.profile,
+          defaults: vm.defaults,
+          sessionManager: vm.session,
+          event: invite.event
+      ),
+      ui: ui,
+      eventProfile: invite,
+      showTimePopup: showTimePopup,
+      openProfile: { profile in
+          openProfile(profile)
+      },
+      acceptInvite: { acceptedInvite in
+          Task {
+              await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: invite.profile)
+          }
+      },
+      inviteNewtime: { newTime in
+          Task {
+              await respondToProfile(respondType: .newTime, newTime: newTime, profile: invite.profile)
+          }
+      },
+      declineInvite: { userEvent in
+          Task {
+              await respondToProfile(respondType: .decline, profile: invite.profile)
+          }
+      })
+
+  
+  
+  
+  InviteCard(
+      showQuickInvite: $ui.profileInvite,
+      vm: RespondViewModel(
+          image: profileImages[invite.profile.id]?.first ?? UIImage(),
+          user: invite.profile,
+          defaults: vm.defaults,
+          sessionManager: vm.session,
+          event: invite.event
+      ),
+      ui: ui,
+      eventProfile: invite,
+      showTimePopup: showTimePopup,
+      openProfile: { profile in
+          openProfile(profile)
+      },
+      acceptInvite: { acceptedInvite in
+          Task {
+              await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: invite.profile)
+          }
+      },
+      inviteNewtime: { newTime in
+          Task {
+              await respondToProfile(respondType: .newTime, newTime: newTime, profile: invite.profile)
+          }
+      },
+      declineInvite: { userEvent in
+          Task {
+              await respondToProfile(respondType: .decline, profile: invite.profile)
+          }
+      })
   
   InviteCard(
       showQuickInvite: $ui.profileInvite,

@@ -26,6 +26,24 @@ import SwiftUI
     var userId: String {session.user.id}
     
     
+    
+    var respondVMs: [String: RespondViewModel] = [:]
+    
+    
+    func respondVM(for invite: EventProfile, image: UIImage) -> RespondViewModel {
+        if let existing = respondVMs[invite.profile.id] { return existing }
+        let new = RespondViewModel(
+            image: image,
+            user: invite.profile,
+            defaults: defaults,
+            sessionManager: session,
+            event: invite.event
+        )
+        respondVMs[invite.profile.id] = new
+        return new
+    }
+
+    
     //Set up here -> I pass in an eventResponseDraft to the view, not an invite.
     var respondDrafts: [RespondDraft] {
         invites.map { invite in
