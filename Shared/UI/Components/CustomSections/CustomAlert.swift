@@ -93,6 +93,8 @@ struct CustomAlertModifier: ViewModifier {
     
     @Binding var isPresented: Bool
     
+    
+    
     let title: String
     let message: String
     let showTwoButtons: Bool
@@ -143,5 +145,62 @@ struct CustomAlertModifier: ViewModifier {
 extension View {
     func customAlert(isPresented: Binding<Bool>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, isConfirmInvite: Bool = false, onOK: @escaping () -> Void) -> some View {
         modifier(CustomAlertModifier(isPresented: isPresented, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, isConfirmInvite: isConfirmInvite, onOK: onOK))
+    }
+}
+
+// MARK: - Item-based variant (driven by an optional String)
+
+struct CustomAlertItemModifier: ViewModifier {
+
+    @Binding var item: String?
+
+    let title: String
+    let message: String
+    let showTwoButtons: Bool
+    let cancelTitle: String
+    let okTitle: String
+    let emoji: String
+
+    let isConfirmInvite: Bool
+
+    let onOK: (String) -> Void
+
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if let value = item {
+                    ZStack {
+                        Color.black.opacity(isConfirmInvite ? 0.3 : 0.42)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                // Tap outside to dismiss
+                                item = nil
+                            }
+
+                        CustomAlertCard(
+                            title: title,
+                            message: message,
+                            showTwoButtons: showTwoButtons,
+                            isConfirmInvite: isConfirmInvite,
+                            onCancel: { item = nil },
+                            onOK: {
+                                onOK(value)
+                                item = nil
+                            }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
+                        )
+                        .offset(y: isConfirmInvite ? 48 : 0)
+                    }
+                    .transition(.opacity)
+                    .zIndex(999)
+                }
+            }
+            .animation(.easeInOut(duration: 0.18), value: item)
+    }
+}
+
+extension View {
+    func customAlert(item: Binding<String?>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, isConfirmInvite: Bool = false, onOK: @escaping (String) -> Void) -> some View {
+        modifier(CustomAlertItemModifier(item: item, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, isConfirmInvite: isConfirmInvite, onOK: onOK))
     }
 }

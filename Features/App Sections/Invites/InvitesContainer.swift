@@ -21,7 +21,10 @@ struct InvitesContainer: View {
     @State var showConfirmAccept: String? = nil
     @State var showConfirmNewTime: String? = nil
     @State var showConfirmNewInvite: String? = nil
-        
+    
+    var isPopup: Bool {
+        showConfirmAccept != nil || showConfirmNewTime != nil || showConfirmNewInvite != nil
+    }
     
     var body: some View {
         if vm.invites.isEmpty {
@@ -38,18 +41,34 @@ struct InvitesContainer: View {
                 }
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
-            .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                
+            .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+                if let newTime = vm.respondVMs[profileId]?.respondDraft.newTime {
+                    Task {
+                        try? await vm.sendNewTime(newTimeEvent: newTime)
+                    }
+                }
             }
-            
-            .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at . If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+                if let acceptedInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite {
+                    Task {
+                        try? await vm.acceptInvite(acceptedInvite: acceptedInvite)
+                    }
+                } else {
+                    print("Id not located")
+                }
             }
-            .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+            .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
                 
+                if let newInvite = vm.respondVMs[profileId]?.respondDraft.newEvent {
+                    Task {
+                        try? await vm.sendInvite(event: newInvite)
+                    }
+                }
             }
             .onPreferenceChange(IsTimeOpen.self) { newValue in
                 showTimePopup = newValue
             }
+            .hideTabBar(hideBar: isPopup)
         }
     }
 }
@@ -213,7 +232,6 @@ extension InvitesContainer {
         try? await minDelay
         ui.respondedToProfile = nil
     }
-    
     private func respondToProfileActions(
         respondType: ProfileResponse,
         event: EventDraft?,
@@ -248,10 +266,27 @@ extension InvitesContainer {
     }
 }
 
+
+
+extension InvitesContainer {
+    
+    
+    
+}
+
+
+
+
     
     
     
     /*
+     
+     \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false))
+     \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date()))
+     \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false))
+     \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date()))
+     
      switch respondType {
      case .accept:
          try? await respondToProfile(event: event, profile: profile, isNewTime: false)
