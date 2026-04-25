@@ -48,6 +48,10 @@ final class FirestoreService: FirestoreServicing {
         return try await db.document(path).getDocument(as: T.self)
     }
     
+    func encodeFields<T: Encodable>(_ value: T) throws -> [String: Any] {
+        try Firestore.Encoder().encode(value)
+    }
+    
     func fetchFromCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query = { $0 }) async throws -> [T] {
         let baseQuery = db.collection(collectionPath)
         let finalQuery = configure(baseQuery)

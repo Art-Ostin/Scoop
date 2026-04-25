@@ -194,15 +194,19 @@ extension EventsRepo {
         let newInitiatorId = previousRecipientId
         let newRecipientId = previousInitiatorId
         
+        let encodedTimes = try fs.encodeFields(proposedTimes)
         
         //2. Update the necessary Fields in the UserEvent
         let userFields: [String : Any] = [
-            UserEvent.Field.proposedTimes.rawValue: proposedTimes,
+            UserEvent.Field.proposedTimes.rawValue: encodedTimes
+            //UserEvent.Field.role.rawValue : //If Field is .received change to .pending, if .pending change to .received
+        ]
+        let eventFields: [String : Any] = [
+            Event.Field.proposedTimes.rawValue: encodedTimes,
+            Event.Field.initiatorId.rawValue: newInitiatorId,
+            Event.Field.recipientId.rawValue: newRecipientId
         ]
         
-        let eventFields: [String : Any] = [
-            Event.Field.proposedTimes.rawValue: proposedTimes,
-        ]
         try await updateEvent(initiatorId: newInitiatorId, recipientId: newRecipientId, eventId: event.id, userFields: userFields, eventFields: eventFields)
     }
 }

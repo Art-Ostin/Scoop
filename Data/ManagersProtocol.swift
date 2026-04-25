@@ -17,6 +17,7 @@ protocol FirestoreServicing {
     func get<T: Decodable>(_ path: String) async throws -> T
     func update(_ path: String, fields: [String : Any]) async throws
     func delete(_ path: String) async throws
+    func encodeFields<T: Encodable>(_ value: T) throws -> [String: Any]
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
     func fetchFromCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query) async throws -> [T]
     func streamCollection<T: Decodable>(_ collectionPath: String, configure: (Query) -> Query) -> AsyncThrowingStream<FSCollectionEvent<T>, Error>

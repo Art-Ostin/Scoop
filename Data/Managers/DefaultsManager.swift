@@ -208,8 +208,6 @@ private extension DefaultsManager {
             let data = try encoder.encode(value)
             defaults.set(data, forKey: key.rawValue)
         } catch {
-            // TEMP DIAGNOSTIC — remove once persistence bug is resolved.
-            print("⚠️ DefaultsManager.encode failed for key \(key.rawValue) (\(T.self)): \(error)")
         }
     }
 
