@@ -27,23 +27,22 @@ enum ChangeValue: Equatable {
 }
 
 extension ChangeValue: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case proposedTimes
-    }
 
-    
-    //Custom Encoder and Decoder
+    //Custom Encoder and Decoder — write the payload directly with no
+    //case-name wrapper. The sibling `ChangeItem.field` already carries
+    //the discriminator (e.g. "proposedTimes"), so we don't need to
+    //repeat it here.
     func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+        var container = encoder.singleValueContainer()
         switch self {
         case .proposedTimes(let dates):
-            try container.encode(dates, forKey: .proposedTimes)
+            try container.encode(dates)
         }
     }
 
     init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let dates = try container.decodeIfPresent([Date].self, forKey: .proposedTimes) {
+        let container = try decoder.singleValueContainer()
+        if let dates = try? container.decode([Date].self) {
             self = .proposedTimes(dates)
             return
         }

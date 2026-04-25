@@ -37,7 +37,7 @@ extension RespondTimeRow {
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack(alignment: .leading, spacing: 0) {
                 timeTitle
-                if !hasRespondMessage && !isCardInvite {
+                if !hasRespondMessage && !isCardInvite && vm.respondDraft.originalInvite.event.message?.isEmpty != false {
                     eventMessageSection
                         .opacity(showTimePopup ? 0.03 : 1)
                 }
