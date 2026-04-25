@@ -10,7 +10,7 @@ import SwiftUI
 extension View {
     func hideTabBar(hideBar: Bool = true) -> some View {
         self
-            .toolbar(.hidden, for: .tabBar)
+            .toolbar(hideBar ? .hidden : .visible, for: .tabBar)
             .tabBarHidden(hideBar) // This is custom Tool bar hidden
     }
 }

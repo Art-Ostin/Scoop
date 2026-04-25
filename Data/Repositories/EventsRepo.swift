@@ -55,23 +55,7 @@ class EventsRepo: EventsRepository {
         try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent, merge: false)
         try fs.set(userEventPath(userId: profile.id, userEventId: id), value: recipientUserEvent, merge: false)
     }
-    
-    func acceptEvent(eventId: String, acceptedDate: Date) async throws {
-        let (event, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
-                        
-        var userFields: [String : Any] = [
-            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
-            Event.Field.acceptedTime.rawValue: acceptedDate
-        ]
-        let eventFields = userFields
-        userFields[UserEvent.Field.chatState.rawValue] = ChatState()
-        try await updateEvent(initiatorId: initiatorId, recipientId: recipientId, eventId: eventId, userFields: userFields, eventFields: eventFields)
         
-        //Overlapping interest, but avoids more complexity elsewhere
-        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
-        try fs.set("chats/\(eventId)", value: chatModel, merge: false)
-    }
-    
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws {
         let (_, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
         let fields: [String: Any] = [Event.Field.status.rawValue: newStatus.rawValue]
@@ -180,5 +164,47 @@ extension EventsRepo {
             userEventPath(userId: userId, userEventId: userEventId),
             fields: [chatStateField(.unreadCount): 0]
         )
+    }
+}
+
+//Logic regarding responding with (1) Accepting Event (2) Sending New Times (3) Sending New Event (4) Declining Invite
+extension EventsRepo {
+    
+    func acceptEvent(eventId: String, acceptedDate: Date) async throws {
+        let (event, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
+                        
+        var userFields: [String : Any] = [
+            Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
+            Event.Field.acceptedTime.rawValue: acceptedDate
+        ]
+        let eventFields = userFields
+        userFields[UserEvent.Field.chatState.rawValue] = ChatState()
+        try await updateEvent(initiatorId: initiatorId, recipientId: recipientId, eventId: eventId, userFields: userFields, eventFields: eventFields)
+        
+        //Overlapping interest, but avoids more complexity elsewhere
+        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
+        try fs.set("chats/\(eventId)", value: chatModel, merge: false)
+    }
+    
+    func respondWithNewTime(event: UserEvent, proposedTimes: ProposedTimes, userId: String) async throws {
+        
+        //1. Switch the Ids around
+        let previousInitiatorId = event.otherUserId
+        let previousRecipientId = userId
+        let newInitiatorId = previousRecipientId
+        let newRecipientId = previousInitiatorId
+        
+        
+        //2. Update the necessary Fields in the UserEvent
+        var userFields: [String : Any] = [
+            UserEvent.Field.proposedTimes.rawValue: proposedTimes,
+        ]
+        
+        var eventFields: [String : Any] = [
+            Event.Field.proposedTimes.rawValue: proposedTimes,
+        ]
+        try await updateEvent(initiatorId: newInitiatorId, recipientId: newRecipientId, eventId: event.id, userFields: userFields, eventFields: eventFields)
+        
+        
     }
 }

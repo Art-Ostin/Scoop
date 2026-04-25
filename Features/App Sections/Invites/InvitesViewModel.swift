@@ -63,7 +63,6 @@ extension InvitesViewModel {
     //1. Accept the Invite
     func acceptInvite(acceptedInvite: OriginalInvite) async throws {
         print("Invite Accepted")
-        
         /*
          var eventProfile = eventProfile
          eventProfile.event.acceptedTime = acceptedTime
@@ -80,6 +79,13 @@ extension InvitesViewModel {
     
     //2. Respond to Invite with New Time
     func sendNewTime(newTimeEvent: NewTimeDraft) async throws {
+        
+        //Step 1: Actually Send the New Invite
+        
+        
+        //Step 2: Update the Log Entry (Don't worry about that yet)
+        
+        
         print("New Time Sent")
     }
     
