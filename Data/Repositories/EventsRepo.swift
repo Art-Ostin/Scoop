@@ -196,10 +196,19 @@ extension EventsRepo {
         
         let encodedTimes = try fs.encodeFields(proposedTimes)
         
-        //2. Update the necessary Fields in each UserEvent
+        //2. Get the necessary fields, I.e. (1) The Change Log (2) The current User Roles
         let currentUserRole: UserEvent.EdgeRole = event.role == .received ? .sent : .received
         let otherUserRole: UserEvent.EdgeRole = currentUserRole == .sent ? .received : .sent
 
+        
+        let oldTimes: [Date] = event.proposedTimes.dates.map{ $0.date}
+        let newTimes: [Date] = proposedTimes.dates.map{ $0.date}
+        
+        let changeLog = changeLogTimeConstructor(oldTimes: oldTimes, newTimes: newTimes, userUpdating: userId)
+        let encodedChangeLog = try fs.encodeFields(changeLog)
+        
+        
+        
         let currentUserFields: [String : Any] = [
             UserEvent.Field.proposedTimes.rawValue: encodedTimes,
             UserEvent.Field.role.rawValue: currentUserRole.rawValue
@@ -210,10 +219,12 @@ extension EventsRepo {
             UserEvent.Field.role.rawValue: otherUserRole.rawValue
         ]
         
+        
         let eventFields: [String : Any] = [
             Event.Field.proposedTimes.rawValue: encodedTimes,
             Event.Field.initiatorId.rawValue: newInitiatorId,
-            Event.Field.recipientId.rawValue: newRecipientId
+            Event.Field.recipientId.rawValue: newRecipientId,
+            Event.Field.changeLog.rawValue: FieldValue.arrayUnion([encodedChangeLog])
         ]
         
         async let updateCurrentUser: Void = fs.update(userEventPath(userId: newInitiatorId, userEventId: event.id), fields: currentUserFields)
@@ -224,9 +235,9 @@ extension EventsRepo {
     
     
     private func changeLogTimeConstructor(oldTimes: [Date], newTimes: [Date], userUpdating: String) -> ChangeLogEntry {
-        let oldTimesChangeValue = ChangeValue(oldTimes)
-        let newTimesChangeValue = ChangeValue(newTimes)
+        let oldTimesChangeValue = ChangeValue.proposedTimes(oldTimes)
+        let newTimesChangeValue = ChangeValue.proposedTimes(newTimes)
         let changeItem = ChangeItem(field: Event.Field.proposedTimes.rawValue, oldValue: oldTimesChangeValue, newValue: newTimesChangeValue)
-        return ChangeLogEntry(updateNumber: 1, editedByUserId: userUpdating, changes: changeItem)
+        return ChangeLogEntry(updateNumber: 1, editedByUserId: userUpdating, changes: [changeItem])
     }
 }

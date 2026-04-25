@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 struct ChangeLogEntry: Codable, Identifiable {
     @DocumentID var id: String?
-    @ServerTimestamp var timestamp: Date?
+    var timestamp: Date = Date()
     let updateNumber: Int
     let editedByUserId: String
     let changes: [ChangeItem]
