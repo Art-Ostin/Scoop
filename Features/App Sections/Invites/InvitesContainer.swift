@@ -248,7 +248,11 @@ extension InvitesContainer {
             }
         case .newTime:
             if let newTime {
-                try await vm.sendNewTime(newTimeEvent: newTime)
+                do {
+                    try await vm.sendNewTime(newTimeEvent: newTime)
+                } catch {
+                    print("ERROR Sending time: \(error)")
+                }
             } else {
                 print("No New Time Event")
             }

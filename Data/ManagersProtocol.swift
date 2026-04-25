@@ -54,6 +54,7 @@ protocol EventsRepository {
     func acceptEvent(eventId: String, acceptedDate: Date) async throws
     func updateRecentChat(message: MessageModel, eventId: String) async throws 
     func readRecentMessages(userId: String, userEventId: String) async throws
+    func respondWithNewTime(event: UserEvent, proposedTimes: ProposedTimes, userId: String) async throws
 }
 
 protocol ChatRepository {

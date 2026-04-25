@@ -81,10 +81,11 @@ extension InvitesViewModel {
     func sendNewTime(newTimeEvent: NewTimeDraft) async throws {
         
         //Step 1: Actually Send the New Invite
+        try await eventRepo.respondWithNewTime(event: newTimeEvent.event, proposedTimes: newTimeEvent.proposedTimes, userId: session.user.id)
+        
         
         
         //Step 2: Update the Log Entry (Don't worry about that yet)
-        
         
         print("New Time Sent")
     }

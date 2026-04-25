@@ -196,15 +196,13 @@ extension EventsRepo {
         
         
         //2. Update the necessary Fields in the UserEvent
-        var userFields: [String : Any] = [
+        let userFields: [String : Any] = [
             UserEvent.Field.proposedTimes.rawValue: proposedTimes,
         ]
         
-        var eventFields: [String : Any] = [
+        let eventFields: [String : Any] = [
             Event.Field.proposedTimes.rawValue: proposedTimes,
         ]
         try await updateEvent(initiatorId: newInitiatorId, recipientId: newRecipientId, eventId: event.id, userFields: userFields, eventFields: eventFields)
-        
-        
     }
 }
