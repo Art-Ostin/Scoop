@@ -40,9 +40,9 @@ class EventsRepo: EventsRepository {
     }
     
     //Part 2: Creating and modifying events
-    func createEvent(draft: EventDraft, user: UserProfile, profile: UserProfile) async throws {
+    func createEvent(draft: EventFieldsDraft, user: UserProfile, profile: UserProfile) async throws {
         //1. Create the event, and add it to the collection 'events'
-        guard let event = Event(draft: draft) else {
+        guard let event = Event(draft: draft, initiatorId: user.id, recipientId: profile.id) else {
             throw EventsRepoError.invalidDraft
         }
         let id = try fs.add("events", value: event)
@@ -166,7 +166,7 @@ extension EventsRepo {
         ]
         let eventFields = userFields
         userFields[UserEvent.Field.chatState.rawValue] = ChatState()
-        try await updateEvent(initId: senderId, recipId: userId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: userFields)
+        try await updateEvent(initId: senderId, recipId: userId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: eventFields)
         //Chat Model
         let chatModel = ChatModel(participantIds: [senderId, userId], lastMessageAt: nil)
         try fs.set("chats/\(eventId)", value: chatModel, merge: false)
@@ -224,7 +224,7 @@ extension EventsRepo {
         let encodedLocation = try fs.encodeFields(eventResponse.newPlace)
         
         //3. Get the core fields that update for both users
-        var coreFields: [String: Any] = [
+        let coreFields: [String: Any] = [
             UserEvent.Field.proposedTimes.rawValue: encodedTimes,
             UserEvent.Field.location.rawValue: encodedLocation,
             UserEvent.Field.type.rawValue: eventResponse.newType.rawValue,
@@ -317,7 +317,7 @@ extension EventsRepo {
         
         let oldPlaceValue = ChangeValue.string(oldPlace)
         let newPlaceValue = ChangeValue.string(newPlace)
-        let changeItemPlace = ChangeItem(changeType: ChangeType.newEvent.rawValue, oldValue: oldTypeValue, newValue: newTypeValue)
+        let changeItemPlace = ChangeItem(changeType: ChangeType.newEvent.rawValue, oldValue: oldPlaceValue, newValue: newPlaceValue)
         
         //3. From the registered changeItems, generate the change Log
         let changeLog = ChangeLogEntry(editedByUserId: eventResponse.userId, changes: [changeItemTime, changeItemType, changeItemPlace])
