@@ -237,7 +237,7 @@ extension EventsRepo {
     private func changeLogTimeConstructor(oldTimes: [Date], newTimes: [Date], userUpdating: String) -> ChangeLogEntry {
         let oldTimesChangeValue = ChangeValue.proposedTimes(oldTimes)
         let newTimesChangeValue = ChangeValue.proposedTimes(newTimes)
-        let changeItem = ChangeItem(field: Event.Field.proposedTimes.rawValue, oldValue: oldTimesChangeValue, newValue: newTimesChangeValue)
-        return ChangeLogEntry(updateNumber: 1, editedByUserId: userUpdating, changes: changeItem)
+        let changeItem = ChangeItem(changeType: ChangeType.newTime.rawValue, oldValue: oldTimesChangeValue, newValue: newTimesChangeValue)
+        return ChangeLogEntry(editedByUserId: userUpdating, changes: changeItem)
     }
 }

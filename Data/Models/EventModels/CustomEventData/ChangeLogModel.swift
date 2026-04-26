@@ -8,15 +8,18 @@
 import SwiftUI
 import FirebaseFirestore
 
+enum ChangeType: String, Codable {
+    case newTime, newEvent
+}
+
 struct ChangeLogEntry: Codable {
     var timestamp: Date = Date()
-    let updateNumber: Int
     let editedByUserId: String
     let changes: ChangeItem
 }
 
 struct ChangeItem: Codable {
-    let field: String          // e.g. "time" or "location.name"
+    let changeType: String          // e.g. "time" or "location.name"
     let oldValue: ChangeValue
     let newValue: ChangeValue
 }
