@@ -31,6 +31,10 @@ struct ProfileView: View {
     }
     
     //Optional Invite as not all event Drafts Require it.
+    let response: ((ResponseType) -> ())?
+    
+    
+    
     let acceptInvite: ((OriginalInvite) -> ())?
     let sendNewTime: ((NewTimeDraft) -> ())?
     let sendInvite: ((EventDraft) -> ())?
