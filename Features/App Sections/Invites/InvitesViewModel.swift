@@ -56,13 +56,17 @@ import SwiftUI
     }
 }
 
-
+//Functions to Respond To Invites
 extension InvitesViewModel {
     
     
     //1. Accept the Invite
     func acceptInvite(acceptedInvite: OriginalInvite) async throws {
-        print("Invite Accepted")
+        
+        
+        
+        
+        
         /*
          var eventProfile = eventProfile
          eventProfile.event.acceptedTime = acceptedTime
@@ -85,9 +89,6 @@ extension InvitesViewModel {
         
         
         
-        //Step 2: Update the Log Entry (Don't worry about that yet)
-        
-        print("New Time Sent")
     }
     
     //3. Send entirely new Invite

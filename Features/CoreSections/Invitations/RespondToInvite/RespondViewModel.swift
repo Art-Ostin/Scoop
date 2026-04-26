@@ -51,7 +51,6 @@ class RespondViewModel {
 }
 
 @Observable final class RespondUIState {
-    
     enum Tab {
         case message, event, details
     }

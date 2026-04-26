@@ -217,7 +217,6 @@ extension InvitesContainer {
         //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         //2. Trigger the Overlay Screen
-        
         do {
             try await respondToProfileActions(respondType: respondType, event: event, originalInvite: originalInvite, newTime: newTime, profile: profile)
         } catch {

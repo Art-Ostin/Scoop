@@ -158,22 +158,61 @@ extension EventsRepo {
     }
 }
 
-//Logic regarding responding with (1) Accepting Event (2) Sending New Times (3) Sending New Event (4) Declining Invite
+//Logic regarding responding with (1) Accepting Event (2) Declining Invite (3) Sending New Times (4) Sending New Event.
 extension EventsRepo {
-    
-    func acceptEvent(eventId: String, acceptedDate: Date) async throws {
-        let (event, initiatorId, recipientId) = try await getEventInfo(eventId: eventId)
+    func acceptEvent(eventId: String, senderId: String, userId: String, acceptedTime: Date) async throws {
         var userFields: [String : Any] = [
             Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
-            Event.Field.acceptedTime.rawValue: acceptedDate
+            Event.Field.acceptedTime.rawValue: acceptedTime
         ]
         let eventFields = userFields
         userFields[UserEvent.Field.chatState.rawValue] = ChatState()
-        
-        try await updateEvent(initId: initiatorId,recipId: recipientId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: userFields)
-        //Overlapping interest, but avoids more complexity elsewhere
-        let chatModel = ChatModel(participantIds: [event.initiatorId, event.recipientId], lastMessageAt: nil)
+        try await updateEvent(initId: senderId, recipId: userId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: userFields)
+        //Chat Model
+        let chatModel = ChatModel(participantIds: [senderId, userId], lastMessageAt: nil)
         try fs.set("chats/\(eventId)", value: chatModel, merge: false)
+    }
+    
+    func declineEvent(eventId: String, otherUserId: String, userId: String) async throws {
+        let updatedField: [String: Any] = [
+            UserEvent.Field.status.rawValue : Event.EventStatus.declined.rawValue
+        ]
+        try await updateEvent(initId: otherUserId, recipId: userId, eventId: eventId, initFields: updatedField, recipFields: updatedField, eventFields: updatedField)
+    }
+    
+    func respondWithNewTime(event: UserEvent, proposedTimes: ProposedTimes, userId: String) async throws {
+        //1.Reverse who is initiator and who is recipient
+        let newInitiatorId = userId
+        let newRecipientId = event.otherUserId
+        
+        //2: With the old and new times generate an 'update Log' data
+        let encodedTimes = try fs.encodeFields(proposedTimes)
+        let encodedChangeLog = try changeLogEntryTime(event: event, newTimes: proposedTimes, userUpdating: userId)
+        
+        //3. Construct fields to update for UserFields and Event
+        let newInitiatorFields: [String : Any] = [
+            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
+            UserEvent.Field.role.rawValue: UserEvent.EdgeRole.sent.rawValue
+        ]
+        let newRecipientFields: [String : Any] = [
+            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
+            UserEvent.Field.role.rawValue: UserEvent.EdgeRole.received.rawValue
+        ]
+        let eventFields: [String : Any] = [
+            Event.Field.proposedTimes.rawValue: encodedTimes,
+            Event.Field.initiatorId.rawValue: newInitiatorId,
+            Event.Field.recipientId.rawValue: newRecipientId,
+            Event.Field.changeLog.rawValue: FieldValue.arrayUnion([encodedChangeLog])
+        ]
+        //4. Now with the updated Fields created, now update the event
+        try await updateEvent(
+            initId: newInitiatorId,
+            recipId: newRecipientId,
+            eventId: event.id,
+            initFields: newInitiatorFields,
+            recipFields: newRecipientFields,
+            eventFields: eventFields
+        )
     }
     
     func respondWithNewEvent(oldEvent: UserEvent, proposedTimes: ProposedTimes, newType: Event.EventType, newPlace: EventLocation, userId: String, newMessage: String?) async throws {
@@ -209,41 +248,6 @@ extension EventsRepo {
             initId: newInitiatorId,
             recipId: newRecipientId,
             eventId: oldEvent.id,
-            initFields: newInitiatorFields,
-            recipFields: newRecipientFields,
-            eventFields: eventFields
-        )
-    }
-    
-    func respondWithNewTime(event: UserEvent, proposedTimes: ProposedTimes, userId: String) async throws {
-        //1.Reverse who is initiator and who is recipient
-        let newInitiatorId = userId
-        let newRecipientId = event.otherUserId
-        
-        //2: With the old and new times generate an 'update Log' data
-        let encodedTimes = try fs.encodeFields(proposedTimes)
-        let encodedChangeLog = try changeLogEntryTime(event: event, newTimes: proposedTimes, userUpdating: userId)
-        
-        //3. Construct fields to update for UserFields and Event
-        let newInitiatorFields: [String : Any] = [
-            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
-            UserEvent.Field.role.rawValue: UserEvent.EdgeRole.sent.rawValue
-        ]
-        let newRecipientFields: [String : Any] = [
-            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
-            UserEvent.Field.role.rawValue: UserEvent.EdgeRole.received.rawValue
-        ]
-        let eventFields: [String : Any] = [
-            Event.Field.proposedTimes.rawValue: encodedTimes,
-            Event.Field.initiatorId.rawValue: newInitiatorId,
-            Event.Field.recipientId.rawValue: newRecipientId,
-            Event.Field.changeLog.rawValue: FieldValue.arrayUnion([encodedChangeLog])
-        ]
-        //4. Now with the updated Fields created, now update the event
-        try await updateEvent(
-            initId: newInitiatorId,
-            recipId: newRecipientId,
-            eventId: event.id,
             initFields: newInitiatorFields,
             recipFields: newRecipientFields,
             eventFields: eventFields
