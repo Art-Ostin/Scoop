@@ -7,6 +7,8 @@ struct ProfileView: View {
     
     @State private var vm: ProfileViewModel
     
+    @Bindable var respondVM: RespondViewModel
+    
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
     
@@ -33,13 +35,6 @@ struct ProfileView: View {
     //Optional Invite as not all event Drafts Require it.
     let response: ((ResponseType) -> ())?
     
-    
-    
-    let acceptInvite: ((OriginalInvite) -> ())?
-    let sendNewTime: ((NewTimeDraft) -> ())?
-    let sendInvite: ((EventDraft) -> ())?
-    let declineInvite: ((UserEvent?) -> ())?
-
     init(
         vm: ProfileViewModel,
         profileImages: [UIImage],
@@ -47,20 +42,12 @@ struct ProfileView: View {
         dismissOffset: Binding<CGFloat?>,
         draftProfile: UserProfile? = nil,
         isMessageProfile: Bool = false,
-        acceptInvite: ((OriginalInvite) -> Void)? = nil,
-        sendNewTime: ((NewTimeDraft) -> Void)? = nil,
-        sendInvite: ((EventDraft) -> Void)? = nil,
-        declineInvite: ((UserEvent?) -> Void)? = nil,
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
-        self.acceptInvite = acceptInvite
-        self.sendNewTime = sendNewTime
-        self.sendInvite = sendInvite
-        self.declineInvite = declineInvite
     }
     
     var body: some View {
@@ -305,7 +292,26 @@ extension ProfileView {
     }
 }
 
-extension ProfileView {
-    
-    
-}
+
+/*
+ 
+ acceptInvite: ((OriginalInvite) -> Void)? = nil,
+ sendNewTime: ((NewTimeDraft) -> Void)? = nil,
+ sendInvite: ((EventDraft) -> Void)? = nil,
+ declineInvite: ((UserEvent?) -> Void)? = nil,
+
+ 
+ let acceptInvite: ((OriginalInvite) -> ())?
+ let sendNewTime: ((NewTimeDraft) -> ())?
+ let sendInvite: ((EventDraft) -> ())?
+ let declineInvite: ((UserEvent?) -> ())?
+ 
+ 
+ 
+
+ self.acceptInvite = acceptInvite
+ self.sendNewTime = sendNewTime
+ self.sendInvite = sendInvite
+ self.declineInvite = declineInvite
+
+ */

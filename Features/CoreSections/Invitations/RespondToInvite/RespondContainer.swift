@@ -27,11 +27,9 @@ struct RespondPopupContainer: View {
     @State var confirmSendNewInvite: Bool = false
     
     var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
+
+    let profileResponse: (ResponseType) -> ()
     
-    let acceptInvite: (OriginalInvite) -> ()
-    let sendNewTime: (NewTimeDraft) -> ()
-    let sendNewInvite: (EventDraft) -> ()
-    let declineInvite: (_ event: UserEvent) -> ()
     
     var body: some View {
         ZStack {
@@ -72,7 +70,7 @@ struct RespondPopupContainer: View {
             }
             .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
                 let newTime = vm.respondDraft.newTime
-                sendNewTime(newTime)
+                resp
             }
             .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
                 let acceptedInvite = vm.respondDraft.originalInvite
@@ -134,5 +132,12 @@ extension RespondPopupContainer {
          vm.respondDraft.respondType = lastResponseType ?? vm.respondDraft.respondType
      }
  }
+ 
+ 
+ let acceptInvite: (OriginalInvite) -> ()
+ let sendNewTime: (NewTimeDraft) -> ()
+ let sendNewInvite: (EventDraft) -> ()
+ let declineInvite: (_ event: UserEvent) -> ()
 
+ 
  */
