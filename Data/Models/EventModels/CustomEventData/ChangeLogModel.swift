@@ -15,7 +15,7 @@ enum ChangeType: String, Codable {
 struct ChangeLogEntry: Codable {
     var timestamp: Date = Date()
     let editedByUserId: String
-    let changes: ChangeItem
+    let changes: [ChangeItem]
 }
 
 struct ChangeItem: Codable {
@@ -27,6 +27,7 @@ struct ChangeItem: Codable {
 
 enum ChangeValue: Equatable {
     case proposedTimes([Date])
+    case string(String)
 }
 
 extension ChangeValue: Codable {
