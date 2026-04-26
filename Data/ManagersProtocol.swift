@@ -52,10 +52,12 @@ protocol EventsRepository {
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws
     func deleteAllSentPendingInvites(userId: String) async throws
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
-    func acceptEvent(eventId: String, acceptedDate: Date) async throws
     func updateRecentChat(message: MessageModel, eventId: String) async throws
     func readRecentMessages(userId: String, userEventId: String) async throws
-    func respondWithNewTime(_ rescheduleResponse: RescheduleResponse) async throws
+    func acceptEvent(eventId: String, senderId: String, userId: String, acceptedTime: Date) async throws
+    func declineEvent(eventId: String, otherUserId: String, userId: String) async throws
+    func respondWithNewTime(newTime: RescheduleResponse) async throws
+    func respondWithNewEvent(eventResponse: EventResponse) async throws
 }
 
 protocol ChatRepository {

@@ -38,7 +38,7 @@ class RespondViewModel {
     }    
     
     private func updateDefaults() {
-        defaults.updateRespondDraft(profileId: user.id, respondDraft: respondDraft)
+        defaults.updateRespondDraft(eventId: user.id, respondDraft: respondDraft)
     }
     
     private static func loadRespondDraft(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent, currentUserId: String) -> RespondDraft {

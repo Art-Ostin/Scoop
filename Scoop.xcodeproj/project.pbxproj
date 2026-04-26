@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 650135682E4A41F400630CF3 /* AsyncAlgorithms */; };
 		6501358A2E4C06DF00630CF3 /* EventSlotContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650135892E4C06DF00630CF3 /* EventSlotContainer.swift */; };
+		650321332F9DF07F002852BA /* RespondEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650321322F9DF07F002852BA /* RespondEvent.swift */; };
 		650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */; };
 		650383E32E6B89C90053DDB2 /* CustomTabBarContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */; };
 		6503D5EE2F3A963100D9290D /* ModernMiniLoader.json in Resources */ = {isa = PBXBuildFile; fileRef = 6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */; };
@@ -301,6 +302,7 @@
 
 /* Begin PBXFileReference section */
 		650135892E4C06DF00630CF3 /* EventSlotContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlotContainer.swift; sourceTree = "<group>"; };
+		650321322F9DF07F002852BA /* RespondEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondEvent.swift; sourceTree = "<group>"; };
 		650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarView.swift; sourceTree = "<group>"; };
 		650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarContainerView.swift; sourceTree = "<group>"; };
 		6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ModernMiniLoader.json; sourceTree = "<group>"; };
@@ -1287,6 +1289,7 @@
 			children = (
 				657BD3222F71E71200D7C29A /* RespondModels.swift */,
 				6527357D2F9DE5480048F2B0 /* RescheduleResponse.swift */,
+				650321322F9DF07F002852BA /* RespondEvent.swift */,
 				652D6FAF2F3D022900B08F6F /* MapsRouter.swift */,
 				65A904892F412E9300BBCAB6 /* EventModels */,
 				65A9048E2F41332800BBCAB6 /* ProfileModels */,
@@ -1777,6 +1780,7 @@
 				653BAFB62E0D6BAD00C1AB9E /* EventModel.swift in Sources */,
 				65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */,
 				6509DDC72E37A1CC0042917B /* EditTextfield.swift in Sources */,
+				650321332F9DF07F002852BA /* RespondEvent.swift in Sources */,
 				65A904882F412E2200BBCAB6 /* UserEventModel.swift in Sources */,
 				655AB8FF2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift in Sources */,
 				65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */,

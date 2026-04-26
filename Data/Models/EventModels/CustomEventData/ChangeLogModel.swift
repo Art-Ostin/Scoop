@@ -41,6 +41,8 @@ extension ChangeValue: Codable {
         switch self {
         case .proposedTimes(let dates):
             try container.encode(dates)
+        case .string(let value):
+            try container.encode(value)
         }
     }
 
@@ -48,6 +50,10 @@ extension ChangeValue: Codable {
         let container = try decoder.singleValueContainer()
         if let dates = try? container.decode([Date].self) {
             self = .proposedTimes(dates)
+            return
+        }
+        if let value = try? container.decode(String.self) {
+            self = .string(value)
             return
         }
         throw DecodingError.dataCorrupted(

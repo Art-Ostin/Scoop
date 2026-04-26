@@ -59,19 +59,27 @@ import SwiftUI
 //Functions to Respond To Invites
 extension InvitesViewModel {
     
-    func acceptInvite(eventId: String, acceptedDate: ProposedTime) async throws {
+    func acceptInvite(eventId: String, senderId: String, acceptedDate: Date) async throws {
         //1. Accept the Event on backend
-        try await eventRepo.acceptEvent(eventId: eventId, acceptedDate: acceptedDate.date)
+        try await eventRepo.acceptEvent(eventId: eventId, senderId: senderId, userId: session.user.id, acceptedTime: acceptedDate)
         updateInvitesLocally(eventId: eventId, isAccepted: true)
     }
     
     func sendNewTime(rescheduleResponse: RescheduleResponse) async throws {
-        try await eventRepo.respondWithNewTime(rescheduleResponse)
+        try await eventRepo.respondWithNewTime(newTime: rescheduleResponse)
         updateInvitesLocally(eventId: rescheduleResponse.eventId)
     }
     
+    func sendNewEvent(eventResponse: EventResponse) async throws {
+        try await eventRepo.respondWithNewEvent(eventResponse: eventResponse)
+        updateInvitesLocally(eventId: eventResponse.eventId)
+    }
+    
+    func declineInvite(eventId: String, otherUserId: String) async throws  {
+        try await eventRepo.declineEvent(eventId: eventId, otherUserId: otherUserId, userId: userId)
+    }
+    
     private func updateInvitesLocally(eventId: String, isAccepted: Bool = false) {
-        
         //1. Add the event to the events section if its accepted
         if isAccepted {
             if let eventProfile = invites.first(where: { $0.id == eventId}) {
@@ -81,24 +89,6 @@ extension InvitesViewModel {
         
         //2. Remove the event from the 'invites' section and draft
         session.invites.removeAll { $0.id == eventId }
-        defaults.deleteRespondDraft(eventId: eventId)
-    }
-    
-    
-    
-    
-    
-    
-    //3. Send entirely new Invite
-    func sendInvite(eventId: String) async throws  {
-        print("New Invite Sent")
-        //Delete the invite from defaults
-        defaults.deleteRespondDraft(eventId: eventId)
-    }
-    
-    //4. Decline Invite
-    func declineInvite(eventId: String) async throws  {
-        print("Invite Declined")
         defaults.deleteRespondDraft(eventId: eventId)
     }
 }

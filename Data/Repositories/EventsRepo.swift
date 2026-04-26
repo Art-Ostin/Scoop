@@ -158,6 +158,7 @@ extension EventsRepo {
 
 //Logic regarding responding with (1) Accepting Event (2) Declining Invite (3) Sending New Times (4) Sending New Event.
 extension EventsRepo {
+    
     func acceptEvent(eventId: String, senderId: String, userId: String, acceptedTime: Date) async throws {
         var userFields: [String : Any] = [
             Event.Field.status.rawValue : Event.EventStatus.accepted.rawValue,
@@ -213,20 +214,20 @@ extension EventsRepo {
         )
     }
     
-    func respondWithNewEvent(oldEvent: UserEvent, proposedTimes: ProposedTimes, newType: Event.EventType, newPlace: EventLocation, userId: String, newMessage: String?) async throws {
+    func respondWithNewEvent(eventResponse: EventResponse) async throws {
         //1.Reverse who is initiator and who is recipient
-        let newInitiatorId = userId
-        let newRecipientId = oldEvent.otherUserId
+        let newInitiatorId = eventResponse.userId
+        let newRecipientId = eventResponse.otherUserId
         
         //2. Encode proposedTimes so can be uploaded to Firebase
-        let encodedTimes = try fs.encodeFields(proposedTimes)
-        let encodedLocation = try fs.encodeFields(newPlace)
+        let encodedTimes = try fs.encodeFields(eventResponse.newTimes)
+        let encodedLocation = try fs.encodeFields(eventResponse.newPlace)
         
         //3. Get the core fields that update for both users
         var coreFields: [String: Any] = [
             UserEvent.Field.proposedTimes.rawValue: encodedTimes,
             UserEvent.Field.location.rawValue: encodedLocation,
-            UserEvent.Field.type.rawValue: newType.rawValue,
+            UserEvent.Field.type.rawValue: eventResponse.newType.rawValue,
         ]
         
         //4. Update the respective fields for User
@@ -237,7 +238,8 @@ extension EventsRepo {
         newRecipientFields[UserEvent.Field.role.rawValue] = UserEvent.EdgeRole.received.rawValue
 
         //5. Create the change log and create the event Fields
-        let encodedChangeLog = try changeLogEntryEvent(oldEvent: oldEvent, proposedTimes: proposedTimes, newType: newType, newPlace: newPlace, userId: userId)
+        let encodedChangeLog = try changeLogEntryEvent(eventResponse: eventResponse)
+        
         var eventFields = coreFields
         eventFields[Event.Field.changeLog.rawValue] = FieldValue.arrayUnion([encodedChangeLog])
         
@@ -245,13 +247,14 @@ extension EventsRepo {
         try await updateEvent(
             initId: newInitiatorId,
             recipId: newRecipientId,
-            eventId: oldEvent.id,
+            eventId: eventResponse.eventId,
             initFields: newInitiatorFields,
             recipFields: newRecipientFields,
             eventFields: eventFields
         )
     }
 }
+  
 
 //Helpers for function
 extension EventsRepo {
@@ -292,16 +295,16 @@ extension EventsRepo {
         return try fs.encodeFields(changeLog)
     }
     
-    private func changeLogEntryEvent(oldEvent: UserEvent, proposedTimes: ProposedTimes, newType: Event.EventType, newPlace: EventLocation, userId: String) throws -> [String: Any]{
+    private func changeLogEntryEvent(eventResponse: EventResponse) throws -> [String: Any] {
         //1. Extract the old and New Dates
-        let oldTimes: [Date] = oldEvent.proposedTimes.dates.map{ $0.date}
-        let newTimes: [Date] = proposedTimes.dates.map{ $0.date}
+        let oldTimes: [Date] = eventResponse.oldTimes.dates.map{ $0.date}
+        let newTimes: [Date] = eventResponse.newTimes.dates.map{ $0.date}
         
-        let oldType = oldEvent.type.rawValue
-        let newType = newType.rawValue
+        let oldType = eventResponse.oldType.rawValue
+        let newType = eventResponse.newType.rawValue
         
-        let oldPlace = oldEvent.location.name ?? oldEvent.location.address ?? ""
-        let newPlace = newPlace.name ?? oldEvent.location.address ?? ""
+        let oldPlace = eventResponse.oldPlace.name ?? eventResponse.oldPlace.address ?? ""
+        let newPlace = eventResponse.newPlace.name ?? eventResponse.newPlace.address ?? ""
         
         //2. Create the 'Change Values' for log Entry
         let oldTimesChangeValue = ChangeValue.proposedTimes(oldTimes)
@@ -317,7 +320,7 @@ extension EventsRepo {
         let changeItemPlace = ChangeItem(changeType: ChangeType.newEvent.rawValue, oldValue: oldTypeValue, newValue: newTypeValue)
         
         //3. From the registered changeItems, generate the change Log
-        let changeLog = ChangeLogEntry(editedByUserId: userId, changes: [changeItemTime, changeItemType, changeItemPlace])
+        let changeLog = ChangeLogEntry(editedByUserId: eventResponse.userId, changes: [changeItemTime, changeItemType, changeItemPlace])
         return try fs.encodeFields(changeLog)
     }
 }
