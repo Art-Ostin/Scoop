@@ -43,15 +43,15 @@ struct Event: Identifiable, Codable {
     var changeLog: [ChangeLogEntry] = []
     @ServerTimestamp var date_created: Date?
     
-    init?(draft: EventDraft) {
-        guard let location = draft.location else {
+    init?(draft: EventFieldsDraft, initiatorId: String, recipientId: String) {
+        guard let location = draft.place else {
             return nil
         }
 
-        self.initiatorId = draft.initiatorId
-        self.recipientId = draft.recipientId
+        self.initiatorId = initiatorId
+        self.recipientId = recipientId
         self.type = draft.type
-        self.proposedTimes = draft.proposedTimes
+        self.proposedTimes = draft.time
         self.location = location
         self.message = draft.message
     }

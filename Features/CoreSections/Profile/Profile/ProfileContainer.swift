@@ -7,7 +7,7 @@ struct ProfileView: View {
     
     @State private var vm: ProfileViewModel
     
-    @Bindable var respondVM: RespondViewModel
+    let respondVM: Bindable<RespondViewModel>?
     
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
@@ -32,7 +32,7 @@ struct ProfileView: View {
         draftProfile ?? vm.profile
     }
     
-    let sendInvite: ((EventDraft) -> ())?
+    let sendInvite: ((EventFieldsDraft) -> ())?
 
     //Optional Invite as not all event Drafts Require it.
     let profileResponse: ((ProfileResponse) -> ())?
@@ -44,13 +44,18 @@ struct ProfileView: View {
         dismissOffset: Binding<CGFloat?>,
         draftProfile: UserProfile? = nil,
         isMessageProfile: Bool = false,
-        sendInvite: ((EventDraft) -> Void)? = nil
+        sendInvite: ((EventFieldsDraft) -> Void)? = nil,
+        respondVM : Bindable<RespondViewModel>? = nil,
+        profileResponse: ((ProfileResponse) -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
         self.draftProfile = draftProfile
+        self.respondVM = respondVM
+        self.sendInvite = sendInvite
+        self.profileResponse = profileResponse
     }
     
     var body: some View {
@@ -116,15 +121,17 @@ extension ProfileView {
     
     @ViewBuilder
     private var invitePopup: some View {
-        if ui.showRespondPopup, let event = vm.event {
-            RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM) { responseType in
-                profileResponse?(responseType)
+        if ui.showRespondPopup { //EventFieldsDraft
+            if let respondVM {
+                RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM.wrappedValue) { responseType in
+                    profileResponse?(responseType)
+                }
             }
         } else {
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, image: profileImages.first ?? UIImage()),
-                showInvite: $ui.showRespondPopup) { event in
-                    sendInvite?(event)
+                showInvite: $ui.showRespondPopup) { eventId in
+                    sendInvite?(eventId)
                 }
         }
     }

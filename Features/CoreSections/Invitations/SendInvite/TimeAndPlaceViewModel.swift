@@ -15,7 +15,7 @@ import SwiftUI
     let s: SessionManager
     let image: UIImage
     
-    var event: EventDraft {
+    var event: EventFieldsDraft {
         didSet {
             defaults.updateEventDraft(profileId: profile.id, eventDraft: event)
         }
@@ -29,17 +29,17 @@ import SwiftUI
         self.event = Self.loadEvent(d: defaults, s: sessionManager, p: profile)
     }
     
-    private static func loadEvent(d: DefaultsManaging, s: SessionManager, p: UserProfile) -> EventDraft {
+    private static func loadEvent(d: DefaultsManaging, s: SessionManager, p: UserProfile) -> EventFieldsDraft {
         if let storedEvent = d.fetchEventDraft(profileId: p.id) {
             return storedEvent
         } else {
-            return EventDraft(initiatorId: s.user.id, recipientId: p.id)
+            return EventFieldsDraft()
         }
     }
     
     func deleteEventDefault() {
         defaults.deleteEventDraft(profileId: profile.id)
-        event = EventDraft(initiatorId: s.user.id, recipientId: profile.id)
+        event = EventFieldsDraft()
     }
 }
 

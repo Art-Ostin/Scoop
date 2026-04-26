@@ -15,7 +15,7 @@ struct RespondDraft: Codable  {
     
     var originalInvite: OriginalInvite
     var newTime: NewTimeDraft { didSet { respondType = .modified}}
-    var newEvent: EventResponseDraft
+    var newEvent: EventFieldsDraft
     var respondMessage: String?
     var respondType: ResponseType
     
@@ -23,7 +23,7 @@ struct RespondDraft: Codable  {
         let selectedDay = event.proposedTimes.firstAvailableDate
         self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init())
-        self.newEvent = EventResponseDraft(type: .drink, place: event.location)
+        self.newEvent = EventFieldsDraft(type: .drink, place: event.location)
         self.respondType = .original
     }
 }
@@ -37,8 +37,6 @@ struct NewTimeDraft: Codable {
     let event: UserEvent
     var proposedTimes: ProposedTimes
 }
-
-
 
 
 // MARK: - Persistable mirrors for UserDefaults
@@ -81,7 +79,7 @@ struct PersistableNewTimeDraft: Codable {
 struct PersistableRespondDraft: Codable {
     var originalInvite: PersistableOriginalInvite
     var newTime: PersistableNewTimeDraft
-    var newEvent: EventDraft
+    var newEvent: EventFieldsDraft
     var respondMessage: String?
     var respondType: ResponseType
 }

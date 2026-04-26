@@ -43,35 +43,17 @@ struct InvitesContainer: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
                 Task {
-                    await respondWithNewTime(profileId: profileId)
+                    try? await respondWithNewTime(profileId: profileId)
                 }
             }
             .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                vm.acc
-            }
-                
-                
-                
-                
-                if let acceptedInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite {
-                    
-                    
-                    Task {
-                        
-                        
-                        
-                        try? await vm.acceptInvite(acceptedInvite: acceptedInvite)
-                    }
-                } else {
-                    print("Id not located")
-                }
             }
             .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
                 Task {
                     try await respondWithNewTime(profileId: profileId)
                 }
             }
-        
+            
             .onPreferenceChange(IsTimeOpen.self) { newValue in
                 showTimePopup = newValue
             }
@@ -104,7 +86,7 @@ extension InvitesContainer {
                         openProfile(profile)
                     } onDecline: { userEvent in
                         Task {
-                            await respondToProfile(respondType: .decline)
+                            try await respondToProfile(respondType: .decline, profileId: invite.profile.id)
                         }
                     }
                     .task { await loadProfileImages(invite.profile) }
@@ -157,30 +139,11 @@ extension InvitesContainer {
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset) {
-                    
-                    
-                    
-                    
-                    
-                    
-                    acceptedInvite in
+                dismissOffset: $ui.dismissOffset, profileResponse:  {respondType in
                     Task {
-                        await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: profile)
+                        try? await respondToProfile(respondType: respondType, profileId: eventProfile.profile.id)
                     }
-                } sendNewTime: { newTime in
-                    Task {
-                        await respondToProfile(respondType: .newTime, newTime: newTime, profile: profile)
-                    }
-                } sendInvite: { eventDraft in
-                    Task {
-                        await respondToProfile(respondType: .newInvite, event: eventDraft, profile: profile)
-                    }
-                } declineInvite: { userEvent in
-                    Task {
-                        await respondToProfile(respondType: .decline, profile: profile)
-                    }
-                }
+                })
                 .id(eventProfile.profile.id)
                 .zIndex(1)
                 .transition(.move(edge: .bottom))
@@ -328,4 +291,45 @@ extension InvitesContainer {
          }
      }
  }
+ */
+
+/*
+ //
+ //
+ //                if let acceptedInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite {
+ //
+ //
+ //                    Task {
+ //
+ //
+ //
+ //                        try? await vm.acceptInvite(acceptedInvite: acceptedInvite)
+ //                    }
+ //                } else {
+ //                    print("Id not located")
+ //                }
+
+ */
+
+/*
+ 
+ 
+ acceptedInvite in
+ Task {
+     await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: profile)
+ }
+} sendNewTime: { newTime in
+ Task {
+     await respondToProfile(respondType: .newTime, newTime: newTime, profile: profile)
+ }
+} sendInvite: { eventDraft in
+ Task {
+     await respondToProfile(respondType: .newInvite, event: eventDraft, profile: profile)
+ }
+} declineInvite: { userEvent in
+ Task {
+     await respondToProfile(respondType: .decline, profile: profile)
+ }
+}
+
  */

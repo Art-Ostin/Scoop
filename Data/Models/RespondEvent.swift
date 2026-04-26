@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct EventResponse {
     let eventId: String
@@ -23,31 +24,45 @@ struct EventResponse {
     
     let newMessage: String?
     
-    init(oldEvent: UserEvent, newEvent: EventResponseDraft, userId: String) {
+    init(oldEvent: UserEvent, newEvent: EventFieldsDraft, userId: String) {
         self.eventId = oldEvent.id
         self.otherUserId = oldEvent.otherUserId
         self.userId = userId
         
         self.oldTimes = oldEvent.proposedTimes
-        if let times = newEvent.time {
-            self.newTimes = times
-        }
+        self.newTimes = newEvent.time
+        
         
         self.oldType = oldEvent.type
         self.newType = newEvent.type
         
         self.oldPlace = oldEvent.location
-        if let place = newEvent.place {
-            self.newPlace = place
-        }
+        self.newPlace = newEvent.place ?? EventLocation(mapItem: .mcGill)
+         
         self.newMessage = newEvent.message
     }
 }
 
-struct EventResponseDraft: Codable {
-    var type: Event.EventType
-    var time: ProposedTimes?
+struct EventFieldsDraft: Codable {
+    var type: Event.EventType = .drink
+    var time: ProposedTimes = .init()
     var place: EventLocation?
 
     var message: String?
+}
+
+//To Use McGill as backup location
+extension MKMapItem {
+    static var mcGill: MKMapItem {
+        let coordinate = CLLocationCoordinate2D(
+            latitude: 45.5048,
+            longitude: -73.5772
+        )
+
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let item = MKMapItem(placemark: placemark)
+        item.name = "McGill University"
+
+        return item
+    }
 }

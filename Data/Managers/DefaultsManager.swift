@@ -10,6 +10,7 @@ import FirebaseAuth
 
 @Observable
 final class DefaultsManager: DefaultsManaging {
+    
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let maxRecentMapSearches = 4
@@ -20,7 +21,7 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var signUpDraft: DraftProfile?
     private(set) var recentMapSearches: [RecentPlace] = []
     private(set) var preferredMapType: PreferredMapType?
-    private(set) var eventDrafts: [String: EventDraft] = [:]
+    private(set) var eventDrafts: [String: EventFieldsDraft] = [:]
     private(set) var respondDrafts: [String : RespondDraft] = [:]
 
     init(defaults: UserDefaults = .standard) {
@@ -112,12 +113,12 @@ extension DefaultsManager {
 
 // Draft Event related defaults
 extension DefaultsManager {
-    func updateEventDraft(profileId: String, eventDraft: EventDraft) {
+    func updateEventDraft(profileId: String, eventDraft: EventFieldsDraft) {
         eventDrafts[profileId] = eventDraft
         persistEventDrafts()
     }
 
-    func fetchEventDraft(profileId: String) -> EventDraft? {
+    func fetchEventDraft(profileId: String) -> EventFieldsDraft? {
         return eventDrafts[profileId]
     }
 
@@ -153,7 +154,7 @@ private extension DefaultsManager {
         recentMapSearches = decode([RecentPlace].self, for: .recentMapSearches) ?? []
         preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue)
             .flatMap(PreferredMapType.init(rawValue:))
-        eventDrafts = decode([String: EventDraft].self, for: .eventDrafts) ?? [:]
+        eventDrafts = decode([String: EventFieldsDraft].self, for: .eventDrafts) ?? [:]
         let storedRespondDrafts = decode([String: PersistableRespondDraft].self, for: .responseDrafts) ?? [:]
         respondDrafts = storedRespondDrafts.mapValues { RespondDraft($0) }
     }

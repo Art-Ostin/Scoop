@@ -98,8 +98,6 @@ extension MeetContainer {
             dismissOffset: $dismissOffset,
             sendInvite: { draft in
                 Task { await respondToProfile(event: draft, profile: profile) }
-            }, declineInvite: {_ in
-                Task { await respondToProfile(profile: profile) }
             }
         )
         .id(profile.id)
@@ -128,7 +126,7 @@ extension MeetContainer {
 
 extension MeetContainer {
     
-    private func respondToProfile(event: EventDraft? = nil, profile: UserProfile) async {
+    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         let isInvite = event != nil
         //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
