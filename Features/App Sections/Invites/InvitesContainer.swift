@@ -42,15 +42,17 @@ struct InvitesContainer: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                if let newTime = vm.respondVMs[profileId]?.respondDraft.newTime {
-                    Task {
-                        try? await vm.sendNewTime(newTimeEvent: newTime)
-                    }
+                Task {
+                    await respondWithNewTime(profileId: profileId)
                 }
             }
             .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at . If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
                 if let acceptedInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite {
                     Task {
+    
+                        
+                        
+                        
                         try? await vm.acceptInvite(acceptedInvite: acceptedInvite)
                     }
                 } else {
@@ -137,6 +139,19 @@ extension InvitesContainer {
 
 //ProfileView Related
 extension InvitesContainer {
+    
+    
+    private func respondWithNewTime(profileId: String) async {
+        if let newTime = vm.respondVMs[profileId]?.respondDraft.newTime {
+                let oldTimes: [Date] = newTime.event.proposedTimes.dates.map{ $0.date}
+                let newTimes: [Date] = newTime.proposedTimes.dates.map{ $0.date}
+                let rescheduleResponse = RescheduleResponse(eventId: newTime.event.id, responderId: vm.userId, recipientId: newTime.event.otherUserId, oldTimes: oldTimes, newTimes: newTimes)
+                try? await vm.sendNewTime(rescheduleResponse: rescheduleResponse)
+        }
+    }
+    
+    
+    
     
     @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {

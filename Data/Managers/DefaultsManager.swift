@@ -130,17 +130,17 @@ extension DefaultsManager {
 //Logic for saving Respond Drafts
 extension DefaultsManager {
     
-    func updateRespondDraft(profileId: String, respondDraft: RespondDraft) {
-        respondDrafts[profileId] = respondDraft
+    func updateRespondDraft(eventId: String, respondDraft: RespondDraft) {
+        respondDrafts[eventId] = respondDraft
         persistResponseDrafts()
     }
     
-    func fetchRespondDraft(profileId: String) -> RespondDraft? {
-        respondDrafts[profileId]
+    func fetchRespondDraft(eventId: String) -> RespondDraft? {
+        respondDrafts[eventId]
     }
     
-    func deleteRespondDraft(profileId: String) {
-        respondDrafts.removeValue(forKey: profileId)
+    func deleteRespondDraft(eventId: String) {
+        respondDrafts.removeValue(forKey: eventId)
         persistResponseDrafts()
     }
 }

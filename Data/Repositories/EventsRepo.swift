@@ -62,9 +62,7 @@ class EventsRepo: EventsRepository {
         
         try await updateEvent(initId: initiatorId, recipId: recipientId, eventId: eventId, initFields: fields, recipFields: fields, eventFields: fields)
     }
-    
-    
-    
+        
     //Part 3:Track Events
     func eventTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
         //Set up the listener for specifically the UserEvents. Only includes events pending, accepted, or pastAccepted
@@ -180,14 +178,14 @@ extension EventsRepo {
         try await updateEvent(initId: otherUserId, recipId: userId, eventId: eventId, initFields: updatedField, recipFields: updatedField, eventFields: updatedField)
     }
     
-    func respondWithNewTime(event: UserEvent, proposedTimes: ProposedTimes, userId: String) async throws {
+    func respondWithNewTime(newTime: RescheduleResponse) async throws {
         //1.Reverse who is initiator and who is recipient
-        let newInitiatorId = userId
-        let newRecipientId = event.otherUserId
+        let newInitiatorId = newTime.userId
         
         //2: With the old and new times generate an 'update Log' data
-        let encodedTimes = try fs.encodeFields(proposedTimes)
-        let encodedChangeLog = try changeLogEntryTime(event: event, newTimes: proposedTimes, userUpdating: userId)
+        let encodedTimes = try fs.encodeFields(newTime.newTimes)
+        let encodedChangeLog = try changeLogEntryTime(oldTimes: newTime.oldTimes, newTimes: newTime.newTimes, userUpdating: newTime.userId)
+        
         
         //3. Construct fields to update for UserFields and Event
         let newInitiatorFields: [String : Any] = [
@@ -201,14 +199,14 @@ extension EventsRepo {
         let eventFields: [String : Any] = [
             Event.Field.proposedTimes.rawValue: encodedTimes,
             Event.Field.initiatorId.rawValue: newInitiatorId,
-            Event.Field.recipientId.rawValue: newRecipientId,
+            Event.Field.recipientId.rawValue: newTime.recipientId,
             Event.Field.changeLog.rawValue: FieldValue.arrayUnion([encodedChangeLog])
         ]
         //4. Now with the updated Fields created, now update the event
         try await updateEvent(
             initId: newInitiatorId,
-            recipId: newRecipientId,
-            eventId: event.id,
+            recipId: newTime.recipientId,
+            eventId: newTime.eventId,
             initFields: newInitiatorFields,
             recipFields: newRecipientFields,
             eventFields: eventFields
@@ -277,9 +275,9 @@ extension EventsRepo {
         return(event, initiatorId, recipientId)
     }
     
-    private func changeLogEntryTime(event: UserEvent, newTimes: ProposedTimes, userUpdating: String) throws -> [String: Any] {
+    private func changeLogEntryTime(oldTimes: ProposedTimes, newTimes: ProposedTimes, userUpdating: String) throws -> [String: Any] {
         //1. Extract the old and New Dates
-        let oldTimes: [Date] = event.proposedTimes.dates.map{ $0.date}
+        let oldTimes: [Date] = oldTimes.dates.map{ $0.date}
         let newTimes: [Date] = newTimes.dates.map{ $0.date}
 
         //2. Create the 'change Values' for log entry

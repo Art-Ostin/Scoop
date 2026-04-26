@@ -53,9 +53,9 @@ protocol EventsRepository {
     func deleteAllSentPendingInvites(userId: String) async throws
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
     func acceptEvent(eventId: String, acceptedDate: Date) async throws
-    func updateRecentChat(message: MessageModel, eventId: String) async throws 
+    func updateRecentChat(message: MessageModel, eventId: String) async throws
     func readRecentMessages(userId: String, userEventId: String) async throws
-    func respondWithNewTime(event: UserEvent, proposedTimes: ProposedTimes, userId: String) async throws
+    func respondWithNewTime(_ rescheduleResponse: RescheduleResponse) async throws
 }
 
 protocol ChatRepository {
@@ -95,8 +95,8 @@ protocol DefaultsManaging: AnyObject {
     func deleteDefaults()
     func advanceOnboarding()
     func retreatOnboarding()
-    func updateRespondDraft(profileId: String, respondDraft: RespondDraft)
-    func deleteRespondDraft(profileId: String)
+    func updateRespondDraft(eventId: String, respondDraft: RespondDraft)
+    func deleteRespondDraft(eventId: String)
     func updateRecentMapSearches(title: String, town: String)
     func removeFromRecentMapSearches(place: RecentPlace)
     func updatePreferredMapType(mapType: PreferredMapType?)
