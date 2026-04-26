@@ -32,8 +32,10 @@ struct ProfileView: View {
         draftProfile ?? vm.profile
     }
     
+    let sendInvite: ((EventDraft) -> ())?
+
     //Optional Invite as not all event Drafts Require it.
-    let response: ((ResponseType) -> ())?
+    let profileResponse: ((ProfileResponse) -> ())?
     
     init(
         vm: ProfileViewModel,
@@ -42,6 +44,7 @@ struct ProfileView: View {
         dismissOffset: Binding<CGFloat?>,
         draftProfile: UserProfile? = nil,
         isMessageProfile: Bool = false,
+        sendInvite: ((EventDraft) -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
@@ -66,7 +69,7 @@ struct ProfileView: View {
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
                         
                         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event) {
-                            declineInvite?(nil)
+                            profileResponse?(.decline)
                         }
                             .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
                             .offset(y: detailsSectionOffset())
@@ -114,23 +117,9 @@ extension ProfileView {
     @ViewBuilder
     private var invitePopup: some View {
         if ui.showRespondPopup, let event = vm.event {
-            RespondPopupContainer(
-                showPopup: $ui.showRespondPopup,
-                vm: RespondViewModel(
-                    image: profileImages.first ?? UIImage(),
-                    user: vm.profile,
-                    defaults: vm.defaults,
-                    sessionManager: vm.s,
-                    event: event
-                )) { acceptInviteDraft in
-                    acceptInvite?(acceptInviteDraft)
-                } sendNewTime: { newTimeDraft in
-                    sendNewTime?(newTimeDraft)
-                } sendNewInvite: { eventDraft in
-                    sendInvite?(eventDraft)
-                } declineInvite: { event in
-                    declineInvite?(event)
-                }
+            RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM) { responseType in
+                profileResponse?(responseType)
+            }
         } else {
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, image: profileImages.first ?? UIImage()),
@@ -171,7 +160,6 @@ extension ProfileView {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(overlayTitleOpacity)
-        
     }
 }
 
