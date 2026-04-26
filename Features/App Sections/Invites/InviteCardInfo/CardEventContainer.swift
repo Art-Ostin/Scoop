@@ -8,7 +8,7 @@ struct CardEventContainer: View {
     @Binding var showMessageScreen: Bool
     @Binding var showConfirmAcceptPopup: String?
     let onDecline: (UserEvent) -> ()
-    
+    //Added
     @State var ui = RespondUIState()
     @State private var selectedTab: RespondUIState.Tab = .event
     @State private var pageHeights: [RespondUIState.Tab: CGFloat] = [:]
