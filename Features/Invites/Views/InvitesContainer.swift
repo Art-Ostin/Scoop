@@ -139,11 +139,12 @@ extension InvitesContainer {
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset, profileResponse:  {respondType in
+                dismissOffset: $ui.dismissOffset,
+                invite: .init(inviteResponse: { respondType in
                     Task {
                         try? await respondToProfile(respondType: respondType, profileId: eventProfile.profile.id)
                     }
-                })
+                }))
                 .id(eventProfile.profile.id)
                 .zIndex(1)
                 .transition(.move(edge: .bottom))

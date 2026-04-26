@@ -27,7 +27,7 @@ struct ProfileDetailsView: View {
         
         ScrollView {
             VStack(spacing: 24) {
-                if showEventView() {
+                if showEventView {
                     if let event {
                         DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "\(event.otherUserName) and \(vm.s.user.name)'s event", adaptivePadding: true, padding: 12) {
                             ProfileInviteView(ui: ui, event: event)
@@ -35,7 +35,7 @@ struct ProfileDetailsView: View {
                         .padding(.bottom, 32)
                     }
                 }
-                DetailsSection(color: ui.detailsOpen ? (showEventView() ? Color.grayBackground : vm.viewProfileType == .accept ? .appGreen : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
+                DetailsSection(color: ui.detailsOpen ? (showEventView ? Color.grayBackground : vm.viewProfileType == .accept ? .appGreen : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
@@ -102,25 +102,7 @@ extension ProfileDetailsView {
         !ui.detailsOpen || (ui.isTopOfScroll && detailsOffset > 0)
     }
     
-    func showEventView() -> Bool {
-        return event != nil && (event?.status == .accepted)
+    var showEventView: Bool {
+        event != nil && event?.status == .accepted
     }
 }
-
-/*
- .overlay(alignment: .top) { if vm.viewProfileType != .view {profileActionBar}}
-
- @ViewBuilder
- private var profileActionBar: some View {
-     if vm.viewProfileType == .invite {
-         HStack {
-             EventDeclineButton() {onDecline()}
-             Spacer()
-             InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
-         }
-         .padding(.horizontal, 16)
-         .offset(y: 354)
-     }
- }
-
- */

@@ -86,6 +86,10 @@
 		654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982D32E3101BE00CA335F /* OnboardingImages.swift */; };
 		654982D82E3152C000CA335F /* ProfileImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654982D72E3152C000CA335F /* ProfileImages.swift */; };
 		6549837D2E35429400CA335F /* ManagersProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6549837C2E35429400CA335F /* ManagersProtocol.swift */; };
+		6549DA912F9E9B6E00C89DF2 /* ProfileDetailsTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6549DA902F9E9B5A00C89DF2 /* ProfileDetailsTransition.swift */; };
+		6549DA932F9E9D0D00C89DF2 /* ProfileOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6549DA922F9E9D0D00C89DF2 /* ProfileOverlays.swift */; };
+		6549DA952F9E9DBB00C89DF2 /* ProfileGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6549DA942F9E9DBB00C89DF2 /* ProfileGestures.swift */; };
+		6549DA972F9E9F2300C89DF2 /* ProfileDismissal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */; };
 		654C00932E3549EA00FFD504 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C00922E3549EA00FFD504 /* UserModel.swift */; };
 		654C009B2E35689000FFD504 /* UserRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009A2E35689000FFD504 /* UserRepo.swift */; };
 		654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009D2E35835900FFD504 /* AppDependencies.swift */; };
@@ -354,6 +358,10 @@
 		654982D32E3101BE00CA335F /* OnboardingImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImages.swift; sourceTree = "<group>"; };
 		654982D72E3152C000CA335F /* ProfileImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImages.swift; sourceTree = "<group>"; };
 		6549837C2E35429400CA335F /* ManagersProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagersProtocol.swift; sourceTree = "<group>"; };
+		6549DA902F9E9B5A00C89DF2 /* ProfileDetailsTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailsTransition.swift; sourceTree = "<group>"; };
+		6549DA922F9E9D0D00C89DF2 /* ProfileOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileOverlays.swift; sourceTree = "<group>"; };
+		6549DA942F9E9DBB00C89DF2 /* ProfileGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileGestures.swift; sourceTree = "<group>"; };
+		6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDismissal.swift; sourceTree = "<group>"; };
 		654C00922E3549EA00FFD504 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		654C009A2E35689000FFD504 /* UserRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepo.swift; sourceTree = "<group>"; };
 		654C009D2E35835900FFD504 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
@@ -1122,6 +1130,10 @@
 			isa = PBXGroup;
 			children = (
 				655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */,
+				6549DA922F9E9D0D00C89DF2 /* ProfileOverlays.swift */,
+				6549DA942F9E9DBB00C89DF2 /* ProfileGestures.swift */,
+				6549DA902F9E9B5A00C89DF2 /* ProfileDetailsTransition.swift */,
+				6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */,
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
 				650DA3682F6C25750013EB30 /* ProfileInviteView.swift */,
@@ -1598,6 +1610,7 @@
 				659109332E19C87B0065696F /* VerifyEmailView.swift in Sources */,
 				656373B52F50152F003A922D /* MinimalistButton.swift in Sources */,
 				657BD3272F71FC9A00D7C29A /* RespondViewModel.swift in Sources */,
+				6549DA912F9E9B6E00C89DF2 /* ProfileDetailsTransition.swift in Sources */,
 				65FAF99E2E42BCA40015E231 /* LargeClockView.swift in Sources */,
 				65A904902F41377500BBCAB6 /* DraftUserModel.swift in Sources */,
 				65E5C91A2E50E7700093410B /* SessionManager.swift in Sources */,
@@ -1694,6 +1707,7 @@
 				657BD3232F71E71200D7C29A /* RespondModels.swift in Sources */,
 				65E5C9262E51FBB10093410B /* InviteViewModel.swift in Sources */,
 				6523E5342F3B8F0100271C8F /* MapCategoryIcon.swift in Sources */,
+				6549DA972F9E9F2300C89DF2 /* ProfileDismissal.swift in Sources */,
 				65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */,
 				65376D7A2E05A7B50058D225 /* DefaultParameters.swift in Sources */,
 				6576831C2F5910580094A02D /* ChatHeaderBar.swift in Sources */,
@@ -1748,6 +1762,7 @@
 				6509DCEB2F1D78C000455AB5 /* Languages.swift in Sources */,
 				6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */,
 				657683242F591B480094A02D /* MessageSection.swift in Sources */,
+				6549DA952F9E9DBB00C89DF2 /* ProfileGestures.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserRepo.swift in Sources */,
 				651975912F1F91E80002F6A2 /* Facts.swift in Sources */,
 				65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */,
@@ -1801,6 +1816,7 @@
 				658B749A2E6B715E00BE8B6B /* ScrollNavBar.swift in Sources */,
 				65AD49142F82CFDB002B91BA /* RespondPlaceRow.swift in Sources */,
 				655EF4AE2E6B94AA00AE626D /* TabBarItem.swift in Sources */,
+				6549DA932F9E9D0D00C89DF2 /* ProfileOverlays.swift in Sources */,
 				65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */,
 				65DCFBBC2F327AB600B3EC50 /* DismissButton.swift in Sources */,
 				65A904922F413D5600BBCAB6 /* ProfileRecModel.swift in Sources */,

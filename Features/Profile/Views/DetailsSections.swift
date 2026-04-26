@@ -23,9 +23,6 @@ struct UserKeyInfo: View {
         InfoItem(image: "ScholarStyle", info: p.degree)
         Divider().background(Color.grayPlaceholder)
         InfoItem(image: "magnifyingglass", info: p.lookingFor)
-            .onAppear {
-                print(hometownCount)
-            }
     }
 }
 
@@ -67,7 +64,6 @@ struct UserInterests: View {
                 .padding(.vertical, 10 * interestScale)
                 .font(.body(16 * interestScale))
                 .stroke(12 * interestScale, color: Color(red: 0.90, green: 0.90, blue: 0.90))
-                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
                 .measure(key: FlowLayoutBottom.self) { proxy in
                     proxy.frame(in: .named("InterestsSection")).maxY
                 }
@@ -89,14 +85,3 @@ struct FlowLayoutBottom: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-//
-//struct ProfileEvent: View {
-//    let p: UserProfile
-//    let event: UserEvent?
-//    
-//    var body: some View {
-//        if let event = event, let time = event.acceptedTime {
-//            EventFormatter(time: time, type: event.type, message: event.message, place: event.location, size: 24)
-//        }
-//    }
-//}

@@ -69,24 +69,6 @@ struct InfoItem: View {
     }
 }
 
-struct ProfileTitle: View {
-    let p: UserProfile
-    @Binding var selectedProfile: EventProfile?
-    let onDismiss: (() -> Void)?
-    let detailsOpen: Bool
-    
-    var body: some View {
-        HStack {
-            Text(p.name)
-            ForEach (p.nationality, id: \.self) {flag in Text(flag)}
-            Spacer()
-            ProfileDismissButton(color: .black, detailsOpen: detailsOpen, onDismiss: onDismiss)
-        }
-        .offset(y: 4) // Hack to align to bottom of HStack
-        .font(.body(24, .bold))
-        .padding(.horizontal)
-    }
-}
 
 struct PromptView: View {
     
@@ -100,9 +82,7 @@ struct PromptView: View {
             
             Text(prompt.response)
                 .font(.title(24, .bold))
-                .lineSpacing(8)
-                .font(.title(28))
-                .lineLimit( count > 90 ? 4 : 3)
+                .lineLimit(count > 90 ? 4 : 3)
                 .minimumScaleFactor(0.6)
                 .lineSpacing(8)
         }
@@ -112,13 +92,6 @@ struct PromptView: View {
     }
 }
 
-struct ImageSectionBottom: PreferenceKey {
-    let has_updated = false
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
 
 struct ImageSizeKey: PreferenceKey {
   static var defaultValue: CGFloat = 0

@@ -1,61 +1,53 @@
 import SwiftUI
 //Note: Geometry Reader needed to Keep the VStack from respecting the top safe Area
 
+struct ProfileInviteContext {
+    var draftProfile: UserProfile? = nil
+    var respondVM: Bindable<RespondViewModel>? = nil
+    var sendInvite: ((EventFieldsDraft) -> Void)? = nil
+    var inviteResponse: ((ProfileResponse) -> Void)? = nil
+}
+
 struct ProfileView: View {
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var vm: ProfileViewModel
-    
-    let respondVM: Bindable<RespondViewModel>?
-    
+
+    @Environment(\.dismiss) var dismiss
+
+    @State var vm: ProfileViewModel
+
+    let invite: ProfileInviteContext
+
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
-    
-    @Binding private var dismissOffset: CGFloat?
-    @Binding private var selectedProfile: UserProfile?
-    
-    @State private var ui = ProfileUIState()
-    
-    private var detailsDragRange: ClosedRange<CGFloat> {
-        let limit = ui.detailsOpenOffset - 80
-        return ui.detailsOpen ? (-85 ... -limit) : (limit ... 85)
+
+    @Binding var dismissOffset: CGFloat?
+    @Binding var selectedProfile: UserProfile?
+
+    @State var ui = ProfileUIState()
+
+    var transition: ProfileDetailsTransition {
+        ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, dragOffset: detailsOffset)
     }
-    
+
     let profileImages: [UIImage]
 
-    //Functionality to do with draftProfile to display
-    let draftProfile: UserProfile?
-    var isUserProfile: Bool { draftProfile != nil }
-    
-    private var displayProfile: UserProfile {
-        draftProfile ?? vm.profile
-    }
-    
-    let sendInvite: ((EventFieldsDraft) -> ())?
+    var isUserProfile: Bool { invite.draftProfile != nil }
 
-    //Optional Invite as not all event Drafts Require it.
-    let profileResponse: ((ProfileResponse) -> ())?
-    
+    var displayProfile: UserProfile {
+        invite.draftProfile ?? vm.profile
+    }
+
     init(
         vm: ProfileViewModel,
         profileImages: [UIImage],
         selectedProfile: Binding<UserProfile?>,
         dismissOffset: Binding<CGFloat?>,
-        draftProfile: UserProfile? = nil,
-        isMessageProfile: Bool = false,
-        sendInvite: ((EventFieldsDraft) -> Void)? = nil,
-        respondVM : Bindable<RespondViewModel>? = nil,
-        profileResponse: ((ProfileResponse) -> Void)? = nil
+        invite: ProfileInviteContext = .init()
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
-        self.draftProfile = draftProfile
-        self.respondVM = respondVM
-        self.sendInvite = sendInvite
-        self.profileResponse = profileResponse
+        self.invite = invite
     }
     
     var body: some View {
@@ -64,20 +56,20 @@ struct ProfileView: View {
                 ZoomContainer {
                     VStack(spacing: 24) {
                         profileTitle(geo: geo)
-                            .offset(y: rangeUpdater(endValue: -108))
-                            .opacity(1 - overlayTitleOpacity)
+                            .offset(y: transition.interpolate(to: -108))
+                            .opacity(1 - transition.overlayTitleOpacity)
                             .padding(.top, 36)
-                        
+
                         ProfileImageView(vm: vm, detailsOffset: detailsOffset, importedImages: profileImages)
-                            .offset(y: rangeUpdater(endValue: -100))
+                            .offset(y: transition.interpolate(to: -100))
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
-                        
+
                         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event) {
-                            profileResponse?(.decline)
+                            invite.inviteResponse?(.decline)
                         }
-                            .scaleEffect(rangeUpdater(startValue: 0.97, endValue: 1.0), anchor: .top)
-                            .offset(y: detailsSectionOffset())
+                            .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
+                            .offset(y: transition.sectionOffset)
                             .onTapGesture { ui.detailsOpen.toggle() }
                             .simultaneousGesture(detailsDrag)
                     }
@@ -106,207 +98,9 @@ struct ProfileView: View {
         .overlay(alignment: .bottomLeading) {
             if vm.viewProfileType == .invite {
                 EventDeclineButton() {}
-                    .scaleEffect(1.1)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 6)
                     .opacity(ui.showRespondPopup ? 0 : 1)
             }
         }
         .hideTabBar()
     }
 }
-
-//Different Screens
-extension ProfileView {
-    
-    @ViewBuilder
-    private var invitePopup: some View {
-        if ui.showRespondPopup { //EventFieldsDraft
-            if let respondVM {
-                RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM.wrappedValue) { responseType in
-                    profileResponse?(responseType)
-                }
-            }
-        } else {
-            InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, image: profileImages.first ?? UIImage()),
-                showInvite: $ui.showRespondPopup) { eventId in
-                    sendInvite?(eventId)
-                }
-        }
-    }
-    
-    private func profileTitle(geo: GeometryProxy) -> some View {
-        HStack {
-            Text(displayProfile.name)
-            ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
-            Spacer()
-            if !isUserProfile {
-                ProfileDismissButton(color: .black, detailsOpen: ui.detailsOpen) {
-                    dismissProfile(using: geo)
-                }
-            }
-        }
-        .offset(y: 4) // Hack to align to bottom of HStack
-        .font(.body(24, .bold))
-        .padding(.horizontal)
-    }
-    
-    private func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
-        HStack {
-            Text(displayProfile.name)
-            Spacer()
-            if !isUserProfile {
-                ProfileDismissButton(color: .white, detailsOpen: ui.detailsOpen) { onDismiss() }
-                    .padding(6)
-                    .glassIfAvailable(Circle())
-            }
-        }
-        .font(.body(24, .bold))
-        .contentShape(Rectangle())
-        .foregroundStyle(.white)
-        .padding(.horizontal, 16)
-        .opacity(overlayTitleOpacity)
-    }
-}
-
-//Details Open or Closed Animations
-extension ProfileView {
-    func detailsSectionOffset() -> CGFloat {
-        return detailsOffset + (ui.detailsOpen ? ui.detailsOpenOffset : 0)
-    }
-    
-    private var overlayTitleOpacity: Double {
-        let oneThird = max(1, abs(ui.detailsOpenOffset) / 3)
-        let offsetProgress = abs(detailsOffset)
-        if ui.detailsOpen {
-            guard offsetProgress < oneThird else { return 0 }
-            return 1 - min(detailsOffset / oneThird, 1)
-        }
-        guard offsetProgress >= oneThird else { return 0 }
-        return max((offsetProgress - oneThird) / oneThird, 0)
-    }
-    
-    func rangeUpdater(startValue: CGFloat = 0, endValue: CGFloat) -> CGFloat {
-        let denom = max(abs(ui.detailsOpenOffset), 0.0001)
-        let t = min(abs(detailsOffset) / denom, 1)
-        let delta = (endValue - startValue) * t
-        let baseValue = ui.detailsOpen ? endValue : startValue
-        let adjustForDrag = (ui.detailsOpen && detailsOffset > 0) || (!ui.detailsOpen && detailsOffset < 0)
-        return adjustForDrag ? (ui.detailsOpen ? (baseValue - delta) : (baseValue + delta)) : baseValue
-    }
-}
-
-//Drag Gestures
-extension ProfileView {
-    private func imageDetailsDrag(using geo: GeometryProxy) -> some Gesture {
-        DragGesture(minimumDistance: 5)
-            .updating($profileOffset) { value, state, _ in
-                if ui.dragType == nil { dragType(v: value) }
-                guard ui.dragType == .profile else { return }
-                state = value.translation.height
-            }
-            .updating($detailsOffset) { v, state, _ in
-                if ui.dragType == nil { dragType(v: v) }
-                guard ui.dragType == .details else { return }
-                state = v.translation.height.clamped(to: detailsDragRange)
-            }
-            .onEnded { v in
-                defer { ui.dragType = nil }
-                guard ui.dragType != nil && ui.dragType != .horizontal else { return }
-                let predicted = abs(v.predictedEndTranslation.height)
-                let distance = abs(v.translation.height)
-                //Only update if user drags more than 75
-                guard max(distance, predicted) > 75 else { return }
-                if ui.dragType == .profile {
-                    dismissOffset = v.translation.height
-                    withAnimation(.easeInOut(duration: ui.dismissalDuration)) { selectedProfile = nil } //Fixes bug
-                } else if ui.dragType == .details {
-                    ui.detailsOpen.toggle()
-                }
-            }
-    }
-    
-    private var detailsDrag: some Gesture {
-        DragGesture(minimumDistance: 5)
-            .updating($detailsOffset) { v, state, _ in
-                if ui.detailsOpen && (!ui.isTopOfScroll || v.translation.height < 0) { return }
-                if ui.dragType == nil {dragType(v: v)}
-                guard ui.dragType != nil && ui.dragType != .horizontal else { return }
-                state = v.translation.height.clamped(to: detailsDragRange)
-            }
-            .onEnded {
-                defer { ui.dragType = nil }
-                guard ui.dragType != nil && ui.dragType != .horizontal else { return }
-                let predicted = $0.predictedEndTranslation.height
-                if predicted < 50 && profileOffset == 0 {
-                    ui.detailsOpen = true
-                } else if ui.detailsOpen && predicted > 60 {
-                    ui.detailsOpen = false
-                }
-            }
-    }
-    
-    private func dragType(v: DragGesture.Value) {
-        //If there is already a dragType don't reassign it (here), get y and x drag
-        if ui.dragType != nil  {return }
-        let dy = abs(v.translation.height)
-        let dx = abs(v.translation.width)
-        //Ensures user drags at least 5 points, and its a vertical drag
-        guard dy > dx else { ui.dragType = .horizontal; return}
-        //If it passes conditions updates 'drag type'
-        ui.dragType = (v.translation.height < 0 || ui.detailsOpen) ? .details : .profile
-    }
-}
-
-//Dismissing Profile
-extension ProfileView {
-    
-    private var activeProfileOffset: CGFloat {
-        dismissOffset ?? profileOffset
-    }
-    
-    private func dismissProfile(using geo: GeometryProxy, startingOffset: CGFloat? = nil) {
-        let distance = geo.size.height + geo.safeAreaInsets.bottom
-        if let startingOffset {
-            dismissOffset = startingOffset
-        }
-        withAnimation(.snappy(duration: ui.dismissalDuration)) {
-            dismissOffset = distance
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissalDuration) {
-            selectedProfile = nil
-        }
-    }
-    
-    private var profileBackground: some View {
-        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
-            .fill(Color.background)
-            .ignoresSafeArea()
-            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
-    }
-}
-
-
-/*
- 
- acceptInvite: ((OriginalInvite) -> Void)? = nil,
- sendNewTime: ((NewTimeDraft) -> Void)? = nil,
- sendInvite: ((EventDraft) -> Void)? = nil,
- declineInvite: ((UserEvent?) -> Void)? = nil,
-
- 
- let acceptInvite: ((OriginalInvite) -> ())?
- let sendNewTime: ((NewTimeDraft) -> ())?
- let sendInvite: ((EventDraft) -> ())?
- let declineInvite: ((UserEvent?) -> ())?
- 
- 
- 
-
- self.acceptInvite = acceptInvite
- self.sendNewTime = sendNewTime
- self.sendInvite = sendInvite
- self.declineInvite = declineInvite
-
- */

@@ -26,7 +26,7 @@ struct EditProfileContainer: View {
                 EditProfileView(vm: vm, navigationPath: $navigationPath, selectedImage: $selectedImage)
                     .transition(.move(edge: .leading))
             } else {
-                ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, draftProfile: vm.draft)
+                ProfileView(vm: profileVM, profileImages: vm.images, selectedProfile: $selectedProfile, dismissOffset: $dismissOffset, invite: .init(draftProfile: vm.draft))
                     .transition(.move(edge: .trailing))
             }
         }

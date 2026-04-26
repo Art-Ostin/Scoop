@@ -14,7 +14,6 @@ struct ProfileImageView: View {
     @Bindable var vm: ProfileViewModel
     @State private var selection = 0
     let imagePadding: CGFloat = 12
-    @State var selectedImage = 0
     @State private var imageSize: CGFloat = 0
     let detailsOffset: CGFloat
     @State var importedImages: [UIImage]
@@ -67,14 +66,7 @@ extension ProfileImageView {
                             .resizable()
                             .defaultImage(60, 10)
                             .customSubtleShadow(strength: selection == index ? 4 : 0)
-                            .customSubtleShadow(strength: selection == index ? 4 : 0)
-                        
-                        
-                        
-//                            .shadow(color: .black.opacity(selection == index ? 0.2 : 0),
-//                                    radius: selection == index ? 3 : 1, y: selection == index ? 5 : 2)
-                            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index} }
-//                            .stroke(10, lineWidth: selection == index ? 1 : 0, color: .accent)
+                            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
                     }
                     ClearRectangle(size: 0)
                 }
@@ -93,13 +85,3 @@ extension ProfileImageView {
         }
     }
 }
-
-/*
- .overlay(alignment: .bottomTrailing) {
-     if vm.viewProfileType == .invite {
-         InviteButton(vm: vm, showInvite: $showInvite)
-             .padding()
-     }
- }
-
- */
