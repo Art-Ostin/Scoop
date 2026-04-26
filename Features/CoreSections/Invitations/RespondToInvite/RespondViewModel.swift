@@ -34,7 +34,7 @@ class RespondViewModel {
     @MainActor func deleteEventDefault() {
         let profileId = respondDraft.originalInvite.event.otherUserId
         defaults.deleteEventDraft(profileId: profileId)
-        respondDraft.newEvent = EventResponseDraft(type: .drink)
+        respondDraft.newEvent = EventFieldsDraft(type: .drink)
     }
     
     private func updateDefaults() {
@@ -42,7 +42,7 @@ class RespondViewModel {
     }
     
     private static func loadRespondDraft(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent, currentUserId: String) -> RespondDraft {
-        if let storedDraft = defaults.fetchRespondDraft(profileId: profile.id) {
+        if let storedDraft = defaults.fetchRespondDraft(eventId: event.id) {
             return storedDraft
         } else {
             return RespondDraft(event: event, userId: profile.id)

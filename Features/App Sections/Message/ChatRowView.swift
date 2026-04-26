@@ -79,7 +79,7 @@ extension ChatRowView {
     @ViewBuilder
     private var messagePreview: some View {
         if let chat = event.chatState {
-            let unread = chat.unreadCount > 0
+//            let unread = chat.unreadCount > 0
             Text("This is an example of seeing how the") //maessage looks when you flip it around to have two screens
                 .font(.system(size: 15, weight: .regular)) //
                 .foregroundStyle(Color(red: 0.42, green: 0.42, blue: 0.42))

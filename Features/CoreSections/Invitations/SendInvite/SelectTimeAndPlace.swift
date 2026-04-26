@@ -23,13 +23,15 @@ struct InviteTimeAndPlaceView: View {
     @Binding var showInvite: Bool
     var isNewEvent: Bool = false
     
-    let sendInvite: (EventDraft) -> ()
+    let sendInvite: (EventFieldsDraft) -> ()
+    
     
     var body: some View {
+        //Update the 'draft' to new place
         SelectTimeAndPlace(
-            event: $vm.event,
+            draft: $vm.event,
             showInvite: $showInvite,
-            name: vm.profile.name,
+            name:vm.profile.name,
             image: vm.image,
             defaults: vm.defaults,
             respondWithInvite: false,
@@ -47,32 +49,32 @@ struct RespondTimeAndPlaceView: View {
     @Binding var showInvite: Bool
     @Binding var showConfirmSendInvite: Bool
     var isNewEvent: Bool = false
-    let sendInvite: (EventDraft) -> ()
+    let sendInvite: (String) -> ()
     
     var body: some View {
         SelectTimeAndPlace(
-            event: $vm.respondDraft.newEvent,
+            draft: $vm.respondDraft.newEvent,
             showInvite: $showInvite,
             showConfirmSendInvite: $showConfirmSendInvite,
             name: vm.respondDraft.originalInvite.event.otherUserName,
-            image: vm.image, defaults: vm.defaults,
+            image: vm.image,
+            defaults: vm.defaults,
             respondWithInvite: true,
-            isNewEvent: isNewEvent
-        ) {
-            vm.deleteEventDefault()
-        } sendInvite: {
-            sendInvite(vm.respondDraft.newEvent)
-        }
+            isNewEvent: isNewEvent) {
+                vm.deleteEventDefault()
+            } sendInvite: {
+                sendInvite(vm.respondDraft.originalInvite.event.id)
+            }
     }
 }
 
 struct SelectTimeAndPlace: View {
     @State private var ui = TimeAndPlaceUIState()
     
-    @Binding var event: EventDraft
+    @Binding var draft: EventFieldsDraft
     @Binding var showInvite: Bool
     var showConfirmSendInvite: Binding<Bool>?
-    
+
     let name: String
     let image: UIImage
     let defaults: DefaultsManaging
@@ -84,7 +86,7 @@ struct SelectTimeAndPlace: View {
     
     
     var isLotsOfText: Bool {
-        (event.message?.count ?? 0) > 35
+        (draft.message?.count ?? 0) > 35
     }
     
     
@@ -96,20 +98,20 @@ struct SelectTimeAndPlace: View {
             VStack(spacing: 0) {
                 popupTitle
                 VStack(spacing: 12) {
-                    InviteTypeRow(ui: ui, eventType: $event.type, unparsedMessage: $event.message)
+                    InviteTypeRow(ui: ui, eventType: $draft.type, unparsedMessage: $draft.message)
                     MapDivider()
-                    InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $event.proposedTimes, type: event.type)
+                    InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $draft.time, type: draft.type)
                     MapDivider()
-                    InvitePlaceRow(eventLocation: $event.location, showMapView: $ui.showMapView)
+                    InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView)
                 }
                 .padding(.top, decreaseVerticalPadding ? 16 : 24)
-                .padding(.bottom, (event.location != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18)) //Works for complex reasons
+                .padding(.bottom, (draft.place != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18)) //Works for complex reasons
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .zIndex(1) //so pop ups always appear above the Action Button
                 sendInviteButton
             }
             .frame(alignment: .top)
-            .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)
+            .padding(.horizontal, (isLotsOfText || draft.place != nil) ? 28 : 32)
             .padding(.vertical, 24)
             .frame(maxWidth: .infinity)
             .background (cardBackground)
@@ -124,8 +126,8 @@ struct SelectTimeAndPlace: View {
             .overlay(alignment: .topTrailing) { infoButton }
             .offset(y: !respondWithInvite ? 24 : 0)
             .overlay(alignment: .top) {
-                    let dayCount = event.proposedTimes.dates.count
-                SelectTimeMessage(type: event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup, isCardMessage: true)
+                    let dayCount = draft.time.dates.count
+                SelectTimeMessage(type: draft.type, dayCount: dayCount, showTimePopup: ui.showTimePopup, isCardMessage: true)
             }
         }
         .hideTabBar()
@@ -133,10 +135,10 @@ struct SelectTimeAndPlace: View {
             sendInvite()
         }
         .fullScreenCover(isPresented: $ui.showMapView) {
-            MapView(defaults: defaults, eventLocation: $event.location)
+            MapView(defaults: defaults, eventLocation: $draft.place)
         }
         .sheet(isPresented: $ui.showMessageScreen) {
-            AddMessageView(eventType: $event.type, showMessageScreen: $ui.showMessageScreen, message: $event.message, isRespondMessage: false)
+            AddMessageView(eventType: $draft.type, showMessageScreen: $ui.showMessageScreen, message: $draft.message, isRespondMessage: false)
         }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
@@ -163,7 +165,7 @@ extension SelectTimeAndPlace {
                     .offset(x: -10, y: -8)
             }
             .padding(.top, 24)
-            .padding(.horizontal, (isLotsOfText || event.location != nil) ? 28 : 32)
+            .padding(.horizontal, (isLotsOfText || draft.place != nil) ? 28 : 32)
         }
     }
     
@@ -199,23 +201,23 @@ extension SelectTimeAndPlace {
     }
     
     private var showTwoDays: Bool {
-        (event.type == .drink || event.type == .doubleDate) &&
+        (draft.type == .drink || draft.type == .doubleDate) &&
         !ui.showTypePopup &&
-        ((ui.showTimePopup && event.proposedTimes.dates.count < 2) || event.proposedTimes.dates.count == 1)
+        ((ui.showTimePopup && draft.time.dates.count < 2) || draft.time.dates.count == 1)
     }
 
     private var hasDraftChanges: Bool {
-        !event.proposedTimes.dates.isEmpty || event.location != nil || event.type != .drink || event.message != nil
+        !draft.time.dates.isEmpty || draft.place != nil || draft.type != .drink || draft.message != nil
     }
     
     private var InviteIsValid: Bool {
-        !event.proposedTimes.dates.isEmpty && event.location != nil
+        !draft.time.dates.isEmpty && draft.place != nil
     }
     
     private func horizontalPadding() -> CGFloat {
-        let messageLarge: Bool = (event.message?.count ?? 0) > 35
-        let messageVLarge: Bool = (event.message?.count ?? 0) > 80
-        let placeLarge: Bool = event.location != nil
+        let messageLarge: Bool = (draft.message?.count ?? 0) > 35
+        let messageVLarge: Bool = (draft.message?.count ?? 0) > 80
+        let placeLarge: Bool = draft.place != nil
         
         var originalHPadding:CGFloat = 30
         
@@ -234,7 +236,6 @@ extension SelectTimeAndPlace {
     }
     
     private var decreaseVerticalPadding: Bool {
-        return (event.message?.count ?? 0) > 40 && event.location != nil
+        return (draft.message?.count ?? 0) > 40 && draft.place != nil
     }
-//    private var decreaseEventInfoVerticalPadding: some
 }
