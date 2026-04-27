@@ -96,7 +96,7 @@ extension MeetContainer {
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
-            sendInvite: { draft in
+            mode: .sendInvite { draft in
                 Task { await respondToProfile(event: draft, profile: profile) }
             }
         )
@@ -104,7 +104,7 @@ extension MeetContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-    
+
     @ViewBuilder
     private var quickInviteView: some View {
         if let profile = ui.profileInvite {

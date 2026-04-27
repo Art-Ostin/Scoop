@@ -16,9 +16,7 @@ struct ProfileDetailsView: View {
     let p: UserProfile
     let detailsOffset: CGFloat
     let event: UserEvent?
-    let onDecline: () -> Void
-    
-    
+        
     @State private var flowLayoutBottom: CGFloat = 0
     @State private var interestSectionBottom: CGFloat = 0
     @State private var interestScale: CGFloat = 1
@@ -106,3 +104,5 @@ extension ProfileDetailsView {
         event != nil && event?.status == .accepted
     }
 }
+
+//    let onDecline: () -> Void

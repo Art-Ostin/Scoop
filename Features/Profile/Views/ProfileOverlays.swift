@@ -22,8 +22,8 @@ extension ProfileView {
                 sessionManager: vm.s,
                 showInvite: $ui.showRespondPopup,
                 sendInvite: onSend)
-
-        case .ownProfile:
+            
+        default:
             EmptyView()
         }
     }

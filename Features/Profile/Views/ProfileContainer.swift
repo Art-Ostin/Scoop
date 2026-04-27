@@ -4,6 +4,7 @@ import SwiftUI
 
 enum ProfileMode {
     case ownProfile(draft: UserProfile)
+    case viewProfile
     case sendInvite(onSend: (EventFieldsDraft) -> Void)
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
@@ -69,9 +70,7 @@ struct ProfileView: View {
                             .simultaneousGesture(imageDetailsDrag(using: geo))
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
 
-                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event) {
-                            inviteResponse?(.decline)
-                        }
+                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event)
                             .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                             .offset(y: transition.sectionOffset)
                             .onTapGesture { ui.detailsOpen.toggle() }

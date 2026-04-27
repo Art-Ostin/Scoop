@@ -128,7 +128,8 @@ extension InvitesContainer {
     
     @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {
-        if let eventProfile = fetchEventProfile(profile) {
+        if let eventProfile = fetchEventProfile(profile),
+           let respondVM = vm.respondVMs[eventProfile.profile.id] {
             ProfileView(
                 vm: ProfileViewModel(
                     defaults: vm.defaults,
@@ -139,17 +140,19 @@ extension InvitesContainer {
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset, inviteResponse:  { respondType in
+                dismissOffset: $ui.dismissOffset,
+                mode: .respondToInvite(respondVM: respondVM) { respondType in
                     Task {
                         try? await respondToProfile(respondType: respondType, profileId: eventProfile.profile.id)
                     }
-                })
-                .id(eventProfile.profile.id)
-                .zIndex(1)
-                .transition(.move(edge: .bottom))
+                }
+            )
+            .id(eventProfile.profile.id)
+            .zIndex(1)
+            .transition(.move(edge: .bottom))
         }
     }
-    
+
     @ViewBuilder
     private var quickInvite: some View {
         if let profile = ui.profileInvite {

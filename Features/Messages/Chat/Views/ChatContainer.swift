@@ -89,8 +89,8 @@ extension ChatContainer {
             ),
             profileImages: profileImages,
             selectedProfile: $isProfileOpen,
-            dismissOffset: $dismissOffset
-        )
+            dismissOffset: $dismissOffset,
+            mode: .viewProfile)
         .id(vm.eventProfile.profile.id)
         .zIndex(1)
         .transition(.move(edge: .bottom))
