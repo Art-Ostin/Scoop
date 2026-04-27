@@ -1,6 +1,3 @@
-
-
-
 import SwiftUI
 import MapKit
 
@@ -18,14 +15,34 @@ import MapKit
 
 @MainActor
 struct InviteTimeAndPlaceView: View {
-    
-    @State var vm: TimeAndPlaceViewModel
+
+    @State private var vm: TimeAndPlaceViewModel
     @Binding var showInvite: Bool
     var isNewEvent: Bool = false
-    
+
     let sendInvite: (EventFieldsDraft) -> ()
-    
-    
+
+    init(
+        profile: UserProfile,
+        image: UIImage,
+        defaults: DefaultsManaging,
+        sessionManager: SessionManager,
+        showInvite: Binding<Bool>,
+        isNewEvent: Bool = false,
+        sendInvite: @escaping (EventFieldsDraft) -> ()
+    ) {
+        _vm = State(initialValue: TimeAndPlaceViewModel(
+            defaults: defaults,
+            sessionManager: sessionManager,
+            profile: profile,
+            image: image
+        ))
+        _showInvite = showInvite
+        self.isNewEvent = isNewEvent
+        self.sendInvite = sendInvite
+    }
+
+
     var body: some View {
         //Update the 'draft' to new place
         SelectTimeAndPlace(

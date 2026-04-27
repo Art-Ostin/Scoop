@@ -139,12 +139,11 @@ extension InvitesContainer {
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset,
-                invite: .init(inviteResponse: { respondType in
+                dismissOffset: $ui.dismissOffset, inviteResponse:  { respondType in
                     Task {
                         try? await respondToProfile(respondType: respondType, profileId: eventProfile.profile.id)
                     }
-                }))
+                })
                 .id(eventProfile.profile.id)
                 .zIndex(1)
                 .transition(.move(edge: .bottom))
@@ -155,12 +154,10 @@ extension InvitesContainer {
     private var quickInvite: some View {
         if let profile = ui.profileInvite {
             InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(
-                    defaults: vm.defaults,
-                    sessionManager: vm.session,
-                    profile: profile,
-                    image: profileImages[profile.id]?.first ?? UIImage()
-                ),
+                profile: profile,
+                image: profileImages[profile.id]?.first ?? UIImage(),
+                defaults: vm.defaults,
+                sessionManager: vm.session,
                 showInvite: $ui.quickInvite,
                 isNewEvent: true) { draft in
                     Task {

@@ -1,20 +1,22 @@
 import SwiftUI
 //Note: Geometry Reader needed to Keep the VStack from respecting the top safe Area
 
-struct ProfileInviteContext {
-    var draftProfile: UserProfile? = nil
-    var respondVM: Bindable<RespondViewModel>? = nil
-    var sendInvite: ((EventFieldsDraft) -> Void)? = nil
-    var inviteResponse: ((ProfileResponse) -> Void)? = nil
+
+enum ProfileMode {
+    case ownProfile(draft: UserProfile)
+    case sendInvite(onSend: (EventFieldsDraft) -> Void)
+    case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
+
+
 
 struct ProfileView: View {
 
     @Environment(\.dismiss) var dismiss
-
     @State var vm: ProfileViewModel
 
-    let invite: ProfileInviteContext
+    let mode: ProfileMode
+    let profileImages: [UIImage]
 
     @GestureState var detailsOffset = CGFloat.zero
     @GestureState var profileOffset = CGFloat.zero
@@ -28,12 +30,14 @@ struct ProfileView: View {
         ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, dragOffset: detailsOffset)
     }
 
-    let profileImages: [UIImage]
-
-    var isUserProfile: Bool { invite.draftProfile != nil }
+    var isUserProfile: Bool {
+        if case .ownProfile = mode { return true }
+        return false
+    }
 
     var displayProfile: UserProfile {
-        invite.draftProfile ?? vm.profile
+        if case .ownProfile(let draft) = mode { return draft }
+        return vm.profile
     }
 
     init(
@@ -41,13 +45,13 @@ struct ProfileView: View {
         profileImages: [UIImage],
         selectedProfile: Binding<UserProfile?>,
         dismissOffset: Binding<CGFloat?>,
-        invite: ProfileInviteContext = .init()
+        mode: ProfileMode
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         _selectedProfile = selectedProfile
         _dismissOffset = dismissOffset
-        self.invite = invite
+        self.mode = mode
     }
     
     var body: some View {
@@ -66,7 +70,7 @@ struct ProfileView: View {
                             .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
 
                         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event) {
-                            invite.inviteResponse?(.decline)
+                            inviteResponse?(.decline)
                         }
                             .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                             .offset(y: transition.sectionOffset)

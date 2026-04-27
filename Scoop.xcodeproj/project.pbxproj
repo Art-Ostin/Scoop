@@ -1992,7 +1992,7 @@
 				DEVELOPMENT_TEAM = C92C3V9HUW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(PROJECT_DIR)/Shared/Resources/Info.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/Resources/Info.plist";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location required for meet ups";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -2024,7 +2024,7 @@
 				DEVELOPMENT_TEAM = C92C3V9HUW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(PROJECT_DIR)/Shared/Resources/Info.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/Resources/Info.plist";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location required for meet ups";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

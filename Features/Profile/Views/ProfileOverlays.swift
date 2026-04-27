@@ -8,19 +8,23 @@
 import SwiftUI
 
 extension ProfileView {
-    
     @ViewBuilder
     var invitePopup: some View {
-        if let respondVM = invite.respondVM {
-            RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM.wrappedValue) { responseType in
-                invite.inviteResponse?(responseType)
-            }
-        } else {
+        switch mode {
+        case .respondToInvite(let respondVM, let onResponse):
+            RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM, onResponse: onResponse)
+
+        case .sendInvite(let onSend):
             InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(defaults: vm.defaults, sessionManager: vm.s, profile: vm.profile, image: profileImages.first ?? UIImage()),
-                showInvite: $ui.showRespondPopup) { eventId in
-                    invite.sendInvite?(eventId)
-                }
+                profile: vm.profile,
+                image: profileImages.first ?? UIImage(),
+                defaults: vm.defaults,
+                sessionManager: vm.s,
+                showInvite: $ui.showRespondPopup,
+                sendInvite: onSend)
+
+        case .ownProfile:
+            EmptyView()
         }
     }
     

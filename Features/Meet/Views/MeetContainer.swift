@@ -96,9 +96,9 @@ extension MeetContainer {
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
-            invite: .init(sendInvite: { draft in
+            sendInvite: { draft in
                 Task { await respondToProfile(event: draft, profile: profile) }
-            })
+            }
         )
         .id(profile.id)
         .zIndex(1)
@@ -109,14 +109,12 @@ extension MeetContainer {
     private var quickInviteView: some View {
         if let profile = ui.profileInvite {
             InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(
-                    defaults: vm.defaults,
-                    sessionManager: vm.s,
-                    profile: profile,
-                    image: profileImages[profile.id]?.first ?? UIImage()
-                ),
+                profile: profile,
+                image: profileImages[profile.id]?.first ?? UIImage(),
+                defaults: vm.defaults,
+                sessionManager: vm.s,
                 showInvite: $ui.quickInvite) { draft in
-                    Task{ @MainActor in
+                    Task { @MainActor in
                         await respondToProfile(event: draft, profile: profile)
                     }
                 }

@@ -14,12 +14,12 @@ enum RespondScrollType {
 struct RespondPopupContainer: View {
     
     @Binding var showPopup: Bool
-
     @Bindable var vm: RespondViewModel
+    let onResponse: (ProfileResponse) -> ()
+
+    
     @State var showTimePopup: Bool = false
     @State var scrollPosition: RespondScrollType? = .acceptPage
-    @State var lastResponseType: ResponseType? = nil
-    
     
     //Different Custom Popup
     @State var confirmNewTimeInvite: Bool = false
@@ -28,7 +28,6 @@ struct RespondPopupContainer: View {
     
     var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
 
-    let profileResponse: (ProfileResponse) -> ()
     
     var body: some View {
         ZStack {
@@ -68,13 +67,13 @@ struct RespondPopupContainer: View {
                 }
             }
             .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                profileResponse(.newTime)
+                onResponse(.newTime)
             }
             .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                profileResponse(.accepted)
+                onResponse(.accepted)
             }
             .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                profileResponse(.newInvite)
+                onResponse(.newInvite)
             }
         }
     }
@@ -88,7 +87,7 @@ extension RespondPopupContainer {
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = false}
             RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite) {
-                profileResponse(.decline)
+                onResponse(.decline)
             }
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
