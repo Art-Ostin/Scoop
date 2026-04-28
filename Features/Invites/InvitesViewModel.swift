@@ -24,9 +24,6 @@ import SwiftUI
     
     var invites: [EventProfile] {session.invites}
     var userId: String {session.user.id}
-    
-    
-    
     var respondVMs: [String: RespondViewModel] = [:]
     
     
@@ -92,10 +89,6 @@ extension InvitesViewModel {
         defaults.deleteRespondDraft(eventId: eventId)
     }
 }
-
-
-
-
 
 
 

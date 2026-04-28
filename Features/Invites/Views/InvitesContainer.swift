@@ -42,18 +42,14 @@ struct InvitesContainer: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                Task {
-                    try? await respondWithNewTime(profileId: profileId)
-                }
+                Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId) }
             }
             .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+                Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
             }
             .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                Task {
-                    try await respondWithNewTime(profileId: profileId)
-                }
+                Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
             }
-            
             .onPreferenceChange(IsTimeOpen.self) { newValue in
                 showTimePopup = newValue
             }
@@ -152,7 +148,7 @@ extension InvitesContainer {
             .transition(.move(edge: .bottom))
         }
     }
-
+    
     @ViewBuilder
     private var quickInvite: some View {
         if let profile = ui.profileInvite {
@@ -164,11 +160,11 @@ extension InvitesContainer {
                 showInvite: $ui.quickInvite,
                 isNewEvent: true) { draft in
                     Task {
-                        try await respondWithEvent(profileId: profile.id)
+                        try? await respondToProfile(respondType: .newInvite, profileId: profile.id)
                     }
                 }
-            }
         }
+    }
     
     private func openProfile(_ profile: UserProfile) {
         if ui.selectedProfile == nil {
@@ -183,154 +179,3 @@ extension InvitesContainer {
     }
     
 }
-
-//Responding to Profile View
-extension InvitesContainer {
-    
-    private func respondToProfile(respondType: ProfileResponse, profileId: String) async throws {
-        async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-        try await respondToProfileAction(respondType: respondType, profileId: profileId)
-        
-        ui.respondedToProfile = respondType
-        try? await Task.sleep(for: .milliseconds(550))
-        ui.selectedProfile = nil
-        //4.if the minimum of 0.75s done, dismiss the screen overlay
-        try? await minDelay
-        ui.respondedToProfile = nil
-    }
-    
-    private func respondToProfileAction (respondType: ProfileResponse, profileId: String) async throws {
-        switch respondType {
-        case .accepted:
-            try await acceptInvite(profileId: profileId)
-        case .newTime:
-            try await respondWithNewTime(profileId: profileId)
-        case .newInvite:
-            try await  respondWithEvent(profileId: profileId)
-        case .decline:
-            try await declineInvite(profileId: profileId)
-        }
-    }
-        
-    private func respondWithNewTime(profileId: String) async throws {
-        if let newTime = vm.respondVMs[profileId]?.respondDraft.newTime {
-            let rescheduleResponse = RescheduleResponse(eventId: newTime.event.id, userId: vm.userId, recipientId: newTime.event.otherUserId, oldTimes: newTime.event.proposedTimes, newTimes: newTime.proposedTimes)
-                try await vm.sendNewTime(rescheduleResponse: rescheduleResponse)
-        }
-    }
-    
-    private func respondWithEvent(profileId: String) async throws {
-        //1. From profileId, construct a eventResponse
-        if let respondDraft = vm.respondVMs[profileId]?.respondDraft {
-            let eventResponse = EventResponse(oldEvent: respondDraft.originalInvite.event, newEvent: respondDraft.newEvent, userId: vm.userId)
-            try await vm.sendNewEvent(eventResponse: eventResponse)
-        }
-    }
-    
-    private func acceptInvite(profileId: String) async throws {
-        if let originalInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite, let selectedDay = originalInvite.selectedDay {
-            try await vm.acceptInvite(eventId: originalInvite.event.id, senderId: vm.userId, acceptedDate: selectedDay)
-        }
-    }
-    
-    private func declineInvite(profileId: String) async throws {
-        if let eventId = vm.respondVMs[profileId]?.respondDraft.originalInvite.event.id {
-            try await vm.declineInvite(eventId: eventId, otherUserId: profileId)
-        }
-    }
-}
-
-/*
- respondType: ProfileResponse,
- event: EventDraft? = nil,
- originalInvite: OriginalInvite? = nil,
- newTime: NewTimeDraft? = nil,
- profile: UserProfile? = nil
-) async {
- async let minDelay: Void = Task.sleep(for: .milliseconds(750))
- do {
-     try await respondToProfileActions(respondType: respondType, event: event, originalInvite: originalInvite, newTime: newTime, profile: profile)
- } catch {
-     print("Error Thrown: \(error)")
- }
- ui.respondedToProfile = respondType
- try? await Task.sleep(for: .milliseconds(550))
- ui.selectedProfile = nil
- //4.if the minimum of 0.75s done, dismiss the screen overlay
- try? await minDelay
- ui.respondedToProfile = nil
-}
- */
-
-/*
- private func respondToProfileActions(
-     respondType: ProfileResponse,
-     event: EventDraft?,
-     originalInvite: OriginalInvite?,
-     newTime: NewTimeDraft?,
-     profile: UserProfile?
- ) async throws {
-     switch respondType {
-     case .accepted:
-         
-         if let originalInvite, let day = originalInvite.selectedDay {
-             try await vm.acceptInvite(eventId: originalInvite.event.id, senderId: originalInvite.event.otherUserId, acceptedDate: day)
-         }
-     case .newTime:
-         if let newTime {
-             try await vm.sendNewTime(rescheduleResponse: RescheduleResponse(eventId: newTime.event.id, userId: vm.userId, recipientId: newTime.event.otherUserId, oldTimes: newTime.event.proposedTimes, newTimes: newTime.proposedTimes))
-         }
-     case .newInvite:
-         if let event {
-             try await vm.sendInvite(eventId: <#T##String#>)
-         } else  {
-             print("No Event to pass in")
-         }
-     case .decline:
-         if let event = profile?.id {
-             try await vm.declineInvite(eventId: event.)
-         }
-     }
- }
- */
-
-/*
- //
- //
- //                if let acceptedInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite {
- //
- //
- //                    Task {
- //
- //
- //
- //                        try? await vm.acceptInvite(acceptedInvite: acceptedInvite)
- //                    }
- //                } else {
- //                    print("Id not located")
- //                }
-
- */
-
-/*
- 
- 
- acceptedInvite in
- Task {
-     await respondToProfile(respondType: .accepted, originalInvite: acceptedInvite, profile: profile)
- }
-} sendNewTime: { newTime in
- Task {
-     await respondToProfile(respondType: .newTime, newTime: newTime, profile: profile)
- }
-} sendInvite: { eventDraft in
- Task {
-     await respondToProfile(respondType: .newInvite, event: eventDraft, profile: profile)
- }
-} declineInvite: { userEvent in
- Task {
-     await respondToProfile(respondType: .decline, profile: profile)
- }
-}
-
- */
