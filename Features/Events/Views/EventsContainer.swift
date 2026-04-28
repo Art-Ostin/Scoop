@@ -156,8 +156,8 @@ extension EventsContainer {
         CustomTabPage(page: .meetingEvent, tabAction: $ui.deleteLater) {
             VStack(spacing: 32) {
                 EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                if let _ = eventProfile.event.acceptedTime { //For testing change later
-                    LargeClockView(targetTime: Calendar.current.date(byAdding: .hour, value: 7, to: .now)!, showShadow: false) {}
+                if let acceptedTime = eventProfile.event.acceptedTime {
+                    LargeClockView(targetTime: acceptedTime, showShadow: false) {}
                 }
                 EventDetailsContainer(ui: ui, event: eventProfile.event)
                     .opacity(disableMap ? 1 : 0.5)
