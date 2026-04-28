@@ -26,8 +26,9 @@ struct RespondPopupContainer: View {
     @State var confirmAcceptInvite: Bool = false
     @State var confirmSendNewInvite: Bool = false
     
+    @State var dismissHidePopup: Bool = false
     var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
-
+    
     
     var body: some View {
         ZStack {
@@ -41,13 +42,12 @@ struct RespondPopupContainer: View {
                         acceptInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth, alignment: .leading)
                             .id(RespondScrollType.acceptPage)
-                            .opacity(popupShown ? 0 : 1)
                         
                         counterInvitePage(cardWidth: cardWidth)
                             .frame(width: pageWidth + 4, alignment: .bottomLeading)
                             .id(RespondScrollType.counterInvitePage)
-                            .opacity(popupShown ? 0 : 1)
                     }
+                    .opacity(popupShown || dismissHidePopup ? 0 : 1)
                     .scrollTargetLayout()
                     .padding(.trailing, 16)
                     .frame(maxHeight: .infinity, alignment: .center)
@@ -67,12 +67,15 @@ struct RespondPopupContainer: View {
                 }
             }
             .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                dismissHidePopup = true
                 onResponse(.newTime)
             }
             .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                dismissHidePopup = true
                 onResponse(.accepted)
             }
             .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                dismissHidePopup = true
                 onResponse(.newInvite)
             }
         }

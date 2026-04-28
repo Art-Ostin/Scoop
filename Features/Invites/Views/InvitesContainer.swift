@@ -27,34 +27,34 @@ struct InvitesContainer: View {
     }
     
     var body: some View {
-        if vm.invites.isEmpty {
-            invitesPlaceholder
-        } else {
-            ZStack {
+        ZStack {
+            if vm.invites.isEmpty {
+                invitesPlaceholder
+            } else {
                 invitesView
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
-                
+
                 if ui.quickInvite { quickInvite }
-                
-                if let response = ui.respondedToProfile {
-                    RespondedToProfileView(response: response)
-                }
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
-            .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId) }
+
+            if let response = ui.respondedToProfile {
+                RespondedToProfileView(response: response)
             }
-            .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
-            }
-            .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-                Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
-            }
-            .onPreferenceChange(IsTimeOpen.self) { newValue in
-                showTimePopup = newValue
-            }
-            .hideTabBar(hideBar: isPopup)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+            Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId) }
+        }
+        .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+            Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
+        }
+        .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+            Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
+        }
+        .onPreferenceChange(IsTimeOpen.self) { newValue in
+            showTimePopup = newValue
+        }
+        .hideTabBar(hideBar: isPopup)
     }
 }
 

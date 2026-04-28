@@ -12,11 +12,10 @@ extension InvitesContainer {
     
     func respondToProfile(respondType: ProfileResponse, profileId: String) async throws {
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
-        try await respondToProfileAction(respondType: respondType, profileId: profileId)
         ui.respondedToProfile = respondType
         try? await Task.sleep(for: .milliseconds(550))
         ui.selectedProfile = nil
-        //4.if the minimum of 0.75s done, dismiss the screen overlay
+        try await respondToProfileAction(respondType: respondType, profileId: profileId)
         try? await minDelay
         ui.respondedToProfile = nil
     }
