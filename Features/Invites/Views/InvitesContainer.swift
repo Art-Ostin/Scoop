@@ -10,6 +10,8 @@ import SwiftUI
 
 struct InvitesContainer: View {
     
+    @Environment(\.tabSelection) var selectedTab
+    
     @State var ui = InvitesUIState()
     
     @State var vm: InvitesViewModel
@@ -43,7 +45,10 @@ struct InvitesContainer: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-            Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId) }
+            Task {
+                try?  await respondToProfile(respondType: .newTime, profileId: profileId)
+                
+            }
         }
         .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
             Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}

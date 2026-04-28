@@ -165,7 +165,7 @@ extension EventsRepo {
             Event.Field.acceptedTime.rawValue: acceptedTime
         ]
         let eventFields = userFields
-        userFields[UserEvent.Field.chatState.rawValue] = ChatState()
+        userFields[UserEvent.Field.chatState.rawValue] = try fs.encodeFields(ChatState())
         try await updateEvent(initId: senderId, recipId: userId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: eventFields)
         //Chat Model
         let chatModel = ChatModel(participantIds: [senderId, userId], lastMessageAt: nil)

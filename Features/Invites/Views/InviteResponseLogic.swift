@@ -18,6 +18,9 @@ extension InvitesContainer {
         try await respondToProfileAction(respondType: respondType, profileId: profileId)
         try? await minDelay
         ui.respondedToProfile = nil
+        if respondType == .accepted {
+            selectedTab.wrappedValue = .events
+        }
     }
     
     private func respondToProfileAction (respondType: ProfileResponse, profileId: String) async throws {
