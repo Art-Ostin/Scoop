@@ -40,12 +40,7 @@ struct AppContainer: View {
                         }
                 }
                 .tint(.black)
-                .overlay(alignment: .top) {
-                    MessagePopupView(
-                        model: dep.sessionManager.recentMessageReceived,
-                        imageLoader: dep.imageLoader
-                    )
-                }
+                .overlay(alignment: .top) {messagePopupOverlay }
             } else {
                 CustomTabBarContainerView(selection: $tabSelection) {
                     meetView .tabBarItem(.meet, selection: $tabSelection)
@@ -53,18 +48,9 @@ struct AppContainer: View {
                     eventsView.tabBarItem(.events, selection: $tabSelection)
                     matchesView.tabBarItem(.matches, selection: $tabSelection)
                 }
-                .overlay(alignment: .top) {
-                    MessagePopupView(
-                        model: dep.sessionManager.recentMessageReceived,
-                        imageLoader: dep.imageLoader
-                    )
-                    .task {
-                        try? await Task.sleep(for: .seconds(4))
-                        dep.sessionManager.recentMessageReceived = nil
-                    }
-                }
+                .overlay(alignment: .top) {messagePopupOverlay}
             }
-        }
+        } 
         .environment(\.tabSelection, $tabSelection)
     }
 }
@@ -92,6 +78,15 @@ extension AppContainer {
     private var matchesView: some View {
         MessagesContainer(vm: MessagesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
         )
+    }
+    
+    
+    private var messagePopupOverlay: some View {
+        MessagePopupView(
+            model: dep.sessionManager.recentMessageReceived,
+            imageLoader: dep.imageLoader
+        )
+        .animation(.spring(duration: 0.4), value: dep.sessionManager.recentMessageReceived)
     }
 }
 
