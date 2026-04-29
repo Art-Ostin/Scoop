@@ -72,7 +72,21 @@ class EventsRepo: EventsRepository {
             Event.EventStatus.accepted.rawValue,
             Event.EventStatus.pastAccepted.rawValue
         ]
-        return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue,in: statuses)}
+        return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue, in: statuses)}
+    }
+    
+    //Returns snapshot of all UserEvents where the user is not the author
+    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
+        let userEventPath = "users/\(userId)/user_events"
+        return fs.streamCollection(userEventPath) { query in
+            query
+                .whereField(chatStateField(.lastMessageAuthor), isNotEqualTo: userId)
+        }
+    }
+    
+    //To get a specific ChatField
+    func chatStateField(_ field: ChatState.Field) -> String {
+        return "\(UserEvent.Field.chatState.rawValue).\(field.rawValue)"
     }
 }
 

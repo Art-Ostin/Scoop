@@ -35,6 +35,7 @@ enum ShowProfilesState {
     private var eventStreamTask: Task<Void, Never>?
     private var userProfileStreamTask: Task<Void, Never>?
     private var chatStreamTask: Task<Void, Never>?
+    private var recentChatStreamTask: Task<Void, Never>?
 
     
     private var appStateBinding: Binding<AppState>?
@@ -122,6 +123,7 @@ enum ShowProfilesState {
         eventStreamTask?.cancel()
         userProfileStreamTask?.cancel()
         chatStreamTask?.cancel()
+        recentChatStreamTask?.cancel()
         sessionUser = nil
     }
 }
@@ -129,6 +131,32 @@ enum ShowProfilesState {
 
 //Events Stream
 extension SessionManager {
+    
+    
+    private func recentChatStream() {
+        recentChatStreamTask?.cancel()
+        let stream = eventsRepo.eventMessageTracker(userId: user.id)
+        
+        recentChatStreamTask = Task { @MainActor in
+            do {
+                for try await change in stream {
+                    switch change {
+                    case .initial(let messages):
+                        continue
+                    case .added(let message):
+                        
+                    case .modified(let message):
+                        
+                    case .removed(id: let id):
+                        continue
+                    }
+                }
+            } catch {
+                
+            }
+        }
+        
+    }
     
     private func eventsStream() {
         eventStreamTask?.cancel()
