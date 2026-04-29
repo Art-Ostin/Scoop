@@ -40,6 +40,9 @@ struct AppContainer: View {
                         }
                 }
                 .tint(.black)
+                .overlay(alignment: .top) {
+                    notificationPopup
+                }
             } else {
                 CustomTabBarContainerView(selection: $tabSelection) {
                     meetView .tabBarItem(.meet, selection: $tabSelection)
@@ -77,8 +80,43 @@ extension AppContainer {
         MessagesContainer(vm: MessagesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
         )
     }
+    
+    private var notificationPopup: some View {
+        
+        HStack(spacing: 16) {
+            //Use CirclePhoto after
+            Image("Demo1")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Jane")
+                    .font(.body(16, .bold))
+                
+                Text("Yes would love to go to the shop")
+                    .font(.body(14, .regular))
+                    .foregroundStyle(Color.black.opacity(0.5))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(2.5)
+            }
+        }
+        .padding(.trailing, 16)
+        .padding(.leading, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.background)
+        )
+        .padding(.horizontal, 16)
+        .surfaceShadow(.floating, strength: 0.5)
+    }
 }
 
-#Preview {
-    AppContainer()
-}
+/*
+ just say the day you're free and I am there and what is more this is an additional message to send to add a line
+ */

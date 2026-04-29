@@ -31,7 +31,6 @@ class ChatViewModel {
     
     func sendMessage(text: String) async throws {
         try await chatRepo.sendMessage(text: text, eventId: eventProfile.id, userId: userId, recipientId: eventProfile.profile.id)
-//        loadMessages()
     }
     
     
@@ -62,33 +61,3 @@ class ChatViewModel {
         }
     }
 }
-
-/*
- 
- func fetchMessages() async throws {
-     messages = try await chatRepo.fetchMessages(eventId: eventProfile.id)
- }
- 
- func loadMessages()  {
-     Task {
-         do {
-             try await fetchMessages()
-         } catch {
-             print("No messages Available")
-         }
-     }
- }
-
- 
- func fetchImages() {
-     Task {
-         if let loadedMessages = try? await chatRepo.fetchMessages(eventId: eventProfile.event.id) {
-             self.messages = loadedMessages
-         } else {
-             print("No messages Available")
-         }
-     }
- }
-
-
- */

@@ -98,10 +98,3 @@ extension ChatContainer {
             .opacity(isProfileOpen == nil ? 1 : 0)
     }
 }
-
-/*
- .onAppear {
-     vm.fetchImages()
- }
-
- */
