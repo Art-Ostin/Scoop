@@ -82,6 +82,7 @@ class EventsRepo: EventsRepository {
             query
                 .whereField(chatStateField(.lastMessageAuthor), isNotEqualTo: userId)
         }
+        //Only need to return and need to extract the MessagePopupModel from the UserEvent. How do I do that? 
     }
     
     //To get a specific ChatField
@@ -136,11 +137,7 @@ extension EventsRepo {
 
 //Logic regarding the 'recentMessageState' in the events
 extension EventsRepo {
-    
-    private func chatStateField(_ field: ChatState.Field) -> String {
-        "\(UserEvent.Field.chatState.rawValue).\(field.rawValue)"
-    }
-    
+        
     private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {
         [
             chatStateField(.lastMessageAuthor): message.authorId,

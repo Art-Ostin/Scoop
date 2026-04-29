@@ -36,8 +36,6 @@ enum ShowProfilesState {
     private var userProfileStreamTask: Task<Void, Never>?
     private var chatStreamTask: Task<Void, Never>?
     private var recentChatStreamTask: Task<Void, Never>?
-
-    
     private var appStateBinding: Binding<AppState>?
     
     //Key values need access to throughout App.
@@ -51,6 +49,8 @@ enum ShowProfilesState {
     var events: [EventProfile] = []
     var pastEvents: [EventProfile] = []
     var chats: [ChatModel] = []
+
+    var recentMessageReceived: MessagePopupModel?
     
     init(
         authService: AuthServicing,
@@ -141,12 +141,12 @@ extension SessionManager {
             do {
                 for try await change in stream {
                     switch change {
-                    case .initial(let messages):
+                    case .initial(let event):
                         continue
-                    case .added(let message):
-                        
-                    case .modified(let message):
-                        
+                    case .added(let event):
+                        recentMessageReceived = constructMessagePopupModel(event)
+                    case .modified(let event):
+                        recentMessageReceived = constructMessagePopupModel(event)
                     case .removed(id: let id):
                         continue
                     }
@@ -155,7 +155,11 @@ extension SessionManager {
                 
             }
         }
-        
+    }
+    
+    private func constructMessagePopupModel (_ event: UserEvent) -> MessagePopupModel {
+        let message = eventsRepo.chatStateField(.lastMessagePreview)
+        return MessagePopupModel(image: event.otherUserPhoto, authorName: event.otherUserName, message: message)
     }
     
     private func eventsStream() {

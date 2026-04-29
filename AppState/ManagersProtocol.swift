@@ -59,6 +59,7 @@ protocol EventsRepository {
     func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> 
     func respondWithNewTime(newTime: RescheduleResponse) async throws
     func respondWithNewEvent(eventResponse: EventResponse) async throws
+    func chatStateField(_ field: ChatState.Field) -> String 
 }
 
 protocol ChatRepository {
