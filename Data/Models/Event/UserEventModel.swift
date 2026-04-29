@@ -67,4 +67,9 @@ extension UserEvent {
              type, proposedTimes, acceptedTime, location, message,
              status, canText, updatedAt, earlyTerminatorID, chatState
     }
+
+    var messagePopup: MessagePopupModel? {
+        guard let preview = chatState?.lastMessagePreview, !preview.isEmpty else { return nil }
+        return MessagePopupModel(eventId: id, image: otherUserPhoto, authorName: otherUserName, message: preview)
+    }
 }

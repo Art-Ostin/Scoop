@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct MessagePopupModel {
+struct MessagePopupModel: Equatable {
+    let eventId: String
     let image: String
     let authorName: String
     let message: String

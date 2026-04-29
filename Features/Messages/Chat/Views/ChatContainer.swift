@@ -29,6 +29,17 @@ struct ChatContainer: View {
         .overlay(alignment: .bottom) {typeMessageView}
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile)}
         .task(id: vm.eventProfile.id) { await vm.startListening() }
+        .onAppear {
+            vm.session.activeChatEventId = vm.eventProfile.id
+            if vm.session.recentMessageReceived?.eventId == vm.eventProfile.id {
+                vm.session.recentMessageReceived = nil
+            }
+        }
+        .onDisappear {
+            if vm.session.activeChatEventId == vm.eventProfile.id {
+                vm.session.activeChatEventId = nil
+            }
+        }
         .hideTabBar()
         .toolbar(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

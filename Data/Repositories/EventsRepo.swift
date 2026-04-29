@@ -75,14 +75,49 @@ class EventsRepo: EventsRepository {
         return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue, in: statuses)}
     }
     
-    //Returns snapshot of all UserEvents where the user is not the author
-    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> {
+    //Streams MessagePopupModel events for incoming messages from the other user.
+    //Filters out doc updates where chatState didn't change (status/location/etc. edits don't trigger a popup).
+    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopupModel>, Error> {
         let userEventPath = "users/\(userId)/user_events"
-        return fs.streamCollection(userEventPath) { query in
-            query
-                .whereField(chatStateField(.lastMessageAuthor), isNotEqualTo: userId)
+        let source: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(userEventPath) {
+            $0.whereField(self.chatStateField(.lastMessageAuthor), isNotEqualTo: userId)
         }
-        //Only need to return and need to extract the MessagePopupModel from the UserEvent. How do I do that? 
+
+        return AsyncThrowingStream { continuation in
+            let task = Task {
+                var lastSeenAt: [String: Date] = [:]
+                do {
+                    for try await change in source {
+                        switch change {
+                        case .initial(let events):
+                            //1. Fetches and stores all the 'lastSeenAt' events times
+                            for ue in events {
+                                if let at = ue.chatState?.lastMessageAt { lastSeenAt[ue.id] = at }
+                            }
+                        case .added(let ue):
+                            //Stores the lastSeent at time when added, then adds the messagePopup
+                            if let at = ue.chatState?.lastMessageAt { lastSeenAt[ue.id] = at }
+                            if let popup = ue.messagePopup { continuation.yield(.added(popup)) }
+
+                        case .modified(let ue):
+                            //Only adds the message, if 'lastAdded' changes/Updates.
+                            let newAt = ue.chatState?.lastMessageAt
+                            guard newAt != lastSeenAt[ue.id] else { continue }
+                            lastSeenAt[ue.id] = newAt
+                            if let popup = ue.messagePopup { continuation.yield(.modified(popup)) }
+
+                        case .removed(let id):
+                            lastSeenAt.removeValue(forKey: id)
+                            continuation.yield(.removed(id: id))
+                        }
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
     }
     
     //To get a specific ChatField

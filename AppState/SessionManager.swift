@@ -36,6 +36,7 @@ enum ShowProfilesState {
     private var userProfileStreamTask: Task<Void, Never>?
     private var chatStreamTask: Task<Void, Never>?
     private var recentChatStreamTask: Task<Void, Never>?
+    private var dismissPopupTask: Task<Void, Never>?
     private var appStateBinding: Binding<AppState>?
     
     //Key values need access to throughout App.
@@ -51,6 +52,7 @@ enum ShowProfilesState {
     var chats: [ChatModel] = []
 
     var recentMessageReceived: MessagePopupModel?
+    var activeChatEventId: String?
     
     init(
         authService: AuthServicing,
@@ -109,6 +111,7 @@ enum ShowProfilesState {
         profilesStream()
         userProfileStream()
         chatsStream()
+        recentChatStream()
                 
         //3.Update the AppState and add profileImages
         if let appState {
@@ -124,6 +127,9 @@ enum ShowProfilesState {
         userProfileStreamTask?.cancel()
         chatStreamTask?.cancel()
         recentChatStreamTask?.cancel()
+        dismissPopupTask?.cancel()
+        recentMessageReceived = nil
+        activeChatEventId = nil
         sessionUser = nil
     }
 }
@@ -131,7 +137,6 @@ enum ShowProfilesState {
 
 //Events Stream
 extension SessionManager {
-    
     
     private func recentChatStream() {
         recentChatStreamTask?.cancel()
@@ -141,25 +146,27 @@ extension SessionManager {
             do {
                 for try await change in stream {
                     switch change {
-                    case .initial(let event):
-                        continue
-                    case .added(let event):
-                        recentMessageReceived = constructMessagePopupModel(event)
-                    case .modified(let event):
-                        recentMessageReceived = constructMessagePopupModel(event)
-                    case .removed(id: let id):
-                        continue
+                    case .initial: continue
+                    case .added(let popup): presentPopup(popup)
+                    case .modified(let popup): presentPopup(popup)
+                    case .removed: continue
                     }
                 }
             } catch {
-                
+                print(error)
             }
         }
     }
-    
-    private func constructMessagePopupModel (_ event: UserEvent) -> MessagePopupModel {
-        let message = eventsRepo.chatStateField(.lastMessagePreview)
-        return MessagePopupModel(image: event.otherUserPhoto, authorName: event.otherUserName, message: message)
+
+    private func presentPopup(_ popup: MessagePopupModel) {
+        guard popup.eventId != activeChatEventId else { return }
+        recentMessageReceived = popup
+        dismissPopupTask?.cancel()
+        dismissPopupTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled else { return }
+            self?.recentMessageReceived = nil
+        }
     }
     
     private func eventsStream() {

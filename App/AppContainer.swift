@@ -41,7 +41,10 @@ struct AppContainer: View {
                 }
                 .tint(.black)
                 .overlay(alignment: .top) {
-                    notificationPopup
+                    MessagePopupView(
+                        model: dep.sessionManager.recentMessageReceived,
+                        imageLoader: dep.imageLoader
+                    )
                 }
             } else {
                 CustomTabBarContainerView(selection: $tabSelection) {
@@ -49,6 +52,16 @@ struct AppContainer: View {
                     invitesView .tabBarItem(.invites, selection: $tabSelection)
                     eventsView.tabBarItem(.events, selection: $tabSelection)
                     matchesView.tabBarItem(.matches, selection: $tabSelection)
+                }
+                .overlay(alignment: .top) {
+                    MessagePopupView(
+                        model: dep.sessionManager.recentMessageReceived,
+                        imageLoader: dep.imageLoader
+                    )
+                    .task {
+                        try? await Task.sleep(for: .seconds(4))
+                        dep.sessionManager.recentMessageReceived = nil
+                    }
                 }
             }
         }
@@ -80,43 +93,53 @@ extension AppContainer {
         MessagesContainer(vm: MessagesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
         )
     }
-    
-    private var notificationPopup: some View {
-        
-        HStack(spacing: 16) {
-            //Use CirclePhoto after
-            Image("Demo1")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Jane")
-                    .font(.body(16, .bold))
-                
-                Text("Yes would love to go to the shop")
-                    .font(.body(14, .regular))
-                    .foregroundStyle(Color.black.opacity(0.5))
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineSpacing(2.5)
-            }
-        }
-        .padding(.trailing, 16)
-        .padding(.leading, 12)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.background)
-        )
-        .padding(.horizontal, 16)
-        .surfaceShadow(.floating, strength: 0.5)
-    }
 }
 
-/*
- just say the day you're free and I am there and what is more this is an additional message to send to add a line
- */
+private struct MessagePopupView: View {
+    let model: MessagePopupModel?
+    let imageLoader: ImageLoading
+    @State private var image: UIImage?
+
+    var body: some View {
+        if let model {
+            HStack(spacing: 16) {
+                if let image {
+                    CirclePhoto(image: image, showShadow: false, height: 40)
+                } else {
+                    Circle()
+                        .fill(Color.black.opacity(0.08))
+                        .frame(width: 40, height: 40)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(model.authorName)
+                        .font(.body(16, .bold))
+
+                    Text(model.message)
+                        .font(.body(14, .regular))
+                        .foregroundStyle(Color.black.opacity(0.5))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineSpacing(2.5)
+                }
+            }
+            .padding(.trailing, 16)
+            .padding(.leading, 12)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.background)
+            )
+            .padding(.horizontal, 16)
+            .surfaceShadow(.floating, strength: 0.5)
+            .transition(.move(edge: .top).combined(with: .opacity))
+            .task(id: model.image) {
+                image = nil
+                guard let url = URL(string: model.image) else { return }
+                image = try? await imageLoader.fetchImage(for: url)
+            }
+        }
+    }
+}
