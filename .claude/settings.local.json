@@ -5,7 +5,8 @@
       "Bash(grep -E \"\\(\\\\.DS_Store|firebase-debug|pglite-debug|~\\\\$|File\\\\.swift|Test\\\\.swift\\)\")",
       "Bash(grep -E \"\\(\\\\.DS_Store|firebase-debug|pglite-debug|~\\\\$|File\\\\.swift|VStack Test|LoadingTest\\)\")",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' build)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' build)",
+      "Bash(grep -E \"\\\\.swift$\")"
     ]
   }
 }

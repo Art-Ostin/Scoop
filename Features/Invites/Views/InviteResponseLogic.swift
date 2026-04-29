@@ -53,7 +53,7 @@ extension InvitesContainer {
     
     private func acceptInvite(profileId: String) async throws {
         if let originalInvite = vm.respondVMs[profileId]?.respondDraft.originalInvite, let selectedDay = originalInvite.selectedDay {
-            try await vm.acceptInvite(eventId: originalInvite.event.id, senderId: vm.userId, acceptedDate: selectedDay)
+            try await vm.acceptInvite(eventId: originalInvite.event.id, senderId: originalInvite.event.otherUserId, acceptedDate: selectedDay)
         }
     }
     

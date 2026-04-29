@@ -17,7 +17,7 @@ struct ChatModel: Codable {
     @ServerTimestamp var updatedAt: Date?
     
     enum Field: String {
-        case participantsIds, lastMessageAt, createdAt, updatedAt
+        case participantIds, lastMessageAt, createdAt, updatedAt
     }
 }
 
