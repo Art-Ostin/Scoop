@@ -20,6 +20,7 @@ enum ShowProfilesState {
     let userRepo: UserRepository
     let eventsRepo: EventsRepository
     let profilesRepo: ProfilesRepository
+    let chatRepo: ChatRepository
     
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
@@ -33,6 +34,8 @@ enum ShowProfilesState {
     private var profileStreamTask: Task<Void, Never>?
     private var eventStreamTask: Task<Void, Never>?
     private var userProfileStreamTask: Task<Void, Never>?
+    private var chatStreamTask: Task<Void, Never>?
+
     
     private var appStateBinding: Binding<AppState>?
     
@@ -46,6 +49,7 @@ enum ShowProfilesState {
     var invites: [EventProfile] = []
     var events: [EventProfile] = []
     var pastEvents: [EventProfile] = []
+    var chats: [ChatModel] = []
     
     init(
         authService: AuthServicing,
@@ -53,6 +57,7 @@ enum ShowProfilesState {
         userRepo: UserRepository,
         eventsRepo: EventsRepository,
         profilesRepo: ProfilesRepository,
+        chatRepo: ChatRepository,
         profileLoader: ProfileLoading,
         imageLoader: ImageLoading)
     {
@@ -61,6 +66,7 @@ enum ShowProfilesState {
         self.userRepo = userRepo
         self.eventsRepo = eventsRepo
         self.profilesRepo = profilesRepo
+        self.chatRepo = chatRepo
         self.profileLoader = profileLoader
         self.imageLoader = imageLoader
     }
@@ -101,6 +107,7 @@ enum ShowProfilesState {
         eventsStream()
         profilesStream()
         userProfileStream()
+        chatsStream()
                 
         //3.Update the AppState and add profileImages
         if let appState {
@@ -114,6 +121,7 @@ enum ShowProfilesState {
         profileStreamTask?.cancel()
         eventStreamTask?.cancel()
         userProfileStreamTask?.cancel()
+        chatStreamTask?.cancel()
         sessionUser = nil
     }
 }
@@ -174,9 +182,6 @@ extension SessionManager {
         }
     }
     
-    
-    
-    
     private func removeAndReturnProfile(id: String) -> EventProfile? {
         let localProfile =
         invites.first(where: { $0.event.id == id }) ??
@@ -192,6 +197,33 @@ extension SessionManager {
 }
 
 extension SessionManager {
+    
+    
+    private func chatsStream() {
+        chatStreamTask?.cancel()
+        let stream = chatRepo.chatsTracker(userId: user.id)
+        
+        chatStreamTask = Task { @MainActor in
+            do {
+                for try await change in stream {
+                    switch change {
+                    case .initial(let chats):
+                        self.chats = chats
+                    case .added(let chat):
+                        chats.append(chat)
+                    case .modified(let chat):
+                        if let idx = self.chats.firstIndex(where: { $0.id == chat.id }) {
+                            self.chats[idx] = chat
+                        }
+                    case .removed(let id):
+                        self.chats.removeAll { $0.id == id }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
     
     private func profilesStream() {
         profileStreamTask?.cancel()

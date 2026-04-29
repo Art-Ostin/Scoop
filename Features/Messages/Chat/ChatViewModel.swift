@@ -31,35 +31,64 @@ class ChatViewModel {
     
     func sendMessage(text: String) async throws {
         try await chatRepo.sendMessage(text: text, eventId: eventProfile.id, userId: userId, recipientId: eventProfile.profile.id)
-        loadMessages()
+//        loadMessages()
     }
     
-    func fetchMessages() async throws {
-        messages = try await chatRepo.fetchMessages(eventId: eventProfile.id)
-    }
     
     func loadImages(profile: EventProfile) async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile.profile)
     }
     
-    func loadMessages()  {
-        Task {
-            do {
-                try await fetchMessages()
-            } catch {
-                print("No messages Available")
-            }
-        }
-    }
 
     
-    func fetchImages() {
-        Task {
-            if let loadedMessages = try? await chatRepo.fetchMessages(eventId: eventProfile.event.id) {
-                self.messages = loadedMessages
-            } else {
-                print("No messages Available")
+    func startListening() async {
+        do {
+            for try await change in chatRepo.messagesTracker(eventId: eventProfile.id) {
+                switch change {
+                case .initial(let initial):
+                    self.messages = initial.reversed()
+                case .added(let message):
+                    self.messages.append(message)
+                case .modified(let message):
+                    if let idx = self.messages.firstIndex(where: { $0.id == message.id }) {
+                        self.messages[idx] = message
+                    }
+                case .removed(let id):
+                    self.messages.removeAll { $0.id == id }
+                }
             }
+        } catch {
+            print("Messages stream error: \(error)")
         }
     }
 }
+
+/*
+ 
+ func fetchMessages() async throws {
+     messages = try await chatRepo.fetchMessages(eventId: eventProfile.id)
+ }
+ 
+ func loadMessages()  {
+     Task {
+         do {
+             try await fetchMessages()
+         } catch {
+             print("No messages Available")
+         }
+     }
+ }
+
+ 
+ func fetchImages() {
+     Task {
+         if let loadedMessages = try? await chatRepo.fetchMessages(eventId: eventProfile.event.id) {
+             self.messages = loadedMessages
+         } else {
+             print("No messages Available")
+         }
+     }
+ }
+
+
+ */

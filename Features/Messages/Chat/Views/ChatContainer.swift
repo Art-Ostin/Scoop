@@ -28,12 +28,9 @@ struct ChatContainer: View {
         .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile)}
-        .task(id: vm.eventProfile.id) { vm.loadMessages() }
+        .task(id: vm.eventProfile.id) { await vm.startListening() }
         .hideTabBar()
         .toolbar(.hidden)
-        .onAppear {
-            vm.fetchImages()
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .customScrollFade(height: 100, showFade: true)
     }
@@ -101,3 +98,10 @@ extension ChatContainer {
             .opacity(isProfileOpen == nil ? 1 : 0)
     }
 }
+
+/*
+ .onAppear {
+     vm.fetchImages()
+ }
+
+ */

@@ -29,6 +29,7 @@ final class AppDependencies {
             userRepo: userRepo,
             eventsRepo: eventRepo,
             profilesRepo: profilesRepo,
+            chatRepo: chatRepo,
             profileLoader: profileLoader,
             imageLoader: imageLoader)
     }()

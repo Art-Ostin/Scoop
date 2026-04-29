@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 
 struct ChatModel: Codable {
+    @DocumentID var id: String?
     let participantIds: [String]
     
     var lastMessageAt: Date?

@@ -9,6 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 struct MessageModel: Hashable, Codable {
+    @DocumentID var id: String? 
     
     //So always ID even if not saved yet
     let authorId: String

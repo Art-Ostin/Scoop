@@ -49,11 +49,21 @@ class ChatRepo: ChatRepository {
         return Array(messages.reversed())
     }
     
-    //To track any updates to the chat folder
+    //To track any updates to the user's chat folder
     func chatsTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatModel>, Error>  {
         let path = "chats"
         return fs.streamCollection(path) { query in
             query.whereField(ChatModel.Field.participantIds.rawValue, arrayContains: userId)
+        }
+    }
+    
+    //To track any updates to a message (when opened)
+    func messagesTracker(eventId: String) -> AsyncThrowingStream<FSCollectionEvent<MessageModel>, Error> {
+        let path = chatMessagePath(eventId: eventId)
+        return fs.streamCollection(path) { query in
+            query
+                .order(by: MessageModel.Field.dateCreated.rawValue, descending: true)
+                .limit(to: 100)
         }
     }
 }
