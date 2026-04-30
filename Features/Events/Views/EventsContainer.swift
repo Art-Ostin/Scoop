@@ -23,19 +23,17 @@ struct EventsContainer: View {
     @State private var scrollTarget: String?
     
     var body: some View {
-        
+
         if vm.events.isEmpty  {
             EventsPlaceholder()
         } else {
-            ZStack {
+            NavigationStack {
                 eventPages
-                
-                if let profile = ui.selectedProfile {
-                    profileView(profile: profile)
-                }
+                    .navigationDestination(item: $ui.selectedProfile) { profile in
+                        profileView(profile: profile)
+                    }
             }
             .animation(.easeInOut(duration: 0.2), value: ui.messageProfile)
-            
             .fullScreenCover(item: $tabProfile) { eventProfile in
                 chatView(eventProfile: eventProfile)
             }
@@ -113,11 +111,8 @@ extension EventsContainer {
         ProfileView(
             vm:ProfileViewModel(defaults: vm.defaults, s: vm.sessionManager, profile: profile, event: fetchEvent(profile), imageLoader: vm.imageLoader),
             profileImages: profileImages[profile.id] ?? [],
-            selectedProfile: $ui.selectedProfile,
-            dismissOffset: $ui.dismissOffset, mode: .viewProfile)
+            mode: .viewProfile)
         .id(profile.id)
-        .zIndex(1)
-        .transition(.move(edge: .bottom))
     }
     
     private func loadProfileImages(_ profile: UserProfile) async {

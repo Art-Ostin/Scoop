@@ -33,7 +33,6 @@ struct EventImageView: View {
     
     private func openProfile() {
         if ui.selectedProfile == nil {
-            ui.dismissOffset = nil
             ui.selectedProfile = eventProfile.profile
         }
     }

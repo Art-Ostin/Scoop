@@ -20,10 +20,6 @@ struct ProfileView: View {
     let profileImages: [UIImage]
 
     @GestureState var detailsOffset = CGFloat.zero
-    @GestureState var profileOffset = CGFloat.zero
-
-    @Binding var dismissOffset: CGFloat?
-    @Binding var selectedProfile: UserProfile?
 
     @State var ui = ProfileUIState()
 
@@ -44,23 +40,19 @@ struct ProfileView: View {
     init(
         vm: ProfileViewModel,
         profileImages: [UIImage],
-        selectedProfile: Binding<UserProfile?>,
-        dismissOffset: Binding<CGFloat?>,
         mode: ProfileMode
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
-        _selectedProfile = selectedProfile
-        _dismissOffset = dismissOffset
         self.mode = mode
     }
-    
+
     var body: some View {
         GeometryReader { geo in
             if !ui.hideProfileScreen {
                 ZoomContainer {
                     VStack(spacing: 24) {
-                        profileTitle(geo: geo)
+                        profileTitle
                             .offset(y: transition.interpolate(to: -108))
                             .opacity(1 - transition.overlayTitleOpacity)
                             .padding(.top, 36)
@@ -80,15 +72,12 @@ struct ProfileView: View {
                     .background(profileBackground)
                     .animation(.spring(duration: 0.2), value: ui.detailsOpen)
                     .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                    .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
-                    .animation(.easeInOut(duration: ui.dismissalDuration), value: selectedProfile) //snappy(duration: ui.dismissalDuration)
-                    .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
+                    .overlay(alignment: .topLeading) { overlayTitle }
                     .preference(key: OpenDetails.self, value: ui.detailsOpen)
                 }
             }
         }
         .overlay {if ui.showRespondPopup {invitePopup}}
-        .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {

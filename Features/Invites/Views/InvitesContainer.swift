@@ -34,11 +34,14 @@ struct InvitesContainer: View {
                 invitesPlaceholder
             } else {
                 invitesView
-                if let profile = ui.selectedProfile { profileView(profile: profile)}
 
                 if ui.quickInvite { quickInvite }
             }
-
+        }
+        .navigationDestination(item: $ui.selectedProfile) { profile in
+            profileView(profile: profile)
+        }
+        .overlay {
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
             }
@@ -140,8 +143,6 @@ extension InvitesContainer {
                     imageLoader: vm.imageLoader
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
-                selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset,
                 mode: .respondToInvite(respondVM: respondVM) { respondType in
                     Task {
                         try? await respondToProfile(respondType: respondType, profileId: eventProfile.profile.id)
@@ -149,8 +150,6 @@ extension InvitesContainer {
                 }
             )
             .id(eventProfile.profile.id)
-            .zIndex(1)
-            .transition(.move(edge: .bottom))
         }
     }
     
@@ -173,7 +172,6 @@ extension InvitesContainer {
     
     private func openProfile(_ profile: UserProfile) {
         if ui.selectedProfile == nil {
-            ui.dismissOffset = nil
             ui.selectedProfile = profile
         }
     }

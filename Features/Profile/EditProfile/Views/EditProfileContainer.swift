@@ -12,14 +12,12 @@ struct EditProfileContainer: View {
     @State var isEdit: Bool = true
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
-    @State var selectedProfile: UserProfile?
-    @State var dismissOffset: CGFloat? = nil
     @State var navigationPath: [EditProfileRoute] = []
     @State var selectedImage: ImageSlot? = nil
     @State var showSavingScreen: Bool = false
-    
 
-    
+
+
     var body: some View {
         ZStack {
             if isEdit {
@@ -29,8 +27,6 @@ struct EditProfileContainer: View {
                 ProfileView(
                     vm: profileVM,
                     profileImages: vm.images,
-                    selectedProfile: $selectedProfile,
-                    dismissOffset: $dismissOffset,
                     mode: .ownProfile(draft: vm.draft)
                 )
                     .transition(.move(edge: .trailing))

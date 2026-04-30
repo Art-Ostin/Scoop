@@ -135,8 +135,7 @@ extension MessagesContainer {
                 defaults: vm.defaults,
                 s: vm.s, profile: vm.user,
                 imageLoader: vm.imageLoader
-            ),
-            selectedProfile: nil)
+            ))
     }
     
     

@@ -15,37 +15,39 @@ struct MeetContainer: View {
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
     @State var profileImages: [String : [UIImage]] = [:]
-    @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
-    
+    @Namespace private var profileNamespace
+
     init(vm: InviteViewModel) { self.vm = vm }
-    
+
     var body: some View {
-        ZStack {
-            meetView
-            
-            if let profileRec = ui.openProfile {
-                profileView(profile: profileRec)
+        NavigationStack {
+            ZStack {
+                meetView
+
+                if ui.quickInvite {
+                    quickInviteView
+                }
             }
-            
-            if ui.quickInvite {
-                quickInviteView
+            .transition(.opacity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .measure(key: ImageSizeKey.self) { $0.size.width }
+            .onPreferenceChange(ImageSizeKey.self) {screenSize in
+                imageSize = screenSize - (16 * 2)
             }
-            
+            .navigationDestination(item: $ui.openProfile) { profile in
+                profileView(profile: profile)
+            }
+        }
+        .overlay {
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
             }
-        }
-        .transition(.opacity)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) {screenSize in
-            imageSize = screenSize - (16 * 2)
         }
     }
 }
 
 extension MeetContainer {
-    
+
     private var meetView: some View {
         CustomTabPage(page: .meet ,tabAction: $ui.showInfo) {
             if vm.profiles.isEmpty {
@@ -56,35 +58,35 @@ extension MeetContainer {
         }
         .id(vm.profiles.count)
     }
-    
+
     private var meetPlaceholder: some View {
         VStack {
             Text("Hello World")
         }
     }
-    
+
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
             ProfileCard(openProfile: $ui.openProfile, profileInvite: $ui.profileInvite, profile: profile, size: imageSize)
+                .matchedTransitionSource(id: profile.profile.id, in: profileNamespace)
                 .contentShape(Rectangle())
                 .onTapGesture {openProfile(profile)}
                 .task { await loadProfileImages(profile.profile) }
                 .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
         }
     }
-    
+
     private func openProfile(_ profile: PendingProfile) {
         if ui.openProfile == nil {
-            dismissOffset = nil
             ui.openProfile = profile.profile
         }
     }
-    
+
     private func loadProfileImages(_ profile: UserProfile) async {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
     }
-            
+
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
             vm: ProfileViewModel(
@@ -94,15 +96,12 @@ extension MeetContainer {
                 imageLoader: vm.imageLoader
             ),
             profileImages: profileImages[profile.id] ?? [],
-            selectedProfile: $ui.openProfile,
-            dismissOffset: $dismissOffset,
             mode: .sendInvite { draft in
                 Task { await respondToProfile(event: draft, profile: profile) }
             }
         )
         .id(profile.id)
-        .zIndex(1)
-        .transition(.move(edge: .bottom))
+        .navigationTransition(.zoom(sourceID: profile.id, in: profileNamespace))
     }
 
     @ViewBuilder
@@ -123,24 +122,24 @@ extension MeetContainer {
 }
 
 extension MeetContainer {
-    
+
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         let isInvite = event != nil
         //1. Set a minimum of 0.75s timer for the response view to be showing
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         ui.respondedToProfile = isInvite ? .newInvite : .decline
-        
+
         //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
         ui.openProfile = nil
         ui.quickInvite = false
-        
+
         //3. Actually send invite or decline profile
         if let event {
             try? await vm.sendInvite(event: event, profile: profile)
         } else {
             try? await vm.declineProfile(profile: profile)
         }
-        
+
         //4.if the minimum of 0.75s done, dismiss the screen
         try? await minDelay
         ui.respondedToProfile = nil

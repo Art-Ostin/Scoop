@@ -56,7 +56,7 @@ enum ProfileViewType {
 }
 
 enum DragType {
-    case details, profile, horizontal
+    case details, horizontal
 }
 
 
@@ -69,7 +69,6 @@ enum DragType {
     var showTimePopup = false
     var detailsOpenOffset: CGFloat = -284
     var hideProfileScreen: Bool = false
-    let dismissalDuration: TimeInterval = 0.25
     var inviteTabSelection: Int = 0
 }
 

@@ -12,19 +12,18 @@ import UIKit
 struct ChatContainer: View {
     
     @Bindable var vm: ChatViewModel
-    
+
     @State var isProfileOpen: UserProfile? = nil
-    @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [UIImage] = []
     @FocusState private var isFocused
     var isEvent = true
-    
+
     var body: some View {
         ZStack{
             Color.background.ignoresSafeArea()
             ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
-            if isProfileOpen != nil { profileView}
         }
+        .navigationDestination(item: $isProfileOpen) { _ in profileView }
         .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile)}
@@ -71,21 +70,19 @@ extension ChatContainer {
     
     private func openProfile() {
         isFocused = false
-        dismissOffset = nil
-        withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = vm.eventProfile.profile}
+        isProfileOpen = vm.eventProfile.profile
     }
 
     private var chatHeaderBar: some View {
         ChatHeaderBar(
             isProfileOpen: $isProfileOpen,
-            dismissOffset: $dismissOffset,
             profile: vm.eventProfile.profile,
             image: profileImages.first ?? UIImage(),
             isEvent: isEvent,
             isFocused: $isFocused
         )
     }
-    
+
     private var profileView: some View {
         ProfileView(
             vm: ProfileViewModel(
@@ -96,12 +93,8 @@ extension ChatContainer {
                 imageLoader: vm.imageLoader
             ),
             profileImages: profileImages,
-            selectedProfile: $isProfileOpen,
-            dismissOffset: $dismissOffset,
             mode: .viewProfile)
         .id(vm.eventProfile.profile.id)
-        .zIndex(1)
-        .transition(.move(edge: .bottom))
     }
     
     private var typeMessageView: some View {

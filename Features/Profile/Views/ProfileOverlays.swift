@@ -28,14 +28,14 @@ extension ProfileView {
         }
     }
     
-    func profileTitle(geo: GeometryProxy) -> some View {
+    var profileTitle: some View {
         HStack {
             Text(displayProfile.name)
             ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             if !isUserProfile {
                 ProfileDismissButton(color: .black, detailsOpen: ui.detailsOpen) {
-                    dismissProfile(using: geo)
+                    dismiss()
                 }
             }
         }
@@ -43,13 +43,13 @@ extension ProfileView {
         .font(.body(24, .bold))
         .padding(.horizontal)
     }
-    
-    func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
+
+    var overlayTitle: some View {
         HStack {
             Text(displayProfile.name)
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .white, detailsOpen: ui.detailsOpen) { onDismiss() }
+                ProfileDismissButton(color: .white, detailsOpen: ui.detailsOpen) { dismiss() }
                     .padding(6)
                     .glassIfAvailable(Circle())
             }
