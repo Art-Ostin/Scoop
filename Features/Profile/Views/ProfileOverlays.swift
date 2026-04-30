@@ -18,8 +18,6 @@ extension ProfileView {
             InviteTimeAndPlaceView(
                 profile: vm.profile,
                 image: profileImages.first ?? UIImage(),
-                defaults: vm.defaults,
-                sessionManager: vm.s,
                 showInvite: $ui.showRespondPopup,
                 sendInvite: onSend)
             

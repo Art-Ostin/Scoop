@@ -9,8 +9,6 @@ enum ProfileMode {
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
 
-
-
 struct ProfileView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -92,7 +90,7 @@ struct ProfileView: View {
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {
-            if vm.viewProfileType != .view && vm.viewProfileType != .accepted && !ui.showRespondPopup {
+            if showInviteButton {
                 InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 144)
@@ -105,5 +103,9 @@ struct ProfileView: View {
             }
         }
         .hideTabBar()
+    }
+    
+    private var showInviteButton: Bool {
+        return vm.viewProfileType != .view && vm.viewProfileType != .accepted && !ui.showRespondPopup
     }
 }

@@ -111,7 +111,7 @@ extension EventsContainer {
     
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
-            vm:ProfileViewModel(defaults: vm.defaults, s: vm.sessionManager, profile: profile, event: fetchEvent(profile), imageLoader: vm.imageLoader),
+            vm:ProfileViewModel(profile: profile, event: fetchEvent(profile), imageLoader: vm.imageLoader),
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.selectedProfile,
             dismissOffset: $ui.dismissOffset, mode: .viewProfile)

@@ -133,8 +133,6 @@ extension InvitesContainer {
            let respondVM = vm.respondVMs[eventProfile.profile.id] {
             ProfileView(
                 vm: ProfileViewModel(
-                    defaults: vm.defaults,
-                    s: vm.session,
                     profile: eventProfile.profile,
                     event: eventProfile.event,
                     imageLoader: vm.imageLoader
@@ -160,8 +158,6 @@ extension InvitesContainer {
             InviteTimeAndPlaceView(
                 profile: profile,
                 image: profileImages[profile.id]?.first ?? UIImage(),
-                defaults: vm.defaults,
-                sessionManager: vm.session,
                 showInvite: $ui.quickInvite,
                 isNewEvent: true) { draft in
                     Task {

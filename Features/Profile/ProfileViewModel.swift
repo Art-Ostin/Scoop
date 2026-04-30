@@ -17,26 +17,16 @@ enum ProfileViewType {
     
     let profile: UserProfile
     let event: UserEvent?
-    
     let imageLoader: ImageLoading
-    let defaults: DefaultsManaging
-    let s: SessionManager
-        
     var viewProfileType: ProfileViewType
     
-    init(defaults: DefaultsManaging, s: SessionManager, profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading) {
+    init(profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading) {
         self.profile = profile
-        self.s = s
         self.imageLoader = imageLoader
-        self.defaults = defaults
         self.event = event
         self.viewProfileType = Self.loadProfileViewType(event: event)
     }
-    
-    var userId: String {
-        s.user.id
-    }
-    
+        
     
     private static func loadProfileViewType(event: UserEvent? = nil) -> ProfileViewType {
         if event?.status == .pastAccepted {
@@ -75,5 +65,9 @@ enum DragType {
 
 
 
+/*
+ //    var userId: String {
+ //        s.user.id
+ //    }
 
-
+ */

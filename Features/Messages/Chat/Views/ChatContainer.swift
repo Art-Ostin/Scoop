@@ -89,8 +89,6 @@ extension ChatContainer {
     private var profileView: some View {
         ProfileView(
             vm: ProfileViewModel(
-                defaults: vm.defaults,
-                s: vm.session,
                 profile: vm.eventProfile.profile,
                 event: vm.eventProfile.event,
                 imageLoader: vm.imageLoader

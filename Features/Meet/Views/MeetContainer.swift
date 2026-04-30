@@ -88,8 +88,6 @@ extension MeetContainer {
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
             vm: ProfileViewModel(
-                defaults: vm.defaults,
-                s: vm.s,
                 profile: profile,
                 imageLoader: vm.imageLoader
             ),
@@ -111,8 +109,6 @@ extension MeetContainer {
             InviteTimeAndPlaceView(
                 profile: profile,
                 image: profileImages[profile.id]?.first ?? UIImage(),
-                defaults: vm.defaults,
-                sessionManager: vm.s,
                 showInvite: $ui.quickInvite) { draft in
                     Task { @MainActor in
                         await respondToProfile(event: draft, profile: profile)

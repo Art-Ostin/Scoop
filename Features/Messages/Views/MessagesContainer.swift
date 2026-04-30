@@ -132,8 +132,7 @@ extension MessagesContainer {
                 importedImages: userProfileImages
             ),
             profileVM: ProfileViewModel(
-                defaults: vm.defaults,
-                s: vm.s, profile: vm.user,
+                profile: vm.user,
                 imageLoader: vm.imageLoader
             ),
             selectedProfile: nil)

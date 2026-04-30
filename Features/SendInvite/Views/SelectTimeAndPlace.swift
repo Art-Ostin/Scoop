@@ -15,40 +15,49 @@ import MapKit
 
 @MainActor
 struct InviteTimeAndPlaceView: View {
-
-    @State private var vm: TimeAndPlaceViewModel
+    
+    @Environment(\.appDependencies) private var deps
+    
+    let profile: UserProfile
+    let image: UIImage
     @Binding var showInvite: Bool
     var isNewEvent: Bool = false
-
     let sendInvite: (EventFieldsDraft) -> ()
 
-    init(
-        profile: UserProfile,
-        image: UIImage,
-        defaults: DefaultsManaging,
-        sessionManager: SessionManager,
-        showInvite: Binding<Bool>,
-        isNewEvent: Bool = false,
-        sendInvite: @escaping (EventFieldsDraft) -> ()
-    ) {
-        _vm = State(initialValue: TimeAndPlaceViewModel(
-            defaults: defaults,
-            sessionManager: sessionManager,
-            profile: profile,
-            image: image
-        ))
+    var body: some View {
+        InviteTimeAndPlaceContent(
+            vm: TimeAndPlaceViewModel(
+                defaults: deps.defaultsManager,
+                sessionManager: deps.sessionManager,
+                profile: profile,
+                image: image),
+            showInvite: $showInvite,
+            isNewEvent: isNewEvent,
+            sendInvite: sendInvite)
+    }
+}
+
+private struct InviteTimeAndPlaceContent: View {
+    @State private var vm: TimeAndPlaceViewModel
+    @Binding var showInvite: Bool
+    let isNewEvent: Bool
+    let sendInvite: (EventFieldsDraft) -> ()
+
+    init(vm: TimeAndPlaceViewModel,
+         showInvite: Binding<Bool>,
+         isNewEvent: Bool,
+         sendInvite: @escaping (EventFieldsDraft) -> ()) {
+        _vm = State(initialValue: vm)
         _showInvite = showInvite
         self.isNewEvent = isNewEvent
         self.sendInvite = sendInvite
     }
 
-
     var body: some View {
-        //Update the 'draft' to new place
         SelectTimeAndPlace(
             draft: $vm.event,
             showInvite: $showInvite,
-            name:vm.profile.name,
+            name: vm.profile.name,
             image: vm.image,
             defaults: vm.defaults,
             respondWithInvite: false,
@@ -60,8 +69,10 @@ struct InviteTimeAndPlaceView: View {
     }
 }
 
+
 @MainActor
 struct RespondTimeAndPlaceView: View {
+    
     @Bindable var vm: RespondViewModel
     @Binding var showInvite: Bool
     @Binding var showConfirmSendInvite: Bool
