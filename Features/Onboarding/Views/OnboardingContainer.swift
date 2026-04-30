@@ -37,65 +37,22 @@ struct OnboardingContainer: View {
             default: EmptyView()
         }
     }
+    
     @State private var bounce = false
     var body: some View {
         NavigationStack {
             ZStack(alignment: .topLeading) {
                 stepView
                     .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                dismiss()
-                            } label: {
-                                Image(systemName: "xmark")
-                                    .font(.body(16, .bold))
-                                    .padding(24)
-                                    .contentShape(Rectangle())
-                                    .padding(-24)
-                            }
-                        }
-                        
-                        ToolbarItem(placement: .topBarLeading) {
-                            if vm.onboardingStep > 0 {
-                                Button {
-                                    vm.goBackStep()
-                                } label: {
-                                    Image(systemName: "chevron.left")
-                                        .font(.body(16, .bold))
-                                        .frame(width: 30, height: 60) //Frame Solves a bug for quick dismissing
-                                        .contentShape(Rectangle())
-                                }
-                            }
-                        }
-                        
-                        ToolbarItem(placement: .principal) {
-                            ZStack {
-                                Text("\(vm.onboardingStep)/\(12)")
-                                    .font(.body(12, .bold))
-                                    .foregroundStyle(bounce ? .accent : .accent)
-                                    .opacity(showSaved ? 0 : 1)
-                                
-                                HStack(spacing: 12) {
-                                    Text("Saved")
-                                        .font(.body(14, .bold))
-                                        .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
-                                    
-                                    Image("GreenTick")
-                                }
-                                .opacity(showSaved ? 1 : 0)
-                             }
-                            .animation(.easeInOut(duration: 0.25), value: showSaved)
-                        }
+                        ToolbarItem(placement: .topBarTrailing) {dismissButton}
+                        ToolbarItem(placement: .topBarLeading) {if vm.onboardingStep > 0 {backButton}}
+                        ToolbarItem(placement: .principal) {saveAndStepMarker}
                         .hideSharedBackgroundIfAvailable()
                     }
                     .transition(vm.transitionStep)
                     .animation(.easeInOut(duration: 0.3), value: showSaved)
                     .onChange(of: vm.onboardingStep) { oldValue, newValue in
-                        guard newValue > oldValue else {return}
-                        showSaved = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                            showSaved = false
-                        }
+                        flashSavedIndicator(oldValue, newValue)
                     }
             }
             .navigationBarTitleDisplayMode(.inline) //Fixes Bug: decreases the top container pushing all the content down
@@ -103,7 +60,72 @@ struct OnboardingContainer: View {
     }
 }
 
+
+extension OnboardingContainer {
+    
+    private var saveAndStepMarker: some View {
+        ZStack {
+            onboardingStepTracker
+            saveButton
+        }
+        .animation(.easeInOut(duration: 0.25), value: showSaved)
+    }
+    
+    private var saveButton: some View {
+        HStack(spacing: 12) {
+            Text("Saved")
+                .font(.body(14, .bold))
+                .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
+            
+            Image("GreenTick")
+        }
+        .opacity(showSaved ? 1 : 0)
+    }
+    
+    private var onboardingStepTracker: some View {
+        Text("\(vm.onboardingStep)/\(12)")
+            .font(.body(12, .bold))
+            .foregroundStyle(bounce ? .accent : .accent)
+            .opacity(showSaved ? 0 : 1)
+    }
+    
+    private var dismissButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.body(16, .bold))
+                .padding(24)
+                .contentShape(Rectangle())
+                .padding(-24)
+        }
+    }
+    
+    private var backButton: some View {
+        Button {
+            vm.goBackStep()
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.body(16, .bold))
+                .frame(width: 30, height: 60) //Frame Solves a bug for quick dismissing
+                .contentShape(Rectangle())
+        }
+    }
+    
+    private func flashSavedIndicator(_ oldValue: Int,_ newValue: Int) {
+        guard oldValue != newValue else { return }
+        showSaved = true
+        Task {
+            try? await Task.sleep(for: .seconds(0.7))
+            showSaved = false
+        }
+    }
+}
+
+
 extension ToolbarContent {
+
+    
     @ToolbarContentBuilder
     func hideSharedBackgroundIfAvailable() -> some ToolbarContent {
         if #available(iOS 26.0, *) {

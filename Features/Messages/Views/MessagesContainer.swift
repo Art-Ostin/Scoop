@@ -19,13 +19,15 @@ struct MessagesContainer: View {
     @State var firstProfileImages: [String : UIImage] = [:]
     
     @State var selectedProfile: EventProfile? = nil
-    
-    init(vm: MessagesViewModel) {
+    @Binding var path: NavigationPath
+
+    init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
+        _path = path
     }
-    
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             CustomTabPage(page: .pastMatches, tabAction: $showSettingsView) {
                 if vm.events.isEmpty {
                     messagesAppearHereView
@@ -38,6 +40,9 @@ struct MessagesContainer: View {
             .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
             .overlay(alignment: .topTrailing) {actionBar}
             .task(id: vm.user.imagePathURL) { await prepareUserImages() }
+            .navigationDestination(for: EventProfile.self) { eventProfile in
+                ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
+            }
         }
     }
 }
@@ -48,13 +53,8 @@ extension MessagesContainer {
     @ViewBuilder
     private var matchesView: some View {
             VStack(spacing: 0) {
-//                MapDivider()
-//                    .padding(.trailing, -20)
-//                    .padding(.leading, 16)
                 ForEach(vm.events) { eventProfile in
-                    NavigationLink {
-                        ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
-                    } label: {
+                    NavigationLink(value: eventProfile) {
                         ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
                             .task {
                                 firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)

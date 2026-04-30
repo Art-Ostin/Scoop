@@ -7,8 +7,9 @@
 import SwiftUI
 
 struct AppContainer: View {
-    
+
     @State var tabSelection: TabBarItem = .meet
+    @State var matchesPath = NavigationPath()
     @Environment(\.appDependencies) private var dep
         
     var body: some View {
@@ -68,15 +69,18 @@ extension AppContainer {
     }
     
     private var invitesView: some View {
-        InvitesContainer(vm: InvitesViewModel(session: dep.sessionManager, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
+        NavigationStack {
+            InvitesContainer(vm: InvitesViewModel(session: dep.sessionManager, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
+        }
     }
     
     private var eventsView: some View {
-        EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))
+            EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))
     }
     
     private var matchesView: some View {
-        MessagesContainer(vm: MessagesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
+        MessagesContainer(vm: MessagesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader),
+                          path: $matchesPath
         )
     }
     
@@ -84,16 +88,30 @@ extension AppContainer {
     private var messagePopupOverlay: some View {
         MessagePopupView(
             model: dep.sessionManager.recentMessageReceived,
-            imageLoader: dep.imageLoader
+            imageLoader: dep.imageLoader,
+            onTap: handlePopupTap,
+            onDismiss: { dep.sessionManager.recentMessageReceived = nil }
         )
         .animation(.spring(duration: 0.4), value: dep.sessionManager.recentMessageReceived)
+    }
+
+    private func handlePopupTap(_ popup: MessagePopupModel) {
+        let s = dep.sessionManager
+        let candidates = s.pastEvents + s.events + s.invites
+        guard let eventProfile = candidates.first(where: { $0.id == popup.eventId }) else { return }
+        s.recentMessageReceived = nil
+        tabSelection = .meet
+        matchesPath.append(eventProfile)
     }
 }
 
 private struct MessagePopupView: View {
     let model: MessagePopupModel?
     let imageLoader: ImageLoading
+    let onTap: (MessagePopupModel) -> Void
+    let onDismiss: () -> Void
     @State private var image: UIImage?
+    @State private var dragOffset: CGFloat = 0
 
     var body: some View {
         if let model {
@@ -129,7 +147,24 @@ private struct MessagePopupView: View {
             )
             .padding(.horizontal, 16)
             .surfaceShadow(.floating, strength: 0.5)
+            .offset(y: dragOffset)
             .transition(.move(edge: .top).combined(with: .opacity))
+            .contentShape(Rectangle())
+            .onTapGesture { onTap(model) }
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        dragOffset = min(0, value.translation.height)
+                    }
+                    .onEnded { value in
+                        if value.translation.height < -20 {
+                            dragOffset = 0
+                            onDismiss()
+                        } else {
+                            withAnimation(.spring(duration: 0.3)) { dragOffset = 0 }
+                        }
+                    }
+            )
             .task(id: model.image) {
                 image = nil
                 guard let url = URL(string: model.image) else { return }
