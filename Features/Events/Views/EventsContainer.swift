@@ -55,6 +55,7 @@ struct EventsContainer: View {
             }
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {imageSize = $0 - 32 } //Adds 16 padding on each side
+            .onAppear { if tabProfile == nil { tabProfile = vm.events.first } }
         }
     }
 }
@@ -132,9 +133,9 @@ extension EventsContainer {
     
     private var tabIndicator: some View {
         HStack(spacing: 6) {
-            ForEach(0..<vm.events.count, id: \.self) { index in
-                let isSelected = index == selection
-                
+            ForEach(vm.events) { eventProfile in
+                let isSelected = eventProfile.id == tabProfile?.id
+
                 RoundedRectangle(cornerRadius: 100)
                     .frame(width: isSelected ? 10 : 5, height: 5)
                     .foregroundStyle(isSelected ? .black : .clear)
@@ -147,9 +148,9 @@ extension EventsContainer {
                 .fill(Color.background)
                 .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
         )
+        .surfaceShadow(.floating, strength: 1)
         .frame(maxWidth: .infinity, alignment: .center)
-
-        
+        .padding(.top, 24)
     }
 }
 
