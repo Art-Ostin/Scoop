@@ -15,26 +15,29 @@ struct MessageBubbleView: View {
     private let bubbleBorderWidth: CGFloat = 1
     
     @State var isTimeBelow: Bool = true
+    @State private var inlineTimeReservation: CGFloat = 0
+    @State private var maxBubbleWidth: CGFloat = 0
 
     let chat: MessageModel
     let newAuthor: Bool
     let nextIsNewAuthor: Bool
     let isMyChat: Bool
-    
+
     var isInviteMessage: Bool = false
     var bottomSpacing: CGFloat? = nil
 
     var includeStroke: Bool { isInviteMessage ? true : false}
+    
     var strokeColor: Color  {
         isMyChat ? Color.accent.opacity(0.5) : Color.grayPlaceholder.opacity(0.1)
     }
-    
+
     private var bubbleContentLeadingPadding: CGFloat {
         isInviteMessage ? 8 : 16
     }
 
     private var bubbleContentTrailingPadding: CGFloat {
-        isInviteMessage ? 20 : 16
+        isInviteMessage ? 20 : 16 + inlineTimeReservation
     }
     
     var backgroundColor: Color {
@@ -54,16 +57,47 @@ struct MessageBubbleView: View {
             .background(geometryMeasure)
             .overlay(alignment: .bottomTrailing) {  hourMessageSent }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
+            .background(parentWidthMeasure)
             .padding(.horizontal, isInviteMessage ? 0 : 24)
             .padding(isMyChat ? .leading : .trailing, (isInviteMessage ? 0 : 48))
             .padding(.bottom, bottomSpacing ?? (nextIsNewAuthor ? (isInviteMessage ? 0 : 12) : 0))
     }
     
     private func updateTimePlacement(bubbleWidth: CGFloat) {
-        let textWidth = max(0, bubbleWidth - 32)
-        let metrics = textLayoutMetrics(text: chat.content, width: textWidth, font: UIFont.body(16, .regular))
+        guard !isInviteMessage else {
+            let textWidth = max(0, bubbleWidth - 32)
+            let metrics = textLayoutMetrics(text: chat.content, width: textWidth, font: UIFont.body(16, .regular))
+            isTimeBelow = metrics.lineCount <= 1 || metrics.trailingSpace < 50
+            return
+        }
 
-        isTimeBelow = metrics.lineCount <= 1 || metrics.trailingSpace < 50
+        let timeWidth = inlineTimeBadgeWidth
+        let cap = maxBubbleWidth > 0 ? maxBubbleWidth : bubbleWidth
+        let inlineWidth = max(0, cap - 32 - timeWidth)
+        let inlineMetrics = textLayoutMetrics(text: chat.content, width: inlineWidth, font: UIFont.body(16, .regular))
+
+        if inlineMetrics.lineCount <= 1 {
+            isTimeBelow = false
+            inlineTimeReservation = timeWidth
+            return
+        }
+
+        let wrapWidth = max(0, cap - 32)
+        let wrapMetrics = textLayoutMetrics(text: chat.content, width: wrapWidth, font: UIFont.body(16, .regular))
+        inlineTimeReservation = 0
+        isTimeBelow = wrapMetrics.trailingSpace < timeWidth
+    }
+
+    private var inlineTimeBadgeWidth: CGFloat {
+        let timeText = FormatEvent.hourTime(chat.dateCreated ?? Date())
+        let attr = NSAttributedString(
+            string: timeText,
+            attributes: [
+                .font: UIFont.body(10, .regular),
+                .kern: 1
+            ]
+        )
+        return ceil(attr.size().width) + 6
     }
 
     private func textLayoutMetrics(text: String, width: CGFloat, font: UIFont) -> (lineCount: Int, trailingSpace: CGFloat) {
@@ -142,6 +176,20 @@ extension MessageBubbleView {
                 .onAppear { updateTimePlacement(bubbleWidth: proxy.size.width) }
                 .onChange(of: proxy.size.width) { _, w in updateTimePlacement(bubbleWidth: w) }
                 .onChange(of: chat.content) { _, _ in updateTimePlacement(bubbleWidth: proxy.size.width) }
+        }
+    }
+
+    private var parentWidthMeasure: some View {
+        GeometryReader { proxy in
+            Color.clear
+                .onAppear {
+                    maxBubbleWidth = proxy.size.width
+                    updateTimePlacement(bubbleWidth: proxy.size.width)
+                }
+                .onChange(of: proxy.size.width) { _, w in
+                    maxBubbleWidth = w
+                    updateTimePlacement(bubbleWidth: w)
+                }
         }
     }
 }

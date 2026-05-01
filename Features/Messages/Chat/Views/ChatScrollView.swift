@@ -36,9 +36,6 @@ struct ChatScrollView: View {
             }
             .customScrollFade(height: 160, showFade: true)
             .scrollIndicators(.hidden)
-            .onChange(of: isFocused.wrappedValue) { _, focused in
-                if focused { scrollToBottom(proxy, animated: true) }
-            }
             .onScrollGeometryChange(for: CGFloat.self) {scrollGeo in
                 scrollGeo.contentOffset.y
             } action: {oldY, newY in
@@ -86,5 +83,9 @@ struct ChatScrollView: View {
          .opacity(0.08)
          .ignoresSafeArea(.keyboard)
  )
+ .onChange(of: isFocused.wrappedValue) { _, focused in
+     if focused { scrollToBottom(proxy, animated: true) }
+ }
+
 
  */

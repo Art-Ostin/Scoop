@@ -12,6 +12,7 @@ struct AppContainer: View {
     
     @State var tabSelection: TabBarItem = .meet
     @State var matchesPath = NavigationPath()
+    @State private var popupImage: UIImage?
     @Environment(\.appDependencies) private var dep
         
     var body: some View {
@@ -87,14 +88,29 @@ extension AppContainer {
     }
     
     private var messagePopupOverlay: some View {
-        MessagePopupView(
-            model: dep.sessionManager.recentMessageReceived,
-            imageLoader: dep.imageLoader,
-            onTap: handlePopupTap,
-            onDismiss: { dep.sessionManager.recentMessageReceived = nil }
-        )
-        .animation(.spring(duration: 0.4), value: dep.sessionManager.recentMessageReceived)
+        Group {
+            if let model = dep.sessionManager.recentMessageReceived, let image = popupImage {
+                MessagePopupView(
+                    image: image,
+                    model: model,
+                    onTap: handlePopupTap,
+                    onDismiss: { dep.sessionManager.recentMessageReceived = nil }
+                )
+            }
+        }
+        .animation(.spring(duration: 0.4), value: popupImage != nil)
+        .task(id: dep.sessionManager.recentMessageReceived?.image) {
+            popupImage = nil
+            guard
+                let imageString = dep.sessionManager.recentMessageReceived?.image,
+                let url = URL(string: imageString)
+            else { return }
+            popupImage = try? await dep.imageLoader.fetchImage(for: url)
+        }
     }
+    
+    
+    
 
     private func handlePopupTap(_ popup: MessagePopupModel) {
         let s = dep.sessionManager
@@ -113,23 +129,16 @@ extension AppContainer {
 }
 
 private struct MessagePopupView: View {
+    let image: UIImage
     let model: MessagePopupModel?
-    let imageLoader: ImageLoading
     let onTap: (MessagePopupModel) -> Void
     let onDismiss: () -> Void
-    @State private var image: UIImage?
     @State private var dragOffset: CGFloat = 0
 
     var body: some View {
         if let model {
             HStack(spacing: 16) {
-                if let image {
-                    CirclePhoto(image: image, showShadow: false, height: 40)
-                } else {
-                    Circle()
-                        .fill(Color.black.opacity(0.08))
-                        .frame(width: 40, height: 40)
-                }
+                CirclePhoto(image: image, showShadow: false, height: 40)
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(model.authorName)
@@ -172,11 +181,15 @@ private struct MessagePopupView: View {
                         }
                     }
             )
-            .task(id: model.image) {
-                image = nil
-                guard let url = URL(string: model.image) else { return }
-                image = try? await imageLoader.fetchImage(for: url)
-            }
         }
     }
 }
+
+/*
+ .task(id: model.image) {
+     image = nil
+     guard let url = URL(string: model.image) else { return }
+     image = try? await imageLoader.fetchImage(for: url)
+ }
+
+ */
