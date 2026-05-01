@@ -19,7 +19,7 @@ struct RootView : View {
             switch state.wrappedValue {
                 
             case .booting:
-                ZStack { Color.accent.ignoresSafeArea()}
+                BootingScreen()
                 
             case .login:
                 SignUpView()

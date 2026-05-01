@@ -13,30 +13,42 @@ enum ShowProfilesState {
 }
 
 @MainActor
+final class TaskBag {
+    private var tasks: [String: Task<Void, Never>] = [:]
+    func insert(_ key: String, _ task: Task<Void, Never>) {
+        tasks[key]?.cancel()
+        tasks[key] = task
+    }
+    func cancel(_ key: String) {
+        tasks.removeValue(forKey: key)?.cancel()
+    }
+    func cancelAll() {
+        tasks.values.forEach { $0.cancel() }
+        tasks.removeAll()
+    }
+}
+
+@MainActor
 @Observable class SessionManager {
-    
+
     let authService: AuthServicing
-    
+
     let userRepo: UserRepository
     let eventsRepo: EventsRepository
     let profilesRepo: ProfilesRepository
     let chatRepo: ChatRepository
-    
+
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
     let defaultsManager: DefaultsManaging
-    
+
     //Session starts with this variable assigned
     private var sessionUser: UserProfile?
-    
-    //Store the streams, so that if the session closes cancel all of them
-    private var userStreamTask: Task<Void, Never>?
-    private var profileStreamTask: Task<Void, Never>?
-    private var eventStreamTask: Task<Void, Never>?
-    private var userProfileStreamTask: Task<Void, Never>?
-    private var chatStreamTask: Task<Void, Never>?
-    private var recentChatStreamTask: Task<Void, Never>?
-    private var dismissPopupTask: Task<Void, Never>?
+
+    //Auth listener spans the app lifetime; session streams are cancelled together on sign-out.
+    private var authStreamTask: Task<Void, Never>?
+    private let streams = TaskBag()
+
     private var appStateBinding: Binding<AppState>?
     
     //Key values need access to throughout App.
@@ -45,12 +57,11 @@ enum ShowProfilesState {
         return sessionUser
     }
     
-    var profiles: [PendingProfile] = []
+    private(set) var profiles: [PendingProfile] = []
     var invites: [EventProfile] = []
     var events: [EventProfile] = []
-    var pastEvents: [EventProfile] = []
-    var chats: [ChatModel] = []
-
+    private(set) var pastEvents: [EventProfile] = []
+    
     var recentMessageReceived: MessagePopupModel?
     var activeChatEventId: String?
     
@@ -73,11 +84,15 @@ enum ShowProfilesState {
         self.profileLoader = profileLoader
         self.imageLoader = imageLoader
     }
-    
+}
+
+extension SessionManager {
+        
     //Tracks if user signed in or not & decides app state on launch
     func userStream (appState: Binding<AppState>) {
         appStateBinding = appState
-        userStreamTask = Task { @MainActor in
+        authStreamTask?.cancel()
+        authStreamTask = Task { @MainActor in
             
             for await uid in authService.authStateStream() {
                 //1. If no authenticated user go to the login state
@@ -110,7 +125,7 @@ enum ShowProfilesState {
         eventsStream()
         profilesStream()
         userProfileStream()
-        chatsStream()
+//        chatsStream()
         recentChatStream()
                 
         //3.Update the AppState and add profileImages
@@ -122,12 +137,7 @@ enum ShowProfilesState {
     
     //Not private as need it when sign out
     func stopSession() {
-        profileStreamTask?.cancel()
-        eventStreamTask?.cancel()
-        userProfileStreamTask?.cancel()
-        chatStreamTask?.cancel()
-        recentChatStreamTask?.cancel()
-        dismissPopupTask?.cancel()
+        streams.cancelAll()
         recentMessageReceived = nil
         activeChatEventId = nil
         sessionUser = nil
@@ -139,10 +149,9 @@ enum ShowProfilesState {
 extension SessionManager {
     
     private func recentChatStream() {
-        recentChatStreamTask?.cancel()
         let stream = eventsRepo.eventMessageTracker(userId: user.id)
-        
-        recentChatStreamTask = Task { @MainActor in
+
+        streams.insert("recentChat", Task { @MainActor in
             do {
                 for try await change in stream {
                     switch change {
@@ -155,25 +164,23 @@ extension SessionManager {
             } catch {
                 print(error)
             }
-        }
+        })
     }
 
     private func presentPopup(_ popup: MessagePopupModel) {
         guard popup.eventId != activeChatEventId else { return }
         recentMessageReceived = popup
-        dismissPopupTask?.cancel()
-        dismissPopupTask = Task { @MainActor [weak self] in
+        streams.insert("dismissPopup", Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(4))
             guard !Task.isCancelled else { return }
             self?.recentMessageReceived = nil
-        }
+        })
     }
-    
+
     private func eventsStream() {
-        eventStreamTask?.cancel()
         let stream = eventsRepo.eventTracker(userId: user.id)
-        
-        eventStreamTask = Task { @MainActor in
+
+        streams.insert("events", Task { @MainActor in
             do {
                 for try await change in stream {
                     switch change {
@@ -186,7 +193,7 @@ extension SessionManager {
             } catch {
                 print(error)
             }
-        }
+        })
     }
     
     private func loadEvents(events: [UserEvent]) async throws {
@@ -237,38 +244,11 @@ extension SessionManager {
 
 extension SessionManager {
     
-    
-    private func chatsStream() {
-        chatStreamTask?.cancel()
-        let stream = chatRepo.chatsTracker(userId: user.id)
-        
-        chatStreamTask = Task { @MainActor in
-            do {
-                for try await change in stream {
-                    switch change {
-                    case .initial(let chats):
-                        self.chats = chats
-                    case .added(let chat):
-                        chats.append(chat)
-                    case .modified(let chat):
-                        if let idx = self.chats.firstIndex(where: { $0.id == chat.id }) {
-                            self.chats[idx] = chat
-                        }
-                    case .removed(let id):
-                        self.chats.removeAll { $0.id == id }
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
+
     private func profilesStream() {
-        profileStreamTask?.cancel()
         let stream = profilesRepo.profilesTracker(userId: user.id)
-        
-        profileStreamTask = Task { @MainActor in
+
+        streams.insert("profiles", Task { @MainActor in
             do {
                 for try await change in stream {
                     switch change {
@@ -291,19 +271,18 @@ extension SessionManager {
             } catch {
                 print(error)
             }
-        }
+        })
     }
-    
+
     //Listen to user's profile in case there is an update on their account.
     private func userProfileStream() {
-        userProfileStreamTask?.cancel()
-        userProfileStreamTask = Task { @MainActor in
+        streams.insert("userProfile", Task { @MainActor in
             do {
                 for try await change in userRepo.userListener(userId: user.id) {
                     //1. If they have updated their profile/preference make the session user, reflect this change
                     if let change {
                         sessionUser = change
-                        
+
                         //2.If change is 'user's status' i.e. to blocked or frozen, update appState.
                         if let appStateBinding {
                             updateAppState(appStateBinding, for: change)
@@ -313,7 +292,7 @@ extension SessionManager {
             } catch {
                 print(error)
             }
-        }
+        })
     }
     
     //Checks if user is blocked or frozen before going to main appState
@@ -329,15 +308,32 @@ extension SessionManager {
 
 
 
-
 /*
- Might need for profile ordering. Not sure yet
- private func upsert(_ model: EventProfile, into models: inout [ProfileModel]) {
-     if let index = models.firstIndex(where: { $0.id == model.id }) {
-         models[index] = model
-     } else {
-         models.append(model)
-     }
- }
+ //    var chats: [ChatModel] = []
 
+ 
+//    private func chatsStream() {
+//        let stream = chatRepo.chatsTracker(userId: user.id)
+//
+//        streams.insert("chats", Task { @MainActor in
+//            do {
+//                for try await change in stream {
+//                    switch change {
+//                    case .initial(let chats):
+//                        self.chats = chats
+//                    case .added(let chat):
+//                        chats.append(chat)
+//                    case .modified(let chat):
+//                        if let idx = self.chats.firstIndex(where: { $0.id == chat.id }) {
+//                            self.chats[idx] = chat
+//                        }
+//                    case .removed(let id):
+//                        self.chats.removeAll { $0.id == id }
+//                    }
+//                }
+//            } catch {
+//                print(error)
+//            }
+//        })
+//    }
  */
