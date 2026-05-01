@@ -9,7 +9,7 @@ import FirebaseFirestore
 struct Event: Identifiable, Codable {
     
     enum EventStatus: String, Codable, Equatable {
-        case pending, accepted, declined, declinedTimePassed, pastAccepted, cancelled, neverShowed
+        case pending, accepted, declined, pastAccepted, cancelled, neverShowed
     }
     
     enum EventScope: String, Codable {

@@ -13,6 +13,7 @@ enum ShowProfilesState {
 }
 
 @MainActor
+//Creat a 'Task Bag' to hold all the stream Tasks. Then can cancel them later
 final class TaskBag {
     private var tasks: [String: Task<Void, Never>] = [:]
     func insert(_ key: String, _ task: Task<Void, Never>) {
@@ -86,6 +87,7 @@ final class TaskBag {
     }
 }
 
+//Logic dealing with what part of app to show to user and when, and User's Status
 extension SessionManager {
         
     //Tracks if user signed in or not & decides app state on launch
@@ -125,7 +127,6 @@ extension SessionManager {
         eventsStream()
         profilesStream()
         userProfileStream()
-//        chatsStream()
         recentChatStream()
                 
         //3.Update the AppState and add profileImages
@@ -142,10 +143,147 @@ extension SessionManager {
         activeChatEventId = nil
         sessionUser = nil
     }
+    
+    //Checks if user is blocked or frozen before going to main appState
+    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
+        if user.isBlocked || user.frozenUntil != nil {
+            appState.wrappedValue = .frozen
+        } else {
+            appState.wrappedValue = .app
+        }
+    }
+    
+    //Listen to user's profile in case there is an update on their account, and updates the User
+    private func userProfileStream() {
+        streams.insert("userProfile", Task { @MainActor in
+            do {
+                for try await change in userRepo.userListener(userId: user.id) {
+                    //1. If they have updated their profile/preference make the session user, reflect this change
+                    if let change {
+                        sessionUser = change
+
+                        //2.If change is 'user's status' i.e. to blocked or frozen, update appState.
+                        if let appStateBinding {
+                            updateAppState(appStateBinding, for: change)
+                        }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        })
+    }
 }
 
+//Logic dealing with the User's Events
+extension SessionManager {
+    
+    //1. Listens to all user events where status is pending, accepted, or past accepted
+    private func eventsStream() {
+        let stream = eventsRepo.eventTracker(userId: user.id)
 
-//Events Stream
+        streams.insert("events", Task { @MainActor in
+            do {
+                for try await change in stream {
+                    //This switch calls 4 functions below, handling what to do with incoming events
+                    switch change {
+                    case .initial(let events): try await loadInitalEvents(events: events)
+                    case .added(let event): try await addProfileToInvites(event: event)
+                    case .modified(let event): updateModifiedProfile(event: event)
+                    case .removed(let id): _ = removeAndReturnProfile(id: id)
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        })
+    }
+    
+    //2. On initial launch populates all the users invites, events, and past events for session
+    private func loadInitalEvents(events: [UserEvent]) async throws {
+        let b = profileLoader
+        
+        let invites = events.filter {$0.status == .pending && $0.role == .received }
+        let accepted = events.filter {$0.status == .accepted}
+        let pastAccepted = events.filter {$0.status == .pastAccepted}
+        
+        async let inv  = b.fromEvents(invites)
+        async let acc  = b.fromEvents(accepted)
+        async let past = b.fromEvents(pastAccepted)
+        
+        (self.invites, self.events, self.pastEvents) = try await(inv, acc, past)
+    }
+    
+    //3. If new event added, if its user who received event, add it to invites
+    private func addProfileToInvites(event: UserEvent) async throws {
+        if event.status == .pending && event.role == .received {
+            let profile = try await profileLoader.fromEvents([event])
+            self.invites.append(contentsOf: profile)
+        }
+    }
+    
+    //4. Function called if event modified at all
+    private func updateModifiedProfile(event: UserEvent) {
+        //If it is in invites, and its status is no longer invites, add it to accepted
+        if event.status == .accepted, invites.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
+            events.append(profile)
+            
+        //If it is in events, and its status is no long events, add it to pastAccepted
+        } else if event.status == .pastAccepted, events.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
+            pastEvents.append(profile)
+        }
+    }
+    
+    //5. Function called to remove
+    private func removeAndReturnProfile(id: String) -> EventProfile? {
+        let localProfile =
+        invites.first(where: { $0.event.id == id }) ??
+        events.first(where: { $0.event.id == id }) ??
+        pastEvents.first(where: { $0.event.id == id })
+        
+        invites.removeAll { $0.event.id == id }
+        events.removeAll { $0.event.id == id }
+        pastEvents.removeAll { $0.event.id == id }
+        
+        return localProfile
+    }
+}
+
+//Logic dealing with the recommended Profiles shown to the User
+extension SessionManager {
+    
+    private func profilesStream() {
+        let stream = profilesRepo.profilesTracker(userId: user.id)
+
+        streams.insert("profiles", Task { @MainActor in
+            do {
+                for try await change in stream {
+                    switch change {
+                    case .initial(let profileRecs):
+                        let profileIds = profileRecs.compactMap {$0.id}
+                        let profiles = try await profileLoader.fromIds(profileIds)
+                        self.profiles = profiles
+                    case .added(let profileRec):
+                        if let id = profileRec.id {
+                            let profile = try await profileLoader.fromIds([id])
+                            self.profiles.append(contentsOf: profile)
+                        }
+                    case .modified:
+                        break
+                        //Don't need to do anything
+                    case .removed(let id):
+                        profiles.removeAll { $0.id == id }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+        })
+    }
+    
+}
+
+//Logic dealing with the popups in the app shown to the User
 extension SessionManager {
     
     private func recentChatStream() {
@@ -176,164 +314,10 @@ extension SessionManager {
             self?.recentMessageReceived = nil
         })
     }
-
-    private func eventsStream() {
-        let stream = eventsRepo.eventTracker(userId: user.id)
-
-        streams.insert("events", Task { @MainActor in
-            do {
-                for try await change in stream {
-                    switch change {
-                    case .initial(let events): try await loadEvents(events: events)
-                    case .added(let event): try await addProfile(event: event)
-                    case .modified(let event): updateModifiedProfile(event: event)
-                    case .removed(let id): _ = removeAndReturnProfile(id: id)
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        })
-    }
     
-    private func loadEvents(events: [UserEvent]) async throws {
-        let b = profileLoader
-        
-        let invites = events.filter {$0.status == .pending && $0.role == .received }
-        let accepted = events.filter {$0.status == .accepted}
-        let pastAccepted = events.filter {$0.status == .pastAccepted}
-        
-        async let inv  = b.fromEvents(invites)
-        async let acc  = b.fromEvents(accepted)
-        async let past = b.fromEvents(pastAccepted)
-        
-        (self.invites, self.events, self.pastEvents) = try await(inv, acc, past)
-    }
-    
-    private func addProfile(event: UserEvent) async throws {
-        if event.status == .pending && event.role == .received {
-            let profile = try await profileLoader.fromEvents([event])
-            self.invites.append(contentsOf: profile)
-        }
-    }
-    
-    private func updateModifiedProfile(event: UserEvent) {
-        //If it is in invites, and its status is no long invites, add it to accepted
-        if event.status == .accepted, invites.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
-            events.append(profile)
-            
-        //If it is in events, and its status is no long events, add it to pastAccepted
-        } else if event.status == .pastAccepted, events.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
-            pastEvents.append(profile)
-        }
-    }
-    
-    private func removeAndReturnProfile(id: String) -> EventProfile? {
-        let localProfile =
-        invites.first(where: { $0.event.id == id }) ??
-        events.first(where: { $0.event.id == id }) ??
-        pastEvents.first(where: { $0.event.id == id })
-        
-        invites.removeAll { $0.event.id == id }
-        events.removeAll { $0.event.id == id }
-        pastEvents.removeAll { $0.event.id == id }
-        
-        return localProfile
-    }
-}
-
-extension SessionManager {
-    
-
-    private func profilesStream() {
-        let stream = profilesRepo.profilesTracker(userId: user.id)
-
-        streams.insert("profiles", Task { @MainActor in
-            do {
-                for try await change in stream {
-                    switch change {
-                    case .initial(let profileRecs):
-                        let profileIds = profileRecs.compactMap {$0.id}
-                        let profiles = try await profileLoader.fromIds(profileIds)
-                        self.profiles = profiles
-                    case .added(let profileRec):
-                        if let id = profileRec.id {
-                            let profile = try await profileLoader.fromIds([id])
-                            self.profiles.append(contentsOf: profile)
-                        }
-                    case .modified:
-                        break
-                        //Don't need to do anything
-                    case .removed(let id):
-                        profiles.removeAll { $0.id == id }
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        })
-    }
-
-    //Listen to user's profile in case there is an update on their account.
-    private func userProfileStream() {
-        streams.insert("userProfile", Task { @MainActor in
-            do {
-                for try await change in userRepo.userListener(userId: user.id) {
-                    //1. If they have updated their profile/preference make the session user, reflect this change
-                    if let change {
-                        sessionUser = change
-
-                        //2.If change is 'user's status' i.e. to blocked or frozen, update appState.
-                        if let appStateBinding {
-                            updateAppState(appStateBinding, for: change)
-                        }
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        })
-    }
-    
-    //Checks if user is blocked or frozen before going to main appState
-    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
-        if user.isBlocked || user.frozenUntil != nil {
-            appState.wrappedValue = .frozen
-        } else {
-            appState.wrappedValue = .app
-        }
-    }
 }
 
 
 
 
-/*
- //    var chats: [ChatModel] = []
 
- 
-//    private func chatsStream() {
-//        let stream = chatRepo.chatsTracker(userId: user.id)
-//
-//        streams.insert("chats", Task { @MainActor in
-//            do {
-//                for try await change in stream {
-//                    switch change {
-//                    case .initial(let chats):
-//                        self.chats = chats
-//                    case .added(let chat):
-//                        chats.append(chat)
-//                    case .modified(let chat):
-//                        if let idx = self.chats.firstIndex(where: { $0.id == chat.id }) {
-//                            self.chats[idx] = chat
-//                        }
-//                    case .removed(let id):
-//                        self.chats.removeAll { $0.id == id }
-//                    }
-//                }
-//            } catch {
-//                print(error)
-//            }
-//        })
-//    }
- */
