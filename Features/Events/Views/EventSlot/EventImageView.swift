@@ -30,10 +30,10 @@ struct EventImageView: View {
     private var nameOverlay: some View {
         Text(eventProfile.profile.name)
             .font(.body(24, .bold))
+            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImageView.cardSpace)) }
             .padding(.vertical)
             .padding(.horizontal)
             .foregroundStyle(.white)
-            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImageView.cardSpace)) }
     }
     
     private func openProfile() {
@@ -64,7 +64,7 @@ extension EventImageView {
         let padY: CGFloat = 2
         let feather: CGFloat = 4
         let rect = namePosition.insetBy(dx: -padX, dy: -padY)
-        return RoundedRectangle(cornerRadius: 12)
+        return RoundedRectangle(cornerRadius: 8)
             .frame(width: max(rect.width, 0), height: max(rect.height, 0))
             .position(x: rect.midX, y: rect.midY)
             .blur(radius: feather)
