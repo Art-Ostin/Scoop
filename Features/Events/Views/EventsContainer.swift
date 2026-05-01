@@ -29,13 +29,20 @@ struct EventsContainer: View {
             EventsPlaceholder()
         } else {
             ZStack {
-                eventPages
                 
+                TabView(selection: $tabProfile) {
+                    ForEach(vm.events) { eventProfile in
+                        eventSlot(eventProfile)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .automatic))
+                .ignoresSafeArea(tabProfile == nil ? .all : []) //Fixes bug for screen layout
+                                
                 if let profile = ui.selectedProfile {
                     profileView(profile: profile)
                 }
             }
-            .fullScreenCover(item: $tabProfile, onDismiss: {showMessageScreen = nil}) { eventProfile in
+            .fullScreenCover(item: $ui.messageProfile, onDismiss: {showMessageScreen = nil}) { eventProfile in
                 chatView(eventProfile: eventProfile)
             }
             .sheet(item: $ui.showCantMakeIt) {eventProfile in
@@ -46,41 +53,17 @@ struct EventsContainer: View {
             }
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {imageSize = $0 - 32 } //Adds 16 padding on each side
-            }
+        }
     }
 }
 
 //The Event Slots screens
 extension EventsContainer {
-    
-    private var eventsPagerSection: some View {
-        CustomTabPage(page: .meetingEvent, tabAction: $ui.deleteLater) {
-            eventPages
-        }
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 32 //Adds 24 padding on each side
-        }
-        .scrollIndicators(.hidden)
-        .customScrollFade(height: 100, showFade: true)
-    }
-    
-    private var eventPages: some View {
-        TabView(selection: $tabProfile) {
-            ForEach(vm.events) { eventProfile in
-                eventSlot(eventProfile)
-            }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .automatic))
-        .ignoresSafeArea(tabProfile == nil ? .all : []) //Fixes bug for screen layout
-    }
-    
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
         EventSlotContainer(ui: ui, eventProfile: eventProfile, imageSize: imageSize) { openMaps(eventProfile)}
             .task{await loadProfileImages(eventProfile.profile)}
             .tag(eventProfile)
     }
-    
     
     private func openMessageScreen (_ newValue: String?) {
         guard let id = newValue,
@@ -92,7 +75,6 @@ extension EventsContainer {
         }
     }
     
-    
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
@@ -100,7 +82,6 @@ extension EventsContainer {
 
 //The different Views
 extension EventsContainer {
-
     private func timeView(eventProfile: EventProfile) -> some View {
         VStack(spacing: 12) {
             if let time = eventProfile.event.acceptedTime {
@@ -145,5 +126,5 @@ extension EventsContainer {
         let eventProfile = vm.events.first { $0.profile.id == profile.id }
         return eventProfile?.event
     }
-    
 }
+

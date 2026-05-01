@@ -91,7 +91,7 @@ extension EventSlotContainer {
     
     private var messageButton: some View {
         Button {
-            tabProfile = eventProfile
+            ui.messageProfile = eventProfile
         } label: {
             Image("NewMessageIcon") //NewMessageIcon
                 .resizable()
