@@ -37,6 +37,7 @@ struct CustomTabPage<Content: View>: View {
         .onPreferenceChange(TitleOffsetsKey.self) { value in
             scrollViewOffset = value[page] ?? 0
         }
+        .preference(key: ScrollNavBarVisibleKey.self, value: scrollViewOffset < 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, page != .pastMatches ? 16 : 0) //On the Screens 
         .background(Color(red: 0.99, green: 0.98, blue: 0.97))
@@ -110,5 +111,12 @@ struct TitleOffsetsKey: PreferenceKey {
     static var defaultValue: [Page: CGFloat] = [:]
     static func reduce(value: inout [Page: CGFloat], nextValue: () -> [Page: CGFloat]) {
         value.merge(nextValue(), uniquingKeysWith: { _, new in new })
+    }
+}
+
+struct ScrollNavBarVisibleKey: PreferenceKey {
+    static var defaultValue: Bool = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
     }
 }

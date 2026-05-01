@@ -9,7 +9,8 @@
       "Bash(grep -E \"\\\\.swift$\")",
       "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' build)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16 Pro' -configuration Debug build)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -quiet build)"
     ]
   }
 }

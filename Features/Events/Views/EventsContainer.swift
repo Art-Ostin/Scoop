@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct EventsContainer: View {
-    
+
     @State var vm: EventViewModel
     @State private var ui = EventUIState()
+    @State private var isScrollNavBarVisible: Bool = false
     
     @State private var profileImages: [String: [UIImage]] = [:]
     
@@ -50,11 +51,16 @@ struct EventsContainer: View {
             .onChange(of: showMessageScreen) { _, newValue in
                 openMessageScreen(newValue)
             }
-            .overlay(alignment: .top) {
-                tabIndicator
+            .overlay(alignment: .topTrailing) {
+                if vm.events.count > 1 {
+                    tabIndicator
+                        .opacity(!isScrollNavBarVisible ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.05), value: isScrollNavBarVisible)
+                }
             }
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {imageSize = $0 - 32 } //Adds 16 padding on each side
+            .onPreferenceChange(ScrollNavBarVisibleKey.self) { isScrollNavBarVisible = $0 }
             .onAppear { if tabProfile == nil { tabProfile = vm.events.first } }
         }
     }
