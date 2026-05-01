@@ -36,7 +36,7 @@ struct EventsContainer: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
-                .ignoresSafeArea(tabProfile == nil ? .all : []) //Fixes bug for screen layout
+                .ignoresSafeArea(ui.selectedProfile == nil ? .all : []) //Fixes bug for screen layout
                                 
                 if let profile = ui.selectedProfile {
                     profileView(profile: profile)
