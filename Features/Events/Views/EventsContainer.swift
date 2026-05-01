@@ -21,6 +21,7 @@ struct EventsContainer: View {
     @State private var mapEnabledScrollOffset: CGFloat?
     
     @State private var scrollTarget: String?
+    @Binding var showMessageScreen: String?
     
     var body: some View {
         
@@ -35,12 +36,20 @@ struct EventsContainer: View {
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: ui.messageProfile)
-            
-            .fullScreenCover(item: $tabProfile) { eventProfile in
+            .fullScreenCover(item: $tabProfile, onDismiss: {showMessageScreen = nil}) { eventProfile in
                 chatView(eventProfile: eventProfile)
             }
             .sheet(item: $ui.showCantMakeIt) {eventProfile in
                CantMakeIt(vm: vm, eventProfile: eventProfile)
+            }
+            .onChange(of: showMessageScreen) { _, newValue in
+                guard let id = newValue,
+                      let match = vm.events.first(where: { $0.id == id }) else { return }
+                var t = Transaction()
+                t.disablesAnimations = true
+                withTransaction(t) {
+                    tabProfile = match
+                }
             }
         }
     }

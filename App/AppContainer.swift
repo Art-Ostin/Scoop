@@ -7,7 +7,9 @@
 import SwiftUI
 
 struct AppContainer: View {
-
+    
+    @State var showMessageScreen: String? = nil
+    
     @State var tabSelection: TabBarItem = .meet
     @State var matchesPath = NavigationPath()
     @Environment(\.appDependencies) private var dep
@@ -75,7 +77,7 @@ extension AppContainer {
     }
     
     private var eventsView: some View {
-            EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader))
+        EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader), showMessageScreen: $showMessageScreen)
     }
     
     private var matchesView: some View {
@@ -83,7 +85,6 @@ extension AppContainer {
                           path: $matchesPath
         )
     }
-    
     
     private var messagePopupOverlay: some View {
         MessagePopupView(
@@ -100,8 +101,14 @@ extension AppContainer {
         let candidates = s.pastEvents + s.events + s.invites
         guard let eventProfile = candidates.first(where: { $0.id == popup.eventId }) else { return }
         s.recentMessageReceived = nil
-        tabSelection = .meet
-        matchesPath.append(eventProfile)
+
+            if eventProfile.event.status == .accepted {
+                showMessageScreen = eventProfile.id
+                tabSelection = .events
+            } else {
+                matchesPath.append(eventProfile)
+                tabSelection = .matches
+            }
     }
 }
 

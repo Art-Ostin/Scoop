@@ -25,6 +25,7 @@ struct ChatContainer: View {
             ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
             if isProfileOpen != nil { profileView}
         }
+        .customScrollFade(height: 100, showFade: true)
         .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
         .overlay(alignment: .bottom) {typeMessageView}
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile)}
@@ -43,7 +44,6 @@ struct ChatContainer: View {
         .hideTabBar()
         .toolbar(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .customScrollFade(height: 100, showFade: true)
     }
 }
 
