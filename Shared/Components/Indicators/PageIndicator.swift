@@ -10,7 +10,8 @@ import SwiftUI
 struct PageIndicator: View {
     let count: Int
     let selection: Int
-
+    var eventProfile: EventProfile?
+    
     var body: some View {
         HStack(spacing: 6) {
             ForEach(0..<count, id: \.self) { index in

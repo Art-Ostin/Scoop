@@ -29,7 +29,6 @@ struct EventsContainer: View {
             EventsPlaceholder()
         } else {
             ZStack {
-                
                 TabView(selection: $tabProfile) {
                     ForEach(vm.events) { eventProfile in
                         eventSlot(eventProfile)
@@ -51,6 +50,9 @@ struct EventsContainer: View {
             .onChange(of: showMessageScreen) { _, newValue in
                 openMessageScreen(newValue)
             }
+            .overlay(alignment: .top) {
+                tabIndicator
+            }
             .measure(key: ImageSizeKey.self) { $0.size.width }
             .onPreferenceChange(ImageSizeKey.self) {imageSize = $0 - 32 } //Adds 16 padding on each side
         }
@@ -71,7 +73,7 @@ extension EventsContainer {
         var t = Transaction()
         t.disablesAnimations = true
         withTransaction(t) {
-            tabProfile = match
+            ui.messageProfile = match
         }
     }
     
@@ -125,6 +127,29 @@ extension EventsContainer {
     private func fetchEvent(_ profile: UserProfile) -> UserEvent? {
         let eventProfile = vm.events.first { $0.profile.id == profile.id }
         return eventProfile?.event
+    }
+    
+    
+    private var tabIndicator: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<vm.events.count, id: \.self) { index in
+                let isSelected = index == selection
+                
+                RoundedRectangle(cornerRadius: 100)
+                    .frame(width: isSelected ? 10 : 5, height: 5)
+                    .foregroundStyle(isSelected ? .black : .clear)
+                    .stroke(100, lineWidth: 1, color: isSelected ? .clear : .black)
+            }
+        }
+        .padding(4)
+        .background(
+            Capsule()
+                .fill(Color.background)
+                .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
+        )
+        .frame(maxWidth: .infinity, alignment: .center)
+
+        
     }
 }
 
