@@ -216,6 +216,7 @@
 		65C8D1862E02CD94008B8A74 /* NavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8D1852E02CD94008B8A74 /* NavButton.swift */; };
 		65CA5E212F210CDA00694981 /* OnboardingLoadScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E202F210CDA00694981 /* OnboardingLoadScreen.swift */; };
 		65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E342F2263A600694981 /* EventFormatting.swift */; };
+		65CC2CFC2FA487A3006AFBAF /* EventSlotContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC2CFB2FA487A3006AFBAF /* EventSlotContainer.swift */; };
 		65D1C40E2F3FCA1C00B61C00 /* MeetInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D1C40D2F3FCA1C00B61C00 /* MeetInfoView.swift */; };
 		65DCFBBC2F327AB600B3EC50 /* DismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DCFBBB2F327AB600B3EC50 /* DismissButton.swift */; };
 		65DFBFF32F8558E1005EC298 /* RespondTextBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DFBFF22F8558E1005EC298 /* RespondTextBubble.swift */; };
@@ -491,6 +492,7 @@
 		65C8D1852E02CD94008B8A74 /* NavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavButton.swift; sourceTree = "<group>"; };
 		65CA5E202F210CDA00694981 /* OnboardingLoadScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLoadScreen.swift; sourceTree = "<group>"; };
 		65CA5E342F2263A600694981 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
+		65CC2CFB2FA487A3006AFBAF /* EventSlotContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlotContainer.swift; sourceTree = "<group>"; };
 		65D1C40D2F3FCA1C00B61C00 /* MeetInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetInfoView.swift; sourceTree = "<group>"; };
 		65DCFBBB2F327AB600B3EC50 /* DismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissButton.swift; sourceTree = "<group>"; };
 		65DFBFF22F8558E1005EC298 /* RespondTextBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTextBubble.swift; sourceTree = "<group>"; };
@@ -916,8 +918,8 @@
 		6549DA6C2F9E863600C89DF2 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				65FAF9892E414D1B0015E231 /* EventsContainer.swift */,
 				65FAF9872E4140740015E231 /* EventPlaceholder.swift */,
+				65FAF9892E414D1B0015E231 /* EventsContainer.swift */,
 				6549DA6D2F9E865100C89DF2 /* EventSlot */,
 			);
 			path = Views;
@@ -926,13 +928,14 @@
 		6549DA6D2F9E865100C89DF2 /* EventSlot */ = {
 			isa = PBXGroup;
 			children = (
-				657FD5442F91C8E00074255E /* CoreInfoPage.swift */,
+				65CC2CFB2FA487A3006AFBAF /* EventSlotContainer.swift */,
 				657FD5482F92ABE50074255E /* EventDetailsContainer.swift */,
 				657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */,
 				653FB5752F68854D00440E41 /* EventDetailsView.swift */,
 				653FB5732F6882FC00440E41 /* EventImageView.swift */,
 				653FB5792F688A2E00440E41 /* EventInfoView.swift */,
 				653FB5772F68886700440E41 /* EventMapView.swift */,
+				657FD5442F91C8E00074255E /* CoreInfoPage.swift */,
 				653FB57D2F688ED800440E41 /* EventDetailsSheet */,
 			);
 			path = EventSlot;
@@ -1630,6 +1633,7 @@
 				65D1C40E2F3FCA1C00B61C00 /* MeetInfoView.swift in Sources */,
 				652882D42F707331000B724D /* SelectRespondTime.swift in Sources */,
 				657FD5452F91C8E00074255E /* CoreInfoPage.swift in Sources */,
+				65CC2CFC2FA487A3006AFBAF /* EventSlotContainer.swift in Sources */,
 				651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */,
 				6509DDC32E36F6EE0042917B /* OptionEdit.swift in Sources */,
 				65A0704D2EE0631A009F798B /* PageIndicator.swift in Sources */,

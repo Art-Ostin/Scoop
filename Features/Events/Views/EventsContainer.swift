@@ -73,7 +73,8 @@ extension EventsContainer {
     private var eventPages: some View {
         TabView(selection: $tabProfile) {
             ForEach(vm.events) { eventProfile in
-                eventSlot(eventProfile: eventProfile)
+                EventSlotContainer(ui: ui, eventProfile: eventProfile, imageSize: imageSize) { openMaps(eventProfile)}
+                    .task{await loadProfileImages(eventProfile.profile)}
                     .tag(eventProfile)
             }
         }
@@ -84,7 +85,6 @@ extension EventsContainer {
             imageSize = screenWidth - 32 //Adds 24 padding on each side
         }
     }
-    
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
@@ -92,8 +92,7 @@ extension EventsContainer {
 
 //The different Views
 extension EventsContainer {
-    
-    
+
     private func timeView(eventProfile: EventProfile) -> some View {
         VStack(spacing: 12) {
             if let time = eventProfile.event.acceptedTime {
@@ -139,110 +138,4 @@ extension EventsContainer {
         return eventProfile?.event
     }
     
-    private func buttonOverlay(eventProfile: EventProfile) -> some View {
-        Button {
-            tabProfile = eventProfile
-        } label: {
-            Image("NewMessageIcon") //NewMessageIcon
-                .resizable()
-                .scaledToFit()
-                .frame(width: 22, height: 22)
-                .font(.body(17, .bold))
-                .padding(10)
-                .glassIfAvailable(isClear: true)
-                .padding(24) //Expands Tap Area
-                .contentShape(Rectangle())
-                .padding(-24)
-        }
-    }
-}
-
-
-extension EventsContainer {
-    
-    
-    private func eventSlot(eventProfile: EventProfile) -> some View {
-        CustomTabPage(page: .meetingEvent, tabAction: $ui.deleteLater) {
-            VStack(spacing: 32) {
-                EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                if let acceptedTime = eventProfile.event.acceptedTime {
-                    LargeClockView(targetTime: acceptedTime, showShadow: false) {}
-                }
-                EventDetailsContainer(ui: ui, event: eventProfile.event)
-                    .opacity(disableMap ? 1 : 0.5)
-                    .onTapGesture {
-                        if !disableMap {
-                            disableMap.toggle()
-                        }
-                    }
-                
-                EventMapView(event: eventProfile.event, imageSize: imageSize, disableMap: $disableMap) {openMaps(eventProfile)}
-                    .id("Map")
-                
-                CoreInfoPage(event: eventProfile.event)
-                    .opacity(disableMap ? 1 : 0.5)
-                    .onTapGesture {
-                        if !disableMap {
-                            disableMap.toggle()
-                        }
-                    }
-                
-                Button {
-                    ui.showCantMakeIt = eventProfile
-                } label: {
-                    Text("Can't Make It?")
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .font(.body(14, .bold))
-                        .foregroundStyle(Color.accent)
-                        .padding(.trailing, 24)
-                }
-                    
-//                EventInfoView(ui: ui, event: eventProfile.event) {openMaps(eventProfile)}
-            }
-            .scrollTargetLayout()
-            .padding(.bottom, 96)
-            .onChange(of: disableMap) { oldValue, newValue in
-                print(newValue)
-                print(oldValue)
-                if newValue == false {
-                    print("Should Scroll")
-                    scrollTarget = "Map"
-                }
-            }
-        }
-        .scrollPosition(id: $scrollTarget, anchor: .center)
-        .customScrollFade(height: 100, showFade: true)
-        .scrollClipDisabled()
-        .task { await loadProfileImages(eventProfile.profile)}
-        .overlay(alignment: .bottomTrailing) {
-            buttonOverlay(eventProfile: eventProfile)
-                .padding(.bottom, 96)
-                .padding(.horizontal, 24)
-                .opacity(disableMap ? 1 : 0.5)
-                .onTapGesture {
-                    if !disableMap {
-                        disableMap.toggle()
-                    }
-                }
-        }
-        .onScrollGeometryChange(for: CGFloat.self) { geometry in
-            geometry.contentOffset.y
-        } action: { oldValue, newValue in
-            guard disableMap == false else {
-                mapEnabledScrollOffset = nil
-                return
-            }
-            
-            if mapEnabledScrollOffset == nil {
-                mapEnabledScrollOffset = oldValue
-            }
-
-            if let enabledOffset = mapEnabledScrollOffset,
-               abs(newValue - enabledOffset) > 10 { //Virtually as soon start scrolling disable Maps View
-                disableMap = true
-                mapEnabledScrollOffset = nil
-            }
-        }
-        
-    }
 }

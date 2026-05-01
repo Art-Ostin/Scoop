@@ -27,7 +27,6 @@ enum TextCoreInfo: CaseIterable {
     func text(event: UserEvent) -> String {
         switch self {
         case .certified:
-//            let name = event.location.name ?? "the venue"
             let day = FormatEvent.dayAndTime(event.acceptedTime ?? Date(), wide: true, withHour: false)
             let hour = FormatEvent.hourTime(event.acceptedTime ?? Date())
             return "You've both confirmed you're meeting on \(day) at \(hour)!"
