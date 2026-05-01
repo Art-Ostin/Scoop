@@ -13,6 +13,7 @@ struct EventImageView: View {
     
     let eventProfile: EventProfile
     let imageSize: CGFloat
+    @State var namePosition: CGRect = .zero
     
     var body: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
@@ -20,7 +21,10 @@ struct EventImageView: View {
             .defaultImage(imageSize)
             .contentShape(Rectangle())
             .onTapGesture {openProfile()}
+            .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) { nameOverlay}
+            .coordinateSpace(name: EventImageView.cardSpace)
+            .onPreferenceChange(EventNameFrameKey.self) {namePosition = $0}
     }
     
     private var nameOverlay: some View {
@@ -29,6 +33,7 @@ struct EventImageView: View {
             .padding(.vertical)
             .padding(.horizontal)
             .foregroundStyle(.white)
+            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImageView.cardSpace)) }
     }
     
     private func openProfile() {
@@ -36,5 +41,40 @@ struct EventImageView: View {
             ui.dismissOffset = nil
             ui.selectedProfile = eventProfile.profile
         }
+    }
+}
+
+//Logic dealing with the background Blur
+extension EventImageView {
+    fileprivate static let cardSpace = "ProfileCard.card"
+    
+    private var backgroundBlur: some View {
+        Image(uiImage: eventProfile.image ?? UIImage())
+            .resizable()
+            .scaledToFill()
+            .frame(width: imageSize, height: imageSize)
+            .blur(radius: 22)
+            .mask(nameBlurMask)
+            .clipShape(RoundedRectangle(cornerRadius: 22)) //Corner Radius of the card
+            .allowsHitTesting(false)
+    }
+    
+    private var nameBlurMask: some View {
+        let padX: CGFloat = 4
+        let padY: CGFloat = 2
+        let feather: CGFloat = 4
+        let rect = namePosition.insetBy(dx: -padX, dy: -padY)
+        return RoundedRectangle(cornerRadius: 12)
+            .frame(width: max(rect.width, 0), height: max(rect.height, 0))
+            .position(x: rect.midX, y: rect.midY)
+            .blur(radius: feather)
+            .opacity(namePosition == .zero ? 0 : 1)
+    }
+}
+
+private struct EventNameFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
     }
 }

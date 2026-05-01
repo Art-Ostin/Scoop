@@ -52,7 +52,7 @@ struct EventsContainer: View {
                 openMessageScreen(newValue)
             }
             .overlay(alignment: .topTrailing) {
-                if vm.events.count > 1 {
+                if vm.events.count > 1 && ui.selectedProfile == nil {
                     tabIndicator
                         .opacity(!isScrollNavBarVisible ? 1 : 0)
                         .animation(.easeInOut(duration: 0.05), value: isScrollNavBarVisible)
