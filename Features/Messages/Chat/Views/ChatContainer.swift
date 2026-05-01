@@ -10,14 +10,19 @@ import UIKit
 
 
 struct ChatContainer: View {
-    
-    @Bindable var vm: ChatViewModel
-    
+
+    @State private var vm: ChatViewModel
+
     @State var isProfileOpen: UserProfile? = nil
     @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [UIImage] = []
     @FocusState private var isFocused
-    var isEvent = true
+    var isEvent: Bool
+
+    init(vm: ChatViewModel, isEvent: Bool = true) {
+        _vm = State(initialValue: vm)
+        self.isEvent = isEvent
+    }
     
     var body: some View {
         ZStack{

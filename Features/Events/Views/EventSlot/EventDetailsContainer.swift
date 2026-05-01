@@ -74,16 +74,3 @@ extension EventDetailsContainer {
 }
 
 
-/*
- .overlay(alignment: .bottomTrailing) {
-     infoOverlay
-         .padding()
-         .padding(.vertical, -2)
- }
-
- private var infoOverlay: some View {
-     Image(systemName: "info.circle")
-         .font(.body(13, .medium))
-         .foregroundStyle(Color(red: 0.66, green: 0.66, blue: 0.66))
- }
- */

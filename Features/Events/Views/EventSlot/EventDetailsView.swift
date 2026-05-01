@@ -41,13 +41,17 @@ struct EventDetailsView: View {
                                 .offset(y: -4)
                                 .offset(x: 16)
                         }
-                    Text(event.message ?? "")
-                        .font(.footnote)
-                        .foregroundStyle(Color.gray)
-                        .layoutPriority(1)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    //Only show message section if there is one (without if statement, content appears too high)
+                    if event.message?.isEmpty == false {
+                        Text(event.message ?? "")
+                            .font(.footnote)
+                            .foregroundStyle(Color.gray)
+                            .layoutPriority(1)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
             .font(.body(18, .medium))
