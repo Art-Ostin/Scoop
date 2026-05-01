@@ -18,7 +18,7 @@ struct EventSlotContainer: View {
     let openMaps: () -> ()
     
     var body: some View {
-        ScrollView {
+        CustomTabPage(page: .meetingEvent, tabAction: .constant(false)) {
             VStack(spacing: 32) {
                 EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
                 clockView
@@ -28,8 +28,6 @@ struct EventSlotContainer: View {
                 cantMakeItButton
             }
         }
-        .scrollClipDisabled()
-        .task { await loadProfileImages(eventProfile.profile)}
         .overlay(alignment: .bottomTrailing) {messageButton}
     }
 }
@@ -60,7 +58,7 @@ extension EventSlotContainer {
             imageSize: imageSize,
             disableMap: $disableMap
         ) {
-            openMaps(eventProfile)
+            openMaps()
         }
         .id("Map")
     }

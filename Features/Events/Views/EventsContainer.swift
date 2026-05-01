@@ -35,7 +35,6 @@ struct EventsContainer: View {
                     profileView(profile: profile)
                 }
             }
-            .animation(.easeInOut(duration: 0.2), value: ui.messageProfile)
             .fullScreenCover(item: $tabProfile, onDismiss: {showMessageScreen = nil}) { eventProfile in
                 chatView(eventProfile: eventProfile)
             }
@@ -43,15 +42,11 @@ struct EventsContainer: View {
                CantMakeIt(vm: vm, eventProfile: eventProfile)
             }
             .onChange(of: showMessageScreen) { _, newValue in
-                guard let id = newValue,
-                      let match = vm.events.first(where: { $0.id == id }) else { return }
-                var t = Transaction()
-                t.disablesAnimations = true
-                withTransaction(t) {
-                    tabProfile = match
-                }
+                openMessageScreen(newValue)
             }
-        }
+            .measure(key: ImageSizeKey.self) { $0.size.width }
+            .onPreferenceChange(ImageSizeKey.self) {imageSize = $0 - 32 } //Adds 16 padding on each side
+            }
     }
 }
 
@@ -73,18 +68,31 @@ extension EventsContainer {
     private var eventPages: some View {
         TabView(selection: $tabProfile) {
             ForEach(vm.events) { eventProfile in
-                EventSlotContainer(ui: ui, eventProfile: eventProfile, imageSize: imageSize) { openMaps(eventProfile)}
-                    .task{await loadProfileImages(eventProfile.profile)}
-                    .tag(eventProfile)
+                eventSlot(eventProfile)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .automatic))
         .ignoresSafeArea(tabProfile == nil ? .all : []) //Fixes bug for screen layout
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 32 //Adds 24 padding on each side
+    }
+    
+    private func eventSlot(_ eventProfile: EventProfile) -> some View {
+        EventSlotContainer(ui: ui, eventProfile: eventProfile, imageSize: imageSize) { openMaps(eventProfile)}
+            .task{await loadProfileImages(eventProfile.profile)}
+            .tag(eventProfile)
+    }
+    
+    
+    private func openMessageScreen (_ newValue: String?) {
+        guard let id = newValue,
+              let match = vm.events.first(where: { $0.id == id }) else { return }
+        var t = Transaction()
+        t.disablesAnimations = true
+        withTransaction(t) {
+            tabProfile = match
         }
     }
+    
+    
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
