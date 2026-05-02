@@ -26,7 +26,12 @@ class UserRepo: UserRepository {
     }
     
     func fetchProfile(userId: String) async throws -> UserProfile {
-        try await fs.get(userPath(userId))
+        let clock = ContinuousClock()
+        let now = clock.now
+        let user:UserProfile = try await fs.get(userPath(userId))
+        let duration = now.duration(to: clock.now)
+        print("Time Taken to fetch user: \(duration)")
+        return user
     }
     
     func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws {

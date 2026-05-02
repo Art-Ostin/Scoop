@@ -145,7 +145,7 @@ extension SessionManager {
         profilesStream()
         userProfileStream()
         recentChatStream()
-                
+
         //3.Update the AppState and add profileImages
         if let appState {
             updateAppState(appState, for: user)
@@ -242,7 +242,6 @@ extension SessionManager {
     }
     
     //Want to remove these profiles
-    
     //6. For local Session if accepted add it to acepted events (If listener set up right, could delete)
     func updateAcceptedEventInSession(eventProfile: EventProfile) {
         events.append(eventProfile)
@@ -263,6 +262,7 @@ extension SessionManager {
             switch change {
             case .initial(let recs):
                 self.profiles = try await self.profileLoader.fromIds(recs.compactMap { $0.id })
+                print("profiles Loaded")
             case .added(let rec):
                 if let id = rec.id {
                     self.profiles.append(contentsOf: try await self.profileLoader.fromIds([id]))

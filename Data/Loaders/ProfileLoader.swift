@@ -58,44 +58,37 @@ final class ProfileLoader: ProfileLoading {
     }
     
     private func fetchEventProfile(_ profileId: String, event: UserEvent) async throws -> EventProfile {
+        let clock = ContinuousClock()
+        let start = clock.now
         let profile = try await self.userRepo.fetchProfile(userId: profileId)
         let img = try await self.imageLoader.fetchFirstImage(profile: profile)
+        let duration = start.duration(to: clock.now)
+        print("Time taken to fetchEvent Profile: \(duration)")
         return EventProfile(event: event, profile: profile, image: img)
     }
     
     private func fetchPendingProfile(_ profileId: String) async throws -> PendingProfile {
+        let clock = ContinuousClock()
+        let start = clock.now
         let profile = try await self.userRepo.fetchProfile(userId: profileId)
         let img = try await self.imageLoader.fetchFirstImage(profile: profile) ?? UIImage()
+        let duration = start.duration(to: clock.now)
+        print("Time taken to fetch Pending Profile: \(duration)")
         return PendingProfile(profile: profile, image: img)
     }
 }
 
 /*
- func fromEvents(_ events: [UserEvent]) async throws -> [ProfileModel] {
-     let requests = events.map { LoadRequest(profileId: $0.otherUserId, event: $0) }
-     return try await fromRequests(requests)
- }
  
- func fromIds(_ ids: [String]) async throws -> [ProfileModel] {
-     let requests = ids.map { LoadRequest(profileId: $0, event: nil) }
-     return try await fromRequests(requests)
- }
- 
- private func fromRequests(_ requests: [LoadRequest]) async throws -> [ProfileModel] {
-     var models: [ProfileModel] = []
-     try await withThrowingTaskGroup(of: ProfileModel.self) { group in
-         for request in requests {
-             group.addTask {
-                 try await self.fetchProfileModel(request.profileId, event: request.event)
-             }
-         }
-         
-         for try await model in group {
-             models.append(model)
-         }
-     }
-     await imageLoader.addProfileImagesToCache(for: models.map(\.profile))
-     return models
+ private func fetchPendingProfile(_ profileId: String) async throws -> PendingProfile {
+     let clock = ContinuousClock()
+     let start = clock.now
+     
+     let profile = try await self.userRepo.fetchProfile(userId: profileId)
+     let img = try await self.imageLoader.fetchFirstImage(profile: profile) ?? UIImage()
+     let duration = start.duration(to: clock.now)
+     print("Time taken to fetch Pending Profile: \(duration)")
+     return PendingProfile(profile: profile, image: img)
  }
 
  */
