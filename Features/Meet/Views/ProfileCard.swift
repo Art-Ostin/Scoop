@@ -15,13 +15,15 @@ struct ProfileCard : View {
 
     let profile: PendingProfile
     let size: CGFloat
+    let imageLoader: ImageLoading
 
+    @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
 
 
     var body: some View {
-            Image(uiImage: profile.image)
+            Image(uiImage: displayImage)
                 .resizable()
                 .defaultImage(size, cardCornerRadius)
                 .overlay { backgroundBlur(isDetails: true)}
@@ -35,6 +37,13 @@ struct ProfileCard : View {
             .coordinateSpace(name: ProfileCard.cardSpace)
             .onPreferenceChange(TextFrameKey.self) { detailsFrame = $0 }
             .onPreferenceChange(NameFrameKey.self) { nameFrame = $0 }
+            .task(id: profile.id) {
+                image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
+            }
+    }
+
+    private var displayImage: UIImage {
+        image ?? profile.image ?? UIImage()
     }
 }
 
@@ -46,7 +55,7 @@ extension ProfileCard {
     // tracks the text's frame — gives a soft halo of blur only behind the text.
     
     private func backgroundBlur(isDetails: Bool) -> some View {
-        Image(uiImage: profile.image)
+        Image(uiImage: displayImage)
             .resizable()
             .scaledToFill()
             .frame(width: size, height: size)

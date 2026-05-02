@@ -65,7 +65,7 @@ extension MeetContainer {
     
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
-            ProfileCard(openProfile: $ui.openProfile, profileInvite: $ui.profileInvite, profile: profile, size: imageSize)
+            ProfileCard(openProfile: $ui.openProfile, profileInvite: $ui.profileInvite, profile: profile, size: imageSize, imageLoader: vm.imageLoader)
                 .contentShape(Rectangle())
                 .onTapGesture {openProfile(profile)}
                 .task { await loadProfileImages(profile.profile) }
