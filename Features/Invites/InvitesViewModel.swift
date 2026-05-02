@@ -77,16 +77,18 @@ extension InvitesViewModel {
     }
     
     private func updateInvitesLocally(eventId: String, isAccepted: Bool = false) {
-        //1. Add the event to the events section if its accepted
+        //1. IF - (a) declined, (b) accepted or (c) new invite sent with (i) new time or (ii) entirely new event - then remove invites in session
+        session.removeInvitedEventInSession(id: eventId)
+        
+        //2. When responded also remove it from defaults, as event responses are stored
+        defaults.deleteRespondDraft(eventId: eventId)
+        
+        //3. if accepted, update session Manager, to remove event from 'invites' and add it to events variable
         if isAccepted {
             if let eventProfile = invites.first(where: { $0.id == eventId}) {
-                session.events.append(eventProfile)
+                session.updateAcceptedEventInSession(eventProfile: eventProfile)
             }
         }
-        
-        //2. Remove the event from the 'invites' section and draft
-        session.invites.removeAll { $0.id == eventId }
-        defaults.deleteRespondDraft(eventId: eventId)
     }
 }
 

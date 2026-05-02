@@ -59,8 +59,8 @@ final class TaskBag {
     }
     
     private(set) var profiles: [PendingProfile] = []
-    var invites: [EventProfile] = []
-    var events: [EventProfile] = []
+    private(set) var invites: [EventProfile] = []
+    private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
     
     var recentMessageReceived: MessagePopupModel?
@@ -190,7 +190,7 @@ extension SessionManager {
                     case .initial(let events): try await loadInitalEvents(events: events)
                     case .added(let event): try await addProfileToInvites(event: event)
                     case .modified(let event): updateModifiedProfile(event: event)
-                    case .removed(let id): _ = removeAndReturnProfile(id: id)
+                    case .removed(let id): removeProfile(id: id)
                     }
                 }
             } catch {
@@ -201,51 +201,55 @@ extension SessionManager {
     
     //2. On initial launch populates all the users invites, events, and past events for session
     private func loadInitalEvents(events: [UserEvent]) async throws {
-        let b = profileLoader
-        
         let invites = events.filter {$0.status == .pending && $0.role == .received }
         let accepted = events.filter {$0.status == .accepted}
         let pastAccepted = events.filter {$0.status == .pastAccepted}
         
-        async let inv  = b.fromEvents(invites)
-        async let acc  = b.fromEvents(accepted)
-        async let past = b.fromEvents(pastAccepted)
+        async let inv  = profileLoader.fromEvents(invites)
+        async let acc  = profileLoader.fromEvents(accepted)
+        async let past = profileLoader.fromEvents(pastAccepted)
         
         (self.invites, self.events, self.pastEvents) = try await(inv, acc, past)
     }
     
     //3. If new event added, if its user who received event, add it to invites
     private func addProfileToInvites(event: UserEvent) async throws {
-        if event.status == .pending && event.role == .received {
-            let profile = try await profileLoader.fromEvents([event])
-            self.invites.append(contentsOf: profile)
-        }
+        guard event.status == .pending, event.role == .received else { return }
+        let profile = try await profileLoader.fromEvents([event])
+        invites.append(contentsOf: profile)
     }
     
-    //4. Function called if event modified at all
+    //4. Function called if event modified at all. When user accepts invite when session active, this is triggered
     private func updateModifiedProfile(event: UserEvent) {
-        //If it is in invites, and its status is no longer invites, add it to accepted
-        if event.status == .accepted, invites.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
-            events.append(profile)
-            
-        //If it is in events, and its status is no long events, add it to pastAccepted
-        } else if event.status == .pastAccepted, events.contains(where: { $0.id == event.id }), let profile = removeAndReturnProfile(id: event.id) {
-            pastEvents.append(profile)
+        switch event.status {
+        case .accepted:
+            if let i = invites.firstIndex(where: { $0.event.id == event.id }) {
+                events.append(invites.remove(at: i))
+            }
+        case .pastAccepted:
+            if let i = events.firstIndex(where: { $0.event.id == event.id }) {
+                pastEvents.append(events.remove(at: i))
+            }
+        default:
+            break
         }
     }
     
-    //5. Function called to remove
-    private func removeAndReturnProfile(id: String) -> EventProfile? {
-        let localProfile =
-        invites.first(where: { $0.event.id == id }) ??
-        events.first(where: { $0.event.id == id }) ??
-        pastEvents.first(where: { $0.event.id == id })
-        
+    //5. Function called to remove profile
+    private func removeProfile(id: String) {
         invites.removeAll { $0.event.id == id }
         events.removeAll { $0.event.id == id }
         pastEvents.removeAll { $0.event.id == id }
-        
-        return localProfile
+    }
+    
+    //6. For local Session if accepted add it to acepted events (If listener set up right, could delete)
+    func updateAcceptedEventInSession(eventProfile: EventProfile) {
+        events.append(eventProfile)
+    }
+    
+    //7.For local session if responded with new time, event, or declined remove it from invites (can also remove if listener works nicely)
+    func removeInvitedEventInSession(id: String) {
+        invites.removeAll { $0.id == id }
     }
 }
 
