@@ -32,11 +32,10 @@ final class TaskBag {
 @MainActor
 @Observable class SessionManager {
 
+    //1. All the repositories used in manager
     var appState: AppState = .booting
-    
     let authService: AuthServicing
     let defaultsManager: DefaultsManaging
-
     let userRepo: UserRepository
     let eventsRepo: EventsRepository
     let profilesRepo: ProfilesRepository
@@ -44,23 +43,22 @@ final class TaskBag {
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
 
-
-    //Auth listener spans the app lifetime; session streams are cancelled together on sign-out.
-    private var authStreamTask: Task<Void, Never>?
+    //2. The listeners the app holds. Deleted when session stops. (Need seperate listener for App State)
     private let streams = TaskBag()
+    private var authStreamTask: Task<Void, Never>?
     
-    //Key values need access to throughout App.
+    //3. All the properties used throughout the app. (1) User (2) Profils Recommmended (3) Events upcoming, (4) past events...
+    private(set) var sessionUser: UserProfile?
     var user: UserProfile {
         guard let sessionUser else { fatalError("Session not started") }
         return sessionUser
     }
-    
-    private(set) var sessionUser: UserProfile?
     private(set) var profiles: [PendingProfile] = []
     private(set) var invites: [EventProfile] = []
     private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
     
+    //4. Logic to do with popups (should be deleted later)
     var recentMessageReceived: MessagePopupModel?
     var activeChatEventId: String?
     
@@ -165,7 +163,6 @@ extension SessionManager {
 
 //Logic dealing with the recommended Profiles shown to the User
 extension SessionManager {
-    
     func profilesStream() {
         subscribe("profiles", to: profilesRepo.profilesTracker(userId: user.id)) { [weak self] change in
             guard let self else { return }
@@ -186,7 +183,8 @@ extension SessionManager {
     }
 }
 
-//Logic dealing with the popups in the app shown to the User
+
+//Logic dealing with the popups in the app shown to the User (Probably remove later ad have notification section)
 extension SessionManager {
     
     func recentChatStream() {
