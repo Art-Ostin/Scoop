@@ -21,8 +21,8 @@ extension SessionManager {
                 //2.Get user Profile, if none go to onboarding screen
                 guard let user = await self.fetchUser(uid) else { self.goToOnboarding() ; continue }
 
-                //3.If fetched user, start session with user
-                self.startSession(user: user)
+                //3.If fetched user's profile, start session with user
+                startSession(user: user)
             }
         })
     }

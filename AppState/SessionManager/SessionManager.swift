@@ -53,7 +53,7 @@ final class TaskBag {
         guard let sessionUser else { fatalError("Session not started") }
         return sessionUser
     }
-    private(set) var profiles: [PendingProfile] = []
+    var profiles: [PendingProfile] = []
     private(set) var invites: [EventProfile] = []
     private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
@@ -80,24 +80,6 @@ final class TaskBag {
         self.chatRepo = chatRepo
         self.profileLoader = profileLoader
         self.imageLoader = imageLoader
-    }
-    
-    
-    //Creates a Reusable Sequence throughout the session Manager
-    func subscribe<S: AsyncSequence>(
-        _ key: String,
-        to stream: S,
-        handler: @escaping (S.Element) async throws -> Void
-    ) {
-        streams.insert(key, Task { @MainActor in
-            do {
-                for try await element in stream {
-                    try await handler(element)
-                }
-            } catch {
-                print(error)
-            }
-        })
     }
 }
 
@@ -150,40 +132,8 @@ extension SessionManager {
         events.removeAll { $0.event.id == id }
         pastEvents.removeAll { $0.event.id == id }
     }
-
-    //Local-session optimistic updates (called from view models before listener catches up) (Remove later)
-    func updateAcceptedEventInSession(eventProfile: EventProfile) {
-        events.append(eventProfile)
-    }
-
-    func removeInvitedEventInSession(id: String) {
-        invites.removeAll { $0.id == id }
-    }
 }
-
-//Logic dealing with the recommended Profiles shown to the User
-extension SessionManager {
-    func profilesStream() {
-        subscribe("profiles", to: profilesRepo.profilesTracker(userId: user.id)) { [weak self] change in
-            guard let self else { return }
-            switch change {
-            case .initial(let recs):
-                self.profiles = try await self.profileLoader.fromIds(recs.compactMap { $0.id })
-                print("profiles Loaded")
-            case .added(let rec):
-                if let id = rec.id {
-                    self.profiles.append(contentsOf: try await self.profileLoader.fromIds([id]))
-                }
-            case .modified:
-                break
-            case .removed(let id):
-                self.profiles.removeAll { $0.id == id }
-            }
-        }
-    }
-}
-
-
+ 
 //Logic dealing with the popups in the app shown to the User (Probably remove later ad have notification section)
 extension SessionManager {
     
@@ -205,6 +155,23 @@ extension SessionManager {
             try? await Task.sleep(for: .seconds(4))
             guard !Task.isCancelled else { return }
             self?.recentMessageReceived = nil
+        })
+    }
+    
+    //Creates a Reusable Sequence throughout the session Manager
+    func subscribe<S: AsyncSequence>(
+        _ key: String,
+        to stream: S,
+        handler: @escaping (S.Element) async throws -> Void
+    ) {
+        streams.insert(key, Task { @MainActor in
+            do {
+                for try await element in stream {
+                    try await handler(element)
+                }
+            } catch {
+                print(error)
+            }
         })
     }
 }
