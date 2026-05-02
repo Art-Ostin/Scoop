@@ -127,8 +127,8 @@ extension SessionManager {
                     sessionUser = nil
                     continue
                 }
-                
                 //3. Otherwise start session with the user inputted which triggers loading up
+                print("Session Starting")
                 startSession(user: user, appState: appState)
             }
         }
@@ -141,8 +141,8 @@ extension SessionManager {
         sessionUser = user
         
         //2. Start the streams with initial snapshots
-        eventsStream()
         profilesStream()
+        eventsStream()
         userProfileStream()
         recentChatStream()
 
