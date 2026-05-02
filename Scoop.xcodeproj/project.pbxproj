@@ -203,6 +203,8 @@
 		65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14912F64456000031513 /* InvitesViewModel.swift */; };
 		65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14932F6445EB00031513 /* InvitesContainer.swift */; };
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
+		65B4E3992FA606A40044EE9A /* UserSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E3982FA606A40044EE9A /* UserSessionManager.swift */; };
+		65B4E39B2FA606D60044EE9A /* EventsSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E39A2FA606D60044EE9A /* EventsSessionManager.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65BF98C42FA532C600FB37A6 /* BootingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BF98C32FA532C600FB37A6 /* BootingScreen.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
@@ -481,6 +483,8 @@
 		65AF14912F64456000031513 /* InvitesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesViewModel.swift; sourceTree = "<group>"; };
 		65AF14932F6445EB00031513 /* InvitesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesContainer.swift; sourceTree = "<group>"; };
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
+		65B4E3982FA606A40044EE9A /* UserSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionManager.swift; sourceTree = "<group>"; };
+		65B4E39A2FA606D60044EE9A /* EventsSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsSessionManager.swift; sourceTree = "<group>"; };
 		65BF98C32FA532C600FB37A6 /* BootingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BootingScreen.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -737,7 +741,7 @@
 			children = (
 				654C009D2E35835900FFD504 /* AppDependencies.swift */,
 				6549837C2E35429400CA335F /* ManagersProtocol.swift */,
-				65E5C9192E50E7700093410B /* SessionManager.swift */,
+				65B4E3972FA606870044EE9A /* SessionManager */,
 				6585043C2E59105D0005C643 /* DefaultsManager.swift */,
 			);
 			path = AppState;
@@ -1396,6 +1400,16 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		65B4E3972FA606870044EE9A /* SessionManager */ = {
+			isa = PBXGroup;
+			children = (
+				65E5C9192E50E7700093410B /* SessionManager.swift */,
+				65B4E3982FA606A40044EE9A /* UserSessionManager.swift */,
+				65B4E39A2FA606D60044EE9A /* EventsSessionManager.swift */,
+			);
+			path = SessionManager;
+			sourceTree = "<group>";
+		};
 		65E820B02E3901080098CC36 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -1717,6 +1731,7 @@
 				657FD54B2F92ABEF0074255E /* EventDetailsInfo.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */,
 				6509DCED2F1D79AE00455AB5 /* EditLanguages.swift in Sources */,
+				65B4E39B2FA606D60044EE9A /* EventsSessionManager.swift in Sources */,
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */,
 				65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */,
@@ -1751,6 +1766,7 @@
 				65F450BF2E45567900AE3503 /* ImageModifiers.swift in Sources */,
 				653A78592E1340BA0098747F /* MessagesContainer.swift in Sources */,
 				65FE78D62F293C6C00DC2538 /* DropDownView.swift in Sources */,
+				65B4E3992FA606A40044EE9A /* UserSessionManager.swift in Sources */,
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
 				652972632F62D410007943C6 /* ColorBackground.swift in Sources */,
 				65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */,
