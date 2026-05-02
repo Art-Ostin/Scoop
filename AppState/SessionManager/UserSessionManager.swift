@@ -77,15 +77,9 @@ extension SessionManager {
 
     //Listen to user's profile in case there is an update on their account, and updates the User
     private func userProfileStream() {
-        let clock =  ContinuousClock()
-        let start = clock.now
         subscribe("userProfile", to: userRepo.userListener(userId: user.id)) { [weak self] change in
             guard let self, let change else { return }
             setSessionUser(change)
-            let duration = start.duration(to: clock.now)
-            
-            print("Time taken to load user and get to app \(duration)")
-            
             if profilesHaveLoaded {
                 openMainApp(for: change)
             }

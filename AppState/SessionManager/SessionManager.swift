@@ -33,7 +33,14 @@ final class TaskBag {
 @Observable class SessionManager {
 
     //1. All the repositories used in manager
-    var appState: AppState = .booting
+    private var bootDurationLogged = false
+    var appState: AppState = .booting {
+        didSet {
+            guard !bootDurationLogged, appState != .booting else { return }
+            bootDurationLogged = true
+            print("App load time: \(appLaunchStart.duration(to: .now))")
+        }
+    }
     let authService: AuthServicing
     let defaultsManager: DefaultsManaging
     let userRepo: UserRepository

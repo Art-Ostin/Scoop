@@ -26,7 +26,11 @@ extension SessionManager {
     }
     
     private func loadInitialProfiles(_ recs: [ProfileRec]) async throws {
+        let clock = ContinuousClock()
+        let now = clock.now
         let loadedProfile = try await self.profileLoader.fromIds(recs.compactMap { $0.id })
+        let duration = now.duration(to: clock.now)
+        print("Time taken to load profiles is: \(duration)")
         self.profiles = loadedProfile
         profilesHaveLoaded = true
         if let sessionUser { openMainApp(for: sessionUser) }
