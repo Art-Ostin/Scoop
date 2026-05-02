@@ -44,8 +44,6 @@ final class TaskBag {
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
 
-    //Session starts with this variable assigned
-    private(set) var sessionUser: UserProfile?
 
     //Auth listener spans the app lifetime; session streams are cancelled together on sign-out.
     private var authStreamTask: Task<Void, Never>?
@@ -57,8 +55,8 @@ final class TaskBag {
         return sessionUser
     }
     
+    private(set) var sessionUser: UserProfile?
     private(set) var profiles: [PendingProfile] = []
-    
     private(set) var invites: [EventProfile] = []
     private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
@@ -118,6 +116,12 @@ extension SessionManager {
 
     func cancelAllStreams() {
         streams.cancelAll()
+    }
+    
+    func subscribeImageLoad(for user: UserProfile) {
+        streams.insert("profileImages", Task { @MainActor [weak self] in
+            _ = await self?.imageLoader.loadProfileImages(user)
+        })
     }
 }
 
@@ -205,5 +209,4 @@ extension SessionManager {
             self?.recentMessageReceived = nil
         })
     }
-    
 }

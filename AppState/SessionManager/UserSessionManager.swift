@@ -11,7 +11,7 @@ import SwiftUI
 extension SessionManager {
     
     //Tracks if user signed in or not & decides app state on launch
-    func userStream() {
+    func userStream() {        
         setAuthStream(Task { @MainActor [weak self] in
             guard let self else { return }
             for await uid in self.authService.authStateStream() {
@@ -56,8 +56,9 @@ extension SessionManager {
 
         //3.Update the AppState and add profileImages
         updateAppState(for: user)
-        Task { await imageLoader.loadProfileImages(user) }
+        subscribeImageLoad(for: user)
     }
+    
 
     //Not private as need it when sign out
     func stopSession() {
