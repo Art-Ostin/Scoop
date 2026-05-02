@@ -11,27 +11,17 @@ enum AppState {
 }
 
 struct RootView : View {
-    
-    @Environment(\.appState) private var state
-    
+
+    @Environment(\.appDependencies) private var dep
+
     var body: some View {
         Group {
-            switch state.wrappedValue {
-                
-            case .booting:
-                BootingScreen()
-                
-            case .login:
-                SignUpView()
-                
-            case .createAccount:
-                OnboardingHomeView()
-                
-            case .app:
-                AppContainer()
-                
-            case .frozen:
-                FrozenContainer()
+            switch dep.sessionManager.appState {
+            case .booting: BootingScreen()
+            case .login: SignUpView()
+            case .createAccount: OnboardingHomeView()
+            case .app: AppContainer()
+            case .frozen: FrozenContainer()
             }
         }
     }

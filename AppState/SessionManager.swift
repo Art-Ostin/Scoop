@@ -32,22 +32,7 @@ final class TaskBag {
 @MainActor
 @Observable class SessionManager {
 
-    //Creates a Reusable Sequence throughout the session Manager
-    private func subscribe<S: AsyncSequence>(
-        _ key: String,
-        to stream: S,
-        handler: @escaping (S.Element) async throws -> Void
-    ) {
-        streams.insert(key, Task { @MainActor in
-            do {
-                for try await element in stream {
-                    try await handler(element)
-                }
-            } catch {
-                print(error)
-            }
-        })
-    }
+    var appState: AppState = .booting
     
     let authService: AuthServicing
 
@@ -66,8 +51,6 @@ final class TaskBag {
     //Auth listener spans the app lifetime; session streams are cancelled together on sign-out.
     private var authStreamTask: Task<Void, Never>?
     private let streams = TaskBag()
-
-    private var appStateBinding: Binding<AppState>?
     
     //Key values need access to throughout App.
     var user: UserProfile {
@@ -102,44 +85,69 @@ final class TaskBag {
         self.profileLoader = profileLoader
         self.imageLoader = imageLoader
     }
+    
+    
+    //Creates a Reusable Sequence throughout the session Manager
+    private func subscribe<S: AsyncSequence>(
+        _ key: String,
+        to stream: S,
+        handler: @escaping (S.Element) async throws -> Void
+    ) {
+        streams.insert(key, Task { @MainActor in
+            do {
+                for try await element in stream {
+                    try await handler(element)
+                }
+            } catch {
+                print(error)
+            }
+        })
+    }
 }
 
 //Logic dealing with what part of app to show to user and when, and User's Status
 extension SessionManager {
     
     //Tracks if user signed in or not & decides app state on launch
-    func userStream (appState: Binding<AppState>) {
-        appStateBinding = appState
+    func userStream() {
         authStreamTask?.cancel()
         authStreamTask = Task { @MainActor in
-            
+
             for await uid in authService.authStateStream() {
-                //1. If no authenticated user go to the login state
-                guard let uid else {
-                    stopSession()
-                    appState.wrappedValue = .login
-                    defaultsManager.deleteDefaults()
-                    continue
-                }
-                //2. If no profile fetched go to the onboarding state
-                guard let user = try? await userRepo.fetchProfile(userId: uid) else {
-                    appState.wrappedValue = .createAccount
-                    sessionUser = nil
-                    continue
-                }
-                //3. Otherwise start session with the user inputted which triggers loading up
-                print("Session Starting")
-                startSession(user: user, appState: appState)
+                //1. Get User ID, if not go to Login Screen
+                guard let uid else { goToLoginScreen() ; continue }
+                
+                //2.Get user Profile, if none go to onboarding screen
+                guard let user = await fetchUser(uid) else { goToOnboarding() ; continue}
+                
+                //3.If fetched user, start session with user
+                startSession(user: user)
             }
         }
     }
     
+    private func fetchUser(_ id: String) async -> UserProfile? {
+        return try? await userRepo.fetchProfile(userId: id)
+    }
+    
+    private func goToOnboarding() {
+        stopSession()
+        appState = .createAccount
+    }
+    
+    private func goToLoginScreen() {
+        stopSession()
+        appState = .login
+        defaultsManager.deleteDefaults()
+    }
+
+
     //Not private as need it to sign up
-    func startSession(user: UserProfile, appState: Binding<AppState>? = nil) {
+    func startSession(user: UserProfile) {
         //1. Start new session, inputting a user
         stopSession()
         sessionUser = user
-        
+
         //2. Start the streams with initial snapshots
         profilesStream()
         eventsStream()
@@ -147,12 +155,10 @@ extension SessionManager {
         recentChatStream()
 
         //3.Update the AppState and add profileImages
-        if let appState {
-            updateAppState(appState, for: user)
-        }
+        updateAppState(for: user)
         Task { await imageLoader.loadProfileImages(user) }
     }
-    
+
     //Not private as need it when sign out
     func stopSession() {
         streams.cancelAll()
@@ -160,24 +166,22 @@ extension SessionManager {
         activeChatEventId = nil
         sessionUser = nil
     }
-    
+
     //Checks if user is blocked or frozen before going to main appState
-    private func updateAppState(_ appState: Binding<AppState>, for user: UserProfile) {
+    private func updateAppState(for user: UserProfile) {
         if user.isBlocked || user.frozenUntil != nil {
-            appState.wrappedValue = .frozen
+            appState = .frozen
         } else {
-            appState.wrappedValue = .app
+            appState = .app
         }
     }
-    
+
     //Listen to user's profile in case there is an update on their account, and updates the User
     private func userProfileStream() {
         subscribe("userProfile", to: userRepo.userListener(userId: user.id)) { [weak self] change in
             guard let self, let change else { return }
             self.sessionUser = change
-            if let binding = self.appStateBinding {
-                self.updateAppState(binding, for: change)
-            }
+            self.updateAppState(for: change)
         }
     }
 }
@@ -301,8 +305,3 @@ extension SessionManager {
     }
     
 }
-
-
-
-
-
