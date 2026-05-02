@@ -32,6 +32,23 @@ final class TaskBag {
 @MainActor
 @Observable class SessionManager {
 
+    //Creates a Reusable Sequence throughout the session Manager
+    private func subscribe<S: AsyncSequence>(
+        _ key: String,
+        to stream: S,
+        handler: @escaping (S.Element) async throws -> Void
+    ) {
+        streams.insert(key, Task { @MainActor in
+            do {
+                for try await element in stream {
+                    try await handler(element)
+                }
+            } catch {
+                print(error)
+            }
+        })
+    }
+    
     let authService: AuthServicing
 
     let userRepo: UserRepository
@@ -89,7 +106,7 @@ final class TaskBag {
 
 //Logic dealing with what part of app to show to user and when, and User's Status
 extension SessionManager {
-        
+    
     //Tracks if user signed in or not & decides app state on launch
     func userStream (appState: Binding<AppState>) {
         appStateBinding = appState
@@ -155,23 +172,13 @@ extension SessionManager {
     
     //Listen to user's profile in case there is an update on their account, and updates the User
     private func userProfileStream() {
-        streams.insert("userProfile", Task { @MainActor in
-            do {
-                for try await change in userRepo.userListener(userId: user.id) {
-                    //1. If they have updated their profile/preference make the session user, reflect this change
-                    if let change {
-                        sessionUser = change
-
-                        //2.If change is 'user's status' i.e. to blocked or frozen, update appState.
-                        if let appStateBinding {
-                            updateAppState(appStateBinding, for: change)
-                        }
-                    }
-                }
-            } catch {
-                print(error)
+        subscribe("userProfile", to: userRepo.userListener(userId: user.id)) { [weak self] change in
+            guard let self, let change else { return }
+            self.sessionUser = change
+            if let binding = self.appStateBinding {
+                self.updateAppState(binding, for: change)
             }
-        })
+        }
     }
 }
 
@@ -180,27 +187,19 @@ extension SessionManager {
     
     //1. Listens to all user events where status is pending, accepted, or past accepted
     private func eventsStream() {
-        let stream = eventsRepo.eventTracker(userId: user.id)
-
-        streams.insert("events", Task { @MainActor in
-            do {
-                for try await change in stream {
-                    //This switch calls 4 functions below, handling what to do with incoming events
-                    switch change {
-                    case .initial(let events): try await loadInitalEvents(events: events)
-                    case .added(let event): try await addProfileToInvites(event: event)
-                    case .modified(let event): updateModifiedProfile(event: event)
-                    case .removed(let id): removeProfile(id: id)
-                    }
-                }
-            } catch {
-                print(error)
+        subscribe("events", to: eventsRepo.eventTracker(userId: user.id)) { [weak self] change in
+            guard let self else { return }
+            switch change {
+            case .initial(let events):  try await self.loadInitialEvents(events: events)
+            case .added(let event):     try await self.addProfileToInvites(event: event)
+            case .modified(let event):  self.updateModifiedProfile(event: event)
+            case .removed(let id):      self.removeProfile(id: id)
             }
-        })
+        }
     }
-    
+
     //2. On initial launch populates all the users invites, events, and past events for session
-    private func loadInitalEvents(events: [UserEvent]) async throws {
+    private func loadInitialEvents(events: [UserEvent]) async throws {
         let invites = events.filter {$0.status == .pending && $0.role == .received }
         let accepted = events.filter {$0.status == .accepted}
         let pastAccepted = events.filter {$0.status == .pastAccepted}
@@ -242,6 +241,8 @@ extension SessionManager {
         pastEvents.removeAll { $0.event.id == id }
     }
     
+    //Want to remove these profiles
+    
     //6. For local Session if accepted add it to acepted events (If listener set up right, could delete)
     func updateAcceptedEventInSession(eventProfile: EventProfile) {
         events.append(eventProfile)
@@ -257,56 +258,36 @@ extension SessionManager {
 extension SessionManager {
     
     private func profilesStream() {
-        let stream = profilesRepo.profilesTracker(userId: user.id)
-
-        streams.insert("profiles", Task { @MainActor in
-            do {
-                for try await change in stream {
-                    switch change {
-                    case .initial(let profileRecs):
-                        let profileIds = profileRecs.compactMap {$0.id}
-                        let profiles = try await profileLoader.fromIds(profileIds)
-                        self.profiles = profiles
-                    case .added(let profileRec):
-                        if let id = profileRec.id {
-                            let profile = try await profileLoader.fromIds([id])
-                            self.profiles.append(contentsOf: profile)
-                        }
-                    case .modified:
-                        break
-                        //Don't need to do anything
-                    case .removed(let id):
-                        profiles.removeAll { $0.id == id }
-                    }
+        subscribe("profiles", to: profilesRepo.profilesTracker(userId: user.id)) { [weak self] change in
+            guard let self else { return }
+            switch change {
+            case .initial(let recs):
+                self.profiles = try await self.profileLoader.fromIds(recs.compactMap { $0.id })
+            case .added(let rec):
+                if let id = rec.id {
+                    self.profiles.append(contentsOf: try await self.profileLoader.fromIds([id]))
                 }
-            } catch {
-                print(error)
+            case .modified:
+                break
+            case .removed(let id):
+                self.profiles.removeAll { $0.id == id }
             }
-        })
+        }
     }
-    
 }
 
 //Logic dealing with the popups in the app shown to the User
 extension SessionManager {
     
     private func recentChatStream() {
-        let stream = eventsRepo.eventMessageTracker(userId: user.id)
-
-        streams.insert("recentChat", Task { @MainActor in
-            do {
-                for try await change in stream {
-                    switch change {
-                    case .initial: continue
-                    case .added(let popup): presentPopup(popup)
-                    case .modified(let popup): presentPopup(popup)
-                    case .removed: continue
-                    }
-                }
-            } catch {
-                print(error)
+        subscribe("recentChat", to: eventsRepo.eventMessageTracker(userId: user.id)) { [weak self] change in
+            switch change {
+            case .added(let popup), .modified(let popup):
+                self?.presentPopup(popup)
+            case .initial, .removed:
+                break
             }
-        })
+        }
     }
 
     private func presentPopup(_ popup: MessagePopupModel) {
