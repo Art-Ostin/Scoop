@@ -28,6 +28,8 @@ extension SessionManager {
     private func loadInitialProfiles(_ recs: [ProfileRec]) async throws {
         let loadedProfile = try await self.profileLoader.fromIds(recs.compactMap { $0.id })
         self.profiles = loadedProfile
+        profilesHaveLoaded = true
+        if let sessionUser { openMainApp(for: sessionUser) }
     }
     
     private func loadAddedProfile(_ rec: ProfileRec) async throws {

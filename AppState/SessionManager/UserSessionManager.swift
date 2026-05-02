@@ -49,13 +49,11 @@ extension SessionManager {
         setSessionUser(user)
 
         //2. Start the streams with initial snapshots
+        userProfileStream()
         profilesStream()
         eventsStream()
-        userProfileStream()
         recentChatStream()
 
-        //3.Update the AppState and add profileImages
-        updateAppState(for: user)
         subscribeImageLoad(for: user)
     }
     
@@ -69,7 +67,7 @@ extension SessionManager {
     }
 
     //Checks if user is blocked or frozen before going to main appState
-    private func updateAppState(for user: UserProfile) {
+    func openMainApp(for user: UserProfile) {
         if user.isBlocked || user.frozenUntil != nil {
             appState = .frozen
         } else {
@@ -79,10 +77,18 @@ extension SessionManager {
 
     //Listen to user's profile in case there is an update on their account, and updates the User
     private func userProfileStream() {
+        let clock =  ContinuousClock()
+        let start = clock.now
         subscribe("userProfile", to: userRepo.userListener(userId: user.id)) { [weak self] change in
             guard let self, let change else { return }
-            self.setSessionUser(change)
-            self.updateAppState(for: change)
+            setSessionUser(change)
+            let duration = start.duration(to: clock.now)
+            
+            print("Time taken to load user and get to app \(duration)")
+            
+            if profilesHaveLoaded {
+                openMainApp(for: change)
+            }
         }
     }
 }

@@ -41,21 +41,22 @@ final class ProfileLoader: ProfileLoading {
     }
     
     func fromIds(_ ids: [String]) async throws -> [PendingProfile] {
-        var profiles: [UserProfile] = []
-        try await withThrowingTaskGroup(of: UserProfile.self) { group in
+        var profiles: [PendingProfile] = []
+        
+        try await withThrowingTaskGroup(of: PendingProfile.self) { group in
             for id in ids {
                 group.addTask {
-                    try await self.userRepo.fetchProfile(userId: id)
+                    let profile = try await self.userRepo.fetchProfile(userId: id)
+                    let image = try await self.imageLoader.fetchFirstImage(profile: profile)
+                    return  PendingProfile(profile: profile, image: image ?? UIImage())
                 }
             }
-            for try await profile in group {
-                profiles.append(profile)
+            for try await pendingProfile in group {
+                profiles.append(pendingProfile)
             }
         }
-        await imageLoader.addProfileImagesToCache(for: profiles)
-        return profiles.map { PendingProfile(profile: $0, image: nil) }
+        return profiles
     }
-    
 
     private func fetchEventProfile(_ profileId: String, event: UserEvent) async throws -> EventProfile {
         let profile = try await self.userRepo.fetchProfile(userId: profileId)

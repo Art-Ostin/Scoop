@@ -62,6 +62,8 @@ final class TaskBag {
     var recentMessageReceived: MessagePopupModel?
     var activeChatEventId: String?
     
+    var profilesHaveLoaded: Bool = false 
+    
     init(
         authService: AuthServicing,
         defaultsManager: DefaultsManaging,
