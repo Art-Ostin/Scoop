@@ -34,6 +34,5 @@ import Foundation
     
     func signOut() {
         try? authService.signOutAuthUser()
-        sessionManager.stopSession()
     }
 }

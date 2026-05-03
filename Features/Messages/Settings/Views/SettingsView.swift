@@ -41,18 +41,20 @@ extension SettingsView {
     private var signOutSection: some View {
         CustomList(title: vm.user.email, usesContainerWidth: false) {
             Text("Sign Out")
+                .font(.body(15, .bold))
                 .frame(maxWidth: .infinity)
                 .frame(height: 40, alignment: .center)
                 .onTapGesture {
-                    withAnimation { appState.wrappedValue = .login }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                    appState.wrappedValue = .login
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         vm.signOut()
-                    }) //Fixes Bug gives time for the session to close (and not cause fatal error)
+                    }
                 }
             softDivider
                 .padding(.trailing)
             
             Text("Delete Account")
+                .font(.body(15, .bold))
                 .frame(maxWidth: .infinity)
                 .frame(height: 40, alignment: .center)
                 .foregroundStyle(.accent)

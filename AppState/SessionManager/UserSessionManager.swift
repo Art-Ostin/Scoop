@@ -15,7 +15,7 @@ extension SessionManager {
         setAuthStream(Task { @MainActor [weak self] in
             guard let self else { return }
             for await uid in self.authService.authStateStream() {
-                //1. Get User ID, if not go to Login Screen
+                //1. Get User ID, if not go to Login Screen (Also triggered when user logs out) 
                 guard let uid else { self.goToLoginScreen() ; continue }
 
                 //2.Get user Profile, if none go to onboarding screen
@@ -37,8 +37,8 @@ extension SessionManager {
     }
     
     private func goToLoginScreen() {
-        stopSession()
         appState = .login
+        stopSession()
         defaultsManager.deleteDefaults()
     }
 
