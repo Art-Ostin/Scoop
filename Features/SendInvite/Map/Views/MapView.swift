@@ -227,19 +227,20 @@ extension MapView {
     }
     
     private var mapsButton: some View {
-        Button {
-            MapsRouter.openGoogleMaps()
+        let isAppleMaps = vm.defaults.preferredMapType == .appleMaps
+        
+        return Button {
+            MapsRouter.openMaps(defaults: vm.defaults)
         }
         label: {
-            VStack(spacing: 3) {
-                Image(vm.defaults.preferredMapType == .appleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
-
+            VStack(spacing: isAppleMaps ? 2 : 3) {
+                Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
                 Text("Maps")
                     .font(.body(9, .bold))
                     .foregroundStyle(Color.black.opacity(0.9))
             }
             .frame(width: 45, height: 45, alignment: .center)
-            .offset(y: -1)
+            .offset(y: isAppleMaps ? 1 : -1)
             .glassIfAvailable(Circle(), isClear: false)
         }
     }

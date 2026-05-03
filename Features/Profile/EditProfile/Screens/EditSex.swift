@@ -88,7 +88,7 @@ struct GenericSex: View {
                 .padding(.top, 48)
                 .overlay(alignment: .topTrailing) {
                     if showSaved {
-                        SavedIcon(topPadding: 72, horizontalPadding: 36)
+                        SavedIcon(topPadding: 72, horizontalPadding: 36, isSettings: false)
                     }
                     
                 }

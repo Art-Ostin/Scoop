@@ -39,7 +39,7 @@ struct AddMessageView: View {
         }
         .overlay(alignment: .topTrailing) {
             if showSaved {
-                SavedIcon(topPadding: 0, horizontalPadding: 0)
+                SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: false)
                     .offset(y: -36)
             }
         }

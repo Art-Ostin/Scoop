@@ -11,6 +11,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appState) private var appState
     @State var vm: SettingsViewModel
+    
+    @State var showSavedIcon: Bool = false
+    
+    
     init(vm: SettingsViewModel) { self.vm = vm }
     
     var body: some View {
@@ -31,6 +35,14 @@ struct SettingsView: View {
             .padding(.top, 24)
         }
         .background(Color.background.ignoresSafeArea())
+        .onChange(of: showSavedIcon) { oldValue, newValue in
+            if newValue {
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    showSavedIcon = false
+                }
+            }
+        }
     }
 }
 
@@ -59,14 +71,24 @@ extension SettingsView {
     
     
     private var preferredMapType: some View {
-        CustomList(title: "Preferred map", usesContainerWidth: false) {
-            HStack {
-                mapOption(mapType: .googleMaps)
-                Spacer()
-                mapOption(mapType: .appleMaps)
+        
+        ZStack(alignment: .topTrailing) {
+            CustomList(title: "Preferred map", usesContainerWidth: false) {
+                HStack {
+                    mapOption(mapType: .googleMaps)
+                    Spacer()
+                    mapOption(mapType: .appleMaps)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            
+            if showSavedIcon {
+                SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
+                    .offset(x: -4, y: -4)
+            } else {
+                
+            }
         }
     }
     
@@ -77,6 +99,11 @@ extension SettingsView {
         return Button {
             vm.updatePreferredMapType(mapType)
             isSelected = true
+            Task {
+                showSavedIcon = false
+                try? await Task.sleep(nanoseconds: 1_000_000_00)
+                withAnimation(.easeInOut(duration: 0.2)) {showSavedIcon = true}
+            }
         } label: {
             HStack(spacing: 10) {
                 Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
