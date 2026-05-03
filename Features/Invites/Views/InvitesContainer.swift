@@ -35,7 +35,7 @@ struct InvitesContainer: View {
     var body: some View {
         ZStack {
             if vm.invites.isEmpty {
-                invitesPlaceholder
+                InvitesPlaceholder()
             } else {
                 invitesView
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
@@ -117,15 +117,12 @@ extension InvitesContainer {
                 .font(.custom("SFProRounded-Bold", size: 32))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 60)
+                .padding(.leading, -4)
             
             TabInfoButton(showScreen: $ui.showDetails)
                 .padding(.top, 12)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
-    }
-    
-    private var invitesPlaceholder: some View {
-        Text("There are no current invites")
     }
 }
 //ProfileView Related

@@ -98,7 +98,7 @@ struct ProfileView: View {
         }
         .overlay(alignment: .bottomLeading) {
             if vm.viewProfileType == .invite {
-                EventDeclineButton() {}
+                EventDeclineButton() { }
                     .opacity(ui.showRespondPopup ? 0 : 1)
             }
         }
