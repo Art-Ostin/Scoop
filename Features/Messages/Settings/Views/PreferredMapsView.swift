@@ -11,17 +11,18 @@ struct PreferredMapView: View {
     
     @Bindable var vm: SettingsViewModel
     
+    @Namespace private var savedToIconTransition
+    
     @State private var showSavedIcon: Bool = false
+    @State private var isFlashing: Bool = false
     @State private var savedIconTask: Task<Void, Never>?
     @State private var showInfoText: Bool = false
     
     var body: some View {
         
         ZStack(alignment: .topTrailing) {
-            if showInfoText {
-                Text("Preferred maps will show the preferred Maps to click on and send/respond to")
-            }
-            CustomList(title: "Preferred map", usesContainerWidth: false) {
+            
+            CustomList(title: "Preferred Maps", usesContainerWidth: false, showInfoText: showInfoText) {
                 HStack {
                     mapOption(mapType: .googleMaps)
                     Spacer()
@@ -31,7 +32,7 @@ struct PreferredMapView: View {
                 .padding(.vertical, 8)
             }
             savedAndInfoSection
-                .offset(x: -4, y: -4)
+                .offset(x: -4, y: showSavedIcon ? -6 : -4)
         }
     }
 }
@@ -40,10 +41,17 @@ extension PreferredMapView {
     
     @ViewBuilder
     private var savedAndInfoSection: some View {
-        if showSavedIcon {
-            SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
-        } else {
-            infoButton
+        
+        ZStack(alignment: .topTrailing) {
+            if showSavedIcon {
+                SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
+                    .matchedGeometryEffect(id: "icon", in: savedToIconTransition, properties: .position)
+                    .transition(.opacity)
+            } else {
+                infoButton
+                    .matchedGeometryEffect(id: "icon", in: savedToIconTransition, properties: .position)
+                    .transition(.opacity)
+            }
         }
     }
     
@@ -54,7 +62,7 @@ extension PreferredMapView {
             }
         } label: {
             Image(systemName: "info.circle")
-                .foregroundStyle(Color.grayPlaceholder)
+                .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
                 .font(.body(12, .medium))
         }
     }
@@ -83,6 +91,7 @@ extension PreferredMapView {
     
     private func flashSavedIcon() {
         savedIconTask?.cancel()
+        isFlashing = true
         savedIconTask = Task {
             if showSavedIcon {
                 withAnimation(.easeInOut(duration: 0.15)) { showSavedIcon = false }
@@ -92,7 +101,10 @@ extension PreferredMapView {
             withAnimation(.easeInOut(duration: 0.2)) { showSavedIcon = true }
             try? await Task.sleep(for: .milliseconds(1000))
             if Task.isCancelled { return }
-            withAnimation(.easeInOut(duration: 0.2)) { showSavedIcon = false }
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showSavedIcon = false
+                isFlashing = false
+            }
         }
     }
 }

@@ -13,14 +13,18 @@ struct CustomList<Content: View> : View {
     let content: () -> Content
     var title: String?
     var usesContainerWidth: Bool
+    let showInfoText: Bool
+    
     
     init(
         title: String? = nil,
         usesContainerWidth: Bool = true,
+        showInfoText: Bool = false,
         @ViewBuilder content: @escaping () -> Content
     ){
         self.title = title
         self.usesContainerWidth = usesContainerWidth
+        self.showInfoText = showInfoText
         self.content = content
     }
     
@@ -31,6 +35,14 @@ struct CustomList<Content: View> : View {
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.grayText)
                     .padding(.horizontal, 16)
+                
+                if showInfoText {
+                    Text("Choose which map app opens for seeing the locations of events")
+                        .font(.body(12, .regular))
+                        .foregroundStyle(Color.grayText)
+                        .padding(.horizontal, 16)
+                        .lineSpacing(4)
+                }
             }
             VStack(spacing: 6) {
                 content()
