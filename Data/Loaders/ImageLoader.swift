@@ -8,64 +8,122 @@
 import Foundation
 import UIKit
 import SwiftUI
+import CryptoKit
 
 //Injecting ImageLoader around the app as don't want to have multiple Caches open
-actor ImageLoader: ImageLoading  {    
-    
+actor ImageLoader: ImageLoading  {
+
+    //Warning Claude Code up to 'removeImage' for improving image load time. 
     private let cache: NSCache<NSURL, UIImage>
     private var inFlight: [NSURL: Task<UIImage, Error>] = [:]
-    
+    private nonisolated let diskCacheURL: URL
+    private nonisolated let maxDiskBytes: Int = 150 * 1024 * 1024
+
     init() {
         cache = NSCache<NSURL, UIImage>()
         cache.countLimit = 100
         cache.totalCostLimit = 1024 * 1024 * 100
+
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let dir = caches.appendingPathComponent("profile-images", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        diskCacheURL = dir
     }
-    
-    private func fetchImageFromCache(for url: URL) -> UIImage? {
-        cache.object(forKey: url as NSURL)
-    }
-    
-    private func addImageToCache(url: URL) async throws -> UIImage {
-        let (data, _) = try await URLSession.shared.data(from: url)
-        if let image = UIImage(data: data) {
-            cache.setObject(image, forKey: url as NSURL, cost: data.count)
+
+    private func loadImage(url: URL) async throws -> UIImage {
+        if let (image, cost) = readDisk(for: url) {
+            cache.setObject(image, forKey: url as NSURL, cost: cost)
             return image
         }
-        return UIImage()
+
+        let (data, _) = try await URLSession.shared.data(from: url)
+        guard let image = UIImage(data: data) else { return UIImage() }
+        cache.setObject(image, forKey: url as NSURL, cost: data.count)
+        writeDisk(data: data, for: url)
+        let dir = diskCacheURL
+        let cap = maxDiskBytes
+        Task.detached { Self.enforceDiskLimit(in: dir, max: cap) }
+        return image
     }
-    
+
+    private nonisolated func diskFile(for url: URL) -> URL {
+        let digest = SHA256.hash(data: Data(url.absoluteString.utf8))
+        let name = digest.map { String(format: "%02x", $0) }.joined()
+        return diskCacheURL.appendingPathComponent(name)
+    }
+
+    private nonisolated func readDisk(for url: URL) -> (UIImage, Int)? {
+        let file = diskFile(for: url)
+        guard let data = try? Data(contentsOf: file),
+              let image = UIImage(data: data) else { return nil }
+        try? FileManager.default.setAttributes(
+            [.modificationDate: Date()],
+            ofItemAtPath: file.path
+        )
+        return (image, data.count)
+    }
+
+    private nonisolated func writeDisk(data: Data, for url: URL) {
+        try? data.write(to: diskFile(for: url), options: .atomic)
+    }
+
+    private static func enforceDiskLimit(in dir: URL, max cap: Int) {
+        let fm = FileManager.default
+        let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
+        guard let urls = try? fm.contentsOfDirectory(
+            at: dir,
+            includingPropertiesForKeys: keys
+        ) else { return }
+
+        struct Entry { let url: URL; let size: Int; let date: Date }
+        var entries: [Entry] = []
+        var total = 0
+
+        for url in urls {
+            guard let values = try? url.resourceValues(forKeys: Set(keys)),
+                  let size = values.fileSize,
+                  let date = values.contentModificationDate else { continue }
+            entries.append(Entry(url: url, size: size, date: date))
+            total += size
+        }
+
+        if total <= cap { return }
+        entries.sort { $0.date < $1.date }
+        for entry in entries {
+            if total <= cap { break }
+            try? fm.removeItem(at: entry.url)
+            total -= entry.size
+        }
+    }
+
     func removeImage(for url: URL) {
         cache.removeObject(forKey: url as NSURL)
+        try? FileManager.default.removeItem(at: diskFile(for: url))
     }
-    
+
     func fetchImage(for url: URL) async throws -> UIImage {
         let key = url as NSURL
-        
-        if let image = fetchImageFromCache(for: url) { return image }
-        
+
+        if let image = cache.object(forKey: key) { return image }
+
         if let task = inFlight[key] {
             return try await task.value
         }
-        
+
         let task = Task<UIImage, Error> {
-            try await self.addImageToCache(url: url)
+            try await self.loadImage(url: url)
         }
-        
+
         inFlight[key] = task
         defer { inFlight[key] = nil }
-        
+
         return try await task.value
     }
-
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
         if let urlString = profile.imagePathURL.first, let url = URL(string: urlString) {
-            let clock = ContinuousClock()
-            let now = clock.now
             let image =  try await fetchImage(for: url)
-            print("TIme take to load an image: \(now.duration(to: clock.now))")
             return image
         } else {
-            print(" \(profile.name) couldn't get firstImage")
             return nil
         }
     }
