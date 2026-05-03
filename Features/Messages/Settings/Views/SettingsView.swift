@@ -14,18 +14,22 @@ struct SettingsView: View {
     init(vm: SettingsViewModel) { self.vm = vm }
     
     var body: some View {
-        VStack(spacing: 36) {
-            meetTheTeam
-            
-            keySettingsSection
-            
-            signOutSection
+        ScrollView {
+            VStack(spacing: 36) {
+                meetTheTeam
+                
+                keySettingsSection
+                
+                preferredMapType
+                
+                signOutSection
+            }
+            .navigationTitle("Settings")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { DismissToolbarItem() }
+            .padding(.horizontal, 24)
         }
-        .navigationTitle("Settings")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { DismissToolbarItem() }
-        .padding(.horizontal, 24)
     }
 }
 
@@ -50,6 +54,29 @@ extension SettingsView {
                 .frame(height: 40, alignment: .center)
                 .foregroundStyle(.accent)
         }
+    }
+    
+    
+    private var preferredMapType: some View {
+        CustomList(title: "Preferred map", usesContainerWidth: false) {
+            HStack {
+                mapOption(isApple: false, isSelected: false)
+                Spacer()
+                mapOption(isApple: true, isSelected: false)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+        }
+    }
+    
+    private func mapOption(isApple: Bool, isSelected: Bool) -> some View {
+        HStack(spacing: 10) {
+            Image(isApple ? "AppleMapIcon" : "GoogleMapsIcon")
+            Text(isApple ? "Apple Maps" : "Google Maps")
+        }
+        .frame(width: 148, height: 44, alignment: .center)
+            .font(.body(15, .bold))
+            .stroke(20, lineWidth: 1, color: .blue)
     }
     
     private var meetTheTeam: some View {

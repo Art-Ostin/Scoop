@@ -79,7 +79,7 @@ extension DefaultsManager {
     }
 }
 
-// Map related defaults
+// Defaults for
 extension DefaultsManager {
 
     func updateRecentMapSearches(title: String, town: String) {
@@ -142,6 +142,7 @@ extension DefaultsManager {
     
     func deleteRespondDraft(eventId: String) {
         respondDrafts.removeValue(forKey: eventId)
+        print("Preferred Map Type")
         persistResponseDrafts()
     }
 }
