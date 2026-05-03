@@ -12,20 +12,18 @@ struct SettingsView: View {
     @Environment(\.appState) private var appState
     @State var vm: SettingsViewModel
     
-    @State var showSavedIcon: Bool = false
-    
-    
+
     init(vm: SettingsViewModel) { self.vm = vm }
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 36) {
                 meetTheTeam
-                
+
                 keySettingsSection
-                
-                preferredMapType
-                
+
+                PreferredMapView(vm: vm)
+
                 signOutSection
             }
             .navigationTitle("Settings")
@@ -35,14 +33,6 @@ struct SettingsView: View {
             .padding(.top, 24)
         }
         .background(Color.background.ignoresSafeArea())
-        .onChange(of: showSavedIcon) { oldValue, newValue in
-            if newValue {
-                Task {
-                    try? await Task.sleep(for: .seconds(2))
-                    showSavedIcon = false
-                }
-            }
-        }
     }
 }
 
@@ -69,54 +59,7 @@ extension SettingsView {
         }
     }
     
-    
-    private var preferredMapType: some View {
-        
-        ZStack(alignment: .topTrailing) {
-            CustomList(title: "Preferred map", usesContainerWidth: false) {
-                HStack {
-                    mapOption(mapType: .googleMaps)
-                    Spacer()
-                    mapOption(mapType: .appleMaps)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-            }
-            
-            if showSavedIcon {
-                SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
-                    .offset(x: -4, y: -4)
-            } else {
-                
-            }
-        }
-    }
-    
-    private func mapOption(mapType: PreferredMapType) -> some View {
-        let isAppleMaps = mapType == .appleMaps
-        var isSelected = mapType == vm.preferredMapType
-        
-        return Button {
-            vm.updatePreferredMapType(mapType)
-            isSelected = true
-            Task {
-                showSavedIcon = false
-                try? await Task.sleep(nanoseconds: 1_000_000_00)
-                withAnimation(.easeInOut(duration: 0.2)) {showSavedIcon = true}
-            }
-        } label: {
-            HStack(spacing: 10) {
-                Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
-                    .opacity(isSelected ? 1 : 0.4)
-                Text(isAppleMaps ? "Apple Maps" : "Google Maps")
-            }
-            .frame(width: 148, height: 44, alignment: .center)
-            .font(.body(15, .bold))
-            .stroke(20, lineWidth: isSelected ? 0 : 1, color: Color.grayPlaceholder)
-            .stroke(20, lineWidth: isSelected ? 1 : 0, color: Color.blue)
-            .foregroundStyle(isSelected ? Color.black : Color.grayPlaceholder)
-        }
-    }
+
     
     private var meetTheTeam: some View {
         CustomList(title: "Meet the Teem", usesContainerWidth: false) {
@@ -167,13 +110,9 @@ extension SettingsView {
             customDivider
             
             customRow(text: "Download My Data (Beta)")
-            
-
         }
         .font(.body(17, .medium))
         .foregroundStyle(Color.black)
-        
-        
     }
     
     
@@ -204,17 +143,3 @@ extension SettingsView {
         .frame(height: 40)
     }
 }
-
-/*
- let mapStroke = LinearGradient(
-     colors: [
-         Color(red: 0.259, green: 0.522, blue: 0.957),
-         Color(red: 0.204, green: 0.659, blue: 0.325),
-         Color(red: 0.984, green: 0.737, blue: 0.016),
-         Color(red: 0.918, green: 0.263, blue: 0.208)
-     ],
-     startPoint: UnitPoint(x: 0.0, y: 0.0),
-     endPoint: UnitPoint(x: 0.30, y: 1.0)
- )
-
- */
