@@ -15,6 +15,8 @@ protocol FirestoreServicing {
     func set<T: Encodable> (_ path: String, value: T, merge: Bool) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
     func get<T: Decodable>(_ path: String) async throws -> T
+    func getCacheFirst<T: Decodable>(_ path: String) async throws -> T
+    func warmUp()
     func update(_ path: String, fields: [String : Any]) async throws
     func delete(_ path: String) async throws
     func encodeFields<T: Encodable>(_ value: T) throws -> [String: Any]

@@ -38,6 +38,7 @@ final class AppDependencies {
         //1. Building the concrete services that app needs. Storing it as variables.
         let auth = AuthService()
         let fs = FirestoreService()
+        fs.warmUp()
         let userRepo = UserRepo(fs: fs)
         let imageLoader = ImageLoader()
         let eventsRepo = EventsRepo(fs: fs)
