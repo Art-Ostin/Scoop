@@ -17,7 +17,7 @@ struct ChatDayDivider: View {
                 .font(.body(12, .bold))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 4)
-                .stroke(16, lineWidth: 1, color: .grayPlaceholder)
+                .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)
                 .padding(.top, 16)
         }
     }

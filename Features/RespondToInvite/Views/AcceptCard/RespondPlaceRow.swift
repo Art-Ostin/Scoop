@@ -44,7 +44,7 @@ extension RespondPlaceRow {
                     Circle()
                         .foregroundStyle(Color.white).opacity(0.3)
                 )
-                .stroke(100, lineWidth: 0.5, color: .grayPlaceholder.opacity(0.5))
+                .stroke(100, lineWidth: 0.5, color: Color.grayPlaceholder.opacity(0.5))
                 .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1.5)
         }
     }

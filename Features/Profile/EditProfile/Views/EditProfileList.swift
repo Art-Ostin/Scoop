@@ -38,7 +38,7 @@ struct CustomList<Content: View> : View {
             .padding(.vertical, 12)
             .background(Color.white)
             .background(Color.white, in: RoundedRectangle(cornerRadius: 20))
-            .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
+            .shadow(color: .white.opacity(0.02), radius: 8, x: 0, y: 0.05)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 

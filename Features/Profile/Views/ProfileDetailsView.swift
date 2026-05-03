@@ -45,7 +45,7 @@ struct ProfileDetailsView: View {
         }
         .frame(height: 600).background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: .grayPlaceholder)
+        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         .coordinateSpace(.named("InterestsSection"))
         .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
             self.ui.isTopOfScroll = isAtTop

@@ -26,10 +26,11 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar { DismissToolbarItem() }
             .padding(.horizontal, 24)
+            .padding(.top, 24)
         }
+        .background(Color.background.ignoresSafeArea())
     }
 }
 
@@ -44,7 +45,7 @@ extension SettingsView {
                     withAnimation { appState.wrappedValue = .login }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
                         vm.signOut()
-                    }) //gives time for the session to close (and not cause fatal error) 
+                    }) //Fixes Bug gives time for the session to close (and not cause fatal error)
                 }
             softDivider
                 .padding(.trailing)
@@ -62,7 +63,7 @@ extension SettingsView {
             HStack {
                 mapOption(isApple: false, isSelected: false)
                 Spacer()
-                mapOption(isApple: true, isSelected: false)
+                mapOption(isApple: true, isSelected: true)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -72,11 +73,14 @@ extension SettingsView {
     private func mapOption(isApple: Bool, isSelected: Bool) -> some View {
         HStack(spacing: 10) {
             Image(isApple ? "AppleMapIcon" : "GoogleMapsIcon")
+                .opacity(isSelected ? 1 : 0.4)
             Text(isApple ? "Apple Maps" : "Google Maps")
         }
         .frame(width: 148, height: 44, alignment: .center)
-            .font(.body(15, .bold))
-            .stroke(20, lineWidth: 1, color: .blue)
+        .font(.body(15, .bold))
+        .stroke(20, lineWidth: isSelected ? 0 : 1, color: Color.grayPlaceholder)
+        .stroke(20, lineWidth: isSelected ? 1 : 0, color: Color.blue)
+        .foregroundStyle(isSelected ? Color.black : Color.grayPlaceholder)
     }
     
     private var meetTheTeam: some View {
@@ -165,3 +169,17 @@ extension SettingsView {
         .frame(height: 40)
     }
 }
+
+/*
+ let mapStroke = LinearGradient(
+     colors: [
+         Color(red: 0.259, green: 0.522, blue: 0.957),
+         Color(red: 0.204, green: 0.659, blue: 0.325),
+         Color(red: 0.984, green: 0.737, blue: 0.016),
+         Color(red: 0.918, green: 0.263, blue: 0.208)
+     ],
+     startPoint: UnitPoint(x: 0.0, y: 0.0),
+     endPoint: UnitPoint(x: 0.30, y: 1.0)
+ )
+
+ */

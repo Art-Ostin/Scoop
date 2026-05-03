@@ -17,7 +17,7 @@ struct EventDeclineButton: View {
                     Circle()
                         .fill(Color.background)
                 )
-                .stroke(100, lineWidth: 1, color: .grayBackground)
+                .stroke(100, lineWidth: 1, color: Color.grayBackground)
                 .contentShape(Circle())
                 .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
                 .onTapGesture {onTap()}

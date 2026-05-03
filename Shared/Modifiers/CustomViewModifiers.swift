@@ -128,7 +128,7 @@ extension View {
         )
     }
     
-    func stroke(_ cornerRadius: CGFloat, lineWidth: CGFloat = 1, color: Color) -> some View {
+    func stroke<S: ShapeStyle>(_ cornerRadius: CGFloat, lineWidth: CGFloat = 1, color: S) -> some View {
         overlay (
             RoundedRectangle(cornerRadius: cornerRadius)
                 .strokeBorder(color, lineWidth: lineWidth)
