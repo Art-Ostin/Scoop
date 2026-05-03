@@ -27,7 +27,11 @@ struct InvitesContainer: View {
     var isPopup: Bool {
         showConfirmAccept != nil || showConfirmNewTime != nil || showConfirmNewInvite != nil
     }
-    
+
+    var hideTab: Bool {
+        isPopup || ui.selectedProfile != nil || ui.quickInvite || ui.respondedToProfile != nil
+    }
+
     var body: some View {
         ZStack {
             if vm.invites.isEmpty {
@@ -35,10 +39,10 @@ struct InvitesContainer: View {
             } else {
                 invitesView
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
-
+                
                 if ui.quickInvite { quickInvite }
             }
-
+            
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
             }
@@ -59,7 +63,7 @@ struct InvitesContainer: View {
         .onPreferenceChange(IsTimeOpen.self) { newValue in
             showTimePopup = newValue
         }
-        .hideTabBar(hideBar: isPopup)
+        .hideTabBar(hideBar: hideTab)
     }
 }
 
@@ -78,7 +82,7 @@ extension InvitesContainer {
                 
                 InviteCard(
                     showQuickInvite: $ui.profileInvite,
-                    vm: vm.respondVM(for: invite, image: profileImages[invite.profile.id]?.first ?? UIImage()),
+                    vm: vm.respondVM(for: invite, image: invite.image ?? UIImage()),
                     ui: ui,
                     eventProfile: invite,
                     showTimePopup: showTimePopup,

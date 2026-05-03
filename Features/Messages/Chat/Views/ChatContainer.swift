@@ -46,7 +46,6 @@ struct ChatContainer: View {
                 vm.session.activeChatEventId = nil
             }
         }
-        .hideTabBar()
         .toolbar(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

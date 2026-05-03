@@ -46,6 +46,7 @@ struct ChatScrollView: View {
                 }
             }
         }
+        .hideTabBar()
     }
     
     private var messageScrollSection: some View {

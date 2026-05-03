@@ -32,12 +32,15 @@ struct RespondTimeRow: View {
 extension RespondTimeRow {
     
     private var timeView: some View {
-        HStack(spacing: 22) {
+        let inviteMessage = vm.respondDraft.originalInvite.event.message
+        
+        
+        return HStack(spacing: 22) {
             Image("MiniClockIcon")
                 .opacity(showTimePopup ? 0.03 : 1)
             VStack(alignment: .leading, spacing: 0) {
                 timeTitle
-                if !hasRespondMessage && !isCardInvite && vm.respondDraft.originalInvite.event.message?.isEmpty != false {
+                if !hasRespondMessage && !isCardInvite && inviteMessage?.isEmpty == false {
                     eventMessageSection
                         .opacity(showTimePopup ? 0.03 : 1)
                 }
