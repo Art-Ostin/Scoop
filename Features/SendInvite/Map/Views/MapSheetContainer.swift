@@ -60,8 +60,6 @@ extension MapSheetContainer {
         }
     }
 
-    
-    
     private var shouldAutoFocusSearch: Bool {
         sheet == .large && vm.selectedMapItem == nil && !useSelectedDetent
     }

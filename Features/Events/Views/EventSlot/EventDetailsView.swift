@@ -11,15 +11,14 @@ struct EventDetailsView: View {
     
     @Bindable var ui: EventUIState
     @Binding var selectedTab: Int
-    
     let event: UserEvent
-    
     var hasMessage: Bool { event.message?.isEmpty == false }
+    let openMap: () -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: hasMessage ? 24 : 28) {
             timeRow
-            InviteCardPlaceRow(location: event.location, isMeetUp: true)
+            InviteCardPlaceRow(location: event.location, isMeetUp: true) {openMap()}
             detailRow
         }
         .measure(key: EventDetailsHeight.self) { geo in

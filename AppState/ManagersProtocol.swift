@@ -93,7 +93,7 @@ protocol DefaultsManaging: AnyObject {
     var onboardingStep: Int { get }
     var signUpDraft: DraftProfile? { get }
     var recentMapSearches: [RecentPlace] { get }
-    var preferredMapType: PreferredMapType? { get }
+    var preferredMapType: PreferredMapType { get }
     var eventDrafts: [String: EventFieldsDraft] { get }
     var respondDrafts: [String: RespondDraft] { get }
     func createDraftProfile(user: User)
@@ -108,7 +108,7 @@ protocol DefaultsManaging: AnyObject {
     func deleteRespondDraft(eventId: String)
     func updateRecentMapSearches(title: String, town: String)
     func removeFromRecentMapSearches(place: RecentPlace)
-    func updatePreferredMapType(mapType: PreferredMapType?)
+    func updatePreferredMapType(mapType: PreferredMapType)
     func updateEventDraft(profileId: String, eventDraft: EventFieldsDraft)
     func fetchEventDraft(profileId: String) -> EventFieldsDraft?
     func deleteEventDraft(profileId: String)

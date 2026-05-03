@@ -43,7 +43,7 @@ extension EventSlotContainer {
     }
     
     private var eventDetailsContainer: some View {
-        EventDetailsContainer(ui: ui, event: eventProfile.event)
+        EventDetailsContainer(ui: ui, event: eventProfile.event){ openMaps()}
             .opacity(disableMap ? 1 : 0.5)
             .onTapGesture {
                 if !disableMap {

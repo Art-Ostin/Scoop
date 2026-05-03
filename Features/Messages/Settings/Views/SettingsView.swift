@@ -70,9 +70,18 @@ extension SettingsView {
         }
     }
     
-    private func mapOption(isApple: Bool, isSelected: Bool) -> some View {
+    private func mapOption(mapType: PreferredMapType) -> some View {
+        let isAppleMaps = mapType == .appleMaps
+        let isSelected = mapType ==
+        Button {
+            
+        } label: {
+            
+        }
+        
+        
         HStack(spacing: 10) {
-            Image(isApple ? "AppleMapIcon" : "GoogleMapsIcon")
+            Image(map)
                 .opacity(isSelected ? 1 : 0.4)
             Text(isApple ? "Apple Maps" : "Google Maps")
         }

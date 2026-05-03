@@ -232,7 +232,7 @@ extension MapView {
         }
         label: {
             VStack(spacing: 3) {
-                Image("GoogleMapsIcon")
+                Image(vm.defaults.preferredMapType == .appleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
 
                 Text("Maps")
                     .font(.body(9, .bold))

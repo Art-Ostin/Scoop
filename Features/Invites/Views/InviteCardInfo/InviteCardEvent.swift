@@ -43,7 +43,7 @@ extension InviteCardEvent {
     }
     
     private var inviteCardPlaceRow: some View {
-        InviteCardPlaceRow(location: event.location, isMeetUp: false)
+        InviteCardPlaceRow(location: event.location, isMeetUp: false) {MapsRouter.openMaps(defaults: vm.defaults)}
             .opacity(ui.showTimePopup ? 0.2 : 1)
     }
     

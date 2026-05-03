@@ -20,7 +20,7 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var onboardingStep: Int = 0
     private(set) var signUpDraft: DraftProfile?
     private(set) var recentMapSearches: [RecentPlace] = []
-    private(set) var preferredMapType: PreferredMapType?
+    private(set) var preferredMapType: PreferredMapType
     private(set) var eventDrafts: [String: EventFieldsDraft] = [:]
     private(set) var respondDrafts: [String : RespondDraft] = [:]
 
@@ -37,7 +37,7 @@ final class DefaultsManager: DefaultsManaging {
         onboardingStep = 0
         signUpDraft = nil
         recentMapSearches = []
-        preferredMapType = nil
+        preferredMapType = .googleMaps
         eventDrafts = [:]
         respondDrafts = [:]
     }
@@ -105,7 +105,7 @@ extension DefaultsManager {
         persistRecentMapSearches()
     }
 
-    func updatePreferredMapType(mapType: PreferredMapType?) {
+    func updatePreferredMapType(mapType: PreferredMapType) {
         preferredMapType = mapType
         persistPreferredMapType()
     }
@@ -190,10 +190,6 @@ private extension DefaultsManager {
     }
 
     func persistPreferredMapType() {
-        guard let preferredMapType else {
-            defaults.removeObject(forKey: Keys.preferredMapType.rawValue)
-            return
-        }
         defaults.set(preferredMapType.rawValue, forKey: Keys.preferredMapType.rawValue)
     }
 
@@ -242,3 +238,11 @@ struct RecentPlace: Codable, Equatable, Hashable {
     let title: String
     let town: String
 }
+
+
+/*
+ guard let preferredMapType else {
+     defaults.removeObject(forKey: Keys.preferredMapType.rawValue)
+     return
+ }
+ */

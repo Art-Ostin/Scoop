@@ -22,6 +22,11 @@ import Foundation
         self.user = sessionManager.user
     }
     
+    
+    var mapType: PreferredMapType {
+        defaults.preferredMapType
+    }
+    
     func signOut() {
         try? authService.signOutAuthUser()
         sessionManager.stopSession()

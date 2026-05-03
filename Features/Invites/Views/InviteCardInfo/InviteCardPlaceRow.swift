@@ -11,12 +11,14 @@ struct InviteCardPlaceRow: View {
     
     let location: EventLocation
     let isMeetUp: Bool
+    let openMap: () -> ()
     var body: some View {
-        HStack (spacing: 6) {
+        Button {
+            openMap()
+        } label: {
             locationSection
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
-            
         }
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct EventDetailsContainer: View {
     @Bindable var ui: EventUIState
     let event: UserEvent
+    let openMap: () -> ()
     var hasMessage: Bool { event.message?.isEmpty == false }
     
     @State var selectedTab: Int = 1
@@ -18,7 +19,7 @@ struct EventDetailsContainer: View {
     var body: some View {
         ZStack(alignment: .top) {
             TabView(selection: $selectedTab) {
-                EventDetailsView(ui: ui, selectedTab: $selectedTab, event: event)
+                EventDetailsView(ui: ui, selectedTab: $selectedTab, event: event) { openMap()}
                     .tag(1)
                     .padding(.horizontal, 24)
                 
