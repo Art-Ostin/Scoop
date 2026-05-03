@@ -44,6 +44,7 @@ struct MessagesContainer: View {
                 ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
             }
         }
+        .hideTabBar(hideBar: !path.isEmpty)
     }
 }
 

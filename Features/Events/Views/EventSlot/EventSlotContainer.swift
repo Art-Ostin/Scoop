@@ -38,7 +38,7 @@ extension EventSlotContainer {
     @ViewBuilder
     private var clockView: some View {
         if let acceptedTime = eventProfile.event.acceptedTime {
-            LargeClockView(targetTime: acceptedTime, showShadow: false) {}
+            LargeClockView(targetTime: acceptedTime, showShadow: false)
         }
     }
     

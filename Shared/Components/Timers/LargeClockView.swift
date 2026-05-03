@@ -11,30 +11,29 @@ struct LargeClockView: View {
     
     let targetTime: Date
     var showShadow: Bool = true
-    let onFinished: () -> Void
     
     var body: some View {
-        CountdownTimer(targetTime: targetTime, onFinished: {onFinished()}) { timeRemaining in
+        CountdownTimer(targetTime: targetTime) { timeRemaining in
             let days = timeRemaining.day ?? 0
             let hours = timeRemaining.hour ?? 0
             let minutes = timeRemaining.minute ?? 0
             let seconds = timeRemaining.second ?? 0
 
-            if days > 3 {
+            if days < 1 {
                 HStack(spacing: 32) {
-                    clockSection(time: days, sign: "days")
-                    clockSection(time: hours, sign: "hr")
-                    clockSection(time: minutes, sign: "m")
-//                    clockSection(time: seconds, sign: "s")
-                }
-            } else {
-                HStack(spacing: 32) {
-                    clockSection(time: hours, sign: "hr")
+                    clockSection(time: hours + (days * 24), sign: "hr")
                     clockSection(time: minutes, sign: "m")
                     clockSection(time: seconds, sign: "s")
                 }
             }
-        }
+                else {
+                    HStack(spacing: 32) {
+                        clockSection(time: days, sign: "days")
+                        clockSection(time: hours, sign: "hr")
+                        clockSection(time: minutes, sign: "m")
+                    }
+                }
+            }
         .foregroundStyle(.white)
         .frame(width: 253, height: 52)
         .background( Color.accent)

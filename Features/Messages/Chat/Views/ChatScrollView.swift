@@ -46,7 +46,6 @@ struct ChatScrollView: View {
                 }
             }
         }
-        .hideTabBar()
     }
     
     private var messageScrollSection: some View {
@@ -76,17 +75,3 @@ struct ChatScrollView: View {
         }
     }
 }
-
-/*
- .background(Color(red: 0.96, green: 0.95, blue: 0.92).opacity(0.08))
- .background(
-     Color(red: 0.96, green: 0.95, blue: 0.5)
-         .opacity(0.08)
-         .ignoresSafeArea(.keyboard)
- )
- .onChange(of: isFocused.wrappedValue) { _, focused in
-     if focused { scrollToBottom(proxy, animated: true) }
- }
-
-
- */

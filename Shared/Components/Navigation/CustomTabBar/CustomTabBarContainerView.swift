@@ -29,6 +29,7 @@ struct CustomTabBarContainerView<Content: View>:  View {
             CustomTabBarView(tabs: tabs, selection: $selection, localSelection: selection)
                 .opacity(isTabBarHidden ? 0 : 1)
                 .allowsHitTesting(!isTabBarHidden)
+                .animation(.easeInOut(duration: 0.2), value: isTabBarHidden)
         }
         .onPreferenceChange(TabBarItemsPreferenceKey.self) { value in
             self.tabs = value

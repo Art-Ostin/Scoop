@@ -98,7 +98,7 @@ extension EventsContainer {
                     .font(.custom("SFProRounded-Semibold", size: 22))
                     .frame(maxWidth: .infinity, alignment: .center)
                     .kerning(0.4)
-                LargeClockView(targetTime: time) {}
+                LargeClockView(targetTime: time)
             }
         }
         .padding(16)
