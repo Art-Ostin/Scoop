@@ -61,9 +61,9 @@ extension SettingsView {
     private var preferredMapType: some View {
         CustomList(title: "Preferred map", usesContainerWidth: false) {
             HStack {
-                mapOption(isApple: false, isSelected: false)
+                mapOption(mapType: .googleMaps)
                 Spacer()
-                mapOption(isApple: true, isSelected: true)
+                mapOption(mapType: .appleMaps)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -72,24 +72,23 @@ extension SettingsView {
     
     private func mapOption(mapType: PreferredMapType) -> some View {
         let isAppleMaps = mapType == .appleMaps
-        let isSelected = mapType ==
-        Button {
-            
+        var isSelected = mapType == vm.preferredMapType
+        
+        return Button {
+            vm.updatePreferredMapType(mapType)
+            isSelected = true
         } label: {
-            
+            HStack(spacing: 10) {
+                Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
+                    .opacity(isSelected ? 1 : 0.4)
+                Text(isAppleMaps ? "Apple Maps" : "Google Maps")
+            }
+            .frame(width: 148, height: 44, alignment: .center)
+            .font(.body(15, .bold))
+            .stroke(20, lineWidth: isSelected ? 0 : 1, color: Color.grayPlaceholder)
+            .stroke(20, lineWidth: isSelected ? 1 : 0, color: Color.blue)
+            .foregroundStyle(isSelected ? Color.black : Color.grayPlaceholder)
         }
-        
-        
-        HStack(spacing: 10) {
-            Image(map)
-                .opacity(isSelected ? 1 : 0.4)
-            Text(isApple ? "Apple Maps" : "Google Maps")
-        }
-        .frame(width: 148, height: 44, alignment: .center)
-        .font(.body(15, .bold))
-        .stroke(20, lineWidth: isSelected ? 0 : 1, color: Color.grayPlaceholder)
-        .stroke(20, lineWidth: isSelected ? 1 : 0, color: Color.blue)
-        .foregroundStyle(isSelected ? Color.black : Color.grayPlaceholder)
     }
     
     private var meetTheTeam: some View {

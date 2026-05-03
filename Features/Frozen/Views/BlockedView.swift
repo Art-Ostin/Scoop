@@ -45,7 +45,7 @@ struct BlockedView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.sessionManager))
+                    SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.sessionManager, defaults: vm.defaults))
                 }
             }
             .overlay(alignment: .topLeading) {

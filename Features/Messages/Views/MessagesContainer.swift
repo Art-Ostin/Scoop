@@ -140,7 +140,7 @@ extension MessagesContainer {
     
     
     private func settingScreen() -> some View {
-        SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.s))
+        SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.s, defaults: vm.defaults))
     }
     
     private func prepareUserImages() async {

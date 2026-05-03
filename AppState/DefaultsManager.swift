@@ -20,7 +20,7 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var onboardingStep: Int = 0
     private(set) var signUpDraft: DraftProfile?
     private(set) var recentMapSearches: [RecentPlace] = []
-    private(set) var preferredMapType: PreferredMapType
+    private(set) var preferredMapType: PreferredMapType = .googleMaps
     private(set) var eventDrafts: [String: EventFieldsDraft] = [:]
     private(set) var respondDrafts: [String : RespondDraft] = [:]
 
@@ -91,6 +91,7 @@ extension DefaultsManager {
             $0.title.caseInsensitiveCompare(trimmedTitle) == .orderedSame &&
             $0.town.caseInsensitiveCompare(trimmedTown) == .orderedSame
         }
+        
         recentMapSearches.append(RecentPlace(title: trimmedTitle, town: trimmedTown))
 
         if recentMapSearches.count > maxRecentMapSearches {
@@ -153,8 +154,7 @@ private extension DefaultsManager {
         onboardingStep = max(0, defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0)
         signUpDraft = decode(DraftProfile.self, for: .draftProfile)
         recentMapSearches = decode([RecentPlace].self, for: .recentMapSearches) ?? []
-        preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue)
-            .flatMap(PreferredMapType.init(rawValue:))
+        preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue).flatMap(PreferredMapType.init(rawValue:)) ?? .googleMaps
         eventDrafts = decode([String: EventFieldsDraft].self, for: .eventDrafts) ?? [:]
         let storedRespondDrafts = decode([String: PersistableRespondDraft].self, for: .responseDrafts) ?? [:]
         respondDrafts = storedRespondDrafts.mapValues { RespondDraft($0) }
@@ -246,3 +246,4 @@ struct RecentPlace: Codable, Equatable, Hashable {
      return
  }
  */
+

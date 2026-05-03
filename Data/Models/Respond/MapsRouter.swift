@@ -13,10 +13,8 @@ enum MapsRouter {
     
     @discardableResult
     static func openMaps(defaults: DefaultsManaging, item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
-        
-        guard let preferredMapType = defaults.preferredMapType else { return false }
-        
-        switch preferredMapType {
+                
+        switch defaults.preferredMapType {
         case .appleMaps:
             return openAppleMaps(item: item, withDirections: withDirections)
         case .googleMaps:
@@ -121,3 +119,8 @@ enum MapsRouter {
         return query.isEmpty ? fallbackCoordinates : query
     }
 }
+
+/*
+ guard let preferredMapType = defaults.preferredMapType else { return false }
+
+ */
