@@ -43,7 +43,9 @@ extension InviteCardEvent {
     }
     
     private var inviteCardPlaceRow: some View {
-        InviteCardPlaceRow(location: event.location, isMeetUp: false) {MapsRouter.openMaps(defaults: vm.defaults)}
+        InviteCardPlaceRow(location: event.location, isMeetUp: false) {
+            MapsRouter.openMaps(defaults: vm.defaults, item: event.location.mapItem, withDirections: true)
+        }
             .opacity(ui.showTimePopup ? 0.2 : 1)
     }
     

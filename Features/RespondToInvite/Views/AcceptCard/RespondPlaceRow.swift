@@ -11,19 +11,25 @@ struct RespondPlaceRow: View {
     @Binding var showMessageScreen: Bool
     
     let location: EventLocation
-    
+    let defaults: DefaultsManaging
     let noEventMessages: Bool
     
     var body: some View {
-        HStack(spacing: 0) {
-            Image("MiniMapIcon")
-                .padding(.trailing, 24)
-            eventNameAndAddress
-                .layoutPriority(1)
-            Spacer(minLength: 12)
-            if noEventMessages {
-                AddMessageButton(showMessageScreen: $showMessageScreen, hasEventMessage: false)
-                    .fixedSize()
+        
+        Button {
+            MapsRouter.openMaps(defaults: defaults, item: location.mapItem, withDirections: true)
+            
+        } label: {
+            HStack(spacing: 0) {
+                Image("MiniMapIcon")
+                    .padding(.trailing, 24)
+                eventNameAndAddress
+                    .layoutPriority(1)
+                Spacer(minLength: 12)
+                if noEventMessages {
+                    AddMessageButton(showMessageScreen: $showMessageScreen, hasEventMessage: false)
+                        .fixedSize()
+                }
             }
         }
     }

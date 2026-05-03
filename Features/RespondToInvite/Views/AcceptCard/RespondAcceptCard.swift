@@ -68,7 +68,7 @@ extension RespondAcceptCard {
     private var respondPlace: some View {
         RespondPlaceRow(
             showMessageScreen: $ui.showMessageScreen,
-            location: event.location,
+            location: event.location, defaults: vm.defaults, //Defaults needed to open up Maps router
             noEventMessages: (!ui.hasEventMessage(vm.respondDraft) && !ui.hasRespondMessage(vm.respondDraft))
         )
     }
