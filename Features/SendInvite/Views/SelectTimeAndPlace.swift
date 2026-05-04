@@ -1,76 +1,8 @@
 import SwiftUI
 import MapKit
 
-@Observable class TimeAndPlaceUIState {
-    enum Popup { case type, time }
-    var activePopup: Popup?
-    var showMessageScreen: Bool = false
-    var showMapView: Bool = false
-    var isMessageTap: Bool = false
-    var showInfoScreen: Bool = false
-    let rowHeight: CGFloat = 50
-    var showConfirmPopup: Bool = false
-
-    func binding(for popup: Popup) -> Binding<Bool> {
-        Binding(
-            get: { self.activePopup == popup },
-            set: { self.activePopup = $0 ? popup : nil }
-        )
-    }
-}
-
-
-@MainActor
-struct InviteTimeAndPlaceView: View {
-    
-    @Binding var showInvite: String?
-
-    let inviteModel: InviteModel
-    let inviteTitle: String
-    let defaults: DefaultsManaging
-    let sendInvite: (EventFieldsDraft) -> Void
-    
-    var body: some View {
-        InviteTimeAndPlaceContent(
-            vm: TimeAndPlaceViewModel(
-                inviteModel: inviteModel,
-                defaults: defaults),
-            showInvite: $showInvite,
-            sendInvite: sendInvite
-        )
-    }
-}
-
-@MainActor
-struct RespondTimeAndPlaceView: View {
-    
-    @Bindable var vm: RespondViewModel
-
-    @Binding var showInvite: String?
-    @Binding var showConfirmSendInvite: Bool
-    let title: String
-    let sendInvite: (String) -> ()
-    
-    var body: some View {
-        
-        SelectTimeAndPlace(
-            draft: $vm.respondDraft.newEvent,
-            showInvite: $showInvite,
-            showConfirmSendInvite: $showConfirmSendInvite,
-            name: vm.respondDraft.originalInvite.event.otherUserName,
-            image: vm.image,
-            defaults: vm.defaults,
-            respondWithInvite: true,
-            title: title) {
-                vm.deleteEventDefault()
-            } sendInvite: {
-                sendInvite(vm.respondDraft.originalInvite.event.id)
-            }
-    }
-}
 
 struct SelectTimeAndPlace: View {
-    
     //1. Controls what popup is showing or not
     @State private var ui = TimeAndPlaceUIState()
 
@@ -81,7 +13,6 @@ struct SelectTimeAndPlace: View {
     @Binding var showInvite: String?
     
     //4. Info required for viewLayout
-    let title: String
     let name: String
     let image: UIImage
 
@@ -90,15 +21,14 @@ struct SelectTimeAndPlace: View {
     let onSendInvite: () -> ()
     
     //6. Layout differences if sending a new Invite as response
-    let isRespondingWithNewEvent: Bool
+    let isInviteResponse: Bool
     
     //7.defaults only to pass into the MapView beneath
     let defaults: DefaultsManaging
     
-    
     var body: some View {
         ZStack {
-            if !isRespondingWithNewEvent {
+            if !isInviteResponse {
                 CustomScreenCover {showInvite = nil}
             }
             VStack(spacing: 0) {
@@ -116,9 +46,10 @@ struct SelectTimeAndPlace: View {
                 .zIndex(1) //so pop ups always appear above the Action Button
                 sendInviteButton
             }
-            .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {onSendInvite()}
+            .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil))
+            .customAlert(isPresented: $ui.showConfirmPopup, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {onSendInvite()}
             .overlay(alignment: .topLeading) { clearButton }
-            .offset(y: !isRespondingWithNewEvent ? 24 : 0)
+            .offset(y: !isInviteResponse ? 24 : 0)
             .overlay(alignment: .top) {messageOverlay}
         }
         .hideTabBar()
@@ -130,9 +61,9 @@ struct SelectTimeAndPlace: View {
 
 extension SelectTimeAndPlace {
 
-    private var clearButton: some View {
+    @ViewBuilder private var clearButton: some View {
         if hasDraftChanges {
-           return Button {
+        Button {
                 deleteEventDefault()
             } label: {
                 Text("Clear")
@@ -141,20 +72,20 @@ extension SelectTimeAndPlace {
                     .offset(x: -10, y: -8)
             }
             .padding(.top, 24)
-            .padding(.horizontal, (isLotsOfText || draft.place != nil) ? 28 : 32)
+            .padding(.horizontal, ((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 28 : 32)
         }
     }
     
     private var popupTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text(title)
+            Text(isInviteResponse ? "Send New Invite" : "Meet \(name)")
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
     }
     
     private var sendInviteButton: some View {
-        ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
+        ActionButton(isValid: !ui.showConfirmPopup && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
             ui.showConfirmPopup = true
         }
     }
@@ -198,10 +129,3 @@ extension SelectTimeAndPlace {
         return (draft.message?.count ?? 0) > 40 && draft.place != nil
     }
 }
-
-
-
-/*
- .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
- }
- */
