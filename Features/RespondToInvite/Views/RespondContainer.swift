@@ -56,18 +56,11 @@ struct RespondPopupContainer: View {
             }
             .hideTabBar()
             .overlay(alignment: .top) {timeMessageOverlay}
-            .customAlert(isPresented: $ui.confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                ui.dismissHidePopup = true
-                onResponse(.newTime)
-            }
-            .customAlert(isPresented: $ui.confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(meetDay) at \(meetHour). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                ui.dismissHidePopup = true
-                onResponse(.accepted)
-            }
-            .customAlert(isPresented: $ui.confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(meetDay) at \(meetHour). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                ui.dismissHidePopup = true
-                onResponse(.newInvite)
-            }
+            
+            //The different responses to the invite
+            .respondCustomAlert(item: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime)}
+            .respondCustomAlert(item: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted)}
+            .respondCustomAlert(item: $ui.confirmSendNewInvite, type: .newInvite) { ui.dismissHidePopup = true ; onResponse(.newInvite)}
         }
     }
 }

@@ -26,9 +26,7 @@ struct CustomAlertCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
-            
             titleAndMessage
-            
             buttonSection
         }
         .padding(24)
@@ -92,9 +90,6 @@ extension CustomAlertCard {
 struct CustomAlertModifier: ViewModifier {
     
     @Binding var isPresented: Bool
-    
-    
-    
     let title: String
     let message: String
     let showTwoButtons: Bool
@@ -105,8 +100,6 @@ struct CustomAlertModifier: ViewModifier {
     let isConfirmInvite: Bool
 
     let onOK: () -> Void
-    
-    
     
     func body(content: Content) -> some View {
         content
@@ -139,12 +132,6 @@ struct CustomAlertModifier: ViewModifier {
             }
             .allowsHitTesting(!isPresented ? true : true)
             .animation(.easeInOut(duration: 0.18), value: isPresented)
-    }
-}
-
-extension View {
-    func customAlert(isPresented: Binding<Bool>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, isConfirmInvite: Bool = false, onOK: @escaping () -> Void) -> some View {
-        modifier(CustomAlertModifier(isPresented: isPresented, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, isConfirmInvite: isConfirmInvite, onOK: onOK))
     }
 }
 
@@ -200,7 +187,80 @@ struct CustomAlertItemModifier: ViewModifier {
 }
 
 extension View {
-    func customAlert(item: Binding<String?>, title: String = "Error", cancelTitle: String = "Cancel", okTitle: String = "OK", emoji: String = "🦥", message: String, showTwoButtons: Bool, isConfirmInvite: Bool = false, onOK: @escaping (String) -> Void) -> some View {
-        modifier(CustomAlertItemModifier(item: item, title: title, message: message, showTwoButtons: showTwoButtons, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji, isConfirmInvite: isConfirmInvite, onOK: onOK))
+    
+    func customAlert(
+        isPresented: Binding<Bool>,
+        title: String = "Error",
+        message: String,
+        emoji: String = "🦥",
+        cancelTitle: String = "Cancel",
+        okTitle: String = "OK",
+        showTwoButtons: Bool,
+        isConfirmInvite: Bool = false,
+        onOK: @escaping () -> Void
+    ) -> some View {
+        modifier(
+            CustomAlertModifier(
+                isPresented: isPresented,
+                title: title,
+                message: message,
+                showTwoButtons: showTwoButtons,
+                cancelTitle: cancelTitle,
+                okTitle: okTitle,
+                emoji: emoji,
+                isConfirmInvite: isConfirmInvite,
+                onOK: onOK
+            )
+        )
+    }
+        
+    func respondCustomAlert(item: Binding<Bool>, type: RespondPopupInfo, onOK: @escaping () -> Void) -> some View {
+        modifier(CustomAlertModifier(
+            isPresented: item,
+            title: type.title,
+            message: type.message(),
+            showTwoButtons: true,
+            cancelTitle: type.cancel,
+            okTitle: type.understand,
+            emoji: "🦥",
+            isConfirmInvite: false, onOK: onOK)
+        )
+    }
+    
+    func customAlert(
+        item: Binding<String?>,
+        title: String = "Error",
+        cancelTitle: String = "Cancel",
+        okTitle: String = "OK",
+        emoji: String = "🦥",
+        message: String,
+        showTwoButtons: Bool,
+        isConfirmInvite: Bool = false,
+        onOK: @escaping (String) -> Void
+    ) -> some View {
+        modifier(CustomAlertItemModifier(
+            item: item,
+            title: title,
+            message: message,
+            showTwoButtons: showTwoButtons,
+            cancelTitle: cancelTitle,
+            okTitle: okTitle,
+            emoji: emoji,
+            isConfirmInvite: isConfirmInvite,
+            onOK: onOK)
+        )
+    }
+    
+    func respondItemCustomAlert(item: Binding<String?>, type: RespondPopupInfo, onOK: @escaping (String) -> Void) -> some View {
+        modifier(CustomAlertItemModifier(
+            item: item,
+            title: type.title,
+            message: type.message(),
+            showTwoButtons: true,
+            cancelTitle: type.cancel,
+            okTitle: type.understand,
+            emoji: "🦥",
+            isConfirmInvite: false, onOK: onOK)
+        )
     }
 }

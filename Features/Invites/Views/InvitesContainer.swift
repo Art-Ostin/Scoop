@@ -34,7 +34,6 @@ struct InvitesContainer: View {
 
     var body: some View {
         ZStack {
-            
             if vm.invites.isEmpty {
                 InvitesPlaceholder()
             } else {
@@ -46,23 +45,22 @@ struct InvitesContainer: View {
             }
             
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response)}
-            
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-            Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId)}
-        }
-        .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-            Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
-        }
-        .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-            Task { try? await respondToProfile(respondType: .newInvite, profileId: profileId)}
-        }
-        .onPreferenceChange(IsTimeOpen.self) { newValue in
+        .onPreferenceChange(IsTimeOpen.self) {newValue in
             showTimePopup = newValue
         }
         .animation(.easeInOut(duration: 0.25), value: showTimePopup)
         .hideTabBar(hideBar: hideTab)
+        
+        //The popups to respond to invite, from the invite card
+        .respondItemCustomAlert(item: $showConfirmAccept, type: .acceptInvite) {respond($0, .accepted)}
+        .respondItemCustomAlert(item: $showConfirmNewTime, type: .sendNewTimes) {respond($0, .newTime)}
+        .respondItemCustomAlert(item: $showConfirmNewInvite, type: .newInvite) { respond($0, .newInvite)}
+    }
+    
+    private func respond(_ id: String, _ type: ProfileResponse) {
+        Task { try await respondToProfile(respondType: type, profileId: id)}
     }
 }
 
@@ -103,6 +101,16 @@ extension InvitesContainer {
         .animation(.easeInOut(duration: 0.15), value: hideInviteTitle)
     }
     
+    private func inviteCard(invite: EventProfile) -> some View {
+        InviteCard(
+            vm: vm.respondVM(for: invite, image: invite.image ?? UIImage()),
+            ui: ui,
+            eventProfile: invite,
+            openProfile: { openProfile($0)}) { userEvent in
+                Task { try await respondToProfile(respondType: .decline, profileId: invite.profile.id)}
+            }
+    }
+    
     private var titleAndTab: some View {
         ZStack(alignment: .top) {
             Text("Invites")
@@ -119,7 +127,7 @@ extension InvitesContainer {
 }
 //ProfileView Related
 extension InvitesContainer {
-    
+
     @ViewBuilder private func profileView(profile: UserProfile) -> some View {
         if let eventProfile = fetchEventProfile(profile), let respondVM = vm.respondVMs[eventProfile.profile.id] {
             ProfileView(
@@ -170,5 +178,18 @@ extension InvitesContainer {
         let loadedImages = await vm.loadImages(profile: profile)
         profileImages[profile.id] = loadedImages
     }
-    
 }
+
+
+
+/*
+ .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+     Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId)}
+ }
+ .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+     Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
+ }
+ .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+     Task { try? await respondToProfile(respondType: .newInvite, profileId: profileId)}
+ }
+ */

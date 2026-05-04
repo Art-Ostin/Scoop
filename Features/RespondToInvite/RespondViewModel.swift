@@ -26,7 +26,27 @@ class RespondPopupUIState {
     var scrollPosition: RespondScrollType? = .acceptPage
 }
 
+enum RespondPopupInfo {
+    case newInvite, acceptInvite, sendNewTimes
 
+    var title: String {
+        switch self {
+            case .newInvite: return "Event Commitment"
+            case .acceptInvite: return "Event Commitment"
+            case .sendNewTimes: return "New Times Proposed"
+        }
+    }
+    var cancel: String {"Cancel"}
+    var understand: String {"I Understand"}
+    
+    func message(dates: [Date] = [], placeName: String = "") -> String {
+        switch self {
+        case .newInvite: return "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
+        case .acceptInvite: return "You are committing to meeting on x. If you don't show, you'll be blocked from Scoop"
+        case .sendNewTimes: return "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
+        }
+    }
+}
 
 
 @MainActor
