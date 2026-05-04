@@ -29,6 +29,7 @@ struct NextButton: View {
                 didTap = true
                 withAnimation{onTap()}
             }
+            .onAppear { didTap = false }
     }
 }
 

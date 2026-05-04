@@ -45,7 +45,10 @@ extension SettingsView {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40, alignment: .center)
                 .onTapGesture {
+                    
                     appState.wrappedValue = .login
+
+                    //Fixes crash -> only sign user out when on login screen, as if not userProfile crashes app.
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         vm.signOut()
                     }

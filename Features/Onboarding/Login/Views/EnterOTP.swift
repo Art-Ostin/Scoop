@@ -19,7 +19,7 @@ import SwiftUI
              HStack(spacing: 36) {
                  ForEach(0..<6, id: \.self) { index in
                      ZStack {
-                         Text(digit(at: index))
+                         Text(digit(at: index).isEmpty ? "\u{00A0}" : digit(at: index)) //Bug fix of offseting down when start typing
                              .font(.title)
                          Rectangle()
                              .frame(width: 24, height: 2)
