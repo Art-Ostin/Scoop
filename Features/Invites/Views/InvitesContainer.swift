@@ -126,7 +126,7 @@ extension InvitesContainer {
                 vm: ProfileViewModel(
                     profile: eventProfile.profile,
                     event: eventProfile.event,
-                    imageLoader: vm.imageLoader
+                    imageLoader: vm.imageLoader, defaults: vm.defaults
                 ),
                 profileImages: profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
@@ -143,18 +143,19 @@ extension InvitesContainer {
         }
     }
     
-    private func quickInvite(_ id: String) -> some View {
-        if let profile = vm.invites.first(where: { $0.id == id }) {
-            return InviteTimeAndPlaceView(
+    @ViewBuilder
+    private func timeAndPlaceView(_ id: String) -> some View {
+        //1. First fetch the correctProfile, as view is triggered by passing in ID
+        if let eventProfile = vm.invites.first(where: { $0.id == id }), let image = eventProfile.image {
+            //2. Construct the TimeAndPlaceView
+            let inviteModel = InviteModel(profileId: eventProfile.profile.id, name: eventProfile.profile.name, image: image)
+            InviteTimeAndPlaceView(
+                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
                 showInvite: $ui.showQuickInvite,
-                profileId: profile.profile.id,
-                profileName: profile.profile.name,
-                profileImage: profile.image ?? UIImage(),
-                isNewEvent: true) { draft in
-                    Task {
-                        try? await respondToProfile(respondType: .newInvite, profileId: profile.id)
-                    }
+                sendInvite: { draft in
+                    Task { try? await respondToProfile(respondType: .newInvite, profileId: inviteModel.profileId)}
                 }
+            )
         }
     }
         

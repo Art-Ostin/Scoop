@@ -23,11 +23,9 @@ struct MeetContainer: View {
         ZStack {
             meetView
             
-            if let profileRec = ui.openProfile {
-                profileView(profile: profileRec)
-            }
+            if let profileRec = ui.openProfile { profileView(profile: profileRec)}
             
-            if let profileId = ui.quickInvite { quickInviteView(profileId)}
+            if let profileId = ui.quickInvite { timeAndPlaceView(profileId)}
             
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
@@ -54,18 +52,12 @@ extension MeetContainer {
         }
         .id(vm.profiles.count)
     }
-    
-    private var meetPlaceholder: some View {
-        VStack {
-            Text("Hello World")
-        }
-    }
-    
+        
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
             ProfileCard(
                 openProfile: $ui.openProfile,
-                profileInvite: $ui.profileInvite,
+                quickInvite: $ui.quickInvite,
                 profile: profile, size: imageSize,
                 imageLoader: vm.imageLoader
             )
@@ -105,21 +97,20 @@ extension MeetContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-
-    private func quickInviteView(_ profileId: String) -> some View {
-        if let profileEvent = vm.profiles.first(where: {$0.id == profileId}) {
-            let inviteModel = InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
-            return InviteTimeAndPlaceView(
-                showInvite: $ui.quickInvite,
-                inviteModel: inviteModel,
-                isNewEvent: true) { inviteDraft in
-                Task { await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
-            }
-        }
-    }
 }
 
 extension MeetContainer {
+    
+    @ViewBuilder private func timeAndPlaceView(_ profileId: String) -> some View {
+        if let profileEvent = vm.profiles.first(where: {$0.id == profileId}) {
+            let inviteModel = InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
+            InviteTimeAndPlaceView(
+                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
+                showInvite: $ui.quickInvite) { inviteDraft in
+                    Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
+                }
+        }
+    }
     
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         let isInvite = event != nil
@@ -142,5 +133,11 @@ extension MeetContainer {
         //4.if the minimum of 0.75s done, dismiss the screen
         try? await minDelay
         ui.respondedToProfile = nil
+    }
+    
+    private var meetPlaceholder: some View {
+        VStack {
+            Text("Hello World")
+        }
     }
 }

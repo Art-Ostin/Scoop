@@ -17,13 +17,17 @@ enum ProfileViewType {
     
     let profile: UserProfile
     let event: UserEvent?
+    
     let imageLoader: ImageLoading
+    let defaults: DefaultsManaging //Profile View Passes on defaults manager for invites, and maps (simplifies architecture for invite popups)
+    
     var viewProfileType: ProfileViewType
     
-    init(profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading) {
+    init(profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading, defaults: DefaultsManaging) {
         self.profile = profile
         self.imageLoader = imageLoader
         self.event = event
+        self.defaults = defaults
         self.viewProfileType = Self.loadProfileViewType(event: event)
     }
         

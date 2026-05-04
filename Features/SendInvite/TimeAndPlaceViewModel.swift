@@ -42,7 +42,6 @@ class TimeAndPlaceViewModel {
     }
 }
 
-
 @Observable class TimeAndPlaceUIState {
     enum Popup { case type, time }
     var activePopup: Popup?

@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfileCard : View {
 
     @Binding var openProfile: UserProfile?
-    @Binding var profileInvite: String?
+    @Binding var quickInvite: String?
     private let cardCornerRadius: CGFloat = 22
 
     let profile: PendingProfile
