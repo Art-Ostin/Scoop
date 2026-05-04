@@ -40,6 +40,7 @@ struct RespondedToProfileView: View {
                     .font(.body(16, .bold))
             }
         }
+        .hideTabBar()
         .transition(.opacity.animation(.easeInOut(duration: 0.18)))
         .colorBackground()
         .zIndex(10)
