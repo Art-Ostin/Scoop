@@ -54,15 +54,9 @@ import SwiftUI
 
 @Observable final class MeetUIState {
     var openProfile: UserProfile? = nil
-    var quickInvite: Bool = false
+    var quickInvite: String? //Pass in Id of profile
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false
     var respondedToProfile: ProfileResponse?
-    
-    var profileInvite: UserProfile? {
-        didSet {
-            quickInvite = true
-        }
-    }
 }

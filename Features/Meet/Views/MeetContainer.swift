@@ -27,9 +27,7 @@ struct MeetContainer: View {
                 profileView(profile: profileRec)
             }
             
-            if ui.quickInvite {
-                quickInviteView
-            }
+            if let profileId = ui.quickInvite { quickInviteView(profileId)}
             
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
@@ -65,7 +63,12 @@ extension MeetContainer {
     
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
-            ProfileCard(openProfile: $ui.openProfile, profileInvite: $ui.profileInvite, profile: profile, size: imageSize, imageLoader: vm.imageLoader)
+            ProfileCard(
+                openProfile: $ui.openProfile,
+                profileInvite: $ui.profileInvite,
+                profile: profile, size: imageSize,
+                imageLoader: vm.imageLoader
+            )
                 .contentShape(Rectangle())
                 .onTapGesture {openProfile(profile)}
                 .task { await loadProfileImages(profile.profile) }
@@ -103,17 +106,15 @@ extension MeetContainer {
         .transition(.move(edge: .bottom))
     }
 
-    @ViewBuilder
-    private var quickInviteView: some View {
-        if let profile = ui.profileInvite {
-            InviteTimeAndPlaceView(
-                profile: profile,
-                image: profileImages[profile.id]?.first ?? UIImage(),
-                showInvite: $ui.quickInvite) { draft in
-                    Task { @MainActor in
-                        await respondToProfile(event: draft, profile: profile)
-                    }
-                }
+    private func quickInviteView(_ profileId: String) -> some View {
+        if let profileEvent = vm.profiles.first(where: {$0.id == profileId}) {
+            let inviteModel = InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
+            return InviteTimeAndPlaceView(
+                showInvite: $ui.quickInvite,
+                inviteModel: inviteModel,
+                isNewEvent: true) { inviteDraft in
+                Task { await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
+            }
         }
     }
 }
@@ -129,7 +130,7 @@ extension MeetContainer {
         try? await Task.sleep(for: .milliseconds(200)) //Animation is 0.18 seconds so 0.02 buffer
         //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
         ui.openProfile = nil
-        ui.quickInvite = false
+        ui.quickInvite = nil
         
         //3. Actually send invite or decline profile
         if let event {

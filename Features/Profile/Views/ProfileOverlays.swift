@@ -15,10 +15,11 @@ extension ProfileView {
             RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM, onResponse: onResponse)
 
         case .sendInvite(let onSend):
+            let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
-                profile: vm.profile,
-                image: profileImages.first ?? UIImage(),
-                showInvite: $ui.showRespondPopup,
+                showInvite: $ui.showInvitePopup,
+                inviteModel: inviteModel,
+                inviteTitle: "Meet \(vm.profile.name)",
                 sendInvite: onSend)
             
         default:

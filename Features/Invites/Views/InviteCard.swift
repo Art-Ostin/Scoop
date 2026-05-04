@@ -16,7 +16,6 @@ struct InviteCard: View {
     @State private var imageSize: CGFloat = 0
     
     let eventProfile: EventProfile
-    let showTimePopup: Bool
         
     let openProfile: (UserProfile) -> ()
     let onDecline: (UserEvent) -> ()
@@ -26,7 +25,7 @@ struct InviteCard: View {
     
     var dayCount: Int { vm.respondDraft.newTime.proposedTimes.dates.count}
     var type: Event.EventType {vm.respondDraft.originalInvite.event.type}
-    var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  showTimePopup && dayCount >= 2}
+    var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  ui.showTimePopup && dayCount >= 2}
     
     var body: some View {
         VStack(spacing: 0) {

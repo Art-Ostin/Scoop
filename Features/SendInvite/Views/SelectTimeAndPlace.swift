@@ -20,40 +20,34 @@ struct InviteTimeAndPlaceView: View {
     
     @Binding var showInvite: String?
 
-    let profileId: String
-    let profileName: String
-    let profileImage: UIImage
-
-    let isNewEvent: Bool
+    let inviteModel: InviteModel
+    let inviteTitle: String
     let sendInvite: (EventFieldsDraft) -> Void
     
     var body: some View {
         InviteTimeAndPlaceContent(
             vm: TimeAndPlaceViewModel(
-                profileName: profileName,
-                profileId: profileId,
-                profileImage: profileImage,
+                inviteModel: inviteModel,
                 defaults: deps.defaultsManager,
                 session: deps.sessionManager), showInvite: $showInvite,
-            isNewEvent: isNewEvent,
+            inviteTitle: inviteTitle,
             sendInvite: sendInvite
         )
     }
 }
 
 private struct InviteTimeAndPlaceContent: View {
+    
     @State private var vm: TimeAndPlaceViewModel
     @Binding var showInvite: String?
     
-    let isNewEvent: Bool
+    let title: String
     let sendInvite: (EventFieldsDraft) -> ()
 
-    init(vm: TimeAndPlaceViewModel,
-         showInvite: Binding<String?>,
-         isNewEvent: Bool,
-         sendInvite: @escaping (EventFieldsDraft) -> ()) {
-        _vm = State(initialValue: vm)
-        self.isNewEvent = isNewEvent
+    init(vm: TimeAndPlaceViewModel, showInvite: Binding<String?>, inviteTitle: String, sendInvite: @escaping (EventFieldsDraft) -> ()) {
+        _vm = State(wrappedValue: vm)
+        _showInvite = showInvite
+        self.title = inviteTitle
         self.sendInvite = sendInvite
     }
 
@@ -61,11 +55,11 @@ private struct InviteTimeAndPlaceContent: View {
         SelectTimeAndPlace(
             draft: $vm.event,
             showInvite: $showInvite,
-            name: vm.profileName,
-            image: vm.profileImage,
+            name: vm.inviteModel.name,
+            image: vm.inviteModel.image,
             defaults: vm.defaults,
             respondWithInvite: false,
-            isNewEvent: isNewEvent) {
+            title: title) {
                 vm.deleteEventDefault()
             } sendInvite: {
                 sendInvite(vm.event)
@@ -78,12 +72,14 @@ private struct InviteTimeAndPlaceContent: View {
 struct RespondTimeAndPlaceView: View {
     
     @Bindable var vm: RespondViewModel
+
     @Binding var showInvite: String?
     @Binding var showConfirmSendInvite: Bool
-    var isNewEvent: Bool = false
+    let title: String
     let sendInvite: (String) -> ()
     
     var body: some View {
+        
         SelectTimeAndPlace(
             draft: $vm.respondDraft.newEvent,
             showInvite: $showInvite,
@@ -92,7 +88,7 @@ struct RespondTimeAndPlaceView: View {
             image: vm.image,
             defaults: vm.defaults,
             respondWithInvite: true,
-            isNewEvent: isNewEvent) {
+            title: title) {
                 vm.deleteEventDefault()
             } sendInvite: {
                 sendInvite(vm.respondDraft.originalInvite.event.id)
@@ -112,7 +108,8 @@ struct SelectTimeAndPlace: View {
     let defaults: DefaultsManaging
 
     let respondWithInvite: Bool
-    let isNewEvent: Bool
+    
+    let title: String
 
     let deleteEventDefault: () -> Void
     let sendInvite: () -> Void
@@ -215,10 +212,10 @@ extension SelectTimeAndPlace {
     private var popupTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
-            Text(respondWithInvite ? "New Invite" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
+            Text(title)
                 .font(.custom("SFProRounded-Bold", size: 24))
         }
-    } //respondWithInvite ? "New Event" : (
+    }
     
     
     private var sendInviteButton: some View {
@@ -271,3 +268,8 @@ extension SelectTimeAndPlace {
     }
 }
 
+
+/*
+ //            Text(respondWithInvite ? "New Invite" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
+ //respondWithInvite ? "New Event" : (
+ */

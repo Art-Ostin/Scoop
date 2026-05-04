@@ -13,7 +13,7 @@ enum RespondScrollType {
 
 struct RespondPopupContainer: View {
     
-    @Binding var showPopup: Bool
+    @Binding var showPopup: String?
     @Bindable var vm: RespondViewModel
     let onResponse: (ProfileResponse) -> ()
 
@@ -32,7 +32,7 @@ struct RespondPopupContainer: View {
     
     var body: some View {
         ZStack {
-            CustomScreenCover { showPopup = false }
+            CustomScreenCover { showPopup = nil }
             GeometryReader { proxy in
                 let cardWidth = proxy.size.width
                 let pageWidth = max(cardWidth - 24, 0)
@@ -88,7 +88,7 @@ extension RespondPopupContainer {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture {showPopup = false}
+                .onTapGesture {showPopup = nil}
             RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite) {
                 onResponse(.decline)
             }
@@ -106,11 +106,17 @@ extension RespondPopupContainer {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture {showPopup = false}
+                .onTapGesture {showPopup = nil}
             
-            
-            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup, showConfirmSendInvite: $confirmSendNewInvite, isNewEvent: true) {eventDraft in}
-                .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+            RespondTimeAndPlaceView(
+                vm: vm,
+                showInvite: $showPopup,
+                showConfirmSendInvite: $confirmSendNewInvite,
+                title: "Meet \(vm.respondDraft.originalInvite.event.otherUserName)"
+            ) { eventId in
+                
+            }
+            .scrollTransition(.interactive, axis: .horizontal) { content, phase in
                     let progress = 1 - min(abs(phase.value), 1)
                     let scale = CGFloat(0.5 + progress * 0.5)
                     return content.scaleEffect(scale, anchor: .leading).offset(y: 32)
@@ -120,23 +126,3 @@ extension RespondPopupContainer {
         .frame(maxHeight: .infinity, alignment: .topLeading)
     }
 }
-
-/*
- .onChange(of: scrollPosition) { oldValue, newValue in
-     guard didAppear, let newValue, newValue != oldValue else { return }
-     if newValue == .counterInvitePage {
-         lastResponseType = vm.responseType
-         vm.respondDraft.respondType = .new
-     } else if newValue == .acceptPage {
-         vm.respondDraft.respondType = lastResponseType ?? vm.respondDraft.respondType
-     }
- }
- 
- 
- let acceptInvite: (OriginalInvite) -> ()
- let sendNewTime: (NewTimeDraft) -> ()
- let sendNewInvite: (EventDraft) -> ()
- let declineInvite: (_ event: UserEvent) -> ()
-
- 
- */

@@ -29,7 +29,7 @@ struct InvitesContainer: View {
     }
 
     var hideTab: Bool {
-        isPopup || ui.selectedProfile != nil || ui.showQuickInvite || ui.respondedToProfile != nil
+        isPopup || ui.selectedProfile != nil || ui.showQuickInvite != nil || ui.respondedToProfile != nil
     }
 
     var body: some View {
@@ -38,7 +38,6 @@ struct InvitesContainer: View {
             if vm.invites.isEmpty {
                 InvitesPlaceholder()
             } else {
-                
                 invitesView
                 
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
@@ -79,21 +78,11 @@ extension InvitesContainer {
                 .opacity(showTimePopup ? (hideInviteTitle ? 0.03 : 0.2) : 1)
             
             ForEach(vm.invites, id: \.self) { invite in
-                
-                
-                
-                
-                
                 InviteCard(
-                    showQuickInvite: $ui.profileInvite,
                     vm: vm.respondVM(for: invite, image: invite.image ?? UIImage()),
                     ui: ui,
                     eventProfile: invite,
-                    showTimePopup: showTimePopup,
-                    showAcceptInvite: $showConfirmAccept,
-                    showNewTimeInvite: $showConfirmNewInvite) { profile in
-                        openProfile(profile)
-                    } onDecline: { userEvent in
+                    openProfile: { openProfile($0)}) { userEvent in
                         Task {
                             try await respondToProfile(respondType: .decline, profileId: invite.profile.id)
                         }
@@ -156,36 +145,11 @@ extension InvitesContainer {
     
     private func quickInvite(_ id: String) -> some View {
         if let profile = vm.invites.first(where: { $0.id == id }) {
-            InviteTimeAndPlaceView(
+            return InviteTimeAndPlaceView(
                 showInvite: $ui.showQuickInvite,
                 profileId: profile.profile.id,
                 profileName: profile.profile.name,
                 profileImage: profile.image ?? UIImage(),
-                isNewEvent: true) { draft in
-                    Task {
-                        try? await respondToProfile(respondType: .newInvite, profileId: profile.id)
-                    }
-                }
-        }
-    }
-        
-        
-        
-        guard let profile = vm.invites.first(where: { $0.id == id }) else {return}
-        let image = p
-        
-        
-    }
-    
-    
-    
-    
-    private var quickInvite: some View {
-        if let profile = ui.quickInviteProfile {
-            InviteTimeAndPlaceView(
-                profile: profile,
-                image: profileImages[profile.id]?.first ?? UIImage(),
-                showInvite: $ui.showQuickInvite,
                 isNewEvent: true) { draft in
                     Task {
                         try? await respondToProfile(respondType: .newInvite, profileId: profile.id)

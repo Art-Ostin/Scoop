@@ -11,30 +11,20 @@ import SwiftUI
 @Observable
 class TimeAndPlaceViewModel {
     
-    let profileName: String
-    let profileId: String
-    let profileImage: UIImage
-    
+    let inviteModel: InviteModel
     let defaults: DefaultsManaging
+    
     private let session: SessionManager
         
     var event: EventFieldsDraft {
         didSet { updateEventDraft()}
     }
     
-    init(
-        profileName: String,
-        profileId: String,
-        profileImage: UIImage,
-        defaults: DefaultsManaging,
-        session: SessionManager,
-    ) {
-        self.profileName = profileName
-        self.profileId = profileId
-        self.profileImage = profileImage
+    init(inviteModel: InviteModel, defaults: DefaultsManaging, session: SessionManager) {
+        self.inviteModel = inviteModel
         self.defaults = defaults
         self.session = session
-        self.event = Self.loadEvent(d: defaults, s: session, id: profileId)
+        self.event = Self.loadEvent(d: defaults, s: session, id: inviteModel.profileId)
     }
     
     private static func loadEvent(d: DefaultsManaging, s: SessionManager, id: String) -> EventFieldsDraft {
@@ -46,12 +36,12 @@ class TimeAndPlaceViewModel {
     }
     
     func deleteEventDefault() {
-        defaults.deleteEventDraft(profileId: profileId)
+        defaults.deleteEventDraft(profileId: inviteModel.profileId)
         event = EventFieldsDraft()
     }
     
     func updateEventDraft() {
-        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
+        defaults.updateEventDraft(profileId: inviteModel.profileId, eventDraft: event)
     }
 }
 

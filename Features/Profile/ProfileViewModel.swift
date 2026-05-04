@@ -51,7 +51,6 @@ enum DragType {
 
 
 @Observable final class ProfileUIState {
-    var showRespondPopup: Bool = false
     var showInfoSheet: Bool = false
     var detailsOpen = false
     var dragType: DragType? = nil
@@ -61,6 +60,9 @@ enum DragType {
     var hideProfileScreen: Bool = false
     let dismissalDuration: TimeInterval = 0.25
     var inviteTabSelection: Int = 0
+    
+    var showRespondPopup: Bool = false
+    var showInvitePopup: String?
 }
 
 

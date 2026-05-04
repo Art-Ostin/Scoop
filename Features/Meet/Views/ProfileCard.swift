@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfileCard : View {
 
     @Binding var openProfile: UserProfile?
-    @Binding var profileInvite: UserProfile?
+    @Binding var profileInvite: String?
     private let cardCornerRadius: CGFloat = 22
 
     let profile: PendingProfile
@@ -43,7 +43,7 @@ struct ProfileCard : View {
     }
 
     private var displayImage: UIImage {
-        image ?? profile.image ?? UIImage()
+        image ?? profile.image
     }
 }
 
@@ -89,7 +89,7 @@ extension ProfileCard {
 
     private var inviteButton: some View {
         Button {
-            profileInvite = profile.profile
+            profileInvite = profile.profile.id
         } label: {
             Image("LetterIconProfile")
                 .resizable()
