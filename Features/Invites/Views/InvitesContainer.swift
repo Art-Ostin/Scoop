@@ -42,7 +42,7 @@ struct InvitesContainer: View {
                 
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
                 
-                if let profileId = ui.showQuickInvite { quickInvite(profileId) }
+                if let profileId = ui.showQuickInvite { timeAndPlaceView(profileId) }
             }
             
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response)}
@@ -120,9 +120,9 @@ extension InvitesContainer {
 //ProfileView Related
 extension InvitesContainer {
     
-    private func profileView(profile: UserProfile) -> some View {
+    @ViewBuilder private func profileView(profile: UserProfile) -> some View {
         if let eventProfile = fetchEventProfile(profile), let respondVM = vm.respondVMs[eventProfile.profile.id] {
-            return ProfileView(
+            ProfileView(
                 vm: ProfileViewModel(
                     profile: eventProfile.profile,
                     event: eventProfile.event,

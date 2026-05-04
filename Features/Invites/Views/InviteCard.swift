@@ -60,7 +60,7 @@ extension InviteCard {
             SelectTimeMessage(
                 type: vm.respondDraft.originalInvite.event.type,
                 dayCount: dayCount,
-                showTimePopup: showTimePopup,
+                showTimePopup: ui.showTimePopup,
                 isCardMessage: true
             )
             .padding(.horizontal, -12)
@@ -86,7 +86,7 @@ extension InviteCard {
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
             .padding(.horizontal, contentPadding)
-            .opacity(showTimePopup ? 0.1 : 1)
+            .opacity(ui.showTimePopup ? 0.1 : 1)
     }
     
     private func hideTimePopup() {

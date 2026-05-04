@@ -31,7 +31,7 @@ struct InviteTimeAndPlaceView: View {
 struct RespondTimeAndPlaceView: View {
     @Bindable var vm: RespondViewModel
     @Binding var showInvite: String?
-    let sendInvite: (String) -> ()
+    let sendInvite: () -> ()
     var event: UserEvent { vm.respondDraft.originalInvite.event }
     
     var body: some View {
@@ -41,7 +41,7 @@ struct RespondTimeAndPlaceView: View {
             name: event.otherUserName,
             image: vm.image,
             deleteEventDefault: {vm.deleteEventDefault()},
-            onSendInvite: { sendInvite(event.otherUserId)},
+            onSendInvite: { sendInvite()},
             isInviteResponse: true,
             defaults: vm.defaults
         )

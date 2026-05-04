@@ -11,6 +11,8 @@ enum RespondScrollType {
     case acceptPage, counterInvitePage
 }
 
+//Here the viewModel, holding and being updated by the user's response is in a higher view, in ViewModel.
+//Therefore to trigger response, just pass in what type of response, and parent view triggers what to do. 
 struct RespondPopupContainer: View {
     
     @State private var ui = RespondPopupUIState()
@@ -80,46 +82,40 @@ extension RespondPopupContainer {
             RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $ui.confirmNewTimeInvite, confirmAcceptInvite: $ui.confirmAcceptInvite) {
                 onResponse(.decline)
             }
-                .scrollTransition(.interactive, axis: .horizontal) { content, phase in
-                    let progress = 1 - min(abs(phase.value), 1)
-                    let scale = CGFloat(0.5 + progress * 0.5)
-                    return content.scaleEffect(scale, anchor: .trailing).offset(y: 12)
-                }
+            .pageScrollTransition(anchor: .trailing, yOffset: 12)
         }
         .frame(width: cardWidth, alignment: .topLeading)
         .frame(maxHeight: .infinity, alignment: .topLeading)
     }
-    
+
     private func counterInvitePage(cardWidth: CGFloat) -> some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = nil}
-            
-            RespondTimeAndPlaceView(
-                vm: vm,
-                showInvite: $showPopup,
-                showConfirmSendInvite: $ui.confirmSendNewInvite,
-                title: "Meet \(vm.respondDraft.originalInvite.event.otherUserName)"
-            ) { eventId in
-                
-            }
-            .scrollTransition(.interactive, axis: .horizontal) { content, phase in
-                    let progress = 1 - min(abs(phase.value), 1)
-                    let scale = CGFloat(0.5 + progress * 0.5)
-                    return content.scaleEffect(scale, anchor: .leading).offset(y: 32)
-                }
+
+            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup) { onResponse(.newInvite)}
+                .pageScrollTransition(anchor: .leading, yOffset: 32)
         }
         .frame(width: cardWidth, alignment: .topLeading)
         .frame(maxHeight: .infinity, alignment: .topLeading)
     }
     
-    
-    
     @ViewBuilder private var timeMessageOverlay: some View {
         let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
         if vm.responseType == .modified {
             SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup)
+        }
+    }
+}
+
+
+private extension View {
+    func pageScrollTransition(anchor: UnitPoint, yOffset: CGFloat) -> some View {
+        scrollTransition(.interactive, axis: .horizontal) { content, phase in
+            let progress = 1 - min(abs(phase.value), 1)
+            let scale = CGFloat(0.5 + progress * 0.5)
+            return content.scaleEffect(scale, anchor: anchor).offset(y: yOffset)
         }
     }
 }

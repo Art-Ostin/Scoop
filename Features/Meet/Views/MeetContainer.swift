@@ -84,7 +84,7 @@ extension MeetContainer {
         ProfileView(
             vm: ProfileViewModel(
                 profile: profile,
-                imageLoader: vm.imageLoader
+                imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
