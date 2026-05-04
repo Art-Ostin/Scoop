@@ -21,7 +21,6 @@ extension ProfileView {
                 inviteModel: inviteModel,
                 inviteTitle: "Meet \(vm.profile.name)",
                 sendInvite: onSend)
-            
         default:
             EmptyView()
         }

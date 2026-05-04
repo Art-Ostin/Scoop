@@ -14,20 +14,18 @@ class TimeAndPlaceViewModel {
     let inviteModel: InviteModel
     let defaults: DefaultsManaging
     
-    private let session: SessionManager
-        
+    
     var event: EventFieldsDraft {
         didSet { updateEventDraft()}
     }
     
-    init(inviteModel: InviteModel, defaults: DefaultsManaging, session: SessionManager) {
+    init(inviteModel: InviteModel, defaults: DefaultsManaging) {
         self.inviteModel = inviteModel
         self.defaults = defaults
-        self.session = session
-        self.event = Self.loadEvent(d: defaults, s: session, id: inviteModel.profileId)
+        self.event = Self.loadEvent(d: defaults, id: inviteModel.profileId)
     }
     
-    private static func loadEvent(d: DefaultsManaging, s: SessionManager, id: String) -> EventFieldsDraft {
+    private static func loadEvent(d: DefaultsManaging, id: String) -> EventFieldsDraft {
         if let storedEvent = d.fetchEventDraft(profileId: id) {
             return storedEvent
         } else {

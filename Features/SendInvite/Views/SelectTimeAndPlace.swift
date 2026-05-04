@@ -15,7 +15,6 @@ import MapKit
 
 @MainActor
 struct InviteTimeAndPlaceView: View {
-    
     @Environment(\.appDependencies) private var deps
     
     @Binding var showInvite: String?
@@ -28,9 +27,8 @@ struct InviteTimeAndPlaceView: View {
         InviteTimeAndPlaceContent(
             vm: TimeAndPlaceViewModel(
                 inviteModel: inviteModel,
-                defaults: deps.defaultsManager,
-                session: deps.sessionManager), showInvite: $showInvite,
-            inviteTitle: inviteTitle,
+                defaults: deps.defaultsManager),
+            showInvite: $showInvite,
             sendInvite: sendInvite
         )
     }
@@ -41,13 +39,11 @@ private struct InviteTimeAndPlaceContent: View {
     @State private var vm: TimeAndPlaceViewModel
     @Binding var showInvite: String?
     
-    let title: String
     let sendInvite: (EventFieldsDraft) -> ()
 
-    init(vm: TimeAndPlaceViewModel, showInvite: Binding<String?>, inviteTitle: String, sendInvite: @escaping (EventFieldsDraft) -> ()) {
+    init(vm: TimeAndPlaceViewModel, showInvite: Binding<String?>, sendInvite: @escaping (EventFieldsDraft) -> ()) {
         _vm = State(wrappedValue: vm)
         _showInvite = showInvite
-        self.title = inviteTitle
         self.sendInvite = sendInvite
     }
 
@@ -59,14 +55,13 @@ private struct InviteTimeAndPlaceContent: View {
             image: vm.inviteModel.image,
             defaults: vm.defaults,
             respondWithInvite: false,
-            title: title) {
+            title: "Meet \(vm.inviteModel.name)") {
                 vm.deleteEventDefault()
             } sendInvite: {
                 sendInvite(vm.event)
             }
     }
 }
-
 
 @MainActor
 struct RespondTimeAndPlaceView: View {

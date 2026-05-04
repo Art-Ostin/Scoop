@@ -108,24 +108,3 @@ extension InvitesViewModel {
     //5. The details Screen for invites
     var showDetails: Bool = false
 }
-
-
-/*
- //5. Allows showQuickInvite to be a bool binding (needed elsewhere) but triggered by assigning it value UserProfile.
- var quickInviteProfile: UserProfile? {
-     didSet {
-         showQuickInvite = true
-     }
- }
- 
- //3. To send new Invite from this screen
- var showNewInvite: Bool = false
-
- 
- 
- var declineScreen: Bool? = false
- var acceptScreen: Bool = true
- */
-
-
-
