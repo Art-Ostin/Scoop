@@ -45,7 +45,8 @@ struct InviteCard: View {
                 vm: vm,
                 showQuickInvite: $showQuickInvite,
                 showMessageScreen: $showMessageScreen,
-                showConfirmAcceptPopup: $showAcceptInvite) { userEvent in
+                showConfirmAcceptPopup: $showAcceptInvite,
+                showConfirmNewTimePopup: $showNewTimeInvite) { userEvent in
                     onDecline(userEvent)
                 }
         }

@@ -49,16 +49,13 @@ struct InvitesContainer: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-            Task {
-                try?  await respondToProfile(respondType: .newTime, profileId: profileId)
-                
-            }
+            Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId)}
         }
         .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
             Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
         }
         .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-            Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
+            Task { try? await respondToProfile(respondType: .newInvite, profileId: profileId)}
         }
         .onPreferenceChange(IsTimeOpen.self) { newValue in
             showTimePopup = newValue
@@ -108,7 +105,6 @@ extension InvitesContainer {
         }
         .animation(.easeInOut(duration: 0.15), value: showTimePopup)
         .animation(.easeInOut(duration: 0.15), value: hideInviteTitle)
-
     }
     
     private var titleAndTab: some View {

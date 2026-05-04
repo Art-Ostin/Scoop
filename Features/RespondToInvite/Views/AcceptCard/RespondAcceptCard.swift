@@ -71,6 +71,7 @@ extension RespondAcceptCard {
             location: event.location, defaults: vm.defaults, //Defaults needed to open up Maps router
             noEventMessages: (!ui.hasEventMessage(vm.respondDraft) && !ui.hasRespondMessage(vm.respondDraft))
         )
+        .disabled(ui.showTimePopup)
     }
     
     private var addMessageView: some View {
