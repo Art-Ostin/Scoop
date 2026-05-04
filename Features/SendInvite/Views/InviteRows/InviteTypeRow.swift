@@ -19,10 +19,10 @@ struct InviteTypeRow: View {
     }
     
     var body: some View {
-        DropDownView(verticalOffset: message.isEmpty ? 48 : 24, showOptions: $ui.showTypePopup) {
+        DropDownView(verticalOffset: message.isEmpty ? 48 : 24, showOptions: ui.binding(for: .type)) {
             inviteTypeRow
         } dropDown: {
-            SelectTypeView(type: $eventType, showMessageScreen: $ui.showMessageScreen, showTypePopup: $ui.showTypePopup, message: message)
+            SelectTypeView(type: $eventType, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)
         }
     }
 }
@@ -41,7 +41,7 @@ extension InviteTypeRow {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            DropDownChevron(showTimePopup: $ui.showTypePopup)
+            DropDownChevron(showTimePopup: ui.binding(for: .type))
                 .fixedSize()
                 .offset(x: 4)
         }
@@ -104,7 +104,7 @@ extension InviteTypeRow {
     
     private func openMessageScreen() {
         ui.isMessageTap = true
-        ui.showTypePopup = false
+        ui.activePopup = nil
         ui.showMessageScreen.toggle()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             ui.isMessageTap = false

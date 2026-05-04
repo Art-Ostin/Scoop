@@ -2,14 +2,21 @@ import SwiftUI
 import MapKit
 
 @Observable class TimeAndPlaceUIState {
-    var showTypePopup: Bool = false
-    var showTimePopup: Bool = false
+    enum Popup { case type, time }
+    var activePopup: Popup?
     var showMessageScreen: Bool = false
     var showMapView: Bool = false
-    var showAlert: Bool = false
     var isMessageTap: Bool = false
     var showInfoScreen: Bool = false
     let rowHeight: CGFloat = 50
+    var showConfirmPopup: Bool = false
+
+    func binding(for popup: Popup) -> Binding<Bool> {
+        Binding(
+            get: { self.activePopup == popup },
+            set: { self.activePopup = $0 ? popup : nil }
+        )
+    }
 }
 
 
@@ -80,7 +87,7 @@ struct SelectTimeAndPlace: View {
 
     //5.Two different functions can be performed from this view
     let deleteEventDefault: () -> Void
-    let showConfirmInvitePopup: Bool?
+    let onSendInvite: () -> ()
     
     //6. Layout differences if sending a new Invite as response
     let isRespondingWithNewEvent: Bool
@@ -94,13 +101,12 @@ struct SelectTimeAndPlace: View {
             if !isRespondingWithNewEvent {
                 CustomScreenCover {showInvite = nil}
             }
-            
             VStack(spacing: 0) {
                 popupTitle
                 VStack(spacing: 12) {
                     InviteTypeRow(ui: ui, eventType: $draft.type, unparsedMessage: $draft.message)
                     MapDivider()
-                    InviteTimeRow(showTimePopup: $ui.showTimePopup, proposedTimes: $draft.time, type: draft.type)
+                    InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
                     MapDivider()
                     InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView)
                 }
@@ -110,34 +116,23 @@ struct SelectTimeAndPlace: View {
                 .zIndex(1) //so pop ups always appear above the Action Button
                 sendInviteButton
             }
+            .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {onSendInvite()}
             .overlay(alignment: .topLeading) { clearButton }
-            .onChange(of: ui.showTypePopup) {_, newValue in
-                if newValue { ui.showTimePopup = false}
-            }
-            .onChange(of: ui.showTimePopup) { _, newValue in
-                if newValue { ui.showTypePopup = false}
-            }
             .offset(y: !isRespondingWithNewEvent ? 24 : 0)
             .overlay(alignment: .top) {messageOverlay}
         }
         .hideTabBar()
-        .fullScreenCover(isPresented: $ui.showMapView) {
-            MapView(defaults: defaults, eventLocation: $draft.place)
-        }
-        .sheet(isPresented: $ui.showMessageScreen) {
-            AddMessageView(eventType: $draft.type, showMessageScreen: $ui.showMessageScreen, message: $draft.message, isRespondMessage: false)
-        }
+        .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
+        .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
 }
 
 extension SelectTimeAndPlace {
-    
 
-    @ViewBuilder
     private var clearButton: some View {
         if hasDraftChanges {
-            Button {
+           return Button {
                 deleteEventDefault()
             } label: {
                 Text("Clear")
@@ -150,7 +145,6 @@ extension SelectTimeAndPlace {
         }
     }
     
-        
     private var popupTitle: some View {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
@@ -159,27 +153,30 @@ extension SelectTimeAndPlace {
         }
     }
     
-    
     private var sendInviteButton: some View {
         ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
-            if let sh {
-                showConfirmSendInvite.wrappedValue = true
-            } else {
-                ui.showAlert.toggle()
-            }
+            ui.showConfirmPopup = true
         }
     }
         
+    private var addMessageView: some View {
+        AddMessageView(
+            eventType: $draft.type,
+            showMessageScreen: $ui.showMessageScreen,
+            message: $draft.message,
+            isRespondMessage: false
+        )
+    }
     
     private var messageOverlay: some View {
         let dayCount = draft.time.dates.count
-        return SelectTimeMessage(type: draft.type, dayCount: dayCount, showTimePopup: ui.showTimePopup, isCardMessage: true)
+        return SelectTimeMessage(type: draft.type, dayCount: dayCount, showTimePopup: ui.activePopup == .time, isCardMessage: true)
     }
-    
+
     private var showTwoDays: Bool {
         (draft.type == .drink || draft.type == .doubleDate) &&
-        !ui.showTypePopup &&
-        ((ui.showTimePopup && draft.time.dates.count < 2) || draft.time.dates.count == 1)
+        ui.activePopup != .type &&
+        ((ui.activePopup == .time && draft.time.dates.count < 2) || draft.time.dates.count == 1)
     }
 
     private var hasDraftChanges: Bool {
