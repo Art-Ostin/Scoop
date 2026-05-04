@@ -12,13 +12,13 @@ extension ProfileView {
     var invitePopup: some View {
         switch mode {
         case .respondToInvite(let respondVM, let onResponse):
-//            RespondPopupContainer(showPopup: $ui.showRespondPopup, vm: respondVM, onResponse: onResponse)
+            RespondPopupContainer(vm: respondVM, showPopup: $ui.showPopup, onResponse: onResponse)
 
         case .sendInvite(let onSend):
             let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                showInvite: $ui.showInvitePopup,
+                showInvite: $ui.showPopup,
                 sendInvite: onSend
             )
         default:

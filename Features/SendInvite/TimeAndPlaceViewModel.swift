@@ -14,6 +14,7 @@ class TimeAndPlaceViewModel {
     let inviteModel: InviteModel
     let defaults: DefaultsManaging
     
+    
     var event: EventFieldsDraft {
         didSet { updateEventDraft()}
     }
@@ -41,6 +42,7 @@ class TimeAndPlaceViewModel {
         defaults.updateEventDraft(profileId: inviteModel.profileId, eventDraft: event)
     }
 }
+
 
 @Observable class TimeAndPlaceUIState {
     enum Popup { case type, time }

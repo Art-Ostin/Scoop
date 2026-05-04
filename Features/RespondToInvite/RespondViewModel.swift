@@ -7,6 +7,28 @@
 
 import SwiftUI
 
+
+@Observable
+class RespondPopupUIState {
+    //Hide the popup when dismissing the screen
+    var dismissHidePopup: Bool = false
+    
+    //showTimePopup
+    var showTimePopup: Bool = false
+
+    //Logic for which Popup to show
+    var confirmNewTimeInvite: Bool = false
+    var confirmAcceptInvite: Bool = false
+    var confirmSendNewInvite: Bool = false
+    var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
+    
+    //Track the scroll Position
+    var scrollPosition: RespondScrollType? = .acceptPage
+}
+
+
+
+
 @MainActor
 @Observable
 class RespondViewModel {

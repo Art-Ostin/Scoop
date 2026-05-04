@@ -13,24 +13,17 @@ enum RespondScrollType {
 
 struct RespondPopupContainer: View {
     
-    @Binding var showPopup: String?
-    @Bindable var vm: RespondViewModel
-    let onResponse: (ProfileResponse) -> ()
+    @State private var ui = RespondPopupUIState()
 
-    
-    @State var showTimePopup: Bool = false
-    @State var scrollPosition: RespondScrollType? = .acceptPage
-    
-    //Different Custom Popup
-    @State var confirmNewTimeInvite: Bool = false
-    @State var confirmAcceptInvite: Bool = false
-    @State var confirmSendNewInvite: Bool = false
-    
-    @State var dismissHidePopup: Bool = false
-    var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
-    
+    @Bindable var vm: RespondViewModel
+    @Binding var showPopup: String?
+
+    let onResponse: (ProfileResponse) -> Void
     
     var body: some View {
+        let meetDay = FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)
+        let meetHour = (FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date()))
+        
         ZStack {
             CustomScreenCover { showPopup = nil }
             GeometryReader { proxy in
@@ -47,35 +40,30 @@ struct RespondPopupContainer: View {
                             .frame(width: pageWidth + 4, alignment: .bottomLeading)
                             .id(RespondScrollType.counterInvitePage)
                     }
-                    .opacity(popupShown || dismissHidePopup ? 0 : 1)
+                    .opacity(ui.popupShown || ui.dismissHidePopup ? 0 : 1)
                     .scrollTargetLayout()
                     .padding(.trailing, 16)
                     .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
-                .scrollPosition(id: $scrollPosition)
+                .scrollPosition(id: $ui.scrollPosition)
                 .onPreferenceChange(IsTimeOpen.self) { isTimeOpen in
-                    showTimePopup = isTimeOpen
+                    ui.showTimePopup = isTimeOpen
                 }
             }
             .hideTabBar()
-            .overlay(alignment: .top) {
-                let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
-                if vm.responseType == .modified {
-                    SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: showTimePopup)
-                }
-            }
-            .customAlert(isPresented: $confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                dismissHidePopup = true
+            .overlay(alignment: .top) {timeMessageOverlay}
+            .customAlert(isPresented: $ui.confirmNewTimeInvite, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                ui.dismissHidePopup = true
                 onResponse(.newTime)
             }
-            .customAlert(isPresented: $confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                dismissHidePopup = true
+            .customAlert(isPresented: $ui.confirmAcceptInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(meetDay) at \(meetHour). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                ui.dismissHidePopup = true
                 onResponse(.accepted)
             }
-            .customAlert(isPresented: $confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)) at \(FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date())). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-                dismissHidePopup = true
+            .customAlert(isPresented: $ui.confirmSendNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on \(meetDay) at \(meetHour). If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+                ui.dismissHidePopup = true
                 onResponse(.newInvite)
             }
         }
@@ -89,7 +77,7 @@ extension RespondPopupContainer {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = nil}
-            RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $confirmNewTimeInvite, confirmAcceptInvite: $confirmAcceptInvite) {
+            RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $ui.confirmNewTimeInvite, confirmAcceptInvite: $ui.confirmAcceptInvite) {
                 onResponse(.decline)
             }
                 .scrollTransition(.interactive, axis: .horizontal) { content, phase in
@@ -111,7 +99,7 @@ extension RespondPopupContainer {
             RespondTimeAndPlaceView(
                 vm: vm,
                 showInvite: $showPopup,
-                showConfirmSendInvite: $confirmSendNewInvite,
+                showConfirmSendInvite: $ui.confirmSendNewInvite,
                 title: "Meet \(vm.respondDraft.originalInvite.event.otherUserName)"
             ) { eventId in
                 
@@ -124,5 +112,14 @@ extension RespondPopupContainer {
         }
         .frame(width: cardWidth, alignment: .topLeading)
         .frame(maxHeight: .infinity, alignment: .topLeading)
+    }
+    
+    
+    
+    @ViewBuilder private var timeMessageOverlay: some View {
+        let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
+        if vm.responseType == .modified {
+            SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup)
+        }
     }
 }
