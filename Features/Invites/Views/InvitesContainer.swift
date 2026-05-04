@@ -29,22 +29,25 @@ struct InvitesContainer: View {
     }
 
     var hideTab: Bool {
-        isPopup || ui.selectedProfile != nil || ui.quickInvite || ui.respondedToProfile != nil
+        isPopup || ui.selectedProfile != nil || ui.showQuickInvite || ui.respondedToProfile != nil
     }
 
     var body: some View {
         ZStack {
+            
             if vm.invites.isEmpty {
                 InvitesPlaceholder()
             } else {
+                
                 invitesView
+                
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
                 
-                if ui.quickInvite { quickInvite }
+                if let profileId = ui.showQuickInvite { quickInvite(profileId) }
             }
-            if let response = ui.respondedToProfile {
-                RespondedToProfileView(response: response)
-            }
+            
+            if let response = ui.respondedToProfile { RespondedToProfileView(response: response)}
+            
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
@@ -76,6 +79,10 @@ extension InvitesContainer {
                 .opacity(showTimePopup ? (hideInviteTitle ? 0.03 : 0.2) : 1)
             
             ForEach(vm.invites, id: \.self) { invite in
+                
+                
+                
+                
                 
                 InviteCard(
                     showQuickInvite: $ui.profileInvite,
@@ -124,11 +131,9 @@ extension InvitesContainer {
 //ProfileView Related
 extension InvitesContainer {
     
-    @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {
-        if let eventProfile = fetchEventProfile(profile),
-           let respondVM = vm.respondVMs[eventProfile.profile.id] {
-            ProfileView(
+        if let eventProfile = fetchEventProfile(profile), let respondVM = vm.respondVMs[eventProfile.profile.id] {
+            return ProfileView(
                 vm: ProfileViewModel(
                     profile: eventProfile.profile,
                     event: eventProfile.event,
@@ -149,13 +154,13 @@ extension InvitesContainer {
         }
     }
     
-    @ViewBuilder
-    private var quickInvite: some View {
-        if let profile = ui.profileInvite {
+    private func quickInvite(_ id: String) -> some View {
+        if let profile = vm.invites.first(where: { $0.id == id }) {
             InviteTimeAndPlaceView(
-                profile: profile,
-                image: profileImages[profile.id]?.first ?? UIImage(),
-                showInvite: $ui.quickInvite,
+                showInvite: $ui.showQuickInvite,
+                profileId: profile.profile.id,
+                profileName: profile.profile.name,
+                profileImage: profile.image ?? UIImage(),
                 isNewEvent: true) { draft in
                     Task {
                         try? await respondToProfile(respondType: .newInvite, profileId: profile.id)
@@ -163,7 +168,32 @@ extension InvitesContainer {
                 }
         }
     }
+        
+        
+        
+        guard let profile = vm.invites.first(where: { $0.id == id }) else {return}
+        let image = p
+        
+        
+    }
     
+    
+    
+    
+    private var quickInvite: some View {
+        if let profile = ui.quickInviteProfile {
+            InviteTimeAndPlaceView(
+                profile: profile,
+                image: profileImages[profile.id]?.first ?? UIImage(),
+                showInvite: $ui.showQuickInvite,
+                isNewEvent: true) { draft in
+                    Task {
+                        try? await respondToProfile(respondType: .newInvite, profileId: profile.id)
+                    }
+                }
+        }
+    }
+        
     private func openProfile(_ profile: UserProfile) {
         if ui.selectedProfile == nil {
             ui.dismissOffset = nil

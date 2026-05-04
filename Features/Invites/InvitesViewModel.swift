@@ -89,18 +89,14 @@ extension InvitesViewModel {
     }
 }
 
-
-
-
-
 @Observable final class InvitesUIState {
     //1. To open the profile
     var selectedProfile: UserProfile? = nil
     
-    //2. To open the Different UI popups
+    //2. To open the Different UI popups with String identifying who
     var showAcceptPopup: String?
     var showNewTimePopup: String?
-    var showNewInvite: Bool = false
+    var showQuickInvite: String?
     
     //3. Show the respond Popup Screen
     var respondedToProfile: ProfileResponse?
@@ -108,17 +104,22 @@ extension InvitesViewModel {
     //4.Logic with inviting screen
     var showTimePopup: Bool = false
     var dismissOffset: CGFloat? = nil
-    
-    //5. 
-    var showDetails: Bool = false
-    var showQuickInvite: UserProfile? {
-        didSet {
-            quickInvite = true
-        }
-    }
 }
 
+
 /*
+ //5. Allows showQuickInvite to be a bool binding (needed elsewhere) but triggered by assigning it value UserProfile.
+ var quickInviteProfile: UserProfile? {
+     didSet {
+         showQuickInvite = true
+     }
+ }
+ 
+ //3. To send new Invite from this screen
+ var showNewInvite: Bool = false
+
+ 
+ 
  var declineScreen: Bool? = false
  var acceptScreen: Bool = true
  */

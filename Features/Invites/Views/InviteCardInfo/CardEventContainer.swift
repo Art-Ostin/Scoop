@@ -18,7 +18,7 @@ struct CardEventContainer: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             title
-                .padding(.horizontal, 24) //selectedTab == .event ? 28 :
+                .padding(.horizontal, 24)
                 .opacity(ui.showTimePopup ? 0.2 : 1)
             
             pageContent

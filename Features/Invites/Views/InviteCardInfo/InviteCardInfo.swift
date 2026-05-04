@@ -19,13 +19,6 @@ struct InviteCardInfo: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            
-            
-            
-            
-            
-            
-            
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 CardDetailSection(event: event, type: detail)
             }
