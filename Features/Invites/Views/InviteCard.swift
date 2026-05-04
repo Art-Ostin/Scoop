@@ -33,7 +33,6 @@ struct InviteCard: View {
     var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  showTimePopup && dayCount >= 2}
     
     
-    
     var body: some View {
         VStack(spacing: 0) {
             profileImage

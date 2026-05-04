@@ -42,7 +42,6 @@ struct InvitesContainer: View {
                 
                 if ui.quickInvite { quickInvite }
             }
-            
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
             }
@@ -51,7 +50,7 @@ struct InvitesContainer: View {
         .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
             Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId)}
         }
-        .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on x at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
+        .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
             Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
         }
         .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in

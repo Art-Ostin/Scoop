@@ -25,7 +25,7 @@ extension InviteCardTimeRow {
     }
     
     private var timeView: some View {
-        HStack(spacing: 15) { //8
+        HStack(spacing: 15) {
             Image("Clock")
                 .resizable()
                 .frame(width: 20, height: 20)
