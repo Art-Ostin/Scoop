@@ -65,7 +65,7 @@ enum DragType {
     let dismissalDuration: TimeInterval = 0.25
     var inviteTabSelection: Int = 0
     
-    var showPopup: String? = nil
+    var showPopup: Bool = false
 }
 
 

@@ -85,27 +85,19 @@ struct ProfileView: View {
                 }
             }
         }
-        .overlay {if ui.showRespondPopup {invitePopup}}
+        .overlay {if ui.showPopup{invitePopup}}
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {
-            if showInviteButton {
-                InviteButton(vm: vm, showInvite: $ui.showRespondPopup)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 144)
-            }
+            
         }
         .overlay(alignment: .bottomLeading) {
             if vm.viewProfileType == .invite {
                 EventDeclineButton() { } //EMPTY DECLINE HERE
-                    .opacity(ui.showRespondPopup ? 0 : 1)
+                    .opacity(ui.showPopup ? 0 : 1)
             }
         }
         .hideTabBar()
-    }
-    
-    private var showInviteButton: Bool {
-        return vm.viewProfileType != .view && vm.viewProfileType != .accepted && !ui.showRespondPopup
     }
 }

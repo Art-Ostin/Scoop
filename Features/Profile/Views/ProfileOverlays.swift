@@ -8,6 +8,7 @@
 import SwiftUI
 
 extension ProfileView {
+    
     @ViewBuilder
     var invitePopup: some View {
         switch mode {
@@ -57,5 +58,17 @@ extension ProfileView {
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .opacity(transition.overlayTitleOpacity)
+    }
+    
+    var inviteButton: some View {
+        if showInviteButton {
+            return InviteButton(vm: vm, showInvite: $ui.showPopup)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 144)
+        }
+    }
+    
+    private var showInviteButton: Bool {
+        return vm.viewProfileType != .view && vm.viewProfileType != .accepted && !ui.showPopup
     }
 }

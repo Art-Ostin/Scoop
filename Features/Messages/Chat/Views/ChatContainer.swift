@@ -95,7 +95,7 @@ extension ChatContainer {
             vm: ProfileViewModel(
                 profile: vm.eventProfile.profile,
                 event: vm.eventProfile.event,
-                imageLoader: vm.imageLoader
+                imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
             profileImages: profileImages,
             selectedProfile: $isProfileOpen,

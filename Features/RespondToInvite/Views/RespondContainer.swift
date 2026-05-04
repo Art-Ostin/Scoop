@@ -18,16 +18,24 @@ struct RespondPopupContainer: View {
     @State private var ui = RespondPopupUIState()
 
     @Bindable var vm: RespondViewModel
-    @Binding var showPopup: String?
+    @Binding var showPopup: Bool
 
     let onResponse: (ProfileResponse) -> Void
     
+    //Used to convert my Bool binding into a string binding
+    private var showPopupAsString: Binding<String?> {
+        Binding<String?>(
+            get: { showPopup ? "" : nil },
+            set: { showPopup = ($0 != nil) }
+        )
+    }
+
     var body: some View {
         let meetDay = FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)
         let meetHour = (FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date()))
         
         ZStack {
-            CustomScreenCover { showPopup = nil }
+            CustomScreenCover { showPopup = false }
             GeometryReader { proxy in
                 let cardWidth = proxy.size.width
                 let pageWidth = max(cardWidth - 24, 0)
@@ -71,7 +79,7 @@ extension RespondPopupContainer {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture {showPopup = nil}
+                .onTapGesture {showPopup = false}
             RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $ui.confirmNewTimeInvite, confirmAcceptInvite: $ui.confirmAcceptInvite) {
                 onResponse(.decline)
             }
@@ -85,9 +93,9 @@ extension RespondPopupContainer {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture {showPopup = nil}
+                .onTapGesture {showPopup = false}
 
-            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup) { onResponse(.newInvite)}
+            RespondTimeAndPlaceView(vm: vm, showInvite: showPopupAsString) { onResponse(.newInvite)}
                 .pageScrollTransition(anchor: .leading, yOffset: 32)
         }
         .frame(width: cardWidth, alignment: .topLeading)
