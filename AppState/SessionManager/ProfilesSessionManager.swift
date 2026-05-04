@@ -10,17 +10,10 @@ import SwiftUI
 //Logic dealing with the recommended Profiles shown to the User
 extension SessionManager {
     func profilesStream() {
-        let clock = ContinuousClock()
-        let subscribeStart = clock.now
         subscribe("profiles", to: profilesRepo.profilesTracker(userId: user.id)) { [weak self] change in
-
             guard let self else { return }
-
             switch change {
-
-            case .initial(let recs):
-                print("Time to first profiles snapshot: \(subscribeStart.duration(to: clock.now))")
-                try await loadInitialProfiles(recs)
+            case .initial(let recs): try await loadInitialProfiles(recs)
             case .added(let rec): try await loadAddedProfile(rec)
             case .modified: break //Don't do anything if profile modified as often case
             case .removed(let id): removeProfileRec(id)
@@ -30,11 +23,7 @@ extension SessionManager {
     }
     
     private func loadInitialProfiles(_ recs: [ProfileRec]) async throws {
-        let clock = ContinuousClock()
-        let now = clock.now
         let loadedProfile = try await self.profileLoader.fromIds(recs.compactMap { $0.id })
-        let duration = now.duration(to: clock.now)
-        print("Time taken to load profiles is: \(duration)")
         self.profiles = loadedProfile
         profilesHaveLoaded = true
         if let sessionUser { openMainApp(for: sessionUser) }
