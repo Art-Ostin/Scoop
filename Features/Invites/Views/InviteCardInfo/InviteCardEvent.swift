@@ -20,7 +20,6 @@ struct InviteCardEvent: View {
     
     var event: UserEvent {vm.respondDraft.originalInvite.event}
     var isModified: Bool {vm.responseType == .modified}
-
     let onDecline: (UserEvent) -> ()
     
     var body: some View {
@@ -48,7 +47,8 @@ extension InviteCardEvent {
         InviteCardPlaceRow(location: event.location, isMeetUp: false) {
             MapsRouter.openMaps(defaults: vm.defaults, item: event.location.mapItem, withDirections: true)
         }
-            .opacity(ui.showTimePopup ? 0.2 : 1)
+        .disabled(ui.showTimePopup)
+        .opacity(ui.showTimePopup ? 0.2 : 1)
     }
     
     @ViewBuilder

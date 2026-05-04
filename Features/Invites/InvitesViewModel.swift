@@ -26,7 +26,6 @@ import SwiftUI
     var userId: String {session.user.id}
     var respondVMs: [String: RespondViewModel] = [:]
     
-    
     func respondVM(for invite: EventProfile, image: UIImage) -> RespondViewModel {
         if let existing = respondVMs[invite.profile.id] { return existing }
         let new = RespondViewModel(
@@ -95,24 +94,34 @@ extension InvitesViewModel {
 
 
 @Observable final class InvitesUIState {
+    //1. To open the profile
     var selectedProfile: UserProfile? = nil
-    var quickInvite: Bool = false
-    var declineScreen: Bool? = false
-    var acceptScreen: Bool = true
-    var showDetails: Bool = false
+    
+    //2. To open the Different UI popups
+    var showAcceptPopup: String?
+    var showNewTimePopup: String?
+    var showNewInvite: Bool = false
+    
+    //3. Show the respond Popup Screen
+    var respondedToProfile: ProfileResponse?
+    
+    //4.Logic with inviting screen
     var showTimePopup: Bool = false
     var dismissOffset: CGFloat? = nil
     
-    var respondedToProfile: ProfileResponse?
-    
-    
-    var profileInvite: UserProfile? {
+    //5. 
+    var showDetails: Bool = false
+    var showQuickInvite: UserProfile? {
         didSet {
             quickInvite = true
         }
     }
 }
 
+/*
+ var declineScreen: Bool? = false
+ var acceptScreen: Bool = true
+ */
 
 
 

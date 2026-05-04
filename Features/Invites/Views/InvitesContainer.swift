@@ -59,6 +59,7 @@ struct InvitesContainer: View {
         .onPreferenceChange(IsTimeOpen.self) { newValue in
             showTimePopup = newValue
         }
+        .animation(.easeInOut(duration: 0.25), value: showTimePopup)
         .hideTabBar(hideBar: hideTab)
     }
 }

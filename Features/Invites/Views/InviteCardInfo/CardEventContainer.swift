@@ -4,11 +4,11 @@ import SwiftUI
 struct CardEventContainer: View {
     
     @Bindable var vm: RespondViewModel
-    @Binding var showQuickInvite: UserProfile?
+    @Bindable var invitesUI: InvitesUIState
     @Binding var showMessageScreen: Bool
-    @Binding var showConfirmAcceptPopup: String?
+    
     let onDecline: (UserEvent) -> ()
-    //Added
+
     @State var ui = RespondUIState()
     @State private var selectedTab: RespondUIState.Tab = .event
     @State private var pageHeights: [RespondUIState.Tab: CGFloat] = [:]
@@ -100,8 +100,9 @@ extension CardEventContainer {
     
     private var eventPage: some View {
         InviteCardEvent(
-            showMessageSection: $ui.showMessageSection,
-            showConfirmAcceptInvite: $showConfirmAcceptPopup,
+            showMessageSection: $ui.showMessageScreen,
+            showAcceptPopup: $invitesUI.showAcceptPopup,
+            showNewTimePopup: $invitesUI.showNewTimePopup,
             vm: vm,
             ui: ui) { userEvent in
                 onDecline(userEvent)
@@ -115,12 +116,17 @@ extension CardEventContainer {
     }
     
     private var infoPage: some View {
-        InviteCardInfo(event: vm.respondDraft.originalInvite.event, user: vm.user, showQuickInvite: $showQuickInvite, isNewInvite: vm.respondDraft.respondType == .modified, decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3)
-            .padding(.horizontal, 24)
-            .measure(key: CardEventPageHeightKey.self) { proxy in
-                [.details: proxy.size.height]
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+        InviteCardInfo(
+            event: vm.respondDraft.originalInvite.event, user: vm.user,
+            showQuickInvite: $invitesUI.showQuickInvite,
+            isNewInvite: vm.respondDraft.respondType == .modified,
+            decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3
+        )
+        .padding(.horizontal, 24)
+        .measure(key: CardEventPageHeightKey.self) { proxy in
+            [.details: proxy.size.height]
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder
