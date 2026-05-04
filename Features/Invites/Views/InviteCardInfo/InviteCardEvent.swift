@@ -11,7 +11,6 @@ struct InviteCardEvent: View {
     
     @Binding var showMessageSection: Bool
     @Binding var showConfirmAcceptInvite: String?
-    @Binding var showConfirmNewTimeInvite: String?
 
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondUIState
@@ -63,12 +62,7 @@ extension InviteCardEvent {
             DeclineButton { onDecline(vm.respondDraft.originalInvite.event)}
             Spacer()
             AcceptButton(isModified: isModified, isValid: isValid) {
-                let profileId = vm.respondDraft.originalInvite.event.otherUserId
-                if isModified {
-                    showConfirmNewTimeInvite = profileId
-                } else {
-                    showConfirmAcceptInvite = profileId
-                }
+                showConfirmAcceptInvite = vm.respondDraft.originalInvite.event.otherUserId
             }
         }
         .opacity(ui.showTimePopup ? 0.1 : 1)

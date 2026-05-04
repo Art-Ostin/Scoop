@@ -7,7 +7,6 @@ struct CardEventContainer: View {
     @Binding var showQuickInvite: UserProfile?
     @Binding var showMessageScreen: Bool
     @Binding var showConfirmAcceptPopup: String?
-    @Binding var showConfirmNewTimePopup: String?
     let onDecline: (UserEvent) -> ()
     //Added
     @State var ui = RespondUIState()
@@ -103,7 +102,6 @@ extension CardEventContainer {
         InviteCardEvent(
             showMessageSection: $ui.showMessageSection,
             showConfirmAcceptInvite: $showConfirmAcceptPopup,
-            showConfirmNewTimeInvite: $showConfirmNewTimePopup,
             vm: vm,
             ui: ui) { userEvent in
                 onDecline(userEvent)

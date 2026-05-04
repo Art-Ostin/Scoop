@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 extension InvitesContainer {
     
     func respondToProfile(respondType: ProfileResponse, profileId: String) async throws {
