@@ -15,51 +15,22 @@ import MapKit
 
 @MainActor
 struct InviteTimeAndPlaceView: View {
-    @Environment(\.appDependencies) private var deps
     
     @Binding var showInvite: String?
 
     let inviteModel: InviteModel
     let inviteTitle: String
+    let defaults: DefaultsManaging
     let sendInvite: (EventFieldsDraft) -> Void
     
     var body: some View {
         InviteTimeAndPlaceContent(
             vm: TimeAndPlaceViewModel(
                 inviteModel: inviteModel,
-                defaults: deps.defaultsManager),
+                defaults: defaults),
             showInvite: $showInvite,
             sendInvite: sendInvite
         )
-    }
-}
-
-private struct InviteTimeAndPlaceContent: View {
-    
-    @State private var vm: TimeAndPlaceViewModel
-    @Binding var showInvite: String?
-    
-    let sendInvite: (EventFieldsDraft) -> ()
-
-    init(vm: TimeAndPlaceViewModel, showInvite: Binding<String?>, sendInvite: @escaping (EventFieldsDraft) -> ()) {
-        _vm = State(wrappedValue: vm)
-        _showInvite = showInvite
-        self.sendInvite = sendInvite
-    }
-
-    var body: some View {
-        SelectTimeAndPlace(
-            draft: $vm.event,
-            showInvite: $showInvite,
-            name: vm.inviteModel.name,
-            image: vm.inviteModel.image,
-            defaults: vm.defaults,
-            respondWithInvite: false,
-            title: "Meet \(vm.inviteModel.name)") {
-                vm.deleteEventDefault()
-            } sendInvite: {
-                sendInvite(vm.event)
-            }
     }
 }
 
@@ -92,32 +63,38 @@ struct RespondTimeAndPlaceView: View {
 }
 
 struct SelectTimeAndPlace: View {
+    
+    //1. Controls what popup is showing or not
     @State private var ui = TimeAndPlaceUIState()
 
+    //2. The draft holds, proposedTimes, message, time and place, modified in this view
     @Binding var draft: EventFieldsDraft
+    
+    //3. property to hide and show the popup
     @Binding var showInvite: String?
-    var showConfirmSendInvite: Binding<Bool>?
-
+    
+    //4. Info required for viewLayout
+    let title: String
     let name: String
     let image: UIImage
-    let defaults: DefaultsManaging
 
-    let respondWithInvite: Bool
-    
-    let title: String
-
+    //5.Two different functions can be performed from this view
     let deleteEventDefault: () -> Void
-    let sendInvite: () -> Void
-
-    var isLotsOfText: Bool {
-        (draft.message?.count ?? 0) > 35
-    }
+    let showConfirmInvitePopup: Bool?
+    
+    //6. Layout differences if sending a new Invite as response
+    let isRespondingWithNewEvent: Bool
+    
+    //7.defaults only to pass into the MapView beneath
+    let defaults: DefaultsManaging
+    
     
     var body: some View {
         ZStack {
-            if !respondWithInvite {
+            if !isRespondingWithNewEvent {
                 CustomScreenCover {showInvite = nil}
             }
+            
             VStack(spacing: 0) {
                 popupTitle
                 VStack(spacing: 12) {
@@ -127,36 +104,23 @@ struct SelectTimeAndPlace: View {
                     MapDivider()
                     InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView)
                 }
-                .padding(.top, decreaseVerticalPadding ? 16 : 24)
-                .padding(.bottom, (draft.place != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18)) //Works for complex reasons
+                .padding(.top, verticalPadding)
+                .padding(.bottom, extraBottomPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .zIndex(1) //so pop ups always appear above the Action Button
                 sendInviteButton
             }
-            .frame(alignment: .top)
-            .padding(.horizontal, (isLotsOfText || draft.place != nil) ? 28 : 32)
-            .padding(.vertical, 24)
-            .frame(maxWidth: .infinity)
-            .background (cardBackground)
             .overlay(alignment: .topLeading) { clearButton }
-            .padding(.horizontal, horizontalPadding())
             .onChange(of: ui.showTypePopup) {_, newValue in
                 if newValue { ui.showTimePopup = false}
             }
             .onChange(of: ui.showTimePopup) { _, newValue in
                 if newValue { ui.showTypePopup = false}
             }
-            .overlay(alignment: .topTrailing) { infoButton }
-            .offset(y: !respondWithInvite ? 24 : 0)
-            .overlay(alignment: .top) {
-                    let dayCount = draft.time.dates.count
-                SelectTimeMessage(type: draft.type, dayCount: dayCount, showTimePopup: ui.showTimePopup, isCardMessage: true)
-            }
+            .offset(y: !isRespondingWithNewEvent ? 24 : 0)
+            .overlay(alignment: .top) {messageOverlay}
         }
         .hideTabBar()
-        .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
-            sendInvite()
-        }
         .fullScreenCover(isPresented: $ui.showMapView) {
             MapView(defaults: defaults, eventLocation: $draft.place)
         }
@@ -169,12 +133,6 @@ struct SelectTimeAndPlace: View {
 
 extension SelectTimeAndPlace {
     
-    private var infoButton: some View {
-        TabInfoButton(showScreen: $ui.showInfoScreen)
-            .scaleEffect(0.9)
-            .offset(y: -48)
-            .padding(.horizontal, horizontalPadding())
-    }
 
     @ViewBuilder
     private var clearButton: some View {
@@ -192,17 +150,6 @@ extension SelectTimeAndPlace {
         }
     }
     
-    private var cardBackground: some View {
-        ZStack { //Background done like this to fix bugs when popping up
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.background)
-                .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
-                .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
-            RoundedRectangle(cornerRadius: 30)
-                .inset(by: 0.5)
-                .stroke(Color.grayBackground, lineWidth: 0.5)
-        }
-    }
         
     private var popupTitle: some View {
         HStack(spacing: 8) {
@@ -215,12 +162,18 @@ extension SelectTimeAndPlace {
     
     private var sendInviteButton: some View {
         ActionButton(isValid: !ui.showAlert && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
-            if let showConfirmSendInvite {
+            if let sh {
                 showConfirmSendInvite.wrappedValue = true
             } else {
                 ui.showAlert.toggle()
             }
         }
+    }
+        
+    
+    private var messageOverlay: some View {
+        let dayCount = draft.time.dates.count
+        return SelectTimeMessage(type: draft.type, dayCount: dayCount, showTimePopup: ui.showTimePopup, isCardMessage: true)
     }
     
     private var showTwoDays: Bool {
@@ -236,35 +189,22 @@ extension SelectTimeAndPlace {
     private var InviteIsValid: Bool {
         !draft.time.dates.isEmpty && draft.place != nil
     }
-    
-    private func horizontalPadding() -> CGFloat {
-        let messageLarge: Bool = (draft.message?.count ?? 0) > 35
-        let messageVLarge: Bool = (draft.message?.count ?? 0) > 80
-        let placeLarge: Bool = draft.place != nil
-        
-        var originalHPadding:CGFloat = 30
-        
-        if messageLarge {
-            originalHPadding -= 2
-        }
-        
-        if messageVLarge {
-            originalHPadding -= 2
-        }
-        
-        if placeLarge {
-            originalHPadding -= 2
-        }
-        return originalHPadding
+
+    //Padding On bottom
+    private var extraBottomPadding: CGFloat {
+        return (draft.place != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18) //Works for complex reasons
     }
-    
+    private var verticalPadding: CGFloat {
+        decreaseVerticalPadding ? 16 : 24
+    }
     private var decreaseVerticalPadding: Bool {
         return (draft.message?.count ?? 0) > 40 && draft.place != nil
     }
 }
 
 
+
 /*
- //            Text(respondWithInvite ? "New Invite" : (isNewEvent ? "Send New Invite" : "Meet \(name)"))
- //respondWithInvite ? "New Event" : (
+ .customAlert(isPresented: $ui.showAlert, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {
+ }
  */

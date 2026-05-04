@@ -135,6 +135,7 @@
 		6570CADD2F28D6EE00CBEA67 /* DropDownButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */; };
 		657486D62FA7DA3C00F38738 /* InvitesPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486D52FA7DA3C00F38738 /* InvitesPlaceholder.swift */; };
 		657486DA2FA8C22100F38738 /* InviteProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486D92FA8C22100F38738 /* InviteProfileModel.swift */; };
+		657486DC2FA8D5D000F38738 /* TimeAndPlaceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DB2FA8D5D000F38738 /* TimeAndPlaceCard.swift */; };
 		6576831C2F5910580094A02D /* ChatHeaderBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831B2F5910580094A02D /* ChatHeaderBar.swift */; };
 		6576831E2F5910C20094A02D /* ChatScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831D2F5910C20094A02D /* ChatScrollView.swift */; };
 		657683202F59111C0094A02D /* TypeMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831F2F59111C0094A02D /* TypeMessageView.swift */; };
@@ -415,6 +416,7 @@
 		6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownButton.swift; sourceTree = "<group>"; };
 		657486D52FA7DA3C00F38738 /* InvitesPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesPlaceholder.swift; sourceTree = "<group>"; };
 		657486D92FA8C22100F38738 /* InviteProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteProfileModel.swift; sourceTree = "<group>"; };
+		657486DB2FA8D5D000F38738 /* TimeAndPlaceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceCard.swift; sourceTree = "<group>"; };
 		6576831B2F5910580094A02D /* ChatHeaderBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHeaderBar.swift; sourceTree = "<group>"; };
 		6576831D2F5910C20094A02D /* ChatScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScrollView.swift; sourceTree = "<group>"; };
 		6576831F2F59111C0094A02D /* TypeMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeMessageView.swift; sourceTree = "<group>"; };
@@ -1036,6 +1038,7 @@
 			isa = PBXGroup;
 			children = (
 				65E5C8F92E4EAAE70093410B /* SelectTimeAndPlace.swift */,
+				657486DB2FA8D5D000F38738 /* TimeAndPlaceCard.swift */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
 				6549DA772F9E884200C89DF2 /* InviteRows */,
 			);
@@ -1660,6 +1663,7 @@
 				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
 				657683262F59CA380094A02D /* MessageTriangle.swift in Sources */,
 				657B8D4B2F2CFA5F00583ADA /* SaveIcon.swift in Sources */,
+				657486DC2FA8D5D000F38738 /* TimeAndPlaceCard.swift in Sources */,
 				65D1C40E2F3FCA1C00B61C00 /* MeetInfoView.swift in Sources */,
 				652882D42F707331000B724D /* SelectRespondTime.swift in Sources */,
 				657FD5452F91C8E00074255E /* CoreInfoPage.swift in Sources */,
