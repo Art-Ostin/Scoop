@@ -16,10 +16,6 @@ struct ProfileDetailsView: View {
     let p: UserProfile
     let detailsOffset: CGFloat
     let event: UserEvent?
-        
-    @State private var flowLayoutBottom: CGFloat = 0
-    @State private var interestSectionBottom: CGFloat = 0
-    @State private var interestScale: CGFloat = 1
 
     var body: some View {
         
@@ -46,7 +42,6 @@ struct ProfileDetailsView: View {
         .frame(height: 600).background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-        .coordinateSpace(.named("InterestsSection"))
         .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
             self.ui.isTopOfScroll = isAtTop
         }
@@ -74,24 +69,14 @@ extension ProfileDetailsView {
     
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
-            UserInterests(p: p, interestScale: interestScale)
+            UserInterests(p: p)
                 .padding(.vertical, -12)
         }
-        .measure(key: InterestsBottomKey.self) {$0.frame(in: .named("InterestsSection")).maxY}
-        .onPreferenceChange(InterestsBottomKey.self) { interestSectionBottom = $0 }
-        .onPreferenceChange(FlowLayoutBottom.self) { flowLayoutBottom = $0 ; updateInterestScale()}
     }
-    
+
 }
 
 extension ProfileDetailsView {
-    func updateInterestScale() {
-        guard flowLayoutBottom > 0, interestSectionBottom > 0 else { return }
-        guard flowLayoutBottom > interestSectionBottom else { return }
-        let newScale = max(interestSectionBottom / flowLayoutBottom, 0.1)
-        if newScale < interestScale { interestScale = newScale}
-    }
-    
     func checkIfTopOfScroll(_ geo: ScrollGeometry) -> Bool {
         geo.contentOffset.y + geo.contentInsets.top <= 0.5
     }

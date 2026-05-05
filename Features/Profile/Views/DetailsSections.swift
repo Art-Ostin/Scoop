@@ -55,33 +55,15 @@ extension UserKeyInfo {
 
 struct UserInterests: View {
     let p: UserProfile
-    let interestScale: CGFloat
-    
+
     var body: some View {
         FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
             Text(text)
-                .padding(.horizontal, 8 * interestScale)
-                .padding(.vertical, 10 * interestScale)
-                .font(.body(16 * interestScale))
-                .stroke(12 * interestScale, color: Color(red: 0.90, green: 0.90, blue: 0.90))
-                .measure(key: FlowLayoutBottom.self) { proxy in
-                    proxy.frame(in: .named("InterestsSection")).maxY
-                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 10)
+                .font(.body(16))
+                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
         }
         .padding(.horizontal, -12)
-    }
-}
-
-struct InterestsBottomKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
-struct FlowLayoutBottom: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
     }
 }
