@@ -76,5 +76,4 @@ extension ProfileView {
             .opacity(ui.showPopup ? 0 : 1)
         }
     }
-    
 }

@@ -97,6 +97,5 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {declineButton}
         .hideTabBar()
-        .animation(.smooth, value: detailsOffset)
     }
 }

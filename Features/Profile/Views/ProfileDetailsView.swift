@@ -45,7 +45,7 @@ struct ProfileDetailsView: View {
         
         //Check if the scroll at the top if it is disable upward scolling
         .onScrollGeometryChange(for: Bool.self, of: { geo in
-            geo.contentOffset.y <= geo.contentInsets.top
+            geo.contentOffset.y <= 5
         }, action: { _, newValue in
             isAtTopOfScroll = newValue
         })

@@ -13,7 +13,7 @@ extension ProfileView {
     func imageDetailsDrag(using geo: GeometryProxy) -> some Gesture {
         DragGesture(minimumDistance: 8)
             .onChanged { v in
-                if dragType == nil { commitDragType(v: v) }
+                if dragType == nil { identifyDragType(v: v) }
                 switch dragType {
                 case .profile:
                     profileOffset = max(0, v.translation.height)
@@ -59,25 +59,16 @@ extension ProfileView {
     var detailsDrag: some Gesture {
         DragGesture(minimumDistance: 8)
             .onChanged { v in
-                if ui.detailsOpen && (!ui.isTopOfScroll || v.translation.height < 0) { return }
-                if dragType == nil { commitDragType(v: v) }
-                guard dragType == .details else { return }
+                guard abs(v.translation.height) > abs(v.translation.width) else { return }
+                if ui.detailsOpen && v.translation.height < 0 { return }
                 detailsOffset = v.translation.height.clamped(to: transition.dragRange)
             }
             .onEnded { v in
-                let endedType = dragType
-                dragType = nil
-
-                guard endedType == .details else {
-                    withAnimation(ProfileView.toggleAnimation) { detailsOffset = 0 }
-                    return
-                }
-
                 let predicted = v.predictedEndTranslation.height
                 withAnimation(ProfileView.toggleAnimation) {
-                    if predicted < -50 && profileOffset == 0 {
+                    if !ui.detailsOpen, predicted < -50 {
                         ui.detailsOpen = true
-                    } else if ui.detailsOpen && predicted > 60 {
+                    } else if ui.detailsOpen, predicted > 60 {
                         ui.detailsOpen = false
                     }
                     detailsOffset = 0
@@ -85,7 +76,7 @@ extension ProfileView {
             }
     }
 
-    func commitDragType(v: DragGesture.Value) {
+    func identifyDragType(v: DragGesture.Value) {
         let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
         guard dy > dx else { dragType = .horizontal; return }
