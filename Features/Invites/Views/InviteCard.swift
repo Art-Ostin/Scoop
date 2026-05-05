@@ -22,7 +22,6 @@ struct InviteCard: View {
 
     private let contentPadding: CGFloat = 6
     
-    
     var dayCount: Int { vm.respondDraft.newTime.proposedTimes.dates.count}
     var type: Event.EventType {vm.respondDraft.originalInvite.event.type}
     var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  ui.showTimePopup && dayCount >= 2}
@@ -34,7 +33,7 @@ struct InviteCard: View {
         }
         .modifier(InviteCardStyle())
         .sheet(isPresented: $showMessageScreen) {addMessageView}
-        .onTapGesture {hideTimePopup()}
+        .onTapGesture {if ui.showTimePopup {ui.showTimePopup = false}}
         .overlay(alignment: .top) {addingTimeInfoOverlay}
         .measure(key: ImageSizeKey.self) { $0.size.width }
         .onPreferenceChange(ImageSizeKey.self) {cardWidth in
@@ -88,15 +87,6 @@ extension InviteCard {
             .padding(.horizontal, contentPadding)
             .opacity(ui.showTimePopup ? 0.1 : 1)
     }
-    
-    private func hideTimePopup() {
-        if ui.showTimePopup {
-            withAnimation(.easeInOut(duration: 0.15)) {
-                ui.showTimePopup = false
-            }
-        }
-    }
-    
 }
 
 struct InviteCardStyle: ViewModifier {

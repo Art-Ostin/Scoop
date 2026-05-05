@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct InvitesContainer: View {
     
     @Environment(\.tabSelection) var selectedTab
@@ -31,7 +30,7 @@ struct InvitesContainer: View {
             ui.showTimePopup = newValue
         }
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
-        .hideTabBar(hideBar: hideTab)
+        .hideTabBar(hideBar: ui.hideTab)
 
         //The popups to respond to invite, from the invite card
         .respondItemCustomAlert(item: $ui.showAcceptPopup, type: .acceptInvite) { respond($0, .accepted) }
@@ -64,7 +63,6 @@ extension InvitesContainer {
         .onPreferenceChange(HideInvitePreferenceKey.self) { newValue in
             ui.hideInviteTitle = newValue
         }
-        .animation(.easeInOut(duration: 0.15), value: ui.showTimePopup)
         .animation(.easeInOut(duration: 0.15), value: ui.hideInviteTitle)
     }
     
@@ -87,38 +85,44 @@ extension InvitesContainer {
 //ProfileView Related
 extension InvitesContainer {
 
-    @ViewBuilder private func profileView(profile: UserProfile) -> some View {
-        if let eventProfile = fetchEventProfile(profile), let respondVM = vm.respondVMs[eventProfile.profile.id] {
+    @ViewBuilder
+    private func profileView(profile: UserProfile) -> some View {
+        if let eventProfile = fetchEventProfile(profile),
+           let respondVM = vm.respondVMs[eventProfile.profile.id] {
             ProfileView(
                 vm: ProfileViewModel(
                     profile: eventProfile.profile,
                     event: eventProfile.event,
-                    imageLoader: vm.imageLoader, defaults: vm.defaults
+                    imageLoader: vm.imageLoader,
+                    defaults: vm.defaults
                 ),
                 profileImages: ui.profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
                 dismissOffset: $ui.dismissOffset,
-                mode: .respondToInvite(respondVM: respondVM) { respond(eventProfile.profile.id, $0) }
-        }
-        )
+                mode: .respondToInvite(respondVM: respondVM) {responseType in
+                    respond(eventProfile.profile.id, responseType)
+                }
+            )
             .id(eventProfile.profile.id)
             .zIndex(1)
             .transition(.move(edge: .bottom))
+        }
     }
-    
+
     @ViewBuilder
     private func timeAndPlaceView(_ id: String) -> some View {
         //1. First fetch the correctProfile, as view is triggered by passing in ID
         if let eventProfile = vm.invites.first(where: { $0.id == id }), let image = eventProfile.image {
-            //2. Construct the TimeAndPlaceView
             let inviteModel = InviteModel(profileId: eventProfile.profile.id, name: eventProfile.profile.name, image: image)
             InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
+                vm: TimeAndPlaceViewModel(
+                    inviteModel: inviteModel,
+                    defaults: vm.defaults
+                ),
                 showInvite: $ui.showQuickInvite,
-                sendInvite: { draft in
-                    Task { try? await respondToProfile(respondType: .newInvite, profileId: inviteModel.profileId)}
-                }
-            )
+                sendInvite: { responseDraft in
+                    respond(id, .newInvite)
+                })
         }
     }
 }
@@ -145,5 +149,4 @@ extension InvitesContainer {
     private func fetchEventProfile(_ profile: UserProfile) -> EventProfile? {
         vm.invites.first { $0.profile.id == profile.id }
     }
-
 }
