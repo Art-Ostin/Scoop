@@ -70,9 +70,10 @@ extension SelectTimeAndPlace {
                     .font(.body(12, .regular))
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
                     .offset(y: -8)
+                    .padding(.horizontal, 16)
             }
             .padding(.top, 24)
-            .padding(.horizontal, ((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 28 : 32)
+            .padding(.horizontal, ((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42)
         }
     }
     

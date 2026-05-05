@@ -221,7 +221,7 @@ extension View {
             cancelTitle: type.cancel,
             okTitle: type.understand,
             emoji: "🦥",
-            isConfirmInvite: false, onOK: onOK)
+            isConfirmInvite: true, onOK: onOK)
         )
     }
     
@@ -258,7 +258,7 @@ extension View {
             cancelTitle: type.cancel,
             okTitle: type.understand,
             emoji: "🦥",
-            isConfirmInvite: false, onOK: onOK)
+            isConfirmInvite: true, onOK: onOK)
         )
     }
 }
