@@ -26,9 +26,6 @@ struct InvitesContainer: View {
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response)}
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onPreferenceChange(IsTimeOpen.self) { newValue in
-            ui.showTimePopup = newValue
-        }
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
         .hideTabBar(hideBar: ui.hideTab)
 
@@ -52,7 +49,7 @@ extension InvitesContainer {
                     ui: ui,
                     eventProfile: invite,
                     openProfile: { openProfile($0) }) { profileId in
-                        respond($0, .decline)
+                        respond(profileId, .decline)
                     }
                     .task { await loadProfileImages(invite.profile) }
             }
@@ -65,8 +62,7 @@ extension InvitesContainer {
         }
         .animation(.easeInOut(duration: 0.15), value: ui.hideInviteTitle)
     }
-    
-    
+        
     private var titleAndTab: some View {
         ZStack(alignment: .top) {
             Text("Invites")
@@ -87,7 +83,7 @@ extension InvitesContainer {
 
     @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {
-        if let eventProfile = fetchEventProfile(profile),
+        if let eventProfile = vm.eventProfile(for: profile.id),
            let respondVM = vm.respondVMs[eventProfile.profile.id] {
             ProfileView(
                 vm: ProfileViewModel(
@@ -112,17 +108,16 @@ extension InvitesContainer {
     @ViewBuilder
     private func timeAndPlaceView(_ id: String) -> some View {
         //1. First fetch the correctProfile, as view is triggered by passing in ID
-        if let eventProfile = vm.invites.first(where: { $0.id == id }), let image = eventProfile.image {
+        if let eventProfile = vm.eventProfile(for: id), let image = eventProfile.image {
             let inviteModel = InviteModel(profileId: eventProfile.profile.id, name: eventProfile.profile.name, image: image)
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(
                     inviteModel: inviteModel,
                     defaults: vm.defaults
                 ),
-                showInvite: $ui.showQuickInvite,
-                sendInvite: { responseDraft in
+                showInvite: $ui.showQuickInvite) {responseDraft in
                     respond(id, .newInvite)
-                })
+                }
         }
     }
 }
@@ -145,8 +140,10 @@ extension InvitesContainer {
     private func respond(_ id: String, _ type: ProfileResponse) {
         Task { try await respondToProfile(respondType: type, profileId: id)}
     }
-    
-    private func fetchEventProfile(_ profile: UserProfile) -> EventProfile? {
-        vm.invites.first { $0.profile.id == profile.id }
-    }
 }
+
+/*
+ .onPreferenceChange(IsTimeOpen.self) { newValue in
+     ui.showTimePopup = newValue
+ }
+ */

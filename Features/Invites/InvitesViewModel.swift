@@ -38,7 +38,6 @@ import SwiftUI
         respondVMs[invite.profile.id] = new
         return new
     }
-
     
     //Set up here -> I pass in an eventResponseDraft to the view, not an invite.
     var respondDrafts: [RespondDraft] {
@@ -55,24 +54,34 @@ import SwiftUI
 //Functions to Respond To Invites
 extension InvitesViewModel {
     
-    func acceptInvite(eventId: String, senderId: String, acceptedDate: Date) async throws {
-        //1. Accept the Event on backend
-        try await eventRepo.acceptEvent(eventId: eventId, senderId: senderId, userId: session.user.id, acceptedTime: acceptedDate)
-        updateInvitesLocally(eventId: eventId, isAccepted: true)
+    func accept(profileId: String) async throws {
+        guard let invite = respondVMs[profileId]?.respondDraft.originalInvite, let day = invite.selectedDay else { return }
+        try await eventRepo.acceptEvent(eventId: invite.event.id, senderId: invite.event.otherUserId, userId: userId, acceptedTime: day)
+        updateInvitesLocally(eventId: invite.event.id, isAccepted: true)
     }
     
-    func sendNewTime(rescheduleResponse: RescheduleResponse) async throws {
+    func sendNewTime(profileId: String) async throws {
+        guard let newTime = respondVMs[profileId]?.respondDraft.newTime else { return }
+        let event = newTime.event
+        let rescheduleResponse = RescheduleResponse(eventId: event.id, userId: userId, recipientId: event.otherUserId, oldTimes: event.proposedTimes, newTimes: newTime.proposedTimes)
         try await eventRepo.respondWithNewTime(newTime: rescheduleResponse)
         updateInvitesLocally(eventId: rescheduleResponse.eventId)
     }
     
-    func sendNewEvent(eventResponse: EventResponse) async throws {
+    func sendNewEvent(profileId: String) async throws {
+        guard let draft = respondVMs[profileId]?.respondDraft else { return }
+        let eventResponse = EventResponse( oldEvent: draft.originalInvite.event, newEvent: draft.newEvent, userId: userId)
         try await eventRepo.respondWithNewEvent(eventResponse: eventResponse)
         updateInvitesLocally(eventId: eventResponse.eventId)
     }
     
-    func declineInvite(eventId: String, otherUserId: String) async throws  {
-        try await eventRepo.declineEvent(eventId: eventId, otherUserId: otherUserId, userId: userId)
+    func decline(profileId: String) async throws {
+        guard let event = respondVMs[profileId]?.respondDraft.originalInvite.event else { return }
+        try await eventRepo.declineEvent(eventId: event.id, otherUserId: event.otherUserId, userId: userId)
+    }
+    
+    func eventProfile(for profileId: String) -> EventProfile? {
+        invites.first { $0.profile.id == profileId}
     }
     
     private func updateInvitesLocally(eventId: String, isAccepted: Bool = false) {
@@ -88,6 +97,8 @@ extension InvitesViewModel {
         }
     }
 }
+
+
 
 @Observable final class InvitesUIState {
     //1. To open the profile
