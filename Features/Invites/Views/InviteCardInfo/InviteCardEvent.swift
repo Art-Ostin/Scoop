@@ -10,7 +10,7 @@ import SwiftUI
 struct InviteCardEvent: View {
     
     @Binding var showMessageSection: Bool
-    
+
     @Binding var showAcceptPopup: String?
     @Binding var showNewTimePopup: String?
 

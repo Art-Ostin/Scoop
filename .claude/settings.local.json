@@ -12,7 +12,9 @@
       "Bash(git stash *)",
       "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -quiet build)",
       "Bash(xcodebuild -project Scoop.xcodeproj -list)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -quiet build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' build)"
     ]
   }
 }

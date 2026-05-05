@@ -92,19 +92,28 @@ extension InvitesViewModel {
 @Observable final class InvitesUIState {
     //1. To open the profile
     var selectedProfile: UserProfile? = nil
-    
-    //2. To open the Different UI popups with String identifying who
+
+    //2. Confirmation alerts triggered from invite cards (carry otherUserId)
     var showAcceptPopup: String?
     var showNewTimePopup: String?
+    var showNewInvitePopup: String?
     var showQuickInvite: String?
-    
+
     //3. Show the respond Popup Screen
     var respondedToProfile: ProfileResponse?
-    
-    //4.Logic with inviting screen
+
+    //4. Logic with inviting screen
     var showTimePopup: Bool = false
+    var hideInviteTitle: Bool = false
     var dismissOffset: CGFloat? = nil
-    
+
     //5. The details Screen for invites
     var showDetails: Bool = false
+
+    //6. Loaded profile images keyed by profile id
+    var profileImages: [String: [UIImage]] = [:]
+    
+    //7. Determine if a popup is showing and when o h
+    var isPopup: Bool { showAcceptPopup != nil || showNewTimePopup != nil || showNewInvitePopup != nil }
+    var hideTab: Bool { isPopup || selectedProfile != nil || showQuickInvite != nil || respondedToProfile != nil}
 }
