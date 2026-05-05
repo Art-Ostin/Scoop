@@ -17,16 +17,23 @@ struct ProfileView: View {
     let mode: ProfileMode
     let profileImages: [UIImage]
 
-    @GestureState var detailsOffset = CGFloat.zero
-    @GestureState var profileOffset = CGFloat.zero
+    @State var detailsOffset: CGFloat = 0
+    @State var profileOffset: CGFloat = 0
+    @State var dragType: DragType? = nil
 
     @Binding var dismissOffset: CGFloat?
     @Binding var selectedProfile: UserProfile?
 
     @State var ui = ProfileUIState()
 
+    static let toggleAnimation: Animation = .spring(response: 0.32, dampingFraction: 0.86, blendDuration: 0)
+
     var transition: ProfileDetailsTransition {
         ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, dragOffset: detailsOffset)
+    }
+
+    var detailsScrollDisabled: Bool {
+        !ui.detailsOpen
     }
 
     var isUserProfile: Bool {
@@ -63,23 +70,25 @@ struct ProfileView: View {
                             .opacity(1 - transition.overlayTitleOpacity)
                             .padding(.top, 36)
 
-                        ProfileImageView(vm: vm, detailsOffset: detailsOffset, importedImages: profileImages)
+                        ProfileImageView(vm: vm, importedImages: profileImages)
                             .offset(y: transition.interpolate(to: -100))
                             .simultaneousGesture(imageDetailsDrag(using: geo))
-                            .onTapGesture { if ui.detailsOpen { ui.detailsOpen.toggle()}}
+                            .onTapGesture {
+                                if ui.detailsOpen {
+                                    withAnimation(Self.toggleAnimation) { ui.detailsOpen = false }
+                                }
+                            }
 
-                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, detailsOffset: detailsOffset, event: vm.event)
+                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, scrollDisabled: detailsScrollDisabled, event: vm.event)
                             .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                             .offset(y: transition.sectionOffset)
-                            .onTapGesture { ui.detailsOpen.toggle() }
+                            .onTapGesture {
+                                withAnimation(Self.toggleAnimation) { ui.detailsOpen.toggle() }
+                            }
                             .simultaneousGesture(detailsDrag)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .background(profileBackground)
-                    .animation(.spring(duration: 0.2), value: ui.detailsOpen)
-                    .animation(.easeInOut(duration: 0.2), value: detailsOffset)
-                    .animation(.snappy(duration: ui.dismissalDuration), value: profileOffset) //Bug Fix: ProfileOffset & selected profile Must be same animation length
-                    .animation(.easeInOut(duration: ui.dismissalDuration), value: selectedProfile) //snappy(duration: ui.dismissalDuration)
                     .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                     .preference(key: OpenDetails.self, value: ui.detailsOpen)
                 }

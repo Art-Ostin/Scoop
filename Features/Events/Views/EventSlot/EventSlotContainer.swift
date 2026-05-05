@@ -18,18 +18,21 @@ struct EventSlotContainer: View {
     let openMaps: () -> ()
     
     var body: some View {
-        CustomTabPage(page: .meetingEvent, tabAction: .constant(false)) {
-            VStack(spacing: 32) {
-                EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                clockView
-                eventDetailsContainer
-                eventMap
-                howItWorksView
-                cantMakeItButton
+        ScrollViewReader { proxy  in
+            CustomTabPage(page: .meetingEvent, tabAction: .constant(false)) {
+                VStack(spacing: 32) {
+                    EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
+                    clockView
+                    eventDetailsContainer
+                    eventMap(proxy: proxy)
+                        .id("MapsView")
+                    howItWorksView
+                    cantMakeItButton
+                }
+                .padding(.bottom, 72)
             }
-            .padding(.bottom, 72)
+            .overlay(alignment: .bottomTrailing) {messageButton}
         }
-        .overlay(alignment: .bottomTrailing) {messageButton}
     }
 }
 
@@ -53,8 +56,9 @@ extension EventSlotContainer {
             }
     }
     
-    private var eventMap: some View {
+    private func eventMap(proxy: ScrollViewProxy) -> some View {
         EventMapView(
+            proxy: proxy,
             event: eventProfile.event,
             imageSize: imageSize,
             disableMap: $disableMap

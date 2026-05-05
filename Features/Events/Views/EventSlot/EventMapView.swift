@@ -8,7 +8,7 @@ import SwiftUI
 import MapKit
 
 struct EventMapView: View {
-    
+    let proxy: ScrollViewProxy
     let event: UserEvent
     let imageSize: CGFloat
     @Binding var disableMap: Bool
@@ -84,6 +84,7 @@ extension EventMapView {
     private var enableMapButton: some View {
         Button {
             withAnimation(toggleAnimation) {
+                proxy.scrollTo("MapView", anchor: .center)
                 disableMap.toggle()
             }
         } label: {

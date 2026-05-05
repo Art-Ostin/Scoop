@@ -12,9 +12,9 @@ import SwiftUIFlowLayout
 struct ProfileDetailsView: View {
     @Bindable var vm: ProfileViewModel
     @Bindable var ui: ProfileUIState
-    
+
     let p: UserProfile
-    let detailsOffset: CGFloat
+    let scrollDisabled: Bool
     let event: UserEvent?
 
     var body: some View {
@@ -45,7 +45,7 @@ struct ProfileDetailsView: View {
         .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
             self.ui.isTopOfScroll = isAtTop
         }
-        .scrollDisabled(disableDetailsScroll)
+        .scrollDisabled(scrollDisabled)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
@@ -80,11 +80,7 @@ extension ProfileDetailsView {
     func checkIfTopOfScroll(_ geo: ScrollGeometry) -> Bool {
         geo.contentOffset.y + geo.contentInsets.top <= 0.5
     }
-    
-    var disableDetailsScroll: Bool {
-        !ui.detailsOpen || (ui.isTopOfScroll && detailsOffset > 0)
-    }
-    
+
     var showEventView: Bool {
         event != nil && event?.status == .accepted
     }

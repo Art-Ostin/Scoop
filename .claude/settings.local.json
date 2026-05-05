@@ -14,7 +14,12 @@
       "Bash(xcodebuild -project Scoop.xcodeproj -list)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -quiet build)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' build)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' build)",
+      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(ffmpeg -version)",
+      "Bash(brew list *)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)"
     ]
   }
 }

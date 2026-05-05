@@ -15,7 +15,6 @@ struct ProfileImageView: View {
     @State private var selection = 0
     let imagePadding: CGFloat = 12
     @State private var imageSize: CGFloat = 0
-    let detailsOffset: CGFloat
     @State var importedImages: [UIImage]
     
     var body: some View {

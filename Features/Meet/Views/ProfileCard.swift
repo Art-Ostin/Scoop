@@ -23,15 +23,15 @@ struct ProfileCard : View {
 
 
     var body: some View {
-            Image(uiImage: displayImage)
-                .resizable()
-                .defaultImage(size, cardCornerRadius)
-                .overlay { backgroundBlur(isDetails: true)}
-                .overlay { backgroundBlur(isDetails: false)}
-                .background(
-                    RoundedRectangle(cornerRadius: cardCornerRadius)
-                        .fill(Color.background)
-                )
+        Image(uiImage: displayImage)
+            .resizable()
+            .defaultImage(size, cardCornerRadius)
+            .overlay { backgroundBlur(isDetails: true)}
+            .overlay { backgroundBlur(isDetails: false)}
+            .background(
+                RoundedRectangle(cornerRadius: cardCornerRadius)
+                    .fill(Color.background)
+            )
             .customSubtleShadow(strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
             .coordinateSpace(name: ProfileCard.cardSpace)
