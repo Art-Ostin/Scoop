@@ -214,9 +214,9 @@ extension View {
         )
     }
         
-    func respondCustomAlert(item: Binding<Bool>, type: RespondPopupInfo, onOK: @escaping () -> Void) -> some View {
+    func respondCustomAlert(isPresented: Binding<Bool>, type: RespondPopupInfo, onOK: @escaping () -> Void) -> some View {
         modifier(CustomAlertModifier(
-            isPresented: item,
+            isPresented: isPresented,
             title: type.title,
             message: type.message(),
             showTwoButtons: true,

@@ -21,19 +21,8 @@ struct RespondPopupContainer: View {
     @Binding var showPopup: Bool
 
     let onResponse: (ProfileResponse) -> Void
-    
-    //Used to convert my Bool binding into a string binding
-    private var showPopupAsString: Binding<String?> {
-        Binding<String?>(
-            get: { showPopup ? "" : nil },
-            set: { showPopup = ($0 != nil) }
-        )
-    }
 
-    var body: some View {
-        let meetDay = FormatEvent.dayAndTime(vm.respondDraft.originalInvite.selectedDay ?? Date(), wide: true, withHour: false)
-        let meetHour = (FormatEvent.hourTime(vm.respondDraft.originalInvite.selectedDay ?? Date()))
-        
+    var body: some View {        
         ZStack {
             CustomScreenCover { showPopup = false }
             GeometryReader { proxy in
@@ -66,9 +55,9 @@ struct RespondPopupContainer: View {
             .overlay(alignment: .top) {timeMessageOverlay}
             
             //The different responses to the invite
-            .respondCustomAlert(item: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime)}
-            .respondCustomAlert(item: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted)}
-            .respondCustomAlert(item: $ui.confirmSendNewInvite, type: .newInvite) { ui.dismissHidePopup = true ; onResponse(.newInvite)}
+            .respondCustomAlert(isPresented: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime)}
+            .respondCustomAlert(isPresented: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted)}
+            .respondCustomAlert(isPresented: $ui.confirmSendNewInvite, type: .newInvite) { ui.dismissHidePopup = true ; onResponse(.newInvite)}
         }
     }
 }
@@ -95,7 +84,7 @@ extension RespondPopupContainer {
                 .contentShape(Rectangle())
                 .onTapGesture {showPopup = false}
 
-            RespondTimeAndPlaceView(vm: vm, showInvite: showPopupAsString) { onResponse(.newInvite)}
+            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup.asOptionalString) { onResponse(.newInvite)}
                 .pageScrollTransition(anchor: .leading, yOffset: 32)
         }
         .frame(width: cardWidth, alignment: .topLeading)

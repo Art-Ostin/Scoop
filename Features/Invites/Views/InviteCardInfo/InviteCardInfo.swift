@@ -12,7 +12,7 @@ struct InviteCardInfo: View {
     let event: UserEvent
     let user: UserProfile
     
-    @Binding var showQuickInvite: UserProfile?
+    @Binding var showQuickInvite: String?
     let isNewInvite: Bool
     
     let decreasePadding: Bool
@@ -33,7 +33,7 @@ struct InviteCardInfo: View {
     
     private var cantMakeItButton: some View {
         Button {
-            showQuickInvite = user
+            showQuickInvite = user.id
         } label: {
             Text("Can't make it?")
                 .font(.body(12, .bold))

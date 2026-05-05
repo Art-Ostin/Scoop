@@ -47,7 +47,7 @@ struct SelectTimeAndPlace: View {
                 sendInviteButton
             }
             .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil))
-            .customAlert(isPresented: $ui.showConfirmPopup, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) {onSendInvite()}
+            .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
             .overlay(alignment: .topLeading) { clearButton }
             .offset(y: !isInviteResponse ? 24 : 0)
             .overlay(alignment: .top) {messageOverlay}
@@ -117,7 +117,6 @@ extension SelectTimeAndPlace {
     private var InviteIsValid: Bool {
         !draft.time.dates.isEmpty && draft.place != nil
     }
-
     //Padding On bottom
     private var extraBottomPadding: CGFloat {
         return (draft.place != nil) ? decreaseVerticalPadding ? 16  : 24 : (decreaseVerticalPadding ? 16 : 18) //Works for complex reasons

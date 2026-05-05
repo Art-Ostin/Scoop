@@ -89,7 +89,7 @@ extension ProfileCard {
 
     private var inviteButton: some View {
         Button {
-            profileInvite = profile.profile.id
+            quickInvite = profile.profile.id
         } label: {
             Image("LetterIconProfile")
                 .resizable()

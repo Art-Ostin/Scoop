@@ -81,7 +81,7 @@ struct CantMakeIt: View {
             .padding(.bottom, 4)
         }
         .background(Color.background)
-        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",cancelTitle: "Back", okTitle: "Confirm", emoji: "🚨", message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", showTwoButtons: true) {
+        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", emoji: "🚨", cancelTitle: "Back", okTitle: "Confirm", showTwoButtons: true) {
             Task {
                 do {
                     try await vm.cancelEvent(event: eventProfile.event)

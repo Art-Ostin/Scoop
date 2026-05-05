@@ -19,7 +19,7 @@ extension ProfileView {
             let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                showInvite: $ui.showPopup,
+                showInvite: $ui.showPopup.asOptionalString, //converts a bool into an optional string
                 sendInvite: onSend
             )
         default:
@@ -60,9 +60,9 @@ extension ProfileView {
         .opacity(transition.overlayTitleOpacity)
     }
     
-    var inviteButton: some View {
+    @ViewBuilder var inviteButton: some View {
         if showInviteButton {
-            return InviteButton(vm: vm, showInvite: $ui.showPopup)
+            InviteButton(vm: vm, showInvite: $ui.showPopup)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 144)
         }
