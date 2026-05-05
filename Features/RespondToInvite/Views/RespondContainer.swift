@@ -53,12 +53,11 @@ struct RespondPopupContainer: View {
             }
             .hideTabBar()
             .overlay(alignment: .top) {timeMessageOverlay}
-            
-            //The different responses to the invite
-            .respondCustomAlert(isPresented: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime)}
-            .respondCustomAlert(isPresented: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted)}
-            .respondCustomAlert(isPresented: $ui.confirmSendNewInvite, type: .newInvite) { ui.dismissHidePopup = true ; onResponse(.newInvite)}
         }
+        //The different responses to the invite
+        .respondCustomAlert(isPresented: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime)}
+        .respondCustomAlert(isPresented: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted)}
+        .respondCustomAlert(isPresented: $ui.confirmSendNewInvite, type: .newInvite) { ui.dismissHidePopup = true ; onResponse(.newInvite)}
     }
 }
 

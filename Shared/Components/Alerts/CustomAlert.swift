@@ -22,7 +22,6 @@ struct CustomAlertCard: View {
     var isDanger: Bool {
         cancelTitle == "Back"
     }
-    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -102,36 +101,35 @@ struct CustomAlertModifier: ViewModifier {
     let onOK: () -> Void
     
     func body(content: Content) -> some View {
-        content
-            .overlay {
-                if isPresented {
-                    ZStack {
-                        Color.black.opacity(isConfirmInvite ? 0.3 : 0.42)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                // Optional: tap outside to dismiss
-                                isPresented = false
-                            }
-                        
-                        CustomAlertCard(
-                            title: title,
-                            message: message,
-                            showTwoButtons: showTwoButtons,
-                            isConfirmInvite: isConfirmInvite,
-                            onCancel: { isPresented = false },
-                            onOK: {
-                                onOK()
-                                isPresented = false
-                            }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
-                        )
-                        .offset(y: isConfirmInvite ? 48 : 0)
-                    }
-                    .transition(.opacity)
-                    .zIndex(999)
+        ZStack {
+            content
+            if isPresented {
+                ZStack {
+                    Color.black.opacity(isConfirmInvite ? 0.3 : 0.42)
+                        .onTapGesture {
+                            isPresented = false
+                        }
+
+                    CustomAlertCard(
+                        title: title,
+                        message: message,
+                        showTwoButtons: showTwoButtons,
+                        isConfirmInvite: isConfirmInvite,
+                        onCancel: { isPresented = false },
+                        onOK: {
+                            onOK()
+                            isPresented = false
+                        }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
+                    )
+                    .offset(y: isConfirmInvite ? 48 : 0)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .zIndex(999)
             }
-            .allowsHitTesting(!isPresented ? true : true)
-            .animation(.easeInOut(duration: 0.18), value: isPresented)
+        }
+        .animation(.easeInOut(duration: 0.18), value: isPresented)
     }
 }
 
@@ -154,35 +152,35 @@ struct CustomAlertItemModifier: ViewModifier {
 
 
     func body(content: Content) -> some View {
-        content
-            .overlay {
-                if let value = item {
-                    ZStack {
-                        Color.black.opacity(isConfirmInvite ? 0.3 : 0.42)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                // Tap outside to dismiss
-                                item = nil
-                            }
+        ZStack {
+            content
+            if let value = item {
+                ZStack {
+                    Color.black.opacity(isConfirmInvite ? 0.3 : 0.42)
+                        .onTapGesture {
+                            item = nil
+                        }
 
-                        CustomAlertCard(
-                            title: title,
-                            message: message,
-                            showTwoButtons: showTwoButtons,
-                            isConfirmInvite: isConfirmInvite,
-                            onCancel: { item = nil },
-                            onOK: {
-                                onOK(value)
-                                item = nil
-                            }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
-                        )
-                        .offset(y: isConfirmInvite ? 48 : 0)
-                    }
-                    .transition(.opacity)
-                    .zIndex(999)
+                    CustomAlertCard(
+                        title: title,
+                        message: message,
+                        showTwoButtons: showTwoButtons,
+                        isConfirmInvite: isConfirmInvite,
+                        onCancel: { item = nil },
+                        onOK: {
+                            onOK(value)
+                            item = nil
+                        }, cancelTitle: cancelTitle, okTitle: okTitle, emoji: emoji
+                    )
+                    .offset(y: isConfirmInvite ? 48 : 0)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .zIndex(999)
             }
-            .animation(.easeInOut(duration: 0.18), value: item)
+        }
+        .animation(.easeInOut(duration: 0.18), value: item)
     }
 }
 

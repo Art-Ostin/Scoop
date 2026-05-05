@@ -27,6 +27,7 @@ struct EventSlotContainer: View {
                 howItWorksView
                 cantMakeItButton
             }
+            .padding(.bottom, 72)
         }
         .overlay(alignment: .bottomTrailing) {messageButton}
     }
@@ -82,11 +83,12 @@ extension EventSlotContainer {
             ui.showCantMakeIt = eventProfile
         } label: {
             Text("Can't Make It?")
-                .frame(maxWidth: .infinity, alignment: .trailing)
                 .font(.body(14, .bold))
+                .contentShape(Rectangle())
                 .foregroundStyle(Color.accent)
                 .padding(.trailing, 24)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var messageButton: some View {

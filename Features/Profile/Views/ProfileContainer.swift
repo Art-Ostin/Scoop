@@ -89,9 +89,7 @@ struct ProfileView: View {
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .bottomTrailing) {
-            
-        }
+        .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {
             if vm.viewProfileType == .invite {
                 EventDeclineButton() { } //EMPTY DECLINE HERE

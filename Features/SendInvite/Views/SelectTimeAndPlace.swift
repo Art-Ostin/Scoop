@@ -47,12 +47,12 @@ struct SelectTimeAndPlace: View {
                 sendInviteButton
             }
             .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil))
-            .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
             .overlay(alignment: .topLeading) { clearButton }
             .offset(y: !isInviteResponse ? 24 : 0)
             .overlay(alignment: .top) {messageOverlay}
         }
         .hideTabBar()
+        .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
@@ -69,7 +69,7 @@ extension SelectTimeAndPlace {
                 Text("Clear")
                     .font(.body(12, .regular))
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
-                    .offset(x: -10, y: -8)
+                    .offset(y: -8)
             }
             .padding(.top, 24)
             .padding(.horizontal, ((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 28 : 32)
