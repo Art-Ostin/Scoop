@@ -83,8 +83,13 @@ struct EventMapView: View {
 extension EventMapView {
     private var enableMapButton: some View {
         Button {
+            if disableMap == true {
+                //1. Slow animation to the mapViw
+                withAnimation(.easeInOut(duration: 1)) {
+                    proxy.scrollTo("MapsView", anchor: .center)
+                }
+            }
             withAnimation(toggleAnimation) {
-                proxy.scrollTo("MapView", anchor: .center)
                 disableMap.toggle()
             }
         } label: {
@@ -93,7 +98,6 @@ extension EventMapView {
                 .foregroundStyle(Color.black)
                 .padding(6)
                 .padding(.horizontal, 2)
-//                .stroke(16, lineWidth: 1, color: .accent)
                 .background (
                     RoundedRectangle(cornerRadius: 12)
                         .fill(.white).opacity(0.9)

@@ -10,6 +10,7 @@ import SwiftUI
 struct EventSlotContainer: View {
     
     @State private var disableMap: Bool = true
+    @State private var listenToScroll: Bool = false
     
     @Bindable var ui: EventUIState
     let eventProfile: EventProfile
@@ -30,6 +31,27 @@ struct EventSlotContainer: View {
                     cantMakeItButton
                 }
                 .padding(.bottom, 72)
+            }
+            .onChange(of: disableMap) { oldValue, newValue in
+                //If map switched to become not disabled trigger
+                if oldValue && !newValue   {
+                    Task {
+                        try? await Task.sleep(for: .seconds(1))
+                        listenToScroll = true
+                    }
+                } else if newValue {
+                    listenToScroll = false
+                }
+            }
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentOffset.y
+            } action: { oldY, newY in
+                guard listenToScroll else { return }
+                if abs(newY - oldY) > 1 {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        disableMap = true
+                    }
+                }
             }
             .overlay(alignment: .bottomTrailing) {messageButton}
         }
@@ -65,7 +87,6 @@ extension EventSlotContainer {
         ) {
             openMaps()
         }
-        .id("Map")
     }
     
     private var howItWorksView: some View {
