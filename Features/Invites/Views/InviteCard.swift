@@ -18,7 +18,7 @@ struct InviteCard: View {
     let eventProfile: EventProfile
         
     let openProfile: (UserProfile) -> ()
-    let onDecline: (UserEvent) -> ()
+    let onDecline: (String) -> ()
 
     private let contentPadding: CGFloat = 6
     

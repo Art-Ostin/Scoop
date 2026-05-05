@@ -43,7 +43,6 @@ struct InvitesContainer: View {
                 
                 if let profileId = ui.showQuickInvite { timeAndPlaceView(profileId) }
             }
-            
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response)}
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -57,10 +56,6 @@ struct InvitesContainer: View {
         .respondItemCustomAlert(item: $showConfirmAccept, type: .acceptInvite) {respond($0, .accepted)}
         .respondItemCustomAlert(item: $showConfirmNewTime, type: .sendNewTimes) {respond($0, .newTime)}
         .respondItemCustomAlert(item: $showConfirmNewInvite, type: .newInvite) { respond($0, .newInvite)}
-    }
-    
-    private func respond(_ id: String, _ type: ProfileResponse) {
-        Task { try await respondToProfile(respondType: type, profileId: id)}
     }
 }
 
@@ -80,10 +75,8 @@ extension InvitesContainer {
                     vm: vm.respondVM(for: invite, image: invite.image ?? UIImage()),
                     ui: ui,
                     eventProfile: invite,
-                    openProfile: { openProfile($0)}) { userEvent in
-                        Task {
-                            try await respondToProfile(respondType: .decline, profileId: invite.profile.id)
-                        }
+                    openProfile: { openProfile($0)}) { profileId in
+                        respond(profileId, .decline)
                     }
                     .task { await loadProfileImages(invite.profile) }
             }
@@ -123,6 +116,10 @@ extension InvitesContainer {
                 .padding(.top, 12)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
+    }
+    
+    private func respond(_ id: String, _ type: ProfileResponse) {
+        Task { try await respondToProfile(respondType: type, profileId: id)}
     }
 }
 //ProfileView Related
@@ -179,17 +176,3 @@ extension InvitesContainer {
         profileImages[profile.id] = loadedImages
     }
 }
-
-
-
-/*
- .customAlert(item: $showConfirmNewTime, title: "New Times Proposed", cancelTitle: "Cancel", okTitle: "I Understand", message: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-     Task {try?  await respondToProfile(respondType: .newTime, profileId: profileId)}
- }
- .customAlert(item: $showConfirmAccept, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-     Task { try? await respondToProfile(respondType: .accepted, profileId: profileId)}
- }
- .customAlert(item: $showConfirmNewInvite, title: "Event Commitment", cancelTitle: "Cancel", okTitle: "I Understand", message: "You are committing to meet on  at. If you don't show, you'll be blocked from Scoop", showTwoButtons: true, isConfirmInvite: true) { profileId in
-     Task { try? await respondToProfile(respondType: .newInvite, profileId: profileId)}
- }
- */

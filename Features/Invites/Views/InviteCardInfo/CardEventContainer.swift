@@ -7,7 +7,7 @@ struct CardEventContainer: View {
     @Bindable var invitesUI: InvitesUIState
     @Binding var showMessageScreen: Bool
     
-    let onDecline: (UserEvent) -> ()
+    let onDecline: (String) -> ()
 
     @State var ui = RespondUIState()
     @State private var selectedTab: RespondUIState.Tab = .event
@@ -105,7 +105,7 @@ extension CardEventContainer {
             showNewTimePopup: $invitesUI.showNewTimePopup,
             vm: vm,
             ui: ui) { userEvent in
-                onDecline(userEvent)
+                onDecline(userEvent.id)
             }
             .opacity(ui.showMessageSection ? 0 : 1)
             .frame(maxWidth: .infinity, alignment: .leading)
