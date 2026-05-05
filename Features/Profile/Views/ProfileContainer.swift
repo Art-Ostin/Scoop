@@ -32,10 +32,6 @@ struct ProfileView: View {
         ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, dragOffset: detailsOffset)
     }
 
-    var detailsScrollDisabled: Bool {
-        !ui.detailsOpen
-    }
-
     var isUserProfile: Bool {
         if case .ownProfile = mode { return true }
         return false
@@ -79,7 +75,7 @@ struct ProfileView: View {
                                 }
                             }
 
-                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, scrollDisabled: detailsScrollDisabled, event: vm.event)
+                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
                             .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                             .offset(y: transition.sectionOffset)
                             .onTapGesture {
@@ -99,14 +95,8 @@ struct ProfileView: View {
         .onAppear { if isUserProfile {vm.viewProfileType = .view } }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {inviteButton}
-        .overlay(alignment: .bottomLeading) {
-            if vm.viewProfileType == .invite {
-                EventDeclineButton {
-                    if case .sendInvite(_, let onDecline) = mode { onDecline() }
-                }
-                .opacity(ui.showPopup ? 0 : 1)
-            }
-        }
+        .overlay(alignment: .bottomLeading) {declineButton}
         .hideTabBar()
+        .animation(.smooth, value: detailsOffset)
     }
 }

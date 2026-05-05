@@ -14,11 +14,11 @@ struct ProfileDetailsView: View {
     @Bindable var ui: ProfileUIState
 
     let p: UserProfile
-    let scrollDisabled: Bool
+    @State var isAtTopOfScroll =  true
+    
     let event: UserEvent?
 
     var body: some View {
-        
         ScrollView {
             VStack(spacing: 24) {
                 if showEventView {
@@ -42,10 +42,14 @@ struct ProfileDetailsView: View {
         .frame(height: 600).background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-        .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
-            self.ui.isTopOfScroll = isAtTop
-        }
-        .scrollDisabled(scrollDisabled)
+        
+        //Check if the scroll at the top if it is disable upward scolling
+        .onScrollGeometryChange(for: Bool.self, of: { geo in
+            geo.contentOffset.y <= geo.contentInsets.top
+        }, action: { _, newValue in
+            isAtTopOfScroll = newValue
+        })
+        .scrollDisabled(isAtTopOfScroll || !ui.detailsOpen)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
@@ -77,10 +81,6 @@ extension ProfileDetailsView {
 }
 
 extension ProfileDetailsView {
-    func checkIfTopOfScroll(_ geo: ScrollGeometry) -> Bool {
-        geo.contentOffset.y + geo.contentInsets.top <= 0.5
-    }
-
     var showEventView: Bool {
         event != nil && event?.status == .accepted
     }
