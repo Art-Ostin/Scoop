@@ -261,17 +261,10 @@ private struct CardEventPageHeightKey: PreferenceKey {
     }
 }
 
-
-
-
-/*
- 
- struct IsTimeOpen: PreferenceKey {
-     static var defaultValue: Bool = false
-     
-     static func reduce(value: inout Bool, nextValue: () -> Bool) {
-         value = value || nextValue()
-     }
- }
-
- */
+struct IsTimeOpen: PreferenceKey {
+    static var defaultValue: Bool = false
+    
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}

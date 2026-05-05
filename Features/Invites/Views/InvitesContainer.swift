@@ -26,6 +26,9 @@ struct InvitesContainer: View {
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response)}
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onPreferenceChange(IsTimeOpen.self) { newValue in
+            ui.showTimePopup = newValue
+        }
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
         .hideTabBar(hideBar: ui.hideTab)
 
@@ -141,9 +144,3 @@ extension InvitesContainer {
         Task { try await respondToProfile(respondType: type, profileId: id)}
     }
 }
-
-/*
- .onPreferenceChange(IsTimeOpen.self) { newValue in
-     ui.showTimePopup = newValue
- }
- */
