@@ -21,7 +21,7 @@ struct InvitesView: View {
             
             ForEach(vm.invites, id: \.self) { invite in
                 inviteCard(invite: invite)
-                    .task { await loadProfileImages(invite.profile) }
+                    .task { await vm.ensureImagesLoaded(for: invite.profile) }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -52,17 +52,12 @@ extension InvitesView {
     
     private func inviteCard(invite: EventProfile) -> some View {
         InviteCard(
-            vm: vm.respondVM(for: invite, image: invite.image ?? UIImage()),
+            vm: vm.respondVM(for: invite),
             ui: ui,
             eventProfile: invite,
             openProfile: { openProfile($0) }) { inviteId in
                 onDecline(inviteId)
             }
-    }
-    
-    private func loadProfileImages(_ profile: UserProfile) async {
-        let loadedImages = await vm.loadImages(profile: profile)
-        ui.profileImages[profile.id] = loadedImages
     }
     
     private func openProfile(_ profile: UserProfile) {

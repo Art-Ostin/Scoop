@@ -19,8 +19,8 @@ struct CardEventContainer: View {
         VStack(alignment: .leading, spacing: 0) {
             title
                 .padding(.horizontal, 24)
-                .opacity(ui.showTimePopup ? 0.2 : 1)
-            
+                .opacity(invitesUI.showTimePopup ? 0.2 : 1)
+
             pageContent
                 .frame(height: pageContentHeight)
                 .overlayPreferenceValue(InviteCardTimeRowBoundsKey.self) { anchor in
@@ -32,7 +32,6 @@ struct CardEventContainer: View {
                     self.pageHeights.merge(pageHeights) { _, new in new }
                 }
         }
-        .preference(key: IsTimeOpen.self, value: ui.showTimePopup)
         .padding(.top, RespondUIState.CardLayout.topPadding)
         .overlay(alignment: .bottom) {tabIndicatorSection}
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -54,7 +53,7 @@ extension CardEventContainer {
         }
         .offset(y: 1)
         .animation(Layout.pageAnimation, value: selectedTab)
-        .opacity(ui.showTimePopup ? 0.2 : 1)
+        .opacity(invitesUI.showTimePopup ? 0.2 : 1)
     }
     
     private func tabIndicator(isSelected: Bool) -> some View {
@@ -104,7 +103,7 @@ extension CardEventContainer {
             showAcceptPopup: $invitesUI.showAcceptPopup,
             showNewTimePopup: $invitesUI.showNewTimePopup,
             vm: vm,
-            ui: ui) { userEvent in
+            showTimePopup: $invitesUI.showTimePopup) { userEvent in
                 onDecline(userEvent.id)
             }
             .opacity(ui.showMessageSection ? 0 : 1)
@@ -136,14 +135,14 @@ extension CardEventContainer {
             let rowRect = proxy[anchor]
             
             InviteCardTimePopup(
-                showTimePopup: $ui.showTimePopup,
+                showTimePopup: $invitesUI.showTimePopup,
                 vm: vm
             )
             .frame(width: rowRect.width, height: 0, alignment: .leading)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .offset(x: rowRect.minX, y: rowRect.maxY)
             .opacity(selectedTab != .event ? 0 : 1)
-            .allowsHitTesting(selectedTab == .event && ui.showTimePopup)
+            .allowsHitTesting(selectedTab == .event && invitesUI.showTimePopup)
             .zIndex(2)
             .offset(y: 16)
             .surfaceShadow(.card)

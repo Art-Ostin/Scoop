@@ -33,7 +33,7 @@ struct InviteCardInfo: View {
     
     private var cantMakeItButton: some View {
         Button {
-            showQuickInvite = user.id
+            showQuickInvite = event.id
         } label: {
             Text("Can't make it?")
                 .font(.body(12, .bold))

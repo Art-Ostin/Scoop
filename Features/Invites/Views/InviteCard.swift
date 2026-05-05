@@ -81,11 +81,10 @@ extension InviteCard {
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
             .defaultImage(imageSize)
-            .opacity(ui.showTimePopup ? 0.3 : 1)
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
             .padding(.horizontal, contentPadding)
-            .opacity(ui.showTimePopup ? 0.1 : 1)
+            .opacity(ui.showTimePopup ? 0.2 : 1)
     }
 }
 

@@ -53,7 +53,7 @@ enum RespondPopupInfo {
 @Observable
 class RespondViewModel {
     
-    let image: UIImage
+    var image: UIImage
     
     let defaults: DefaultsManaging
     let sessionManager: SessionManager
@@ -80,7 +80,7 @@ class RespondViewModel {
     }
     
     private func updateDefaults() {
-        defaults.updateRespondDraft(eventId: user.id, respondDraft: respondDraft)
+        defaults.updateRespondDraft(eventId: respondDraft.originalInvite.event.id, respondDraft: respondDraft)
     }
     
     private static func loadRespondDraft(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent, currentUserId: String) -> RespondDraft {

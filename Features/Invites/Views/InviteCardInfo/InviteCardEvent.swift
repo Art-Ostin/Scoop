@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct InviteCardEvent: View {
-    
+
     @Binding var showMessageSection: Bool
 
     @Binding var showAcceptPopup: String?
     @Binding var showNewTimePopup: String?
 
     @Bindable var vm: RespondViewModel
-    @Bindable var ui: RespondUIState
+    @Binding var showTimePopup: Bool
     typealias layout = RespondUIState.CardLayout
-    
+
     var event: UserEvent {vm.respondDraft.originalInvite.event}
     var isModified: Bool {vm.responseType == .modified}
     let onDecline: (UserEvent) -> ()
@@ -39,16 +39,16 @@ extension InviteCardEvent {
     
     private var inviteCardTimeRow: some View {
         InviteCardTimeRow(
-            showTimePopup: $ui.showTimePopup,
+            showTimePopup: $showTimePopup,
             vm: vm)
     }
-    
+
     private var inviteCardPlaceRow: some View {
         InviteCardPlaceRow(location: event.location, isMeetUp: false) {
             MapsRouter.openMaps(defaults: vm.defaults, item: event.location.mapItem, withDirections: true)
         }
-        .disabled(ui.showTimePopup)
-        .opacity(ui.showTimePopup ? 0.2 : 1)
+        .disabled(showTimePopup)
+        .opacity(showTimePopup ? 0.2 : 1)
     }
     
     @ViewBuilder
@@ -66,14 +66,14 @@ extension InviteCardEvent {
             Spacer()
             AcceptButton(isModified: isModified, isValid: isValid) {
                 if isModified {
-                    showNewTimePopup = event.otherUserId
+                    showNewTimePopup = event.id
                 } else {
-                    showAcceptPopup = event.otherUserId
+                    showAcceptPopup = event.id
                 }
             }
         }
-        .opacity(ui.showTimePopup ? 0.1 : 1)
-        .allowsHitTesting(!ui.showTimePopup)
+        .opacity(showTimePopup ? 0.1 : 1)
+        .allowsHitTesting(!showTimePopup)
     }
 }
  struct QuickInviteTime: PreferenceKey {

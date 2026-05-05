@@ -19,27 +19,22 @@ struct InvitesContainer: View {
             if vm.invites.isEmpty {
                 InvitesPlaceholder()
             } else {
-                
                 invitesView
                 
                 if let profile = ui.selectedProfile {
                     profileView(profile: profile)
                 }
                 
-                if let profileId = ui.showQuickInvite {
-                    timeAndPlaceView(profileId)
+                if let eventId = ui.showQuickInvite {
+                    timeAndPlaceView(eventId)
                 }
                 
             }
-            
             if let response = ui.respondedToProfile {
                 RespondedToProfileView(response: response)
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onPreferenceChange(IsTimeOpen.self) { newValue in
-            ui.showTimePopup = newValue
-        }
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
         .hideTabBar(hideBar: ui.hideTab)
 
@@ -54,13 +49,13 @@ extension InvitesContainer {
 
     //Different Views on cotnainer
     private var invitesView: some View {
-        InvitesView(ui: ui, vm: vm)
+        InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
     }
     
     @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {
         if let eventProfile = vm.eventProfile(for: profile.id),
-           let respondVM = vm.respondVMs[eventProfile.profile.id] {
+           let respondVM = vm.respondVMs[eventProfile.event.id] {
             ProfileView(
                 vm: ProfileViewModel(
                     profile: eventProfile.profile,
@@ -68,11 +63,11 @@ extension InvitesContainer {
                     imageLoader: vm.imageLoader,
                     defaults: vm.defaults
                 ),
-                profileImages: ui.profileImages[eventProfile.profile.id] ?? [],
+                profileImages: vm.profileImages[eventProfile.profile.id] ?? [],
                 selectedProfile: $ui.selectedProfile,
                 dismissOffset: $ui.dismissOffset,
                 mode: .respondToInvite(respondVM: respondVM) {responseType in
-                    respond(eventProfile.profile.id, responseType)
+                    respond(eventProfile.event.id, responseType)
                 }
             )
             .id(eventProfile.profile.id)
@@ -82,9 +77,9 @@ extension InvitesContainer {
     }
 
     @ViewBuilder
-    private func timeAndPlaceView(_ id: String) -> some View {
-        //1. First fetch the correctProfile, as view is triggered by passing in ID
-        if let eventProfile = vm.eventProfile(for: id), let image = eventProfile.image {
+    private func timeAndPlaceView(_ eventId: String) -> some View {
+        //1. First fetch the correct EventProfile by event id
+        if let eventProfile = vm.eventProfile(forEventId: eventId), let image = eventProfile.image {
             let inviteModel = InviteModel(profileId: eventProfile.profile.id, name: eventProfile.profile.name, image: image)
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(
@@ -92,33 +87,33 @@ extension InvitesContainer {
                     defaults: vm.defaults
                 ),
                 showInvite: $ui.showQuickInvite) {responseDraft in
-                    respond(id, .newInvite)
+                    respond(eventId, .newInvite)
                 }
         }
     }
-    
+
     //Different functions used in container
-    private func respond(_ id: String, _ type: ProfileResponse) {
-        Task { try await respondToProfile(respondType: type, profileId: id)}
+    private func respond(_ eventId: String, _ type: ProfileResponse) {
+        Task { try await respondToProfile(respondType: type, eventId: eventId)}
     }
-    private func respondToProfile(respondType: ProfileResponse, profileId: String) async throws {
+    private func respondToProfile(respondType: ProfileResponse, eventId: String) async throws {
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         ui.respondedToProfile = respondType
         try? await Task.sleep(for: .milliseconds(550))
         ui.selectedProfile = nil
-        try await respondToProfileAction(respondType: respondType, profileId: profileId)
+        try await respondToProfileAction(respondType: respondType, eventId: eventId)
         try? await minDelay
         ui.respondedToProfile = nil
         if respondType == .accepted {
             selectedTab.wrappedValue = .events
         }
     }
-    private func respondToProfileAction(respondType: ProfileResponse, profileId: String) async throws {
+    private func respondToProfileAction(respondType: ProfileResponse, eventId: String) async throws {
         switch respondType {
-        case .accepted:  try await vm.accept(profileId: profileId)
-        case .newTime:   try await vm.sendNewTime(profileId: profileId)
-        case .newInvite: try await vm.sendNewEvent(profileId: profileId)
-        case .decline:   try await vm.decline(profileId: profileId)
+        case .accepted:  try await vm.accept(eventId: eventId)
+        case .newTime:   try await vm.sendNewTime(eventId: eventId)
+        case .newInvite: try await vm.sendNewEvent(eventId: eventId)
+        case .decline:   try await vm.decline(eventId: eventId)
         }
     }
 }
