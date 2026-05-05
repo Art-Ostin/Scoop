@@ -55,16 +55,16 @@ enum DragType {
 
 
 @Observable final class ProfileUIState {
-    var showInfoSheet: Bool = false
-    var detailsOpen = false
-    var isTopOfScroll = true
-    var showTimePopup = false
+    
+    //1. Controls how high details is when open
     var detailsOpenOffset: CGFloat = -284
-    var hideProfileScreen: Bool = false
-    let dismissalDuration: TimeInterval = 0.25
-    var inviteTabSelection: Int = 0
-
+    
+    //2.Different profile States
+    var detailsOpen = false
     var showPopup: Bool = false
+    
+    
+    let dismissalDuration: TimeInterval = 0.25
 }
 
 

@@ -58,36 +58,28 @@ struct ProfileView: View {
     
     var body: some View {
         GeometryReader { geo in
-            if !ui.hideProfileScreen {
-                ZoomContainer {
-                    VStack(spacing: 24) {
-                        profileTitle(geo: geo)
-                            .offset(y: transition.interpolate(to: -108))
-                            .opacity(1 - transition.overlayTitleOpacity)
-                            .padding(.top, 36)
-
-                        ProfileImageView(vm: vm, importedImages: profileImages)
-                            .offset(y: transition.interpolate(to: -100))
-                            .simultaneousGesture(imageDetailsDrag(using: geo))
-                            .onTapGesture {
-                                if ui.detailsOpen {
-                                    withAnimation(Self.toggleAnimation) { ui.detailsOpen = false }
-                                }
-                            }
-
-                        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-                            .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
-                            .offset(y: transition.sectionOffset)
-                            .onTapGesture {
-                                withAnimation(Self.toggleAnimation) { ui.detailsOpen.toggle() }
-                            }
-                            .simultaneousGesture(detailsDrag)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .background(profileBackground)
-                    .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
-                    .preference(key: OpenDetails.self, value: ui.detailsOpen)
+            ZoomContainer {
+                VStack(spacing: 24) {
+                    profileTitle(geo: geo)
+                        .offset(y: transition.interpolate(to: -108))
+                        .opacity(1 - transition.overlayTitleOpacity)
+                        .padding(.top, 36)
+                    
+                    ProfileImageView(vm: vm, importedImages: profileImages)
+                        .offset(y: transition.interpolate(to: -100))
+                        .simultaneousGesture(imageDetailsDrag(using: geo))
+                        .onTapGesture {if ui.detailsOpen {ui.detailsOpen = false} }
+                    
+                    ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
+                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
+                        .offset(y: transition.sectionOffset)
+                        .onTapGesture {ui.detailsOpen.toggle()}
+                        .simultaneousGesture(detailsDrag)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .background(profileBackground)
+                .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
+                .preference(key: OpenDetails.self, value: ui.detailsOpen)
             }
         }
         .overlay {if ui.showPopup{invitePopup}}
@@ -97,5 +89,6 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {declineButton}
         .hideTabBar()
+        .animation(Self.toggleAnimation, value: ui.detailsOpen)
     }
 }

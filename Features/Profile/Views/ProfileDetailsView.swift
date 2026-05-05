@@ -14,6 +14,7 @@ struct ProfileDetailsView: View {
     @Bindable var ui: ProfileUIState
 
     let p: UserProfile
+    
     @State var isAtTopOfScroll =  true
     
     let event: UserEvent?
@@ -51,7 +52,7 @@ struct ProfileDetailsView: View {
         })
         .scrollDisabled(isAtTopOfScroll || !ui.detailsOpen)
         .scrollIndicators(.hidden)
-        .customScrollFade(height: 80, showFade: !ui.isTopOfScroll)
+        .customScrollFade(height: 80, showFade: !isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
     }
 }
@@ -61,7 +62,7 @@ extension ProfileDetailsView {
     
     @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !ui.isTopOfScroll && ui.detailsOpen {
+        if !isAtTopOfScroll && ui.detailsOpen {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
@@ -85,5 +86,3 @@ extension ProfileDetailsView {
         event != nil && event?.status == .accepted
     }
 }
-
-//    let onDecline: () -> Void
