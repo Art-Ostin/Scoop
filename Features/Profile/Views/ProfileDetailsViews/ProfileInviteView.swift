@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ProfileInviteView: View {
     
-    @Bindable var ui: ProfileUIState
     let event: UserEvent
     var message: String  {
         (event.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)

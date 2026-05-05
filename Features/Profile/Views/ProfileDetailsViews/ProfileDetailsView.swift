@@ -22,15 +22,8 @@ struct ProfileDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                if showEventView {
-                    if let event {
-                        DetailsSection(color: ui.detailsOpen ? .appGreen : Color.grayBackground, title: "event with \(event.otherUserName)", adaptivePadding: true, padding: 12) {
-                            ProfileInviteView(ui: ui, event: event)
-                        }
-                        .padding(.bottom, 32)
-                    }
-                }
-                DetailsSection(color: ui.detailsOpen ? (showEventView ? Color.grayBackground : vm.viewProfileType == .accept ? .appGreen : .accent) : Color.grayBackground, title: "About") {UserKeyInfo(p: p)}
+                eventInvite
+                DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
@@ -40,17 +33,22 @@ struct ProfileDetailsView: View {
             .padding(.bottom, 300)
             .offset(y: 36)
         }
+        //1. Details Background
         .frame(height: 600).background(Color.background)
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         
-        //Check if the scroll at the top if it is disable upward scolling
+        //2.Disable ScrollView when not open or when swiping down and is at the top
         .onScrollGeometryChange(for: Bool.self, of: { geo in
             geo.contentOffset.y <= 5
         }, action: { _, newValue in
             isAtTopOfScroll = newValue
         })
         .scrollDisabled(isAtTopOfScroll || !ui.detailsOpen)
+        
+        
+        
+        
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
@@ -59,6 +57,32 @@ struct ProfileDetailsView: View {
 
 extension ProfileDetailsView {
     
+    @ViewBuilder private var eventInvite: some View {
+        if let event = event, event.status == .accepted {
+            DetailsSection(
+                color: ui.detailsOpen ? .appGreen : .grayBackground,
+                title: "event with \(event.otherUserName)",
+                adaptivePadding: true,
+                padding: 12
+            ) {
+                ProfileInviteView(event: event)
+            }
+            .padding(.bottom, 32)
+        }
+    }
+    
+    private var keyInfoStrokeColour: Color {
+        let showsEvent = event?.status == .accepted
+        
+        if showsEvent || !ui.detailsOpen {
+            return .grayPlaceholder
+        }
+        if vm.viewProfileType == .accept {
+            return .appGreen
+        } else {
+            return .accent
+        }
+    }
     
     @ViewBuilder
     private var dismissDetailsButton: some View {
@@ -77,12 +101,5 @@ extension ProfileDetailsView {
             UserInterests(p: p)
                 .padding(.vertical, -12)
         }
-    }
-
-}
-
-extension ProfileDetailsView {
-    var showEventView: Bool {
-        event != nil && event?.status == .accepted
     }
 }

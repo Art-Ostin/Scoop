@@ -1170,8 +1170,8 @@
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
 				65C0339E2FAAA1B80075D511 /* ProfileDetailsViews */,
 				65C0339D2FAAA16F0075D511 /* ProfileDragLogic */,
-				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
 				65E1EC9E2F19706D004C9236 /* ImageZoom.swift */,
+				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

@@ -61,25 +61,26 @@ struct ProfileView: View {
             ZoomContainer {
                 VStack(spacing: 24) {
                     profileTitle(geo: geo)
-                        .offset(y: transition.interpolate(to: -108))
-                        .opacity(1 - transition.overlayTitleOpacity)
                         .padding(.top, 36)
+                        .opacity(1 - transition.overlayTitleOpacity)
+                        .offset(y: transition.interpolate(to: -108))
+
                     
                     ProfileImageView(vm: vm, importedImages: profileImages)
+                        .onTapGesture {if ui.detailsOpen {ui.detailsOpen = false} }
                         .offset(y: transition.interpolate(to: -100))
                         .simultaneousGesture(imageDetailsDrag(using: geo))
-                        .onTapGesture {if ui.detailsOpen {ui.detailsOpen = false} }
                     
                     ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
                         .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
-                        .offset(y: transition.sectionOffset)
                         .onTapGesture {ui.detailsOpen.toggle()}
+                        .offset(y: transition.sectionOffset)
                         .simultaneousGesture(detailsDrag)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
-                .preference(key: OpenDetails.self, value: ui.detailsOpen)
+                .preference(key: OpenDetails.self, value: ui.detailsOpen) //Used to hide profileCloseButton in message container, when details Open
             }
         }
         .overlay {if ui.showPopup{invitePopup}}
