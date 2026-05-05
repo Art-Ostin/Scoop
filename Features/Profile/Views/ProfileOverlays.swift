@@ -15,7 +15,7 @@ extension ProfileView {
         case .respondToInvite(let respondVM, let onResponse):
             RespondPopupContainer(vm: respondVM, showPopup: $ui.showPopup, onResponse: onResponse)
 
-        case .sendInvite(let onSend):
+        case .sendInvite(let onSend, _):
             let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),

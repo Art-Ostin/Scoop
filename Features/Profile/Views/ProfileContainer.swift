@@ -5,7 +5,7 @@ import SwiftUI
 enum ProfileMode {
     case ownProfile(draft: UserProfile)
     case viewProfile
-    case sendInvite(onSend: (EventFieldsDraft) -> Void)
+    case sendInvite(onSend: (EventFieldsDraft) -> Void, onDecline: () -> Void)
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
 
@@ -92,8 +92,10 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {
             if vm.viewProfileType == .invite {
-                EventDeclineButton() { } //EMPTY DECLINE HERE
-                    .opacity(ui.showPopup ? 0 : 1)
+                EventDeclineButton {
+                    if case .sendInvite(_, let onDecline) = mode { onDecline() }
+                }
+                .opacity(ui.showPopup ? 0 : 1)
             }
         }
         .hideTabBar()

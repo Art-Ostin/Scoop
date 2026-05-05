@@ -89,9 +89,14 @@ extension MeetContainer {
             profileImages: profileImages[profile.id] ?? [],
             selectedProfile: $ui.openProfile,
             dismissOffset: $dismissOffset,
-            mode: .sendInvite { draft in
-                Task { await respondToProfile(event: draft, profile: profile) }
-            }
+            mode: .sendInvite(
+                onSend: { draft in
+                    Task { await respondToProfile(event: draft, profile: profile) }
+                },
+                onDecline: {
+                    Task { await respondToProfile(profile: profile) }
+                }
+            )
         )
         .id(profile.id)
         .zIndex(1)
