@@ -133,31 +133,3 @@ extension InviteCardMessageView {
 }
 
 
-/*
- 
- /*
-  
-  if let eventMessage = vm.respondDraft.originalInvite.event.message {
-      RespondTextBubble(showMessageScreen: $showMessageScreen, message: eventMessage, isMyChat: false, showRespondButton: showRespondMessage)
-  }
-  
-  if let respondMessage = vm.respondDraft.respondMessage {
-      RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
-  }
-  
-  if vm.respondDraft.respondMessage?.isEmpty != false && vm.respondDraft.originalInvite.event.message?.isEmpty != false {
-      noMessageScreen
-  }
-  */
-
- /*
-  if vm.respondDraft.respondMessage?.isEmpty == true {
-      noMessageScreen
-  } else {
-      if let respondMessage = vm.respondDraft.respondMessage {
-          RespondTextBubble(showMessageScreen: $showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
-      }
-  }
-
-  */
- */

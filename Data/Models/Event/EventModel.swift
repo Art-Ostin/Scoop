@@ -64,7 +64,16 @@ extension Event {
 }
 
 extension Event.EventType {
-    
+
+    // Drinks / double dates need at least two proposed times so the other party
+    // has something to choose from; custom and social meets accept a single slot.
+    var minProposedTimes: Int {
+        switch self {
+        case .drink, .doubleDate: return 2
+        case .custom, .socialMeet: return 1
+        }
+    }
+
     var description: (emoji: String, label: String) {
         switch self {
         case .drink:

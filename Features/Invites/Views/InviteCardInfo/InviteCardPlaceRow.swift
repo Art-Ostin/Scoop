@@ -35,8 +35,6 @@ extension InviteCardPlaceRow {
             Image("GoogleMapsIcon") //"MiniMapIcon"
                 .scaleEffect(isMeetUp ? 1 : 0.9)
                 .offset(x: isMeetUp ? 3 : 2) //.offset(x: isMeetUp ? 3 : 0)
-
-//                .scaleEffect(isMeetUp ? 1.2 : 1)
             placeDetails
         }
     }
@@ -62,8 +60,3 @@ extension InviteCardPlaceRow {
             .lineLimit(1)
     }
 }
-
-/*
- //            ViewMessageButton() {onTap()}
- //                .fixedSize()
- */

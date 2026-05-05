@@ -12,19 +12,23 @@ enum ResponseType: Codable {
 }
 
 struct RespondDraft: Codable  {
-    
+
     var originalInvite: OriginalInvite
     var newTime: NewTimeDraft { didSet { respondType = .modified}}
     var newEvent: EventFieldsDraft
     var respondMessage: String?
     var respondType: ResponseType
-    
+
     init(event: UserEvent, userId: String) {
         let selectedDay = event.proposedTimes.firstAvailableDate
         self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init())
         self.newEvent = EventFieldsDraft(type: .drink, place: event.location)
         self.respondType = .original
+    }
+
+    var canSendNewTime: Bool {
+        newTime.proposedTimes.dates.count >= originalInvite.event.type.minProposedTimes
     }
 }
 

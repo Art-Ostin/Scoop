@@ -99,19 +99,12 @@ extension RespondAcceptCard {
     
     @ViewBuilder
     private var actionSection: some View {
-        let type: Event.EventType = vm.respondDraft.originalInvite.event.type
-        let timeCount: Int = vm.respondDraft.newTime.proposedTimes.dates.count
-        let isValid: Bool = (
-            ((type == .drink || type == .doubleDate) && timeCount >= 2) ||
-            ((type == .custom || type == .socialMeet) && timeCount >= 1)
-        )
-        
         let isModified = vm.respondDraft.respondType != .original
-        
+
         HStack {
             DeclineButton { onDecline() }
             Spacer()
-            AcceptButton(isModified: isModified, isValid: isValid && !popupShown) {
+            AcceptButton(isModified: isModified, isValid: vm.respondDraft.canSendNewTime && !popupShown) {
                 if isModified {
                     confirmNewTimePopup = true
                 } else {
