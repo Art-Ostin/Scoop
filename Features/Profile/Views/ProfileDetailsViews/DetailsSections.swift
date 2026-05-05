@@ -37,7 +37,7 @@ extension UserKeyInfo {
                 InfoItem(image: "House", info: p.hometown)
             }
     }
-
+    
     private var keyInfoScrollView: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 24) {

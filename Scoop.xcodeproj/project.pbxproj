@@ -1167,15 +1167,10 @@
 			children = (
 				655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */,
 				6549DA922F9E9D0D00C89DF2 /* ProfileOverlays.swift */,
-				6549DA942F9E9DBB00C89DF2 /* ProfileGestures.swift */,
-				6549DA902F9E9B5A00C89DF2 /* ProfileDetailsTransition.swift */,
-				6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */,
 				655FADC62E89F0FC00AFAD5F /* ProfileImageView.swift */,
-				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
-				650DA3682F6C25750013EB30 /* ProfileInviteView.swift */,
+				65C0339E2FAAA1B80075D511 /* ProfileDetailsViews */,
+				65C0339D2FAAA16F0075D511 /* ProfileDragLogic */,
 				65A070532EE08F4A009F798B /* ProfileComponents.swift */,
-				651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */,
-				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
 				65E1EC9E2F19706D004C9236 /* ImageZoom.swift */,
 			);
 			path = Views;
@@ -1429,6 +1424,27 @@
 				6569964A2FA613D1009299A5 /* ProfilesSessionManager.swift */,
 			);
 			path = SessionManager;
+			sourceTree = "<group>";
+		};
+		65C0339D2FAAA16F0075D511 /* ProfileDragLogic */ = {
+			isa = PBXGroup;
+			children = (
+				6549DA942F9E9DBB00C89DF2 /* ProfileGestures.swift */,
+				6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */,
+				6549DA902F9E9B5A00C89DF2 /* ProfileDetailsTransition.swift */,
+			);
+			path = ProfileDragLogic;
+			sourceTree = "<group>";
+		};
+		65C0339E2FAAA1B80075D511 /* ProfileDetailsViews */ = {
+			isa = PBXGroup;
+			children = (
+				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
+				650DA3682F6C25750013EB30 /* ProfileInviteView.swift */,
+				651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */,
+				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
+			);
+			path = ProfileDetailsViews;
 			sourceTree = "<group>";
 		};
 		65E820B02E3901080098CC36 /* Shared */ = {
