@@ -1430,8 +1430,8 @@
 			isa = PBXGroup;
 			children = (
 				6549DA942F9E9DBB00C89DF2 /* ProfileGestures.swift */,
-				6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */,
 				6549DA902F9E9B5A00C89DF2 /* ProfileDetailsTransition.swift */,
+				6549DA962F9E9F2300C89DF2 /* ProfileDismissal.swift */,
 			);
 			path = ProfileDragLogic;
 			sourceTree = "<group>";

@@ -52,7 +52,6 @@ extension ProfileImageView {
             .tabViewStyle(.page(indexDisplayMode: .never))
             //Apply the shadow after the frame so shadow not included in distance between views
             .frame(height: imageSize)
-//            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
     }
     
     private var imageScroller : some View {

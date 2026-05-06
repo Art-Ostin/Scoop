@@ -8,14 +8,17 @@
 import SwiftUI
 
 struct ProfileDetailsTransition {
-    
+
+    static let overshootPastSnap: CGFloat = 80   //how far the user can drag past the destination snap
+    static let rubberBandFromRest: CGFloat = 85  //how far the user can drag past the resting position
+
     let isOpen: Bool
     let openOffset: CGFloat
     let dragOffset: CGFloat
 
     var dragRange: ClosedRange<CGFloat> {
-        let limit = openOffset - 80
-        return isOpen ? (-85 ... -limit) : (limit ... 85)
+        let limit = openOffset - Self.overshootPastSnap
+        return isOpen ? (-Self.rubberBandFromRest ... -limit) : (limit ... Self.rubberBandFromRest)
     }
 
     var sectionOffset: CGFloat {
@@ -27,7 +30,7 @@ struct ProfileDetailsTransition {
         let progress = abs(dragOffset)
         if isOpen {
             guard progress < oneThird else { return 0 }
-            return 1 - min(dragOffset / oneThird, 1)
+            return 1 - min(abs(dragOffset) / oneThird, 1)
         }
         guard progress >= oneThird else { return 0 }
         return max((progress - oneThird) / oneThird, 0)
