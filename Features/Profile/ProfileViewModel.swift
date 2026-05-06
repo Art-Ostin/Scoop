@@ -59,9 +59,11 @@ enum DragType {
     //1. Controls how high details is when open
     var detailsOpenOffset: CGFloat = -284
     
-    //2.Different profile States
+    //2.Different profile States.
     var detailsOpen = false
     var showPopup: Bool = false
+    var isAtTopOfScroll = true
+    var detailsDragEngaged = false
     
     
     let dismissalDuration: TimeInterval = 0.25

@@ -60,15 +60,21 @@ extension ProfileView {
         DragGesture(minimumDistance: 8)
             .onChanged { v in
                 guard abs(v.translation.height) > abs(v.translation.width) else { return }
-                if ui.detailsOpen && v.translation.height < 0 { return }
+                if ui.detailsOpen {
+                    // Only engage when at top of scroll and pulling down — otherwise the ScrollView scrolls
+                    guard ui.isAtTopOfScroll, v.translation.height > 0 else { return }
+                }
+                ui.detailsDragEngaged = true
                 detailsOffset = v.translation.height.clamped(to: transition.dragRange)
             }
             .onEnded { v in
                 let predicted = v.predictedEndTranslation.height
+                let wasEngaged = ui.detailsDragEngaged
+                ui.detailsDragEngaged = false
                 withAnimation(ProfileView.toggleAnimation) {
                     if !ui.detailsOpen, predicted < -50 {
                         ui.detailsOpen = true
-                    } else if ui.detailsOpen, predicted > 60 {
+                    } else if ui.detailsOpen, wasEngaged, predicted > 60 {
                         ui.detailsOpen = false
                     }
                     detailsOffset = 0

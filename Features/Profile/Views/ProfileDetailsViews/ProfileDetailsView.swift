@@ -15,8 +15,6 @@ struct ProfileDetailsView: View {
 
     let p: UserProfile
     
-    @State var isAtTopOfScroll =  true
-    
     let event: UserEvent?
 
     var body: some View {
@@ -38,19 +36,15 @@ struct ProfileDetailsView: View {
         .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         
-        //2.Disable ScrollView when not open or when swiping down and is at the top
-        .onScrollGeometryChange(for: Bool.self, of: { geo in
+        //2. Track scroll position so the parent drag can close on pull-down at top
+        .onScrollGeometryChange(for: Bool.self) { geo in
             geo.contentOffset.y <= 5
-        }, action: { _, newValue in
-            isAtTopOfScroll = newValue
-        })
-        .scrollDisabled(isAtTopOfScroll || !ui.detailsOpen)
-        
-        
-        
-        
+        } action: { _, newValue in
+            ui.isAtTopOfScroll = newValue
+        }
+        .scrollDisabled(!ui.detailsOpen || ui.detailsDragEngaged)
         .scrollIndicators(.hidden)
-        .customScrollFade(height: 80, showFade: !isAtTopOfScroll)
+        .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
     }
 }
@@ -86,7 +80,7 @@ extension ProfileDetailsView {
     
     @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !isAtTopOfScroll && ui.detailsOpen {
+        if !ui.isAtTopOfScroll && ui.detailsOpen {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
