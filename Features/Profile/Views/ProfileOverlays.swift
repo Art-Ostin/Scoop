@@ -64,7 +64,8 @@ extension ProfileView {
         if showInviteButton {
             InviteButton(vm: vm, showInvite: $ui.showPopup)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 144)
+                .padding(.bottom, 144 - (transition.interpolate(to: 138)))
+                .animation(ProfileView.toggleAnimation, value: ui.detailsOpen)
         }
     }
     

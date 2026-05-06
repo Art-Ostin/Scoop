@@ -89,6 +89,7 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {declineButton}
         .hideTabBar()
+        .animation(ProfileView.toggleAnimation, value: detailsOffset)
     }
     
     private func closeDetails() {
