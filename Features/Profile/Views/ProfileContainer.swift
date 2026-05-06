@@ -99,4 +99,12 @@ struct ProfileView: View {
     private func toggleDetails() {
         withAnimation(Self.toggleAnimation) { ui.detailsOpen.toggle()}
     }
+    
+    private var profileBackground: some View {
+        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
+            .fill(Color.background)
+            .ignoresSafeArea()
+            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+    }
+    
 }

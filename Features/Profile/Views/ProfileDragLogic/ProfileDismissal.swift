@@ -24,12 +24,17 @@ extension ProfileView {
         DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissalDuration) {
             selectedProfile = nil
         }
-    }
+    }    
     
-    var profileBackground: some View {
-        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
-            .fill(Color.background)
-            .ignoresSafeArea()
-            .shadow(color: profileOffset.isZero ? Color.clear : .black.opacity(0.25), radius: 12, y: 6)
+    func animateProfileDismissal(using geo: GeometryProxy) {
+        let exit = geo.size.height + geo.safeAreaInsets.bottom
+        dismissOffset = profileOffset
+        profileOffset = 0
+        withAnimation(.easeOut(duration: ui.dismissalDuration)) {
+            dismissOffset = exit
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissalDuration) {
+            selectedProfile = nil
+        }
     }
 }
