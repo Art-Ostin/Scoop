@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ProfileDetailsTransition {
+    
     let isOpen: Bool
     let openOffset: CGFloat
     let dragOffset: CGFloat
@@ -31,7 +32,9 @@ struct ProfileDetailsTransition {
         guard progress >= oneThird else { return 0 }
         return max((progress - oneThird) / oneThird, 0)
     }
-
+    
+    //Details open from 0% to 100%. Many transition occur from 0% (start) to 100% (end) needed at same rate.
+    //Function takes start and end value of transition, and make it transition at same rate as % details drag done.
     func interpolate(from start: CGFloat = 0, to end: CGFloat) -> CGFloat {
         let denom = max(abs(openOffset), 0.0001)
         let t = min(abs(dragOffset) / denom, 1)

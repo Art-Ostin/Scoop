@@ -7,54 +7,82 @@
 
 import SwiftUI
 
-
+//Logic to deal with dragging the image
 extension ProfileView {
 
     func imageDetailsDrag(using geo: GeometryProxy) -> some Gesture {
         DragGesture(minimumDistance: 8)
-            .onChanged { v in
-                if dragType == nil { identifyDragType(v: v) }
-                switch dragType {
-                case .profile:
-                    profileOffset = max(0, v.translation.height)
-                case .details:
-                    detailsOffset = v.translation.height.clamped(to: transition.dragRange)
-                default:
-                    break
-                }
+            .onChanged { value in
+                handleImageDrag(value)
             }
-            .onEnded { v in
-                let endedType = dragType
-                dragType = nil
-
-                let predicted = v.predictedEndTranslation.height
-                let translation = v.translation.height
-
-                if endedType == .profile {
-                    let dismissSignal = max(translation, predicted)
-                    if dismissSignal > 80 {
-                        animateProfileDismissal(using: geo)
-                        return
-                    }
-                    withAnimation(ProfileView.toggleAnimation) { profileOffset = 0 }
-                    return
-                }
-
-                if endedType == .details {
-                    let crossedThreshold = max(abs(translation), abs(predicted)) > 75
-                    withAnimation(ProfileView.toggleAnimation) {
-                        if crossedThreshold { ui.detailsOpen.toggle() }
-                        detailsOffset = 0
-                    }
-                    return
-                }
-
-                withAnimation(ProfileView.toggleAnimation) {
-                    detailsOffset = 0
-                    profileOffset = 0
-                }
+            .onEnded { value in
+                onImageDragEnd(value, geo: geo)
             }
     }
+     
+    private func handleImageDrag(_ value: DragGesture.Value) {
+        // 1. Determine the drag type once the gesture passes the minimum distance.
+        if dragType == nil {
+            identifyDragType(v: value)
+        }
+        switch dragType {
+        // 2. Dragging the profile down dismisses it.
+        case .profile:
+            profileOffset = max(0, value.translation.height)
+
+        // 3. Dragging the details view moves it within its allowed range.
+        case .details:
+            detailsOffset = value.translation.height.clamped(to: transition.dragRange)
+
+        // 4. Ignore horizontal or unidentified drags.
+        case .horizontal, .none:
+            break
+        }
+    }
+    
+    private func onImageDragEnd(_ value: DragGesture.Value, geo: GeometryProxy) {
+        
+        // 1. Measure the actual drag distance and SwiftUI’s predicted end distance based on velocity
+        let predicted = value.predictedEndTranslation.height
+        let translation = value.translation.height
+        
+        switch dragType {
+            
+        case .profile:
+            // 2.1. If the profile dismissal threshold is passed, dismiss it with animation.
+            let shouldDismissProfile = max(translation, predicted) > 80
+            if shouldDismissProfile {
+                animateProfileDismissal(using: geo) ; return
+            }
+            
+        case .details:
+            // 2.2. If the details threshold is passed, toggle details open or closed.
+            let shouldToggleDetails = max(abs(translation), abs(predicted)) > 75
+            if shouldToggleDetails {
+                ui.detailsOpen.toggle()
+            }
+
+        case .horizontal, .none:
+            break
+        }
+        
+        //3. At the end put drag type back to nil and reset offsets to 0
+        dragType = nil
+        withAnimation(ProfileView.toggleAnimation) {
+            detailsOffset = 0
+            profileOffset = 0
+        }
+    }
+}
+
+
+extension ProfileView {
+
+
+    
+    
+    
+    
 
     var detailsDrag: some Gesture {
         DragGesture(minimumDistance: 8)
@@ -70,7 +98,6 @@ extension ProfileView {
             .onEnded { v in
                 let predicted = v.predictedEndTranslation.height
                 let wasEngaged = ui.detailsDragEngaged
-                ui.detailsDragEngaged = false
                 withAnimation(ProfileView.toggleAnimation) {
                     if !ui.detailsOpen, predicted < -50 {
                         ui.detailsOpen = true
@@ -78,6 +105,7 @@ extension ProfileView {
                         ui.detailsOpen = false
                     }
                     detailsOffset = 0
+                    ui.detailsDragEngaged = false
                 }
             }
     }
