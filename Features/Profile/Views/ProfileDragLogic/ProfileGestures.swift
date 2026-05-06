@@ -25,17 +25,23 @@ extension ProfileView {
         if dragType == nil {
             identifyDragType(v: value)
         }
-        switch dragType {
-            // 2. Dragging the profile down dismisses it.
-        case .profile:
-            profileOffset = max(0, value.translation.height)
+        // 2. Anchor on first event so the offset grows from 0 instead of jumping
+        //    by the gesture's activation distance (minimumDistance: 8).
+        if dragStart == nil { dragStart = value.translation.height }
+        let dy = value.translation.height - (dragStart ?? 0)
 
-            // 3. Dragging the details view moves it within its allowed range.
+        switch dragType {
+            // 3. Dragging the profile down dismisses it.
+        case .profile:
+            profileOffset = max(0, dy)
+
+            // 4. Dragging the details view moves it within its allowed range.
         case .details:
             ui.detailsDragEngaged = true
-            detailsOffset = value.translation.height.clamped(to: transition.dragRange)
+            let restPos: CGFloat = ui.detailsOpen ? ui.detailsOpenOffset : 0
+            detailsOffset = (restPos + dy).clamped(to: transition.offsetRange)
 
-            // 4. Ignore horizontal or unidentified drags.
+            // 5. Ignore horizontal or unidentified drags.
         case .horizontal, .none:
             break
         }
@@ -49,8 +55,11 @@ extension ProfileView {
     }
 
     private func onImageDragEnd(_ value: DragGesture.Value, geo: GeometryProxy) {
-        // 1. Always set dragType to nil at end of drag so can be recomputed on next drag
-        defer { dragType = nil }
+        // 1. Always reset drag state at end of drag so it can be recomputed on next drag
+        defer {
+            dragType = nil
+            dragStart = nil
+        }
 
         // 2. Depending on the dragType on image, do different drag type
         switch dragType {
@@ -64,9 +73,10 @@ extension ProfileView {
     }
 
     private func handleProfileDragEnd(_ value: DragGesture.Value, geo: GeometryProxy) {
-        // 1. Measure the actual drag distance and SwiftUI's predicted end distance based on velocity
-        let predicted = value.predictedEndTranslation.height
-        let translation = value.translation.height
+        // 1. Normalize translation/prediction by the drag anchor so 0 == release-from-rest.
+        let anchor = dragStart ?? 0
+        let translation = value.translation.height - anchor
+        let predicted = value.predictedEndTranslation.height - anchor
 
         // 2. Create the dismiss threshold to dismiss Profile
         let shouldDismissProfile = translation > 80 || predicted > 160
@@ -108,15 +118,21 @@ extension ProfileView {
         let canDragDetails = !ui.detailsOpen || (ui.isAtTopOfScroll && isDraggingDown)
         guard canDragDetails else { return }
 
-        // 3. If can drag details update (1) uiState (as this disables scrollView in details) and (2) update detailsOffset to the drag amount
+        // 3. Anchor on first event so the offset grows from 0 (not from the
+        //    activation distance), and apply the drag.
+        if dragStart == nil { dragStart = drag.height }
+        let dy = drag.height - (dragStart ?? 0)
+
         ui.detailsDragEngaged = true
-        detailsOffset = drag.height.clamped(to: transition.dragRange)
+        let restPos: CGFloat = ui.detailsOpen ? ui.detailsOpenOffset : 0
+        detailsOffset = (restPos + dy).clamped(to: transition.offsetRange)
     }
 
     private func handleDetailsDragEnd(_ value: DragGesture.Value) {
-        // 1. Get the drag and predicted drag
-        let dragY = value.translation.height
-        let predictedY = value.predictedEndTranslation.height
+        // 1. Normalize translation/prediction by the drag anchor.
+        let anchor = dragStart ?? 0
+        let dragY = value.translation.height - anchor
+        let predictedY = value.predictedEndTranslation.height - anchor
         let threshold: CGFloat = 55
 
         // 2. Identify what the upward or downward drag is
@@ -127,17 +143,18 @@ extension ProfileView {
         let shouldOpenDetails = !ui.detailsOpen && upwardDrag < -threshold
         let shouldCloseDetails = ui.detailsOpen && ui.detailsDragEngaged && downwardDrag > threshold
 
-        // 4. Reset drag-engaged flag outside the animation so ScrollView's
-        ui.detailsDragEngaged = false
-
-        // 5. Animate snap and open/close together so sectionOffset stays continuous.
+        // 4. Animate snap and open/close together. detailsOffset is the absolute
+        //    y offset, so the spring interpolates a single continuous value from
+        //    the current drag position to the new rest position.
         withAnimation(ProfileView.toggleAnimation) {
             if shouldOpenDetails {
                 ui.detailsOpen = true
             } else if shouldCloseDetails {
                 ui.detailsOpen = false
             }
-            detailsOffset = 0
+            detailsOffset = ui.detailsOpen ? ui.detailsOpenOffset : 0
+            ui.detailsDragEngaged = false
         }
+        dragStart = nil
     }
 }

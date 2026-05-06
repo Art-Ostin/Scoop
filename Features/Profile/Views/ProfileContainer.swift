@@ -20,6 +20,7 @@ struct ProfileView: View {
     @State var detailsOffset: CGFloat = 0
     @State var profileOffset: CGFloat = 0
     @State var dragType: DragType? = nil
+    @State var dragStart: CGFloat? = nil   //translation captured on the first drag event so subsequent events grow from 0 instead of jumping by the activation distance
 
     @Binding var dismissOffset: CGFloat?
     @Binding var selectedProfile: UserProfile?
@@ -29,7 +30,7 @@ struct ProfileView: View {
     static let toggleAnimation: Animation = .spring(response: 0.32, dampingFraction: 0.86, blendDuration: 0)
 
     var transition: ProfileDetailsTransition {
-        ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, dragOffset: detailsOffset)
+        ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, offset: detailsOffset)
     }
 
     var isUserProfile: Bool {
@@ -62,18 +63,18 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
                     profileTitle(geo: geo)
                         .padding(.top, 36)
-//                        .opacity(1 - transition.overlayTitleOpacity)
-//                        .offset(y: transition.interpolate(to: -108))
+                        .opacity(1 - transition.overlayTitleOpacity)
+                        .offset(y: transition.interpolate(to: -108))
                     
                     ProfileImageView(vm: vm, importedImages: profileImages)
                         .onTapGesture {closeDetails()}
-//                        .offset(y: transition.interpolate(to: -100))
+                        .offset(y: transition.interpolate(to: -100))
                         .simultaneousGesture(imageDetailsDrag(using: geo))
 
                     ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-//                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
+                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                         .onTapGesture {toggleDetails()}
-                        .offset(y: transition.sectionOffset)
+                        .offset(y: detailsOffset)
                         .simultaneousGesture(detailsDrag)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -93,11 +94,17 @@ struct ProfileView: View {
     
     private func closeDetails() {
         guard ui.detailsOpen else { return }
-        withAnimation(Self.toggleAnimation) { ui.detailsOpen = false }
+        withAnimation(Self.toggleAnimation) {
+            ui.detailsOpen = false
+            detailsOffset = 0
+        }
     }
-    
+
     private func toggleDetails() {
-        withAnimation(Self.toggleAnimation) { ui.detailsOpen.toggle()}
+        withAnimation(Self.toggleAnimation) {
+            ui.detailsOpen.toggle()
+            detailsOffset = ui.detailsOpen ? ui.detailsOpenOffset : 0
+        }
     }
     
     private var profileBackground: some View {

@@ -19,7 +19,8 @@
       "Bash(ffmpeg -version)",
       "Bash(brew list *)",
       "Read(//opt/homebrew/bin/**)",
-      "Read(//usr/local/bin/**)"
+      "Read(//usr/local/bin/**)",
+      "Bash(xcodebuild -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' -configuration Debug build)"
     ]
   }
 }
