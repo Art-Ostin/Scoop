@@ -21,13 +21,14 @@ struct ProfileView: View {
     @State var profileOffset: CGFloat = 0
     @State var dragType: DragType? = nil
     @State var dragStart: CGFloat? = nil   //translation captured on the first drag event so subsequent events grow from 0 instead of jumping by the activation distance
+    @State var detailsFullyOpen: Bool = false   //published to ChatHeaderBar via OpenDetails preference. Updated only after the open/close animation finishes so the parent's re-render doesn't drop a frame mid-spring.
 
     @Binding var dismissOffset: CGFloat?
     @Binding var selectedProfile: UserProfile?
 
     @State var ui = ProfileUIState()
 
-    static let toggleAnimation: Animation = .spring(response: 0.32, dampingFraction: 0.86, blendDuration: 0)
+    static let toggleAnimation: Animation = .timingCurve(0.2, 1, 0.3, 1, duration: 0.32)
 
     var transition: ProfileDetailsTransition {
         ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, offset: detailsOffset)
@@ -72,7 +73,7 @@ struct ProfileView: View {
                         .simultaneousGesture(imageDetailsDrag(using: geo))
 
                     ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
+//                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                         .onTapGesture {toggleDetails()}
                         .offset(y: detailsOffset)
                         .simultaneousGesture(detailsDrag)
@@ -80,7 +81,7 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
-                .preference(key: OpenDetails.self, value: ui.detailsOpen) //Used to hide profileCloseButton in message container, when details Open
+                .preference(key: OpenDetails.self, value: detailsFullyOpen) //Used to hide profileCloseButton in message container, when details Open
             }
         }
         .overlay {if ui.showPopup{invitePopup}}
@@ -97,6 +98,8 @@ struct ProfileView: View {
         withAnimation(Self.toggleAnimation) {
             ui.detailsOpen = false
             detailsOffset = 0
+        } completion: {
+            detailsFullyOpen = false
         }
     }
 
@@ -104,6 +107,8 @@ struct ProfileView: View {
         withAnimation(Self.toggleAnimation) {
             ui.detailsOpen.toggle()
             detailsOffset = ui.detailsOpen ? ui.detailsOpenOffset : 0
+        } completion: {
+            detailsFullyOpen = ui.detailsOpen
         }
     }
     

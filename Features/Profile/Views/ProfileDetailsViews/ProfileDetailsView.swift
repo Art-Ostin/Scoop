@@ -37,10 +37,11 @@ struct ProfileDetailsView: View {
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         
         //2. Track scroll position so the parent drag can close on pull-down at top
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            geo.contentOffset.y <= 5
-        } action: { _, newValue in
-            ui.isAtTopOfScroll = newValue
+        .onScrollGeometryChange(for: CGFloat.self) { geo in
+            geo.contentOffset.y
+        } action: { _, newOffsetY in
+            ui.isAtTopOfScroll = newOffsetY <= 5
+            print("[scroll] offsetY=\(newOffsetY) atTop=\(ui.isAtTopOfScroll)")
         }
         .scrollDisabled(!ui.detailsOpen || ui.detailsDragEngaged)
         .scrollIndicators(.hidden)

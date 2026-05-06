@@ -48,7 +48,8 @@ extension View {
        .background(
            Circle()
                .fill(vm.viewProfileType == .accept ? Color.appGreen : Color.accent)
-               .shadow(color: .black.opacity(0.1), radius: 1.32, x: 0, y: 4.4)
+               .surfaceShadow(.floating, strength: 3)
+//               .shadow(color: .black.opacity(0.1), radius: 1.32, x: 0, y: 4.4)
        )
    }
    .customButtonStyle()

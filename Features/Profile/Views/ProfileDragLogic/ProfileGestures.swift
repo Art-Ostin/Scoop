@@ -126,6 +126,7 @@ extension ProfileView {
         ui.detailsDragEngaged = true
         let restPos: CGFloat = ui.detailsOpen ? ui.detailsOpenOffset : 0
         detailsOffset = (restPos + dy).clamped(to: transition.offsetRange)
+        print("[drag] t=\(value.translation.height) dy=\(dy) -> offset=\(detailsOffset) open=\(ui.detailsOpen)")
     }
 
     private func handleDetailsDragEnd(_ value: DragGesture.Value) {
@@ -134,6 +135,7 @@ extension ProfileView {
         let dragY = value.translation.height - anchor
         let predictedY = value.predictedEndTranslation.height - anchor
         let threshold: CGFloat = 55
+        print("[end] dragY=\(dragY) predY=\(predictedY) currentOffset=\(detailsOffset) open=\(ui.detailsOpen) dragEngaged=\(ui.detailsDragEngaged)")
 
         // 2. Identify what the upward or downward drag is
         let upwardDrag = min(dragY, predictedY)
@@ -145,15 +147,24 @@ extension ProfileView {
 
         // 4. Animate snap and open/close together. detailsOffset is the absolute
         //    y offset, so the spring interpolates a single continuous value from
-        //    the current drag position to the new rest position.
+        //    the current drag position to the new rest position. detailsDragEngaged
+        //    is reset in the completion handler so the inner ScrollView only re-enables
+        //    once the spring has settled — re-enabling it mid-animation causes a
+        //    visible layout hiccup.
+        let willOpen: Bool
+        if shouldOpenDetails { willOpen = true }
+        else if shouldCloseDetails { willOpen = false }
+        else { willOpen = ui.detailsOpen }
+        let target: CGFloat = willOpen ? ui.detailsOpenOffset : 0
+        print("[snap-start] from=\(detailsOffset) to=\(target) willOpen=\(willOpen)")
+
         withAnimation(ProfileView.toggleAnimation) {
-            if shouldOpenDetails {
-                ui.detailsOpen = true
-            } else if shouldCloseDetails {
-                ui.detailsOpen = false
-            }
-            detailsOffset = ui.detailsOpen ? ui.detailsOpenOffset : 0
+            ui.detailsOpen = willOpen
+            detailsOffset = target
+        } completion: {
             ui.detailsDragEngaged = false
+            detailsFullyOpen = willOpen
+            print("[snap-done] offset=\(detailsOffset) open=\(ui.detailsOpen)")
         }
         dragStart = nil
     }
