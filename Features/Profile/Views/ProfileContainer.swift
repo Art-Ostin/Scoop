@@ -62,16 +62,16 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
                     profileTitle(geo: geo)
                         .padding(.top, 36)
-                        .opacity(1 - transition.overlayTitleOpacity)
-                        .offset(y: transition.interpolate(to: -108))
+//                        .opacity(1 - transition.overlayTitleOpacity)
+//                        .offset(y: transition.interpolate(to: -108))
                     
                     ProfileImageView(vm: vm, importedImages: profileImages)
                         .onTapGesture {closeDetails()}
-                        .offset(y: transition.interpolate(to: -100))
+//                        .offset(y: transition.interpolate(to: -100))
                         .simultaneousGesture(imageDetailsDrag(using: geo))
 
                     ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
+//                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
                         .onTapGesture {toggleDetails()}
                         .offset(y: transition.sectionOffset)
                         .simultaneousGesture(detailsDrag)
@@ -89,7 +89,6 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {declineButton}
         .hideTabBar()
-        .animation(ProfileView.toggleAnimation, value: detailsOffset)
     }
     
     private func closeDetails() {

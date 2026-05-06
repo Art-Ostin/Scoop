@@ -127,7 +127,10 @@ extension ProfileView {
         let shouldOpenDetails = !ui.detailsOpen && upwardDrag < -threshold
         let shouldCloseDetails = ui.detailsOpen && ui.detailsDragEngaged && downwardDrag > threshold
 
-        // 4. Actually open or close details with animation
+        // 4. Reset drag-engaged flag outside the animation so ScrollView's
+        ui.detailsDragEngaged = false
+
+        // 5. Animate snap and open/close together so sectionOffset stays continuous.
         withAnimation(ProfileView.toggleAnimation) {
             if shouldOpenDetails {
                 ui.detailsOpen = true
@@ -135,7 +138,6 @@ extension ProfileView {
                 ui.detailsOpen = false
             }
             detailsOffset = 0
-            ui.detailsDragEngaged = false
         }
     }
 }

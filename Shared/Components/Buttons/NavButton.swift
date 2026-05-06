@@ -49,7 +49,7 @@ struct NavButton: View {
 
 struct ProfileDismissButton : View {
     let color: Color
-    let detailsOpen: Bool
+    let isOverlay: Bool
     let onDismiss: (() -> Void)?
     
     var body: some View {
@@ -58,7 +58,7 @@ struct ProfileDismissButton : View {
                 onDismiss()
             }
         } label: {
-            Image(systemName: detailsOpen ? "xmark" : "chevron.down")
+            Image(systemName: isOverlay ? "xmark" : "chevron.down")
                 .font(.body(18, .bold))
                 .foregroundStyle(color)
         }

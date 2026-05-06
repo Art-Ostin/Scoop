@@ -15,7 +15,7 @@ extension ProfileView {
             ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .black, detailsOpen: ui.detailsOpen) {
+                ProfileDismissButton(color: .black, isOverlay: false) {
                     dismissProfile(using: geo)
                 }
             }
@@ -30,7 +30,7 @@ extension ProfileView {
             Text(displayProfile.name)
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .white, detailsOpen: ui.detailsOpen) { onDismiss() }
+                ProfileDismissButton(color: .white, isOverlay: true) { onDismiss() }
                     .padding(6)
                     .glassIfAvailable(Circle())
             }
