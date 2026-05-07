@@ -52,10 +52,6 @@ struct UserExtraInfo: View {
                 genderaAndLanguagesScroll
             }
         }
-        .onAppear {
-            print("Hello World")
-            print(genderAndLanguagesCount)
-        }
     }
 }
 

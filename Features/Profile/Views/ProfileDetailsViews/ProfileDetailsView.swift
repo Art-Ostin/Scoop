@@ -41,7 +41,6 @@ struct ProfileDetailsView: View {
             geo.contentOffset.y
         } action: { _, newOffsetY in
             ui.isAtTopOfScroll = newOffsetY <= 5
-            print("[scroll] offsetY=\(newOffsetY) atTop=\(ui.isAtTopOfScroll)")
         }
         .scrollDisabled(!ui.detailsOpen || ui.detailsDragEngaged)
         .scrollIndicators(.hidden)

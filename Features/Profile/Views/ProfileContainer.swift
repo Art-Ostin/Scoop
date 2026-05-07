@@ -28,7 +28,7 @@ struct ProfileView: View {
 
     @State var ui = ProfileUIState()
 
-    static let toggleAnimation: Animation = .timingCurve(0.2, 1, 0.3, 1, duration: 0.32)
+    static let toggleAnimation: Animation = .spring(duration: 0.4, bounce: 0.1)
 
     var transition: ProfileDetailsTransition {
         ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, offset: detailsOffset)
@@ -73,7 +73,7 @@ struct ProfileView: View {
                         .simultaneousGesture(imageDetailsDrag(using: geo))
 
                     ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-//                        .scaleEffect(transition.interpolate(from: 0.97, to: 1.0), anchor: .top)
+                        .scaleEffect(transition.interpolate(from: 0.97, to: 1), anchor: .top)
                         .onTapGesture {toggleDetails()}
                         .offset(y: detailsOffset)
                         .simultaneousGesture(detailsDrag)
@@ -86,17 +86,19 @@ struct ProfileView: View {
         }
         .overlay {if ui.showPopup{invitePopup}}
         .offset(y: isUserProfile ? 0 : activeProfileOffset)
-        .onAppear { if isUserProfile {vm.viewProfileType = .view } }
+        .onAppear {
+            if isUserProfile { vm.viewProfileType = .view }
+        }
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottomTrailing) {inviteButton}
         .overlay(alignment: .bottomLeading) {declineButton}
         .hideTabBar()
     }
-    
+
     private func closeDetails() {
         guard ui.detailsOpen else { return }
+        ui.detailsOpen = false   //flipped outside withAnimation so SwiftUI doesn't enroll every dependent view (colors, scrollDisabled, dismiss button visibility, etc.) in the animation transaction. Only detailsOffset is animated; transition.interpolate(...) stays continuous because it derives from both isOpen and the animated offset.
         withAnimation(Self.toggleAnimation) {
-            ui.detailsOpen = false
             detailsOffset = 0
         } completion: {
             detailsFullyOpen = false
@@ -104,8 +106,8 @@ struct ProfileView: View {
     }
 
     private func toggleDetails() {
+        ui.detailsOpen.toggle()
         withAnimation(Self.toggleAnimation) {
-            ui.detailsOpen.toggle()
             detailsOffset = ui.detailsOpen ? ui.detailsOpenOffset : 0
         } completion: {
             detailsFullyOpen = ui.detailsOpen
