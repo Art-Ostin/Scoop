@@ -23,7 +23,13 @@
       "Bash(xcodebuild -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' -configuration Debug build)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination \"generic/platform=iOS Simulator\" -configuration Debug build)",
       "Bash(xcodebuild -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build)",
-      "Bash(xcodebuild -project /Users/napoleon/Documents/Scoop/Scoop.xcodeproj -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' build)"
+      "Bash(xcodebuild -project /Users/napoleon/Documents/Scoop/Scoop.xcodeproj -scheme Scoop -destination 'platform=iOS Simulator,name=iPhone 16' build)",
+      "Bash(awk 'NR>=130 && NR<=166' /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/741f7f73-7b8b-4e6c-ab58-ccaf7d61b440.jsonl)",
+      "Bash(awk 'NR>=100 && NR<=130' /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/741f7f73-7b8b-4e6c-ab58-ccaf7d61b440.jsonl)",
+      "Bash(awk 'NR>=100 && NR<=170' /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/741f7f73-7b8b-4e6c-ab58-ccaf7d61b440.jsonl)",
+      "Bash(python3 -c ' *)",
+      "Bash(awk 'NR>=118 && NR<=170' /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/741f7f73-7b8b-4e6c-ab58-ccaf7d61b440.jsonl)",
+      "Bash(awk 'NR>=118 && NR<=166' /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/741f7f73-7b8b-4e6c-ab58-ccaf7d61b440.jsonl)"
     ]
   }
 }

@@ -54,7 +54,21 @@ enum ProfileViewType {
     var showPopup: Bool = false
     var isAtTopOfScroll = true
     var selectedDetent: PresentationDetent = .fraction(0.26)
+
+    // Live geometry of the native sheet, in global coords. Updated continuously
+    // while the user drags so the parallel card overlay can mirror the sheet
+    // without lag.
+    var sheetTopY: CGFloat = 0
     var sheetHeight: CGFloat = 0
 
     let dismissDuration = 0.25
+
+    // Detent fractions used to interpolate the parallel card's width and
+    // corner radius. Kept here so the sheet config and the overlay agree.
+    let smallDetent: CGFloat = 0.26
+    let largeDetent: CGFloat = 0.65
+    
+    var detailOpen: Bool {
+        selectedDetent == .fraction(largeDetent)
+    }
 }

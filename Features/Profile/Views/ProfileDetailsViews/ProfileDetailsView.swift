@@ -49,6 +49,7 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
         .background(Color.background.ignoresSafeArea())
+        .publishesSheetGeometry(to: ui)
     }
 }
 

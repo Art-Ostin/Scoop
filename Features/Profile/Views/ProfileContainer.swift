@@ -58,6 +58,14 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
+                .offset(y: ui.selectedDetent == .fraction(0.26) ? 0 : -172)
+                .overlay(alignment: .topLeading) {
+                    ParallelDetailsCard(
+                        ui: ui,
+                        containerSize: geo.size,
+                        containerOriginY: geo.frame(in: .global).minY
+                    )
+                }
                 //                .overlay { sheetFollowerFiller }
                 .sheet(isPresented: .constant(true)) { detailsSheet }
             }
@@ -83,17 +91,13 @@ struct ProfileView: View {
             .presentationBackgroundInteraction(.enabled)
             .interactiveDismissDisabled(true)
             .presentationCompactAdaptation(.sheet)
-            .presentationBackground {
-                Color.background
-                    .overlay(alignment: .trailing) {
-                        Rectangle()
-                            .fill(Color.blue)
-                            .frame(width: 8)
-                    }
-            }
+            // Sheet container is fully transparent — the visible card frame
+            // is rendered by `ParallelDetailsCard` outside the sheet so it is
+            // not subject to the native sheet's clipping bounds.
+            .presentationBackground(Color.clear)
             .presentationDragIndicator(.hidden)
     }
-    
+
     func dismissProfile(using geo: GeometryProxy) {
         let distance = geo.size.height + geo.safeAreaInsets.bottom
         withAnimation(.snappy(duration: ui.dismissDuration)) {
