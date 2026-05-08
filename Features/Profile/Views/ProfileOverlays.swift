@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension ProfileView {
-    
+
     func profileTitle(geo: GeometryProxy) -> some View {
         HStack {
             Text(displayProfile.name)
@@ -24,7 +24,7 @@ extension ProfileView {
         .font(.body(24, .bold))
         .padding(.horizontal)
     }
-    
+
     func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
         HStack {
             Text(displayProfile.name)
@@ -39,9 +39,9 @@ extension ProfileView {
         .contentShape(Rectangle())
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
-        .opacity(transition.overlayTitleOpacity)
+        .opacity(0)
     }
-    
+
     @ViewBuilder var invitePopup: some View {
         switch mode {
         case .respondToInvite(let respondVM, let onResponse):
@@ -64,11 +64,10 @@ extension ProfileView {
         if showInviteButton {
             InviteButton(vm: vm, showInvite: $ui.showPopup)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 144 - (transition.interpolate(to: 138)))
-                .animation(ProfileView.toggleAnimation, value: ui.detailsOpen)
+                .padding(.bottom, 144)
         }
     }
-    
+
     @ViewBuilder var declineButton: some View {
         if vm.viewProfileType == .invite {
             EventDeclineButton {

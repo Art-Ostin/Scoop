@@ -14,15 +14,15 @@ enum ProfileViewType {
 
 @MainActor
 @Observable class ProfileViewModel {
-    
+
     let profile: UserProfile
     let event: UserEvent?
-    
+
     let imageLoader: ImageLoading
     let defaults: DefaultsManaging //Profile View Passes on defaults manager for invites, and maps (simplifies architecture for invite popups)
-    
+
     var viewProfileType: ProfileViewType
-    
+
     init(profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading, defaults: DefaultsManaging) {
         self.profile = profile
         self.imageLoader = imageLoader
@@ -30,8 +30,8 @@ enum ProfileViewType {
         self.defaults = defaults
         self.viewProfileType = Self.loadProfileViewType(event: event)
     }
-        
-    
+
+
     private static func loadProfileViewType(event: UserEvent? = nil) -> ProfileViewType {
         if event?.status == .pastAccepted {
             return .view
@@ -43,30 +43,18 @@ enum ProfileViewType {
             return .invite
         }
     }
-    
+
     func loadImages() async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile)
     }
 }
 
-enum DragType {
-    case details, profile, horizontal
-}
-
 
 @Observable final class ProfileUIState {
-    
-    //1. Controls how high details is when open
-    var detailsOpenOffset: CGFloat = -284
-    
-    //2.Different profile States.
-    var detailsOpen = false
     var showPopup: Bool = false
     var isAtTopOfScroll = true
-    var detailsDragEngaged = false
-    
-    
-    let dismissalDuration: TimeInterval = 0.25
+    var selectedDetent: PresentationDetent = .fraction(0.26)
+    var sheetHeight: CGFloat = 0
+
+    let dismissDuration = 0.25
 }
-
-

@@ -14,12 +14,17 @@ struct ProfileDetailsView: View {
     @Bindable var ui: ProfileUIState
 
     let p: UserProfile
-    
+
     let event: UserEvent?
+    
+    var isOpened: Bool {
+        ui.selectedDetent != .fraction(0.26)
+    }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+//                ClearRectangle(size: 24)
                 eventInvite
                 DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
@@ -27,34 +32,32 @@ struct ProfileDetailsView: View {
                 PromptView(prompt: p.prompt2)
                 DetailsSection(title: "Extra Info", adaptivePadding: true) {UserExtraInfo(p: p)}
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
+                ClearRectangle(size: 96)
             }
-            .padding(.bottom, 300)
-            .offset(y: 36)
+            .padding(.horizontal, isOpened ? -12 : 0)
         }
-        //1. Details Background
-        .frame(height: 600).background(Color.background)
-        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-        
-        //2. Track scroll position so the parent drag can close on pull-down at top
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentMargins(.bottom, 0, for: .scrollContent)
+        .ignoresSafeArea(.container, edges: .bottom)
+
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
             ui.isAtTopOfScroll = newOffsetY <= 5
         }
-        .scrollDisabled(!ui.detailsOpen || ui.detailsDragEngaged)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
+        .background(Color.background.ignoresSafeArea())
     }
 }
 
 extension ProfileDetailsView {
-    
+
     @ViewBuilder private var eventInvite: some View {
         if let event = event, event.status == .accepted {
             DetailsSection(
-                color: ui.detailsOpen ? .appGreen : .grayBackground,
+                color: .appGreen,
                 title: "event with \(event.otherUserName)",
                 adaptivePadding: true,
                 padding: 12
@@ -62,25 +65,19 @@ extension ProfileDetailsView {
                 ProfileInviteView(event: event)
             }
             .padding(.bottom, 32)
+            .padding(.horizontal, isOpened ? -16 : 0)
         }
     }
-    
+
     private var keyInfoStrokeColour: Color {
-        let showsEvent = event?.status == .accepted
-        
-        if showsEvent || !ui.detailsOpen {
-            return .grayPlaceholder
-        }
-        if vm.viewProfileType == .accept {
-            return .appGreen
-        } else {
-            return .accent
-        }
+        if event?.status == .accepted { return .grayPlaceholder }
+        if vm.viewProfileType == .accept { return .appGreen }
+        return .accent
     }
-    
+
     @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !ui.isAtTopOfScroll && ui.detailsOpen {
+        if !ui.isAtTopOfScroll {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
@@ -89,7 +86,7 @@ extension ProfileDetailsView {
                 .padding(.horizontal, 6)
         }
     }
-    
+
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
             UserInterests(p: p)

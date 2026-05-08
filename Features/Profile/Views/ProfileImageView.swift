@@ -10,7 +10,7 @@ import Zoomable
 
 
 struct ProfileImageView: View {
-    
+    @Bindable var ui: ProfileUIState
     @Bindable var vm: ProfileViewModel
     @State private var selection = 0
     let imagePadding: CGFloat = 12
@@ -70,6 +70,7 @@ extension ProfileImageView {
                 }
                 .offset(x: 18) // Gives ScrollView padding initially
             }
+            .opacity(ui.selectedDetent != .fraction(0.26) ? 0 : 1)
             .frame(height: 60)
             .scrollClipDisabled() //
             .onChange(of: selection) {oldIndex, newIndex in
