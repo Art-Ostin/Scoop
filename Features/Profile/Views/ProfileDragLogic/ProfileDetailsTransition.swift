@@ -9,9 +9,6 @@ import SwiftUI
 
 struct ProfileDetailsTransition {
 
-    static let overshootPastSnap: CGFloat = 80   //how far the user can drag past the destination snap
-    static let rubberBandFromRest: CGFloat = 85  //how far the user can drag past the resting position
-
     let isOpen: Bool
     let openOffset: CGFloat
     let offset: CGFloat   //absolute current y offset of the details section
@@ -22,13 +19,25 @@ struct ProfileDetailsTransition {
     //Signed distance from rest. Negative = pulled toward open, positive = pulled toward closed.
     var dragDelta: CGFloat { offset - restPos }
 
-    //Range for the absolute offset during a drag, including overshoot past the destination snap and rubber-band past the resting position.
-    var offsetRange: ClosedRange<CGFloat> {
-        if isOpen {
-            return (openOffset - Self.rubberBandFromRest) ... Self.overshootPastSnap
-        } else {
-            return (openOffset - Self.overshootPastSnap) ... Self.rubberBandFromRest
+    //iOS-style logarithmic rubber-band: 1:1 inside [openOffset, 0], asymptotic resistance outside.
+    //Mirrors UIScrollView's overscroll feel — the finger keeps moving but visible offset compresses.
+    static func rubberBand(_ overshoot: CGFloat, range: CGFloat, coefficient: CGFloat = 0.55) -> CGFloat {
+        guard overshoot != 0, range > 0 else { return 0 }
+        let sign: CGFloat = overshoot > 0 ? 1 : -1
+        let magnitude = abs(overshoot)
+        return sign * (1 - 1 / (magnitude * coefficient / range + 1)) * range
+    }
+
+    //Maps a raw (finger-tracked) offset to a rubber-banded offset. Natural travel is [openOffset, 0];
+    //anything outside is compressed via rubberBand, so the gesture stays continuous past the snap points.
+    static func rubberBandedOffset(_ raw: CGFloat, openOffset: CGFloat) -> CGFloat {
+        let range = max(abs(openOffset), 1)
+        if raw > 0 {
+            return rubberBand(raw, range: range)
+        } else if raw < openOffset {
+            return openOffset + rubberBand(raw - openOffset, range: range)
         }
+        return raw
     }
 
     var overlayTitleOpacity: Double {

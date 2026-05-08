@@ -11,7 +11,7 @@ import SwiftUI
 extension ProfileView {
 
     func imageDetailsDrag(using geo: GeometryProxy) -> some Gesture {
-        DragGesture(minimumDistance: 8)
+        DragGesture(minimumDistance: 0)
             .onChanged { value in
                 handleImageDrag(value)
             }
@@ -21,25 +21,28 @@ extension ProfileView {
     }
 
     private func handleImageDrag(_ value: DragGesture.Value) {
-        // 1. Determine the drag type once the gesture passes the minimum distance.
+        // 1. Determine the drag type once we have enough movement to read direction.
         if dragType == nil {
             identifyDragType(v: value)
         }
-        // 2. Anchor on first event so the offset grows from 0 instead of jumping
-        //    by the gesture's activation distance (minimumDistance: 8).
+        // 2. Anchor on first identified event so the offset grows from 0 instead
+        //    of jumping by whatever translation accumulated before identification.
+        guard dragType != nil else { return }
         if dragStart == nil { dragStart = value.translation.height }
         let dy = value.translation.height - (dragStart ?? 0)
 
         switch dragType {
-            // 3. Dragging the profile down dismisses it.
+            // 3. Dragging the profile down dismisses it. Pulling up rubber-bands
+            //    against the top instead of hard-flooring at 0.
         case .profile:
-            profileOffset = max(0, dy)
+            profileOffset = dy >= 0 ? dy : ProfileDetailsTransition.rubberBand(dy, range: 300)
 
-            // 4. Dragging the details view moves it within its allowed range.
+            // 4. Dragging the details view follows the finger 1:1 inside [openOffset, 0]
+            //    and rubber-bands logarithmically outside, matching UISheetPresentationController.
         case .details:
             ui.detailsDragEngaged = true
             let restPos: CGFloat = ui.detailsOpen ? ui.detailsOpenOffset : 0
-            detailsOffset = (restPos + dy).clamped(to: transition.offsetRange)
+            detailsOffset = ProfileDetailsTransition.rubberBandedOffset(restPos + dy, openOffset: ui.detailsOpenOffset)
 
             // 5. Ignore horizontal or unidentified drags.
         case .horizontal, .none:
@@ -50,6 +53,10 @@ extension ProfileView {
     private func identifyDragType(v: DragGesture.Value) {
         let dy = abs(v.translation.height)
         let dx = abs(v.translation.width)
+        // Wait for a few points of clear movement before deciding direction.
+        // With minimumDistance: 0, the gesture fires on touch-down where dy=dx=0,
+        // which would otherwise mis-classify as horizontal and lock the drag out.
+        guard max(dy, dx) > 4 else { return }
         guard dy > dx else { dragType = .horizontal; return }
         dragType = (v.translation.height < 0 || ui.detailsOpen) ? .details : .profile
     }
@@ -98,7 +105,7 @@ extension ProfileView {
 extension ProfileView {
 
     var detailsDrag: some Gesture {
-        DragGesture(minimumDistance: 8)
+        DragGesture(minimumDistance: 0)
             .onChanged { value in
                 handleDetailsDrag(value)
             }
@@ -117,30 +124,35 @@ extension ProfileView {
         //    scrollDisabled took effect — flickering the guard skipped offset
         //    updates intermittently. dragStart doubles as the "engaged" marker.
         if dragStart == nil {
-            // 1a. Vertical (not horizontal) drag.
+            // 1a. Wait for clear movement before deciding (minimumDistance: 0
+            //     means the first event has translation 0/0).
+            guard max(abs(drag.height), abs(drag.width)) > 4 else { return }
+
+            // 1b. Vertical (not horizontal) drag.
             guard abs(drag.height) > abs(drag.width) else { return }
 
-            // 1b. Allow if details is closed, or open + at top of scroll + pulling down.
+            // 1c. Allow if details is closed, or open + at top of scroll + pulling down.
             let isDraggingDown = drag.height > 0
             let canDrag = !ui.detailsOpen || (ui.isAtTopOfScroll && isDraggingDown)
             guard canDrag else { return }
 
-            // 1c. Anchor so the offset grows from 0 instead of jumping by the
-            //     gesture's activation distance, and disable the inner ScrollView
+            // 1d. Anchor so the offset grows from 0 instead of jumping by the
+            //     accumulated translation, and disable the inner ScrollView
             //     for the rest of this drag.
             dragStart = drag.height
             ui.detailsDragEngaged = true
         }
 
-        // 2. Track finger directly; rubber-band/overshoot is handled by the clamp.
-        //    Wrap the write in a non-animated transaction so it cancels any
-        //    in-flight spring (from a prior toggle/close/drag-end) cleanly,
-        //    rather than letting queued spring frames render alongside the new
-        //    direct value — that interleaving is what produced the back-and-forth
-        //    jitter on fast drags 50% of the time.
+        // 2. Track finger 1:1 inside the natural [openOffset, 0] range; outside
+        //    apply iOS-style logarithmic rubber-band. Wrap the write in a
+        //    non-animated transaction so it cancels any in-flight spring (from
+        //    a prior toggle/close/drag-end) cleanly, rather than letting queued
+        //    spring frames render alongside the new direct value — that
+        //    interleaving is what produced the back-and-forth jitter on fast
+        //    drags 50% of the time.
         let dy = drag.height - (dragStart ?? 0)
         let restPos: CGFloat = ui.detailsOpen ? ui.detailsOpenOffset : 0
-        let newOffset = (restPos + dy).clamped(to: transition.offsetRange)
+        let newOffset = ProfileDetailsTransition.rubberBandedOffset(restPos + dy, openOffset: ui.detailsOpenOffset)
         withTransaction(Transaction(animation: nil)) {
             detailsOffset = newOffset
         }
@@ -149,39 +161,32 @@ extension ProfileView {
     private func handleDetailsDragEnd(_ value: DragGesture.Value) {
         // 1. If the drag never engaged (e.g., horizontal, or open-and-not-at-top),
         //    leave state alone. dragStart being nil is the signal.
-        guard let anchor = dragStart else { return }
+        guard dragStart != nil else { return }
         dragStart = nil
 
-        // 2. predictedEndTranslation already incorporates flick velocity, so use
-        //    it directly for the threshold. The previous min/max approach could
-        //    let a reversed drag (e.g. pulled up 100, then flicked down) trigger
-        //    the wrong direction because both upward/downward bounds passed.
-        let predictedY = value.predictedEndTranslation.height - anchor
-        let threshold: CGFloat = 55
-
-        let willOpen: Bool
-        if !ui.detailsOpen, predictedY < -threshold {
-            willOpen = true
-        } else if ui.detailsOpen, predictedY > threshold {
-            willOpen = false
-        } else {
-            willOpen = ui.detailsOpen
-        }
-        let target: CGFloat = willOpen ? ui.detailsOpenOffset : 0
-
-        // 3. Build a velocity-matched spring so a flick continues smoothly into
-        //    the snap. Critical: only feed velocity into the spring when it's
-        //    aligned with the snap direction. On a gentle swipe that doesn't
-        //    pass the threshold, target is the rest position the finger was
-        //    pulling away from, so velocity points opposite to distance — a
-        //    signed velocity would push the spring further past rest before
-        //    reversing, producing a visible "two-step" stutter on release.
-        //    Aligned velocities (committed flicks) keep their momentum.
-        let distance = target - detailsOffset
+        // 2. UIScrollView-style velocity projection: where would the offset land
+        //    if released with current velocity and decelerated at the standard
+        //    rate? Snap to whichever detent the projected end is closer to.
+        //    This mirrors UISheetPresentationController: a gentle pull past the
+        //    midpoint commits, a fast flick from anywhere can commit, and a
+        //    weak flick that doesn't carry past the midpoint snaps back.
         let velocity = value.velocity.height
-        let alignedVelocity: CGFloat = (velocity * distance > 0) ? velocity : 0
-        let normalized = abs(distance) > 0.5 ? alignedVelocity / distance : 0
-        let initialVelocity = Double(min(30, normalized))
+        let decelerationRate: CGFloat = 0.998
+        let projection = velocity / 1000 * decelerationRate / (1 - decelerationRate)
+        let projectedOffset = detailsOffset + projection
+
+        let closedSnap: CGFloat = 0
+        let openSnap: CGFloat = ui.detailsOpenOffset
+        let willOpen = abs(projectedOffset - openSnap) < abs(projectedOffset - closedSnap)
+        let target: CGFloat = willOpen ? openSnap : closedSnap
+
+        // 3. Feed raw velocity into the spring (no gating, no cap). The spring
+        //    is critically damped, so even a misaligned flick — e.g. pulled up
+        //    then released downward without crossing the snap midpoint — gives
+        //    a brief follow-through then settles without overshoot. That brief
+        //    follow-through is authentic UISheetPresentationController feel.
+        let distance = target - detailsOffset
+        let initialVelocity = abs(distance) > 0.5 ? Double(velocity / distance) : 0
 
         // 4. Flip detailsOpen outside the animation transaction so dependents
         //    (colors, scrollDisabled, dismiss button visibility) don't all enroll
@@ -189,10 +194,11 @@ extension ProfileView {
         //    struct stays continuous because it's derived from detailsOffset.
         ui.detailsOpen = willOpen
 
-        // 5. detailsDragEngaged is reset in the completion handler so the inner
-        //    ScrollView only re-enables once the spring has settled — re-enabling
-        //    mid-animation causes a visible layout hiccup.
-        withAnimation(.interpolatingSpring(stiffness: 246, damping: 28, initialVelocity: initialVelocity)) {
+        // 5. damping = 32 for stiffness 246 → ζ ≈ 1.02 (critically damped, no
+        //    visible overshoot even with raw uncapped velocity).
+        //    detailsDragEngaged is reset in the completion handler so the inner
+        //    ScrollView only re-enables once the spring has settled.
+        withAnimation(.interpolatingSpring(stiffness: 246, damping: 32, initialVelocity: initialVelocity)) {
             detailsOffset = target
         } completion: {
             ui.detailsDragEngaged = false

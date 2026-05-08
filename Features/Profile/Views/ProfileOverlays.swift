@@ -23,6 +23,9 @@ extension ProfileView {
         .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))
         .padding(.horizontal)
+        .onAppear {
+            print("Hello world")
+        }
     }
     
     func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
