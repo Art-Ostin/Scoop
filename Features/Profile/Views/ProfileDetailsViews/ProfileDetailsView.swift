@@ -24,7 +24,7 @@ struct ProfileDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-//                ClearRectangle(size: 24)
+                ClearRectangle(size: 24)
                 eventInvite
                 DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
                 PromptView(prompt: p.prompt1)
@@ -34,7 +34,7 @@ struct ProfileDetailsView: View {
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
                 ClearRectangle(size: 96)
             }
-            .padding(.horizontal, isOpened ? -12 : 0)
+            .padding(.horizontal, -12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentMargins(.bottom, 0, for: .scrollContent)
@@ -49,7 +49,7 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
         .background(Color.background.ignoresSafeArea())
-        .publishesSheetGeometry(to: ui)
+//        .publishesSheetGeometry(to: ui)
     }
 }
 
