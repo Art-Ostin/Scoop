@@ -430,7 +430,7 @@
 		6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLifestyle.swift; sourceTree = "<group>"; };
 		6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPrompt.swift; sourceTree = "<group>"; };
 		6577D8002E21C8C400FFCF82 /* DropDownMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownMenu.swift; sourceTree = "<group>"; };
-		6578382C2DE773CC00770B49 /* Scoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6578382C2DE773CC00770B49 /* Scoop Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Scoop Test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838392DE773CE00770B49 /* ScoopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		657838432DE773CE00770B49 /* ScoopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScoopUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextView.swift; sourceTree = "<group>"; };
@@ -1387,7 +1387,7 @@
 		6578382D2DE773CC00770B49 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6578382C2DE773CC00770B49 /* Scoop.app */,
+				6578382C2DE773CC00770B49 /* Scoop Test.app */,
 				657838392DE773CE00770B49 /* ScoopTests.xctest */,
 				657838432DE773CE00770B49 /* ScoopUITests.xctest */,
 			);
@@ -1469,9 +1469,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		6578382B2DE773CC00770B49 /* Scoop */ = {
+		6578382B2DE773CC00770B49 /* Scoop Test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6578384D2DE773CE00770B49 /* Build configuration list for PBXNativeTarget "Scoop" */;
+			buildConfigurationList = 6578384D2DE773CE00770B49 /* Build configuration list for PBXNativeTarget "Scoop Test" */;
 			buildPhases = (
 				657838282DE773CC00770B49 /* Sources */,
 				657838292DE773CC00770B49 /* Frameworks */,
@@ -1481,7 +1481,7 @@
 			);
 			dependencies = (
 			);
-			name = Scoop;
+			name = "Scoop Test";
 			packageProductDependencies = (
 				6508A0B92DF209B600312AFD /* SwiftUIFlowLayout */,
 				653BAF892E0B860800C1AB9E /* FirebaseAnalytics */,
@@ -1496,7 +1496,7 @@
 				6517952B2F7EE546001D70E4 /* ChatBubble */,
 			);
 			productName = ScoopTest;
-			productReference = 6578382C2DE773CC00770B49 /* Scoop.app */;
+			productReference = 6578382C2DE773CC00770B49 /* Scoop Test.app */;
 			productType = "com.apple.product-type.application";
 		};
 		657838382DE773CE00770B49 /* ScoopTests */ = {
@@ -1591,7 +1591,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				6578382B2DE773CC00770B49 /* Scoop */,
+				6578382B2DE773CC00770B49 /* Scoop Test */,
 				657838382DE773CE00770B49 /* ScoopTests */,
 				657838422DE773CE00770B49 /* ScoopUITests */,
 			);
@@ -1908,12 +1908,12 @@
 /* Begin PBXTargetDependency section */
 		6578383B2DE773CE00770B49 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6578382B2DE773CC00770B49 /* Scoop */;
+			target = 6578382B2DE773CC00770B49 /* Scoop Test */;
 			targetProxy = 6578383A2DE773CE00770B49 /* PBXContainerItemProxy */;
 		};
 		657838452DE773CE00770B49 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6578382B2DE773CC00770B49 /* Scoop */;
+			target = 6578382B2DE773CC00770B49 /* Scoop Test */;
 			targetProxy = 657838442DE773CE00770B49 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -2189,7 +2189,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6578384D2DE773CE00770B49 /* Build configuration list for PBXNativeTarget "Scoop" */ = {
+		6578384D2DE773CE00770B49 /* Build configuration list for PBXNativeTarget "Scoop Test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6578384E2DE773CE00770B49 /* Debug */,

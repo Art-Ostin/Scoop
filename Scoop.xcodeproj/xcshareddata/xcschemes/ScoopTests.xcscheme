@@ -25,8 +25,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6578382B2DE773CC00770B49"
-               BuildableName = "Scoop.app"
-               BlueprintName = "Scoop"
+               BuildableName = "Scoop Test.app"
+               BlueprintName = "Scoop Test"
                ReferencedContainer = "container:Scoop.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -74,8 +74,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6578382B2DE773CC00770B49"
-            BuildableName = "Scoop.app"
-            BlueprintName = "Scoop"
+            BuildableName = "Scoop Test.app"
+            BlueprintName = "Scoop Test"
             ReferencedContainer = "container:Scoop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
