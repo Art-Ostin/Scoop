@@ -78,40 +78,15 @@ struct ProfileView: View {
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .overlay(alignment: .top) { if showBackground {sheetBackground}}
                 .sheet(isPresented: .constant(true)) { detailsSheet }
-
-                
-                
-
-                
-                
-                
-                
-                
-                
+                .offset(y: profileOffset)
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
-                .simultaneousGesture(
-                    DragGesture()
-                        .onChanged { profileOffset = max(0, $0.translation.height)}
-                        .onEnded { value in
-                            let endSwipe =  max(value.predictedEndTranslation.height, value.translation.height)
-                            if endSwipe > 50 {
-                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-                                    profileOffset = 0
-                                    selectedProfile = nil
-                                }
-                            } else {
-                                withAnimation(.spring()) { profileOffset = 0 }  // bounce back
-                            }
-                        }
-                )
+                .simultaneousGesture(profileDrag)
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
         .offset(y: isUserProfile ? 0 : (dismissOffset ?? 0))
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
-        .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .bottomTrailing) { inviteButton }
-        .overlay(alignment: .bottomLeading) { declineButton }
+//        .toolbar(.hidden, for: .navigationBar)
         .hideTabBar()
     }
     
