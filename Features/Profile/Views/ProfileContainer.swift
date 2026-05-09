@@ -65,10 +65,10 @@ struct ProfileView: View {
                     }
                     
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                            .padding(.top, ui.detailOpen ? -96 : 0) //-16
+                            .offset(y: ui.detailOpen ? -16 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(profileBackground)
+                .background(Color.background)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
                 .overlay(alignment: .top) {

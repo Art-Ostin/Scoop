@@ -19,7 +19,7 @@ struct ProfileImageView: View {
     
     var body: some View {
         
-        VStack(spacing: 24) {
+        VStack(spacing: 24, ) {
             profileImages
             imageScroller
         }
@@ -31,29 +31,23 @@ struct ProfileImageView: View {
         }
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            let detailsMinusPadding: CGFloat = ui.detailOpen ? 16 : 0
-            imageSize = screenWidth - detailsMinusPadding
+            imageSize = screenWidth - 16
         }
     }
 }
 
 extension ProfileImageView {
 
+
     private var profileImages: some View {
-            TabView(selection: $selection) {
-                ForEach(importedImages.indices, id: \.self) { index in
-                        Image(uiImage: importedImages[index])
-                            .resizable()
-                            .defaultImage(imageSize, 16)
-                            .tag(index)
-                            .indexViewStyle(.page(backgroundDisplayMode: .never))
-                            .pinchZoom()
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            //Apply the shadow after the frame so shadow not included in distance between views
-            .frame(height: imageSize)
+        Image(uiImage: importedImages.first ?? UIImage())
+            .resizable()
+            .defaultImage(imageSize, 16)
+//            .tag(index)
+            .pinchZoom()
+//            .frame(height: imageSize + 12)
     }
+
     
     private var imageScroller : some View {
         ScrollViewReader { proxy in
@@ -84,3 +78,39 @@ extension ProfileImageView {
         }
     }
 }
+
+/*
+ TabView(selection: $selection) {
+     ForEach(importedImages.indices, id: \.self) { index in
+             Image(uiImage: importedImages[index])
+                 .resizable()
+                 .defaultImage(displayedImageSize, 16)
+                 .tag(index)
+                 .pinchZoom()
+     }
+ }
+ .border(.red, width: 2)
+ .frame(height: displayedImageSize)
+ .indexViewStyle(.page(backgroundDisplayMode: .never))
+ .tabViewStyle(.page(indexDisplayMode: .never))
+ .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
+ //Apply the shadow after the frame so shadow not included in distance between views
+
+ TabView(selection: $selection) {
+     ForEach(importedImages.indices, id: \.self) { index in
+             Image(uiImage: importedImages[index])
+                 .resizable()
+                 .defaultImage(displayedImageSize, 16)
+                 .tag(index)
+                 .pinchZoom()
+     }
+ }
+ .border(.red, width: 2)
+ .frame(height: displayedImageSize)
+ .indexViewStyle(.page(backgroundDisplayMode: .never))
+ .tabViewStyle(.page(indexDisplayMode: .never))
+ .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
+ //Apply the shadow after the frame so shadow not included in distance between views
+
+ 
+ */
