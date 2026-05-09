@@ -49,16 +49,19 @@ struct ProfileView: View {
         GeometryReader { geo in
             ZoomContainer {
                 VStack(spacing: 24) {
-                    profileTitle(geo: geo)
-                        .padding(.top, 36)
+                    if !ui.detailOpen {
+                        profileTitle(geo: geo)
+                            .padding(.top, 36)
+                    }
                     
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                                            .scaleEffect(ui.selectedDetent != .fraction(0.26) ? 0.995 : 1)
+                            .padding(.top, ui.detailOpen ? -12 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
-//                .offset(y: ui.selectedDetent == .fraction(0.26) ? 0 : -172)
+//                .offset(y: ui.detailOpen ? -172 : 0)
+                .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
                 .sheet(isPresented: .constant(true)) { detailsSheet }
             }
         }

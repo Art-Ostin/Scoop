@@ -39,7 +39,7 @@ extension ProfileView {
         .contentShape(Rectangle())
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
-        .opacity(0)
+        .opacity(ui.detailOpen ? 1 : 0)
     }
 
     @ViewBuilder var invitePopup: some View {
