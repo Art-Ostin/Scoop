@@ -69,16 +69,17 @@ struct ProfileView: View {
                         .padding(.top, ui.detailOpen ? -6 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .offset(y: profileOffset)
                 .background(Color.background)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
-                
                 .overlay(alignment: .top) {
                     if showBackground {
                         sheetBackground
                     }
                 }
                 .sheet(isPresented: .constant(true)) { detailsSheet }
+                .animation(.spring(response: 0.32, dampingFraction: 0.86, blendDuration: 0.01), value: profileOffset)
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged { profileOffset = max(0, $0.translation.height)}
@@ -103,15 +104,8 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .hideTabBar()
-        .offset(y: profileOffset)
     }
     
-    private var profileBackground: some View {
-        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
-            .fill(Color.background)
-            .ignoresSafeArea()
-    }
-
     private var detailsSheet: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
             .onGeometryChange(for: CGFloat.self) { proxy in
@@ -139,11 +133,12 @@ struct ProfileView: View {
     }
     
     func handleSheetDragLogic(newY: CGFloat) {
+
         //Logic to deal with if its at top position
         let target: CGFloat = 370.21
         let topSheetAtTarget = abs(newY - target) <= 0.01
         isSheetTopAtTarget = topSheetAtTarget
-        
+
         //Logic to ensure it is not scrolling
         isScrolling = true
         stopTask?.cancel()
@@ -172,4 +167,13 @@ struct ProfileView: View {
             }
             .animation(.spring(duration: 0.25), value: enlargeBackground)
     }
+    
+    
+    private var profileBackground: some View {
+        UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
+            .fill(Color.background)
+            .ignoresSafeArea()
+    }
+
+    
 }
