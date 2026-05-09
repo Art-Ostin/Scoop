@@ -11,8 +11,8 @@ import SwiftUIFlowLayout
 
 struct ProfileDetailsView: View {
     @Bindable var vm: ProfileViewModel
-    @Bindable var ui: ProfileUIState
-
+    @Bindable var ui: ProfileUIState    
+    
     let p: UserProfile
 
     let event: UserEvent?
@@ -39,7 +39,6 @@ struct ProfileDetailsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentMargins(.bottom, 0, for: .scrollContent)
         .ignoresSafeArea(.container, edges: .bottom)
-
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
@@ -49,7 +48,6 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
         .background(Color.background.ignoresSafeArea())
-//        .publishesSheetGeometry(to: ui)
     }
 }
 
@@ -95,3 +93,35 @@ extension ProfileDetailsView {
         }
     }
 }
+
+/*
+ 
+ 
+ .onGeometryChange(for: CGFloat.self) { proxy in
+     proxy.frame(in: .global).minY
+ } action: { oldY, newY in
+     guard abs(newY - oldY) > 0.5 else { return }
+     
+     
+     
+     
+     
+     if ui.detailOpen {
+         showBackground = false
+     }
+     
+     
+     
+     showBackground = false
+     sheetIsIdle = false
+     sheetIdleTask?.cancel()
+     sheetIdleTask = Task { @MainActor in
+         try? await Task.sleep(for: .milliseconds(50))
+         guard !Task.isCancelled else { return }
+         sheetIsIdle = true
+         if ui.detailOpen == true {
+             showBackground = true
+         }
+     }
+ }
+ */
