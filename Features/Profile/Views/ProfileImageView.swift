@@ -70,7 +70,6 @@ extension ProfileImageView {
                 }
                 .offset(x: 18) // Gives ScrollView padding initially
             }
-            .opacity(ui.selectedDetent != .fraction(0.26) ? 0 : 1)
             .frame(height: 60)
             .scrollClipDisabled() //
             .onChange(of: selection) {oldIndex, newIndex in

@@ -28,6 +28,13 @@ struct ProfileView: View {
     
     @State var isSheetTopAtTarget: Bool = false
     @State var isScrolling: Bool = false
+    @State var stopTask: Task<Void, Never>? = nil
+    
+    var showBackground: Bool {
+        isSheetTopAtTarget && !isScrolling
+    }
+    
+    @State var enlargeBackground: Bool = false
     
     var displayProfile: UserProfile {
         if case .ownProfile(let draft) = mode { return draft }
@@ -65,13 +72,23 @@ struct ProfileView: View {
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
                 .overlay(alignment: .top) {
-                    if isSheetTopAtTarget &&  !isScrolling {
+                    if showBackground {
                         RoundedRectangle(cornerRadius: 32)
                             .frame(maxWidth: .infinity)
                             .frame(height: 600)
                             .foregroundStyle(Color.white)
                             .stroke(32, lineWidth: 1, color: Color.grayPlaceholder)
-                            .padding(.top, 284)
+                            .padding(.top, enlargeBackground ? 284 : 300) //284
+                            .scaleEffect(enlargeBackground  ? 1 : 0.9)
+                            .onAppear {
+                                enlargeBackground = true
+                            }
+                            .onDisappear {
+                                withAnimation(.spring(duration: 0.25)) {
+                                    enlargeBackground = false
+                                }
+                            }
+                            .animation(.spring(duration: 0.25), value: enlargeBackground)
                     }
                 }
                 .sheet(isPresented: .constant(true)) { detailsSheet }
@@ -95,38 +112,29 @@ struct ProfileView: View {
 
     private var detailsSheet: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-            .onGeometryChange(for: CGFloat.self, of: { proxy in
-                proxy.frame(in: .global).minY
-            }, action: { oldValue, newValue in
-                let target: CGFloat = 347.812
-                print("newTop is: \(abs(newValue))")
-                let isInRange = abs(newValue - target) <= 0.05
-                if isInRange {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                        withAnimation(.spring(duration: 0.32)) {
-                            isSheetTopAtTarget = true
-                        }
-                    }
-                } else {
-                    isSheetTopAtTarget = false
-                }
-            })
             .onGeometryChange(for: CGFloat.self) { proxy in
                 proxy.frame(in: .global).minY
-            } action: {oldY, newY in
-                guard abs(newY - oldY) > 0.5 else { return }
+            } action: { oldValue, newValue in
+                //Logic to deal with if its at top position
+                let target: CGFloat = 347.812
+                let topSheetAtTarget = abs(newValue - target) <= 0.01
+                isSheetTopAtTarget = topSheetAtTarget
                 
+                //Logic to ensure it is not scrolling
                 isScrolling = true
-                
+                stopTask?.cancel()
+                stopTask = Task {
+                    try? await Task.sleep(for: .milliseconds(100))
+                    guard !Task.isCancelled else { return }
+                    isScrolling = false
+                }
             }
-        
-        
-                .presentationDetents([.fraction(0.26), .fraction(0.65)], selection: $ui.selectedDetent)
-                .presentationBackgroundInteraction(.enabled)
-                .interactiveDismissDisabled(true)
-                .presentationCompactAdaptation(.sheet)
-                .presentationBackground(Color.clear)
-                .presentationDragIndicator(.hidden)
+            .presentationDetents([.fraction(0.26), .fraction(0.65)], selection: $ui.selectedDetent)
+            .presentationBackgroundInteraction(.enabled)
+            .interactiveDismissDisabled(true)
+            .presentationCompactAdaptation(.sheet)
+            .presentationBackground(Color.clear)
+            .presentationDragIndicator(.hidden)
     }
 
     func dismissProfile(using geo: GeometryProxy) {
@@ -139,3 +147,34 @@ struct ProfileView: View {
         }
     }
 }
+
+/*
+ //                            .scaleEffect(showBackground ? 1 : 0.9, anchor: showBackground ? .top : .bottom)
+ //                            .animation(.spring(response: 0.32, dampingFraction: 0.86), value: showBackground)
+
+ */
+
+
+/*
+ .onGeometryChange(for: CGFloat.self) { proxy in
+     proxy.frame(in: .global).minY
+ } action: {oldY, newY in
+     isScrolling = true
+     stopTask?.cancel()
+     stopTask = Task {
+         try? await Task.sleep(for: .milliseconds(100))
+         guard !Task.isCancelled else { return }
+         isScrolling = false
+     }
+ }
+ 
+ isScrolling = true
+ stopTask?.cancel()
+ stopTask = Task {
+     try? await Task.sleep(for: .milliseconds(100))
+     guard !Task.isCancelled else { return }
+     isScrolling = false
+ }
+
+
+ */
