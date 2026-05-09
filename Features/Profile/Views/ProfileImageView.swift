@@ -31,7 +31,8 @@ struct ProfileImageView: View {
         }
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - imagePadding
+            let detailsMinusPadding: CGFloat = ui.detailOpen ? 16 : 0
+            imageSize = screenWidth - detailsMinusPadding
         }
     }
 }

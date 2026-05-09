@@ -65,7 +65,7 @@ struct ProfileView: View {
                     }
                     
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                            .padding(.top, ui.detailOpen ? -16 : 0)
+                            .padding(.top, ui.detailOpen ? -96 : 0) //-16
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
@@ -73,22 +73,7 @@ struct ProfileView: View {
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
                 .overlay(alignment: .top) {
                     if showBackground {
-                        RoundedRectangle(cornerRadius: 32)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 600)
-                            .foregroundStyle(Color.white)
-                            .stroke(32, lineWidth: 1, color: Color.grayPlaceholder)
-                            .padding(.top, enlargeBackground ? 284 : 300) //284
-                            .scaleEffect(enlargeBackground  ? 1 : 0.9)
-                            .onAppear {
-                                enlargeBackground = true
-                            }
-                            .onDisappear {
-                                withAnimation(.spring(duration: 0.25)) {
-                                    enlargeBackground = false
-                                }
-                            }
-                            .animation(.spring(duration: 0.25), value: enlargeBackground)
+                        sheetBackground
                     }
                 }
                 .sheet(isPresented: .constant(true)) { detailsSheet }
@@ -114,22 +99,11 @@ struct ProfileView: View {
         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
             .onGeometryChange(for: CGFloat.self) { proxy in
                 proxy.frame(in: .global).minY
-            } action: { oldValue, newValue in
-                //Logic to deal with if its at top position
-                let target: CGFloat = 347.812
-                let topSheetAtTarget = abs(newValue - target) <= 0.01
-                isSheetTopAtTarget = topSheetAtTarget
-                
-                //Logic to ensure it is not scrolling
-                isScrolling = true
-                stopTask?.cancel()
-                stopTask = Task {
-                    try? await Task.sleep(for: .milliseconds(100))
-                    guard !Task.isCancelled else { return }
-                    isScrolling = false
-                }
+            } action: { _, newValue in
+                print("NEw Top is: \(newValue)")
+                handleSheetDragLogic(newY: newValue)
             }
-            .presentationDetents([.fraction(0.26), .fraction(0.65)], selection: $ui.selectedDetent)
+            .presentationDetents([.fraction(0.26), .fraction(0.62)], selection: $ui.selectedDetent)
             .presentationBackgroundInteraction(.enabled)
             .interactiveDismissDisabled(true)
             .presentationCompactAdaptation(.sheet)
@@ -146,35 +120,40 @@ struct ProfileView: View {
             selectedProfile = nil
         }
     }
+    
+    
+    func handleSheetDragLogic(newY: CGFloat) {
+        //Logic to deal with if its at top position
+        let target: CGFloat = 370.21
+        let topSheetAtTarget = abs(newY - target) <= 0.01
+        isSheetTopAtTarget = topSheetAtTarget
+        
+        //Logic to ensure it is not scrolling
+        isScrolling = true
+        stopTask?.cancel()
+        stopTask = Task {
+            try? await Task.sleep(for: .milliseconds(100))
+            guard !Task.isCancelled else { return }
+            isScrolling = false
+        }
+    }
+    
+    private var sheetBackground: some View {
+        RoundedRectangle(cornerRadius: 32)
+            .frame(maxWidth: .infinity)
+            .frame(height: 600)
+            .foregroundStyle(Color.white)
+            .stroke(32, lineWidth: 1, color: Color.grayPlaceholder)
+            .padding(.top, enlargeBackground ? 307 : 324) //284
+            .scaleEffect(enlargeBackground  ? 1 : 0.9)
+            .onAppear {
+                enlargeBackground = true
+            }
+            .onDisappear {
+                withAnimation(.spring(duration: 0.25)) {
+                    enlargeBackground = false
+                }
+            }
+            .animation(.spring(duration: 0.25), value: enlargeBackground)
+    }
 }
-
-/*
- //                            .scaleEffect(showBackground ? 1 : 0.9, anchor: showBackground ? .top : .bottom)
- //                            .animation(.spring(response: 0.32, dampingFraction: 0.86), value: showBackground)
-
- */
-
-
-/*
- .onGeometryChange(for: CGFloat.self) { proxy in
-     proxy.frame(in: .global).minY
- } action: {oldY, newY in
-     isScrolling = true
-     stopTask?.cancel()
-     stopTask = Task {
-         try? await Task.sleep(for: .milliseconds(100))
-         guard !Task.isCancelled else { return }
-         isScrolling = false
-     }
- }
- 
- isScrolling = true
- stopTask?.cancel()
- stopTask = Task {
-     try? await Task.sleep(for: .milliseconds(100))
-     guard !Task.isCancelled else { return }
-     isScrolling = false
- }
-
-
- */

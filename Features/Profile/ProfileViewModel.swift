@@ -66,7 +66,7 @@ enum ProfileViewType {
     // Detent fractions used to interpolate the parallel card's width and
     // corner radius. Kept here so the sheet config and the overlay agree.
     let smallDetent: CGFloat = 0.26
-    let largeDetent: CGFloat = 0.65
+    let largeDetent: CGFloat = 0.62
     
     var detailOpen: Bool {
         selectedDetent == .fraction(largeDetent)
