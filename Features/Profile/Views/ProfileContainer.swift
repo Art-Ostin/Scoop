@@ -69,17 +69,23 @@ struct ProfileView: View {
                         .padding(.top, ui.detailOpen ? -6 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .offset(y: profileOffset)
                 .background(Color.background)
+                .overlay(alignment: .bottomTrailing) { inviteButton }
+                .overlay(alignment: .bottomLeading) { declineButton }
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
+                .overlay(alignment: .top) { if showBackground {sheetBackground}}
+                
+                
+                
+
+                
+                
+                
+                
+                
+                
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
-                .overlay(alignment: .top) {
-                    if showBackground {
-                        sheetBackground
-                    }
-                }
                 .sheet(isPresented: .constant(true)) { detailsSheet }
-                .animation(.spring(response: 0.32, dampingFraction: 0.86, blendDuration: 0.01), value: profileOffset)
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged { profileOffset = max(0, $0.translation.height)}
