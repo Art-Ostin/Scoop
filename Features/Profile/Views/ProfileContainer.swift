@@ -34,6 +34,8 @@ struct ProfileView: View {
         isSheetTopAtTarget && !isScrolling
     }
     
+    @State var profileOffset: CGFloat = 0
+    
     @State var enlargeBackground: Bool = false
     
     var displayProfile: UserProfile {
@@ -63,20 +65,35 @@ struct ProfileView: View {
                         profileTitle(geo: geo)
                             .padding(.top, 36)
                     }
-                    
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                            .offset(y: ui.detailOpen ? -12 : 0)
+                        .padding(.top, ui.detailOpen ? -6 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(Color.background)
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
+                
                 .overlay(alignment: .top) {
                     if showBackground {
                         sheetBackground
                     }
                 }
                 .sheet(isPresented: .constant(true)) { detailsSheet }
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged { profileOffset = max(0, $0.translation.height)}
+                        .onEnded { value in
+                            let endSwipe =  max(value.predictedEndTranslation.height, value.translation.height)
+                            if endSwipe > 50 {
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                                    profileOffset = 0
+                                    selectedProfile = nil
+                                }
+                            } else {
+                                withAnimation(.spring()) { profileOffset = 0 }  // bounce back
+                            }
+                        }
+                )
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
@@ -86,7 +103,7 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .hideTabBar()
-        .coordinateSpace(name: "Profile")
+        .offset(y: profileOffset)
     }
     
     private var profileBackground: some View {
@@ -120,7 +137,6 @@ struct ProfileView: View {
             selectedProfile = nil
         }
     }
-    
     
     func handleSheetDragLogic(newY: CGFloat) {
         //Logic to deal with if its at top position
