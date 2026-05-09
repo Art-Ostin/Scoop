@@ -65,7 +65,7 @@ struct ProfileView: View {
                     }
                     
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                            .offset(y: ui.detailOpen ? -16 : 0)
+                            .offset(y: ui.detailOpen ? -12 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(Color.background)

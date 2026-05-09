@@ -12,7 +12,7 @@ import Zoomable
 struct ProfileImageView: View {
     @Bindable var ui: ProfileUIState
     @Bindable var vm: ProfileViewModel
-    @State private var selection = 0
+    @State private var selection: Int? = 0
     let imagePadding: CGFloat = 12
     @State private var imageSize: CGFloat = 0
     @State var importedImages: [UIImage]
@@ -31,7 +31,7 @@ struct ProfileImageView: View {
         }
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 16
+            imageSize = screenWidth - 12
         }
     }
 }
@@ -40,12 +40,23 @@ extension ProfileImageView {
 
 
     private var profileImages: some View {
-        Image(uiImage: importedImages.first ?? UIImage())
-            .resizable()
-            .defaultImage(imageSize, 16)
-//            .tag(index)
-            .pinchZoom()
-//            .frame(height: imageSize + 12)
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(importedImages.indices, id: \.self) { index in
+                    Image(uiImage: importedImages[index])
+                        .resizable()
+                        .defaultImage(imageSize, 16)
+                        .pinchZoom()
+                        .id(index)
+                        .frame(width: imageSize + 12)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $selection)
+        .scrollIndicators(.hidden)
+        .frame(height: imageSize)
     }
 
     
@@ -67,7 +78,7 @@ extension ProfileImageView {
             }
             .frame(height: 60)
             .scrollClipDisabled() //
-            .onChange(of: selection) {oldIndex, newIndex in
+            .onChange(of: selection ?? 0) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
                     withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }
                 }
