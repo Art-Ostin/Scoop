@@ -53,7 +53,7 @@ struct ProfileView: View {
                         .padding(.top, 36)
                     
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                    //                        .scaleEffect(ui.selectedDetent != .fraction(0.26) ? 0.995 : 1)
+                                            .scaleEffect(ui.selectedDetent != .fraction(0.26) ? 0.995 : 1)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)

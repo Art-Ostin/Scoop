@@ -16,7 +16,7 @@ extension ProfileView {
             Spacer()
             if !isUserProfile {
                 ProfileDismissButton(color: .black, isOverlay: false) {
-                    dismissProfile(using: geo)
+//                    dismissProfile(using: geo)
                 }
             }
         }
