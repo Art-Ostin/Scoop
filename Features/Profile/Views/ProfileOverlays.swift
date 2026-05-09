@@ -76,4 +76,23 @@ extension ProfileView {
             .opacity(ui.showPopup ? 0 : 1)
         }
     }
+    
+    var sheetBackground: some View {
+    RoundedRectangle(cornerRadius: 32)
+        .frame(maxWidth: .infinity)
+        .frame(height: 600)
+        .foregroundStyle(Color.white)
+        .stroke(32, lineWidth: 1, color: Color.grayPlaceholder)
+        .padding(.top, enlargeBackground ? 307 : 324) //284
+        .scaleEffect(enlargeBackground  ? 1 : 0.9)
+        .onAppear {
+            enlargeBackground = true
+        }
+        .onDisappear {
+            withAnimation(.spring(duration: 0.25)) {
+                enlargeBackground = false
+            }
+        }
+        .animation(.spring(duration: 0.25), value: enlargeBackground)
+}
 }

@@ -68,13 +68,17 @@ struct ProfileView: View {
                     ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
                         .padding(.top, ui.detailOpen ? -6 : 0)
                 }
+                //Screen
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(Color.background)
+                .background(profileBackground)
+                
+                //Views appearing above the screen
                 .overlay(alignment: .bottomTrailing) { inviteButton }
                 .overlay(alignment: .bottomLeading) { declineButton }
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .overlay(alignment: .top) { if showBackground {sheetBackground}}
-                
+                .sheet(isPresented: .constant(true)) { detailsSheet }
+
                 
                 
 
@@ -85,7 +89,6 @@ struct ProfileView: View {
                 
                 
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
-                .sheet(isPresented: .constant(true)) { detailsSheet }
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged { profileOffset = max(0, $0.translation.height)}
@@ -155,31 +158,10 @@ struct ProfileView: View {
         }
     }
     
-    private var sheetBackground: some View {
-        RoundedRectangle(cornerRadius: 32)
-            .frame(maxWidth: .infinity)
-            .frame(height: 600)
-            .foregroundStyle(Color.white)
-            .stroke(32, lineWidth: 1, color: Color.grayPlaceholder)
-            .padding(.top, enlargeBackground ? 307 : 324) //284
-            .scaleEffect(enlargeBackground  ? 1 : 0.9)
-            .onAppear {
-                enlargeBackground = true
-            }
-            .onDisappear {
-                withAnimation(.spring(duration: 0.25)) {
-                    enlargeBackground = false
-                }
-            }
-            .animation(.spring(duration: 0.25), value: enlargeBackground)
-    }
-    
-    
     private var profileBackground: some View {
         UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
             .fill(Color.background)
             .ignoresSafeArea()
+            .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
     }
-
-    
 }
