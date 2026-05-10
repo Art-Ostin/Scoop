@@ -52,6 +52,8 @@ extension ProfileView {
                     }
                    detailsOffset = 0
                 }
+                
+                
 //                Task {
 //                    try? await Task.sleep(for: .seconds(0.3))
 //                    profileOffsetEnabled = true

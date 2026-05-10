@@ -70,12 +70,12 @@ struct ProfileView: View {
             ZoomContainer {
                 ZStack(alignment: .top) {
                     VStack(spacing: 24) {
-                        if !detailsOpen {
+//                        if !detailsOpen {
                             profileTitle(geo: geo)
                                 .padding(.top, 36)
-                        }
+//                        }
                         ProfileImageView(ui: ui, vm: vm, importedImages: profileImages, imageBottom: $imageBottom)
-                            .padding(.top, detailsOpen ? -6 : 0)
+//                            .padding(.top, detailsOpen ? -6 : 0)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
@@ -100,21 +100,6 @@ struct ProfileView: View {
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar()
     }
-    
-    private var detailsSheet: some View {
-        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.frame(in: .global).minY
-            } action: { _, newValue in
-                handleSheetDragLogic(newY: newValue)
-            }
-            .presentationDetents([.fraction(0.26), .fraction(0.62)], selection: $ui.selectedDetent)
-            .presentationBackgroundInteraction(.enabled)
-            .interactiveDismissDisabled(true)
-            .presentationCompactAdaptation(.sheet)
-            .presentationBackground(Color.clear)
-            .presentationDragIndicator(.hidden)
-    }
 
     func dismissProfile(using geo: GeometryProxy) {
         let distance = geo.size.height + geo.safeAreaInsets.bottom
@@ -123,23 +108,6 @@ struct ProfileView: View {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissDuration) {
             selectedProfile = nil
-        }
-    }
-    
-    func handleSheetDragLogic(newY: CGFloat) {
-
-        //Logic to deal with if its at top position
-        let target: CGFloat = 370.21
-        let topSheetAtTarget = abs(newY - target) <= 0.01
-        isSheetTopAtTarget = topSheetAtTarget
-
-        //Logic to ensure it is not scrolling
-        isScrolling = true
-        stopTask?.cancel()
-        stopTask = Task {
-            try? await Task.sleep(for: .milliseconds(100))
-            guard !Task.isCancelled else { return }
-            isScrolling = false
         }
     }
     
@@ -152,17 +120,12 @@ struct ProfileView: View {
     
     private var detailsCard: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
-            .foregroundStyle(Color.background)
-            .surfaceShadow(.card)
-            .frame(maxWidth: .infinity)
-            .frame(height: 300)
-            .padding(.horizontal, 16)
             .offset(y: detailsOffset)
-            .offset(y: detailsOpen ? -200 : 0)
+            .offset(y: detailsOpen ? -236 : 0)
             .highPriorityGesture (
                 detailsDrag
             )
-            .padding(.top, imageBottom)
+            .padding(.top, imageBottom + 16)
     }
 }
 
@@ -181,3 +144,40 @@ struct ImageBottomKey: PreferenceKey {
  //        .toolbar(.hidden, for: .navigationBar)
 
  */
+
+/*
+ func handleSheetDragLogic(newY: CGFloat) {
+
+     //Logic to deal with if its at top position
+     let target: CGFloat = 370.21
+     let topSheetAtTarget = abs(newY - target) <= 0.01
+     isSheetTopAtTarget = topSheetAtTarget
+
+     //Logic to ensure it is not scrolling
+     isScrolling = true
+     stopTask?.cancel()
+     stopTask = Task {
+         try? await Task.sleep(for: .milliseconds(100))
+         guard !Task.isCancelled else { return }
+         isScrolling = false
+     }
+ }
+ 
+ 
+ 
+ private var detailsSheet: some View {
+     ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
+         .onGeometryChange(for: CGFloat.self) { proxy in
+             proxy.frame(in: .global).minY
+         } action: { _, newValue in
+             handleSheetDragLogic(newY: newValue)
+         }
+         .presentationDetents([.fraction(0.26), .fraction(0.62)], selection: $ui.selectedDetent)
+         .presentationBackgroundInteraction(.enabled)
+         .interactiveDismissDisabled(true)
+         .presentationCompactAdaptation(.sheet)
+         .presentationBackground(Color.clear)
+         .presentationDragIndicator(.hidden)
+ }
+
+*/

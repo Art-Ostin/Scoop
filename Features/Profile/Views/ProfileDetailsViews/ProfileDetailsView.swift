@@ -14,7 +14,7 @@ struct ProfileDetailsView: View {
     @Bindable var ui: ProfileUIState    
     
     let p: UserProfile
-
+    let detailsOffset: CGFloat = 0
     let event: UserEvent?
     
     var isOpened: Bool {
@@ -34,11 +34,17 @@ struct ProfileDetailsView: View {
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
                 ClearRectangle(size: 96)
             }
-            .padding(.horizontal, -12)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
+        .frame(height: 400).background(Color.background)
+        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        .scrollDisabled(detailsOffset != 0)
+        
+        
         .contentMargins(.bottom, 0, for: .scrollContent)
         .ignoresSafeArea(.container, edges: .bottom)
+        
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
@@ -47,7 +53,7 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
-        .background(Color.background.ignoresSafeArea())
+//        .background(Color.background.ignoresSafeArea())
     }
 }
 
