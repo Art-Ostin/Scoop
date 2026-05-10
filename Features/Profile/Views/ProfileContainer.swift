@@ -35,6 +35,8 @@ struct ProfileView: View {
     }
     
     @State var profileOffset: CGFloat = 0
+    @State var detailsOffset: CGFloat = 0
+
     
     @State var enlargeBackground: Bool = false
     
@@ -60,7 +62,7 @@ struct ProfileView: View {
     var body: some View {
         GeometryReader { geo in
             ZoomContainer {
-                ZStack {
+                ZStack(alignment: .top) {
                     
                     VStack(spacing: 24) {
                         if !ui.detailOpen {
@@ -74,8 +76,8 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .background(profileBackground)
                     
-                    
-                    
+                    detailsSheetView
+                        .padding(.top, 572)
                 }
                 
                 //Views appearing above the screen
@@ -83,7 +85,6 @@ struct ProfileView: View {
                 .overlay(alignment: .bottomLeading) { declineButton }
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .overlay(alignment: .top) { if showBackground {sheetBackground}}
-                .sheet(isPresented: .constant(true)) { detailsSheet }
                 .offset(y: profileOffset)
                 .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
                 .simultaneousGesture(profileDrag)
@@ -147,8 +148,28 @@ struct ProfileView: View {
     }
     
     private var detailsSheetView: some View {
+//        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
         
-        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
-        
+        RoundedRectangle(cornerRadius: 16)
+            .frame(height: 500)
+            .frame(width: 300)
+            .highPriorityGesture(
+                DragGesture()
+                    .onChanged { detailsOffset = $0.translation.height }
+            )
+            .offset(y: detailsOffset)
     }
 }
+
+
+/*
+ .sheet(isPresented: .constant(true)) { detailsSheet }
+ RoundedRectangle(cornerRadius: 16)
+     .frame(width: 150, height: 150)
+     .offset(y: 200)
+     .surfaceShadow()
+     .highPriorityGesture(
+         DragGesture()
+     )
+
+ */

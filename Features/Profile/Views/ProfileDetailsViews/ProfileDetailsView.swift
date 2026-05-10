@@ -34,9 +34,13 @@ struct ProfileDetailsView: View {
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
                 ClearRectangle(size: 96)
             }
-            .padding(.horizontal, -12)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
+        .frame(height: 600).background(Color.background)
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        
+        
         .contentMargins(.bottom, 0, for: .scrollContent)
         .ignoresSafeArea(.container, edges: .bottom)
         .onScrollGeometryChange(for: CGFloat.self) { geo in
@@ -47,7 +51,6 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
-        .background(Color.background.ignoresSafeArea())
     }
 }
 
@@ -94,34 +97,13 @@ extension ProfileDetailsView {
     }
 }
 
+//To Update in new piece of code
+
 /*
- 
- 
- .onGeometryChange(for: CGFloat.self) { proxy in
-     proxy.frame(in: .global).minY
- } action: { oldY, newY in
-     guard abs(newY - oldY) > 0.5 else { return }
-     
-     
-     
-     
-     
-     if ui.detailOpen {
-         showBackground = false
-     }
-     
-     
-     
-     showBackground = false
-     sheetIsIdle = false
-     sheetIdleTask?.cancel()
-     sheetIdleTask = Task { @MainActor in
-         try? await Task.sleep(for: .milliseconds(50))
-         guard !Task.isCancelled else { return }
-         sheetIsIdle = true
-         if ui.detailOpen == true {
-             showBackground = true
-         }
-     }
- }
+ .frame(maxWidth: .infinity)
+ .frame(height: 600).background(Color.background)
+ .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+ .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+
+
  */
