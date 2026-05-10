@@ -30,6 +30,9 @@ struct ProfileView: View {
     @State var isScrolling: Bool = false
     @State var stopTask: Task<Void, Never>? = nil
     
+    
+    @State var imageBottom: CGFloat = 0
+    
     var showBackground: Bool {
         isSheetTopAtTarget && !isScrolling
     }
@@ -73,6 +76,15 @@ struct ProfileView: View {
                         }
                         ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
                             .padding(.top, detailsOpen ? -6 : 0)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onAppear {
+                                            imageBottom = geo.frame(in: .global).maxY
+                                            print("Image Bottom \(imageBottom)")
+                                        }
+                                }
+                            )
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     
@@ -162,5 +174,14 @@ struct ProfileView: View {
             .highPriorityGesture (
                 detailsDrag
             )
+    }
+}
+
+
+struct ImageBottomKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
