@@ -60,17 +60,23 @@ struct ProfileView: View {
     var body: some View {
         GeometryReader { geo in
             ZoomContainer {
-                VStack(spacing: 24) {
-                    if !ui.detailOpen {
-                        profileTitle(geo: geo)
-                            .padding(.top, 36)
+                ZStack {
+                    
+                    VStack(spacing: 24) {
+                        if !ui.detailOpen {
+                            profileTitle(geo: geo)
+                                .padding(.top, 36)
+                        }
+                        ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
+                            .padding(.top, ui.detailOpen ? -6 : 0)
                     }
-                    ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                        .padding(.top, ui.detailOpen ? -6 : 0)
+                    //Screen
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .background(profileBackground)
+                    
+                    
+                    
                 }
-                //Screen
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(profileBackground)
                 
                 //Views appearing above the screen
                 .overlay(alignment: .bottomTrailing) { inviteButton }
@@ -138,5 +144,11 @@ struct ProfileView: View {
             .fill(Color.background)
             .ignoresSafeArea()
             .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
+    }
+    
+    private var detailsSheetView: some View {
+        
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
+        
     }
 }
