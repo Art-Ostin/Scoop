@@ -17,6 +17,8 @@ struct ProfileImageView: View {
     @State private var imageSize: CGFloat = 0
     @State var importedImages: [UIImage]
     
+    @Binding var imageBottom: CGFloat
+    
     var body: some View {
         
         VStack(spacing: 24, ) {
@@ -32,6 +34,9 @@ struct ProfileImageView: View {
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
             imageSize = screenWidth - 12
+        }
+        .onChange(of: imageBottom){
+            print(imageBottom)
         }
     }
 }

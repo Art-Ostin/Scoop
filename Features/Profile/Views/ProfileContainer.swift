@@ -74,17 +74,9 @@ struct ProfileView: View {
                             profileTitle(geo: geo)
                                 .padding(.top, 36)
                         }
-                        ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
+                        ProfileImageView(ui: ui, vm: vm, importedImages: profileImages, imageBottom: $imageBottom)
                             .padding(.top, detailsOpen ? -6 : 0)
                     }
-                    .background(
-                        GeometryReader { imgGeo in
-                            Color.clear.onAppear {
-                                imageBottom = imgGeo.frame(in: .named("profileZStack")).minY
-                                print("Image from Top: \(imageBottom)")
-                            }
-                        }
-                    )
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
                     detailsCard
