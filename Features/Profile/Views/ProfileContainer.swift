@@ -158,7 +158,7 @@ struct ProfileView: View {
             .frame(height: 300)
             .padding(.horizontal, 16)
             .offset(y: detailsOffset)
-            .offset(y: detailsOpen ? -144 : 0)
+            .offset(y: detailsOpen ? -200 : 0)
             .highPriorityGesture (
                 detailsDrag
             )
