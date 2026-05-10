@@ -99,35 +99,3 @@ extension ProfileDetailsView {
         }
     }
 }
-
-/*
- 
- 
- .onGeometryChange(for: CGFloat.self) { proxy in
-     proxy.frame(in: .global).minY
- } action: { oldY, newY in
-     guard abs(newY - oldY) > 0.5 else { return }
-     
-     
-     
-     
-     
-     if ui.detailOpen {
-         showBackground = false
-     }
-     
-     
-     
-     showBackground = false
-     sheetIsIdle = false
-     sheetIdleTask?.cancel()
-     sheetIdleTask = Task { @MainActor in
-         try? await Task.sleep(for: .milliseconds(50))
-         guard !Task.isCancelled else { return }
-         sheetIsIdle = true
-         if ui.detailOpen == true {
-             showBackground = true
-         }
-     }
- }
- */
