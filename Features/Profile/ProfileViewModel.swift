@@ -68,9 +68,9 @@ enum ProfileViewType {
     let smallDetent: CGFloat = 0.26
     let largeDetent: CGFloat = 0.62
     
-    var detailOpen: Bool {
-        selectedDetent == .fraction(largeDetent)
-    }
+//    var detailOpen: Bool {
+//        selectedDetent == .fraction(largeDetent)
+//    }
 
     func isAtLargeDetent(screenHeight: CGFloat) -> Bool {
         abs(sheetTopY - screenHeight * (1 - largeDetent)) < 0.5

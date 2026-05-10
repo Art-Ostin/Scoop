@@ -34,12 +34,12 @@ extension ProfileView {
                     .padding(6)
                     .glassIfAvailable(Circle())
             }
-        }
+        } 
         .font(.body(24, .bold))
         .contentShape(Rectangle())
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
-        .opacity(ui.detailOpen ? 1 : 0)
+        .opacity(detailsOpen ? 1 : 0)
     }
 
     @ViewBuilder var invitePopup: some View {

@@ -35,6 +35,11 @@ struct ProfileView: View {
     }
     
     @State var profileOffset: CGFloat = 0
+    @State var detailsOffset: CGFloat = 0
+    @State var profileOffsetEnabled: Bool = true
+    
+    @State var detailsOpen: Bool = false
+    
     
     @State var enlargeBackground: Bool = false
     
@@ -60,16 +65,21 @@ struct ProfileView: View {
     var body: some View {
         GeometryReader { geo in
             ZoomContainer {
-                VStack(spacing: 24) {
-                    if !ui.detailOpen {
-                        profileTitle(geo: geo)
-                            .padding(.top, 36)
+                ZStack(alignment: .bottom) {
+                    VStack(spacing: 24) {
+                        if !detailsOpen {
+                            profileTitle(geo: geo)
+                                .padding(.top, 36)
+                        }
+                        ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
+                            .padding(.top, detailsOpen ? -6 : 0)
                     }
-                    ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                        .padding(.top, ui.detailOpen ? -6 : 0)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    
+                    detailsCard
                 }
                 //Screen
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(profileBackground)
                 
                 //Views appearing above the screen
@@ -77,9 +87,9 @@ struct ProfileView: View {
                 .overlay(alignment: .bottomLeading) { declineButton }
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .overlay(alignment: .top) { if showBackground {sheetBackground}}
-                .sheet(isPresented: .constant(true)) { detailsSheet }
+//                .sheet(isPresented: .constant(true)) { detailsSheet }
                 .offset(y: profileOffset)
-                .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
+//                .animation(.spring(response: 0.32, dampingFraction: 0.86), value: detailsOpen)
                 .simultaneousGesture(profileDrag)
             }
         }
@@ -138,5 +148,19 @@ struct ProfileView: View {
             .fill(Color.background)
             .ignoresSafeArea()
             .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
+    }
+    
+    private var detailsCard: some View {
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
+            .foregroundStyle(Color.background)
+            .surfaceShadow(.card)
+            .frame(maxWidth: .infinity)
+            .frame(height: 300)
+            .padding(.horizontal, 16)
+            .offset(y: detailsOffset)
+            .offset(y: detailsOpen ? -144 : 0)
+            .highPriorityGesture (
+                detailsDrag
+            )
     }
 }
