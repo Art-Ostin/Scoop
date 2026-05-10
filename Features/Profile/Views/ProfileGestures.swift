@@ -53,10 +53,10 @@ extension ProfileView {
                     }
                 }
                 withAnimation(.spring()) { detailsOffset = 0}
-//                Task {
-//                    try? await Task.sleep(for: .seconds(0.3))
-//                    profileOffsetEnabled = true
-//                }
+                Task {
+                    try? await Task.sleep(for: .seconds(0.3))
+                    profileOffsetEnabled = true
+                }
             }
     }
 }

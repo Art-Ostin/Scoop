@@ -68,7 +68,7 @@ struct ProfileView: View {
     var body: some View {
         GeometryReader { geo in
             ZoomContainer {
-                ZStack(alignment: .bottom) {
+                ZStack(alignment: .top) {
                     VStack(spacing: 24) {
                         if !detailsOpen {
                             profileTitle(geo: geo)
@@ -76,20 +76,20 @@ struct ProfileView: View {
                         }
                         ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
                             .padding(.top, detailsOpen ? -6 : 0)
-                            .background(
-                                GeometryReader { geo in
-                                    Color.clear
-                                        .onAppear {
-                                            imageBottom = geo.frame(in: .global).maxY
-                                            print("Image Bottom \(imageBottom)")
-                                        }
-                                }
-                            )
                     }
+                    .background(
+                        GeometryReader { imgGeo in
+                            Color.clear.onAppear {
+                                imageBottom = imgGeo.frame(in: .named("profileZStack")).minY
+                                print("Image from Top: \(imageBottom)")
+                            }
+                        }
+                    )
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    
+
                     detailsCard
                 }
+                .coordinateSpace(name: "profileZStack")
                 //Screen
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(profileBackground)
@@ -170,10 +170,13 @@ struct ProfileView: View {
             .frame(height: 300)
             .padding(.horizontal, 16)
             .offset(y: detailsOffset)
-            .offset(y: detailsOpen ? -144 : 0)
+//            .offset(y: detailsOpen ? -144 : 0)
             .highPriorityGesture (
                 detailsDrag
             )
+            .padding(.top, imageBottom)
+
+        
     }
 }
 
