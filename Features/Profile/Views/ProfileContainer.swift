@@ -91,16 +91,13 @@ struct ProfileView: View {
                 .overlay(alignment: .bottomLeading) { declineButton }
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 .overlay(alignment: .top) { if showBackground {sheetBackground}}
-//                .sheet(isPresented: .constant(true)) { detailsSheet }
                 .offset(y: profileOffset)
-//                .animation(.spring(response: 0.32, dampingFraction: 0.86), value: detailsOpen)
                 .simultaneousGesture(profileDrag)
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
         .offset(y: isUserProfile ? 0 : (dismissOffset ?? 0))
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
-//        .toolbar(.hidden, for: .navigationBar)
         .hideTabBar()
     }
     
@@ -109,7 +106,6 @@ struct ProfileView: View {
             .onGeometryChange(for: CGFloat.self) { proxy in
                 proxy.frame(in: .global).minY
             } action: { _, newValue in
-                print("NEw Top is: \(newValue)")
                 handleSheetDragLogic(newY: newValue)
             }
             .presentationDetents([.fraction(0.26), .fraction(0.62)], selection: $ui.selectedDetent)
@@ -162,13 +158,11 @@ struct ProfileView: View {
             .frame(height: 300)
             .padding(.horizontal, 16)
             .offset(y: detailsOffset)
-//            .offset(y: detailsOpen ? -144 : 0)
+            .offset(y: detailsOpen ? -144 : 0)
             .highPriorityGesture (
                 detailsDrag
             )
             .padding(.top, imageBottom)
-
-        
     }
 }
 
@@ -180,3 +174,10 @@ struct ImageBottomKey: PreferenceKey {
         value = nextValue()
     }
 }
+
+
+/*
+ //                .sheet(isPresented: .constant(true)) { detailsSheet }
+ //        .toolbar(.hidden, for: .navigationBar)
+
+ */

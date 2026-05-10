@@ -19,11 +19,24 @@ struct ProfileImageView: View {
     
     @Binding var imageBottom: CGFloat
     
+    @State var hasUpdatedBottom: Bool = false
+    
     var body: some View {
         
         VStack(spacing: 24, ) {
             profileImages
             imageScroller
+        }
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.frame(in: .named("profileZStack")).maxY
+        } action: { newValue in
+            //Briefly updates to smaller values before final value heance logic
+            guard !hasUpdatedBottom else {return}
+            if imageBottom < 400 {
+                imageBottom = newValue
+            } else if imageBottom > 400 {
+                hasUpdatedBottom = true
+            }
         }
         .task(id: importedImages.count) {
             //If The images haven't been imported in time, load them up on the screen
@@ -31,9 +44,11 @@ struct ProfileImageView: View {
             let loaded = await vm.loadImages()
             await MainActor.run {importedImages = loaded}
         }
-        .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
-        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 12
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.frame(in: .global).width
+        } action: { newWidth in
+            let next = newWidth - 12
+            if imageSize != next { imageSize = next }
         }
         .onChange(of: imageBottom){
             print(imageBottom)
