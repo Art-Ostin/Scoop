@@ -47,12 +47,17 @@ extension ProfileView {
 
     
     private func detailsEndDrag(_ value: DragGesture.Value) {
-        let threshold: CGFloat = 100
-        let drag = value.predictedEndTranslation.height
-        
-        if detailsOpen, drag > threshold {
+        let velocity = value.velocity.height          // pts/sec, + = down, - = up
+        let translation = value.translation.height
+        let velocityThreshold: CGFloat = 500          // a "flick"
+        let distanceThreshold: CGFloat = 100          // a deliberate drag
+
+        if abs(velocity) > velocityThreshold {
+            // Flick wins — direction of velocity decides state
+            detailsOpen = velocity < 0
+        } else if detailsOpen, translation > distanceThreshold {
             detailsOpen = false
-        } else if !detailsOpen, drag < -threshold {
+        } else if !detailsOpen, translation < -distanceThreshold {
             detailsOpen = true
         }
         detailsOffset = detailsOpen ? detailsOpenOffset : detailsClosedOffset
