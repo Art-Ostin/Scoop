@@ -86,10 +86,14 @@ extension ProfileView {
     
     //Details open from 0% to 100%. Many transition occur from 0% (start) to 100% (end) needed at same rate.
     //Function takes start and end value of transition, and make it transition at same rate as % details drag done.
-    func interpolate(from start: CGFloat = 0, to end: CGFloat) -> CGFloat {
+    //impactStart/impactEnd restrict the transition to a sub-range of the drag progress (e.g. 0.5...1 = last 50%).
+    func interpolate(from start: CGFloat = 0, to end: CGFloat, impactStart: CGFloat = 0, impactEnd: CGFloat = 1) -> CGFloat {
         let denom = abs(detailsOpenOffset - detailsClosedOffset)
         guard denom > 0.0001 else { return start }
-        let t = min(max(abs(detailsOffset - detailsClosedOffset) / denom, 0), 1)
+        let progress = min(max(abs(detailsOffset - detailsClosedOffset) / denom, 0), 1)
+        let span = impactEnd - impactStart
+        guard span > 0.0001 else { return progress >= impactEnd ? end : start }
+        let t = min(max((progress - impactStart) / span, 0), 1)
         return start + (end - start) * t
     }
 }

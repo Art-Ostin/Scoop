@@ -97,13 +97,13 @@ extension ProfileView {
     private func titleAndImage(geo: GeometryProxy) -> some View {
         VStack(spacing: 24) {
             profileTitle(geo: geo)
-                .opacity(interpolate(from: 1, to: 0))
-            
+                .opacity(interpolate(from: 1, to: 0, impactStart: 0, impactEnd: 0.75))
+
             ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
                 .overlay(alignment: .topLeading) {
                     overlayTitle(onDismiss: { dismissProfile(using: geo) })
                         .padding(.top, 12)
-                        .opacity(interpolate(from: 0, to: 1))
+                        .opacity(interpolate(from: 0, to: 1, impactStart: 0.5, impactEnd: 1))
                 }
         }
         .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
