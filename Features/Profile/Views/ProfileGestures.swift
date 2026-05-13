@@ -82,4 +82,29 @@ extension ProfileView {
         }
         return willOpen ? detailsOpenOffset : detailsClosedOffset
     }
+    
+    
+    //Details open from 0% to 100%. Many transition occur from 0% (start) to 100% (end) needed at same rate.
+    //Function takes start and end value of transition, and make it transition at same rate as % details drag done.
+    func interpolate(from start: CGFloat = 0, to end: CGFloat) -> CGFloat {
+        let denom = abs(detailsOpenOffset - detailsClosedOffset)
+        guard denom > 0.0001 else { return start }
+        let t = min(max(abs(detailsOffset - detailsClosedOffset) / denom, 0), 1)
+        return start + (end - start) * t
+    }
 }
+
+/*
+ var overlayTitleOpacity: Double {
+     let oneThird = max(1, abs(openOffset) / 3)
+     let progress = abs(dragDelta)
+     if isOpen {
+         guard progress < oneThird else { return 0 }
+         return 1 - min(progress / oneThird, 1)
+     }
+     guard progress >= oneThird else { return 0 }
+     return max((progress - oneThird) / oneThird, 0)
+ }
+
+
+ */

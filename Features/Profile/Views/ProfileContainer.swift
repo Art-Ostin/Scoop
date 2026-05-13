@@ -96,12 +96,20 @@ extension ProfileView {
     
     private func titleAndImage(geo: GeometryProxy) -> some View {
         VStack(spacing: 24) {
-            if !detailsOpen {
-                profileTitle(geo: geo)
-                    .padding(.top, 36)
-            }
+            profileTitle(geo: geo)
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear
+                            .onAppear {
+                                print("Height is: \(proxy.size.height)")
+                            }
+                    }
+                )
+                .padding(.top, 36)
+            
             ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
                 .padding(.top, detailsOpen ? -6 : 0)
+                .offset(y: interpolate(from: 0, to: -78)) //-36 for topPadding,
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -110,8 +118,10 @@ extension ProfileView {
         ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
             .offset(y: detailsOffset)
             .padding(.top, 572)
+            .scaleEffect(interpolate(from: 0.97, to: 1))
             .highPriorityGesture(detailsDrag.exclusively(before: profileDrag))
     }
+    
     private var profileBackground: some View {
         UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
             .fill(Color.background)
