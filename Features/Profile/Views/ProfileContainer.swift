@@ -78,7 +78,6 @@ struct ProfileView: View {
                 //2. Appearing above screen
                 .overlay(alignment: .bottomTrailing) { inviteButton }
                 .overlay(alignment: .bottomLeading) { declineButton }
-                .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 
                 //3. Logic to dismiss the screen
 //                .offset(y: profileOffset)
@@ -101,6 +100,11 @@ extension ProfileView {
                 .opacity(interpolate(from: 1, to: 0))
             
             ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
+                .overlay(alignment: .topLeading) {
+                    overlayTitle(onDismiss: { dismissProfile(using: geo) })
+                        .padding(.top, 12)
+                        .opacity(interpolate(from: 0, to: 1))
+                }
         }
         .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
