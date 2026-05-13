@@ -81,8 +81,8 @@ struct ProfileView: View {
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
                 
                 //3. Logic to dismiss the screen
-                .offset(y: profileOffset)
-                .simultaneousGesture(profileDrag)
+//                .offset(y: profileOffset)
+//                .simultaneousGesture(profileDrag)
             }
         }
         .overlay { if ui.showPopup { invitePopup } }

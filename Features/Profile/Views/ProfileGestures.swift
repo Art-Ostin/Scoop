@@ -30,32 +30,51 @@ extension ProfileView {
     var detailsDrag: some Gesture {
         DragGesture()
             .onChanged {
-                detailsOffset = $0.translation.height
+                let base = detailsOpen ? detailsOpenOffset : detailsClosedOffset
+                detailsOffset = base + $0.translation.height
             }
             .onEnded { value in
                 detailsEndDrag(value)
             }
     }
-    
+
+
     private func detailsEndDrag(_ value: DragGesture.Value) {
         let currentOffset = value.translation.height
-        
+
+        //To compute how much more needed for offset to open
         let offsetToOpen: CGFloat = (detailsOpenOffset - currentOffset)
-                
-        
-        
+
+        //To compute how much more needs to be offset to close
+        let offsetToClose: CGFloat = ( detailsOpenOffset + currentOffset)
+
         let threshold: CGFloat = 100
         let drag = value.predictedEndTranslation.height
 
         withAnimation(.smooth(duration: 0.35)) {
+            //1. To Close Details
             if detailsOpen, drag > threshold {
+                detailsOffset += offsetToClose
                 detailsOpen = false
+            //2. To Open Details
             } else if !detailsOpen, drag < -threshold {
+                detailsOffset += offsetToOpen
                 detailsOpen = true
+            } else {
+                if detailsOpen {
+                    detailsOffset = detailsOpenOffset
+                } else {
+                    detailsOffset = detailsClosedOffset
+                }
             }
         }
     }
 }
+
+
+/*
+ detailsOpen = true
+ */
 
 
 
