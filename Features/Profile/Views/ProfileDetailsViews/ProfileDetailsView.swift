@@ -16,10 +16,7 @@ struct ProfileDetailsView: View {
     let p: UserProfile
 
     let event: UserEvent?
-    
-    var isOpened: Bool {
-        ui.selectedDetent != .fraction(0.26)
-    }
+    let detailsOpen: Bool
 
     var body: some View {
         ScrollView {
@@ -35,19 +32,18 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 96)
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 600).background(Color.background)
-        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-        
-        
-        .contentMargins(.bottom, 0, for: .scrollContent)
-        .ignoresSafeArea(.container, edges: .bottom)
+        .scrollDisabled(!detailsOpen)
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
             ui.isAtTopOfScroll = newOffsetY <= 5
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 600).background(Color.background)
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        .contentMargins(.bottom, 0, for: .scrollContent)
+        .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
@@ -67,7 +63,6 @@ extension ProfileDetailsView {
                 ProfileInviteView(event: event)
             }
             .padding(.bottom, 32)
-            .padding(.horizontal, isOpened ? -16 : 0)
         }
     }
 

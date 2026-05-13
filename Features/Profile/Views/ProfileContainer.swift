@@ -128,11 +128,14 @@ extension ProfileView {
     }
     
     private var detailsView: some View {
-        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event, detailsOpen: detailsOpen)
             .offset(y: detailsOffset)
             .padding(.top, imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))
-            .highPriorityGesture(detailsDrag.exclusively(before: profileDrag))
+            .simultaneousGesture(detailsDrag)
+        
+        //            .highPriorityGesture(detailsDrag.exclusively(before: profileDrag))
+
     }
     
     private var profileBackground: some View {
