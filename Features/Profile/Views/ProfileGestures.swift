@@ -12,22 +12,17 @@ extension ProfileView {
     
     var profileDrag: some Gesture {
         DragGesture()
-            .onChanged {
-                if enableProfileOffset {
-                    profileOffset = max(0, $0.translation.height)
-                }
+            .onChanged {profileOffset = max(0, $0.translation.height)
             }
             .onEnded { value in
                 let endSwipe =  max(value.predictedEndTranslation.height, value.translation.height)
-                if enableProfileOffset {
-                    if endSwipe > 100 {
-                        withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-                            profileOffset = 0
-                            selectedProfile = nil
-                        }
-                    } else {
-                        withAnimation(.spring()) { profileOffset = 0 }  // bounce back
+                if endSwipe > 100 {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                        profileOffset = 0
+                        selectedProfile = nil
                     }
+                } else {
+                    withAnimation(.spring()) { profileOffset = 0 }  // bounce back
                 }
             }
     }
@@ -35,7 +30,6 @@ extension ProfileView {
     var detailsDrag: some Gesture {
         DragGesture()
             .onChanged {
-                enableProfileOffset = false
                 detailsOffset = $0.translation.height
             }
             .onEnded { value in
@@ -44,6 +38,12 @@ extension ProfileView {
     }
     
     private func detailsEndDrag(_ value: DragGesture.Value) {
+        let currentOffset = value.translation.height
+        
+        let offsetToOpen: CGFloat = (detailsOpenOffset - currentOffset)
+                
+        
+        
         let threshold: CGFloat = 100
         let drag = value.predictedEndTranslation.height
 

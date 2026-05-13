@@ -38,11 +38,9 @@ struct ProfileView: View {
     @State var detailsOpen: Bool = false
     @State var profileOffset: CGFloat = 0
     @State var detailsOffset: CGFloat = 0
-    @State var enableProfileOffset: Bool = true
     
     let detailsOpenOffset: CGFloat = -240
     let detailsClosedOffset: CGFloat = 0
-
     
     @State var enlargeBackground: Bool = false
     
@@ -111,18 +109,13 @@ extension ProfileView {
     private var detailsView: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
             .offset(y: detailsOffset)
-            .highPriorityGesture(
-                detailsDrag
-            )
             .padding(.top, 572)
+            .highPriorityGesture(detailsDrag.exclusively(before: profileDrag))
     }
-    
     private var profileBackground: some View {
         UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
             .fill(Color.background)
             .ignoresSafeArea()
             .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
     }
-
-
 }
