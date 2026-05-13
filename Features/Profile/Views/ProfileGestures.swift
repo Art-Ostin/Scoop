@@ -31,105 +31,55 @@ extension ProfileView {
         DragGesture()
             .onChanged {
                 let base = detailsOpen ? detailsOpenOffset : detailsClosedOffset
-                let overscroll: CGFloat = 50
-                let upperBound = detailsClosedOffset + overscroll   //  50 (drag past closed)
-                let lowerBound = detailsOpenOffset  - overscroll    // -290 (drag past open)
-                detailsOffset = min(upperBound, max(lowerBound, base + $0.translation.height))
+                let proposed = base + $0.translation.height
+                detailsOffset = rubberBand(value: proposed,
+                                           min: detailsOpenOffset,
+                                           max: detailsClosedOffset)
             }
             .onEnded { value in
-                let initialV = value.velocity.height / 800 // iOS 17+
-                withAnimation(.interpolatingSpring(stiffness: 350, damping: 25, initialVelocity: initialV)) {
-                    detailsEndDrag(value)
+                let target = nextDetent(for: value)
+                let signedDistance = target - detailsOffset
+                // initialVelocity is in "fractions of remaining distance / sec".
+                // Normalize by actual signed distance instead of a fixed 800.
+                let initialV: CGFloat = abs(signedDistance) > 0.001
+                    ? value.velocity.height / signedDistance
+                    : 0
+                withAnimation(.interpolatingSpring(stiffness: 300, damping: 25, initialVelocity: initialV)) {
+                    detailsOpen = (target == detailsOpenOffset)
+                    detailsOffset = target
                 }
             }
     }
 
-
+    // Create a rubber band
+    private func rubberBand(value: CGFloat, min lo: CGFloat, max hi: CGFloat) -> CGFloat {
+        let limit: CGFloat = 50
+        let c: CGFloat = 0.55
+        if value > hi {
+            let x = value - hi
+            return hi + (1 - 1 / (x * c / limit + 1)) * limit
+        } else if value < lo {
+            let x = lo - value
+            return lo - (1 - 1 / (x * c / limit + 1)) * limit
+        }
+        return value
+    }
     
-    private func detailsEndDrag(_ value: DragGesture.Value) {
+    // Resolves which detent to snap to from gesture velocity + translation,
+    private func nextDetent(for value: DragGesture.Value) -> CGFloat {
         let velocity = value.velocity.height          // pts/sec, + = down, - = up
         let translation = value.translation.height
         let velocityThreshold: CGFloat = 500          // a "flick"
         let distanceThreshold: CGFloat = 100          // a deliberate drag
 
+        var willOpen = detailsOpen
         if abs(velocity) > velocityThreshold {
-            // Flick wins — direction of velocity decides state
-            detailsOpen = velocity < 0
+            willOpen = velocity < 0
         } else if detailsOpen, translation > distanceThreshold {
-            detailsOpen = false
+            willOpen = false
         } else if !detailsOpen, translation < -distanceThreshold {
-            detailsOpen = true
+            willOpen = true
         }
-        detailsOffset = detailsOpen ? detailsOpenOffset : detailsClosedOffset
+        return willOpen ? detailsOpenOffset : detailsClosedOffset
     }
 }
-
-
-
-
-//    private func detailsEndDrag(_ value: DragGesture.Value) {
-//        let currentOffset = value.translation.height
-//
-//        //To compute how much more needed for offset to open
-//        let offsetToOpen: CGFloat = (detailsOpenOffset - currentOffset)
-//
-//        //To compute how much more needs to be offset to close
-//        let offsetToClose: CGFloat = ( detailsOpenOffset + currentOffset)
-//
-//        let threshold: CGFloat = 100
-//        let drag = value.predictedEndTranslation.height
-//
-//        withAnimation(.smooth(duration: 0.35)) {
-//            //1. To Close Details
-//            if detailsOpen, drag > threshold {
-//                detailsOffset += offsetToClose
-//                detailsOpen = false
-//            //2. To Open Details
-//            } else if !detailsOpen, drag < -threshold {
-//                detailsOffset += offsetToOpen
-//                detailsOpen = true
-//            } else {
-//                if detailsOpen {
-//                    detailsOffset = detailsOpenOffset
-//                } else {
-//                    detailsOffset = detailsClosedOffset
-//                }
-//            }
-//        }
-//    }
-
-/*
- detailsOpen = true
- */
-
-
-
-
-/*
- let dragUpThresh: CGFloat = -100
- let dragDownThresh: CGFloat = 100
- 
- let drag = value.translation.height
- let predictedDrag = value.predictedEndTranslation.height
- 
- let dragUp: CGFloat = min(drag, predictedDrag)
- let dragDown: CGFloat = max(drag, predictedDrag)
- 
- let animation: Animation = .smooth(duration: 0.35)
-
- withAnimation(animation) {
-     if detailsOpen, dragDown > dragDownThresh {
-         detailsOpen = false
-     } else if !detailsOpen, dragUp < dragUpThresh {
-         detailsOpen = true
-     }
-//                 detailsOffset = 0 //key Major bug!!! updating this mid transition creates issues.
- }
- 
-//                        Task {
-//                            try? await Task.sleep(for: .seconds(0.4))
-//                            enableProfileOffset = true
-//                        }
-}
-
- */
