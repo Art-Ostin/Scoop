@@ -25,29 +25,17 @@ struct ProfileView: View {
         if case .ownProfile = mode { return true }
         return false
     }
-    
-    @State var isSheetTopAtTarget: Bool = false
-    @State var isScrolling: Bool = false
-    @State var stopTask: Task<Void, Never>? = nil
-    
-    var showBackground: Bool {
-        isSheetTopAtTarget && !isScrolling
-    }
-    
-    //Temporary edits
+
     @State var detailsOpen: Bool = false
-    @State var profileOffset: CGFloat = 0
     @State var detailsOffset: CGFloat = 0
-    
+
     let detailsOpenOffset: CGFloat = -240
     let detailsClosedOffset: CGFloat = 0
-    
+
     //logic deal with measuring bottom of image correctly
     @State var imageBottom: CGFloat = 0
     @State var hasUpdatedImageBottom = false
-    
-    
-    @State var enlargeBackground: Bool = false
+
     var displayProfile: UserProfile {
         if case .ownProfile(let draft) = mode { return draft }
         return vm.profile
@@ -86,12 +74,6 @@ struct ProfileView: View {
                 
                 //3.Specify coordinate space for measuring
                 .coordinateSpace(name: "profileZStack")
-                
-                
-                
-                //3. Logic to dismiss the screen
-//                .offset(y: profileOffset)
-//                .simultaneousGesture(profileDrag)
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
@@ -133,15 +115,11 @@ extension ProfileView {
             .padding(.top, imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))
             .simultaneousGesture(detailsDrag)
-        
-        //            .highPriorityGesture(detailsDrag.exclusively(before: profileDrag))
-
     }
-    
+
     private var profileBackground: some View {
         UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
             .fill(Color.background)
             .ignoresSafeArea()
-            .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
     }
 }
