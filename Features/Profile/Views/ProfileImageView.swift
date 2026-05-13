@@ -65,12 +65,7 @@ extension ProfileImageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 48) {
                     ForEach(importedImages.indices, id: \.self) {index in
-                        let image = importedImages[index]
-                        Image(uiImage: image)
-                            .resizable()
-                            .defaultImage(60, 10)
-                            .customSubtleShadow(strength: selection == index ? 4 : 0)
-                            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
+                        scrollImage(index: index)
                     }
                     ClearRectangle(size: 0)
                 }
@@ -88,40 +83,13 @@ extension ProfileImageView {
             }
         }
     }
+
+    private func scrollImage(index: Int) -> some View {
+        let image = importedImages[index]
+        return Image(uiImage: image)
+            .resizable()
+            .defaultImage(60, 10)
+            .customSubtleShadow(strength: selection == index ? 4 : 0)
+            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
+    }
 }
-
-/*
- TabView(selection: $selection) {
-     ForEach(importedImages.indices, id: \.self) { index in
-             Image(uiImage: importedImages[index])
-                 .resizable()
-                 .defaultImage(displayedImageSize, 16)
-                 .tag(index)
-                 .pinchZoom()
-     }
- }
- .border(.red, width: 2)
- .frame(height: displayedImageSize)
- .indexViewStyle(.page(backgroundDisplayMode: .never))
- .tabViewStyle(.page(indexDisplayMode: .never))
- .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
- //Apply the shadow after the frame so shadow not included in distance between views
-
- TabView(selection: $selection) {
-     ForEach(importedImages.indices, id: \.self) { index in
-             Image(uiImage: importedImages[index])
-                 .resizable()
-                 .defaultImage(displayedImageSize, 16)
-                 .tag(index)
-                 .pinchZoom()
-     }
- }
- .border(.red, width: 2)
- .frame(height: displayedImageSize)
- .indexViewStyle(.page(backgroundDisplayMode: .never))
- .tabViewStyle(.page(indexDisplayMode: .never))
- .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
- //Apply the shadow after the frame so shadow not included in distance between views
-
- 
- */

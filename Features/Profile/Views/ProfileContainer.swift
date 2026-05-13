@@ -42,8 +42,12 @@ struct ProfileView: View {
     let detailsOpenOffset: CGFloat = -240
     let detailsClosedOffset: CGFloat = 0
     
-    @State var enlargeBackground: Bool = false
+    //logic deal with measuring bottom of image correctly
+    @State var imageBottom: CGFloat = 0
+    @State var hasUpdatedImageBottom = false
     
+    
+    @State var enlargeBackground: Bool = false
     var displayProfile: UserProfile {
         if case .ownProfile(let draft) = mode { return draft }
         return vm.profile
@@ -79,6 +83,12 @@ struct ProfileView: View {
                 .overlay(alignment: .bottomTrailing) { inviteButton }
                 .overlay(alignment: .bottomLeading) { declineButton }
                 
+                
+                //3.Specify coordinate space for measuring
+                .coordinateSpace(name: "profileZStack")
+                
+                
+                
                 //3. Logic to dismiss the screen
 //                .offset(y: profileOffset)
 //                .simultaneousGesture(profileDrag)
@@ -105,6 +115,13 @@ extension ProfileView {
                         .padding(.top, 12)
                         .opacity(interpolate(from: 0, to: 1, impactStart: 0.5, impactEnd: 1))
                 }
+                .onGeometryChange(for: CGFloat.self) { geo in
+                    geo.frame(in: .named("profileZStack")).maxY
+                } action: { bottom in
+                    guard !hasUpdatedImageBottom else { return }
+                    imageBottom = bottom
+                    if bottom > 300 { hasUpdatedImageBottom = true }
+                }
         }
         .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -113,7 +130,7 @@ extension ProfileView {
     private var detailsView: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
             .offset(y: detailsOffset)
-            .padding(.top, 572)
+            .padding(.top, imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))
             .highPriorityGesture(detailsDrag.exclusively(before: profileDrag))
     }
@@ -125,10 +142,3 @@ extension ProfileView {
             .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
     }
 }
-
-
-/*
- .padding(.top, 36)
- .padding(.top, detailsOpen ? -6 : 0)
- .offset(y: interpolate(from: 0, to: -78)) //-36 for topPadding,
- */
