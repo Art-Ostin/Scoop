@@ -94,23 +94,15 @@ struct ProfileView: View {
 
 extension ProfileView {
     
+    //Positioning is controlled by offset as it makes it easier to adjust with details
     private func titleAndImage(geo: GeometryProxy) -> some View {
         VStack(spacing: 24) {
             profileTitle(geo: geo)
-                .background(
-                    GeometryReader { proxy in
-                        Color.clear
-                            .onAppear {
-                                print("Height is: \(proxy.size.height)")
-                            }
-                    }
-                )
-                .padding(.top, 36)
+                .opacity(interpolate(from: 1, to: 0))
             
             ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                .padding(.top, detailsOpen ? -6 : 0)
-                .offset(y: interpolate(from: 0, to: -78)) //-36 for topPadding,
         }
+        .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
@@ -129,3 +121,10 @@ extension ProfileView {
             .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
     }
 }
+
+
+/*
+ .padding(.top, 36)
+ .padding(.top, detailsOpen ? -6 : 0)
+ .offset(y: interpolate(from: 0, to: -78)) //-36 for topPadding,
+ */
