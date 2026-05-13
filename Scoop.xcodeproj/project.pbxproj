@@ -214,7 +214,6 @@
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
 		65BFE7D72E3FD30E00B31A58 /* CirclePhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */; };
 		65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7DC2E400D3C00B31A58 /* EventsRepo.swift */; };
-		65C033A02FAAA1B80075D511 /* ProfileSheetMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C0339F2FAAA1B80075D511 /* ProfileSheetMirror.swift */; };
 		65C4A0322ED0A54C00CA6C1B /* EditSex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C4A0312ED0A54C00CA6C1B /* EditSex.swift */; };
 		65C60BE72F78900D00740C0A /* ProposedTimesRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */; };
 		65C7D6292E54007000B726B8 /* PendingProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7D6282E54007000B726B8 /* PendingProfile.swift */; };
@@ -499,7 +498,6 @@
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
 		65BFE7D62E3FD30E00B31A58 /* CirclePhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePhoto.swift; sourceTree = "<group>"; };
 		65BFE7DC2E400D3C00B31A58 /* EventsRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsRepo.swift; sourceTree = "<group>"; };
-		65C0339F2FAAA1B80075D511 /* ProfileSheetMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheetMirror.swift; sourceTree = "<group>"; };
 		65C4A0312ED0A54C00CA6C1B /* EditSex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSex.swift; sourceTree = "<group>"; };
 		65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposedTimesRow.swift; sourceTree = "<group>"; };
 		65C7D6282E54007000B726B8 /* PendingProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingProfile.swift; sourceTree = "<group>"; };
@@ -1428,7 +1426,6 @@
 			isa = PBXGroup;
 			children = (
 				655FADC52E89F0FC00AFAD5F /* ProfileDetailsView.swift */,
-				65C0339F2FAAA1B80075D511 /* ProfileSheetMirror.swift */,
 				650DA3682F6C25750013EB30 /* ProfileInviteView.swift */,
 				651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */,
 				650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */,
@@ -1804,7 +1801,6 @@
 				655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */,
 				653FB56D2F686D6800440E41 /* HideTabBar.swift in Sources */,
 				655FADCA2E89F0FC00AFAD5F /* ProfileDetailsView.swift in Sources */,
-				65C033A02FAAA1B80075D511 /* ProfileSheetMirror.swift in Sources */,
 				651975952F1FC67E0002F6A2 /* ExpandTapArea.swift in Sources */,
 				656B31D52F252E90008641C1 /* FrozenContainer.swift in Sources */,
 				655FADCB2E89F0FC00AFAD5F /* ProfileImageView.swift in Sources */,

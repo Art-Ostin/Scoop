@@ -16,7 +16,7 @@ extension ProfileView {
             Spacer()
             if !isUserProfile {
                 ProfileDismissButton(color: .black, isOverlay: false) {
-//                    dismissProfile(using: geo)
+                    dismissProfile(using: geo)
                 }
             }
         }
@@ -77,22 +77,13 @@ extension ProfileView {
         }
     }
     
-    var sheetBackground: some View {
-    RoundedRectangle(cornerRadius: 32)
-        .frame(maxWidth: .infinity)
-        .frame(height: 600)
-        .foregroundStyle(Color.white)
-        .stroke(32, lineWidth: 1, color: Color.grayPlaceholder)
-        .padding(.top, enlargeBackground ? 307 : 324) //284
-        .scaleEffect(enlargeBackground  ? 1 : 0.9)
-        .onAppear {
-            enlargeBackground = true
+    func dismissProfile(using geo: GeometryProxy) {
+        let distance = geo.size.height + geo.safeAreaInsets.bottom
+        withAnimation(.snappy(duration: ui.dismissDuration)) {
+            dismissOffset = distance
         }
-        .onDisappear {
-            withAnimation(.spring(duration: 0.25)) {
-                enlargeBackground = false
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissDuration) {
+            selectedProfile = nil
         }
-        .animation(.spring(duration: 0.25), value: enlargeBackground)
-}
+    }
 }

@@ -34,8 +34,14 @@ struct ProfileView: View {
         isSheetTopAtTarget && !isScrolling
     }
     
+    //Temporary edits
+    @State var detailsOpen: Bool = false
     @State var profileOffset: CGFloat = 0
     @State var detailsOffset: CGFloat = 0
+    @State var enableProfileOffset: Bool = true
+    
+    let detailsOpenOffset: CGFloat = -240
+    let detailsClosedOffset: CGFloat = 0
 
     
     @State var enlargeBackground: Bool = false
@@ -63,81 +69,52 @@ struct ProfileView: View {
         GeometryReader { geo in
             ZoomContainer {
                 ZStack(alignment: .top) {
+                    titleAndImage(geo: geo)
                     
-                    VStack(spacing: 24) {
-                        if !ui.detailOpen {
-                            profileTitle(geo: geo)
-                                .padding(.top, 36)
-                        }
-                        ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                            .padding(.top, ui.detailOpen ? -6 : 0)
-                    }
-                    //Screen
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .background(profileBackground)
-                    
-                    detailsSheetView
-                        .padding(.top, 572)
+                    detailsView
                 }
+                //1. Profile Background
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .background(profileBackground)
                 
-                //Views appearing above the screen
+                //2. Appearing above screen
                 .overlay(alignment: .bottomTrailing) { inviteButton }
                 .overlay(alignment: .bottomLeading) { declineButton }
                 .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
-                .overlay(alignment: .top) { if showBackground {sheetBackground}}
+                
+                //3. Logic to dismiss the screen
                 .offset(y: profileOffset)
-                .animation(.spring(response: 0.32, dampingFraction: 0.86), value: ui.detailOpen)
                 .simultaneousGesture(profileDrag)
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
         .offset(y: isUserProfile ? 0 : (dismissOffset ?? 0))
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
-//        .toolbar(.hidden, for: .navigationBar)
         .hideTabBar()
     }
+}
+
+extension ProfileView {
     
-    private var detailsSheet: some View {
-        ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.frame(in: .global).minY
-            } action: { _, newValue in
-                print("NEw Top is: \(newValue)")
-                handleSheetDragLogic(newY: newValue)
+    private func titleAndImage(geo: GeometryProxy) -> some View {
+        VStack(spacing: 24) {
+            if !ui.detailOpen {
+                profileTitle(geo: geo)
+                    .padding(.top, 36)
             }
-            .presentationDetents([.fraction(0.26), .fraction(0.62)], selection: $ui.selectedDetent)
-            .presentationBackgroundInteraction(.enabled)
-            .interactiveDismissDisabled(true)
-            .presentationCompactAdaptation(.sheet)
-            .presentationBackground(Color.clear)
-            .presentationDragIndicator(.hidden)
-    }
-
-    func dismissProfile(using geo: GeometryProxy) {
-        let distance = geo.size.height + geo.safeAreaInsets.bottom
-        withAnimation(.snappy(duration: ui.dismissDuration)) {
-            dismissOffset = distance
+            ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
+                .padding(.top, ui.detailOpen ? -6 : 0)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissDuration) {
-            selectedProfile = nil
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
-    func handleSheetDragLogic(newY: CGFloat) {
-
-        //Logic to deal with if its at top position
-        let target: CGFloat = 370.21
-        let topSheetAtTarget = abs(newY - target) <= 0.01
-        isSheetTopAtTarget = topSheetAtTarget
-
-        //Logic to ensure it is not scrolling
-        isScrolling = true
-        stopTask?.cancel()
-        stopTask = Task {
-            try? await Task.sleep(for: .milliseconds(100))
-            guard !Task.isCancelled else { return }
-            isScrolling = false
-        }
+    private var detailsView: some View {
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
+            .offset(y: detailsOffset)
+            .highPriorityGesture(
+                detailsDrag
+            )
+            .padding(.top, 572)
     }
     
     private var profileBackground: some View {
@@ -146,30 +123,6 @@ struct ProfileView: View {
             .ignoresSafeArea()
             .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
     }
-    
-    private var detailsSheetView: some View {
-//        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
-        
-        RoundedRectangle(cornerRadius: 16)
-            .frame(height: 500)
-            .frame(width: 300)
-            .highPriorityGesture(
-                DragGesture()
-                    .onChanged { detailsOffset = $0.translation.height }
-            )
-            .offset(y: detailsOffset)
-    }
+
+
 }
-
-
-/*
- .sheet(isPresented: .constant(true)) { detailsSheet }
- RoundedRectangle(cornerRadius: 16)
-     .frame(width: 150, height: 150)
-     .offset(y: 200)
-     .surfaceShadow()
-     .highPriorityGesture(
-         DragGesture()
-     )
-
- */
