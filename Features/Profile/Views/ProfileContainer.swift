@@ -96,12 +96,12 @@ extension ProfileView {
     
     private func titleAndImage(geo: GeometryProxy) -> some View {
         VStack(spacing: 24) {
-            if !ui.detailOpen {
+            if !detailsOpen {
                 profileTitle(geo: geo)
                     .padding(.top, 36)
             }
             ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
-                .padding(.top, ui.detailOpen ? -6 : 0)
+                .padding(.top, detailsOpen ? -6 : 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
