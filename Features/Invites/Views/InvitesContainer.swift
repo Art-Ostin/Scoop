@@ -64,11 +64,10 @@ extension InvitesContainer {
                     defaults: vm.defaults
                 ),
                 profileImages: vm.profileImages[eventProfile.profile.id] ?? [],
-                selectedProfile: $ui.selectedProfile,
-                dismissOffset: $ui.dismissOffset,
                 mode: .respondToInvite(respondVM: respondVM) {responseType in
                     respond(eventProfile.event.id, responseType)
-                }
+                },
+                onDismiss: { ui.selectedProfile = nil }
             )
             .id(eventProfile.profile.id)
             .zIndex(1)

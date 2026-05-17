@@ -9,38 +9,36 @@ enum ProfileMode {
 }
 
 struct ProfileView: View {
-    
+
     @Environment(\.dismiss) var dismiss
     @State var vm: ProfileViewModel
-    
+
     @State var ui = ProfileUIState()
-    
-    @Binding var dismissOffset: CGFloat?
-    @Binding var selectedProfile: UserProfile?
-    
+
+    @State var dismissOffset: CGFloat = 0
+
     let mode: ProfileMode
     let profileImages: [UIImage]
-        
+    let onDismiss: (() -> Void)?
+
     var isUserProfile: Bool {
         if case .ownProfile = mode { true } else { false }
     }
-    
+
     var displayProfile: UserProfile {
         if case .ownProfile(let draft) = mode { draft } else { vm.profile }
     }
-    
+
     init(
         vm: ProfileViewModel,
         profileImages: [UIImage],
-        selectedProfile: Binding<UserProfile?>,
-        dismissOffset: Binding<CGFloat?>,
-        mode: ProfileMode
+        mode: ProfileMode,
+        onDismiss: (() -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
-        _selectedProfile = selectedProfile
-        _dismissOffset = dismissOffset
         self.mode = mode
+        self.onDismiss = onDismiss
     }
     
     var body: some View {
@@ -65,7 +63,7 @@ struct ProfileView: View {
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
-        .offset(y: isUserProfile ? 0 : (dismissOffset ?? 0))
+        .offset(y: isUserProfile ? 0 : dismissOffset)
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar()
     }

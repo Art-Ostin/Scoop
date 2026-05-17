@@ -7,38 +7,42 @@
 
 import SwiftUI
 
+enum ProfileTitleStyle { case base, overlay }
+
 extension ProfileView {
 
     func profileTitle(geo: GeometryProxy) -> some View {
-        HStack {
-            Text(displayProfile.name)
-            ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
-            Spacer()
-            if !isUserProfile {
-                ProfileDismissButton(color: .black, isOverlay: false) {
-                    dismissProfile(using: geo)
-                }
-            }
-        }
-        .offset(y: 4) // Hack to align to bottom of HStack
-        .font(.body(24, .bold))
-        .padding(.horizontal)
+        titleBar(style: .base, onDismiss: { dismissProfile(using: geo) })
     }
 
     func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
+        titleBar(style: .overlay, onDismiss: onDismiss)
+    }
+
+    @ViewBuilder
+    private func titleBar(style: ProfileTitleStyle, onDismiss: @escaping () -> Void) -> some View {
+        let isOverlay = style == .overlay
         HStack {
             Text(displayProfile.name)
+            if !isOverlay {
+                ForEach(displayProfile.nationality, id: \.self) { flag in Text(flag) }
+            }
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .white, isOverlay: true) { onDismiss() }
-                    .padding(6)
-                    .glassIfAvailable(Circle())
+                if isOverlay {
+                    ProfileDismissButton(color: .white, isOverlay: true, onDismiss: onDismiss)
+                        .padding(6)
+                        .glassIfAvailable(Circle())
+                } else {
+                    ProfileDismissButton(color: .black, isOverlay: false, onDismiss: onDismiss)
+                }
             }
         }
         .font(.body(24, .bold))
+        .foregroundStyle(isOverlay ? Color.white : .primary)
         .contentShape(Rectangle())
-        .foregroundStyle(.white)
         .padding(.horizontal, 16)
+        .offset(y: isOverlay ? 0 : 4) // base: hack to align to bottom of HStack
     }
 
     @ViewBuilder var invitePopup: some View {
@@ -80,9 +84,8 @@ extension ProfileView {
         let distance = geo.size.height + geo.safeAreaInsets.bottom
         withAnimation(.snappy(duration: ui.dismissDuration)) {
             dismissOffset = distance
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + ui.dismissDuration) {
-            selectedProfile = nil
+        } completion: {
+            onDismiss?()
         }
     }
 }

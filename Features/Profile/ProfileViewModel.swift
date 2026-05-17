@@ -69,13 +69,27 @@ enum ProfileViewType {
 
     //3. Logic with what screen showing
     var showPopup: Bool = false
-    
+
     //4. Logic with opening and closing details
     var detailsOffset: CGFloat = 0
     let detailsOpenOffset: CGFloat = -240
     let detailsClosedOffset: CGFloat = 0
+    let detailsCardHeight: CGFloat = 600
 
     //5. Dismiss animation
     let dismissDuration: Double = 0.25
+
+    func animateDetails(to willOpen: Bool, initialVelocity: CGFloat = 0) {
+        let target = willOpen ? detailsOpenOffset : detailsClosedOffset
+        if !willOpen { detailsFullyOpen = false }
+        let spring = Animation.interpolatingSpring(stiffness: 250, damping: 25, initialVelocity: initialVelocity)
+        withAnimation(spring) {
+            detailsOpen = willOpen
+            detailsOffset = target
+        } completion: { [weak self] in
+            guard let self else { return }
+            if willOpen && self.detailsOpen { self.detailsFullyOpen = true }
+        }
+    }
 }
 

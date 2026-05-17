@@ -12,8 +12,7 @@ struct ChatHeaderBar: View {
     @Environment(\.dismiss) private var dismiss
     
     @Binding var isProfileOpen: UserProfile?
-    @Binding var dismissOffset: CGFloat?
-    
+
     @State var detailsOpen = false
     @Namespace private var ns
     
@@ -31,7 +30,7 @@ struct ChatHeaderBar: View {
                 closeButtonMain
             }
             Spacer()
-            ProfileButton(image: image, profile: profile, dismissOffset: $dismissOffset, isProfileOpen: $isProfileOpen, isFocused: isFocused)
+            ProfileButton(image: image, profile: profile, isProfileOpen: $isProfileOpen, isFocused: isFocused)
 //            profileButton
         }
         .padding(.horizontal)
@@ -85,9 +84,7 @@ struct ProfileButton: View {
     
     let image: UIImage
     let profile: UserProfile
-    
-    
-    @Binding var dismissOffset: CGFloat?
+
     @Binding var isProfileOpen: UserProfile?
     var isFocused: FocusState<Bool>.Binding
     
@@ -114,7 +111,6 @@ struct ProfileButton: View {
     
     private func openProfile() {
         isFocused.wrappedValue = false
-        dismissOffset = nil
         withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = profile}
     }
 }

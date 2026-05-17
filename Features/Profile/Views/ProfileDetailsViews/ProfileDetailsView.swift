@@ -11,12 +11,13 @@ import SwiftUIFlowLayout
 
 struct ProfileDetailsView: View {
     @Bindable var vm: ProfileViewModel
-    @Bindable var ui: ProfileUIState    
-    
+    @Bindable var ui: ProfileUIState
+
     let p: UserProfile
 
     let event: UserEvent?
-    
+
+    @State private var scrollPosition = ScrollPosition(edge: .top)
 
     var body: some View {
         ScrollView {
@@ -24,6 +25,7 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 24)
                 eventInvite
                 DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
+                    .animation(.smooth, value: ui.detailsOpen)
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
@@ -32,15 +34,21 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 96)
             }
             .contentShape(Rectangle())
-            .onTapGesture { toggleDetails() }
+            .onTapGesture { if !ui.detailsOpen { toggleDetails() } }
         }
+        .scrollPosition($scrollPosition)
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
             ui.isAtTopOfScroll = newOffsetY <= 5 //if it is it is at top of scrollView
         }
+        .onChange(of: ui.detailsOpen) { _, isOpen in
+            if !isOpen {
+                withAnimation(.smooth) { scrollPosition.scrollTo(edge: .top) }
+            }
+        }
         .frame(maxWidth: .infinity)
-        .frame(height: 600).background(Color.background)
+        .frame(height: ui.detailsCardHeight).background(Color.background)
         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         .contentMargins(.bottom, 0, for: .scrollContent)
@@ -73,14 +81,12 @@ extension ProfileDetailsView {
     }
 
     private var keyInfoStrokeColour: Color {
-        withAnimation(.smooth) {
-            if !ui.detailsOpen {
-                return Color.grayPlaceholder.opacity(0.4)
-            } else if vm.viewProfileType == .accept {
-                  return Color.appGreen
-            } else {
-                return Color.accent
-            }
+        if !ui.detailsOpen {
+            Color.grayPlaceholder.opacity(0.4)
+        } else if vm.viewProfileType == .accept {
+            Color.appGreen
+        } else {
+            Color.accent
         }
     }
 
@@ -104,29 +110,6 @@ extension ProfileDetailsView {
     }
 
     func toggleDetails() {
-        let willOpen = !ui.detailsOpen
-        let target = willOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
-        if !willOpen { ui.detailsFullyOpen = false }
-        withAnimation(.interpolatingSpring(stiffness: 250, damping: 25)) {
-            ui.detailsOpen = willOpen
-            ui.detailsOffset = target
-        }
-        if willOpen {
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(0.23))
-                if ui.detailsOpen { ui.detailsFullyOpen = true }
-            }
-        }
+        ui.animateDetails(to: !ui.detailsOpen)
     }
 }
-
-//To Update in new piece of code
-
-/*
- .frame(maxWidth: .infinity)
- .frame(height: 600).background(Color.background)
- .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
- .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-
-
- */

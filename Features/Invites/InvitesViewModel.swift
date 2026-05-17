@@ -126,7 +126,6 @@ extension InvitesViewModel {
     //4. Logic with inviting screen
     var showTimePopup: Bool = false
     var hideInviteTitle: Bool = false
-    var dismissOffset: CGFloat? = nil
 
     //5. The details Screen for invites
     var showDetails: Bool = false

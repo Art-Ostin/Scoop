@@ -19,7 +19,7 @@ struct ProfileImageView: View {
     
     var body: some View {
         
-        VStack(spacing: 24, ) {
+        VStack(spacing: 24) {
             profileImages
             imageScroller
         }
