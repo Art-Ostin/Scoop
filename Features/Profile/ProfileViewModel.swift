@@ -60,7 +60,6 @@ enum ProfileViewType {
     var detailsOpen: Bool = false
     var detailsFullyOpen: Bool = false
 
-
     //2. Logic dealing with positioning detailsCard on Screen
     var imageBottom: CGFloat = 0
     var hasUpdatedImageBottom = false
@@ -89,4 +88,8 @@ enum ProfileViewType {
             if willOpen && self.detailsOpen { self.detailsFullyOpen = true }
         }
     }
+    
+    //6. Logic with Profile dismiss
+    var profileOffset: CGFloat = 0
+    var dragType: DragType = .undecided
 }

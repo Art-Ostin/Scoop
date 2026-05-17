@@ -31,7 +31,7 @@ struct ProfileDetailsView: View {
                 PromptView(prompt: p.prompt2)
                 DetailsSection(title: "Extra Info", adaptivePadding: true) {UserExtraInfo(p: p)}
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
-                ClearRectangle(size: 96)
+                ClearRectangle(size: 200)
             }
             .contentShape(Rectangle())
             .onTapGesture { toggleDetails() }
@@ -45,11 +45,6 @@ struct ProfileDetailsView: View {
                 if newOffsetY > 8 { ui.isAtTopOfScroll = false }
             } else {
                 if newOffsetY <= 0 { ui.isAtTopOfScroll = true }
-            }
-        }
-        .onChange(of: ui.detailsOpen) { _, isOpen in
-            if !isOpen {
-                withAnimation(.smooth) { scrollPosition.scrollTo(edge: .top) }
             }
         }
         .frame(maxWidth: .infinity)

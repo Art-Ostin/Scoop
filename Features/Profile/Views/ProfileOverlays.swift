@@ -83,7 +83,7 @@ extension ProfileView {
     func dismissProfile(using geo: GeometryProxy) {
         let distance = geo.size.height + geo.safeAreaInsets.bottom
         withAnimation(.snappy(duration: ui.dismissDuration)) {
-            dismissOffset = distance
+            ui.profileOffset = distance
         } completion: {
             onDismiss?()
         }

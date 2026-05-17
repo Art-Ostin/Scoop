@@ -7,7 +7,41 @@
 
 import SwiftUI
 
+enum DragType {
+    case undecided
+    case horizontal
+    case vertical
+}
 
+
+//Logic to deal with ProfileDrag
+extension ProfileView {
+    
+    var profileDrag: some Gesture {
+        DragGesture(coordinateSpace: .named("profileZStack"))
+            .onChanged {value in
+                let y = value.translation.height
+                let x = value.translation.width
+                
+                if ui.dragType == .undecided {
+                    if abs(x) > 6 || abs(y) > 6 {
+                        ui.dragType = abs(y) > abs(x) ? .vertical : .horizontal
+                    }
+                }
+                guard ui.dragType == .vertical else { return }
+                ui.profileOffset = y
+            }
+            .onEnded { value in
+                defer {ui.dragType = .undecided }
+                guard ui.dragType == .vertical else {
+                    return
+                }
+                ui.profileOffset = 0
+            }
+    }
+}
+
+//Logic to deal with DetailsDrag
 extension ProfileView {
 
     var detailsDrag: some Gesture {

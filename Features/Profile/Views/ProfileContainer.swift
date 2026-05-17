@@ -15,8 +15,6 @@ struct ProfileView: View {
 
     @State var ui = ProfileUIState()
 
-    @State var dismissOffset: CGFloat = 0
-
     let mode: ProfileMode
     let profileImages: [UIImage]
     let onDismiss: (() -> Void)?
@@ -63,9 +61,10 @@ struct ProfileView: View {
             }
         }
         .overlay { if ui.showPopup { invitePopup } }
-        .offset(y: isUserProfile ? 0 : dismissOffset)
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar()
+        .offset(y: isUserProfile ? 0 : ui.profileOffset)
+        .simultaneousGesture(profileDrag, isEnabled: )
     }
 }
 
