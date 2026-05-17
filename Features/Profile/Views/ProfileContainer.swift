@@ -44,6 +44,7 @@ struct ProfileView: View {
             ZoomContainer {
                 ZStack(alignment: .top) {
                     titleAndImage(geo: geo)
+                        .simultaneousGesture(profileDrag(geo: geo))
                     
                     detailsView
                 }
@@ -64,7 +65,6 @@ struct ProfileView: View {
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar()
         .offset(y: isUserProfile ? 0 : ui.profileOffset)
-        .simultaneousGesture(profileDrag, isEnabled: !ui.touchingScrollView)
     }
 }
 

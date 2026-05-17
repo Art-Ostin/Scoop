@@ -82,7 +82,8 @@ extension ProfileView {
     
     func dismissProfile(using geo: GeometryProxy) {
         let distance = geo.size.height + geo.safeAreaInsets.bottom
-        withAnimation(.snappy(duration: ui.dismissDuration)) {
+        let spring = Animation.interpolatingSpring(mass: 1, stiffness: 330, damping: 32, initialVelocity: 0)
+        withAnimation(spring) {
             ui.profileOffset = distance
         } completion: {
             onDismiss?()

@@ -73,9 +73,6 @@ enum ProfileViewType {
     let detailsClosedOffset: CGFloat = 0
     let detailsCardHeight: CGFloat = 600
 
-    //5. Dismiss animation
-    let dismissDuration: Double = 0.25
-
     func animateDetails(to willOpen: Bool, initialVelocity: CGFloat = 0) {
         let target = willOpen ? detailsOpenOffset : detailsClosedOffset
         if !willOpen { detailsFullyOpen = false }

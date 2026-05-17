@@ -17,12 +17,12 @@ enum DragType {
 //Logic to deal with ProfileDrag
 extension ProfileView {
     
-    var profileDrag: some Gesture {
-        DragGesture(coordinateSpace: .named("profileZStack"))
-            .onChanged {value in
+    func profileDrag(geo: GeometryProxy) -> some Gesture {
+        DragGesture(coordinateSpace: .global)
+            .onChanged { value in
                 let y = value.translation.height
                 let x = value.translation.width
-                
+
                 if ui.dragType == .undecided {
                     if abs(x) > 6 || abs(y) > 6 {
                         ui.dragType = abs(y) > abs(x) ? .vertical : .horizontal
@@ -32,11 +32,33 @@ extension ProfileView {
                 ui.profileOffset = y
             }
             .onEnded { value in
-                defer {ui.dragType = .undecided }
-                guard ui.dragType == .vertical else {
-                    return
+                defer { ui.dragType = .undecided }
+                guard ui.dragType == .vertical else { return }
+
+                let translation = value.translation.height
+                let velocity = value.velocity.height
+                let distanceThreshold = geo.size.height * 0.2
+                let velocityThreshold: CGFloat = 500
+
+                let shouldDismiss: Bool
+                if velocity < -velocityThreshold {
+                    shouldDismiss = false
+                } else if velocity > velocityThreshold {
+                    shouldDismiss = true
+                } else {
+                    shouldDismiss = translation > distanceThreshold
                 }
-                ui.profileOffset = 0
+
+                let target: CGFloat = shouldDismiss ? geo.size.height + geo.safeAreaInsets.bottom: 0
+                let signedDistance = target - ui.profileOffset
+                let initialV: CGFloat = abs(signedDistance) > 0.001 ? velocity / signedDistance : 0
+                let spring = Animation.interpolatingSpring(mass: 1, stiffness: 330, damping: 32, initialVelocity: initialV)
+
+                withAnimation(spring) {
+                    ui.profileOffset = target
+                } completion: {
+                    if shouldDismiss { onDismiss?() }
+                }
             }
     }
 }
