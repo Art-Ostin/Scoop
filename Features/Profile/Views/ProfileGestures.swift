@@ -13,7 +13,6 @@ enum DragType {
     case vertical
 }
 
-
 //Logic to deal with ProfileDrag
 extension ProfileView {
     
@@ -29,37 +28,31 @@ extension ProfileView {
                     }
                 }
                 guard ui.dragType == .vertical else { return }
-                ui.profileOffset = y
+                
+                if y > 0 {
+                    ui.profileOffset = y
+                } else {
+                    ui.detailsOffset = y
+                }
             }
             .onEnded { value in
                 defer { ui.dragType = .undecided }
                 guard ui.dragType == .vertical else { return }
 
-                let translation = value.translation.height
-                let velocity = value.velocity.height
-                let distanceThreshold = geo.size.height * 0.2
-                let velocityThreshold: CGFloat = 500
-
-                let shouldDismiss: Bool
-                if velocity < -velocityThreshold {
-                    shouldDismiss = false
-                } else if velocity > velocityThreshold {
-                    shouldDismiss = true
+                if shouldDismiss(for: value, geo: geo) {
+                    animateDismiss(using: geo, releaseVelocity: value.velocity.height)
                 } else {
-                    shouldDismiss = translation > distanceThreshold
-                }
-
-                let target: CGFloat = shouldDismiss ? geo.size.height + geo.safeAreaInsets.bottom: 0
-                let signedDistance = target - ui.profileOffset
-                let initialV: CGFloat = abs(signedDistance) > 0.001 ? velocity / signedDistance : 0
-                let spring = Animation.interpolatingSpring(mass: 1, stiffness: 330, damping: 32, initialVelocity: initialV)
-
-                withAnimation(spring) {
-                    ui.profileOffset = target
-                } completion: {
-                    if shouldDismiss { onDismiss?() }
+                    animateSnapBack(releaseVelocity: value.velocity.height)
                 }
             }
+    }
+
+    private func shouldDismiss(for value: DragGesture.Value, geo: GeometryProxy) -> Bool {
+        let velocity = value.velocity.height
+        let velocityThreshold: CGFloat = 500
+        if velocity < -velocityThreshold { return false }
+        if velocity > velocityThreshold { return true }
+        return value.translation.height > geo.size.height * 0.2
     }
 }
 

@@ -63,7 +63,7 @@ struct ProfileView: View {
         }
         .overlay { if ui.showPopup { invitePopup } }
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
-        .hideTabBar()
+        .hideTabBar(hideBar: !ui.isDismissing)
         .offset(y: isUserProfile ? 0 : ui.profileOffset)
     }
 }

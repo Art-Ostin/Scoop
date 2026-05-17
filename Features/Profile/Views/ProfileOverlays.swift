@@ -81,12 +81,28 @@ extension ProfileView {
     }
     
     func dismissProfile(using geo: GeometryProxy) {
-        let distance = geo.size.height + geo.safeAreaInsets.bottom
-        let spring = Animation.interpolatingSpring(mass: 1, stiffness: 330, damping: 32, initialVelocity: 0)
+        animateDismiss(using: geo, releaseVelocity: 0)
+    }
+
+    func animateDismiss(using geo: GeometryProxy, releaseVelocity: CGFloat) {
+        let target = geo.size.height + geo.safeAreaInsets.bottom + geo.safeAreaInsets.top + 100
+        let signedDistance = target - ui.profileOffset
+        let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
+        let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
+
+        ui.isDismissing = true
         withAnimation(spring) {
-            ui.profileOffset = distance
+            ui.profileOffset = target
         } completion: {
-            onDismiss?()
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { onDismiss?() }
         }
+    }
+
+    func animateSnapBack(releaseVelocity: CGFloat) {
+        let signedDistance = -ui.profileOffset
+        let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
+        let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
+        withAnimation(spring) { ui.profileOffset = 0 }
     }
 }
