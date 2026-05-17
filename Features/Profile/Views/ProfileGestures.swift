@@ -34,7 +34,7 @@ extension ProfileView {
                 let initialV: CGFloat = abs(signedDistance) > 0.001
                     ? value.velocity.height / signedDistance
                     : 0
-                withAnimation(.interpolatingSpring(stiffness: 300, damping: 25, initialVelocity: initialV)) {
+                withAnimation(.interpolatingSpring(stiffness: 250, damping: 25, initialVelocity: initialV)) {
                     ui.detailsOpen = (target == ui.detailsOpenOffset)
                     ui.detailsOffset = target
                 }

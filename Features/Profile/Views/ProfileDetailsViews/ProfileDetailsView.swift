@@ -32,7 +32,7 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 96)
             }
         }
-        
+        .onTapGesture {ui.detailsOpen.toggle()}
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
@@ -47,9 +47,6 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
-        .onChange(of: ui.isAtTopOfScroll) {
-            print("changed top of scroll to: \(ui.isAtTopOfScroll)")
-        }
         .scrollDisabled(ui.isDraggingDetails)
     }
 }
