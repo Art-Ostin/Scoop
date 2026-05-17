@@ -64,6 +64,8 @@ struct ProfileView: View {
         .overlay { if ui.showPopup { invitePopup } }
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar(hideBar: !ui.isDismissing)
+        .overlay(alignment: .bottomTrailing) { inviteButton }
+        .overlay(alignment: .bottomLeading) { declineButton }
         .offset(y: isUserProfile ? 0 : ui.profileOffset)
     }
 }
