@@ -49,10 +49,8 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .scrollDisabled(ui.isDraggingDetails)
         .overlay(alignment: .topTrailing) {
-            dismissDetailsButton
-                .transaction(value: ui.detailsFullyOpen) { transaction in
-                    transaction.animation = ui.detailsFullyOpen ? .smooth : nil
-                }
+            dismissDetailsButton //Control animation depending on how it is open.
+                .transaction(value: ui.detailsFullyOpen) { $0.animation = ui.detailsFullyOpen ? .smooth : nil}
                 .transaction(value: ui.isAtTopOfScroll) { $0.animation = .smooth}
         }
     }
