@@ -26,12 +26,16 @@ struct ProfileView: View {
         return false
     }
 
+    //Logic deal with opening and closing details
     @State var detailsOpen: Bool = false
     @State var detailsOffset: CGFloat = 0
-
     let detailsOpenOffset: CGFloat = -240
     let detailsClosedOffset: CGFloat = 0
 
+    //Logic dealing with when to disableDetailsView
+    @State var detailsOffsetEnabled = true
+    
+    
     //logic deal with measuring bottom of image correctly
     @State var imageBottom: CGFloat = 0
     @State var hasUpdatedImageBottom = false
@@ -110,7 +114,7 @@ extension ProfileView {
     }
     
     private var detailsView: some View {
-        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event, detailsOpen: detailsOpen)
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event, detailsOpen: detailsOpen, enableDetailsOffset: $detailsOffsetEnabled)
             .offset(y: detailsOffset)
             .padding(.top, imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))

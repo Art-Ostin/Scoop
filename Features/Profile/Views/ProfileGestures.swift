@@ -13,6 +13,7 @@ extension ProfileView {
     var detailsDrag: some Gesture {
         DragGesture()
             .onChanged {
+                guard detailsOffsetEnabled else {return}
                 let base = detailsOpen ? detailsOpenOffset : detailsClosedOffset
                 let proposed = base + $0.translation.height
                 detailsOffset = rubberBand(value: proposed,
