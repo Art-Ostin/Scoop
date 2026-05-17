@@ -47,8 +47,11 @@ struct ProfileDetailsView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
-        .overlay(alignment: .topTrailing) {dismissDetailsButton}
-        .animation(.easeInOut(duration: 0.3), value: ui.isAtTopOfScroll)
+        .overlay(alignment: .topTrailing) {
+            dismissDetailsButton
+                .transaction(value: ui.detailsOpen) { $0.animation = nil }
+                .transaction(value: ui.isAtTopOfScroll) { $0.animation = .smooth}
+        }
         .scrollDisabled(ui.isDraggingDetails)
     }
 }
