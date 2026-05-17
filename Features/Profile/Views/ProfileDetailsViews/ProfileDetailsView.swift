@@ -39,7 +39,6 @@ struct ProfileDetailsView: View {
         .scrollPosition($scrollPosition)
         .onScrollPhaseChange { oldPhase, newPhase in
             ui.touchingScrollView = newPhase == .tracking || newPhase == .interacting
-            print("Yes")
         }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
@@ -59,7 +58,7 @@ struct ProfileDetailsView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
-        .scrollDisabled(ui.isDraggingDetails)
+        .scrollDisabled(ui.isDraggingDetails || !ui.detailsOpen)
         .overlay(alignment: .topTrailing) {
             dismissDetailsButton
                 .opacity(!ui.isAtTopOfScroll && ui.detailsFullyOpen ? 1 : 0)

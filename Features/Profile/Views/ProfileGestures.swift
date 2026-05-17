@@ -93,7 +93,9 @@ extension ProfileView {
                 // When details is open, only commit to dragging on a downward motion
                 // at the top of the scroll. Otherwise let the ScrollView handle it.
                 if !ui.isDraggingDetails {
-                    let canDrag = ui.detailsOpen && ui.isAtTopOfScroll && value.translation.height > 0
+                    let canDrag = ui.detailsOpen
+                        ? (ui.isAtTopOfScroll && value.translation.height > 0)
+                        : true
                     guard canDrag else { return }
                     ui.isDraggingDetails = true
                     // Snapshot translation at commit so handoff from scroll → drag has no jump
