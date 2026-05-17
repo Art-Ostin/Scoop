@@ -11,7 +11,7 @@ import SwiftUI
 extension ProfileView {
 
     var detailsDrag: some Gesture {
-        DragGesture()
+        DragGesture(coordinateSpace: .named("profileZStack"))
             .onChanged { value in
                 // When details is open, only commit to dragging on a downward motion
                 // at the top of the scroll. Otherwise let the ScrollView handle it.
@@ -19,9 +19,12 @@ extension ProfileView {
                     let canDrag = !ui.detailsOpen || (ui.isAtTopOfScroll && value.translation.height > 0)
                     guard canDrag else { return }
                     ui.isDraggingDetails = true
+                    // Snapshot translation at commit so handoff from scroll → drag has no jump
+                    ui.dragCommitTranslation = value.translation.height
                 }
                 let base = ui.detailsOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
-                let proposed = base + value.translation.height
+                let relative = value.translation.height - ui.dragCommitTranslation
+                let proposed = base + relative
                 ui.detailsOffset = rubberBand(value: proposed,
                                            min: ui.detailsOpenOffset,
                                            max: ui.detailsClosedOffset)
@@ -29,7 +32,7 @@ extension ProfileView {
             .onEnded { value in
                 guard ui.isDraggingDetails else { return }
                 ui.isDraggingDetails = false
-                let target = nextDetent(for: value)
+                let target = nextDetent(for: value, commitTranslation: ui.dragCommitTranslation)
                 let signedDistance = target - ui.detailsOffset
                 let initialV: CGFloat = abs(signedDistance) > 0.001
                     ? value.velocity.height / signedDistance
@@ -40,8 +43,8 @@ extension ProfileView {
 
     // Create a rubber band
     private func rubberBand(value: CGFloat, min lo: CGFloat, max hi: CGFloat) -> CGFloat {
-        let limit: CGFloat = 50
-        let c: CGFloat = 0.55
+        let limit: CGFloat = 100
+        let c: CGFloat = 0.7
         if value > hi {
             let x = value - hi
             return hi + (1 - 1 / (x * c / limit + 1)) * limit
@@ -53,10 +56,10 @@ extension ProfileView {
     }
     
     // Resolves which detent to snap to from gesture velocity + translation,
-    private func nextDetent(for value: DragGesture.Value) -> CGFloat {
+    private func nextDetent(for value: DragGesture.Value, commitTranslation: CGFloat) -> CGFloat {
         let velocity = value.velocity.height          // pts/sec, + = down, - = up
-        let translation = value.translation.height
-        let velocityThreshold: CGFloat = 500          // a "flick"
+        let translation = value.translation.height - commitTranslation
+        let velocityThreshold: CGFloat = 250          // a "flick"
         let distanceThreshold: CGFloat = 100          // a deliberate drag
 
         var willOpen = ui.detailsOpen

@@ -100,7 +100,7 @@ extension ProfileView {
             .offset(y: ui.detailsOffset)
             .padding(.top, ui.imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))
-            .simultaneousGesture(detailsDrag, isEnabled: ui.detailsDragEnabled)
+            .simultaneousGesture(detailsDrag)
     }
 
     private var profileBackground: some View {

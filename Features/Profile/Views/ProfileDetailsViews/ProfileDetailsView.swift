@@ -25,7 +25,7 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 24)
                 eventInvite
                 DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
-                    .animation(.smooth, value: ui.detailsOpen)
+                    .animation(.spring(duration: 0.42, bounce: 0), value: ui.detailsOpen)
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
@@ -34,13 +34,18 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 96)
             }
             .contentShape(Rectangle())
-            .onTapGesture { if !ui.detailsOpen { toggleDetails() } }
+            .onTapGesture { toggleDetails() }
         }
         .scrollPosition($scrollPosition)
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
-            ui.isAtTopOfScroll = newOffsetY <= 5 //if it is it is at top of scrollView
+            // Hysteresis: enter "at top" at 0, leave only past 8, so scroll bounce doesn't flicker the flag
+            if ui.isAtTopOfScroll {
+                if newOffsetY > 8 { ui.isAtTopOfScroll = false }
+            } else {
+                if newOffsetY <= 0 { ui.isAtTopOfScroll = true }
+            }
         }
         .onChange(of: ui.detailsOpen) { _, isOpen in
             if !isOpen {
@@ -57,9 +62,10 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .scrollDisabled(ui.isDraggingDetails)
         .overlay(alignment: .topTrailing) {
-            dismissDetailsButton //Control animation depending on how it is open.
-                .transaction(value: ui.detailsFullyOpen) { $0.animation = ui.detailsFullyOpen ? .smooth : nil}
-                .transaction(value: ui.isAtTopOfScroll) { $0.animation = .smooth}
+            dismissDetailsButton
+                .opacity(!ui.isAtTopOfScroll && ui.detailsFullyOpen ? 1 : 0)
+                .animation(.smooth(duration: 0.2), value: ui.detailsFullyOpen)
+                .animation(.smooth(duration: 0.2), value: ui.isAtTopOfScroll)
         }
     }
 }
@@ -90,16 +96,13 @@ extension ProfileDetailsView {
         }
     }
 
-    @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !ui.isAtTopOfScroll && ui.detailsFullyOpen {
-            Image(systemName: "chevron.down")
-                .font(.body(16, .bold))
-                .frame(width: 30, height: 30)
-                .glassIfAvailable()
-                .padding()
-                .padding(.horizontal, 6)
-        }
+        Image(systemName: "chevron.down")
+            .font(.body(16, .bold))
+            .frame(width: 30, height: 30)
+            .glassIfAvailable()
+            .padding()
+            .padding(.horizontal, 6)
     }
 
     private var profileInterests: some View {

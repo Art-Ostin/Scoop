@@ -55,14 +55,12 @@ enum ProfileViewType {
     //1. Logic dealing with disabling details offset view.
     var isAtTopOfScroll = true
     var isDraggingDetails: Bool = false
+    var dragCommitTranslation: CGFloat = 0
 
     var detailsOpen: Bool = false
     var detailsFullyOpen: Bool = false
 
-    var detailsDragEnabled: Bool {
-        !detailsOpen || isAtTopOfScroll
-    }
-    
+
     //2. Logic dealing with positioning detailsCard on Screen
     var imageBottom: CGFloat = 0
     var hasUpdatedImageBottom = false
@@ -82,7 +80,7 @@ enum ProfileViewType {
     func animateDetails(to willOpen: Bool, initialVelocity: CGFloat = 0) {
         let target = willOpen ? detailsOpenOffset : detailsClosedOffset
         if !willOpen { detailsFullyOpen = false }
-        let spring = Animation.interpolatingSpring(stiffness: 250, damping: 25, initialVelocity: initialVelocity)
+        let spring = Animation.interpolatingSpring(mass: 1, stiffness: 330, damping: 32, initialVelocity: initialVelocity)
         withAnimation(spring) {
             detailsOpen = willOpen
             detailsOffset = target
@@ -92,4 +90,3 @@ enum ProfileViewType {
         }
     }
 }
-
