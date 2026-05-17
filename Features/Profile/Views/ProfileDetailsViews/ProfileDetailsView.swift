@@ -31,8 +31,9 @@ struct ProfileDetailsView: View {
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
                 ClearRectangle(size: 96)
             }
+            .contentShape(Rectangle())
+            .onTapGesture { toggleDetails() }
         }
-        .onTapGesture {ui.detailsOpen.toggle()}
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
@@ -47,6 +48,7 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
+        .animation(.easeInOut(duration: 0.3), value: ui.isAtTopOfScroll)
         .scrollDisabled(ui.isDraggingDetails)
     }
 }
@@ -68,14 +70,20 @@ extension ProfileDetailsView {
     }
 
     private var keyInfoStrokeColour: Color {
-        if event?.status == .accepted { return .grayPlaceholder }
-        if vm.viewProfileType == .accept { return .appGreen }
-        return .accent
+        withAnimation(.smooth) {
+            if !ui.detailsOpen {
+                return Color.grayPlaceholder.opacity(0.4)
+            } else if vm.viewProfileType == .accept {
+                  return Color.appGreen
+            } else {
+                return Color.accent
+            }
+        }
     }
 
     @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !ui.isAtTopOfScroll {
+        if !ui.isAtTopOfScroll && ui.detailsOpen {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
@@ -89,6 +97,14 @@ extension ProfileDetailsView {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
             UserInterests(p: p)
                 .padding(.vertical, -12)
+        }
+    }
+
+    func toggleDetails() {
+        let target = ui.detailsOpen ? ui.detailsClosedOffset : ui.detailsOpenOffset
+        withAnimation(.interpolatingSpring(stiffness: 250, damping: 25)) {
+            ui.detailsOpen.toggle()
+            ui.detailsOffset = target
         }
     }
 }
