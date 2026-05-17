@@ -11,6 +11,8 @@ enum DragType {
     case undecided
     case horizontal
     case vertical
+    case profileVertical
+    case detailsVertical
 }
 
 //Logic to deal with ProfileDrag
@@ -27,24 +29,50 @@ extension ProfileView {
                         ui.dragType = abs(y) > abs(x) ? .vertical : .horizontal
                     }
                 }
-                guard ui.dragType == .vertical else { return }
-                
-                if y > 0 {
-                    ui.profileOffset = y
-                } else {
-                    ui.detailsOffset = y
+                guard ui.dragType == .vertical
+                    || ui.dragType == .profileVertical
+                    || ui.dragType == .detailsVertical else { return }
+
+                if ui.dragType == .vertical {
+                    
+                    ui.dragType = y > 0  && !ui.detailsOpen ? .profileVertical : .detailsVertical
+                    ui.dragCommitTranslation = y
+                    if ui.dragType == .detailsVertical {
+                        ui.isDraggingDetails = true
+                    }
+                }
+
+                switch ui.dragType {
+                case .profileVertical:
+                    ui.profileOffset = max(0, y - ui.dragCommitTranslation)
+                case .detailsVertical:
+                    let base = ui.detailsOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
+                    let relative = y - ui.dragCommitTranslation
+                    ui.detailsOffset = rubberBand(value: base + relative,
+                                                  min: ui.detailsOpenOffset,
+                                                  max: ui.detailsClosedOffset)
+                default:
+                    break
                 }
             }
             .onEnded { value in
                 defer { ui.dragType = .undecided }
-                guard ui.dragType == .vertical else { return }
-
-                if shouldDismiss(for: value, geo: geo) {
-                    animateDismiss(using: geo, releaseVelocity: value.velocity.height)
-                } else {
-                    animateSnapBack(releaseVelocity: value.velocity.height)
+                guard ui.dragType != .horizontal && ui.dragType != .undecided else { return }
+                if ui.dragType == .profileVertical {
+                    onProfileEnded(for: value, geo: geo)
+                } else if ui.dragType == .detailsVertical {
+                    onDetailsEnded(value: value)
                 }
             }
+    }
+    
+    
+    private func onProfileEnded(for value: DragGesture.Value, geo: GeometryProxy) {
+        if shouldDismiss(for: value, geo: geo) {
+            animateDismiss(using: geo, releaseVelocity: value.velocity.height)
+        } else {
+            animateSnapBack(releaseVelocity: value.velocity.height)
+        }
     }
 
     private func shouldDismiss(for value: DragGesture.Value, geo: GeometryProxy) -> Bool {
@@ -65,7 +93,7 @@ extension ProfileView {
                 // When details is open, only commit to dragging on a downward motion
                 // at the top of the scroll. Otherwise let the ScrollView handle it.
                 if !ui.isDraggingDetails {
-                    let canDrag = !ui.detailsOpen || (ui.isAtTopOfScroll && value.translation.height > 0)
+                    let canDrag = ui.detailsOpen && ui.isAtTopOfScroll && value.translation.height > 0
                     guard canDrag else { return }
                     ui.isDraggingDetails = true
                     // Snapshot translation at commit so handoff from scroll → drag has no jump
@@ -79,15 +107,20 @@ extension ProfileView {
                                            max: ui.detailsClosedOffset)
             }
             .onEnded { value in
-                guard ui.isDraggingDetails else { return }
-                ui.isDraggingDetails = false
-                let target = nextDetent(for: value, commitTranslation: ui.dragCommitTranslation)
-                let signedDistance = target - ui.detailsOffset
-                let initialV: CGFloat = abs(signedDistance) > 0.001
-                    ? value.velocity.height / signedDistance
-                    : 0
-                ui.animateDetails(to: target == ui.detailsOpenOffset, initialVelocity: initialV)
+                onDetailsEnded(value: value)
             }
+    }
+    
+    
+    private func onDetailsEnded (value: DragGesture.Value) {
+        guard ui.isDraggingDetails else { return }
+        ui.isDraggingDetails = false
+        let target = nextDetent(for: value, commitTranslation: ui.dragCommitTranslation)
+        let signedDistance = target - ui.detailsOffset
+        let initialV: CGFloat = abs(signedDistance) > 0.001
+            ? value.velocity.height / signedDistance
+            : 0
+        ui.animateDetails(to: target == ui.detailsOpenOffset, initialVelocity: initialV)
     }
 
     // Create a rubber band
