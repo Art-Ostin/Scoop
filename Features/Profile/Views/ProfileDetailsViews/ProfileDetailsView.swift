@@ -47,12 +47,14 @@ struct ProfileDetailsView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
+        .scrollDisabled(ui.isDraggingDetails)
         .overlay(alignment: .topTrailing) {
             dismissDetailsButton
-                .transaction(value: ui.detailsOpen) { $0.animation = nil }
+                .transaction(value: ui.detailsFullyOpen) { transaction in
+                    transaction.animation = ui.detailsFullyOpen ? .smooth : nil
+                }
                 .transaction(value: ui.isAtTopOfScroll) { $0.animation = .smooth}
         }
-        .scrollDisabled(ui.isDraggingDetails)
     }
 }
 
@@ -86,7 +88,7 @@ extension ProfileDetailsView {
 
     @ViewBuilder
     private var dismissDetailsButton: some View {
-        if !ui.isAtTopOfScroll && ui.detailsOpen {
+        if !ui.isAtTopOfScroll && ui.detailsFullyOpen {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
                 .frame(width: 30, height: 30)
@@ -104,10 +106,18 @@ extension ProfileDetailsView {
     }
 
     func toggleDetails() {
-        let target = ui.detailsOpen ? ui.detailsClosedOffset : ui.detailsOpenOffset
+        let willOpen = !ui.detailsOpen
+        let target = willOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
+        if !willOpen { ui.detailsFullyOpen = false }
         withAnimation(.interpolatingSpring(stiffness: 250, damping: 25)) {
-            ui.detailsOpen.toggle()
+            ui.detailsOpen = willOpen
             ui.detailsOffset = target
+        }
+        if willOpen {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.23))
+                if ui.detailsOpen { ui.detailsFullyOpen = true }
+            }
         }
     }
 }

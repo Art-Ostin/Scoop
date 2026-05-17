@@ -57,7 +57,7 @@ enum ProfileViewType {
     var isDraggingDetails: Bool = false
 
     var detailsOpen: Bool = false
-
+    var detailsFullyOpen: Bool = false
 
     var detailsDragEnabled: Bool {
         !detailsOpen || isAtTopOfScroll

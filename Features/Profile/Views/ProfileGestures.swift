@@ -34,9 +34,17 @@ extension ProfileView {
                 let initialV: CGFloat = abs(signedDistance) > 0.001
                     ? value.velocity.height / signedDistance
                     : 0
+                let willOpen = (target == ui.detailsOpenOffset)
+                if !willOpen { ui.detailsFullyOpen = false }
                 withAnimation(.interpolatingSpring(stiffness: 250, damping: 25, initialVelocity: initialV)) {
-                    ui.detailsOpen = (target == ui.detailsOpenOffset)
+                    ui.detailsOpen = willOpen
                     ui.detailsOffset = target
+                }
+                if willOpen {
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .seconds(0.25))
+                        if ui.detailsOpen { ui.detailsFullyOpen = true }
+                    }
                 }
             }
     }
