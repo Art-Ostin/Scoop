@@ -20,29 +20,13 @@ struct ProfileView: View {
     
     let mode: ProfileMode
     let profileImages: [UIImage]
-    
+        
     var isUserProfile: Bool {
-        if case .ownProfile = mode { return true }
-        return false
+        if case .ownProfile = mode { true } else { false }
     }
-
-    //Logic deal with opening and closing details
-    @State var detailsOpen: Bool = false
-    @State var detailsOffset: CGFloat = 0
-    let detailsOpenOffset: CGFloat = -240
-    let detailsClosedOffset: CGFloat = 0
-
-    //Logic dealing with when to disableDetailsView
-    @State var detailsOffsetEnabled = true
     
-    
-    //logic deal with measuring bottom of image correctly
-    @State var imageBottom: CGFloat = 0
-    @State var hasUpdatedImageBottom = false
-
     var displayProfile: UserProfile {
-        if case .ownProfile(let draft) = mode { return draft }
-        return vm.profile
+        if case .ownProfile(let draft) = mode { draft } else { vm.profile }
     }
     
     init(
@@ -104,9 +88,9 @@ extension ProfileView {
                 .onGeometryChange(for: CGFloat.self) { geo in
                     geo.frame(in: .named("profileZStack")).maxY
                 } action: { bottom in
-                    guard !hasUpdatedImageBottom else { return }
-                    imageBottom = bottom
-                    if bottom > 300 { hasUpdatedImageBottom = true }
+                    guard !ui.hasUpdatedImageBottom else { return }
+                    ui.imageBottom = bottom
+                    if bottom > 300 { ui.hasUpdatedImageBottom = true }
                 }
         }
         .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
@@ -114,9 +98,9 @@ extension ProfileView {
     }
     
     private var detailsView: some View {
-        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event, detailsOpen: detailsOpen, enableDetailsOffset: $detailsOffsetEnabled)
-            .offset(y: detailsOffset)
-            .padding(.top, imageBottom + 24) //24 spacing between bottom of image, and start of details
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
+            .offset(y: ui.detailsOffset)
+            .padding(.top, ui.imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))
             .simultaneousGesture(detailsDrag)
     }

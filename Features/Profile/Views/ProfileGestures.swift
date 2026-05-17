@@ -13,24 +13,21 @@ extension ProfileView {
     var detailsDrag: some Gesture {
         DragGesture()
             .onChanged {
-                guard detailsOffsetEnabled else {return}
-                let base = detailsOpen ? detailsOpenOffset : detailsClosedOffset
+                let base = ui.detailsOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
                 let proposed = base + $0.translation.height
-                detailsOffset = rubberBand(value: proposed,
-                                           min: detailsOpenOffset,
-                                           max: detailsClosedOffset)
+                ui.detailsOffset = rubberBand(value: proposed,
+                                           min: ui.detailsOpenOffset,
+                                           max: ui.detailsClosedOffset)
             }
             .onEnded { value in
                 let target = nextDetent(for: value)
-                let signedDistance = target - detailsOffset
-                // initialVelocity is in "fractions of remaining distance / sec".
-                // Normalize by actual signed distance instead of a fixed 800.
+                let signedDistance = target - ui.detailsOffset
                 let initialV: CGFloat = abs(signedDistance) > 0.001
                     ? value.velocity.height / signedDistance
                     : 0
                 withAnimation(.interpolatingSpring(stiffness: 300, damping: 25, initialVelocity: initialV)) {
-                    detailsOpen = (target == detailsOpenOffset)
-                    detailsOffset = target
+                    ui.detailsOpen = (target == ui.detailsOpenOffset)
+                    ui.detailsOffset = target
                 }
             }
     }
@@ -56,15 +53,15 @@ extension ProfileView {
         let velocityThreshold: CGFloat = 500          // a "flick"
         let distanceThreshold: CGFloat = 100          // a deliberate drag
 
-        var willOpen = detailsOpen
+        var willOpen = ui.detailsOpen
         if abs(velocity) > velocityThreshold {
             willOpen = velocity < 0
-        } else if detailsOpen, translation > distanceThreshold {
+        } else if ui.detailsOpen, translation > distanceThreshold {
             willOpen = false
-        } else if !detailsOpen, translation < -distanceThreshold {
+        } else if !ui.detailsOpen, translation < -distanceThreshold {
             willOpen = true
         }
-        return willOpen ? detailsOpenOffset : detailsClosedOffset
+        return willOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
     }
     
     
@@ -72,9 +69,9 @@ extension ProfileView {
     //Function takes start and end value of transition, and make it transition at same rate as % details drag done.
     //impactStart/impactEnd restrict the transition to a sub-range of the drag progress (e.g. 0.5...1 = last 50%).
     func interpolate(from start: CGFloat = 0, to end: CGFloat, impactStart: CGFloat = 0, impactEnd: CGFloat = 1) -> CGFloat {
-        let denom = abs(detailsOpenOffset - detailsClosedOffset)
+        let denom = abs(ui.detailsOpenOffset - ui.detailsClosedOffset)
         guard denom > 0.0001 else { return start }
-        let progress = min(max(abs(detailsOffset - detailsClosedOffset) / denom, 0), 1)
+        let progress = min(max(abs(ui.detailsOffset - ui.detailsClosedOffset) / denom, 0), 1)
         let span = impactEnd - impactStart
         guard span > 0.0001 else { return progress >= impactEnd ? end : start }
         let t = min(max((progress - impactStart) / span, 0), 1)

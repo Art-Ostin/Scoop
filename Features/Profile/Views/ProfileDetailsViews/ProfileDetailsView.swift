@@ -16,9 +16,7 @@ struct ProfileDetailsView: View {
     let p: UserProfile
 
     let event: UserEvent?
-    let detailsOpen: Bool
     
-    @Binding var enableDetailsOffset: Bool
 
     var body: some View {
         ScrollView {
@@ -34,19 +32,12 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 96)
             }
         }
-        .scrollDisabled(!detailsOpen)
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
             let isAtTop: Bool = newOffsetY <= 5 //if it is it is at top of scrollView
             
             ui.isAtTopOfScroll = isAtTop
-            
-            if !isAtTop {
-                enableDetailsOffset = false
-            } else {
-                enableDetailsOffset = true
-            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: 600).background(Color.background)
@@ -57,6 +48,9 @@ struct ProfileDetailsView: View {
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
         .overlay(alignment: .topTrailing) {dismissDetailsButton}
+        .onChange(of: ui.isAtTopOfScroll) {
+            print("changed top of scroll to: \(ui.isAtTopOfScroll)")
+        }
     }
 }
 

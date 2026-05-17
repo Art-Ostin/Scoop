@@ -51,28 +51,28 @@ enum ProfileViewType {
 
 
 @Observable final class ProfileUIState {
-    var showPopup: Bool = false
-    var isAtTopOfScroll = true
-    var selectedDetent: PresentationDetent = .fraction(0.26)
-
-    // Live geometry of the native sheet, in global coords. Updated continuously
-    // while the user drags so the parallel card overlay can mirror the sheet
-    // without lag.
-    var sheetTopY: CGFloat = 0
-    var sheetHeight: CGFloat = 0
-
-    let dismissDuration = 0.25
-
-    // Detent fractions used to interpolate the parallel card's width and
-    // corner radius. Kept here so the sheet config and the overlay agree.
-    let smallDetent: CGFloat = 0.26
-    let largeDetent: CGFloat = 0.62
     
-    var detailOpen: Bool {
-        selectedDetent == .fraction(largeDetent)
+    //1. Logic dealing with disabling details offset view.
+    var isAtTopOfScroll = true
+    var detailsOpen: Bool = false
+    
+    var detailsDragEnabled: Bool {
+        return true
     }
+    
+    //2. Logic dealing with positioning detailsCard on Screen
+    var imageBottom: CGFloat = 0
+    var hasUpdatedImageBottom = false
 
-    func isAtLargeDetent(screenHeight: CGFloat) -> Bool {
-        abs(sheetTopY - screenHeight * (1 - largeDetent)) < 0.5
-    }
+    //3. Logic with what screen showing
+    var showPopup: Bool = false
+    
+    //4. Logic with opening and closing details
+    var detailsOffset: CGFloat = 0
+    let detailsOpenOffset: CGFloat = -240
+    let detailsClosedOffset: CGFloat = 0
+
+    //5. Dismiss animation
+    let dismissDuration: Double = 0.25
 }
+
