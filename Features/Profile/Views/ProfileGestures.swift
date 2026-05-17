@@ -12,14 +12,23 @@ extension ProfileView {
 
     var detailsDrag: some Gesture {
         DragGesture()
-            .onChanged {
+            .onChanged { value in
+                // When details is open, only commit to dragging on a downward motion
+                // at the top of the scroll. Otherwise let the ScrollView handle it.
+                if !ui.isDraggingDetails {
+                    let canDrag = !ui.detailsOpen || (ui.isAtTopOfScroll && value.translation.height > 0)
+                    guard canDrag else { return }
+                    ui.isDraggingDetails = true
+                }
                 let base = ui.detailsOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
-                let proposed = base + $0.translation.height
+                let proposed = base + value.translation.height
                 ui.detailsOffset = rubberBand(value: proposed,
                                            min: ui.detailsOpenOffset,
                                            max: ui.detailsClosedOffset)
             }
             .onEnded { value in
+                guard ui.isDraggingDetails else { return }
+                ui.isDraggingDetails = false
                 let target = nextDetent(for: value)
                 let signedDistance = target - ui.detailsOffset
                 let initialV: CGFloat = abs(signedDistance) > 0.001

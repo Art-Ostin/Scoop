@@ -32,12 +32,11 @@ struct ProfileDetailsView: View {
                 ClearRectangle(size: 96)
             }
         }
+        
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
-            let isAtTop: Bool = newOffsetY <= 5 //if it is it is at top of scrollView
-            
-            ui.isAtTopOfScroll = isAtTop
+            ui.isAtTopOfScroll = newOffsetY <= 5 //if it is it is at top of scrollView
         }
         .frame(maxWidth: .infinity)
         .frame(height: 600).background(Color.background)
@@ -51,6 +50,7 @@ struct ProfileDetailsView: View {
         .onChange(of: ui.isAtTopOfScroll) {
             print("changed top of scroll to: \(ui.isAtTopOfScroll)")
         }
+        .scrollDisabled(ui.isDraggingDetails)
     }
 }
 

@@ -54,10 +54,13 @@ enum ProfileViewType {
     
     //1. Logic dealing with disabling details offset view.
     var isAtTopOfScroll = true
+    var isDraggingDetails: Bool = false
+
     var detailsOpen: Bool = false
-    
+
+
     var detailsDragEnabled: Bool {
-        return true
+        !detailsOpen || isAtTopOfScroll
     }
     
     //2. Logic dealing with positioning detailsCard on Screen
