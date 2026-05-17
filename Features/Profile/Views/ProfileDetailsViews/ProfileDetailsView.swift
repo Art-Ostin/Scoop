@@ -37,6 +37,10 @@ struct ProfileDetailsView: View {
             .onTapGesture { toggleDetails() }
         }
         .scrollPosition($scrollPosition)
+        .onScrollPhaseChange { oldPhase, newPhase in
+            ui.touchingScrollView = newPhase == .tracking || newPhase == .interacting
+            print("Yes")
+        }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in

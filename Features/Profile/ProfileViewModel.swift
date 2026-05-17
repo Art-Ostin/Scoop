@@ -92,4 +92,5 @@ enum ProfileViewType {
     //6. Logic with Profile dismiss
     var profileOffset: CGFloat = 0
     var dragType: DragType = .undecided
+    var touchingScrollView = false
 }

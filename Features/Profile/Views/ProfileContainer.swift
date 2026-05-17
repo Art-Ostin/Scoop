@@ -64,7 +64,7 @@ struct ProfileView: View {
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar()
         .offset(y: isUserProfile ? 0 : ui.profileOffset)
-        .simultaneousGesture(profileDrag, isEnabled: )
+        .simultaneousGesture(profileDrag, isEnabled: !ui.touchingScrollView)
     }
 }
 
