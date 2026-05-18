@@ -22,7 +22,7 @@ struct ChatHeaderBar: View {
         HStack {
             closeButton
             Spacer()
-            profileButton
+//            profileButton
         }
         .padding(.horizontal)
     }
@@ -57,6 +57,7 @@ extension ChatHeaderBar {
             .padding(.leading, 4)
             .padding(.trailing, 8)
             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+            .opacity(profileOpen ? 0 : 1)
         }
     }
 }

@@ -46,7 +46,7 @@ struct ProfileView: View {
                     titleAndImage(geo: geo)
                         .simultaneousGesture(profileDrag(geo: geo))
                     
-                    detailsView
+//                    detailsView
                 }
                 //1. Profile Background
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

@@ -30,22 +30,19 @@ struct ChatContainer: View {
     }
     
     var body: some View {
-        ZStack{
-            ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
-            
-            if profileOpen {
-                profileView
-            }
-        }
-        
-        //1. The background and scope
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background.ignoresSafeArea())
-        .customScrollFade(height: 100, showFade: true)
-        
-        //2. The overlay and structure
-        .overlay(alignment: .top) { chatHeaderBar }
-        .overlay(alignment: .bottom) { typeMessageView }
+        ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
+            .overlay(alignment: .bottom) {TypeMessageView(vm: vm, isFocused: $isFocused)}
+            .zIndex(2)
+
+            //1. The background and scope
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.background.ignoresSafeArea())
+            .customScrollFade(height: 200, showFade: true)
+
+            //2. The overlay and structure
+            .overlay(alignment: .topTrailing) { profileButton }
+            .overlay { if profileOpen { profileView } }
+            .overlay(alignment: .top) { chatHeaderBar }
         
         //3. Hide the toolbar
         .toolbar(.hidden)
@@ -60,7 +57,7 @@ struct ChatContainer: View {
         .onChange(of: profileOpen) { oldValue, newValue in
             if newValue {isFocused = false}
         }
-        .animation(.spring(duration: 0.32, bounce: 0.1), value: profileOpen)
+        .animation(.spring(duration: 0.2, bounce: 0.1), value: profileOpen)
     }
 }
 
@@ -91,12 +88,7 @@ extension ChatContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-    
-    private var typeMessageView: some View {
-        TypeMessageView(vm: vm, isFocused: $isFocused)
-            .opacity(profileOpen ? 0 : 1)
-    }
-    
+        
     private func messageAppearCode() {
         vm.session.activeChatEventId = vm.eventProfile.id
         if vm.session.recentMessageReceived?.eventId == vm.eventProfile.id {
@@ -107,6 +99,26 @@ extension ChatContainer {
     private func messageDisappearCode() {
         if vm.session.activeChatEventId == vm.eventProfile.id {
             vm.session.activeChatEventId = nil
+        }
+    }
+    
+    private var profileButton: some View {
+        Button {
+            profileOpen = true
+        } label: {
+            HStack(spacing: 6) {
+                CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
+                    .scaleEffect(0.9)
+                
+                Text(vm.eventProfile.profile.name)
+                    .font(.body(16, .bold))
+            }
+            .padding(.vertical, 3)
+            .padding(.leading, 4)
+            .padding(.trailing, 8)
+            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+//            .opacity(profileOpen ? 0 : 1)
+            .padding(.horizontal)
         }
     }
 }
