@@ -91,6 +91,7 @@ extension ProfileView {
         let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
 
         ui.isDismissing = true
+        withAnimation(spring) { onDismissStart?() }
         withAnimation(spring) {
             ui.profileOffset = target
         } completion: {

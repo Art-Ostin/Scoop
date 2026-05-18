@@ -18,6 +18,8 @@ struct ProfileView: View {
     let mode: ProfileMode
     let profileImages: [UIImage]
     let onDismiss: (() -> Void)?
+    //When starting to dismiss trigger back button to expand (needed for chatContainer)
+    let onDismissStart: (() -> Void)?
 
     var isUserProfile: Bool {
         if case .ownProfile = mode { true } else { false }
@@ -31,12 +33,14 @@ struct ProfileView: View {
         vm: ProfileViewModel,
         profileImages: [UIImage],
         mode: ProfileMode,
-        onDismiss: (() -> Void)? = nil
+        onDismiss: (() -> Void)? = nil,
+        onDismissStart: (() -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         self.mode = mode
         self.onDismiss = onDismiss
+        self.onDismissStart = onDismissStart
     }
     
     var body: some View {

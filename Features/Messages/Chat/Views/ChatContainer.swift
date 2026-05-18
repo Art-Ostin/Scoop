@@ -16,6 +16,7 @@ struct ChatContainer: View {
 
     //2. Different states either: (1) Profile Open (2) isFocused
     @State var profileOpen: Bool = false
+    @State var profileRendered: Bool = false
     @FocusState private var isFocused
 
     //3. Load Profile Images
@@ -41,7 +42,7 @@ struct ChatContainer: View {
 
             //2. The overlay and structure
             .overlay(alignment: .topTrailing) { profileButton }
-            .overlay { if profileOpen { profileView } }
+            .overlay { if profileRendered { profileView } }
             .overlay(alignment: .top) { chatHeaderBar }
         
         //3. Hide the toolbar
@@ -82,11 +83,12 @@ extension ChatContainer {
             ),
             profileImages: profileImages,
             mode: .viewProfile,
-            onDismiss: { profileOpen = false }
+            onDismiss: { profileRendered = false },
+            onDismissStart: { profileOpen = false }
         )
         .id(vm.eventProfile.profile.id)
         .zIndex(1)
-        .transition(.move(edge: .bottom))
+        .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .identity))
     }
         
     private func messageAppearCode() {
@@ -104,6 +106,7 @@ extension ChatContainer {
     
     private var profileButton: some View {
         Button {
+            profileRendered = true
             profileOpen = true
         } label: {
             HStack(spacing: 6) {
@@ -121,4 +124,3 @@ extension ChatContainer {
         }
     }
 }
-
