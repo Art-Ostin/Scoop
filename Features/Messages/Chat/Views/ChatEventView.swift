@@ -19,7 +19,7 @@ struct ChatEventView: View {
         if let event = event {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text("Meeting with \(event.otherUserName)")
+                    Text("\(event.otherUserName) Meeting")
                         .font(.body(18, .bold))
                     
                     Spacer()
@@ -27,7 +27,9 @@ struct ChatEventView: View {
                     Text(eventType(event: event))
                         .font(.body(13, .bold))
                         .frame(width: 80, alignment: .trailing)
-                        .offset(y: -6)
+//                        .offset(y: -6)
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {

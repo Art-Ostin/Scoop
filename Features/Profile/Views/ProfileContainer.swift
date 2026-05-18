@@ -14,6 +14,7 @@ struct ProfileView: View {
     @State var vm: ProfileViewModel
 
     @State var ui = ProfileUIState()
+    @State private var imageBottomSettleTask: Task<Void, Never>?
 
     let mode: ProfileMode
     let profileImages: [UIImage]
@@ -50,7 +51,7 @@ struct ProfileView: View {
                     titleAndImage(geo: geo)
                         .simultaneousGesture(profileDrag(geo: geo))
                     
-//                    detailsView
+                    detailsView
                 }
                 //1. Profile Background
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -93,7 +94,13 @@ extension ProfileView {
                 } action: { bottom in
                     guard !ui.hasUpdatedImageBottom else { return }
                     ui.imageBottom = bottom
-                    if bottom > 400 { ui.hasUpdatedImageBottom = true }
+                    //Stop updating the imageBottom after it stops changing after 0.3 seconds
+                    imageBottomSettleTask?.cancel()
+                    imageBottomSettleTask = Task {
+                        try? await Task.sleep(for: .seconds(0.3))
+                        guard !Task.isCancelled else { return }
+                        ui.hasUpdatedImageBottom = true
+                    }
                 }
         }
         .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
