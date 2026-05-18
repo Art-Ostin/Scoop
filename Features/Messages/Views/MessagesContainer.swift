@@ -56,7 +56,8 @@ extension MessagesContainer {
             VStack(spacing: 0) {
                 ForEach(vm.events) { eventProfile in
                     NavigationLink(value: eventProfile) {
-                        ChatRowView(image: firstProfileImages[eventProfile.id] ?? UIImage(), event: eventProfile.event)
+                        let chatPreview = ChatPreviewModel(eventProfile: eventProfile)
+                        ChatRowView(chatPreview: chatPreview)
                             .task {
                                 firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
                             }
@@ -124,6 +125,8 @@ extension MessagesContainer {
 }
 //Additional Functions
 extension MessagesContainer {
+    
+    
     private func editProfileScreen() -> some View {
         EditProfileContainer(
             vm: EditProfileViewModel(

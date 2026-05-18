@@ -35,4 +35,28 @@ public enum FormatEvent {
         guard let i = address.lastIndex(of: ",") else { return address }
         return String(address[..<i]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
+    
+    static func messageTime(_ date: Date) -> String {
+        let cal = Calendar.current
+        
+        //1. Case 1: If date is same day as today, return time
+        if cal.isDateInToday(date) {
+            return date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+        }
+        
+        //2. Case 2: If Date is yesterday, return 'Yesterday'
+        else if cal.isDateInYesterday(date) {
+            return "Yesterday"
+        }
+        
+        //3. Case 3: If Date is within this week, return the Day of week
+        else if cal.isDate(date, equalTo: .now, toGranularity: .weekOfYear) {
+            return date.formatted(.dateTime.weekday(.wide))
+        }
+        
+        //4/ Case 4: If it is not today, yesterday, or this week, it is longer in past. Then return date in 15/08/2026 format
+        else {
+            return date.formatted(.dateTime.day(.twoDigits).month(.twoDigits).year())
+        }
+    }
 }

@@ -38,8 +38,6 @@ class ChatViewModel {
         return await imageLoader.loadProfileImages(profile.profile)
     }
     
-
-    
     func startListening() async {
         do {
             for try await change in chatRepo.messagesTracker(eventId: eventProfile.id) {

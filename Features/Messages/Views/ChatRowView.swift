@@ -9,25 +9,8 @@ import SwiftUI
 
 struct ChatRowView: View {
     
-    let image: UIImage
-    let event: UserEvent
-    
-    var lastMessageAt: String {
-        if let lastMessageTime = event.chatState?.lastMessageAt {
-            return FormatEvent.hourTime(lastMessageTime)
-        } else {
-            return ""
-        }
-    }
-    
-    var unreadCount: Int {
-        event.chatState?.unreadCount ?? 0
-    }
-    
-    var isUnreadMessage: Bool {
-        return unreadCount >= 1
-    }
-    
+    let chatPreview: ChatPreviewModel
+        
     var body: some View {
         
         HStack(spacing: 16) {
@@ -36,27 +19,13 @@ struct ChatRowView: View {
             ZStack {
                 VStack(alignment: .leading, spacing: 4) {
                     
-                    HStack(alignment: .top) {
-                        Text(event.otherUserName)
-                            .font(.body(18, .bold))
-                        Spacer()
-                        lastMessageTime
-                    }
+                    nameAndTitle
                     
-                    HStack(alignment: .top, spacing: 2) {
-                        messagePreview
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .layoutPriority(1)
-                        
-                        messageStatus
-                            .fixedSize()
-                    }
-                    .padding(.trailing, 16)
+                    messageAndStatus
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                MapDivider()
-                    .frame(maxHeight: .infinity, alignment: .bottom)
+                messageDivider
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         }
@@ -66,22 +35,55 @@ struct ChatRowView: View {
     }
 }
 
+//Main Sections of ChatRowView
 extension ChatRowView {
     
+    
     private var profilePhoto: some View {
-        Image(uiImage: image)
+        Image(uiImage: chatPreview.image ?? UIImage())
             .resizable()
             .scaledToFill()
-            .frame(width: 65, height: 65)
+            .frame(width: 60, height: 60)
             .clipShape(Circle())
     }
+
+    private var nameAndTitle: some View {
+        HStack(alignment: .top) {
+            Text(chatPreview.name)
+                .font(.body(18, .bold))
+            Spacer()
+            lastMessageTime
+        }
+    }
+    
+    private var messageAndStatus: some View {
+        HStack(alignment: .top, spacing: 2) {
+            messagePreview
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
+            
+            messageStatus
+                .fixedSize()
+        }
+        .padding(.trailing, 16)
+    }
+    
+    private var messageDivider: some View {
+        MapDivider()
+            .frame(maxHeight: .infinity, alignment: .bottom)
+    }
+}
+
+
+//Main Elements of ChatRowView
+extension ChatRowView {
+    
     
     @ViewBuilder
     private var messagePreview: some View {
-        if let _ = event.chatState {
-//            let unread = chat.unreadCount > 0
-            Text("This is an example of seeing how the") //maessage looks when you flip it around to have two screens
-                .font(.system(size: 15, weight: .regular)) //
+        if let lastChat = chatPreview.lastChat {
+            Text(lastChat)
+                .font(.system(size: 15, weight: .regular))
                 .foregroundStyle(Color(red: 0.42, green: 0.42, blue: 0.42))
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
@@ -95,23 +97,24 @@ extension ChatRowView {
     
     @ViewBuilder
     private var lastMessageTime: some View {
-        let date = event.chatState?.lastMessageAt
-        Text(FormatEvent.hourTime(date ?? Date()))
+        let isUnreadMessage = chatPreview.unreadCount > 0
+        Text(chatPreview.lastChatTime)
             .font(.system(size: 15, weight: .regular))
-            .foregroundStyle(Color.accent) // isUnreadMessage ? Color.accent : Color(red: 0.42, green: 0.42, blue: 0.42)
+            .foregroundStyle(isUnreadMessage ? Color.accent : Color(red: 0.42, green: 0.42, blue: 0.42))
             .padding(.trailing, 16)
     }
     
-    
-    
+    @ViewBuilder
     private var messageStatus: some View {
-        Text(String(3))  //unreadCount
-            .font(.system(size: 12, weight: .regular))
-            .foregroundStyle(Color.white)
-            .padding(5)
-            .background (
-                Circle()
-                    .fill(.accent)
-            )
+        if chatPreview.unreadCount > 0  {
+            Text(String(chatPreview.unreadCount))  //unreadCount
+                .font(.system(size: 12, weight: .regular))
+                .foregroundStyle(Color.white)
+                .padding(5)
+                .background (
+                    Circle()
+                        .fill(.accent)
+                )
+        }
     }
 }
