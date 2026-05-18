@@ -89,7 +89,7 @@ extension ProfileView {
                 } action: { bottom in
                     guard !ui.hasUpdatedImageBottom else { return }
                     ui.imageBottom = bottom
-                    if bottom > 300 { ui.hasUpdatedImageBottom = true }
+                    if bottom > 400 { ui.hasUpdatedImageBottom = true }
                 }
         }
         .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part

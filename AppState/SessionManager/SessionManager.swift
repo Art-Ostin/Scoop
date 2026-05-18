@@ -141,6 +141,16 @@ extension SessionManager {
         events.removeAll { $0.event.id == id }
         pastEvents.removeAll { $0.event.id == id }
     }
+
+    func updateEvent(_ event: UserEvent) {
+        if let i = events.firstIndex(where: { $0.event.id == event.id }) {
+            events[i].event = event
+        } else if let i = pastEvents.firstIndex(where: { $0.event.id == event.id }) {
+            pastEvents[i].event = event
+        } else if let i = invites.firstIndex(where: { $0.event.id == event.id }) {
+            invites[i].event = event
+        }
+    }
 }
  
 //Logic dealing with the popups in the app shown to the User (Probably remove later ad have notification section)

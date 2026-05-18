@@ -44,5 +44,7 @@ extension SessionManager {
         case .pastAccepted: archiveEvent(eventId: event.id)
         default: break
         }
+        //Messages updated
+        updateEvent(event)
     }
 }
