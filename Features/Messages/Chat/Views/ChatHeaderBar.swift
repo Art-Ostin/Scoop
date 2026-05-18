@@ -31,7 +31,6 @@ struct ChatHeaderBar: View {
             }
             Spacer()
             ProfileButton(image: image, profile: profile, isProfileOpen: $isProfileOpen, isFocused: isFocused)
-//            profileButton
         }
         .padding(.horizontal)
         .onPreferenceChange(OpenDetails.self) { isDetailsOpen in
