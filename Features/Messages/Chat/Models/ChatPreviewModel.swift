@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ChatPreviewModel {
+struct ChatPreviewModel: Hashable {
     let image: UIImage?
     let name: String
     let lastChat: String?

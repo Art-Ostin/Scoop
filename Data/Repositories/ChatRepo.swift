@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-class ChatRepo: ChatRepository {    
+class ChatRepo: ChatRepository {
     
     private let eventsRepo: EventsRepository
     

@@ -60,4 +60,8 @@ import UIKit
                 return []
             }
     }
+    
+    func readMessages(userEventId: String, userId: String) async throws {
+        try await eventsRepo.readRecentMessages(userId: userId, userEventId: userEventId)
+    }
 }

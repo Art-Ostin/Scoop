@@ -42,6 +42,12 @@ struct MessagesContainer: View {
             .task(id: vm.user.imagePathURL) { await prepareUserImages() }
             .navigationDestination(for: EventProfile.self) { eventProfile in
                 ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
+                    //When it appears, set the read count to zero, if it isn't 0 already
+                    .task {
+                        print("Has appeared")
+                        try? await updateMessagesToRead(eventProfile)
+                        
+                    }
             }
         }
         .hideTabBar(hideBar: !path.isEmpty)
@@ -61,6 +67,7 @@ extension MessagesContainer {
                             .task {
                                 firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
                             }
+                            .id(chatPreview)
                     }
                 }
             }
@@ -126,7 +133,6 @@ extension MessagesContainer {
 //Additional Functions
 extension MessagesContainer {
     
-    
     private func editProfileScreen() -> some View {
         EditProfileContainer(
             vm: EditProfileViewModel(
@@ -148,5 +154,13 @@ extension MessagesContainer {
     private func prepareUserImages() async {
         let loadedUserImages = await vm.loadUserImages()
         userProfileImages = loadedUserImages
+    }
+    
+    private func updateMessagesToRead(_ eventProfile: EventProfile) async throws {
+        if let eventCount = eventProfile.event.chatState?.unreadCount {
+            if eventCount > 0 {
+                try await vm.readMessages(userEventId: eventProfile.event.id, userId: vm.user.id)
+            }
+        }
     }
 }
