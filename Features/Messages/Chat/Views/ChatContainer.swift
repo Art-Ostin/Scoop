@@ -11,70 +11,68 @@ import UIKit
 
 struct ChatContainer: View {
 
+    //1. View Model
     @State private var vm: ChatViewModel
 
-    @State var isProfileOpen: UserProfile? = nil
-    @State var profileImages: [UIImage] = []
+    //2. Different states either: (1) Profile Open (2) isFocused
+    @State var profileOpen: Bool = false
     @FocusState private var isFocused
-    var isEvent: Bool
 
-    init(vm: ChatViewModel, isEvent: Bool = true) {
+    //3. Load Profile Images
+    @State var profileImages: [UIImage] = []
+    
+    //4.if ChatContainer for events its different
+    let isEvent: Bool
+
+    init(vm: ChatViewModel, isEvent: Bool = false) {
         _vm = State(initialValue: vm)
         self.isEvent = isEvent
     }
     
     var body: some View {
         ZStack{
-            Color.background.ignoresSafeArea()
             ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
-            if isProfileOpen != nil { profileView}
+            
+            if profileOpen {
+                profileView
+            }
         }
-        .customScrollFade(height: 100, showFade: true)
-        .overlay(alignment: .top) {chatHeaderBar} //{if isEvent {chatHeaderBar}}
-        .overlay(alignment: .bottom) {typeMessageView}
-        .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile)}
-        .task(id: vm.eventProfile.id) { await vm.startListening() }
-        .onAppear {messageAppearCode()}
-        .onDisappear {messageDisappearCode()}
-        .toolbar(.hidden)
+        
+        //1. The background and scope
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background.ignoresSafeArea())
+        .customScrollFade(height: 100, showFade: true)
+        
+        //2. The overlay and structure
+        .overlay(alignment: .top) { chatHeaderBar }
+        .overlay(alignment: .bottom) { typeMessageView }
+        
+        //3. Hide the toolbar
+        .toolbar(.hidden)
+        
+        //4. Code to execute and listen for
+        .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
+        .task(id: vm.eventProfile.id) { await vm.startListening() }
+        .onAppear { messageAppearCode() }
+        .onDisappear { messageDisappearCode() }
+        
+        //5. when profile opened, turn isFocused to false
+        .onChange(of: profileOpen) { oldValue, newValue in
+            if newValue {isFocused = false}
+        }
+        .animation(.spring(duration: 0.32, bounce: 0.1), value: profileOpen)
     }
 }
 
 //Other Views
 extension ChatContainer {
     
-    @ViewBuilder
-    private var profileButtonMessage: some View {
-        if !isEvent {
-            Button {
-                openProfile()
-            } label: {
-                HStack(spacing: 6) {
-                    CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
-                        .scaleEffect(0.9)
-                    
-                    Text(vm.eventProfile.profile.name)
-                        .font(.body(16, .bold))
-                }
-                .padding(.horizontal, -4)
-                .padding(.vertical, -3)
-            }
-        }
-    }
-    
-    private func openProfile() {
-        isFocused = false
-        withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = vm.eventProfile.profile}
-    }
-
     private var chatHeaderBar: some View {
         ChatHeaderBar(
-            isProfileOpen: $isProfileOpen,
-            profile: vm.eventProfile.profile,
+            profileOpen: $profileOpen,
             image: profileImages.first ?? UIImage(),
-            isEvent: isEvent,
-            isFocused: $isFocused
+            name: vm.eventProfile.profile.name,
+            isEvent: isEvent
         )
     }
 
@@ -87,7 +85,7 @@ extension ChatContainer {
             ),
             profileImages: profileImages,
             mode: .viewProfile,
-            onDismiss: { isProfileOpen = nil }
+            onDismiss: { profileOpen = false }
         )
         .id(vm.eventProfile.profile.id)
         .zIndex(1)
@@ -96,7 +94,7 @@ extension ChatContainer {
     
     private var typeMessageView: some View {
         TypeMessageView(vm: vm, isFocused: $isFocused)
-            .opacity(isProfileOpen == nil ? 1 : 0)
+            .opacity(profileOpen ? 0 : 1)
     }
     
     private func messageAppearCode() {
@@ -107,6 +105,9 @@ extension ChatContainer {
     }
     
     private func messageDisappearCode() {
-        
+        if vm.session.activeChatEventId == vm.eventProfile.id {
+            vm.session.activeChatEventId = nil
+        }
     }
 }
+

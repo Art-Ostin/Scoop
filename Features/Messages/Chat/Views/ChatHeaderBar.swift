@@ -9,130 +9,116 @@ import SwiftUI
 
 struct ChatHeaderBar: View {
     
+    //1. To (1) Close mesage container and (2) UserProfile
     @Environment(\.dismiss) private var dismiss
+    @Binding var profileOpen: Bool
     
-    @Binding var isProfileOpen: UserProfile?
-
-    @State var detailsOpen = false
-    @Namespace private var ns
-    
-    let profile: UserProfile
+    //2. Parameters to pass in for the header bar for view
     let image: UIImage
-    
+    let name: String
     let isEvent: Bool
-    var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
-            if isProfileOpen != nil {
-                profileCloseButton
-            } else {
-                closeButtonMain
-            }
+            closeButton
             Spacer()
-            ProfileButton(image: image, profile: profile, isProfileOpen: $isProfileOpen, isFocused: isFocused)
+            profileButton
         }
         .padding(.horizontal)
-        .onPreferenceChange(OpenDetails.self) { isDetailsOpen in
-            detailsOpen = isDetailsOpen
-        }
-        .animation(.easeInOut(duration: 0.2), value: isProfileOpen)
     }
 }
 
 extension ChatHeaderBar {
-    
-    private var closeButtonMain: some View {
+        
+    private var closeButton: some View {
         Button {
             dismiss()
         } label: {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
-                .matchedGeometryEffect(id: "button", in: ns)
-                .font(.body(18, .bold))
-                .contentShape(Rectangle())
+                .font(.body(profileOpen ? 16 : 18, .bold))
                 .foregroundStyle(Color.black)
-                .padding(12)
-                .glassIfAvailable(Circle(), isClear: false)
-        }
-    }
-    
-    
-
-    
-    
-    private var profileCloseButton: some View {
-        Button {
-            dismiss()
-        } label: {
-            Image(systemName: isEvent ? "xmark" : "chevron.left")
-                .matchedGeometryEffect(id: "button", in: ns)
-                .font(.body(16, .bold))
-                .contentShape(Rectangle())
-                .foregroundStyle(Color.black)
-                .padding(6)
+                .padding(profileOpen ? 6 : 12)
                 .glassIfAvailable(Circle(), isClear: true)
-                .offset(y: -14)
-                .opacity(detailsOpen ? 0 : 1)
         }
     }
     
-}
-
-
-struct ProfileButton: View {
-    
-    let image: UIImage
-    let profile: UserProfile
-
-    @Binding var isProfileOpen: UserProfile?
-    var isFocused: FocusState<Bool>.Binding
-    
-    
-    var body: some View {
-        Button(action: openProfile) {
+    private var profileButton: some View {
+        Button {
+            profileOpen = true
+        } label: {
             HStack(spacing: 6) {
                 CirclePhoto(image: image, showShadow: false)
                     .scaleEffect(0.9)
                 
-                Text(profile.name)
+                Text(name)
                     .font(.body(16, .bold))
             }
             .padding(.vertical, 3)
             .padding(.leading, 4)
             .padding(.trailing, 8)
             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
-            .opacity(
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isProfileOpen != nil ? 0 : 1
-                })
         }
-    }
-    
-    private func openProfile() {
-        isFocused.wrappedValue = false
-        withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = profile}
     }
 }
 
+
 /*
+ private var closeButtonMain: some View {
+     Button {
+         dismiss()
+     } label: {
+         Image(systemName: isEvent ? "xmark" : "chevron.left")
+             .matchedGeometryEffect(id: "button", in: ns)
+             .font(.body(18, .bold))
+             .contentShape(Rectangle())
+             .foregroundStyle(Color.black)
+             .padding(12)
+             .glassIfAvailable(Circle(), isClear: false)
+     }
+ }
  
- private var profileButton: some View {
-     Button(action: openProfile) {
-         HStack(spacing: 6) {
-             CirclePhoto(image: image, showShadow: false)
-                 .scaleEffect(0.9)
-             
-             Text(profile.name)
-                 .font(.body(16, .bold))
+ private var profileCloseButton: some View {
+     Button {
+         dismiss()
+     } label: {
+         Image(systemName: isEvent ? "xmark" : "chevron.left")
+             .matchedGeometryEffect(id: "button", in: ns)
+             .font(.body(16, .bold))
+             .contentShape(Rectangle())
+             .padding(6)
+             .glassIfAvailable(Circle(), isClear: true)
+             .offset(y: -14)
+     }
+ }
+ 
+ 
+ 
+ struct ProfileButton: View {
+     
+     //1.
+     @Binding var openProfile: UserProfile?
+     
+     let image: UIImage
+     let profile: UserProfile
+     
+     var body: some View {
+         
+         
+         
+         
+         Button(action: openProfile) {
+             HStack(spacing: 6) {
+                 CirclePhoto(image: image, showShadow: false)
+                     .scaleEffect(0.9)
+                 
+                 Text(profile.name)
+                     .font(.body(16, .bold))
+             }
+             .padding(.vertical, 3)
+             .padding(.leading, 4)
+             .padding(.trailing, 8)
+             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
          }
-         .padding(.vertical, 3)
-         .padding(.leading, 4)
-         .padding(.trailing, 8)
-         .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
-         .opacity(
-             withAnimation(.easeInOut(duration: 0.1)) {
-                 isProfileOpen != nil ? 0 : 1
-             })
      }
  }
  
