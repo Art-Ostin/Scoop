@@ -26,9 +26,7 @@ struct ChatEventView: View {
                     
                     Text(eventType(event: event))
                         .font(.body(13, .bold))
-                        .frame(width: 80, alignment: .trailing)
-//                        .offset(y: -6)
-                        .minimumScaleFactor(0.7)
+                        .frame(width: event.type == .doubleDate ? 100 : 80, alignment: .trailing)
                         .lineLimit(1)
                 }
                 

@@ -50,7 +50,7 @@ struct ProfileView: View {
                 ZStack(alignment: .top) {
                     titleAndImage(geo: geo)
                         .simultaneousGesture(profileDrag(geo: geo))
-                    
+
                     detailsView
                 }
                 //1. Profile Background
