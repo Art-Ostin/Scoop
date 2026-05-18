@@ -1,7 +1,6 @@
 import SwiftUI
 //Note: Geometry Reader needed to Keep the VStack from respecting the top safe Area
 
-
 enum ProfileMode {
     case ownProfile(draft: UserProfile)
     case viewProfile
@@ -14,110 +13,101 @@ struct ProfileView: View {
     @Environment(\.dismiss) var dismiss
     @State var vm: ProfileViewModel
 
-    let mode: ProfileMode
-    let profileImages: [UIImage]
-
-    @State var detailsOffset: CGFloat = 0
-    @State var profileOffset: CGFloat = 0
-    @State var dragType: DragType? = nil
-    @State var dragStart: CGFloat? = nil   //translation captured on the first drag event so subsequent events grow from 0 instead of jumping by the activation distance
-    @State var detailsFullyOpen: Bool = false   //published to ChatHeaderBar via OpenDetails preference. Updated only after the open/close animation finishes so the parent's re-render doesn't drop a frame mid-spring.
-
-    @Binding var dismissOffset: CGFloat?
-    @Binding var selectedProfile: UserProfile?
-
     @State var ui = ProfileUIState()
 
-    static let toggleAnimation: Animation = .spring(duration: 0.4, bounce: 0.1)
-
-    var transition: ProfileDetailsTransition {
-        ProfileDetailsTransition(isOpen: ui.detailsOpen, openOffset: ui.detailsOpenOffset, offset: detailsOffset)
-    }
+    let mode: ProfileMode
+    let profileImages: [UIImage]
+    let onDismiss: (() -> Void)?
 
     var isUserProfile: Bool {
-        if case .ownProfile = mode { return true }
-        return false
+        if case .ownProfile = mode { true } else { false }
     }
 
     var displayProfile: UserProfile {
-        if case .ownProfile(let draft) = mode { return draft }
-        return vm.profile
+        if case .ownProfile(let draft) = mode { draft } else { vm.profile }
     }
 
     init(
         vm: ProfileViewModel,
         profileImages: [UIImage],
-        selectedProfile: Binding<UserProfile?>,
-        dismissOffset: Binding<CGFloat?>,
-        mode: ProfileMode
+        mode: ProfileMode,
+        onDismiss: (() -> Void)? = nil
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
-        _selectedProfile = selectedProfile
-        _dismissOffset = dismissOffset
         self.mode = mode
+        self.onDismiss = onDismiss
     }
     
     var body: some View {
         GeometryReader { geo in
             ZoomContainer {
-                VStack(spacing: 24) {
-                    profileTitle(geo: geo)
-                        .padding(.top, 36)
-                        .opacity(1 - transition.overlayTitleOpacity)
-                        .offset(y: transition.interpolate(to: -108))
+                ZStack(alignment: .top) {
+                    titleAndImage(geo: geo)
+                        .simultaneousGesture(profileDrag(geo: geo))
                     
-                    ProfileImageView(vm: vm, importedImages: profileImages)
-                        .onTapGesture {closeDetails()}
-                        .offset(y: transition.interpolate(to: -100))
-                        .simultaneousGesture(imageDetailsDrag(using: geo))
-
-                    ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
-                        .scaleEffect(transition.interpolate(from: 0.97, to: 1), anchor: .top)
-                        .onTapGesture {toggleDetails()}
-                        .offset(y: detailsOffset)
-                        .simultaneousGesture(detailsDrag)
+                    detailsView
                 }
+                //1. Profile Background
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
-                .overlay(alignment: .topLeading) { overlayTitle(onDismiss: { dismissProfile(using: geo) }) }
-                .preference(key: OpenDetails.self, value: detailsFullyOpen) //Used to hide profileCloseButton in message container, when details Open
+                
+                //2. Appearing above screen
+                .overlay(alignment: .bottomTrailing) { inviteButton }
+                .overlay(alignment: .bottomLeading) { declineButton }
+                
+                
+                //3.Specify coordinate space for measuring
+                .coordinateSpace(name: "profileZStack")
             }
         }
-        .overlay {if ui.showPopup{invitePopup}}
-        .offset(y: isUserProfile ? 0 : activeProfileOffset)
-        .onAppear {
-            if isUserProfile { vm.viewProfileType = .view }
-        }
-        .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .bottomTrailing) {inviteButton}
-        .overlay(alignment: .bottomLeading) {declineButton}
-        .hideTabBar()
+        .overlay { if ui.showPopup { invitePopup } }
+        .onAppear { if isUserProfile { vm.viewProfileType = .view } }
+        .hideTabBar(hideBar: !ui.isDismissing)
+        .overlay(alignment: .bottomTrailing) { inviteButton }
+        .overlay(alignment: .bottomLeading) { declineButton }
+        .offset(y: isUserProfile ? 0 : ui.profileOffset)
     }
+}
 
-    private func closeDetails() {
-        guard ui.detailsOpen else { return }
-        ui.detailsOpen = false   //flipped outside withAnimation so SwiftUI doesn't enroll every dependent view (colors, scrollDisabled, dismiss button visibility, etc.) in the animation transaction. Only detailsOffset is animated; transition.interpolate(...) stays continuous because it derives from both isOpen and the animated offset.
-        withAnimation(Self.toggleAnimation) {
-            detailsOffset = 0
-        } completion: {
-            detailsFullyOpen = false
-        }
-    }
+extension ProfileView {
+    
+    //Positioning is controlled by offset as it makes it easier to adjust with details
+    private func titleAndImage(geo: GeometryProxy) -> some View {
+        VStack(spacing: 24) {
+            profileTitle(geo: geo)
+                .opacity(interpolate(from: 1, to: 0, impactStart: 0, impactEnd: 0.75))
 
-    private func toggleDetails() {
-        ui.detailsOpen.toggle()
-        withAnimation(Self.toggleAnimation) {
-            detailsOffset = ui.detailsOpen ? ui.detailsOpenOffset : 0
-        } completion: {
-            detailsFullyOpen = ui.detailsOpen
+            ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
+                .overlay(alignment: .topLeading) {
+                    overlayTitle(onDismiss: { dismissProfile(using: geo) })
+                        .padding(.top, 12)
+                        .opacity(interpolate(from: 0, to: 1, impactStart: 0.5, impactEnd: 1))
+                }
+                .onGeometryChange(for: CGFloat.self) { geo in
+                    geo.frame(in: .named("profileZStack")).maxY
+                } action: { bottom in
+                    guard !ui.hasUpdatedImageBottom else { return }
+                    ui.imageBottom = bottom
+                    if bottom > 300 { ui.hasUpdatedImageBottom = true }
+                }
         }
+        .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
+    private var detailsView: some View {
+        ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
+            .offset(y: ui.detailsOffset)
+            .padding(.top, ui.imageBottom + 24) //24 spacing between bottom of image, and start of details
+            .scaleEffect(interpolate(from: 0.97, to: 1))
+            .simultaneousGesture(detailsDrag)
+    }
+
     private var profileBackground: some View {
         UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
             .fill(Color.background)
             .ignoresSafeArea()
-            .shadow(color: profileOffset > 0 ? .black.opacity(0.25) : .clear, radius: 12, y: 6)
+            .customSubtleShadow()
     }
 }

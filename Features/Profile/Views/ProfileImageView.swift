@@ -10,9 +10,9 @@ import Zoomable
 
 
 struct ProfileImageView: View {
-    
+    @Bindable var ui: ProfileUIState
     @Bindable var vm: ProfileViewModel
-    @State private var selection = 0
+    @State private var selection: Int? = 0
     let imagePadding: CGFloat = 12
     @State private var imageSize: CGFloat = 0
     @State var importedImages: [UIImage]
@@ -31,40 +31,41 @@ struct ProfileImageView: View {
         }
         .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
         .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - imagePadding
+            imageSize = screenWidth - 12
         }
     }
 }
 
 extension ProfileImageView {
 
+
     private var profileImages: some View {
-            TabView(selection: $selection) {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
                 ForEach(importedImages.indices, id: \.self) { index in
-                        Image(uiImage: importedImages[index])
-                            .resizable()
-                            .defaultImage(imageSize, 16)
-                            .tag(index)
-                            .indexViewStyle(.page(backgroundDisplayMode: .never))
-                            .pinchZoom()
+                    Image(uiImage: importedImages[index])
+                        .resizable()
+                        .defaultImage(imageSize, 16)
+                        .pinchZoom()
+                        .id(index)
+                        .frame(width: imageSize + 12)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            //Apply the shadow after the frame so shadow not included in distance between views
-            .frame(height: imageSize)
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $selection)
+        .scrollIndicators(.hidden)
+        .frame(height: imageSize)
     }
+
     
     private var imageScroller : some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 48) {
                     ForEach(importedImages.indices, id: \.self) {index in
-                        let image = importedImages[index]
-                        Image(uiImage: image)
-                            .resizable()
-                            .defaultImage(60, 10)
-                            .customSubtleShadow(strength: selection == index ? 4 : 0)
-                            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
+                        scrollImage(index: index)
                     }
                     ClearRectangle(size: 0)
                 }
@@ -72,7 +73,7 @@ extension ProfileImageView {
             }
             .frame(height: 60)
             .scrollClipDisabled() //
-            .onChange(of: selection) {oldIndex, newIndex in
+            .onChange(of: selection ?? 0) {oldIndex, newIndex in
                 if oldIndex < 3 && newIndex == 3 {
                     withAnimation { proxy.scrollTo(newIndex, anchor: .leading) }
                 }
@@ -81,5 +82,14 @@ extension ProfileImageView {
                 }
             }
         }
+    }
+
+    private func scrollImage(index: Int) -> some View {
+        let image = importedImages[index]
+        return Image(uiImage: image)
+            .resizable()
+            .defaultImage(60, 10)
+            .customSubtleShadow(strength: selection == index ? 4 : 0)
+            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
     }
 }

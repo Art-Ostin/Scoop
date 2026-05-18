@@ -7,44 +7,44 @@
 
 import SwiftUI
 
+enum ProfileTitleStyle { case base, overlay }
+
 extension ProfileView {
-    
+
     func profileTitle(geo: GeometryProxy) -> some View {
+        titleBar(style: .base, onDismiss: { dismissProfile(using: geo) })
+    }
+
+    func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
+        titleBar(style: .overlay, onDismiss: onDismiss)
+    }
+
+    @ViewBuilder
+    private func titleBar(style: ProfileTitleStyle, onDismiss: @escaping () -> Void) -> some View {
+        let isOverlay = style == .overlay
         HStack {
             Text(displayProfile.name)
-            ForEach (displayProfile.nationality, id: \.self) {flag in Text(flag)}
+            if !isOverlay {
+                ForEach(displayProfile.nationality, id: \.self) { flag in Text(flag) }
+            }
             Spacer()
             if !isUserProfile {
-                ProfileDismissButton(color: .black, isOverlay: false) {
-                    dismissProfile(using: geo)
+                if isOverlay {
+                    ProfileDismissButton(color: .white, isOverlay: true, onDismiss: onDismiss)
+                        .padding(6)
+                        .glassIfAvailable(Circle())
+                } else {
+                    ProfileDismissButton(color: .black, isOverlay: false, onDismiss: onDismiss)
                 }
             }
         }
-        .offset(y: 4) // Hack to align to bottom of HStack
         .font(.body(24, .bold))
-        .padding(.horizontal)
-        .onAppear {
-            print("Hello world")
-        }
-    }
-    
-    func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
-        HStack {
-            Text(displayProfile.name)
-            Spacer()
-            if !isUserProfile {
-                ProfileDismissButton(color: .white, isOverlay: true) { onDismiss() }
-                    .padding(6)
-                    .glassIfAvailable(Circle())
-            }
-        }
-        .font(.body(24, .bold))
+        .foregroundStyle(isOverlay ? Color.white : .primary)
         .contentShape(Rectangle())
-        .foregroundStyle(.white)
         .padding(.horizontal, 16)
-        .opacity(transition.overlayTitleOpacity)
+        .offset(y: isOverlay ? 0 : 4) // base: hack to align to bottom of HStack
     }
-    
+
     @ViewBuilder var invitePopup: some View {
         switch mode {
         case .respondToInvite(let respondVM, let onResponse):
@@ -67,11 +67,10 @@ extension ProfileView {
         if showInviteButton {
             InviteButton(vm: vm, showInvite: $ui.showPopup)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 144 - (transition.interpolate(to: 138)))
-                .animation(ProfileView.toggleAnimation, value: ui.detailsOpen)
+                .padding(.bottom, interpolate(from: 144, to: 0)) //144
         }
     }
-    
+
     @ViewBuilder var declineButton: some View {
         if vm.viewProfileType == .invite {
             EventDeclineButton {
@@ -79,5 +78,31 @@ extension ProfileView {
             }
             .opacity(ui.showPopup ? 0 : 1)
         }
+    }
+    
+    func dismissProfile(using geo: GeometryProxy) {
+        animateDismiss(using: geo, releaseVelocity: 0)
+    }
+
+    func animateDismiss(using geo: GeometryProxy, releaseVelocity: CGFloat) {
+        let target = geo.size.height + geo.safeAreaInsets.bottom + geo.safeAreaInsets.top + 100
+        let signedDistance = target - ui.profileOffset
+        let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
+        let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
+
+        ui.isDismissing = true
+        withAnimation(spring) {
+            ui.profileOffset = target
+        } completion: {
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { onDismiss?() }
+        }
+    }
+
+    func animateSnapBack(releaseVelocity: CGFloat) {
+        let signedDistance = -ui.profileOffset
+        let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
+        let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
+        withAnimation(spring) { ui.profileOffset = 0 }
     }
 }

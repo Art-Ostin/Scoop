@@ -62,7 +62,6 @@ extension InvitesView {
     
     private func openProfile(_ profile: UserProfile) {
         if ui.selectedProfile == nil {
-            ui.dismissOffset = nil
             ui.selectedProfile = profile
         }
     }

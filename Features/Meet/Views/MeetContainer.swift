@@ -15,8 +15,7 @@ struct MeetContainer: View {
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
     @State var profileImages: [String : [UIImage]] = [:]
-    @State var dismissOffset: CGFloat? = nil //Fixes bug by controlling dismiss Offset here
-    
+
     init(vm: InviteViewModel) { self.vm = vm }
     
     var body: some View {
@@ -70,7 +69,6 @@ extension MeetContainer {
     
     private func openProfile(_ profile: PendingProfile) {
         if ui.openProfile == nil {
-            dismissOffset = nil
             ui.openProfile = profile.profile
         }
     }
@@ -87,8 +85,6 @@ extension MeetContainer {
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
             profileImages: profileImages[profile.id] ?? [],
-            selectedProfile: $ui.openProfile,
-            dismissOffset: $dismissOffset,
             mode: .sendInvite(
                 onSend: { draft in
                     Task { await respondToProfile(event: draft, profile: profile) }
@@ -96,7 +92,8 @@ extension MeetContainer {
                 onDecline: {
                     Task { await respondToProfile(profile: profile) }
                 }
-            )
+            ),
+            onDismiss: { ui.openProfile = nil }
         )
         .id(profile.id)
         .zIndex(1)

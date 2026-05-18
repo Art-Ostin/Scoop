@@ -14,47 +14,66 @@ struct ProfileDetailsView: View {
     @Bindable var ui: ProfileUIState
 
     let p: UserProfile
-    
+
     let event: UserEvent?
+
+    @State private var scrollPosition = ScrollPosition(edge: .top)
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+                ClearRectangle(size: 24)
                 eventInvite
                 DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
+                    .animation(.spring(duration: 0.42, bounce: 0), value: ui.detailsOpen)
                 PromptView(prompt: p.prompt1)
                 profileInterests
                 PromptView(prompt: p.prompt2)
                 DetailsSection(title: "Extra Info", adaptivePadding: true) {UserExtraInfo(p: p)}
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
+                ClearRectangle(size: 200)
             }
-            .padding(.bottom, 300)
-            .offset(y: 36)
+            .contentShape(Rectangle())
+            .onTapGesture { toggleDetails() }
         }
-        //1. Details Background
-        .frame(height: 600).background(Color.background)
-        .mask(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
-        
-        //2. Track scroll position so the parent drag can close on pull-down at top
+        .scrollPosition($scrollPosition)
+        .onScrollPhaseChange { oldPhase, newPhase in
+            ui.touchingScrollView = newPhase == .tracking || newPhase == .interacting
+        }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, newOffsetY in
-            ui.isAtTopOfScroll = newOffsetY <= 5
+            // Hysteresis: enter "at top" at 0, leave only past 8, so scroll bounce doesn't flicker the flag
+            if ui.isAtTopOfScroll {
+                if newOffsetY > 8 { ui.isAtTopOfScroll = false }
+            } else {
+                if newOffsetY <= 0 { ui.isAtTopOfScroll = true }
+            }
         }
-        .scrollDisabled(!ui.detailsOpen || ui.detailsDragEngaged)
+        .frame(maxWidth: .infinity)
+        .frame(height: ui.detailsCardHeight).background(Color.background)
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
+        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        .contentMargins(.bottom, 0, for: .scrollContent)
+        .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
-        .overlay(alignment: .topTrailing) {dismissDetailsButton}
+        .scrollDisabled(ui.isDraggingDetails || !ui.detailsOpen)
+        .overlay(alignment: .topTrailing) {
+            dismissDetailsButton
+                .opacity(!ui.isAtTopOfScroll && ui.detailsFullyOpen ? 1 : 0)
+                .animation(.smooth(duration: 0.2), value: ui.detailsFullyOpen)
+                .animation(.smooth(duration: 0.2), value: ui.isAtTopOfScroll)
+        }
     }
 }
 
 extension ProfileDetailsView {
-    
+
     @ViewBuilder private var eventInvite: some View {
         if let event = event, event.status == .accepted {
             DetailsSection(
-                color: ui.detailsOpen ? .appGreen : .grayBackground,
+                color: .appGreen,
                 title: "event with \(event.otherUserName)",
                 adaptivePadding: true,
                 padding: 12
@@ -64,36 +83,34 @@ extension ProfileDetailsView {
             .padding(.bottom, 32)
         }
     }
-    
+
     private var keyInfoStrokeColour: Color {
-        let showsEvent = event?.status == .accepted
-        
-        if showsEvent || !ui.detailsOpen {
-            return .grayPlaceholder
-        }
-        if vm.viewProfileType == .accept {
-            return .appGreen
+        if !ui.detailsOpen {
+            Color.grayPlaceholder.opacity(0.4)
+        } else if vm.viewProfileType == .accept {
+            Color.appGreen
         } else {
-            return .accent
+            Color.accent
         }
     }
-    
-    @ViewBuilder
+
     private var dismissDetailsButton: some View {
-        if !ui.isAtTopOfScroll && ui.detailsOpen {
-            Image(systemName: "chevron.down")
-                .font(.body(16, .bold))
-                .frame(width: 30, height: 30)
-                .glassIfAvailable()
-                .padding()
-                .padding(.horizontal, 6)
-        }
+        Image(systemName: "chevron.down")
+            .font(.body(16, .bold))
+            .frame(width: 30, height: 30)
+            .glassIfAvailable()
+            .padding()
+            .padding(.horizontal, 6)
     }
-    
+
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
             UserInterests(p: p)
                 .padding(.vertical, -12)
         }
+    }
+
+    func toggleDetails() {
+        ui.animateDetails(to: !ui.detailsOpen)
     }
 }

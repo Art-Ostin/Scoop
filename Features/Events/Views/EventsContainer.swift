@@ -119,8 +119,8 @@ extension EventsContainer {
         ProfileView(
             vm:ProfileViewModel(profile: profile, event: fetchEvent(profile), imageLoader: vm.imageLoader, defaults: vm.defaults),
             profileImages: profileImages[profile.id] ?? [],
-            selectedProfile: $ui.selectedProfile,
-            dismissOffset: $ui.dismissOffset, mode: .viewProfile)
+            mode: .viewProfile,
+            onDismiss: { ui.selectedProfile = nil })
         .id(profile.id)
         .zIndex(1)
         .transition(.move(edge: .bottom))

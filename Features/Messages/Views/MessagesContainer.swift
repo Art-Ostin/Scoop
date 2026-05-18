@@ -135,8 +135,7 @@ extension MessagesContainer {
             profileVM: ProfileViewModel(
                 profile: vm.user,
                 imageLoader: vm.imageLoader, defaults: vm.defaults
-            ),
-            selectedProfile: nil)
+            ))
     }
     
     private func settingScreen() -> some View {

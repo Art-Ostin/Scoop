@@ -14,7 +14,6 @@ struct ChatContainer: View {
     @State private var vm: ChatViewModel
 
     @State var isProfileOpen: UserProfile? = nil
-    @State var dismissOffset: CGFloat? = nil
     @State var profileImages: [UIImage] = []
     @FocusState private var isFocused
     var isEvent: Bool
@@ -75,21 +74,19 @@ extension ChatContainer {
     
     private func openProfile() {
         isFocused = false
-        dismissOffset = nil
         withAnimation(.easeInOut(duration: 0.2)) {isProfileOpen = vm.eventProfile.profile}
     }
 
     private var chatHeaderBar: some View {
         ChatHeaderBar(
             isProfileOpen: $isProfileOpen,
-            dismissOffset: $dismissOffset,
             profile: vm.eventProfile.profile,
             image: profileImages.first ?? UIImage(),
             isEvent: isEvent,
             isFocused: $isFocused
         )
     }
-    
+
     private var profileView: some View {
         ProfileView(
             vm: ProfileViewModel(
@@ -98,9 +95,9 @@ extension ChatContainer {
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
             profileImages: profileImages,
-            selectedProfile: $isProfileOpen,
-            dismissOffset: $dismissOffset,
-            mode: .viewProfile)
+            mode: .viewProfile,
+            onDismiss: { isProfileOpen = nil }
+        )
         .id(vm.eventProfile.profile.id)
         .zIndex(1)
         .transition(.move(edge: .bottom))
