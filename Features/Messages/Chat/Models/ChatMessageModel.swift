@@ -8,8 +8,8 @@
 import Foundation
 import FirebaseFirestore
 
-struct MessageModel: Hashable, Codable {
-    @DocumentID var id: String? 
+struct MessageModel: Hashable, Codable, Identifiable {
+    @DocumentID var id: String?
     
     //So always ID even if not saved yet
     let authorId: String
@@ -27,3 +27,4 @@ struct MessageModel: Hashable, Codable {
         case authorId, recipientId, content, dateCreated
     }
 }
+

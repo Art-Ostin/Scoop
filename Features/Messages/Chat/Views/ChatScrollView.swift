@@ -32,7 +32,7 @@ struct ChatScrollView: View {
         .scrollIndicators(.hidden)
 
         //2. Functions to trigger with updates
-        .task(id: vm.messages.count == 0) {await loadMessages()}
+        .task(id: vm.messages.count == 0) {await loadMessages()} //Scroll to bottom on launch and if flip to zero
         .onChange(of: vm.messages.count) {onMessageSend($0, $1)}
         .onChange(of: isFocused.wrappedValue) { keyboardFocused($1)} //If new keyboard is focused
         
@@ -40,11 +40,18 @@ struct ChatScrollView: View {
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { old, new in
-            let totalChange = new - old
-            if totalChange < -20 {
-                isFocused.wrappedValue = false
-            }
+            if new - old < -20 { isFocused.wrappedValue = false}
         }
+        
+        //4. Tracks where user is in Scroll View updates distance from bottom (used for keyboard focus)
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentSize.height - geometry.contentOffset.y - geometry.containerSize.height
+        } action: {_, newValue in
+            distanceFromBottom = newValue
+        }
+        
+        //5. attach scrollPosition to scroll view so can programmatically scroll
+        .scrollPosition($scrollPosition, anchor: .bottom)
     }
 }
 
@@ -52,8 +59,8 @@ extension ChatScrollView {
     
     //1. Views for the messages
     private var messageScrollSection: some View {
-        ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, messageModel in
-            MessageSection(vm: vm, idx: idx, message: messageModel)
+        ForEach(vm.messages) { message in
+            MessageSection(vm: vm, message: message)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
@@ -71,7 +78,7 @@ extension ChatScrollView {
     private func onMessageSend(_ old: Int, _ new: Int) {
         guard !isFirstAppear, new > old else { return }
         let isOwnMessage = vm.messages.last?.authorId == vm.userId
-        guard isOwnMessage || distanceFromBottom < 100 else { return }
+        guard isOwnMessage || distanceFromBottom < 100 else { return } //scroll to bottom if new message received
         scrollToBottomEdge(animated: true)
     }
     
@@ -79,6 +86,8 @@ extension ChatScrollView {
     private func keyboardFocused(_ focused: Bool) {
         if focused && distanceFromBottom < 250 {
             scrollToBottomEdge(animated: true)
+        } else {
+            print("Conditions not met")
         }
     }
     

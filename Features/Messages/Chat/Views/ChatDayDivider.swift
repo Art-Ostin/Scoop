@@ -13,12 +13,16 @@ struct ChatDayDivider: View {
     
     var body: some View {
         if let date {
-            Text(formatDay(day: date))
-                .font(.body(12, .bold))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 4)
-                .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)
-                .padding(.top, 16)
+            HStack {
+                Text(formatDay(day: date))
+                    .font(.body(12, .bold))
+                    .foregroundStyle(Color.grayPlaceholder)
+                    
+                Text(formatHour(day: date))
+                    .font(.body(12, .regular))
+                    .foregroundStyle(Color.grayPlaceholder)
+            }
+            .padding(.top, 16)
         }
     }
     
@@ -37,4 +41,12 @@ struct ChatDayDivider: View {
         }
         return day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
     }
+    
+    func formatHour(day: Date) -> String {
+        let cal = Calendar.current
+        let now = Date()
+        
+        return day.formatted(.dateTime.hour().minute())
+    }
+    
 }

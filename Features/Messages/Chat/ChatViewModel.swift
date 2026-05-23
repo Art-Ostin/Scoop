@@ -32,6 +32,27 @@ class ChatViewModel {
 
     var userId: String {session.user.id}
 
+    func isMyChat(_ message: MessageModel) -> Bool {
+        message.authorId == userId
+    }
+
+    func isNewAuthor(for message: MessageModel) -> Bool {
+        guard let idx = messages.firstIndex(where: { $0.id == message.id }), idx > 0 else { return true }
+        return messages[idx - 1].authorId != message.authorId
+    }
+
+    func isNextNewAuthor(for message: MessageModel) -> Bool {
+        guard let idx = messages.firstIndex(where: { $0.id == message.id }) else { return true }
+        return idx == messages.count - 1 || messages[idx + 1].authorId != message.authorId
+    }
+
+    func isNewDay(for message: MessageModel) -> Bool {
+        guard let idx = messages.firstIndex(where: { $0.id == message.id }) else { return true }
+        guard idx > 0 else { return true }
+        guard let lastDay = messages[idx - 1].dateCreated, let newDay = message.dateCreated else { return false }
+        return !Calendar.current.isDate(lastDay, inSameDayAs: newDay)
+    }
+
     func sendMessage(text: String) async throws {
         var optimistic = MessageModel(authorId: userId, recipientId: eventProfile.profile.id, content: text)
         let tempId = "temp-\(UUID().uuidString)"
@@ -51,7 +72,6 @@ class ChatViewModel {
             throw error
         }
     }
-    
     
     func loadImages(profile: EventProfile) async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile.profile)
