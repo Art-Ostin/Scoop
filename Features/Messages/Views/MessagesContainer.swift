@@ -44,9 +44,7 @@ struct MessagesContainer: View {
                 ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
                     //When it appears, set the read count to zero, if it isn't 0 already
                     .task {
-                        print("Has appeared")
                         try? await updateMessagesToRead(eventProfile)
-                        
                     }
             }
         }

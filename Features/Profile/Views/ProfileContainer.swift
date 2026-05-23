@@ -17,6 +17,7 @@ struct ProfileView: View {
     @State private var imageBottomSettleTask: Task<Void, Never>?
 
     let mode: ProfileMode
+    let isMessageProfile: Bool
     let profileImages: [UIImage]
     let onDismiss: (() -> Void)?
     //When starting to dismiss trigger back button to expand (needed for chatContainer)
@@ -29,19 +30,23 @@ struct ProfileView: View {
     var displayProfile: UserProfile {
         if case .ownProfile(let draft) = mode { draft } else { vm.profile }
     }
+    
+    @State var showDetails = false
 
     init(
         vm: ProfileViewModel,
+        isMessageProfile: Bool = false,
         profileImages: [UIImage],
         mode: ProfileMode,
         onDismiss: (() -> Void)? = nil,
-        onDismissStart: (() -> Void)? = nil
+        onDismissStart: (() -> Void)? = nil,
     ) {
         _vm = State(initialValue: vm)
         self.profileImages = profileImages
         self.mode = mode
         self.onDismiss = onDismiss
         self.onDismissStart = onDismissStart
+        self.isMessageProfile = isMessageProfile
     }
     
     var body: some View {
@@ -50,12 +55,20 @@ struct ProfileView: View {
                 ZStack(alignment: .top) {
                     titleAndImage(geo: geo)
                         .simultaneousGesture(profileDrag(geo: geo))
-
+                    
                     detailsView
                 }
                 //1. Profile Background
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
+                .onAppear { //Change so only applies when it is message container
+                    if isMessageProfile {
+                        Task {
+                            try? await Task.sleep(for: .seconds(0.1))
+                            withAnimation(.easeInOut(duration: 0.15)) { showDetails = true }
+                        }
+                    }
+                }
                 
                 //2. Appearing above screen
                 .overlay(alignment: .bottomTrailing) { inviteButton }
@@ -113,6 +126,7 @@ extension ProfileView {
             .padding(.top, ui.imageBottom + 24) //24 spacing between bottom of image, and start of details
             .scaleEffect(interpolate(from: 0.97, to: 1))
             .simultaneousGesture(detailsDrag)
+            .opacity(showDetails || !isMessageProfile ? 1 : 0)
     }
 
     private var profileBackground: some View {
