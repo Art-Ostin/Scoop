@@ -32,13 +32,15 @@ struct ChatContainer: View {
     
     var body: some View {
         ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
-            .overlay(alignment: .bottom) {TypeMessageView(vm: vm, isFocused: $isFocused)}
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                TypeMessageView(vm: vm, isFocused: $isFocused)
+            }
             .zIndex(2)
 
             //1. The background and scope
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background.ignoresSafeArea())
-            .customScrollFade(height: 200, showFade: true)
+//            .customScrollFade(height: 100, showFade: true)
 
             //2. The overlay and structure
             .overlay(alignment: .topTrailing) { profileButton }

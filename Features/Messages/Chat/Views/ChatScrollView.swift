@@ -8,70 +8,87 @@
 import SwiftUI
 
 struct ChatScrollView: View {
-    let bottomID = "bottomID"
     @Bindable var vm: ChatViewModel
     var isFocused: FocusState<Bool>.Binding
     let isEvent: Bool
-    private let messageAnimation = Animation.spring(response: 0.32, dampingFraction: 0.86)
-    @State var isFirstAppear: Bool = true
+    private let messageAnimation = ChatViewModel.messageAnimation
+    @State private var isFirstAppear: Bool = true
+    @State private var distanceFromBottom: CGFloat = 0
     
+    @State private var scrollPosition = ScrollPosition(idType: String.self)
+
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: 4) {
-                    ClearRectangle(size: 72)
-                    ChatEventView(event: vm.eventProfile.event)
-                    messageScrollSection
-                    ClearRectangle(size: isFocused.wrappedValue ? 56 : 48)
-                        .id(bottomID)
-                }
-                .frame(maxHeight: .infinity, alignment: .bottom)
+        ScrollView {
+            LazyVStack(spacing: 4) {
+                ClearRectangle(size: 72)
+                ChatEventView(event: vm.eventProfile.event)
+                messageScrollSection
             }
-            .customScrollFade(height: 100, showFade: true, edge: .bottom)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onAppear { scrollToBottom(proxy) }
-            .background(Color.background)
-            .task(id: vm.messages.count) {
-                try? await scrollToBottomLogic(proxy)
-            }
-            .customScrollFade(height: 160, showFade: true)
-            .scrollIndicators(.hidden)
-            .onScrollGeometryChange(for: CGFloat.self) {scrollGeo in
-                scrollGeo.contentOffset.y
-            } action: {oldY, newY in
-                //Get total contentOffset for swipe, if big enough swipe, dismiss keyboard.
-                let totalMove = newY - oldY
-                if totalMove < -30 {
-                    isFocused.wrappedValue = false
-                }
+        }
+        //1. The background of the scroll View
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        .customScrollFade(height: 100, showFade: true, edge: .top)
+        .background(Color.background)
+        .scrollIndicators(.hidden)
+
+        //2. Functions to trigger with updates
+        .task(id: vm.messages.count == 0) {await loadMessages()}
+        .onChange(of: vm.messages.count) {onMessageSend($0, $1)}
+        .onChange(of: isFocused.wrappedValue) { keyboardFocused($1)} //If new keyboard is focused
+        
+        //3. Track where user is in the ScrollView and if violent move up, turn isFocused to false
+        .onScrollGeometryChange(for: CGFloat.self) { geo in
+            geo.contentOffset.y
+        } action: { old, new in
+            let totalChange = new - old
+            if totalChange < -20 {
+                isFocused.wrappedValue = false
             }
         }
     }
+}
+
+extension ChatScrollView {
     
+    //1. Views for the messages
     private var messageScrollSection: some View {
-        ForEach(vm.messages.indices, id: \.self) { idx in
-            let messageModel  = vm.messages[idx]
+        ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, messageModel in
             MessageSection(vm: vm, idx: idx, message: messageModel)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
     
-    private func scrollToBottomLogic(_ proxy: ScrollViewProxy) async throws {
-        guard !vm.messages.isEmpty else { return }
-        scrollToBottom(proxy, animated: isFirstAppear ? false : true)
+    //2.loadMessages on appear
+    private func loadMessages() async {
+        guard isFirstAppear, !vm.messages.isEmpty else { return }
+        scrollToBottomEdge()
         try? await Task.sleep(for: .milliseconds(50))
-        scrollToBottom(proxy, animated:  isFirstAppear ? false : true)
-        isFirstAppear = false //So it doesn't appear with animation initially
+        scrollToBottomEdge()
+        isFirstAppear = false
     }
     
+    //3. Logic for sending a message
+    private func onMessageSend(_ old: Int, _ new: Int) {
+        guard !isFirstAppear, new > old else { return }
+        let isOwnMessage = vm.messages.last?.authorId == vm.userId
+        guard isOwnMessage || distanceFromBottom < 100 else { return }
+        scrollToBottomEdge(animated: true)
+    }
     
-    private func scrollToBottom(_ proxy: ScrollViewProxy, animated: Bool = false) {
-        DispatchQueue.main.async {
-            if animated {
-                withAnimation(messageAnimation) { proxy.scrollTo(bottomID, anchor: .bottom) }
-            } else {
-                proxy.scrollTo(bottomID, anchor: .bottom)
-            }
+    //4. Logic for scrolling when is Focused
+    private func keyboardFocused(_ focused: Bool) {
+        if focused && distanceFromBottom < 250 {
+            scrollToBottomEdge(animated: true)
+        }
+    }
+    
+    //5. Scrolling to bottom edge
+    private func scrollToBottomEdge(animated: Bool = false) {
+        withAnimation(animated ? messageAnimation : nil) {
+            scrollPosition.scrollTo(edge: .bottom)
         }
     }
 }
+
+
+
