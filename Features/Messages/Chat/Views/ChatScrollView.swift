@@ -12,8 +12,12 @@ struct ChatScrollView: View {
     var isFocused: FocusState<Bool>.Binding
     let isEvent: Bool
     private let messageAnimation = ChatViewModel.messageAnimation
+    private let keyboardCompensationPadding: CGFloat = 72
+
     @State private var isFirstAppear: Bool = true
     @State private var distanceFromBottom: CGFloat = 0
+    @State private var containerHeight: CGFloat = 0
+    @State private var compensateOnShrink: Bool = false
 
     @State private var scrollPosition = ScrollPosition(idType: String.self)
 
@@ -37,11 +41,15 @@ struct ChatScrollView: View {
         .onChange(of: vm.messages.count) {onMessageSend($0, $1)}
         .onChange(of: isFocused.wrappedValue) { keyboardFocused($1)} //If new keyboard is focused
 
-        //3. Tracks where user is in Scroll View updates distance from bottom (used for keyboard focus)
-        .onScrollGeometryChange(for: CGFloat.self) { geometry in
-            geometry.contentSize.height - geometry.contentOffset.y - geometry.containerSize.height
-        } action: {_, newValue in
-            distanceFromBottom = newValue
+        //3. Tracks scroll geometry — distance from bottom AND container shrinks (keyboard open).
+        .onScrollGeometryChange(for: ScrollGeometry.self) { $0 } action: { _, geo in
+            distanceFromBottom = geo.contentSize.height - geo.contentOffset.y - geo.containerSize.height
+            let shrinkage = containerHeight - geo.containerSize.height
+            if compensateOnShrink, shrinkage > 0 {
+                let target = geo.contentOffset.y + shrinkage + keyboardCompensationPadding
+                scrollPosition.scrollTo(point: CGPoint(x: 0, y: target))
+            }
+            containerHeight = geo.containerSize.height
         }
 
         //4. attach scrollPosition to scroll view so can programmatically scroll
@@ -67,7 +75,6 @@ extension ChatScrollView {
         scrollToBottomEdge()
         isFirstAppear = false
     }
-    
     //3. Logic for sending a message
     private func onMessageSend(_ old: Int, _ new: Int) {
         guard !isFirstAppear, new > old else { return }
@@ -78,13 +85,20 @@ extension ChatScrollView {
     
     //4. Logic for scrolling when is Focused
     private func keyboardFocused(_ focused: Bool) {
-        guard focused, distanceFromBottom < 250 else {
-            scrollPosition.scrollTo(y: -200)
+        guard focused else {
+            compensateOnShrink = false
             return
         }
-        Task { //fixes bug and data race
-            try? await Task.sleep(for: .milliseconds(16))
-            scrollToBottomEdge(animated: true)
+        if distanceFromBottom < 250 {
+            Task { //fixes bug and data race
+                try? await Task.sleep(for: .milliseconds(16))
+                scrollToBottomEdge(animated: true)
+            }
+        } else {
+            // Far from bottom: don't jump — let onScrollGeometryChange shift the offset
+            // by the keyboard-driven container shrinkage so the message above the input
+            // bar stays visually pinned (WhatsApp behavior).
+            compensateOnShrink = true
         }
     }
     

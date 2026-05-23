@@ -13,7 +13,7 @@ struct ChatDayDivider: View {
     
     var body: some View {
         if let date {
-            HStack {
+            HStack(spacing: 6) {
                 Text(formatDay(day: date))
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.grayText)
@@ -22,7 +22,7 @@ struct ChatDayDivider: View {
                     .font(.body(12, .regular))
                     .foregroundStyle(Color.grayText)
             }
-            .padding(.top, 16)
+            .padding(.top, 12)
         }
     }
     
