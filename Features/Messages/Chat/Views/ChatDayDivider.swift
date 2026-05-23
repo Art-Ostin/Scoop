@@ -16,11 +16,11 @@ struct ChatDayDivider: View {
             HStack {
                 Text(formatDay(day: date))
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.grayText)
                     
-                Text(formatHour(day: date))
+                Text(date.formatted(.dateTime.hour().minute()))
                     .font(.body(12, .regular))
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.grayText)
             }
             .padding(.top, 16)
         }
@@ -40,13 +40,6 @@ struct ChatDayDivider: View {
                 .capitalized(with: .current)
         }
         return day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
-    }
-    
-    func formatHour(day: Date) -> String {
-        let cal = Calendar.current
-        let now = Date()
-        
-        return day.formatted(.dateTime.hour().minute())
     }
     
 }

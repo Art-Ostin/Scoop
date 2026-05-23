@@ -14,7 +14,7 @@ struct ChatScrollView: View {
     private let messageAnimation = ChatViewModel.messageAnimation
     @State private var isFirstAppear: Bool = true
     @State private var distanceFromBottom: CGFloat = 0
-    
+
     @State private var scrollPosition = ScrollPosition(idType: String.self)
 
     var body: some View {
@@ -30,27 +30,21 @@ struct ChatScrollView: View {
         .customScrollFade(height: 100, showFade: true, edge: .top)
         .background(Color.background)
         .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
 
         //2. Functions to trigger with updates
         .task(id: vm.messages.count == 0) {await loadMessages()} //Scroll to bottom on launch and if flip to zero
         .onChange(of: vm.messages.count) {onMessageSend($0, $1)}
         .onChange(of: isFocused.wrappedValue) { keyboardFocused($1)} //If new keyboard is focused
-        
-        //3. Track where user is in the ScrollView and if violent move up, turn isFocused to false
-        .onScrollGeometryChange(for: CGFloat.self) { geo in
-            geo.contentOffset.y
-        } action: { old, new in
-            if new - old < -20 { isFocused.wrappedValue = false}
-        }
-        
-        //4. Tracks where user is in Scroll View updates distance from bottom (used for keyboard focus)
+
+        //3. Tracks where user is in Scroll View updates distance from bottom (used for keyboard focus)
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentSize.height - geometry.contentOffset.y - geometry.containerSize.height
         } action: {_, newValue in
             distanceFromBottom = newValue
         }
-        
-        //5. attach scrollPosition to scroll view so can programmatically scroll
+
+        //4. attach scrollPosition to scroll view so can programmatically scroll
         .scrollPosition($scrollPosition, anchor: .bottom)
     }
 }
@@ -84,10 +78,13 @@ extension ChatScrollView {
     
     //4. Logic for scrolling when is Focused
     private func keyboardFocused(_ focused: Bool) {
-        if focused && distanceFromBottom < 250 {
+        guard focused, distanceFromBottom < 250 else {
+            scrollPosition.scrollTo(y: -200)
+            return
+        }
+        Task { //fixes bug and data race
+            try? await Task.sleep(for: .milliseconds(16))
             scrollToBottomEdge(animated: true)
-        } else {
-            print("Conditions not met")
         }
     }
     
