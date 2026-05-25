@@ -15,7 +15,7 @@ extension View {
                 .glassEffect(isClear ? .clear : .regular, in: shape)
         } else {
             self
-                .background {shape.fill(Color.background)}
+                .background {shape.fill(Color.appCanvas)}
                 .overlay {shape.strokeBorder(Color.grayBackground, lineWidth: 0.4)}
                 .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                 .background(Capsule().fill(thinMaterial ? AnyShapeStyle(.ultraThinMaterial) : AnyShapeStyle(.clear)))

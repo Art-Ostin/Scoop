@@ -23,7 +23,7 @@ struct OnboardingLifestyle: View {
             .onChange(of: marijuana) {saveIfComplete()}
             .onChange(of: drugs) {saveIfComplete()}
             .frame(maxHeight: .infinity)
-            .background(.background)
+            .background(Color.appCanvas)
     }
     
     private func saveIfComplete() {
@@ -89,7 +89,7 @@ struct GenericLifestyle: View {
         .padding(.horizontal)
         .padding(.bottom, 60)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
     
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {

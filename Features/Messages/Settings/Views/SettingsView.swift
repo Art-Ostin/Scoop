@@ -32,7 +32,7 @@ struct SettingsView: View {
             .padding(.horizontal, 24)
             .padding(.top, 24)
         }
-        .background(Color.background.ignoresSafeArea())
+        .background(Color.appCanvas.ignoresSafeArea())
     }
 }
 

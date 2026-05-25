@@ -32,7 +32,20 @@ import FirebaseFirestore
     }
 
     var events: [EventProfile] { sessionManager.events}
-    
+
+    func event(id: String?) -> EventProfile? {
+        guard let id else { return nil }
+        return events.first { $0.id == id }
+    }
+
+    func event(forProfile profileId: String) -> EventProfile? {
+        events.first { $0.profile.id == profileId }
+    }
+
+    func makeChatViewModel(for eventProfile: EventProfile) -> ChatViewModel {
+        ChatViewModel(defaults: defaults, session: sessionManager, chatRepo: chatRepo, imageLoader: imageLoader, eventProfile: eventProfile)
+    }
+
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
         try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }
@@ -70,7 +83,12 @@ final class EventUIState {
     var showCantMakeIt: EventProfile? = nil
     var selectedProfile: UserProfile? = nil
     var deleteLater: Bool = false
-    
+
     var messageProfile: EventProfile?  = nil
+
+    var selectedEventId: String?
+    var imageSize: CGFloat = 0
+    var isScrollNavBarVisible: Bool = false
+    var profileImages: [String: [UIImage]] = [:]
 }
 

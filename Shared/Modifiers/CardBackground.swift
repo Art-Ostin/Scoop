@@ -13,7 +13,7 @@ struct CardBackground: View {
     var body: some View {
         ZStack { //Background done like this to fix bugs when popping up
             RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(Color.background)
+                .fill(Color.appCanvas)
                 .shadow(color: color.opacity(0.1), radius: 5, x: 0, y: 4)
             RoundedRectangle(cornerRadius: cornerRadius)
                 .inset(by: 0.5)

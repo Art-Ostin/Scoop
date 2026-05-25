@@ -26,7 +26,7 @@ struct InvitesView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .onPreferenceChange(HideInvitePreferenceKey.self) { newValue in
             ui.hideInviteTitle = newValue
         }

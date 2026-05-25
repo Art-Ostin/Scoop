@@ -9,10 +9,10 @@ import SwiftUI
 
 
 extension View {
-    func colorBackground(color: Color = Color.background) -> some View {
+    func colorBackground(color: Color = Color.appCanvas) -> some View {
         self
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }

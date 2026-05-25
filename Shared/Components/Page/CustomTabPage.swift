@@ -42,7 +42,7 @@ struct CustomTabPage<Content: View>: View {
         .preference(key: ScrollNavBarVisibleKey.self, value: scrollViewOffset < 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, page != .pastMatches ? 16 : 0) //On the Screens 
-        .background(Color(red: 0.99, green: 0.98, blue: 0.97).ignoresSafeArea())
+        .background(Color.appCanvas.ignoresSafeArea())
     }
 }
 

@@ -30,7 +30,7 @@ struct ProfileCard : View {
             .overlay { backgroundBlur(isDetails: false)}
             .background(
                 RoundedRectangle(cornerRadius: cardCornerRadius)
-                    .fill(Color.background)
+                    .fill(Color.appCanvas)
             )
             .customSubtleShadow(strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }

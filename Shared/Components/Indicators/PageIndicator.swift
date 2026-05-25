@@ -26,7 +26,7 @@ struct PageIndicator: View {
         .padding(4)
         .background(
             Capsule()
-                .fill(Color.background)
+                .fill(Color.appCanvas)
                 .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
         )
         .frame(maxWidth: .infinity, alignment: .center)

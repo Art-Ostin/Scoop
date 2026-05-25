@@ -80,7 +80,7 @@ struct GenericInterests: View {
             interestsSections
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.background.ignoresSafeArea())
+        .background(Color.appCanvas.ignoresSafeArea())
         .overlay(alignment: .topLeading) {
             scrollToSection
         }
@@ -271,7 +271,7 @@ struct OptionCell: View {
             .foregroundStyle(isSelected && fillColour ? Color.white : Color.black)
             .background (
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected && fillColour ? Color.accent : Color.background)
+                    .fill(isSelected && fillColour ? Color.accent : Color.appCanvas)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(isSelected && !fillColour ? .accent : Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
@@ -281,7 +281,7 @@ struct OptionCell: View {
                 if let overlayText {
                     ZStack {
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.background.opacity(1))
+                            .fill(Color.appCanvas.opacity(1))
                         Text(overlayText)
                             .font(.body(14))
                             .foregroundStyle(Color.accent)

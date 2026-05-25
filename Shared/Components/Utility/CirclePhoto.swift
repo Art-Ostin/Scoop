@@ -43,7 +43,7 @@ struct RemoveIcon: View {
             .font(.body(12, .bold))
             .padding(12)
             .frame(width: 24, height: 24)
-            .background (Circle().fill(Color.background))
+            .background (Circle().fill(Color.appCanvas))
             .padding(6)
             .scaleEffect(0.7)
     }

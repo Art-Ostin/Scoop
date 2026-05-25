@@ -120,7 +120,7 @@ extension View {
     }
     
     func containerShadow(
-        _ cornerRadius: CGFloat = 24, fill: Color = .background, color: Color = Color.black.opacity(0.22), radius: CGFloat = 6, y: CGFloat = 4) -> some View {
+        _ cornerRadius: CGFloat = 24, fill: Color = Color.appCanvas, color: Color = Color.black.opacity(0.22), radius: CGFloat = 6, y: CGFloat = 4) -> some View {
         background(
             RoundedRectangle(cornerRadius: cornerRadius)
             .fill(fill)

@@ -50,7 +50,7 @@ struct BlockedContextView: View {
             .frame(width: 330, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .foregroundStyle(Color.background)
+                    .foregroundStyle(Color.appCanvas)
                     .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
             )
             .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)

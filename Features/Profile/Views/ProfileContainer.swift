@@ -131,7 +131,7 @@ extension ProfileView {
 
     private var profileBackground: some View {
         UnevenRoundedRectangle(topLeadingRadius: 24, topTrailingRadius: 24) //Bug fix: Critical! Solved the dismissing screen.
-            .fill(Color.background)
+            .fill(Color.appCanvas)
             .ignoresSafeArea()
             .customSubtleShadow()
     }

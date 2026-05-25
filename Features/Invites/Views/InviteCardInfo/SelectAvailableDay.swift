@@ -34,7 +34,7 @@ struct SelectAvailableDay: View {
             .padding(18)
             .background(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.background)
+                    .fill(Color.appCanvas)
                     .overlay {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
                             .stroke(Color.grayBackground, lineWidth: 1)

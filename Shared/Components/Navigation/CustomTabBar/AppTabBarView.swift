@@ -12,13 +12,13 @@ struct AppTabBarView: View {
 
     var body: some View {
         CustomTabBarContainerView(selection: $tabSelection) {
-            Color.background
+            Color.appCanvas
                 .tabBarItem(.meet, selection: $tabSelection)
             
-            Color.background
+            Color.appCanvas
                 .tabBarItem(.events, selection: $tabSelection)
             
-            Color.background
+            Color.appCanvas
                 .tabBarItem(.matches, selection: $tabSelection)
         }
     }

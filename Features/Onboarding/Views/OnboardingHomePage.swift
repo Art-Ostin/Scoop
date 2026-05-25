@@ -45,7 +45,7 @@ struct LimitedAccessPage: View {
                 signOutButton
                     .padding(.top, 24)
         }
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }
 

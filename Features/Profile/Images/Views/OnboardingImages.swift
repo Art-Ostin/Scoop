@@ -60,7 +60,7 @@ struct OnboardingImages: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.top, 84)
         .padding(.horizontal, 24)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .fullScreenCover(item: $selectedImage) {localImage in
             ProfileImagesEditing(importedImage: localImage) { updatedImage in
                 images[updatedImage.index] = updatedImage.image
@@ -74,7 +74,7 @@ struct OnboardingImages: View {
                 }
                 .transition(.opacity)
                 .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
-                .background(Color.background)
+                .background(Color.appCanvas)
                 .onTapGesture {
                     showSavingScreen = false
                 }

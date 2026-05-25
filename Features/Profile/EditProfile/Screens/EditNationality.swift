@@ -79,7 +79,7 @@ struct GenericNationality: View {
                 nationalitiesView
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color.background)
+            .background(Color.appCanvas)
             .overlay {alphabet}
     }
 }
@@ -250,7 +250,7 @@ struct scrollFader: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: [.background, .clear], startPoint: .top, endPoint: .bottom
+                    colors: [Color.appCanvas, Color.clear], startPoint: .top, endPoint: .bottom
                 )
             )
             .frame(height: 48)
@@ -329,3 +329,4 @@ extension View {
         }
     }
 }
+

@@ -39,7 +39,7 @@ struct DetailsSection<Content: View>: View {
                     Text(title)
                         .customCaption()
                         .padding(.horizontal, 8)
-                        .background(Color.background)
+                        .background(Color.appCanvas)
                         .offset(y: -6)
                         .padding(.horizontal, 36)
                 }

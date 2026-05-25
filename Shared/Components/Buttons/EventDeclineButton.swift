@@ -15,7 +15,7 @@ struct EventDeclineButton: View {
                 .frame(width: 40, height: 40)
                 .background(
                     Circle()
-                        .fill(Color.background)
+                        .fill(Color.appCanvas)
                 )
                 .stroke(100, lineWidth: 1, color: Color.grayBackground)
                 .contentShape(Circle())

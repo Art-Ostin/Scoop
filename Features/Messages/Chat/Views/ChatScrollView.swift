@@ -32,7 +32,7 @@ struct ChatScrollView: View {
         //1. The background of the scroll View
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .customScrollFade(height: 100, showFade: true, edge: .top)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
 

@@ -80,7 +80,7 @@ struct CantMakeIt: View {
             .padding(.top, 12)
             .padding(.bottom, 4)
         }
-        .background(Color.background)
+        .background(Color.appCanvas)
         .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", emoji: "🚨", cancelTitle: "Back", okTitle: "Confirm", showTwoButtons: true) {
             Task {
                 do {

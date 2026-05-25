@@ -104,7 +104,7 @@ struct PromptGeneric: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt, promptIndex: promptIndex)}
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }
 

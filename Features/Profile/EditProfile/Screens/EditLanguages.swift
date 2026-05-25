@@ -49,7 +49,7 @@ struct EditLanguages: View {
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
         .padding(.top, 24)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .ignoresSafeArea(.keyboard)
         .onChange(of: isScrolling) {
             if isScrolling {
@@ -121,7 +121,7 @@ extension EditLanguages {
             .offset(y: 24) //Acts as Padding with the fade at start
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .onScrollGeometryChange(for: Bool.self, of: checkIfTopOfScroll) { _, isAtTop in
             self.isTopOfScroll = isAtTop
         }

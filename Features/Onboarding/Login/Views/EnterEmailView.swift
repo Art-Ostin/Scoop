@@ -27,7 +27,7 @@ struct EnterEmailView: View {
             .frame(maxHeight: .infinity, alignment:.top)
             .padding(.top, 96)
             .padding(.horizontal)
-            .background(Color.background)
+            .background(Color.appCanvas)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
             .toolbar { DismissToolbarItem()}

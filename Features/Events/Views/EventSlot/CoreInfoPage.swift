@@ -76,8 +76,8 @@ struct CoreInfoPage: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(
                         LinearGradient(stops: [
-                            .init(color: Color(red: 0.99, green: 0.98, blue: 0.97), location: 0.0),
-                            .init(color: Color(red: 0.99, green: 0.98, blue: 0.97), location: 0.5),
+                            .init(color: Color.appCanvas, location: 0.0),
+                            .init(color: Color.appCanvas, location: 0.5),
                             .init(color: .white,  location: 0.5),
                             .init(color: .white,  location: 1.0)
                         ], startPoint: .top, endPoint: .bottom)

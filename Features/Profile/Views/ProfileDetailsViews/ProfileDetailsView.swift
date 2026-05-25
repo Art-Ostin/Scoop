@@ -51,7 +51,7 @@ struct ProfileDetailsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: ui.detailsCardHeight).background(Color.background)
+        .frame(height: ui.detailsCardHeight).background(Color.appCanvas)
         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
         .contentMargins(.bottom, 0, for: .scrollContent)

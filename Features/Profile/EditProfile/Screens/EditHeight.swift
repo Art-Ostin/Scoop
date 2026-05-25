@@ -59,6 +59,6 @@ struct HeightGeneric: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.top, 144)
         .padding(.horizontal, 24)
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }

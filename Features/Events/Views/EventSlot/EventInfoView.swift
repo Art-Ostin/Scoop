@@ -100,7 +100,7 @@ extension EventInfoView {
             .padding(.horizontal, 4)
             .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color.background)
+                            .fill(Color.appCanvas)
                             .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 2)
                 )
             .overlay(

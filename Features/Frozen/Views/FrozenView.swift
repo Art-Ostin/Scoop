@@ -32,7 +32,7 @@ struct FrozenView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
             .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
-            .background(Color.background)
+            .background(Color.appCanvas)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
                     SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.sessionManager, defaults: vm.defaults))

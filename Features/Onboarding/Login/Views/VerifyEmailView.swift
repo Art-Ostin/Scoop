@@ -95,7 +95,7 @@ struct VerifyEmailView: View {
         .padding(.top, 48)
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .top)
         .padding(.horizontal)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .flowNavigation()
         .onChange(of: code) {
             if code.count == 6 {

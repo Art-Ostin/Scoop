@@ -39,7 +39,7 @@ struct ChatContainer: View {
 
             //1. The background and scope
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background.ignoresSafeArea())
+            .background(Color.appCanvas.ignoresSafeArea())
 
             //2. The overlay and structure
             .overlay(alignment: .topTrailing) { profileButton}

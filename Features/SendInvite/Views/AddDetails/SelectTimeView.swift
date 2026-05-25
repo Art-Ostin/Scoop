@@ -85,7 +85,7 @@ extension SelectTimeView {
             }
         }
         .padding(.horizontal)
-        .background(Color.background)
+        .background(Color.appCanvas)
         .padding(.top, 98)
     }
     
@@ -135,7 +135,7 @@ extension SelectTimeView {
                     .scaleEffect(0.8)
             }
             .padding(3)                 // hit area / breathing room
-            .background(Color.background)
+            .background(Color.appCanvas)
             .frame(width: 40, height: 40)
             .contentShape(Circle())
             .onTapGesture {

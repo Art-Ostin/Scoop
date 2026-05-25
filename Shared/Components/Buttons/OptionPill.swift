@@ -85,7 +85,7 @@ struct SexOptionPill: View {
                         .frame(width: 20, height: 20)
                         .background(
                             RoundedRectangle(cornerRadius: 0)
-                                .fill(Color.background)
+                                .fill(Color.appCanvas)
                         )
                         .offset(x: 4, y: -4)
                 }

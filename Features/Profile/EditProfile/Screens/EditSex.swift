@@ -84,7 +84,7 @@ struct GenericSex: View {
         .padding(.bottom, 24)
         .sheet(isPresented: $showTypeSexField) {
             TextFieldGeneric(text: $selectedOption, field: "Your Gender")
-                .presentationBackground(Color.background)
+                .presentationBackground(Color.appCanvas)
                 .padding(.top, 48)
                 .overlay(alignment: .topTrailing) {
                     if showSaved {
@@ -114,7 +114,7 @@ struct GenericSex: View {
                 }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background (Color.background)
+        .background (Color.appCanvas)
     }
 }
 extension GenericSex {
@@ -145,7 +145,7 @@ extension GenericSex {
                 .foregroundStyle(Color.accent)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.background)
+                        .fill(Color.appCanvas)
                         .shadow(color: .black.opacity(0.1), radius: 2, y: 2)
                         .stroke(12, lineWidth: 1, color: .black)
                 )

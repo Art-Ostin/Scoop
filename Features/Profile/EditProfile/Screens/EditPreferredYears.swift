@@ -31,7 +31,7 @@ struct EditPreferredYears: View {
         }
         .padding(.bottom, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }
 

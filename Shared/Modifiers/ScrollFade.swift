@@ -26,7 +26,7 @@ struct CustomScrollFade: ViewModifier {
             .overlay(alignment: alignment) {
                 if showFade {
                     LinearGradient(
-                        colors: [.background, .background.opacity(0.9), .background.opacity(0.6), .background.opacity(0.25), .background.opacity(0.0)],
+                        colors: [.appCanvas, .appCanvas.opacity(0.9), .appCanvas.opacity(0.6), .appCanvas.opacity(0.25), .appCanvas.opacity(0.0)],
                         startPoint: startPoint,
                         endPoint: endPoint
                     )
@@ -52,7 +52,7 @@ extension View {
         self.overlay(alignment: fromLeading ? .leading : .trailing) {
             if showFade {
                 LinearGradient(
-                    colors: [.background, .background.opacity(0.9), .background.opacity(0.6), .background.opacity(0.25), .background.opacity(0.0)],
+                    colors: [.appCanvas, .appCanvas.opacity(0.9), .appCanvas.opacity(0.6), .appCanvas.opacity(0.25), .appCanvas.opacity(0.0)],
                     startPoint: fromLeading ? .leading : .trailing,
                     endPoint: fromLeading ? .trailing : .leading
                 )

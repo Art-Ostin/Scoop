@@ -78,7 +78,7 @@ extension CustomAlertCard {
                 .frame(width: isConfirmInvite ? 125 : 100)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .foregroundStyle(isCancel ? (isDanger ? Color.accent : Color.background) : (isDanger ? Color.background : Color.accent) )
+                        .foregroundStyle(isCancel ? (isDanger ? Color.accent : Color.appCanvas) : (isDanger ? Color.appCanvas : Color.accent) )
                 )
                 .stroke(20, lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: Color.grayText)
                 .frame(maxWidth: .infinity,  alignment: showTwoButtons ? (isCancel ? .leading : .trailing) : .center)

@@ -159,7 +159,7 @@ private struct MessagePopupView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.background)
+                    .fill(Color.appCanvas)
             )
             .padding(.horizontal, 16)
             .surfaceShadow(.floating, strength: 0.5)

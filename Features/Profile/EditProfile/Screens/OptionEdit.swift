@@ -16,7 +16,7 @@ struct OnboardingOption: View {
             vm.saveAndNextStep(kp: field.keyPathDraft, to: $0)
         }
         .frame(maxHeight: .infinity)
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }
 
@@ -56,7 +56,7 @@ struct OptionGeneric: View {
         }
         .padding(.bottom, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
+        .background(Color.appCanvas)
     }
 }
 
