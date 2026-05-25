@@ -8,19 +8,21 @@
 import SwiftUI
 
 struct CustomTabPage<Content: View>: View {
-    
+
     @State var scrollViewOffset: CGFloat = 0
     @Binding var tabAction: Bool
 
     let page: Page
     let content: Content
-    
-    init(page: Page, tabAction: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
+
+    init(page: Page,
+         tabAction: Binding<Bool> = .constant(false),
+         @ViewBuilder content: @escaping () -> Content) {
         self.page = page
         _tabAction = tabAction
         self.content = content()
     }
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 36) {

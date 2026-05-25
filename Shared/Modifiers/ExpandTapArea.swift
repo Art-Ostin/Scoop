@@ -18,5 +18,11 @@ extension View {
             }
             .padding(-inset)
     }
+
+    func expandHitArea(_ inset: CGFloat = 16) -> some View {
+        padding(inset)
+            .contentShape(.interaction, Rectangle())
+            .padding(-inset)
+    }
 }
 

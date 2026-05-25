@@ -18,10 +18,7 @@ struct EventsContainer: View {
     @State private var tabProfile: EventProfile?
     
     @State private var imageSize: CGFloat = 0
-    @State private var disableMap: Bool = true
-    @State private var mapEnabledScrollOffset: CGFloat?
     
-    @State private var scrollTarget: String?
     @Binding var showMessageScreen: String?
     
     @State var selectedEventId: String?
