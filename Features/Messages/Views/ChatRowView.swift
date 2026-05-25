@@ -38,7 +38,6 @@ struct ChatRowView: View {
 //Main Sections of ChatRowView
 extension ChatRowView {
     
-    
     private var profilePhoto: some View {
         Image(uiImage: chatPreview.image ?? UIImage())
             .resizable()

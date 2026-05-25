@@ -24,6 +24,8 @@ struct EventsContainer: View {
     @State private var scrollTarget: String?
     @Binding var showMessageScreen: String?
     
+    @State private var selectedEvent: EventProfile?
+    
     var body: some View {
         
         if vm.events.isEmpty  {
@@ -53,7 +55,7 @@ struct EventsContainer: View {
             }
             .overlay(alignment: .topTrailing) {
                 if vm.events.count > 1 && ui.selectedProfile == nil {
-                    tabIndicator
+                    EventsScrollView(selectedDate: <#T##Binding<Date>#>, events: <#T##[UserEvent]#>)
                         .opacity(!isScrollNavBarVisible ? 1 : 0)
                         .animation(.easeInOut(duration: 0.05), value: isScrollNavBarVisible)
                 }
@@ -137,26 +139,30 @@ extension EventsContainer {
     }
     
     
-    private var tabIndicator: some View {
-        HStack(spacing: 6) {
-            ForEach(vm.events) { eventProfile in
-                let isSelected = eventProfile.id == tabProfile?.id
-
-                RoundedRectangle(cornerRadius: 100)
-                    .frame(width: isSelected ? 10 : 5, height: 5)
-                    .foregroundStyle(isSelected ? .black : .clear)
-                    .stroke(100, lineWidth: 1, color: isSelected ? .clear : .black)
-            }
-        }
-        .padding(4)
-        .background(
-            Capsule()
-                .fill(Color.background)
-                .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
-        )
-        .surfaceShadow(.floating, strength: 1)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, 24)
-    }
 }
 
+
+/*
+ private var tabIndicator: some View {
+     HStack(spacing: 6) {
+         ForEach(vm.events) { eventProfile in
+             let isSelected = eventProfile.id == tabProfile?.id
+
+             RoundedRectangle(cornerRadius: 100)
+                 .frame(width: isSelected ? 10 : 5, height: 5)
+                 .foregroundStyle(isSelected ? .black : .clear)
+                 .stroke(100, lineWidth: 1, color: isSelected ? .clear : .black)
+         }
+     }
+     .padding(4)
+     .background(
+         Capsule()
+             .fill(Color.background)
+             .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
+     )
+     .surfaceShadow(.floating, strength: 1)
+     .frame(maxWidth: .infinity, alignment: .center)
+     .padding(.top, 24)
+ }
+
+ */

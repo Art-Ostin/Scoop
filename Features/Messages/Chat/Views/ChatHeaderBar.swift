@@ -22,7 +22,6 @@ struct ChatHeaderBar: View {
         HStack {
             closeButton
             Spacer()
-//            profileButton
         }
         .padding(.horizontal)
     }

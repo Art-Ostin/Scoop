@@ -40,13 +40,12 @@ struct ChatContainer: View {
             //1. The background and scope
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background.ignoresSafeArea())
-//            .customScrollFade(height: 100, showFade: true)
 
             //2. The overlay and structure
-            .overlay(alignment: .topTrailing) { profileButton }
+            .overlay(alignment: .topTrailing) { profileButton}
             .overlay { if profileRendered { profileView } }
             .overlay(alignment: .top) { chatHeaderBar }
-        
+
         //3. Hide the toolbar
         .toolbar(.hidden)
         
@@ -60,7 +59,6 @@ struct ChatContainer: View {
         .onChange(of: profileOpen) { oldValue, newValue in
             if newValue {isFocused = false}
         }
-        .animation(.spring(duration: 0.2, bounce: 0.1), value: profileOpen)
     }
 }
 
@@ -109,8 +107,12 @@ extension ChatContainer {
     
     private var profileButton: some View {
         Button {
-            profileRendered = true
-            profileOpen = true
+            var t = Transaction(animation: .spring(duration: 0.2, bounce: 0.1))
+            t.disablesAnimations = false
+            withTransaction(t) {
+                profileRendered = true
+                profileOpen = true
+            }
         } label: {
             HStack(spacing: 6) {
                 CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
