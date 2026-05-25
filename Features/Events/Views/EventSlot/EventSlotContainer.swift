@@ -19,7 +19,7 @@ struct EventSlotContainer: View {
     let openMaps: () -> ()
     
     var body: some View {
-        ScrollViewReader { proxy  in
+        ScrollViewReader { proxy in
             CustomTabPage(page: .meetingEvent, tabAction: .constant(false)) {
                 VStack(spacing: 32) {
                     EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
@@ -33,7 +33,7 @@ struct EventSlotContainer: View {
                 .padding(.bottom, 72)
             }
             .onChange(of: disableMap) { oldValue, newValue in
-                //If map switched to become not disabled trigger
+                //Add a 1 Second Delay to the DisableMap
                 if oldValue && !newValue   {
                     Task {
                         try? await Task.sleep(for: .seconds(1))
@@ -141,29 +141,3 @@ extension EventSlotContainer {
         }
     }
 }
-
-
-/*
- .onScrollGeometryChange(for: CGFloat.self) { geometry in
-     geometry.contentOffset.y
- } action: { oldValue, newValue in
-     guard disableMap == false else {
-         mapEnabledScrollOffset = nil
-         return
-     }
-     
-     if mapEnabledScrollOffset == nil {
-         mapEnabledScrollOffset = oldValue
-     }
-
-     if let enabledOffset = mapEnabledScrollOffset,
-        abs(newValue - enabledOffset) > 10 { //Virtually as soon start scrolling disable Maps View
-         disableMap = true
-         mapEnabledScrollOffset = nil
-     }
- }
-
- .scrollPosition(id: $scrollTarget, anchor: .center)
- .customScrollFade(height: 100, showFade: true)
-
- */
