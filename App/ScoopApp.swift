@@ -20,12 +20,13 @@ let appLaunchStart = ContinuousClock.now
 @main
 struct ScoopApp: App {
 
-    private let dep: AppDependencies
+    private let dep = AppDependencies()
+    
+    
 
     init() {
         _ = appLaunchStart
         FirebaseApp.configure()
-        self.dep = AppDependencies()
     }
 
     var body: some Scene {

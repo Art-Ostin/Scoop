@@ -184,12 +184,3 @@ private struct MessagePopupView: View {
         }
     }
 }
-
-/*
- .task(id: model.image) {
-     image = nil
-     guard let url = URL(string: model.image) else { return }
-     image = try? await imageLoader.fetchImage(for: url)
- }
-
- */

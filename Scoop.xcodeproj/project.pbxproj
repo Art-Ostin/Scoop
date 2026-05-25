@@ -210,6 +210,7 @@
 		65B059582EE4CF0F00427B95 /* CustomModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B059572EE4CF0F00427B95 /* CustomModifier.swift */; };
 		65B4E3992FA606A40044EE9A /* UserSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E3982FA606A40044EE9A /* UserSessionManager.swift */; };
 		65B4E39B2FA606D60044EE9A /* EventsSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E39A2FA606D60044EE9A /* EventsSessionManager.swift */; };
+		65B672672FC48BE100479EA7 /* AppsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B672662FC48BE100479EA7 /* AppsRouter.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65BF98C42FA532C600FB37A6 /* BootingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BF98C32FA532C600FB37A6 /* BootingScreen.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
@@ -497,6 +498,7 @@
 		65B059572EE4CF0F00427B95 /* CustomModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomModifier.swift; sourceTree = "<group>"; };
 		65B4E3982FA606A40044EE9A /* UserSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionManager.swift; sourceTree = "<group>"; };
 		65B4E39A2FA606D60044EE9A /* EventsSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsSessionManager.swift; sourceTree = "<group>"; };
+		65B672662FC48BE100479EA7 /* AppsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsRouter.swift; sourceTree = "<group>"; };
 		65BF98C32FA532C600FB37A6 /* BootingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BootingScreen.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -652,6 +654,7 @@
 				6561C8B12E035BC6006A72DF /* RootView.swift */,
 				659496FE2E01DD4000880921 /* AppContainer.swift */,
 				65BF98C32FA532C600FB37A6 /* BootingScreen.swift */,
+				65B672662FC48BE100479EA7 /* AppsRouter.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -1687,6 +1690,7 @@
 				6509DDC32E36F6EE0042917B /* OptionEdit.swift in Sources */,
 				65A0704D2EE0631A009F798B /* PageIndicator.swift in Sources */,
 				654C58972F6B50B4002060C5 /* SelectAvailableDay.swift in Sources */,
+				65B672672FC48BE100479EA7 /* AppsRouter.swift in Sources */,
 				65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */,
 				657B8D492F2CF3EC00583ADA /* FocusedTextView.swift in Sources */,
 				657486DA2FA8C22100F38738 /* InviteProfileModel.swift in Sources */,
