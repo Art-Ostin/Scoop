@@ -24,22 +24,16 @@ struct EventsContainer: View {
     @State private var scrollTarget: String?
     @Binding var showMessageScreen: String?
     
-    @State private var selectedEvent: EventProfile?
-    
+    @State var selectedEventId: String?
+
     var body: some View {
         
         if vm.events.isEmpty  {
             EventsPlaceholder()
         } else {
             ZStack {
-                TabView(selection: $tabProfile) {
-                    ForEach(vm.events) { eventProfile in
-                        eventSlot(eventProfile)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .automatic))
-                .ignoresSafeArea(ui.selectedProfile == nil ? .all : []) //Fixes bug for screen layout
-                                
+                eventsScrollView
+
                 if let profile = ui.selectedProfile {
                     profileView(profile: profile)
                 }
@@ -53,9 +47,14 @@ struct EventsContainer: View {
             .onChange(of: showMessageScreen) { _, newValue in
                 openMessageScreen(newValue)
             }
-            .overlay(alignment: .topTrailing) {
+            .onChange(of: selectedEventId) { _, newValue in
+                guard let id = newValue,
+                      let match = vm.events.first(where: { $0.id == id }) else { return }
+                tabProfile = match
+            }
+            .overlay(alignment: .top) {
                 if vm.events.count > 1 && ui.selectedProfile == nil {
-                    EventsScrollView(selectedDate: <#T##Binding<Date>#>, events: <#T##[UserEvent]#>)
+                    tabIndicator
                         .opacity(!isScrollNavBarVisible ? 1 : 0)
                         .animation(.easeInOut(duration: 0.05), value: isScrollNavBarVisible)
                 }
@@ -64,6 +63,7 @@ struct EventsContainer: View {
             .onPreferenceChange(ImageSizeKey.self) {imageSize = $0 - 32 } //Adds 16 padding on each side
             .onPreferenceChange(ScrollNavBarVisibleKey.self) { isScrollNavBarVisible = $0 }
             .onAppear { if tabProfile == nil { tabProfile = vm.events.first } }
+            .background(Color(red: 0.99, green: 0.98, blue: 0.97).ignoresSafeArea())
         }
     }
 }
@@ -88,6 +88,48 @@ extension EventsContainer {
     
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
+    }
+}
+
+//The tab indicator
+extension EventsContainer {
+    
+    private var tabIndicator: some View {
+        HStack(spacing: 6) {
+            ForEach(vm.events) { eventProfile in
+                let isSelected = eventProfile.id == tabProfile?.id
+
+                RoundedRectangle(cornerRadius: 100)
+                    .frame(width: isSelected ? 10 : 5, height: 5)
+                    .foregroundStyle(isSelected ? .black : .clear)
+                    .stroke(100, lineWidth: 1, color: isSelected ? .clear : .black)
+            }
+        }
+        .padding(4)
+        .background(
+            Capsule()
+                .fill(Color.background)
+                .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
+        )
+        .surfaceShadow(.floating, strength: 1)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 24)
+    }
+    
+    private var eventsScrollView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(vm.events) { eventProfile in
+                    eventSlot(eventProfile)
+                        .id(eventProfile.id)
+                        .containerRelativeFrame(.horizontal)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $selectedEventId)
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -137,32 +179,9 @@ extension EventsContainer {
         let eventProfile = vm.events.first { $0.profile.id == profile.id }
         return eventProfile?.event
     }
-    
-    
 }
 
 
-/*
- private var tabIndicator: some View {
-     HStack(spacing: 6) {
-         ForEach(vm.events) { eventProfile in
-             let isSelected = eventProfile.id == tabProfile?.id
 
-             RoundedRectangle(cornerRadius: 100)
-                 .frame(width: isSelected ? 10 : 5, height: 5)
-                 .foregroundStyle(isSelected ? .black : .clear)
-                 .stroke(100, lineWidth: 1, color: isSelected ? .clear : .black)
-         }
-     }
-     .padding(4)
-     .background(
-         Capsule()
-             .fill(Color.background)
-             .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
-     )
-     .surfaceShadow(.floating, strength: 1)
-     .frame(maxWidth: .infinity, alignment: .center)
-     .padding(.top, 24)
- }
 
- */
+
