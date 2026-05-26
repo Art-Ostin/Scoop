@@ -17,7 +17,7 @@ struct ImageModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scaledToFill()
-            .frame(width: size, height: size)
+            .frame(width: max(size, 0), height: max(size, 0))
             .clipShape(RoundedRectangle(cornerRadius: radius))
     }
 }

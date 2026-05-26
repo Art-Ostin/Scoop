@@ -53,7 +53,7 @@ struct EventMapView: View {
         .tint(.blue)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .frame(width: imageSize, height: mapHeight)
+        .frame(width: max(imageSize, 0), height: max(mapHeight, 0))
         .scaleEffect(disableMap ? 1 : 1.03)
         .overlay(alignment: .bottomTrailing) {
             openInMapsButton(event: event)

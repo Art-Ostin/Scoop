@@ -71,6 +71,7 @@ extension CustomTabPage {
             .opacity(Double(scrollViewOffset) / 70)
             .measure(key: TitleOffsetsKey.self) { geo in
                 [page: geo.frame(in: .named(page)).maxY]}
+            .foregroundStyle(Color.black)
     }
     
     @ViewBuilder

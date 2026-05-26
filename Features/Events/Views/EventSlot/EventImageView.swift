@@ -51,7 +51,7 @@ extension EventImageView {
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
             .scaledToFill()
-            .frame(width: imageSize, height: imageSize)
+            .frame(width: max(imageSize, 0), height: max(imageSize, 0))
             .blur(radius: 22)
             .mask(nameBlurMask)
             .clipShape(RoundedRectangle(cornerRadius: 22)) //Corner Radius of the card

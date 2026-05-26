@@ -42,10 +42,6 @@ import FirebaseFirestore
         events.first { $0.profile.id == profileId }
     }
 
-    func makeChatViewModel(for eventProfile: EventProfile) -> ChatViewModel {
-        ChatViewModel(defaults: defaults, session: session, chatRepo: chatRepo, imageLoader: imageLoader, eventProfile: eventProfile)
-    }
-
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
         try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }

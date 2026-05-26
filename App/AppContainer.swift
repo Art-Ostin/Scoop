@@ -63,7 +63,7 @@ extension AppContainer {
         @Bindable var router = router
         return EventsContainer(
             vm: EventViewModel(session: dep.session, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader),
-            showMessageScreen: $router.showMessageScreen
+            showMessageScreen: $router.showMessageScreen, path: $router.eventsPath
         )
     }
 

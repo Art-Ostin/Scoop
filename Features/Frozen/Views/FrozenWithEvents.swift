@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FrozenWithEvents: View {
+    @Environment(AppRouter.self) private var router
     
     let vm: FrozenViewModel
     
@@ -46,7 +47,20 @@ struct FrozenWithEvents: View {
 extension FrozenWithEvents {
     
     private var eventsView: some View {
-        EventsContainer(vm: EventViewModel(session: vm.session, userRepo: vm.userRepo, defaults: vm.defaults, eventRepo: vm.eventRepo, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader), showMessageScreen: .constant(nil))
+        @Bindable var router = router
+        
+        return EventsContainer(
+            vm: EventViewModel(
+                session: vm.session,
+                userRepo: vm.userRepo,
+                defaults: vm.defaults,
+                eventRepo: vm.eventRepo,
+                chatRepo: vm.chatRepo,
+                imageLoader: vm.imageLoader
+            ),
+            showMessageScreen: $router.showMessageScreen,
+            path: $router.eventsPath
+        )
     }
     
     private var frozenView: some View {

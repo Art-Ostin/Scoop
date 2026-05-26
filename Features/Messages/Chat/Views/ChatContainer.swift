@@ -25,8 +25,21 @@ struct ChatContainer: View {
     //4.if ChatContainer for events its different
     let isEvent: Bool
 
-    init(vm: ChatViewModel, isEvent: Bool = false) {
-        _vm = State(initialValue: vm)
+    init(
+        defaults: DefaultsManaging,
+        session: Session,
+        chatRepo: ChatRepository,
+        imageLoader: ImageLoading,
+        eventProfile: EventProfile,
+        isEvent: Bool = false
+    ) {
+        _vm = State(initialValue: ChatViewModel(
+            defaults: defaults,
+            session: session,
+            chatRepo: chatRepo,
+            imageLoader: imageLoader,
+            eventProfile: eventProfile
+        ))
         self.isEvent = isEvent
     }
     

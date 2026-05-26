@@ -15,6 +15,7 @@ struct EventSlotContainer: View {
     @Bindable var ui: EventUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
+    let zoomNS: Namespace.ID
 
     let openMaps: () -> ()
 
@@ -98,9 +99,7 @@ extension EventSlotContainer {
     }
     
     private var messageButton: some View {
-        Button {
-            ui.messageProfile = eventProfile
-        } label: {
+        NavigationLink(value: eventProfile) {
             Image("NewMessageIcon")
                 .resizable()
                 .scaledToFit()
@@ -108,11 +107,12 @@ extension EventSlotContainer {
                 .font(.body(17, .bold))
                 .padding(10)
                 .glassIfAvailable(isClear: true)
+                .opacity(disableMap ? 1 : 0.5)
                 .expandHitArea(24)
+                .padding(.bottom, 96)
+                .padding(.horizontal, 24)
         }
-        .padding(.bottom, 96)
-        .padding(.horizontal, 24)
-        .dimWhenMapActive($disableMap)
+        .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
     }
 }
 
@@ -124,3 +124,24 @@ private extension View {
             }
     }
 }
+
+/*
+ 
+ 
+ Button {
+     ui.messageProfile = eventProfile
+ } label: {
+     Image("NewMessageIcon")
+         .resizable()
+         .scaledToFit()
+         .frame(width: 22, height: 22)
+         .font(.body(17, .bold))
+         .padding(10)
+         .glassIfAvailable(isClear: true)
+         .expandHitArea(24)
+ }
+ .padding(.bottom, 96)
+ .padding(.horizontal, 24)
+ .dimWhenMapActive($disableMap)
+
+ */

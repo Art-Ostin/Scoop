@@ -40,7 +40,14 @@ struct MessagesContainer: View {
             .overlay(alignment: .topTrailing) {actionBar}
             .task(id: vm.user.imagePathURL) { await prepareUserImages() }
             .navigationDestination(for: EventProfile.self) { eventProfile in
-                ChatContainer(vm: ChatViewModel(defaults: vm.defaults, session: vm.s, chatRepo: vm.chatRepo, imageLoader: vm.imageLoader, eventProfile: eventProfile), isEvent: false)
+                ChatContainer(
+                    defaults: vm.defaults,
+                    session: vm.s,
+                    chatRepo: vm.chatRepo,
+                    imageLoader: vm.imageLoader,
+                    eventProfile: eventProfile,
+                    isEvent: false
+                )
                     //When it appears, set the read count to zero, if it isn't 0 already
                     .task {
                         try? await updateMessagesToRead(eventProfile)

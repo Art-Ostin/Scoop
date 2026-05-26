@@ -10,8 +10,9 @@ import SwiftUI
 @Observable
 class AppRouter {
     var selectedTab: AppTab = .meet
-    var pastEventsPath = NavigationPath()
     
+    var pastEventsPath = NavigationPath()
+    var eventsPath = NavigationPath()
     
     var showMessageScreen: String?
 }
