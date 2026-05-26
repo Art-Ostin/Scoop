@@ -3,8 +3,6 @@ import FirebaseAuth
 
 struct OnboardingHomeView: View {
     @Environment(\.appDependencies) private var dep
-    
-    @Environment(\.appState) private var appState
     @State private var vm: OnboardingViewModel?
     @State var showOnboarding = false
     @State var current: Int = 0
@@ -41,13 +39,13 @@ struct OnboardingHomeView: View {
                     vm = OnboardingViewModel(
                         authService: dep.authService,
                         defaultManager: dep.defaultsManager,
-                        sessionManager: dep.sessionManager,
+                        session: dep.session,
                         userRepo: dep.userRepo,
                     )
                 }
             }
             guard let vm = vm, await vm.isLoggedIn() else {
-                appState.wrappedValue = .login
+                dep.session.appState = .login
                 return
             }
         }
@@ -57,7 +55,7 @@ struct OnboardingHomeView: View {
         .alert("Sign Out", isPresented: $showAlert) {
             Button("Cancel", role: .cancel){}
             Button("Sign Out") {
-                appState.wrappedValue = .login
+                dep.session.appState = .login
                 Task {try? await vm?.signOut()}
             }
         } message: {

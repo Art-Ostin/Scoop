@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' build)",
+      "Bash(xcodebuild -project /Users/napoleon/Documents/Scoop/Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' build)"
+    ]
+  }
+}

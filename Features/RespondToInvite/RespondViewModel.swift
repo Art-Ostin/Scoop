@@ -56,7 +56,7 @@ class RespondViewModel {
     var image: UIImage
     
     let defaults: DefaultsManaging
-    let sessionManager: SessionManager
+    let session: Session
     let user: UserProfile
     
     var respondDraft: RespondDraft {
@@ -65,12 +65,12 @@ class RespondViewModel {
     
     var responseType: ResponseType {respondDraft.respondType}
     
-    init(image: UIImage, user: UserProfile, defaults: DefaultsManaging, sessionManager: SessionManager, event: UserEvent) {
+    init(image: UIImage, user: UserProfile, defaults: DefaultsManaging, session: Session, event: UserEvent) {
         self.image = image
         self.user = user
         self.defaults = defaults
-        self.sessionManager = sessionManager
-        self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: user, event: event, currentUserId: sessionManager.user.id)
+        self.session = session
+        self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: user, event: event, currentUserId: session.user.id)
     }
         
     @MainActor func deleteEventDefault() {

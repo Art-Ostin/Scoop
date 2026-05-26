@@ -12,14 +12,14 @@ import SwiftUI
 @MainActor
 @Observable final class InviteViewModel {
 
-    let s: SessionManager
+    let s: Session
     let defaults: DefaultsManaging
     let userRepo: UserRepository
     let profileRepo: ProfilesRepository
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
     
-    init(s: SessionManager, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(s: Session, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.imageLoader = imageLoader
         self.s = s
         self.userRepo = userRepo

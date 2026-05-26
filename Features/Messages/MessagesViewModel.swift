@@ -11,7 +11,7 @@ import UIKit
 @MainActor
 @Observable class MessagesViewModel {
     
-    let s: SessionManager
+    let s: Session
     let storageService: StorageServicing
     let defaults: DefaultsManaging
     let authService: AuthServicing
@@ -21,7 +21,7 @@ import UIKit
     let eventsRepo: EventsRepository
     let imageLoader: ImageLoading
     
-    init(s: SessionManager, storageService: StorageServicing, defaults: DefaultsManaging, authService: AuthServicing, chatRepo: ChatRepository, userRepo: UserRepository, profilesRepo: ProfilesRepository, eventsRepo: EventsRepository, imageLoader: ImageLoading) {
+    init(s: Session, storageService: StorageServicing, defaults: DefaultsManaging, authService: AuthServicing, chatRepo: ChatRepository, userRepo: UserRepository, profilesRepo: ProfilesRepository, eventsRepo: EventsRepository, imageLoader: ImageLoading) {
         self.s = s
         self.storageService = storageService
         self.authService = authService

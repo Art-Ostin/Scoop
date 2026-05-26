@@ -9,7 +9,6 @@ import SwiftUI
 
 @Observable
 class AppRouter {
-    
     var selectedTab: Tab = .meet
     
 }

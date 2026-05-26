@@ -1,5 +1,5 @@
 //
-//  SessionManager.swift
+//  Session.swift
 //  ScoopTest
 //
 //  Created by Art Ostin on 16/08/2025.
@@ -30,7 +30,7 @@ final class TaskBag {
 }
 
 @MainActor
-@Observable class SessionManager {
+@Observable class Session {
 
     //1. All the repositories used in manager
     private var bootDurationLogged = false
@@ -92,7 +92,7 @@ final class TaskBag {
     }
 }
 
-extension SessionManager {
+extension Session {
 
     func setSessionUser(_ user: UserProfile?) {
         sessionUser = user
@@ -114,7 +114,7 @@ extension SessionManager {
     }
 }
 
-extension SessionManager {
+extension Session {
 
     func setInitialEvents(invites: [EventProfile], active: [EventProfile], past: [EventProfile]) {
         self.invites = invites
@@ -154,7 +154,7 @@ extension SessionManager {
 }
  
 //Logic dealing with the popups in the app shown to the User (Probably remove later ad have notification section)
-extension SessionManager {
+extension Session {
     
     func recentChatStream() {
         subscribe("recentChat", to: eventsRepo.eventMessageTracker(userId: user.id)) { [weak self] change in

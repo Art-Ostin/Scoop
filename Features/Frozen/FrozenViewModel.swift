@@ -11,7 +11,7 @@ import Foundation
 @Observable
 class FrozenViewModel {
     
-    let sessionManager : SessionManager
+    let session : Session
     let defaults: DefaultsManaging
     let authService: AuthServicing
     let userRepo: UserRepository
@@ -19,8 +19,8 @@ class FrozenViewModel {
     let chatRepo: ChatRepository
     let imageLoader: ImageLoading
     
-    init(sessionManager: SessionManager, defaults: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository, chatRepo: ChatRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
-        self.sessionManager = sessionManager
+    init(session: Session, defaults: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository, chatRepo: ChatRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+        self.session = session
         self.defaults = defaults
         self.authService = authService
         self.userRepo = userRepo
@@ -28,6 +28,6 @@ class FrozenViewModel {
         self.chatRepo = chatRepo
         self.imageLoader = imageLoader
     }
-    var user: UserProfile {sessionManager.user}
-    var events: [EventProfile] { sessionManager.events}
+    var user: UserProfile {session.user}
+    var events: [EventProfile] { session.events}
 }

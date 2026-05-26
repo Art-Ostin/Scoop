@@ -12,15 +12,15 @@ import Foundation
 @Observable class SettingsViewModel {
     
     var authService: AuthServicing
-    var sessionManager: SessionManager
+    var session: Session
     
     let user: UserProfile
     let defaults: DefaultsManaging
     
-    init(authService: AuthServicing, sessionManager: SessionManager, defaults:DefaultsManaging) {
+    init(authService: AuthServicing, session: Session, defaults:DefaultsManaging) {
         self.authService = authService
-        self.sessionManager = sessionManager
-        self.user = sessionManager.user
+        self.session = session
+        self.user = session.user
         self.defaults = defaults
     }
     

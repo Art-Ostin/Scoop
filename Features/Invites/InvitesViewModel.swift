@@ -10,12 +10,12 @@ import SwiftUI
 @MainActor
 @Observable class InvitesViewModel {
 
-    let session: SessionManager
+    let session: Session
     let defaults: DefaultsManaging
     let imageLoader: ImageLoading
     let eventRepo: EventsRepository
 
-    init(session: SessionManager, defaults: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
+    init(session: Session, defaults: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
         self.session = session
         self.defaults = defaults
         self.imageLoader = imageLoader
@@ -36,7 +36,7 @@ import SwiftUI
             image: invite.image ?? UIImage(),
             user: invite.profile,
             defaults: defaults,
-            sessionManager: session,
+            session: session,
             event: invite.event
         )
         respondVMs[invite.event.id] = new

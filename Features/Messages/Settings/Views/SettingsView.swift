@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.appState) private var appState
     @State var vm: SettingsViewModel
     
 
@@ -45,8 +44,8 @@ extension SettingsView {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40, alignment: .center)
                 .onTapGesture {
-                    
-                    appState.wrappedValue = .login
+
+                    vm.session.appState = .login
 
                     //Fixes crash -> only sign user out when on login screen, as if not userProfile crashes app.
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

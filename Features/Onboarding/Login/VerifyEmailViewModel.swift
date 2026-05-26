@@ -13,13 +13,13 @@ import FirebaseAuth
 @MainActor
 @Observable class VerifyEmailViewModel {
     
-    let sessionManager: SessionManager
+    let session: Session
     let defaultsManager: DefaultsManaging
     let authService: AuthServicing
     let userRepo: UserRepository
     
-    init (sessionManager: SessionManager, defaultsManager: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository) {
-        self.sessionManager = sessionManager
+    init (session: Session, defaultsManager: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository) {
+        self.session = session
         self.defaultsManager = defaultsManager
         self.authService = authService
         self.userRepo = userRepo

@@ -20,24 +20,19 @@ let appLaunchStart = ContinuousClock.now
 @main
 struct ScoopApp: App {
 
-    private let dep = AppDependencies()
+    private let dep: AppDependencies
     
-    
-
     init() {
         _ = appLaunchStart
         FirebaseApp.configure()
+        self.dep = AppDependencies()
     }
 
     var body: some Scene {
         WindowGroup {
              RootView()
                  .appDependencies(dep)
-                 .onAppear { dep.sessionManager.userStream() }
-                 .environment(\.appState, Binding(
-                     get: { dep.sessionManager.appState },
-                     set: { dep.sessionManager.appState = $0 }
-                 ))
+                 .task { dep.session.userStream() }
         }
     }
 }

@@ -14,7 +14,7 @@ class ChatViewModel {
     static let messageAnimation: Animation = .spring(response: 0.32, dampingFraction: 0.86)
 
     let defaults: DefaultsManaging
-    let session: SessionManager
+    let session: Session
     let chatRepo: ChatRepository
     let imageLoader: ImageLoading
     let eventProfile: EventProfile
@@ -22,7 +22,7 @@ class ChatViewModel {
     var messages: [MessageModel] = []
     private var pendingTempIds: Set<String> = []
 
-    init(defaults: DefaultsManaging, session: SessionManager, chatRepo: ChatRepository, imageLoader: ImageLoading, eventProfile: EventProfile) {
+    init(defaults: DefaultsManaging, session: Session, chatRepo: ChatRepository, imageLoader: ImageLoading, eventProfile: EventProfile) {
         self.defaults = defaults
         self.session = session
         self.chatRepo = chatRepo

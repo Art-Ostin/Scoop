@@ -1,5 +1,5 @@
 //
-//  ProfilesSessionManager.swift
+//  ProfilesSession.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/05/2026.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 //Logic dealing with the recommended Profiles shown to the User
-extension SessionManager {
+extension Session {
     func profilesStream() {
         subscribe("profiles", to: profilesRepo.profilesTracker(userId: user.id)) { [weak self] change in
             guard let self else { return }

@@ -12,14 +12,14 @@ import FirebaseAuth
     
     @ObservationIgnored let authService: AuthServicing
     @ObservationIgnored var defaultManager: DefaultsManaging
-    @ObservationIgnored private let sessionManager: SessionManager
+    @ObservationIgnored private let session: Session
     @ObservationIgnored private let userRepo: UserRepository
     
     
-    init(authService: AuthServicing, defaultManager: DefaultsManaging, sessionManager: SessionManager, userRepo: UserRepository) {
+    init(authService: AuthServicing, defaultManager: DefaultsManaging, session: Session, userRepo: UserRepository) {
         self.authService = authService
         self.defaultManager = defaultManager
-        self.sessionManager = sessionManager
+        self.session = session
         self.userRepo = userRepo
     }
     
@@ -54,7 +54,7 @@ import FirebaseAuth
             return
         }
         let profile = try userRepo.createUser(draft: signUpDraft)
-        await sessionManager.startSession(user: profile)
+        await session.startSession(user: profile)
     }
     
     var onboardingStep: Int {

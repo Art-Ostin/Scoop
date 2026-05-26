@@ -13,7 +13,7 @@ import FirebaseFirestore
 @MainActor
 @Observable class EditProfileViewModel {
     
-    @ObservationIgnored private let s: SessionManager
+    @ObservationIgnored private let s: Session
     @ObservationIgnored private let storageService: StorageServicing
     @ObservationIgnored private let userRepo: UserRepository
     @ObservationIgnored let imageLoader: ImageLoading
@@ -24,7 +24,7 @@ import FirebaseFirestore
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedImages: [Int: Data] = [:]
         
-    init(s: SessionManager, storageService: StorageServicing, userRepo: UserRepository, imageLoader: ImageLoading, importedImages: [UIImage]) {
+    init(s: Session, storageService: StorageServicing, userRepo: UserRepository, imageLoader: ImageLoading, importedImages: [UIImage]) {
         self.s = s
         self.storageService = storageService
         self.userRepo = userRepo

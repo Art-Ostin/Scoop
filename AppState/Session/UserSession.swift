@@ -1,5 +1,5 @@
 //
-//  UserSessionManager.swift
+//  UserSession.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/05/2026.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 //Logic dealing with what part of app to show to user and when, and User's Status
-extension SessionManager {
+extension Session {
     
     //Tracks if user signed in or not & decides app state on launch
     func userStream() {        

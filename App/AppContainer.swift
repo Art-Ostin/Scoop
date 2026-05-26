@@ -63,7 +63,7 @@ extension AppContainer {
     
     private var meetView: some View {
         MeetContainer(vm: InviteViewModel(
-            s: dep.sessionManager, defaults: dep.defaultsManager,
+            s: dep.session, defaults: dep.defaultsManager,
             userRepo: dep.userRepo,
             profileRepo: dep.profilesRepo,
             eventRepo: dep.eventRepo,
@@ -73,36 +73,36 @@ extension AppContainer {
     
     private var invitesView: some View {
         NavigationStack {
-            InvitesContainer(vm: InvitesViewModel(session: dep.sessionManager, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
+            InvitesContainer(vm: InvitesViewModel(session: dep.session, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
         }
     }
     
     private var eventsView: some View {
-        EventsContainer(vm: EventViewModel(sessionManager: dep.sessionManager, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader), showMessageScreen: $showMessageScreen)
+        EventsContainer(vm: EventViewModel(session: dep.session, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader), showMessageScreen: $showMessageScreen)
     }
     
     private var matchesView: some View {
-        MessagesContainer(vm: MessagesViewModel(s: dep.sessionManager, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader),
+        MessagesContainer(vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader),
                           path: $matchesPath
         )
     }
     
     private var messagePopupOverlay: some View {
         Group {
-            if let model = dep.sessionManager.recentMessageReceived, let image = popupImage {
+            if let model = dep.session.recentMessageReceived, let image = popupImage {
                 MessagePopupView(
                     image: image,
                     model: model,
                     onTap: handlePopupTap,
-                    onDismiss: { dep.sessionManager.recentMessageReceived = nil }
+                    onDismiss: { dep.session.recentMessageReceived = nil }
                 )
             }
         }
         .animation(.spring(duration: 0.4), value: popupImage != nil)
-        .task(id: dep.sessionManager.recentMessageReceived?.image) {
+        .task(id: dep.session.recentMessageReceived?.image) {
             popupImage = nil
             guard
-                let imageString = dep.sessionManager.recentMessageReceived?.image,
+                let imageString = dep.session.recentMessageReceived?.image,
                 let url = URL(string: imageString)
             else { return }
             popupImage = try? await dep.imageLoader.fetchImage(for: url)
@@ -113,7 +113,7 @@ extension AppContainer {
     
 
     private func handlePopupTap(_ popup: MessagePopupModel) {
-        let s = dep.sessionManager
+        let s = dep.session
         let candidates = s.pastEvents + s.events + s.invites
         guard let eventProfile = candidates.first(where: { $0.id == popup.eventId }) else { return }
         s.recentMessageReceived = nil

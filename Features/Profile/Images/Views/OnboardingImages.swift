@@ -10,7 +10,7 @@ import PhotosUI
 
 struct OnboardingImages: View {
     
-    @Environment(\.appState) private var appState
+    @Environment(\.appDependencies) private var dep
     @Environment(\.dismiss) private var dismiss
     
     let vm: OnboardingViewModel
@@ -50,7 +50,7 @@ struct OnboardingImages: View {
                     do {
                          await imageVM.saveAll(images: images)
                          try await vm.createProfile()
-                         appState.wrappedValue = .app
+                         dep.session.appState = .app
                     } catch {
                         print(error)
                     }

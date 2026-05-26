@@ -10,7 +10,7 @@ import SwiftUI
 struct BlockedView: View {
     
     let vm: FrozenViewModel
-    var email: String {vm.sessionManager.user.email}
+    var email: String {vm.session.user.email}
     
     @State var showSettings: Bool = false
     @State var showBlockedInfo = false
@@ -45,7 +45,7 @@ struct BlockedView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.sessionManager, defaults: vm.defaults))
+                    SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
                 }
             }
             .overlay(alignment: .topLeading) {

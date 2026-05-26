@@ -68,8 +68,6 @@ import FirebaseAuth
 
 struct VerifyEmailView: View {
     
-    @Environment(\.appState) private var appState
-    
     @State var UILogic = VerifyEmailUILogic()
     @Bindable var vm: VerifyEmailViewModel
     

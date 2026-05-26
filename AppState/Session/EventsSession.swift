@@ -1,5 +1,5 @@
 //
-//  EventsSessionManager.swift
+//  EventsSession.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/05/2026.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 //Logic dealing with the User's Events
-extension SessionManager {
+extension Session {
     
     //1. Listens to all user events where status is pending, accepted, or past accepted
     func eventsStream() {

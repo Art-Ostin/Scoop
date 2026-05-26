@@ -11,7 +11,6 @@ import FirebaseFunctions
 
 struct MessagesContainer: View {
     
-    @Environment(\.appState) private var appState
     @State var vm: MessagesViewModel
     @State var showProfileView = false
     @State var showSettingsView = false
@@ -146,7 +145,7 @@ extension MessagesContainer {
     }
     
     private func settingScreen() -> some View {
-        SettingsView(vm: SettingsViewModel(authService: vm.authService, sessionManager: vm.s, defaults: vm.defaults))
+        SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
     }
     
     private func prepareUserImages() async {

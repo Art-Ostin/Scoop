@@ -22,8 +22,8 @@ final class AppDependencies {
     let chatRepo: ChatRepository 
     
     @MainActor
-    lazy var sessionManager: SessionManager = {
-        SessionManager(
+    lazy var session: Session = {
+        Session(
             authService: authService,
             defaultsManager: defaultsManager,
             userRepo: userRepo,

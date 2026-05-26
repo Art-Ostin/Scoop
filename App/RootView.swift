@@ -16,7 +16,7 @@ struct RootView : View {
 
     var body: some View {
         Group {
-            switch dep.sessionManager.appState {
+            switch dep.session.appState {
             case .booting: BootingScreen()
             case .login: SignUpView()
             case .createAccount: OnboardingHomeView()

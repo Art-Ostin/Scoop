@@ -15,15 +15,15 @@ import FirebaseFirestore
 @MainActor
 @Observable class EventViewModel {
     
-    let sessionManager: SessionManager
+    let session: Session
     let userRepo: UserRepository
     let defaults: DefaultsManaging
     let eventRepo: EventsRepository
     let chatRepo: ChatRepository
     let imageLoader: ImageLoading
     
-    init(sessionManager: SessionManager, userRepo: UserRepository, defaults: DefaultsManaging, eventRepo: EventsRepository, chatRepo: ChatRepository, imageLoader: ImageLoading) {
-        self.sessionManager = sessionManager
+    init(session: Session, userRepo: UserRepository, defaults: DefaultsManaging, eventRepo: EventsRepository, chatRepo: ChatRepository, imageLoader: ImageLoading) {
+        self.session = session
         self.userRepo = userRepo
         self.eventRepo = eventRepo
         self.imageLoader = imageLoader
@@ -31,7 +31,7 @@ import FirebaseFirestore
         self.defaults = defaults
     }
 
-    var events: [EventProfile] { sessionManager.events}
+    var events: [EventProfile] { session.events}
 
     func event(id: String?) -> EventProfile? {
         guard let id else { return nil }
@@ -43,7 +43,7 @@ import FirebaseFirestore
     }
 
     func makeChatViewModel(for eventProfile: EventProfile) -> ChatViewModel {
-        ChatViewModel(defaults: defaults, session: sessionManager, chatRepo: chatRepo, imageLoader: imageLoader, eventProfile: eventProfile)
+        ChatViewModel(defaults: defaults, session: session, chatRepo: chatRepo, imageLoader: imageLoader, eventProfile: eventProfile)
     }
 
     func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
@@ -61,7 +61,7 @@ import FirebaseFirestore
         let eventTime = "\(FormatEvent.dayAndTime(acceptedTime))"
         let eventPlace = event.location.name ?? event.location.address.map { String($0.suffix(10)) }  ?? ""
         let blockedContext = BlockedContext(profileImage: event.otherUserPhoto, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
-        let userId = sessionManager.user.id
+        let userId = session.user.id
         
         //Update event Status and the user
         try await applyCancellationPenalty(blockedContext: blockedContext, userId: userId)

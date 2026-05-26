@@ -10,7 +10,6 @@ import SwiftUI
 struct CantMakeIt: View {
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.appState) private var appState
     @State var showCancelAlert: Bool = false
     
     let vm: EventViewModel
@@ -86,7 +85,7 @@ struct CantMakeIt: View {
                 do {
                     try await vm.cancelEvent(event: eventProfile.event)
                     print("Updated")
-                    appState.wrappedValue = .frozen 
+                    vm.session.appState = .frozen
                 } catch {
                     print("cancelEvent failed:", error)
                     Thread.callStackSymbols.forEach { print($0) }
