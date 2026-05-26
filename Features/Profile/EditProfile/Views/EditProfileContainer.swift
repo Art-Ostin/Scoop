@@ -12,16 +12,13 @@ struct EditProfileContainer: View {
     @State var isEdit: Bool = true
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
-    @State var navigationPath: [EditProfileRoute] = []
     @State var selectedImage: ImageSlot? = nil
     @State var showSavingScreen: Bool = false
-    
 
-    
     var body: some View {
         ZStack {
             if isEdit {
-                EditProfileView(vm: vm, navigationPath: $navigationPath, selectedImage: $selectedImage)
+                EditProfileView(vm: vm, selectedImage: $selectedImage)
                     .transition(.move(edge: .leading))
             } else {
                 ProfileView(
@@ -33,10 +30,12 @@ struct EditProfileContainer: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) {
-            if navigationPath.isEmpty {EditProfileButton(isEdit: $isEdit)}
+        .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit) }
+        .overlay(alignment: .top) { editAction }
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(for: EditProfileRoute.self) { route in
+            subScreen(for: route)
         }
-        .overlay(alignment: .top) {editAction}
         .fullScreenCover(item: $selectedImage) {localImage in
             ProfileImagesEditing(importedImage: localImage) {updatedImage in
                 Task { try await vm.changeImage(image: updatedImage) }
@@ -49,12 +48,28 @@ struct EditProfileContainer: View {
         }
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
     }
+
+    @ViewBuilder
+    private func subScreen(for route: EditProfileRoute) -> some View {
+        switch route {
+        case .prompt(let index):     EditPrompt(vm: vm, promptIndex: index)
+        case .interests:             EditInterests(vm: vm)
+        case .textField(let field):  EditTextfield(vm: vm, field: field)
+        case .option(let field):     EditOption(vm: vm, field: field)
+        case .height:                EditHeight(vm: vm)
+        case .nationality:           EditNationality(vm: vm)
+        case .lifestyle:             EditLifestyle(vm: vm)
+        case .myLifeAs:              EditMyLifeAs(vm: vm)
+        case .languages:             EditLanguages(vm: vm)
+        case .desiredAgeRange:       EditPreferredYears(vm: vm)
+        }
+    }
 }
 
 extension EditProfileContainer {
     private var editAction: some View {
         HStack {
-            if navigationPath.isEmpty &&  vm.showSaveButton {
+            if vm.showSaveButton {
                 Button {
                     if !vm.updatedImages.isEmpty {
                         showSavingScreen = true
@@ -73,17 +88,14 @@ extension EditProfileContainer {
                 }
             }
             Spacer()
-            if navigationPath.isEmpty {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.body(17, .bold))
-                        .padding(5)
-                        .glassIfAvailable(Circle())
-                }
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.body(17, .bold))
+                    .padding(5)
+                    .glassIfAvailable(Circle())
             }
-
         }
         .padding(.top, 6)
         .padding(.horizontal, 16)

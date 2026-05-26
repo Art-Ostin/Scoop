@@ -6,7 +6,12 @@
       "Bash(awk '/PBXFileSystemSynchronizedRootGroup section/,/End PBXFileSystemSynchronizedRootGroup section/' /Users/napoleon/Documents/Scoop/Scoop.xcodeproj/project.pbxproj)",
       "Bash(sed -n '276,285p' /Users/napoleon/Documents/Scoop/Scoop.xcodeproj/project.pbxproj)",
       "Bash(sed -n '560,570p' /Users/napoleon/Documents/Scoop/Scoop.xcodeproj/project.pbxproj)",
-      "Bash(sed -n '1908,1915p' /Users/napoleon/Documents/Scoop/Scoop.xcodeproj/project.pbxproj)"
+      "Bash(sed -n '1908,1915p' /Users/napoleon/Documents/Scoop/Scoop.xcodeproj/project.pbxproj)",
+      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -quiet build)",
+      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS' -quiet build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -list)"
     ]
   }
 }

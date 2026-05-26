@@ -97,7 +97,7 @@ extension FrozenView {
     
     private var actionBar: some View {
         HStack {
-            SettingsButton(showSettingsView: $showSettings, zoomNS: zoomNS)
+            SettingsButton(zoomNS: zoomNS) { showSettings = true }
             Spacer()
             TabInfoButton(showScreen: $showInfo)
         }

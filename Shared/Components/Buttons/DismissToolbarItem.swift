@@ -22,7 +22,8 @@ struct DismissToolbarItem: ToolbarContent {
     var body: some ToolbarContent {
         ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
             Button(action: { dismiss() }) {
-                Image(systemName: imageString).font(.body.weight(.semibold))
+                Image(systemName: imageString)
+                    .font(.system(size: 12, weight: .heavy))
             }
         }
     }

@@ -51,7 +51,7 @@ struct BlockedView: View {
             }
             .overlay(alignment: .topLeading) {
                 HStack {
-                    SettingsButton(showSettingsView: $showSettings, zoomNS: zoomNS)
+                    SettingsButton(zoomNS: zoomNS) { showSettings = true }
                     Spacer()
                     TabInfoButton(showScreen: $showBlockedInfo)
                 }

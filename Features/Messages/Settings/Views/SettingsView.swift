@@ -26,6 +26,7 @@ struct SettingsView: View {
                 signOutSection
             }
             .navigationTitle("Settings")
+            .navigationBarBackButtonHidden(true)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .toolbar { DismissToolbarItem() }
             .padding(.horizontal, 24)

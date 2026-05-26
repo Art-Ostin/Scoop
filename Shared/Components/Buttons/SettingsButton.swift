@@ -8,12 +8,10 @@
  import SwiftUI
 
  struct SettingsButton: View {
-     @Binding var showSettingsView: Bool
      let zoomNS: Namespace.ID
+     let action: () -> Void
      var body: some View {
-         Button {
-             showSettingsView = true
-         } label: {
+         Button(action: action) {
              Image(systemName: "gear")
                  .resizable()
                  .scaledToFit()

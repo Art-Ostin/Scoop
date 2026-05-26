@@ -9,19 +9,23 @@ import SwiftUI
 import FirebaseFunctions
 
 
+struct SettingsRoute: Hashable {}
+struct ProfileRoute: Hashable {}
+
 struct MessagesContainer: View {
-    
+
     @State var vm: MessagesViewModel
-    @State var showProfileView = false
-    @State var showSettingsView = false
     @State var userProfileImages: [UIImage] = []
     @State var firstProfileImages: [String : UIImage] = [:]
-    
+    @State var editProfileVM: EditProfileViewModel?
+
     @State var selectedProfile: EventProfile? = nil
     @Binding var path: NavigationPath
 
     @Namespace var settingsZoomNS
-        
+    @Namespace var profileZoomNS
+
+
     init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
         _path = path
@@ -29,7 +33,7 @@ struct MessagesContainer: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            CustomTabPage(page: .pastMatches, tabAction: $showSettingsView) {
+            CustomTabPage(page: .pastMatches) {
                 if vm.events.isEmpty {
                     messagesAppearHereView
                 } else {
@@ -37,7 +41,6 @@ struct MessagesContainer: View {
                         .padding(.top, -12)
                 }
             }
-            .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
             .overlay(alignment: .topTrailing) {actionBar}
             .task(id: vm.user.imagePathURL) { await prepareUserImages() }
             .navigationDestination(for: EventProfile.self) {eventProfile in
@@ -54,9 +57,13 @@ struct MessagesContainer: View {
                         try? await updateMessagesToRead(eventProfile)
                     }
             }
-            .navigationDestination(isPresented: $showSettingsView) {
+            .navigationDestination(for: SettingsRoute.self) { _ in
                 settingScreen()
                     .navigationTransition(.zoom(sourceID: "settings", in: settingsZoomNS))
+            }
+            .navigationDestination(for: ProfileRoute.self) { _ in
+                editProfileScreen()
+                    .navigationTransition(.zoom(sourceID: "editProfile", in: profileZoomNS))
             }
         }
         .hideTabBar(hideBar: !path.isEmpty)
@@ -111,7 +118,13 @@ extension MessagesContainer {
     
     private var profileButton: some View {
         Button {
-            showProfileView = true
+            editProfileVM = EditProfileViewModel(
+                s: vm.s, storageService: vm.storageService,
+                userRepo: vm.userRepo,
+                imageLoader: vm.imageLoader,
+                importedImages: userProfileImages
+            )
+            path.append(ProfileRoute())
         } label: {
             Group {
                 if let img = userProfileImages.first, img.size != .zero {
@@ -127,12 +140,15 @@ extension MessagesContainer {
                         .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
                 }
             }
+            .matchedTransitionSource(id: "editProfile", in: profileZoomNS)
         }
     }
     
     private var actionBar: some View {
         HStack {
-            SettingsButton(showSettingsView: $showSettingsView, zoomNS: settingsZoomNS)
+            SettingsButton(zoomNS: settingsZoomNS) {
+                path.append(SettingsRoute())
+            }
             Spacer()
             profileButton
         }
@@ -142,18 +158,16 @@ extension MessagesContainer {
 //Additional Functions
 extension MessagesContainer {
     
+    @ViewBuilder
     private func editProfileScreen() -> some View {
-        EditProfileContainer(
-            vm: EditProfileViewModel(
-                s: vm.s, storageService: vm.storageService,
-                userRepo: vm.userRepo,
-                imageLoader: vm.imageLoader,
-                importedImages: userProfileImages
-            ),
-            profileVM: ProfileViewModel(
-                profile: vm.user,
-                imageLoader: vm.imageLoader, defaults: vm.defaults
-            ))
+        if let editProfileVM {
+            EditProfileContainer(
+                vm: editProfileVM,
+                profileVM: ProfileViewModel(
+                    profile: vm.user,
+                    imageLoader: vm.imageLoader, defaults: vm.defaults
+                ))
+        }
     }
     
     private func settingScreen() -> some View {
@@ -173,8 +187,3 @@ extension MessagesContainer {
         }
     }
 }
-
-/*
- .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
-
- */
