@@ -7,29 +7,29 @@ struct OnboardingHomeView: View {
     @State var showOnboarding = false
     @State var current: Int = 0
     @State var showAlert: Bool = false
-    @State private var tabSelection: TabBarItem = .meet
+    @State private var tabSelection: AppTab = .meet
     
     var body: some View {
         ZStack {
             if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
                 limitedAccessView(page: .meet)
-                    .tag(TabBarItem.meet)
+                    .tag(AppTab.meet)
                     .tabItem { Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")}
                 limitedAccessView(page: .meeting)
-                    .tag(TabBarItem.events)
+                    .tag(AppTab.events)
                     .tabItem {Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")}
                 
                 limitedAccessView(page: .message)
-                    .tag(TabBarItem.matches)
-                    .tabItem {Label("", image: tabSelection == .matches ? "BlackMessage" : "MessageIcon")}
+                    .tag(AppTab.pastEvents)
+                    .tabItem {Label("", image: tabSelection == .pastEvents ? "BlackMessage" : "MessageIcon")}
             }} else {
-                CustomTabBarContainerView(selection: $tabSelection) {
-                    limitedAccessView(page: .meet)
-                        .tabBarItem(.meet, selection: $tabSelection)
-                    limitedAccessView(page: .meeting)
-                        .tabBarItem(.events, selection: $tabSelection)
-                    limitedAccessView(page: .message)
-                        .tabBarItem(.events, selection: $tabSelection)
+                CustomTabBarContainerView(selection: $tabSelection, tabs: [.meet, .events, .pastEvents]) { tab in
+                    switch tab {
+                    case .meet:       limitedAccessView(page: .meet)
+                    case .events:     limitedAccessView(page: .meeting)
+                    case .pastEvents: limitedAccessView(page: .message)
+                    default:          EmptyView()
+                    }
                 }
             }
         }

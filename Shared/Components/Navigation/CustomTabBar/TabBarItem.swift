@@ -8,45 +8,37 @@
 import Foundation
 import SwiftUI
 
-//struct TabBarIssf: Hashable {
-//    let iconName: String
-//    let title: String
-//    let color: Color
-//}
+enum AppTab: Hashable, CaseIterable, Identifiable {
 
-enum TabBarItem: Hashable {
-    
-    case meet, invites, events, matches
-    
-    var image: Image {
-        switch self {
-        case .meet:
-            return Image("AppLogoApp")
-            
-        case .invites:
-            return Image("TabLetterGray")
-            
-        case .events:
-            return Image("EventApp")
-            
-        case .matches:
-            return Image("MessageApp")
+    case meet, invites, events, pastEvents
+
+    var id: Self { self }
+
+    // Native (iOS 26+) tab bar icons.
+    func nativeIcon(selected: Bool) -> String {
+        switch (self, selected) {
+        case (.meet,       true):  "BlackLogo"
+        case (.meet,       false): "AppLogoBlack"
+        case (.invites,    true):  "TabLetterBlack"
+        case (.invites,    false): "TabLetterGray"
+        case (.events,     true):  "EventBlack"
+        case (.events,     false): "EventIcon"
+        case (.pastEvents, true):  "BlackMessage"
+        case (.pastEvents, false): "MessageIcon"
         }
     }
-    
-    var imageBlack: Image {
-        switch self {
-        case .meet:
-            return Image("AppLogoBlack")
-            
-        case .invites:
-            return Image("TabLetterBlack")
-            
-        case .events:
-            return Image("EventIcon")
-            
-        case .matches:
-            return Image("MessageIcon")
+
+    // Custom tab bar (iOS<26) icons.
+    func customIcon(selected: Bool) -> Image {
+        switch (self, selected) {
+        case (.meet,       true):  Image("AppLogoApp")
+        case (.meet,       false): Image("AppLogoBlack")
+        case (.invites,    true):  Image("TabLetterGray")
+        case (.invites,    false): Image("TabLetterBlack")
+        case (.events,     true):  Image("EventApp")
+        case (.events,     false): Image("EventIcon")
+        case (.pastEvents, true):  Image("MessageApp")
+        case (.pastEvents, false): Image("MessageIcon")
         }
     }
 }

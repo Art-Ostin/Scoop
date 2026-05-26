@@ -17,33 +17,31 @@ struct AppContainer: View {
         Group {
             if #available(iOS 26.0, *) {
                 TabView(selection: $router.selectedTab) {
-                    Tab("", image: router.selectedTab == .meet       ? "BlackLogo"       : "AppLogoBlack",  value: AppTab.meet)       { meetView }
-                    Tab("", image: router.selectedTab == .invites    ? "TabLetterBlack"  : "TabLetterGray", value: AppTab.invites)    { invitesView }
-                    Tab("", image: router.selectedTab == .events     ? "EventBlack"      : "EventIcon",     value: AppTab.events)     { eventsView }
-                    Tab("", image: router.selectedTab == .pastEvents ? "BlackMessage"    : "MessageIcon",   value: AppTab.pastEvents) { pastEventsView }
+                    Tab("", image: icon(.meet), value: AppTab.meet) { meetView }
+                    Tab("", image: icon(.invites),value: AppTab.invites) { invitesView }
+                    Tab("", image: icon(.events),value: AppTab.events) { eventsView }
+                    Tab("", image: icon(.pastEvents), value: AppTab.pastEvents) { pastEventsView }
                 }
-                .tint(.black)
             } else {
-                CustomTabBarContainerView(selection: legacyTabBinding) {
-                    meetView       .tabBarItem(.meet,    selection: legacyTabBinding)
-                    invitesView    .tabBarItem(.invites, selection: legacyTabBinding)
-                    eventsView     .tabBarItem(.events,  selection: legacyTabBinding)
-                    pastEventsView .tabBarItem(.matches, selection: legacyTabBinding)
+                CustomTabBarContainerView(selection: $router.selectedTab) { tab in
+                    switch tab {
+                    case .meet:       meetView
+                    case .invites:    invitesView
+                    case .events:     eventsView
+                    case .pastEvents: pastEventsView
+                    }
                 }
             }
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
     }
-
-    private var legacyTabBinding: Binding<TabBarItem> {
-        Binding(
-            get: { router.selectedTab.legacy },
-            set: { router.selectedTab = .init(legacy: $0) }
-        )
-    }
 }
 
 extension AppContainer {
+
+    private func icon(_ tab: AppTab) -> String {
+        tab.nativeIcon(selected: router.selectedTab == tab)
+    }
 
     private var meetView: some View {
         MeetContainer(vm: InviteViewModel(
@@ -75,25 +73,5 @@ extension AppContainer {
             vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader),
             path: $router.pastEventsPath
         )
-    }
-}
-
-// Bridge for the iOS<26 CustomTabBar branch. Delete with the legacy branch.
-private extension AppTab {
-    var legacy: TabBarItem {
-        switch self {
-        case .meet:       .meet
-        case .invites:    .invites
-        case .events:     .events
-        case .pastEvents: .matches
-        }
-    }
-    init(legacy: TabBarItem) {
-        switch legacy {
-        case .meet:    self = .meet
-        case .invites: self = .invites
-        case .events:  self = .events
-        case .matches: self = .pastEvents
-        }
     }
 }

@@ -6,16 +6,6 @@
 //
 
 import SwiftUI
-import Foundation
-
-struct TabBarItemsPreferenceKey: PreferenceKey {
-    
-    static var defaultValue: [TabBarItem] = []
-    
-    static func reduce(value: inout [TabBarItem], nextValue: () -> [TabBarItem]) {
-        value += nextValue()
-    }
-}
 
 struct TabBarVisibilityPreferenceKey: PreferenceKey {
     static var defaultValue: Bool = false
@@ -25,18 +15,7 @@ struct TabBarVisibilityPreferenceKey: PreferenceKey {
     }
 }
 
-
-struct TabBarViewModifier: ViewModifier {
-    @Binding var selection: TabBarItem
-    let tab: TabBarItem
-    func body(content: Content) -> some View {
-        content
-            .opacity(selection == tab ? 1 : 0)
-            .preference(key: TabBarItemsPreferenceKey.self, value: [tab])
-    }
-}
-
-struct TabBarVisibilityModifier: ViewModifier {
+private struct TabBarVisibilityModifier: ViewModifier {
     let hidden: Bool
 
     func body(content: Content) -> some View {
@@ -44,15 +23,8 @@ struct TabBarVisibilityModifier: ViewModifier {
     }
 }
 
-
-
 extension View {
-    
-    func tabBarItem(_ tab: TabBarItem, selection: Binding<TabBarItem>) -> some View {
-        modifier(TabBarViewModifier(selection: selection, tab: tab))
-    }
     func tabBarHidden(_ hidden: Bool) -> some View {
         modifier(TabBarVisibilityModifier(hidden: hidden))
     }
-    
 }

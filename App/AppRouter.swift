@@ -11,12 +11,11 @@ import SwiftUI
 class AppRouter {
     var selectedTab: AppTab = .meet
     var pastEventsPath = NavigationPath()
+    
+    
     var showMessageScreen: String?
 }
 
-enum AppTab: Hashable {
-    case meet, invites, events, pastEvents
-}
 
 extension AppRouter {
 

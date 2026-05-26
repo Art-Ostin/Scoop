@@ -11,7 +11,7 @@ struct FrozenWithEvents: View {
     
     let vm: FrozenViewModel
     
-    @State var tabSelection: TabBarItem = .events
+    @State var tabSelection: AppTab = .events
     @State var topRightOfTitle: CGPoint = .zero
     @State var showFrozenInfo: Bool = false
     
@@ -20,21 +20,24 @@ struct FrozenWithEvents: View {
             TabView(selection: $tabSelection) {
                 eventsView
                     .coordinateSpace(name: "EventsSpace")
-                    .tag(TabBarItem.events)
+                    .tag(AppTab.events)
                     .tabItem {
                         Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                     }
                     .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
 
                 frozenView
-                    .tag(TabBarItem.matches)
+                    .tag(AppTab.pastEvents)
                     .tabItem {
-                        Label("", image: tabSelection == .matches ? "Snowflake" : "SnowflakeGray")
+                        Label("", image: tabSelection == .pastEvents ? "Snowflake" : "SnowflakeGray")
                     }
             } }  else {
-                CustomTabBarContainerView(selection: $tabSelection) {
-                    eventsView.tabBarItem(.events, selection: $tabSelection)
-                    frozenView.tabBarItem(.matches, selection: $tabSelection)
+                CustomTabBarContainerView(selection: $tabSelection, tabs: [.events, .pastEvents]) { tab in
+                    switch tab {
+                    case .events:     eventsView
+                    case .pastEvents: frozenView
+                    default:          EmptyView()
+                    }
                 }
             }
     }

@@ -8,66 +8,16 @@
 import SwiftUI
 
 struct CustomTabBarView: View {
-    
-    let tabs: [TabBarItem]
-    @Binding var selection: TabBarItem
-    @Namespace private var namespace
-    @State var localSelection: TabBarItem
-    
-    @State private var bump = false
 
+    let tabs: [AppTab]
+    @Binding var selection: AppTab
+    @Namespace private var namespace
 
     var body: some View {
-        tabBarVersion
-            .onChange(of: selection) { oldValue, newValue in
-                withAnimation(.snappy(duration: 0.2)) {
-                    localSelection = newValue
-            }
-        }
-    }
-}
-
-#Preview {
-    let tabs: [TabBarItem] = [ .meet, .events, .matches]
-    VStack {
-        Spacer()
-        CustomTabBarView(tabs: tabs, selection: .constant(tabs.first!), localSelection: tabs.first!)
-     }
-}
-
-extension CustomTabBarView {
-    
-    private func switchToTab(tab: TabBarItem) {
-        selection = tab
-    }
-    
-    private func tabBar(tab: TabBarItem) -> some View {
-        VStack {
-            if localSelection == tab { tab.image } else { tab.imageBlack }
-        }
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity)
-        .scaleEffect(localSelection == tab && bump ? 1.18 : 1.0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.6), value: bump)
-        .background(
-            ZStack {
-                if localSelection == tab {
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(Color.white)
-                        .padding(.horizontal, 1)
-                        .matchedGeometryEffect(id: "background_rectangle", in: namespace)
-                }
-            }
-        )
-    }
-    
-    private var tabBarVersion: some View {
         HStack {
             ForEach(tabs, id: \.self) { tab in
                 tabBar(tab: tab)
-                    .onTapGesture {
-                        switchToTab(tab: tab)
-                    }
+                    .onTapGesture { selection = tab }
             }
         }
         .padding(8)
@@ -78,5 +28,32 @@ extension CustomTabBarView {
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 8)
         .padding(.horizontal, 36)
         .padding(.bottom, 12)
+        .animation(.snappy(duration: 0.2), value: selection)
+    }
+}
+
+#Preview {
+    VStack {
+        Spacer()
+        CustomTabBarView(tabs: [.meet, .events, .pastEvents], selection: .constant(.meet))
+     }
+}
+
+extension CustomTabBarView {
+
+    private func tabBar(tab: AppTab) -> some View {
+        tab.customIcon(selected: selection == tab)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(
+                ZStack {
+                    if selection == tab {
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(Color.white)
+                            .padding(.horizontal, 1)
+                            .matchedGeometryEffect(id: "background_rectangle", in: namespace)
+                    }
+                }
+            )
     }
 }

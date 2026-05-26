@@ -8,18 +8,11 @@
 import SwiftUI
 
 struct AppTabBarView: View {
-    @State var tabSelection: TabBarItem = .meet
+    @State var tabSelection: AppTab = .meet
 
     var body: some View {
-        CustomTabBarContainerView(selection: $tabSelection) {
+        CustomTabBarContainerView(selection: $tabSelection, tabs: [.meet, .events, .pastEvents]) { _ in
             Color.appCanvas
-                .tabBarItem(.meet, selection: $tabSelection)
-            
-            Color.appCanvas
-                .tabBarItem(.events, selection: $tabSelection)
-            
-            Color.appCanvas
-                .tabBarItem(.matches, selection: $tabSelection)
         }
     }
 }
