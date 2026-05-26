@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+@Observable
 final class AppDependencies {
     
     let authService: AuthServicing
@@ -21,7 +22,7 @@ final class AppDependencies {
     let profileLoader: ProfileLoading
     let chatRepo: ChatRepository 
     
-    @MainActor
+    @ObservationIgnored @MainActor
     lazy var session: Session = {
         Session(
             authService: authService,
@@ -56,19 +57,3 @@ final class AppDependencies {
     }
 }
 
-private struct AppDependenciesKey: EnvironmentKey {
-    static let defaultValue = AppDependencies()
-}
-
-extension EnvironmentValues {
-    var appDependencies: AppDependencies {
-        get { self[AppDependenciesKey.self] }
-        set { self[AppDependenciesKey.self] = newValue }
-    }
-}
-
-extension View {
-    func appDependencies(_ dependencies: AppDependencies) -> some View {
-        environment(\.appDependencies, dependencies)
-    }
-}

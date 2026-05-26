@@ -10,7 +10,7 @@ import PhotosUI
 
 struct OnboardingImages: View {
     
-    @Environment(\.appDependencies) private var dep
+    @Environment(AppDependencies.self) private var dep
     @Environment(\.dismiss) private var dismiss
     
     let vm: OnboardingViewModel

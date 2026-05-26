@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FrozenContainer: View {
-    @Environment(\.appDependencies) private var dep
+    @Environment(AppDependencies.self) private var dep
     private var vm: FrozenViewModel {
         FrozenViewModel(session: dep.session, defaults: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo, chatRepo: dep.chatRepo, eventRepo: dep.eventRepo,imageLoader: dep.imageLoader)
     }

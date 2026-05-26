@@ -12,7 +12,7 @@ enum AppState {
 
 struct RootView : View {
 
-    @Environment(\.appDependencies) private var dep
+    @Environment(AppDependencies.self) private var dep
 
     var body: some View {
         Group {

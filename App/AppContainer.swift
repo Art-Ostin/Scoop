@@ -13,7 +13,7 @@ struct AppContainer: View {
     @State var tabSelection: TabBarItem = .meet
     @State var matchesPath = NavigationPath()
     @State private var popupImage: UIImage?
-    @Environment(\.appDependencies) private var dep
+    @Environment(AppDependencies.self) private var dep
         
     var body: some View {
         Group {

@@ -2,7 +2,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct OnboardingHomeView: View {
-    @Environment(\.appDependencies) private var dep
+    @Environment(AppDependencies.self) private var dep
     @State private var vm: OnboardingViewModel?
     @State var showOnboarding = false
     @State var current: Int = 0

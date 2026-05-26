@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SignUpView: View {
     
-    @Environment(\.appDependencies) private var dep
+    @Environment(AppDependencies.self) private var dep
     @State var showCover: Bool = false
     @State var tabSelection: Int = 0
     
