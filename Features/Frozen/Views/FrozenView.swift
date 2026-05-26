@@ -14,7 +14,7 @@ struct FrozenView: View {
     @State var showInfo: Bool = false
     @State var showSettings : Bool = false
     @State var tabSelection: Int = 0
-    
+    @Namespace var zoomNS
     
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
@@ -93,16 +93,19 @@ extension FrozenView {
             .lineSpacing(6)
             .multilineTextAlignment(.center)
             .transition(.opacity)
-//            .frame(width: 245, alignment: .leading)
-//            .frame(maxWidth: .infinity, alignment: .center)
     }
     
     private var actionBar: some View {
         HStack {
-            SettingsButton(showSettingsView: $showSettings)
+            SettingsButton(showSettingsView: $showSettings, zoomNS: zoomNS)
             Spacer()
             TabInfoButton(showScreen: $showInfo)
         }
         .padding(.horizontal)
     }
 }
+
+/*
+ //            .frame(width: 245, alignment: .leading)
+ //            .frame(maxWidth: .infinity, alignment: .center)
+ */

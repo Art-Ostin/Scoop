@@ -20,6 +20,8 @@ struct MessagesContainer: View {
     @State var selectedProfile: EventProfile? = nil
     @Binding var path: NavigationPath
 
+    @Namespace var settingsZoomNS
+        
     init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
         _path = path
@@ -35,11 +37,10 @@ struct MessagesContainer: View {
                         .padding(.top, -12)
                 }
             }
-            .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
             .fullScreenCover(isPresented: $showProfileView) { editProfileScreen() }
             .overlay(alignment: .topTrailing) {actionBar}
             .task(id: vm.user.imagePathURL) { await prepareUserImages() }
-            .navigationDestination(for: EventProfile.self) { eventProfile in
+            .navigationDestination(for: EventProfile.self) {eventProfile in
                 ChatContainer(
                     defaults: vm.defaults,
                     session: vm.s,
@@ -52,6 +53,10 @@ struct MessagesContainer: View {
                     .task {
                         try? await updateMessagesToRead(eventProfile)
                     }
+            }
+            .navigationDestination(isPresented: $showSettingsView) {
+                settingScreen()
+                    .navigationTransition(.zoom(sourceID: "settings", in: settingsZoomNS))
             }
         }
         .hideTabBar(hideBar: !path.isEmpty)
@@ -127,7 +132,7 @@ extension MessagesContainer {
     
     private var actionBar: some View {
         HStack {
-            SettingsButton(showSettingsView: $showSettingsView)
+            SettingsButton(showSettingsView: $showSettingsView, zoomNS: settingsZoomNS)
             Spacer()
             profileButton
         }
@@ -168,3 +173,8 @@ extension MessagesContainer {
         }
     }
 }
+
+/*
+ .fullScreenCover(isPresented: $showSettingsView) {NavigationStack {settingScreen()}}
+
+ */

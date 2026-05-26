@@ -9,6 +9,7 @@
 
  struct SettingsButton: View {
      @Binding var showSettingsView: Bool
+     let zoomNS: Namespace.ID
      var body: some View {
          Button {
              showSettingsView = true
@@ -21,6 +22,7 @@
                  .glassIfAvailable(Circle())
                  .contentShape(Circle())
                  .foregroundStyle(Color.black)
+                 .matchedTransitionSource(id: "settings", in: zoomNS)
          }
      }
  }
