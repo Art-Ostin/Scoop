@@ -61,7 +61,7 @@ extension Session {
     //Not private as need it when sign out
     func stopSession() {
         cancelAllStreams()
-        recentMessageReceived = nil
+        notifications.clearAll()
         activeChatEventId = nil
         setSessionUser(nil)
     }

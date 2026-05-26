@@ -11,7 +11,7 @@ import SwiftUI
 
 @Observable
 final class AppDependencies {
-    
+
     let authService: AuthServicing
     let storageService: StorageServicing
     let defaultsManager: DefaultsManaging
@@ -20,8 +20,11 @@ final class AppDependencies {
     let profilesRepo: ProfilesRepository
     let imageLoader: ImageLoading
     let profileLoader: ProfileLoading
-    let chatRepo: ChatRepository 
-    
+    let chatRepo: ChatRepository
+
+    @ObservationIgnored @MainActor
+    let notifications: InAppNotificationCenter
+
     @ObservationIgnored @MainActor
     lazy var session: Session = {
         Session(
@@ -32,9 +35,10 @@ final class AppDependencies {
             profilesRepo: profilesRepo,
             chatRepo: chatRepo,
             profileLoader: profileLoader,
-            imageLoader: imageLoader)
+            imageLoader: imageLoader,
+            notifications: notifications)
     }()
-    
+
     init() {
         //1. Building the concrete services that app needs. Storing it as variables.
         let auth = AuthService()
@@ -43,7 +47,7 @@ final class AppDependencies {
         let userRepo = UserRepo(fs: fs)
         let imageLoader = ImageLoader()
         let eventsRepo = EventsRepo(fs: fs)
-        
+
         //2. assigning the variables used through the app with the initialised services
         self.authService = auth
         self.storageService = StorageService()
@@ -54,6 +58,7 @@ final class AppDependencies {
         self.profileLoader = ProfileLoader(userRepo: userRepo, imageLoader: imageLoader)
         self.defaultsManager = MainActor.assumeIsolated { DefaultsManager() }
         self.chatRepo = ChatRepo(eventsRepo: eventsRepo, fs: fs)
+        self.notifications = MainActor.assumeIsolated { InAppNotificationCenter() }
     }
 }
 

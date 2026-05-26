@@ -11,13 +11,12 @@ import Firebase
 @main
 struct ScoopApp: App {
 
-    @State private var dep: AppDependencies
+    private let dep: AppDependencies
     @State private var router = AppRouter()
 
     init() {
         FirebaseApp.configure()
-        let dep = AppDependencies()
-        _dep = State(initialValue: dep)
+        self.dep = AppDependencies()
         dep.session.userStream()
     }
 

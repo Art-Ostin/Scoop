@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct InvitesContainer: View {
-    
-    @Environment(\.tabSelection) var selectedTab
+
+    @Environment(AppRouter.self) private var router
 
     @State var ui = InvitesUIState()
     @State var vm: InvitesViewModel
@@ -104,7 +104,7 @@ extension InvitesContainer {
         try? await minDelay
         ui.respondedToProfile = nil
         if respondType == .accepted {
-            selectedTab.wrappedValue = .events
+            router.selectedTab = .events
         }
     }
     private func respondToProfileAction(respondType: ProfileResponse, eventId: String) async throws {

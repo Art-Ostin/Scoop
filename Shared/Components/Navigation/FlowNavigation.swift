@@ -51,9 +51,3 @@ extension View {
     }
 }
 
-
-
-
-/*
- (step: Int, advance: () -> Void)
- */

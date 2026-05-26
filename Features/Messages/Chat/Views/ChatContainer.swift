@@ -94,9 +94,7 @@ extension ChatContainer {
         
     private func messageAppearCode() {
         vm.session.activeChatEventId = vm.eventProfile.id
-        if vm.session.recentMessageReceived?.eventId == vm.eventProfile.id {
-            vm.session.recentMessageReceived = nil
-        }
+        vm.session.notifications.dismiss(where: { $0.eventId == vm.eventProfile.id })
     }
     
     private func messageDisappearCode() {

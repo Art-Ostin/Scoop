@@ -41,6 +41,7 @@ final class TaskBag {
     let chatRepo: ChatRepository
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
+    let notifications: InAppNotificationCenter
 
     //2. The listeners the app holds. Deleted when session stops. (Need seperate listener for App State)
     private let streams = TaskBag()
@@ -57,12 +58,11 @@ final class TaskBag {
     private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
     
-    //4. Logic to do with popups (should be deleted later)
-    var recentMessageReceived: MessagePopupModel?
+    //4. Tracks the chat the user is currently viewing, so we can suppress banners for that chat
     var activeChatEventId: String?
-    
-    var profilesHaveLoaded: Bool = false 
-    
+
+    var profilesHaveLoaded: Bool = false
+
     init(
         authService: AuthServicing,
         defaultsManager: DefaultsManaging,
@@ -71,7 +71,8 @@ final class TaskBag {
         profilesRepo: ProfilesRepository,
         chatRepo: ChatRepository,
         profileLoader: ProfileLoading,
-        imageLoader: ImageLoading)
+        imageLoader: ImageLoading,
+        notifications: InAppNotificationCenter)
     {
         self.authService = authService
         self.defaultsManager = defaultsManager
@@ -81,6 +82,7 @@ final class TaskBag {
         self.chatRepo = chatRepo
         self.profileLoader = profileLoader
         self.imageLoader = imageLoader
+        self.notifications = notifications
     }
 }
 
@@ -161,12 +163,7 @@ extension Session {
 
     private func presentPopup(_ popup: MessagePopupModel) {
         guard popup.eventId != activeChatEventId else { return }
-        recentMessageReceived = popup
-        streams.insert("dismissPopup", Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(4))
-            guard !Task.isCancelled else { return }
-            self?.recentMessageReceived = nil
-        })
+        notifications.push(.newMessage(popup))
     }
     
     //Creates a Reusable Sequence throughout the session Manager
