@@ -11,12 +11,10 @@ import SwiftUI
 class AppRouter {
     var selectedTab: AppTab = .meet
     
-    var pastEventsPath = NavigationPath()
     var eventsPath = NavigationPath()
     
     var showMessageScreen: String?
 }
-
 
 extension AppRouter {
 
@@ -37,7 +35,6 @@ extension AppRouter {
             showMessageScreen = eventProfile.id
             selectedTab = .events
         } else {
-            pastEventsPath.append(eventProfile)
             selectedTab = .pastEvents
         }
     }

@@ -1,34 +1,28 @@
 //
-//  MatchesView.swift
-//  ScoopTest
-//
-//  Created by Art Ostin on 30/06/2025.
+//  MessagesContainer.swift
+//  Scoop
 //
 
 import SwiftUI
-import FirebaseFunctions
 
-
-struct SettingsRoute: Hashable {}
-struct ProfileRoute: Hashable {}
+enum PastEventsRoute: Hashable {
+    case chat(EventProfile)
+    case settings
+    case editProfile
+}
 
 struct MessagesContainer: View {
 
-    @State var vm: MessagesViewModel
-    @State var userProfileImages: [UIImage] = []
-    @State var firstProfileImages: [String : UIImage] = [:]
-    @State var editProfileVM: EditProfileViewModel?
+    @State private var vm: MessagesViewModel
+    @State private var userProfileImages: [UIImage] = []
+    @State private var editProfileVM: EditProfileViewModel?
+    @State private var path = NavigationPath()
 
-    @State var selectedProfile: EventProfile? = nil
-    @Binding var path: NavigationPath
+    @Namespace private var settingsZoomNS
+    @Namespace private var profileZoomNS
 
-    @Namespace var settingsZoomNS
-    @Namespace var profileZoomNS
-
-
-    init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
+    init(vm: MessagesViewModel) {
         _vm = State(initialValue: vm)
-        _path = path
     }
 
     var body: some View {
@@ -41,60 +35,35 @@ struct MessagesContainer: View {
                         .padding(.top, -12)
                 }
             }
-            .overlay(alignment: .topTrailing) {actionBar}
+            .overlay(alignment: .topTrailing) { actionBar }
             .task(id: vm.user.imagePathURL) { await prepareUserImages() }
-            .navigationDestination(for: EventProfile.self) {eventProfile in
-                ChatContainer(
-                    defaults: vm.defaults,
-                    session: vm.s,
-                    chatRepo: vm.chatRepo,
-                    imageLoader: vm.imageLoader,
-                    eventProfile: eventProfile,
-                    isEvent: false
-                )
-                    //When it appears, set the read count to zero, if it isn't 0 already
-                    .task {
-                        try? await updateMessagesToRead(eventProfile)
-                    }
-            }
-            .navigationDestination(for: SettingsRoute.self) { _ in
-                settingScreen()
-                    .navigationTransition(.zoom(sourceID: "settings", in: settingsZoomNS))
-            }
-            .navigationDestination(for: ProfileRoute.self) { _ in
-                editProfileScreen()
-                    .navigationTransition(.zoom(sourceID: "editProfile", in: profileZoomNS))
-            }
+            .navigationDestination(for: PastEventsRoute.self, destination: destination)
         }
         .hideTabBar(hideBar: !path.isEmpty)
     }
 }
 
-//Additonal Views
 extension MessagesContainer {
     
-    @ViewBuilder
+    // MARK: - Subviews
     private var matchesView: some View {
-            VStack(spacing: 0) {
-                ForEach(vm.events) { eventProfile in
-                    NavigationLink(value: eventProfile) {
-                        let chatPreview = ChatPreviewModel(eventProfile: eventProfile)
-                        ChatRowView(chatPreview: chatPreview)
-                            .task {
-                                firstProfileImages[eventProfile.id] = try? await vm.fetchFirstProfileImage(profile: eventProfile.profile)
-                            }
-                            .id(chatPreview)
-                    }
+        VStack(spacing: 0) {
+            ForEach(vm.events) { eventProfile in
+                NavigationLink(value: PastEventsRoute.chat(eventProfile)) {
+                    let chatPreview = ChatPreviewModel(eventProfile: eventProfile)
+                    ChatRowView(chatPreview: chatPreview)
+                        .id(chatPreview)
                 }
             }
+        }
     }
-    
+
     private var messagesAppearHereView: some View {
         VStack(spacing: 96) {
             Text("Message your past matches here")
                 .font(.title(20, .medium))
                 .frame(maxWidth: .infinity, alignment: .center)
-            
+
             Image("CoolGuys")
                 .resizable()
                 .scaledToFit()
@@ -103,28 +72,20 @@ extension MessagesContainer {
                 .frame(width: 250, height: 250)
         }
         .padding(.top, 72)
-    }    
-    
+    }
 
-    private var noMatchesView: some View {
-        VStack(spacing: 32) {
-            Image("DancingCats")
-            
-            Text("View your past Meet Ups Here")
-                .font(.body(20))
+    private var actionBar: some View {
+        HStack {
+            SettingsButton(zoomNS: settingsZoomNS, action: { path.append(PastEventsRoute.settings) })
+            Spacer()
+            profileButton
         }
-        .frame(maxHeight: .infinity)
+        .padding(.horizontal, 16)
     }
     
     private var profileButton: some View {
         Button {
-            editProfileVM = EditProfileViewModel(
-                s: vm.s, storageService: vm.storageService,
-                userRepo: vm.userRepo,
-                imageLoader: vm.imageLoader,
-                importedImages: userProfileImages
-            )
-            path.append(ProfileRoute())
+            path.append(PastEventsRoute.editProfile)
         } label: {
             Group {
                 if let img = userProfileImages.first, img.size != .zero {
@@ -134,56 +95,88 @@ extension MessagesContainer {
                         .frame(width: 35, height: 35)
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
-                } else {
-                    Image("ProfileImagePlaceholder")
-                        .padding(.top, 10)
-                        .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
                 }
             }
             .matchedTransitionSource(id: "editProfile", in: profileZoomNS)
         }
     }
-    
-    private var actionBar: some View {
-        HStack {
-            SettingsButton(zoomNS: settingsZoomNS) {
-                path.append(SettingsRoute())
-            }
-            Spacer()
-            profileButton
-        }
-        .padding(.horizontal, 16)
-    }
-}
-//Additional Functions
-extension MessagesContainer {
-    
+
+    // MARK: - Destinations
+
     @ViewBuilder
-    private func editProfileScreen() -> some View {
+    private func destination(for route: PastEventsRoute) -> some View {
+        switch route {
+        case .chat(let eventProfile):
+            chatScreen(for: eventProfile)
+        case .settings:
+            settingScreen()
+                .navigationTransition(.zoom(sourceID: "settings", in: settingsZoomNS))
+        case .editProfile:
+            userProfileScreen()
+                .navigationTransition(.zoom(sourceID: "editProfile", in: profileZoomNS))
+        }
+    }
+
+    private func chatScreen(for eventProfile: EventProfile) -> some View {
+        ChatContainer(
+            defaults: vm.defaults,
+            session: vm.s,
+            chatRepo: vm.chatRepo,
+            imageLoader: vm.imageLoader,
+            eventProfile: eventProfile,
+            isEvent: false
+        )
+        .task { try? await updateMessagesToRead(eventProfile) }
+    }
+
+    private func settingScreen() -> some View {
+        SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+    }
+
+    @ViewBuilder
+    private func userProfileScreen() -> some View {
         if let editProfileVM {
             EditProfileContainer(
                 vm: editProfileVM,
                 profileVM: ProfileViewModel(
                     profile: vm.user,
-                    imageLoader: vm.imageLoader, defaults: vm.defaults
-                ))
+                    imageLoader: vm.imageLoader,
+                    defaults: vm.defaults
+                )
+            )
         }
     }
-    
-    private func settingScreen() -> some View {
-        SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+
+    // MARK: - Actions
+
+    private func openEditProfile() {
+        editProfileVM = EditProfileViewModel(
+            s: vm.s,
+            storageService: vm.storageService,
+            userRepo: vm.userRepo,
+            imageLoader: vm.imageLoader,
+            importedImages: userProfileImages
+        )
+        path.append(PastEventsRoute.editProfile)
     }
-    
+
     private func prepareUserImages() async {
-        let loadedUserImages = await vm.loadUserImages()
-        userProfileImages = loadedUserImages
+        userProfileImages = await vm.loadUserImages()
     }
-    
+
     private func updateMessagesToRead(_ eventProfile: EventProfile) async throws {
-        if let eventCount = eventProfile.event.chatState?.unreadCount {
-            if eventCount > 0 {
-                try await vm.readMessages(userEventId: eventProfile.event.id, userId: vm.user.id)
-            }
-        }
+        guard let count = eventProfile.event.chatState?.unreadCount, count > 0 else { return }
+        try await vm.readMessages(userEventId: eventProfile.event.id, userId: vm.user.id)
     }
 }
+
+
+/*
+ else {
+    Image("ProfileImagePlaceholder")
+        .padding(.top, 10)
+        .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
+}
+
+ */
+

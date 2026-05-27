@@ -18,7 +18,6 @@ struct ChatRowView: View {
             
             ZStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    
                     nameAndTitle
                     
                     messageAndStatus
