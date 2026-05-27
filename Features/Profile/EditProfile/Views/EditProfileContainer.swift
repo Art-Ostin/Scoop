@@ -21,11 +21,7 @@ struct EditProfileContainer: View {
                 EditProfileView(vm: vm, selectedImage: $selectedImage)
                     .transition(.move(edge: .leading))
             } else {
-                ProfileView(
-                    vm: profileVM,
-                    profileImages: vm.images,
-                    mode: .ownProfile(draft: vm.draft)
-                )
+                ProfileView(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
                     .transition(.move(edge: .trailing))
             }
         }
@@ -33,22 +29,52 @@ struct EditProfileContainer: View {
         .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit) }
         .overlay(alignment: .top) { editAction }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(for: EditProfileRoute.self) { route in
-            subScreen(for: route)
-        }
-        .fullScreenCover(item: $selectedImage) {localImage in
-            ProfileImagesEditing(importedImage: localImage) {updatedImage in
-                Task { try await vm.changeImage(image: updatedImage) }
-            }
-        }
-        .task {
-            if vm.images.isEmpty  {
-                await vm.loadImages()
-            }
-        }
+        .navigationDestination(for: EditProfileRoute.self, destination: subScreen)
+        .fullScreenCover(item: $selectedImage) {imageEditScreen($0)}
+        .task {if vm.images.isEmpty  {await vm.loadImages()}}
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
     }
+}
 
+extension EditProfileContainer {
+    private var editAction: some View {
+        HStack {
+            saveButton
+            Spacer()
+            DismissButton { dismiss() }
+        }
+        .padding(.top, 6)
+        .padding(.horizontal, 16)
+    }
+
+    @ViewBuilder
+    private var saveButton: some View {
+        if vm.showSaveButton {
+            Button {
+                if !vm.updatedImages.isEmpty {
+                    showSavingScreen = true
+                }
+                Task {
+                    try await vm.saveProfileChanges()
+                    await MainActor.run {dismiss()}
+                }
+            } label : {
+                Text("Save")
+                    .font(.body(14, .bold))
+                    .foregroundStyle(.accent)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .glassIfAvailable()
+            }
+        }
+    }
+    
+    private func imageEditScreen(_ slot: ImageSlot): some View {
+        ProfileImagesEditing(importedImage: localImage) {updatedImage in
+            Task { try await vm.changeImage(image: updatedImage) }
+        }
+    }
+    
     @ViewBuilder
     private func subScreen(for route: EditProfileRoute) -> some View {
         switch route {
@@ -64,69 +90,6 @@ struct EditProfileContainer: View {
         case .desiredAgeRange:       EditPreferredYears(vm: vm)
         }
     }
-}
-
-extension EditProfileContainer {
-    private var editAction: some View {
-        HStack {
-            if vm.showSaveButton {
-                Button {
-                    if !vm.updatedImages.isEmpty {
-                        showSavingScreen = true
-                    }
-                    Task {
-                        try await vm.saveProfileChanges()
-                        await MainActor.run {dismiss()}
-                    }
-                } label : {
-                    Text("Save")
-                        .font(.body(14, .bold))
-                        .foregroundStyle(.accent)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                        .glassIfAvailable()
-                }
-            }
-            Spacer()
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.body(17, .bold))
-                    .padding(5)
-                    .glassIfAvailable(Circle())
-            }
-        }
-        .padding(.top, 6)
-        .padding(.horizontal, 16)
-    }
     
     
-    private var closeButton: some View {
-        Button {
-            dismiss()
-        } label: {
-            Image(systemName: "xmark")
-                .font(.body(17, .bold))
-                .padding(5)
-                .glassIfAvailable(Circle())
-                .padding(.top, 6)
-                .padding(.trailing, 16)
-        }
-    }
-    
-    private var saveButton: some View {
-        Button {
-            Task { try await vm.saveProfileChanges() }
-        } label : {
-            Text("Save")
-                .font(.body(14, .bold))
-                .foregroundStyle(.accent)
-                .padding(.horizontal)
-                .padding(.vertical, 6)
-                .glassIfAvailable()
-                .padding(.top, 6)
-                .padding(.leading, 16)
-        }
-    }
 }
