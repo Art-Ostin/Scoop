@@ -8,20 +8,28 @@
 import SwiftUI
 
 struct MeetInfoCoverScrollView: View {
+    @State private var scrollProgress: Double = 0
+
     var body: some View {
-        
+
         VStack(spacing: 24) {
             Text("1. Invite")
                 .font(.title(24, .bold))
-            
+
             scrollView
+
+            AnimatedPageIndicator(
+                count: Event.EventType.allCases.count,
+                progress: scrollProgress,
+                activeWidth: 16,
+                inactiveColor: .gray.opacity(0.35)
+            )
         }
     }
 }
 
 extension MeetInfoCoverScrollView {
-    
-    
+
     private var scrollView: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
@@ -34,6 +42,12 @@ extension MeetInfoCoverScrollView {
         }
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
+        .onScrollGeometryChange(for: Double.self) { geo in
+            let width = geo.containerSize.width
+            return width > 0 ? geo.contentOffset.x / width : 0
+        } action: { _, newValue in
+            scrollProgress = newValue
+        }
     }
     
     func scrollSection(type: Event.EventType) -> some View {
@@ -50,7 +64,6 @@ extension MeetInfoCoverScrollView {
             Text(type.howItWorks)
                 .font(Font.body(14, .regular))
             )
-            .kerning(1.1)
             .multilineTextAlignment(.center)
             .lineSpacing(4)
         }

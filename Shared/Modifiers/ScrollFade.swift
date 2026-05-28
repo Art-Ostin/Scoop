@@ -22,16 +22,22 @@ struct CustomScrollFade: ViewModifier {
         let safeAreaEdges: Edge.Set = edge == .top ? .top : .bottom
         let startPoint: UnitPoint = edge == .top ? .top : .bottom
         let endPoint: UnitPoint = edge == .top ? .bottom : .top
+        
         content
             .overlay(alignment: alignment) {
                 if showFade {
-                    LinearGradient(
-                        colors: [.appCanvas, .appCanvas.opacity(0.9), .appCanvas.opacity(0.6), .appCanvas.opacity(0.25), .appCanvas.opacity(0.0)],
-                        startPoint: startPoint,
-                        endPoint: endPoint
-                    )
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .mask {
+                            LinearGradient(
+                                colors: [.blue, .blue.opacity(0.9), .blue.opacity(0.6), .blue.opacity(0.25), .blue.opacity(0.0)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        }
                         .frame(maxWidth: .infinity)
                         .frame(height: height)
+                        .allowsHitTesting(false)
                         .cornerRadius(isLanguage ? 0 : 30)
                         .offset(y: isDetails ? 0.5 : 0)
                         .ignoresSafeArea(edges: safeAreaEdges)
@@ -42,6 +48,30 @@ struct CustomScrollFade: ViewModifier {
             }
     }
 }
+
+
+
+/*
+ LinearGradient(
+     colors: [.appCanvas, .appCanvas.opacity(0.9), .appCanvas.opacity(0.6), .appCanvas.opacity(0.25), .appCanvas.opacity(0.0)],
+     startPoint: startPoint,
+     endPoint: endPoint
+ )
+     .frame(maxWidth: .infinity)
+     .frame(height: height)
+     .cornerRadius(isLanguage ? 0 : 30)
+     .offset(y: isDetails ? 0.5 : 0)
+     .ignoresSafeArea(edges: safeAreaEdges)
+     .padding(.horizontal, isDetails ? 1 : 0)
+     .allowsHitTesting(false)
+     .offset(y: edge == .bottom ? 36 : 0)
+
+ */
+
+
+
+
+//Horizontal ScrollFade
 extension View {
     func customScrollFade(height: CGFloat, showFade: Bool, edge: VerticalEdge = .top) -> some View {
         self.modifier(CustomScrollFade(height: height, showFade: showFade, edge: edge))
@@ -65,3 +95,22 @@ extension View {
         }
     }
 }
+
+/*
+ .safeAreaInset(edge: .bottom, spacing: 0) {
+     Color.clear.frame(height: 56)
+ }
+
+ Rectangle()
+     .fill(.ultraThinMaterial)
+     .mask {
+         LinearGradient(
+             colors: [.clear, .white.opacity(0.3), .white],
+             startPoint: .top,
+             endPoint: .bottom
+         )
+     }
+     .frame(height: 180)
+     .allowsHitTesting(false)
+
+ */
