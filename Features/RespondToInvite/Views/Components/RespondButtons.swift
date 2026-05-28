@@ -114,7 +114,7 @@ struct InviteRespondButton: View {
             }
         } label: {
             HStack(spacing: 0) {
-                Text("\(type.description.emoji)\(type.description.label)")
+                Text("\(type.emoji)\(type.title)")
                     .font(.body(14, .bold))
                 
                 Image(systemName: "info.circle")

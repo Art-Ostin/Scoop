@@ -13,7 +13,7 @@ struct BootingScreen: View {
             Color.accent.ignoresSafeArea()
             
             Text("Loading")
-                .font(.custom("SFProRounded-Bold", size: 32))
+                .font(.title())
                 .foregroundStyle(Color.white)
         }
     }

@@ -50,7 +50,7 @@ extension FrozenView {
                 .font(.body(17, .medium))
             
             Text(FormatEvent.dayAndTime(date))
-                .font(.custom("SFProRounded-Bold", size: 32))
+                .font(.title())
         }
     }
     

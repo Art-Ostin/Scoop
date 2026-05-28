@@ -16,7 +16,7 @@ enum TextCoreInfo: CaseIterable {
         case .certified:
             return "TickVector"
         case .type:
-            return  event.type.description.emoji
+            return  event.type.emoji
         case .message:
            return "💬"
         case .warning:
@@ -31,7 +31,7 @@ enum TextCoreInfo: CaseIterable {
             let hour = FormatEvent.hourTime(event.acceptedTime ?? Date())
             return "You've both confirmed you're meeting on \(day) at \(hour)!"
         case .type:
-            return event.type.howItWorks(userEvent: event)
+            return event.type.howItWorksWithEvent(event)
         case .message:
             return "Text to coordinate details and find one another when its time"
         case .warning:

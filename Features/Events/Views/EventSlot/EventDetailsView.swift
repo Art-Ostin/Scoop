@@ -31,7 +31,7 @@ struct EventDetailsView: View {
                 selectedTab = 2
         } label: {
             HStack(spacing: 18) {
-                Text(event.type.description.emoji)
+                Text(event.type.emoji)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(event.type.longTitle)")

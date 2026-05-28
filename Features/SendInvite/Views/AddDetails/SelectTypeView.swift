@@ -37,8 +37,8 @@ extension SelectTypeView {
         let notLastRow = eventType != Event.EventType.allCases.last
         VStack(spacing: 18) {
             HStack(spacing: 24) {
-                Text(eventType.description.emoji)
-                Text(eventType.description.label)
+                Text(eventType.emoji)
+                Text(eventType.title)
                 Spacer()
             }
             if notLastRow { CustomDivider().padding(.trailing, -24)}

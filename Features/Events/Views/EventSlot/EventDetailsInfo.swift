@@ -21,7 +21,7 @@ struct EventDetailsInfo: View {
                         .font(.body(15, .bold))
                 }
                 
-                Text("\(event.type.description.emoji)   \(event.type.longTitle)")
+                Text("\(event.type.emoji)   \(event.type.longTitle)")
                     .font(.custom("SFProRounded-SemiBold", size: 18))
             }
             

@@ -45,7 +45,7 @@ extension EventDetails {
             
             Text("\(detailsTypeTitle)")
                 .font(.body(20, .medium))
-            + Text(event.type.description.emoji)
+            + Text(event.type.emoji)
                 .font(.body(24, .medium))
         }
     }

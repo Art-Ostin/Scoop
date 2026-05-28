@@ -87,8 +87,8 @@ extension AddMessageView {
     private var dropdownTitle: some View {
         
         HStack(spacing: 10) {
-            let emoji = eventType.description.emoji
-            let type = eventType.description.label
+            let emoji = eventType.emoji
+            let type = eventType.title
             Text("\(emoji) \(type)")
                 .foregroundStyle(.black)
                 .font(.body(17))
@@ -131,8 +131,8 @@ extension AddMessageView {
                     SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
                 }
             } else {
-                let emoji = eventType.description.emoji
-                let type = eventType.description.label
+                let emoji = eventType.emoji
+                let type = eventType.title
                 Text("\(emoji) \(type)")
                     .font(.body(17, .bold))
                     .offset(y: -2)

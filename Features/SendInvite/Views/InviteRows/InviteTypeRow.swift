@@ -73,10 +73,10 @@ extension InviteTypeRow {
     }
     private var eventSelectedType: some View {
         HStack(spacing: 0){
-            Text(eventType.description.label)
+            Text(eventType.title)
                 .font(.body(16, .medium))
-            
-            Text(eventType.description.emoji)
+
+            Text(eventType.emoji)
                 .font(.body(15, .medium))
 //                .offset(y: eventType == .drink || eventType == .socialMeet ? -4 : 0)
                 .offset(x: eventType == .socialMeet ? 1 : 0)

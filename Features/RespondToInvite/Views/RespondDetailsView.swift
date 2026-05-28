@@ -26,7 +26,7 @@ enum DetailInfo: CaseIterable {
         case .message:
             return "Once accepted, you can message to coordinate details and find each other."
         case .event:
-            return event.type.howItWorks(userEvent: event)
+            return event.type.howItWorksWithEvent(event)
         }
     }
     
@@ -73,7 +73,7 @@ struct RespondDetailsView: View {
 extension RespondDetailsView {
     
     private var title: some View {
-        Text(event.type.description.emoji + " " + event.type.longTitle)
+        Text(event.type.emoji + " " + event.type.longTitle)
             .font(.custom("SFProRounded-Bold", size: 18))
             .frame(maxWidth: .infinity, alignment: .center)
     }

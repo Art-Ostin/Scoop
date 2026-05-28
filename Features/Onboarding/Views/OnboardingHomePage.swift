@@ -18,7 +18,7 @@ struct LimitedAccessPage: View {
     var body: some View {
         VStack(spacing: 60) {
             Text(page.title)
-                .font(.tabTitle())
+                .font(.title())
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             Image(page.imageName)

@@ -36,6 +36,9 @@ struct MeetContainer: View {
         .onPreferenceChange(ImageSizeKey.self) {screenSize in
             imageSize = screenSize - (16 * 2)
         }
+        .fullScreenCover(isPresented: $ui.showInfo) {
+                MeetInfoCover()
+        }
     }
 }
 

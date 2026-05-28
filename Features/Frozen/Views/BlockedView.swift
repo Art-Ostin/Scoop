@@ -21,7 +21,7 @@ struct BlockedView: View {
             VStack(spacing: 48) {
                 VStack(spacing: 10) {
                     Text("Account Blocked")
-                        .font(.custom("SFProRounded-Bold", size: 32))
+                        .font(.title())
                     
                     Text(verbatim: email)
                         .font(.body(14, .medium))

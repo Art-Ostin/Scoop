@@ -66,7 +66,7 @@ extension CustomTabPage {
     }
     private var tabTitle: some View {
         Text(page.title)
-            .font(.custom("SFProRounded-Bold", size: 32))
+            .font(.title())
             .frame(maxWidth: .infinity, alignment: .leading)
             .opacity(Double(scrollViewOffset) / 70)
             .measure(key: TitleOffsetsKey.self) { geo in

@@ -27,7 +27,7 @@ extension ProfileInviteView {
     private var typeRow: some View {
         
         HStack(spacing: 16) {
-            Text(event.type.description.emoji)
+            Text(event.type.emoji)
                 .font(.body(20, .medium))
             
             

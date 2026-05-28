@@ -39,7 +39,7 @@ extension InvitesView {
     private var titleAndTab: some View {
         ZStack(alignment: .top) {
             Text("Invites")
-                .font(.custom("SFProRounded-Bold", size: 32))
+                .font(.title())
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 60)
                 .padding(.leading, -4)

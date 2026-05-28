@@ -159,7 +159,7 @@ extension CardEventContainer {
                 case .event:
                     titleLabel("\(vm.user.name)'s Invite")
                 case .details:
-                    titleLabel("\(event.type.description.emoji) \(event.type.longTitle)")
+                    titleLabel("\(event.type.emoji) \(event.type.longTitle)")
                 }
             }
             .transition(.opacity)
