@@ -19,7 +19,6 @@ struct DismissButton: View {
                 .glassIfAvailable(Circle())
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
-                .padding(.horizontal)
         }
     }
 }

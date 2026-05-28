@@ -10,7 +10,7 @@ import SwiftUI
 struct MeetInfoCoverScrollView: View {
     var body: some View {
         
-        VStack {
+        VStack(spacing: 24) {
             Text("1. Invite")
                 .font(.title(24, .bold))
             
@@ -23,8 +23,8 @@ extension MeetInfoCoverScrollView {
     
     
     private var scrollView: some View {
-        ScrollView {
-            HStack {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
                 ForEach(Event.EventType.allCases, id: \.self) {type in
                     scrollSection(type: type)
                         .containerRelativeFrame(.horizontal)
@@ -33,6 +33,7 @@ extension MeetInfoCoverScrollView {
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
+        .scrollIndicators(.hidden)
     }
     
     func scrollSection(type: Event.EventType) -> some View {
@@ -42,15 +43,17 @@ extension MeetInfoCoverScrollView {
                 .frame(width: 180, height: 180)
             
             (
-            Text(type.longTitle)
+            Text("\(type.longTitle): ")
                 .font(.body(15, .medium))
             
             +
             Text(type.howItWorks)
                 .font(Font.body(14, .regular))
             )
-            .kerning(1.2)
+            .kerning(1.1)
+            .multilineTextAlignment(.center)
+            .lineSpacing(4)
         }
+        .padding(.horizontal, 24)
     }
-    
 }
