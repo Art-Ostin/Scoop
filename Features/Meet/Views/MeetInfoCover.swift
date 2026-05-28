@@ -34,12 +34,12 @@ struct MeetInfoCover: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                    ActionButton(isValid: true, text: "Done") { dismiss() }
-                        .padding(.bottom, 28)
-            }
+                ActionButton(isValid: true, text: "Done") { dismiss() }
+                    .padding(.bottom, 28)
             }
         }
     }
+}
 
 extension MeetInfoCover {
 
@@ -65,22 +65,14 @@ extension MeetInfoCover {
             VStack(spacing: 24) {
                 Text("3. Meet")
                     .font(.title(24, .bold))
-
                 
-                Text("Once someone accepts, the event is created. Meet at the agreed time and place.")
+                Text("Once someone accepts, an event is created. Meet at the agreed time and place. You can message to help find each other.")
                     .font(.body(18, .regular))
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
-
-                
             }
-            VStack(spacing: 24) {
-                Image("CoolGuys")
-                
-                Text("*You can message once an event is accepted, to help find each other")
-                    .font(.body(15, .regular))
-                    .kerning(1.1)
-            }
+            Image("CoolGuys")
+                .font(.body(15, .regular))
         }
     }
 }

@@ -7,68 +7,44 @@
 
 import SwiftUI
 
+
+
+
 struct CustomScrollFade: ViewModifier {
-    
+
     let height: CGFloat
     let showFade: Bool
     let edge: VerticalEdge
-    
-    
+
+
     func body(content: Content) -> some View {
+        //1. If details diffferent behaviour
         let isDetails = height == 80
-        let isLanguage = height == 48
-        
-        let alignment: Alignment = edge == .top ? .top : .bottom
-        let safeAreaEdges: Edge.Set = edge == .top ? .top : .bottom
-        let startPoint: UnitPoint = edge == .top ? .top : .bottom
-        let endPoint: UnitPoint = edge == .top ? .bottom : .top
-        
+
         content
-            .overlay(alignment: alignment) {
+            .overlay(alignment: edge == .top ? .top : .bottom) {
                 if showFade {
                     Rectangle()
                         .fill(.ultraThinMaterial)
                         .mask {
                             LinearGradient(
-                                colors: [.blue, .blue.opacity(0.9), .blue.opacity(0.6), .blue.opacity(0.25), .blue.opacity(0.0)],
+                                colors: [.clear, .blue.opacity(0.9), .blue.opacity(0.6), .blue.opacity(0.25), .blue.opacity(0.0)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                         }
-                        .frame(maxWidth: .infinity)
                         .frame(height: height)
+                        .ignoresSafeArea(edges: .top)
                         .allowsHitTesting(false)
-                        .cornerRadius(isLanguage ? 0 : 30)
-                        .offset(y: isDetails ? 0.5 : 0)
-                        .ignoresSafeArea(edges: safeAreaEdges)
+                    
+                        //Different behaviour for scrollbehaviour in details
                         .padding(.horizontal, isDetails ? 1 : 0)
-                        .allowsHitTesting(false)
-                        .offset(y: edge == .bottom ? 36 : 0)
+                        .offset(y: isDetails ? 0.5 : 0)
+                        .cornerRadius(isDetails ? 30 : 0)
                 }
             }
     }
 }
-
-
-
-/*
- LinearGradient(
-     colors: [.appCanvas, .appCanvas.opacity(0.9), .appCanvas.opacity(0.6), .appCanvas.opacity(0.25), .appCanvas.opacity(0.0)],
-     startPoint: startPoint,
-     endPoint: endPoint
- )
-     .frame(maxWidth: .infinity)
-     .frame(height: height)
-     .cornerRadius(isLanguage ? 0 : 30)
-     .offset(y: isDetails ? 0.5 : 0)
-     .ignoresSafeArea(edges: safeAreaEdges)
-     .padding(.horizontal, isDetails ? 1 : 0)
-     .allowsHitTesting(false)
-     .offset(y: edge == .bottom ? 36 : 0)
-
- */
-
-
 
 
 //Horizontal ScrollFade
@@ -77,7 +53,7 @@ extension View {
         self.modifier(CustomScrollFade(height: height, showFade: showFade, edge: edge))
     }
 
-    
+
     func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true, isCardInvite: Bool = false) -> some View {
         self.overlay(alignment: fromLeading ? .leading : .trailing) {
             if showFade {
@@ -96,21 +72,3 @@ extension View {
     }
 }
 
-/*
- .safeAreaInset(edge: .bottom, spacing: 0) {
-     Color.clear.frame(height: 56)
- }
-
- Rectangle()
-     .fill(.ultraThinMaterial)
-     .mask {
-         LinearGradient(
-             colors: [.clear, .white.opacity(0.3), .white],
-             startPoint: .top,
-             endPoint: .bottom
-         )
-     }
-     .frame(height: 180)
-     .allowsHitTesting(false)
-
- */
