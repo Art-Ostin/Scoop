@@ -15,7 +15,8 @@ struct MessageSection: View {
     var body: some View {
         VStack(spacing: 16) {
             if vm.isNewDay(for: message) {
-                ChatDayDivider(date: message.dateCreated)
+                ChatDayDivider(date: message.dateCreated ?? Date())
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
             MessageBubbleView(
                 chat: message,
@@ -23,6 +24,7 @@ struct MessageSection: View {
                 nextIsNewAuthor: vm.isNextNewAuthor(for: message),
                 isMyChat: vm.isMyChat(message)
             )
+            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
 }

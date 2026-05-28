@@ -20,7 +20,6 @@ enum EditProfileRoute: Hashable {
     case desiredAgeRange
 }
 
-
 struct EditProfileView: View {
 
     @Environment(\.dismiss) private var dismiss

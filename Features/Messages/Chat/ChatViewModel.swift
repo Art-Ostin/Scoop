@@ -49,7 +49,8 @@ class ChatViewModel {
     func isNewDay(for message: MessageModel) -> Bool {
         guard let idx = messages.firstIndex(where: { $0.id == message.id }) else { return true }
         guard idx > 0 else { return true }
-        guard let lastDay = messages[idx - 1].dateCreated, let newDay = message.dateCreated else { return false }
+        guard let lastDay = messages[idx - 1].dateCreated else { return false }
+        let newDay = message.dateCreated ?? Date()
         return !Calendar.current.isDate(lastDay, inSameDayAs: newDay)
     }
 

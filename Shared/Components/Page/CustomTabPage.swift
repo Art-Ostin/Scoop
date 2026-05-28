@@ -30,6 +30,7 @@ struct CustomTabPage<Content: View>: View {
                     .padding(.horizontal, page == .pastMatches ? 16 : 0)
                 content
             }
+            .padding(.horizontal, page != .pastMatches ? 20 : 0)
             .padding(.bottom, 48)
         }
         .overlay(alignment: .top) {scrollNavBar}
@@ -41,7 +42,6 @@ struct CustomTabPage<Content: View>: View {
         }
         .preference(key: ScrollNavBarVisibleKey.self, value: scrollViewOffset < 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal, page != .pastMatches ? 16 : 0) //On the Screens 
         .background(Color.appCanvas.ignoresSafeArea())
     }
 }
@@ -81,31 +81,11 @@ extension CustomTabPage {
             case .meet, .meetingNoEvent, .invites:
                 TabInfoButton(showScreen: $tabAction)
                 
-            case .meetingEvent:
-                messageButton
-                
             default:
                 EmptyView()
             }
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
-    }
-    
-    private var messageButton: some View {
-        Button {
-            tabAction = true
-        } label: {
-//            Image("") //roundMessageIcon
-//                .resizable()
-//                .scaledToFit()
-//                .frame(width: 22, height: 22)
-//                .font(.body(17, .bold))
-//                .padding(6)
-//                .glassIfAvailable(isClear: true)
-//                .padding(24) //Expands Tap Area
-//                .contentShape(Rectangle())
-//                .padding(-24)
-        }
     }
 }
 

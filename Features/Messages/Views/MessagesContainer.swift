@@ -15,7 +15,6 @@ struct MessagesContainer: View {
 
     @State private var vm: MessagesViewModel
     @State private var userProfileImages: [UIImage] = []
-    @State private var editProfileVM: EditProfileViewModel?
     @State private var path = NavigationPath()
 
     @Namespace private var settingsZoomNS
@@ -87,16 +86,18 @@ extension MessagesContainer {
         Button {
             path.append(PastEventsRoute.editProfile)
         } label: {
-            Group {
+            Group { 
                 if let img = userProfileImages.first, img.size != .zero {
                     Image(uiImage: img)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 35, height: 35)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
+                } else {
+                    Circle().fill(Color.gray.opacity(0.2))
                 }
             }
+            .frame(width: 35, height: 35)
+            .clipShape(Circle())
+            .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
             .matchedTransitionSource(id: "editProfile", in: profileZoomNS)
         }
     }
@@ -133,32 +134,24 @@ extension MessagesContainer {
         SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
     }
 
-    @ViewBuilder
     private func userProfileScreen() -> some View {
-        if let editProfileVM {
-            EditProfileContainer(
-                vm: editProfileVM,
-                profileVM: ProfileViewModel(
-                    profile: vm.user,
-                    imageLoader: vm.imageLoader,
-                    defaults: vm.defaults
-                )
+        EditProfileContainer(
+            vm: EditProfileViewModel(
+                s: vm.s,
+                storageService: vm.storageService,
+                userRepo: vm.userRepo,
+                imageLoader: vm.imageLoader,
+                importedImages: userProfileImages
+            ),
+            profileVM: ProfileViewModel(
+                profile: vm.user,
+                imageLoader: vm.imageLoader,
+                defaults: vm.defaults
             )
-        }
+        )
     }
 
     // MARK: - Actions
-
-    private func openEditProfile() {
-        editProfileVM = EditProfileViewModel(
-            s: vm.s,
-            storageService: vm.storageService,
-            userRepo: vm.userRepo,
-            imageLoader: vm.imageLoader,
-            importedImages: userProfileImages
-        )
-        path.append(PastEventsRoute.editProfile)
-    }
 
     private func prepareUserImages() async {
         userProfileImages = await vm.loadUserImages()

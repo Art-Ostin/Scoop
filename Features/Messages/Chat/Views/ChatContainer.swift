@@ -131,6 +131,7 @@ extension ChatContainer {
                 
                 Text(vm.eventProfile.profile.name)
                     .font(.body(16, .bold))
+                    .foregroundStyle(Color.black)
             }
             .padding(.vertical, 3)
             .padding(.leading, 4)

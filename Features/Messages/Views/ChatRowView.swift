@@ -49,6 +49,7 @@ extension ChatRowView {
         HStack(alignment: .top) {
             Text(chatPreview.name)
                 .font(.body(18, .bold))
+                .foregroundStyle(Color.black)
             Spacer()
             lastMessageTime
         }

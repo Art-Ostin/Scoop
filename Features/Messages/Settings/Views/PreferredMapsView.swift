@@ -22,7 +22,7 @@ struct PreferredMapView: View {
         
         ZStack(alignment: .topTrailing) {
             
-            CustomList(title: "Preferred Maps", usesContainerWidth: false, showInfoText: showInfoText) {
+            CustomList(title: "Preferred Maps", showInfoText: showInfoText) {
                 HStack {
                     mapOption(mapType: .googleMaps)
                     Spacer()

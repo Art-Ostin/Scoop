@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditProfileContainer: View {
     @Environment(\.dismiss) private var dismiss
-    @State var isEdit: Bool = true
+    @State var isEdit: Bool = false
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
     @State var selectedImage: ImageSlot? = nil
@@ -19,17 +19,17 @@ struct EditProfileContainer: View {
         ZStack {
             if isEdit {
                 EditProfileView(vm: vm, selectedImage: $selectedImage)
-                    .transition(.move(edge: .leading))
+                    .transition(.move(edge: .trailing))
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
-                    .transition(.move(edge: .trailing))
+                    .transition(.move(edge: .leading))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit) }
         .overlay(alignment: .top) { editAction }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(for: EditProfileRoute.self, destination: subScreen)
+        .navigationDestination(for: EditProfileRoute.self, destination: destination)
         .fullScreenCover(item: $selectedImage) {imageEditScreen($0)}
         .task {if vm.images.isEmpty  {await vm.loadImages()}}
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
@@ -42,9 +42,10 @@ extension EditProfileContainer {
             saveButton
             Spacer()
             DismissButton { dismiss() }
+                .padding(.trailing, -16)
         }
         .padding(.top, 6)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
     }
 
     @ViewBuilder
@@ -69,14 +70,14 @@ extension EditProfileContainer {
         }
     }
     
-    private func imageEditScreen(_ slot: ImageSlot): some View {
-        ProfileImagesEditing(importedImage: localImage) {updatedImage in
+    private func imageEditScreen(_ slot: ImageSlot) -> some View {
+        ProfileImagesEditing(importedImage: slot) {updatedImage in
             Task { try await vm.changeImage(image: updatedImage) }
         }
     }
     
     @ViewBuilder
-    private func subScreen(for route: EditProfileRoute) -> some View {
+    private func destination(for route: EditProfileRoute) -> some View {
         switch route {
         case .prompt(let index):     EditPrompt(vm: vm, promptIndex: index)
         case .interests:             EditInterests(vm: vm)
@@ -90,6 +91,4 @@ extension EditProfileContainer {
         case .desiredAgeRange:       EditPreferredYears(vm: vm)
         }
     }
-    
-    
 }

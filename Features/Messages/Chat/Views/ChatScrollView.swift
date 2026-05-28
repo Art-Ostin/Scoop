@@ -63,7 +63,6 @@ extension ChatScrollView {
     private var messageScrollSection: some View {
         ForEach(vm.messages) { message in
             MessageSection(vm: vm, message: message)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
     
