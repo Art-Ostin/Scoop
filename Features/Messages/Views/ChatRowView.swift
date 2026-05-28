@@ -115,5 +115,5 @@ extension ChatRowView {
                         .fill(.accent)
                 )
         }
-    }//Texte
+    }//Textea
 }
