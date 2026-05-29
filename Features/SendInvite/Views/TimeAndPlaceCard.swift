@@ -12,8 +12,9 @@ struct TimeAndPlaceCard: ViewModifier {
     @Binding var showInfoScreen: Bool
     let messageCount: Int
     let placeAdded: Bool
+    var morphMode: Bool = false
     var messageLarge: Bool {messageCount > 35}
-    
+
     func body(content: Content) -> some View {
         content
             .frame(alignment: .top)
@@ -21,22 +22,26 @@ struct TimeAndPlaceCard: ViewModifier {
             .padding(.vertical, 24)
             .frame(maxWidth: .infinity)
             .background (cardBackground)
-            .padding(.horizontal, horizontalPadding())
+            .padding(.horizontal, morphMode ? 0 : horizontalPadding())
             .overlay(alignment: .topTrailing) { infoButton }
     }
 }
 
 extension TimeAndPlaceCard {
     
-    private var cardBackground: some View {
-        ZStack { //Background done like this to fix bugs when popping up
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.appCanvas)
-                .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
-                .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
-            RoundedRectangle(cornerRadius: 30)
-                .inset(by: 0.5)
-                .stroke(Color.grayBackground, lineWidth: 0.5)
+    @ViewBuilder private var cardBackground: some View {
+        // In morph mode the surface is drawn by QuickInviteMorph (the growing window),
+        // so the card itself stays transparent — one surface, no double background.
+        if !morphMode {
+            ZStack { //Background done like this to fix bugs when popping up
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(Color.appCanvas)
+                    .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
+                    .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
+                RoundedRectangle(cornerRadius: 30)
+                    .inset(by: 0.5)
+                    .stroke(Color.grayBackground, lineWidth: 0.5)
+            }
         }
     }
     

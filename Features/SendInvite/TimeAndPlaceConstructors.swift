@@ -11,8 +11,9 @@ import SwiftUI
 struct InviteTimeAndPlaceView: View {
     @State var vm: TimeAndPlaceViewModel
     @Binding var showInvite: String?
+    var showBackdrop: Bool = true
     let sendInvite: (EventFieldsDraft) -> Void
-    
+
     var body: some View {
         SelectTimeAndPlace(
             draft: $vm.event,
@@ -22,7 +23,8 @@ struct InviteTimeAndPlaceView: View {
             deleteEventDefault: {vm.deleteEventDefault()},
             onSendInvite: {sendInvite(vm.event)},
             isInviteResponse: false,
-            defaults: vm.defaults
+            defaults: vm.defaults,
+            showBackdrop: showBackdrop
         )
     }
 }

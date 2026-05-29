@@ -25,10 +25,13 @@ struct SelectTimeAndPlace: View {
     
     //7.defaults only to pass into the MapView beneath
     let defaults: DefaultsManaging
-    
+
+    //8. When false the caller supplies its own backdrop (e.g. the Meet morph overlay)
+    var showBackdrop: Bool = true
+
     var body: some View {
         ZStack {
-            if !isInviteResponse {
+            if showBackdrop && !isInviteResponse {
                 CustomScreenCover {showInvite = nil}
             }
             VStack(spacing: 0) {
@@ -46,12 +49,12 @@ struct SelectTimeAndPlace: View {
                 .zIndex(1) //so pop ups always appear above the Action Button
                 sendInviteButton
             }
-            .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil))
+            .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil, morphMode: !showBackdrop))
             .overlay(alignment: .topLeading) { clearButton }
-            .offset(y: !isInviteResponse ? 24 : 0)
+            .offset(y: (showBackdrop && !isInviteResponse) ? 24 : 0)
             .overlay(alignment: .top) {messageOverlay}
         }
-        .hideTabBar()
+        .hideTabBar(hideBar: showBackdrop)
         .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}

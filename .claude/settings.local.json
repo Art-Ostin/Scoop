@@ -22,7 +22,9 @@
       "Bash(xcodebuild -scheme \"Scoop Test\" -project Scoop.xcodeproj -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
       "Bash(xcodebuild -scheme \"Scoop\" -project Scoop.xcodeproj -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
       "Bash(echo \"exit=$?\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop Test\" -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO)"
     ]
   }
 }
