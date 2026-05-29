@@ -34,7 +34,11 @@ struct ImageMeasure: ViewModifier {
                 GeometryReader { geo in
                     let screenWidth = geo.size.width
                     Color.clear
-                        .onAppear { imageSize = screenWidth - (horizontalPadding * 2)}
+                        .onGeometryChange(for: CGFloat.self) { geo in
+                            geo.size.width
+                        } action: { screenWidth in
+                            imageSize = screenWidth - (horizontalPadding * 2)
+                        }
                 }
             )
     }

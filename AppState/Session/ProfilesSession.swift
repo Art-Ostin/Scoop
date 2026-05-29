@@ -17,7 +17,6 @@ extension Session {
             case .added(let rec): try await loadAddedProfile(rec)
             case .modified: break //Don't do anything if profile modified as often case
             case .removed(let id): removeProfileRec(id)
-
             }
         }
     }

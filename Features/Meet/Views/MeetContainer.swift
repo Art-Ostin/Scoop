@@ -15,18 +15,19 @@ struct MeetContainer: View {
     let vm: InviteViewModel
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
-    @State var profileImages: [String : [UIImage]] = [:]
-
     init(vm: InviteViewModel) { self.vm = vm }
     
     var body: some View {
         ZStack {
-            meetView
-            
+            NavigationStack {
+                meetView
+                    .navigationTitle("Meet")
+            }
+
             if let profileRec = ui.openProfile { profileView(profile: profileRec)}
-            
+
             if let profileId = ui.quickInvite { timeAndPlaceView(profileId)}
-            
+
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
         .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
@@ -38,28 +39,29 @@ struct MeetContainer: View {
 extension MeetContainer {
     
     private var meetView: some View {
-        AppScrollView(title: "Meet") {
-            if vm.profiles.isEmpty {
-                meetPlaceholder
-            } else {
-                profileCardsSection
+        ScrollView {
+            LazyVStack(spacing: 36) {
+                if vm.profiles.isEmpty {
+                    meetPlaceholder
+                } else {
+                    profileCardsSection
+                }
             }
+            .padding(.horizontal, 16)
+            .transition(.opacity)
+            .id(vm.profiles.count)
         }
-        .transition(.opacity)
-        .id(vm.profiles.count)
     }
     
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
             ProfileCard(
-                openProfile: $ui.openProfile,
-                quickInvite: $ui.quickInvite,
+                onTap: { openProfile(profile) },
+                onQuickInvite: { ui.quickInvite = profile.profile.id },
                 profile: profile, size: imageSize,
                 imageLoader: vm.imageLoader
             )
-                .contentShape(Rectangle())
-                .onTapGesture {openProfile(profile)}
-                .task { await loadProfileImages(profile.profile) }
+                .task { await vm.loadProfileImages(profile: profile.profile) }
                 .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
         }
     }
@@ -70,7 +72,7 @@ extension MeetContainer {
                 profile: profile,
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
-            profileImages: profileImages[profile.id] ?? [],
+            profileImages: vm.profileImages[profile.id] ?? [],
             mode: .sendInvite(
                 onSend: { draft in
                     Task { await respondToProfile(event: draft, profile: profile) }
@@ -107,11 +109,6 @@ extension MeetContainer {
         }
     }
 
-    private func loadProfileImages(_ profile: UserProfile) async {
-        let loadedImages = await vm.loadImages(profile: profile)
-        profileImages[profile.id] = loadedImages
-    }
-    
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         let isInvite = event != nil
         //1. Set a minimum of 0.75s timer for the response view to be showing

@@ -44,15 +44,13 @@ extension AppContainer {
     }
 
     private var meetView: some View {
-        NavigationStack {
-            MeetContainer(vm: InviteViewModel(
-                s: dep.session, defaults: dep.defaultsManager,
-                userRepo: dep.userRepo,
-                profileRepo: dep.profilesRepo,
-                eventRepo: dep.eventRepo,
-                imageLoader: dep.imageLoader
-            ))
-        }
+        MeetContainer(vm: InviteViewModel(
+            s: dep.session, defaults: dep.defaultsManager,
+            userRepo: dep.userRepo,
+            profileRepo: dep.profilesRepo,
+            eventRepo: dep.eventRepo,
+            imageLoader: dep.imageLoader
+        ))
     }
 
     private var invitesView: some View {

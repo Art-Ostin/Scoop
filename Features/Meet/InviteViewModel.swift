@@ -18,7 +18,9 @@ import SwiftUI
     let profileRepo: ProfilesRepository
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
-    
+
+    var profileImages: [String: [UIImage]] = [:]
+
     init(s: Session, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
         self.imageLoader = imageLoader
         self.s = s
@@ -47,8 +49,8 @@ import SwiftUI
         try await imageLoader.fetchImage(for: url)
     }
     
-    func loadImages(profile: UserProfile) async -> [UIImage] {
-        return await imageLoader.loadProfileImages(profile)
+    func loadProfileImages(profile: UserProfile) async {
+        profileImages[profile.id] = await imageLoader.loadProfileImages(profile)
     }
 }
 

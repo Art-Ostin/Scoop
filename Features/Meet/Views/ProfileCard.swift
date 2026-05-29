@@ -9,13 +9,13 @@ import SwiftUI
 
 struct ProfileCard : View {
 
-    @Binding var openProfile: UserProfile?
-    @Binding var quickInvite: String?
-    private let cardCornerRadius: CGFloat = 22
-
+    let onTap: () -> Void
+    let onQuickInvite: () -> Void
     let profile: PendingProfile
     let size: CGFloat
     let imageLoader: ImageLoading
+
+    private let cardCornerRadius: CGFloat = 22
 
     @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
@@ -34,6 +34,8 @@ struct ProfileCard : View {
             )
             .customSubtleShadow(strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
+            .contentShape(Rectangle())
+            .onTapGesture { onTap() }
             .coordinateSpace(name: ProfileCard.cardSpace)
             .onPreferenceChange(TextFrameKey.self) { detailsFrame = $0 }
             .onPreferenceChange(NameFrameKey.self) { nameFrame = $0 }
@@ -58,7 +60,7 @@ extension ProfileCard {
         Image(uiImage: displayImage)
             .resizable()
             .scaledToFill()
-            .frame(width: size, height: size)
+            .frame(width: max(size, 0), height: max(size, 0))
             .blur(radius: 22)
             .mask(detailsBlurMask(isDetails: isDetails))
             .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius))
@@ -89,7 +91,7 @@ extension ProfileCard {
 
     private var inviteButton: some View {
         Button {
-            quickInvite = profile.profile.id
+            onQuickInvite()
         } label: {
             Image("LetterIconProfile")
                 .resizable()
