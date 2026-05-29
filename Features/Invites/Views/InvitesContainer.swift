@@ -15,24 +15,15 @@ struct InvitesContainer: View {
     @State var vm: InvitesViewModel
 
     var body: some View {
-        ZStack {
-            if vm.invites.isEmpty {
-                InvitesPlaceholder()
-            } else {
+        AppScrollView(title: "Invites") {
+            ZStack {
                 invitesView
                 
-                if let profile = ui.selectedProfile {
-                    profileView(profile: profile)
-                }
-                
-                if let eventId = ui.showQuickInvite {
-                    timeAndPlaceView(eventId)
-                }
-                
+                if let profile = ui.selectedProfile { profileView(profile: profile)}
+
+                if let eventId = ui.showQuickInvite {timeAndPlaceView(eventId)}
             }
-            if let response = ui.respondedToProfile {
-                RespondedToProfileView(response: response)
-            }
+            if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
@@ -48,9 +39,6 @@ struct InvitesContainer: View {
 extension InvitesContainer {
 
     //Different Views on cotnainer
-    private var invitesView: some View {
-        InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
-    }
     
     @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {
@@ -107,6 +95,7 @@ extension InvitesContainer {
             router.selectedTab = .events
         }
     }
+    
     private func respondToProfileAction(respondType: ProfileResponse, eventId: String) async throws {
         switch respondType {
         case .accepted:  try await vm.accept(eventId: eventId)
@@ -114,5 +103,30 @@ extension InvitesContainer {
         case .newInvite: try await vm.sendNewEvent(eventId: eventId)
         case .decline:   try await vm.decline(eventId: eventId)
         }
+    }
+    
+    @ViewBuilder
+    private var invitesView: some View {
+        if vm.invites.isEmpty {
+            invitesPlaceHolder
+        } else {
+            InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
+        }
+    }
+    
+    private var invitesPlaceHolder: some View {
+        VStack(spacing: 96) {
+            Text("Any invites received appear here")
+                .font(.title(20, .medium))
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            Image("CoolGuys")
+                .resizable()
+                .scaledToFit()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .frame(width: 250, height: 250)
+        }
+        .padding(.top, 72)
     }
 }

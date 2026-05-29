@@ -35,10 +35,7 @@ struct InviteCard: View {
         .sheet(isPresented: $showMessageScreen) {addMessageView}
         .onTapGesture {if ui.showTimePopup {ui.showTimePopup = false}}
         .overlay(alignment: .top) {addingTimeInfoOverlay}
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) {cardWidth in
-             imageSize = max(cardWidth - (contentPadding * 2), 0)
-         }
+        .getImageSize(imageSize: $imageSize, horizontalPadding: contentPadding)
         .preference(key: HideInvitePreferenceKey.self, value: hideInvite)
     }
 }

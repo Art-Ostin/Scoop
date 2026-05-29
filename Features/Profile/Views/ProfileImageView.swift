@@ -29,10 +29,7 @@ struct ProfileImageView: View {
             let loaded = await vm.loadImages()
             await MainActor.run {importedImages = loaded}
         }
-        .measure(key: ImageSizeKey.self) {$0.frame(in: .global).width}
-        .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-            imageSize = screenWidth - 12
-        }
+        .getImageSize(imageSize: $imageSize, horizontalPadding: 6)
     }
 }
 

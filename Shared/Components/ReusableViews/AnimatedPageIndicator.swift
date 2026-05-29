@@ -14,9 +14,7 @@ struct AnimatedPageIndicator: View {
     var dotSize: CGFloat = 6
     var activeWidth: CGFloat = 12
     var spacing: CGFloat = 8
-    var activeColor: Color = .primary
-    var inactiveColor: Color = Color.secondary.opacity(0.25)
-
+    
     var body: some View {
         HStack(spacing: spacing) {
             ForEach(0..<count, id: \.self) { i in
@@ -27,9 +25,9 @@ struct AnimatedPageIndicator: View {
                 let height = dotSize * shrink
 
                 Capsule()
-                    .fill(inactiveColor)
+                    .fill(Color.secondary.opacity(0.25))
                     .overlay(
-                        Capsule().fill(activeColor).opacity(closeness)
+                        Capsule().fill(.primary).opacity(closeness)
                     )
                     .frame(width: width, height: height)
             }

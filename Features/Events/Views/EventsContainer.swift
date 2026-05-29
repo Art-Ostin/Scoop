@@ -17,13 +17,13 @@ struct EventsContainer: View {
     private var currentProfile: EventProfile? {
         vm.event(id: ui.selectedEventId) ?? vm.events.first
     }
-    
     @Namespace var zoomNS
-
     @Binding var path: NavigationPath
+    
+    @State private var scrollProgress: Double = 0
 
     var body: some View {
-        NavigationStack(path: $path) {
+        
             Group {
                 if vm.events.isEmpty {
                     EventsPlaceholder()
@@ -35,7 +35,7 @@ struct EventsContainer: View {
                             profileView(profile: profile)
                         }
                     }
-                    .overlay(alignment: .top) {tabIndicator}
+                    .overlay(alignment: .top) {AnimatedPageIndicator(count: vm.events.count, progress: scrollProgress)}
                 }
             }
             .navigationDestination(for: EventProfile.self) { eventProfile in
@@ -43,12 +43,10 @@ struct EventsContainer: View {
                     .navigationTransition(.zoom(sourceID: eventProfile.id, in: zoomNS))
             }
             .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
-            .measure(key: ImageSizeKey.self) { $0.size.width }
-            .onPreferenceChange(ImageSizeKey.self) { ui.imageSize = $0 - 32 } //Adds 16 padding on each side
+            .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 16)
             .onPreferenceChange(ScrollNavBarVisibleKey.self) { ui.isScrollNavBarVisible = $0 }
             .background(Color.appCanvas.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
-        }
         .hideTabBar(hideBar: !path.isEmpty)
         .onChange(of: showMessageScreen) { _, newValue in
             handleDeepLink(eventId: newValue)
@@ -78,33 +76,6 @@ extension EventsContainer {
 
 //The tab indicator
 extension EventsContainer {
-    
-    @ViewBuilder
-    private var tabIndicator: some View {
-        if vm.events.count > 1 && ui.selectedProfile == nil {
-            HStack(spacing: 6) {
-                ForEach(vm.events) { eventProfile in
-                    let isSelected = eventProfile.id == currentProfile?.id
-                    
-                    RoundedRectangle(cornerRadius: 100)
-                        .frame(width: isSelected ? 10 : 5, height: 5)
-                        .foregroundStyle(isSelected ? .black : .clear)
-                        .stroke(100, lineWidth: 1, color: isSelected ? .clear : .black)
-                }
-            }
-            .padding(4)
-            .background(
-                Capsule()
-                    .fill(Color.appCanvas)
-                    .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
-            )
-            .surfaceShadow(.floating, strength: 1)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top, 24)
-            .opacity(ui.isScrollNavBarVisible ? 0 : 1)
-            .animation(.easeInOut(duration: 0.05), value: ui.isScrollNavBarVisible)
-        }
-    }
     
     private var eventsScrollView: some View {
         ScrollView(.horizontal) {
@@ -153,29 +124,3 @@ extension EventsContainer {
         ui.profileImages[profile.id] = loadedImages
     }
 }
-
-
-/*
- Old Code
- 
- private func openMessageScreen (_ newValue: String?) {
-     guard let match = vm.event(id: newValue) else { return }
-     var t = Transaction()
-     t.disablesAnimations = true
-     withTransaction(t) {
-         ui.messageProfile = match
-     }
- }
-
-  .fullScreenCover(item: $ui.messageProfile, onDismiss: {showMessageScreen = nil}) { eventProfile in
-      chatView(eventProfile: eventProfile)
-  }
- .onChange(of: showMessageScreen) { _, newValue in
-     openMessageScreen(newValue)
- }
-
- 
- */
-
-
-

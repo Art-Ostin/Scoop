@@ -92,3 +92,16 @@ extension EditProfileContainer {
         }
     }
 }
+
+enum EditProfileRoute: Hashable {
+    case prompt(Int)
+    case interests
+    case textField(TextFieldOptions)
+    case languages
+    case option(OptionField)
+    case height
+    case nationality
+    case lifestyle
+    case myLifeAs
+    case desiredAgeRange
+}

@@ -12,6 +12,7 @@ class AppRouter {
     var selectedTab: AppTab = .meet
     
     var eventsPath = NavigationPath()
+    var pastEventPath = NavigationPath()
     
     var showMessageScreen: String?
 }

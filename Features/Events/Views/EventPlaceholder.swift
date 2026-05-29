@@ -12,7 +12,7 @@ struct EventsPlaceholder: View {
     @State var showInfo: Bool = false
         
     var body: some View {
-        CustomTabPage(page: .meetingNoEvent, tabAction: $showInfo) {
+            ScrollView {
             VStack(spacing: 84) {
                 Text("Upcoming Events appear here")
                     .font(.title(16, .medium))
@@ -47,6 +47,7 @@ struct EventsPlaceholder: View {
                 ImageSection(textTitle: "Custom ", text: "Send a time and place with a message and do something out the ordinary", image: "Monkey")
             }
         }
+            .navigationTitle("Events")
     }
 }
 

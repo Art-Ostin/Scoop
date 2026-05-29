@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct InvitesView: View {
     
     @Bindable var ui: InvitesUIState

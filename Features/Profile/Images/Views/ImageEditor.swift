@@ -41,10 +41,9 @@ struct ProfileImagesEditing: View {
             }
             .padding(.top, 120)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .measure(key: ImageSizeKey.self) { $0.frame(in: .global).width }
-            .onPreferenceChange(ImageSizeKey.self) { screenWidth in
-                imageSize = screenWidth - 16
-            }
+            .getImageSize(imageSize: $imageSize, horizontalPadding: 8)
+            
+            
             
             cancelButton
                 .padding(.top, 16)

@@ -21,27 +21,28 @@ struct EventSlotContainer: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            CustomTabPage(page: .meetingEvent) {
-                VStack(spacing: 32) {
-                    EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                    clockView
-                    eventDetailsContainer
-                    eventMap(proxy: proxy).id("MapsView")
-                    howItWorksView
-                    cantMakeItButton
+                ScrollView {
+                    VStack(spacing: 32) {
+                        EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
+                        clockView
+                        eventDetailsContainer
+                        eventMap(proxy: proxy).id("MapsView")
+                        howItWorksView
+                        cantMakeItButton
+                    }
+                    .padding(.bottom, 72)
                 }
-                .padding(.bottom, 72)
-            }
-            .onChange(of: disableMap) { _, isDisabled in
-                mapEnabledAt = isDisabled ? nil : .now
-            }
-            .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                geometry.contentOffset.y
-            } action: { disableMapOnScroll($0, $1)}
-            .overlay(alignment: .bottomTrailing) {messageButton}
+                .onChange(of: disableMap) { _, isDisabled in
+                    mapEnabledAt = isDisabled ? nil : .now
+                }
+                .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                    geometry.contentOffset.y
+                } action: { disableMapOnScroll($0, $1)}
+                .overlay(alignment: .bottomTrailing) {messageButton}
+                    
+                }
         }
     }
-}
 
 // Different Views
 extension EventSlotContainer {

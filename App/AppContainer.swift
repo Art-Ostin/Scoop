@@ -44,13 +44,15 @@ extension AppContainer {
     }
 
     private var meetView: some View {
-        MeetContainer(vm: InviteViewModel(
-            s: dep.session, defaults: dep.defaultsManager,
-            userRepo: dep.userRepo,
-            profileRepo: dep.profilesRepo,
-            eventRepo: dep.eventRepo,
-            imageLoader: dep.imageLoader
-        ))
+        NavigationStack {
+            MeetContainer(vm: InviteViewModel(
+                s: dep.session, defaults: dep.defaultsManager,
+                userRepo: dep.userRepo,
+                profileRepo: dep.profilesRepo,
+                eventRepo: dep.eventRepo,
+                imageLoader: dep.imageLoader
+            ))
+        }
     }
 
     private var invitesView: some View {
@@ -58,18 +60,23 @@ extension AppContainer {
             InvitesContainer(vm: InvitesViewModel(session: dep.session, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
         }
     }
-
     private var eventsView: some View {
         @Bindable var router = router
-        return EventsContainer(
-            vm: EventViewModel(session: dep.session, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader),
-            showMessageScreen: $router.showMessageScreen, path: $router.eventsPath
-        )
+        return NavigationStack(path: $router.eventsPath) {
+            EventsContainer(
+                vm: EventViewModel(session: dep.session, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader),
+                showMessageScreen: $router.showMessageScreen, path: $router.eventsPath
+            )
+        }
     }
 
     private var pastEventsView: some View {
-        MessagesContainer(
-            vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader)
-        )
+        @Bindable var router = router
+        return NavigationStack(path: $router.pastEventPath) {
+            MessagesContainer(
+                vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader), path: $router.pastEventPath
+            )
+            .hideTabBar(hideBar: !router.pastEventPath.isEmpty)
+        }
     }
 }

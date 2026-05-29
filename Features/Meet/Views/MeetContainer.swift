@@ -11,6 +11,7 @@ import Lottie
 
 
 struct MeetContainer: View {
+    
     let vm: InviteViewModel
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
@@ -26,35 +27,28 @@ struct MeetContainer: View {
             
             if let profileId = ui.quickInvite { timeAndPlaceView(profileId)}
             
-            if let response = ui.respondedToProfile {
-                RespondedToProfileView(response: response)
-            }
+            if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
-        .transition(.opacity)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .measure(key: ImageSizeKey.self) { $0.size.width }
-        .onPreferenceChange(ImageSizeKey.self) {screenSize in
-            imageSize = screenSize - (16 * 2)
-        }
-        .fullScreenCover(isPresented: $ui.showInfo) {
-                MeetInfoCover()
-        }
+        .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
+        .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
     }
 }
 
+//Views
 extension MeetContainer {
     
     private var meetView: some View {
-        CustomTabPage(page: .meet ,tabAction: $ui.showInfo) {
+        AppScrollView(title: "Meet") {
             if vm.profiles.isEmpty {
                 meetPlaceholder
             } else {
                 profileCardsSection
             }
         }
+        .transition(.opacity)
         .id(vm.profiles.count)
     }
-        
+    
     private var profileCardsSection: some View {
         ForEach(vm.profiles) { profile in
             ProfileCard(
@@ -68,17 +62,6 @@ extension MeetContainer {
                 .task { await loadProfileImages(profile.profile) }
                 .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
         }
-    }
-    
-    private func openProfile(_ profile: PendingProfile) {
-        if ui.openProfile == nil {
-            ui.openProfile = profile.profile
-        }
-    }
-    
-    private func loadProfileImages(_ profile: UserProfile) async {
-        let loadedImages = await vm.loadImages(profile: profile)
-        profileImages[profile.id] = loadedImages
     }
             
     private func profileView(profile: UserProfile) -> some View {
@@ -102,9 +85,6 @@ extension MeetContainer {
         .zIndex(1)
         .transition(.move(edge: .bottom))
     }
-}
-
-extension MeetContainer {
     
     @ViewBuilder private func timeAndPlaceView(_ profileId: String) -> some View {
         if let profileEvent = vm.profiles.first(where: {$0.id == profileId}) {
@@ -115,6 +95,21 @@ extension MeetContainer {
                     Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
                 }
         }
+    }
+}
+
+//Functions
+extension MeetContainer {
+    
+    private func openProfile(_ profile: PendingProfile) {
+        if ui.openProfile == nil {
+            ui.openProfile = profile.profile
+        }
+    }
+
+    private func loadProfileImages(_ profile: UserProfile) async {
+        let loadedImages = await vm.loadImages(profile: profile)
+        profileImages[profile.id] = loadedImages
     }
     
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {

@@ -20,10 +20,7 @@ struct MeetInfoCoverScrollView: View {
 
             AnimatedPageIndicator(
                 count: Event.EventType.allCases.count,
-                progress: scrollProgress,
-                activeWidth: 16,
-                inactiveColor: .gray.opacity(0.35)
-            )
+                progress: scrollProgress)
         }
     }
 }

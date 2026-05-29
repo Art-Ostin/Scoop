@@ -15,18 +15,21 @@ struct MessagesContainer: View {
 
     @State private var vm: MessagesViewModel
     @State private var userProfileImages: [UIImage] = []
-    @State private var path = NavigationPath()
 
     @Namespace private var settingsZoomNS
     @Namespace private var profileZoomNS
 
-    init(vm: MessagesViewModel) {
+    @Binding var path: NavigationPath
+    
+    
+    init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
+        _path = path
     }
 
     var body: some View {
-        NavigationStack(path: $path) {
-            CustomTabPage(page: .pastMatches) {
+        AppScrollView(title: "Message") {
+            ZStack {
                 if vm.events.isEmpty {
                     messagesAppearHereView
                 } else {
@@ -34,11 +37,10 @@ struct MessagesContainer: View {
                         .padding(.top, -12)
                 }
             }
-            .overlay(alignment: .topTrailing) { actionBar }
-            .task(id: vm.user.imagePathURL) { await prepareUserImages() }
-            .navigationDestination(for: PastEventsRoute.self, destination: destination)
         }
-        .hideTabBar(hideBar: !path.isEmpty)
+        .overlay(alignment: .topTrailing) { actionBar }
+        .task(id: vm.user.imagePathURL) { await prepareUserImages() }
+        .navigationDestination(for: PastEventsRoute.self, destination: destination)
     }
 }
 
@@ -162,14 +164,3 @@ extension MessagesContainer {
         try await vm.readMessages(userEventId: eventProfile.event.id, userId: vm.user.id)
     }
 }
-
-
-/*
- else {
-    Image("ProfileImagePlaceholder")
-        .padding(.top, 10)
-        .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
-}
-
- */
-
