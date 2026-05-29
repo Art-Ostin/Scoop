@@ -32,7 +32,7 @@ struct MeetContainer: View {
 
             if let profileRec = ui.openProfile { profileView(profile: profileRec)}
 
-            if let profileId = ui.quickInvite { timeAndPlaceView(profileId)}
+            if let profileId = ui.quickInvite {timeAndPlaceView(profileId).transition(.move(edge: .leading).combined(with: .opacity))}
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
@@ -54,7 +54,7 @@ extension MeetContainer {
         .transition(.opacity)
         .id(vm.profiles.count)
         .scrollIndicators(.hidden)
-        .background(Color.appCanvas)
+        .colorBackground()
     }
 
     private var profileCardsSection: some View {

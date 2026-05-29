@@ -22,6 +22,7 @@ struct CardEventContainer: View {
                 .opacity(invitesUI.showTimePopup ? 0.2 : 1)
 
             pageContent
+//                .padding(.top, -1)
                 .frame(height: pageContentHeight)
                 .overlayPreferenceValue(InviteCardTimeRowBoundsKey.self) { anchor in
                     GeometryReader { proxy in
@@ -157,7 +158,7 @@ extension CardEventContainer {
                 case .message:
                     titleLabel("Invite Messages")
                 case .event:
-                    titleLabel("\(vm.user.name)'s Invite")
+                    titleLabel("\(vm.user.name)")
                 case .details:
                     titleLabel("\(event.type.emoji) \(event.type.longTitle)")
                 }

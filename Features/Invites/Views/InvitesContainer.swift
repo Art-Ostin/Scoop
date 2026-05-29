@@ -15,16 +15,15 @@ struct InvitesContainer: View {
     @State var vm: InvitesViewModel
 
     var body: some View {
-        AppScrollView(title: "Invites") {
             ZStack {
                 invitesView
                 
                 if let profile = ui.selectedProfile { profileView(profile: profile)}
 
                 if let eventId = ui.showQuickInvite {timeAndPlaceView(eventId)}
+                
+                if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
             }
-            if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
-        }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
         .hideTabBar(hideBar: ui.hideTab)
@@ -110,7 +109,12 @@ extension InvitesContainer {
         if vm.invites.isEmpty {
             invitesPlaceHolder
         } else {
-            InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
+            NavigationStack {
+                AppScrollView(title: "Invites") {
+                    InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
+                        .padding(.top, 20)
+                }
+            }
         }
     }
     

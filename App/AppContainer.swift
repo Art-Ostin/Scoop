@@ -54,9 +54,7 @@ extension AppContainer {
     }
 
     private var invitesView: some View {
-        NavigationStack {
-            InvitesContainer(vm: InvitesViewModel(session: dep.session, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
-        }
+        InvitesContainer(vm: InvitesViewModel(session: dep.session, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
     }
     private var eventsView: some View {
         @Bindable var router = router

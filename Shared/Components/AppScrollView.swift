@@ -19,7 +19,6 @@ struct AppScrollView<Content: View>: View {
     var body: some View {
         ScrollView {
             content
-            
         }
         .colorBackground()
         .navigationTitle(title)

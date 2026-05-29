@@ -57,7 +57,6 @@ struct CustomHorizontalScrollFade: ViewModifier {
                 .frame(width: width)
                 .allowsHitTesting(false)
                 .padding(.bottom, isCardInvite ? 10 : 0)
-                .padding(.horizontal, isCardInvite ? 1 : 0)
             }
         }
     }
