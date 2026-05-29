@@ -15,7 +15,9 @@
       "Bash(gh api *)",
       "Bash(gh search *)",
       "WebFetch(domain:www.lifedesigner.io)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git -C /Users/napoleon/Documents/Scoop status --short App/ScrollEdgeTest.swift)",
+      "Bash(git -C /Users/napoleon/Documents/Scoop diff App/ScrollEdgeTest.swift)"
     ]
   }
 }

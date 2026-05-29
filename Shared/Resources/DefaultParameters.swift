@@ -22,10 +22,6 @@ extension Comparable {
     }
 }
 
-
-
-
-
 extension Color {
     
     static let appBackground = Color(red: 0.42, green: 0.40, blue: 0.30)
@@ -92,5 +88,23 @@ extension Font {
 extension UIFont {
     static func body(_ size: CGFloat = 16, _ weight: Font.bodyFontWeight = .medium) -> UIFont {
         UIFont(name: weight.rawValue, size: size) ?? .systemFont(ofSize: size)
+    }
+
+    static func title(_ size: CGFloat = 32, _ weight: Font.titleFontWeight = .bold) -> UIFont {
+        UIFont(name: weight.rawValue, size: size) ?? .systemFont(ofSize: size, weight: .bold)
+    }
+}
+
+//The custom navigationTitle
+
+extension UINavigationBar {
+    static func applyScoopAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.largeTitleTextAttributes = [.font: UIFont.title(32, .bold)]
+        appearance.titleTextAttributes      = [.font: UIFont.title(17, .semibold)]
+
+        UINavigationBar.appearance().standardAppearance   = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
 }

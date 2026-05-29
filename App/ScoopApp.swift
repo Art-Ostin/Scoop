@@ -16,15 +16,17 @@ struct ScoopApp: App {
 
     init() {
         FirebaseApp.configure()
+        UINavigationBar.applyScoopAppearance() //Key allows my customNavigation
         self.dep = AppDependencies()
         dep.session.userStream()
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environment(dep)
-                .environment(router)
+            NavigationTester()
+//            RootView()
+//                .environment(dep)
+//                .environment(router)
         }
     }
 }
