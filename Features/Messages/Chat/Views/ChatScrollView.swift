@@ -29,6 +29,7 @@ struct ChatScrollView: View {
                 messageScrollSection
             }
         }
+        
         //1. The background of the scroll View
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .customScrollFade(height: 100, showFade: true, edge: .top)

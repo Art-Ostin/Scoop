@@ -57,7 +57,7 @@ struct ProfileDetailsView: View {
         .contentMargins(.bottom, 0, for: .scrollContent)
         .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
-        .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll)
+        .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll, isDetails: true)
         .scrollDisabled(ui.isDraggingDetails || !ui.detailsOpen)
         .overlay(alignment: .topTrailing) {
             dismissDetailsButton

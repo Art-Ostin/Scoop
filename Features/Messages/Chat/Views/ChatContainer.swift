@@ -47,6 +47,13 @@ struct ChatContainer: View {
         ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 TypeMessageView(vm: vm, isFocused: $isFocused)
+                    .overlay(alignment: .bottom) {
+                        LinearGradient.appCanvasFade(startPoint: .bottom, endPoint: .top)
+                            .frame(height: 100)
+                            .frame(maxWidth: .infinity)
+                            .allowsHitTesting(false)
+                            .offset(y: 35)
+                    }
             }
             .zIndex(2)
 

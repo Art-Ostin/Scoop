@@ -21,7 +21,13 @@ struct MeetContainer: View {
         ZStack {
             NavigationStack {
                 meetView
+                    .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Image(systemName: "xmark")
+                        }
+                    }
             }
 
             if let profileRec = ui.openProfile { profileView(profile: profileRec)}
@@ -30,7 +36,6 @@ struct MeetContainer: View {
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
-        .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
     }
 }
@@ -40,30 +45,34 @@ extension MeetContainer {
     
     private var meetView: some View {
         ScrollView {
-            LazyVStack(spacing: 36) {
-                if vm.profiles.isEmpty {
-                    meetPlaceholder
-                } else {
-                    profileCardsSection
-                }
+            if vm.profiles.isEmpty {
+                meetPlaceholder
+            } else {
+                profileCardsSection
             }
-            .padding(.horizontal, 16)
-            .transition(.opacity)
-            .id(vm.profiles.count)
         }
+        .transition(.opacity)
+        .id(vm.profiles.count)
+        .scrollIndicators(.hidden)
+        .background(Color.appCanvas)
     }
-    
+
     private var profileCardsSection: some View {
-        ForEach(vm.profiles) { profile in
-            ProfileCard(
-                onTap: { openProfile(profile) },
-                onQuickInvite: { ui.quickInvite = profile.profile.id },
-                profile: profile, size: imageSize,
-                imageLoader: vm.imageLoader
-            )
-                .task { await vm.loadProfileImages(profile: profile.profile) }
-                .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
+        LazyVStack(spacing: 60) {
+            ForEach(vm.profiles) { profile in
+                ProfileCard(
+                    onTap: { openProfile(profile) },
+                    onQuickInvite: { ui.quickInvite = profile.profile.id },
+                    profile: profile, size: imageSize,
+                    imageLoader: vm.imageLoader
+                )
+                    .task { await vm.loadProfileImages(profile: profile.profile) }
+                    .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
+            }
         }
+        .padding(.horizontal, 16)
+        .padding(.top, 48)
+        .padding(.bottom, 60)
     }
             
     private func profileView(profile: UserProfile) -> some View {

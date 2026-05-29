@@ -33,7 +33,7 @@ struct SelectTimeAndPlace: View {
             }
             VStack(spacing: 0) {
                 popupTitle
-                VStack(spacing: 12) {
+                VStack(spacing: 16) {
                     InviteTypeRow(ui: ui, eventType: $draft.type, unparsedMessage: $draft.message)
                     MapDivider()
                     InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)

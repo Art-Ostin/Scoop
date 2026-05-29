@@ -17,7 +17,12 @@
       "WebFetch(domain:www.lifedesigner.io)",
       "WebSearch",
       "Bash(git -C /Users/napoleon/Documents/Scoop status --short App/ScrollEdgeTest.swift)",
-      "Bash(git -C /Users/napoleon/Documents/Scoop diff App/ScrollEdgeTest.swift)"
+      "Bash(git -C /Users/napoleon/Documents/Scoop diff App/ScrollEdgeTest.swift)",
+      "Bash(xcodebuild -list -project Scoop.xcodeproj)",
+      "Bash(xcodebuild -scheme \"Scoop Test\" -project Scoop.xcodeproj -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(xcodebuild -scheme \"Scoop\" -project Scoop.xcodeproj -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(echo \"exit=$?\")",
+      "Read(//tmp/**)"
     ]
   }
 }

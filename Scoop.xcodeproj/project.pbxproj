@@ -661,7 +661,6 @@
 				65A070572EE09F85009F798B /* CustomViewModifiers.swift */,
 				657F303C2F68B8450057D42C /* GlassIfAvailableModifier.swift */,
 				65F450BE2E45567900AE3503 /* ImageModifiers.swift */,
-				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 				65D25A682FA9D66A00008632 /* BoolToStringBinding.swift */,
 			);
 			path = Modifiers;
@@ -1417,6 +1416,7 @@
 			isa = PBXGroup;
 			children = (
 				65FE22412FC833D200DCB65A /* AnimatedPageIndicator.swift */,
+				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 			);
 			path = ReusableViews;
 			sourceTree = "<group>";

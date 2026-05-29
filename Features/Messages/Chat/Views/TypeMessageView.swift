@@ -52,6 +52,7 @@ extension TypeMessageView {
                 )
                 .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)
         }
+        .disabled(text.isEmpty)
     }
     
     private func sendMessage() async throws {
