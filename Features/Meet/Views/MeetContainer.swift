@@ -85,7 +85,9 @@ struct MeetContainer: View {
             withoutCoverAnimation { morphInviteId = new }
         } else {
             Task {
-                try? await Task.sleep(for: .milliseconds(180))
+                // Outlast the ~0.2s collapse so the cover stays mounted until the
+                // morph has fully folded back onto the icon.
+                try? await Task.sleep(for: .milliseconds(230))
                 if ui.quickInvite == nil { withoutCoverAnimation { morphInviteId = nil } }
             }
         }
@@ -116,7 +118,7 @@ extension MeetContainer {
     }
 
     private var profileCardsSection: some View {
-        LazyVStack(spacing: 60) {
+        LazyVStack(spacing: 84) {
             ForEach(vm.profiles) { profile in
                 ProfileCard(
                     onTap: { openProfile(profile) },
@@ -245,6 +247,11 @@ struct QuickInviteMorph<Card: View>: View {
     private var windowRect: CGRect { expanded ? expandedRect : iconRect }
     private var cornerRadius: CGFloat { expanded ? 30 : iconRect.height / 2 }
 
+    // One smooth curve drives every animated property (frame, corner, fills, content
+    // opacity) so the whole morph interpolates together like a `.contentTransition`,
+    // rather than a snap followed by a staggered fade. Symmetric on open and close.
+    private let morphAnimation: Animation = .smooth(duration: 0.2)
+
     var body: some View {
         ZStack {
             backdrop
@@ -255,11 +262,8 @@ struct QuickInviteMorph<Card: View>: View {
         .onChange(of: isPresented) { _, presented in
             if !presented { expanded = false }
         }
-        // Snappy spring on open; a quick ease-out on close so the morph clears out
-        // fast and never lingers after the backdrop blur is gone.
-        .animation(expanded ? .spring(response: 0.18, dampingFraction: 0.74)
-                             : .easeOut(duration: 0.13), value: expanded)
-        .animation(.spring(response: 0.18, dampingFraction: 0.74), value: cardHeight)
+        .animation(morphAnimation, value: expanded)
+        .animation(morphAnimation, value: cardHeight)
     }
 
     private var backdrop: some View {
@@ -295,7 +299,6 @@ struct QuickInviteMorph<Card: View>: View {
                 .frame(width: 24)
                 .foregroundStyle(.white)
                 .opacity(expanded ? 0 : 1)
-                .animation(.easeOut(duration: 0.08), value: expanded)
         }
         .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
         .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
@@ -304,18 +307,17 @@ struct QuickInviteMorph<Card: View>: View {
     }
 
     // The real card content (no background of its own), pinned at the card's FINAL
-    // frame the whole time. It only cross-fades in as a whole once the surface has
-    // settled — it never moves, so the content appears "already on the card" instead
-    // of sliding/revealing as the surface grows.
+    // frame the whole time. Opacity is staged off the shared morph curve: it fades in
+    // only AFTER the surface has grown behind it, and fades out FAST on close so it's
+    // gone before the surface collapses away — otherwise content floats with no
+    // background behind it.
     private var cardContent: some View {
         card()
             .frame(width: cardWidth)
             .fixedSize(horizontal: false, vertical: true)
             .background(heightReader)
             .opacity(expanded ? 1 : 0)
-            // Fade in once the surface settles; on close, vanish almost instantly so
-            // the content is gone before the backdrop.
-            .animation(expanded ? .easeIn(duration: 0.1).delay(0.08)
+            .animation(expanded ? .easeIn(duration: 0.12).delay(0.1)
                                  : nil, value: expanded)
             .position(x: expandedRect.midX, y: expandedRect.midY)
             .allowsHitTesting(expanded)
