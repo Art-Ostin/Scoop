@@ -24,7 +24,3 @@ struct TabInfoButton: View {
         }
     }
 }
-//
-//#Preview {
-//    TabInfoButton(showScreen: true)
-//}

@@ -29,6 +29,11 @@ struct SelectTimeAndPlace: View {
     //8. When false the caller supplies its own backdrop (e.g. the Meet morph overlay)
     var showBackdrop: Bool = true
 
+    //9. In morph mode the confirm alert must be hosted full-screen by the parent (the
+    //   card here is frame-clamped, so its own alert dim can't cover the screen). When
+    //   set, the Send button hands its send action up instead of showing the local alert.
+    var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
+
     var body: some View {
         ZStack {
             if showBackdrop && !isInviteResponse {
@@ -73,10 +78,10 @@ extension SelectTimeAndPlace {
                     .font(.body(12, .regular))
                     .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
                     .offset(y: -8)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 12)
             }
             .padding(.top, 24)
-            .padding(.horizontal, ((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42)
+            .padding(.horizontal, (((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42) - (showBackdrop ? 0 : 24))
         }
     }
     
@@ -90,7 +95,11 @@ extension SelectTimeAndPlace {
     
     private var sendInviteButton: some View {
         ActionButton(isValid: !ui.showConfirmPopup && InviteIsValid && !showTwoDays, text: "Send Invite", showShadow: false) {
-            ui.showConfirmPopup = true
+            if let requestConfirm {
+                requestConfirm(onSendInvite)
+            } else {
+                ui.showConfirmPopup = true
+            }
         }
     }
         

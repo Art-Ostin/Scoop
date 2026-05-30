@@ -15,6 +15,9 @@ struct ProfileView: View {
 
     @State var ui = ProfileUIState()
     @State private var imageBottomSettleTask: Task<Void, Never>?
+    // Pending send action while the morph confirm alert is up — hoisted so the alert
+    // is hosted full-screen above the frame-clamped morph card.
+    @State var pendingInvite: (() -> Void)?
 
     let mode: ProfileMode
     let isMessageProfile: Bool
@@ -88,6 +91,8 @@ struct ProfileView: View {
         // Send-invite morphs out of the invite icon, matching the Meet flow.
         .quickInviteMorph(iconId: sendInviteMorphId, morphInviteId: $ui.morphInviteId) { _ in
             sendInviteMorphCard
+        } overlay: {
+            MorphConfirmAlert(pending: $pendingInvite)
         }
     }
 }

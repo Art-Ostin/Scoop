@@ -17,3 +17,14 @@ extension Binding where Value == Bool {
         )
     }
 }
+
+extension Binding {
+    // Bridges optional-driven state to a Bool binding for `isPresented:` APIs:
+    // `true` while non-nil; setting `false` clears it to `nil`.
+    func isPresent<Wrapped>() -> Binding<Bool> where Value == Wrapped? {
+        Binding<Bool>(
+            get: { wrappedValue != nil },
+            set: { if !$0 { wrappedValue = nil } }
+        )
+    }
+}

@@ -217,7 +217,6 @@ private struct MapSearchBox<Content: View>: View {
             LazyVStack(spacing: 0) {
                 content
             }
-//            .padding(.vertical, 8)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(

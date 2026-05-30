@@ -13,7 +13,7 @@ struct InvitePlaceRow: View {
     @Binding var showMapView: Bool
         
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 16) {
             Group {
                 if let location = eventLocation {
                     addressText(location: location)
@@ -46,6 +46,7 @@ extension InvitePlaceRow {
                 .foregroundStyle(.gray)
                 .lineLimit(1)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var openMapButton: some View {

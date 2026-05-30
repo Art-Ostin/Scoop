@@ -16,6 +16,9 @@ struct MeetContainer: View {
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
     @State private var morphInviteId: String?
+    // Holds the pending send action while the morph's confirm alert is up. Hoisted here
+    // so the alert can be presented full-screen above the (frame-clamped) morph card.
+    @State private var pendingInvite: (() -> Void)?
     init(vm: InviteViewModel) { self.vm = vm }
 
     var body: some View {
@@ -37,6 +40,8 @@ struct MeetContainer: View {
         }
         .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId) { id in
             timeAndPlaceView(id)
+        } overlay: {
+            MorphConfirmAlert(pending: $pendingInvite)
         }
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
     }
@@ -106,9 +111,12 @@ extension MeetContainer {
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
                 showInvite: $ui.quickInvite,
-                showBackdrop: false) { inviteDraft in
+                showBackdrop: false,
+                sendInvite: { inviteDraft in
                     Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
-                }
+                },
+                requestConfirm: { pendingInvite = $0 }
+            )
         }
     }
 }

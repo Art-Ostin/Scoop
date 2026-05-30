@@ -8,10 +8,13 @@
 import SwiftUI
 
 //AI Code for morphing into quick Invite
-struct QuickInviteMorphPresenter<Card: View>: ViewModifier {
+struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     @Binding var iconId: String?
     @Binding var morphInviteId: String?
     @ViewBuilder let card: (String) -> Card
+    // Full-screen sibling of the morph card (e.g. a confirmation alert) that must NOT
+    // be clamped to the card's frame, so its dim can cover the whole screen.
+    @ViewBuilder let overlay: () -> Overlay
 
     // Icon frame in GLOBAL coordinates, so the morph (presented in a full-screen cover
     // above the tab bar) starts exactly on the tapped invite button.
@@ -35,10 +38,10 @@ struct QuickInviteMorphPresenter<Card: View>: ViewModifier {
                             iconRect: iconRect,
                             isPresented: iconId != nil,
                             containerSize: geo.size,
-                            onDismiss: { iconId = nil }
-                        ) {
-                            card(id)
-                        }
+                            onDismiss: { iconId = nil },
+                            card: { card(id) },
+                            overlay: overlay
+                        )
                     }
                 }
                 .ignoresSafeArea()
@@ -80,13 +83,14 @@ struct QuickInviteMorphPresenter<Card: View>: ViewModifier {
 
 // MARK: - Quick invite morph
 
-struct QuickInviteMorph<Card: View>: View {
+struct QuickInviteMorph<Card: View, Overlay: View>: View {
 
     let iconRect: CGRect
     let isPresented: Bool
     let containerSize: CGSize
     let onDismiss: () -> Void
     @ViewBuilder var card: () -> Card
+    @ViewBuilder var overlay: () -> Overlay
 
     // Drives the entrance/exit animation independently of mount, so the window can
     // start collapsed on the icon and then animate open.
@@ -123,6 +127,7 @@ struct QuickInviteMorph<Card: View>: View {
             backdrop
             surface
             cardContent
+            overlay()
         }
         .onAppear { DispatchQueue.main.async { expanded = true } }
         .onChange(of: isPresented) { _, presented in
@@ -198,6 +203,19 @@ struct QuickInviteMorph<Card: View>: View {
     }
 }
 
+// Full-screen confirm alert for the morph send flow. Used as a `quickInviteMorph`
+// overlay so it sits as a sibling of the (frame-clamped) card — its dim covers the
+// whole screen. Holds the pending send action; pass-through while idle.
+struct MorphConfirmAlert: View {
+    @Binding var pending: (() -> Void)?
+
+    var body: some View {
+        Color.clear
+            .respondCustomAlert(isPresented: $pending.isPresent(), type: .newInvite) { pending?() }
+            .allowsHitTesting(pending != nil)
+    }
+}
+
 struct InviteIconBoundsKey: PreferenceKey {
     static var defaultValue: [String: Anchor<CGRect>] = [:]
     static func reduce(value: inout [String: Anchor<CGRect>], nextValue: () -> [String: Anchor<CGRect>]) {
@@ -212,11 +230,12 @@ extension View {
     /// set it to nil to collapse the morph back onto the icon. `morphInviteId` is the
     /// cover-mount state, owned by the caller so it can hide the real icon (avoiding a
     /// duplicate) while the morph is live — it outlasts `iconId` through the collapse.
-    func quickInviteMorph<Card: View>(
+    func quickInviteMorph<Card: View, Overlay: View>(
         iconId: Binding<String?>,
         morphInviteId: Binding<String?>,
-        @ViewBuilder card: @escaping (String) -> Card
+        @ViewBuilder card: @escaping (String) -> Card,
+        @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, card: card))
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, card: card, overlay: overlay))
     }
 }
