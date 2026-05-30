@@ -14,6 +14,13 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // Hides the morph card (surface + content) while a sibling confirm alert is up,
     // so only the full-screen alert remains visible.
     let hideCard: Bool
+    // When the card content carries its own card chrome (e.g. a multi-page pager),
+    // the morph surface hands off — it fades out once expanded so it doesn't sit as a
+    // ghost behind the content during interaction, then fades back in for the collapse.
+    let contentOwnsBackground: Bool
+    // Tint of the collapsed surface (the icon state). Must match the real source icon so
+    // the morph folds back onto it seamlessly (e.g. green for respond, accent for send).
+    let iconTint: Color
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the morph card (e.g. a confirmation alert) that must NOT
     // be clamped to the card's frame, so its dim can cover the whole screen.
@@ -42,6 +49,8 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                             isPresented: iconId != nil,
                             containerSize: geo.size,
                             hideCard: hideCard,
+                            contentOwnsBackground: contentOwnsBackground,
+                            iconTint: iconTint,
                             card: { card(id) },
                             overlay: overlay
                         )
@@ -92,14 +101,24 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let isPresented: Bool
     let containerSize: CGSize
     let hideCard: Bool
+    let contentOwnsBackground: Bool
+    let iconTint: Color
     @ViewBuilder var card: () -> Card
     @ViewBuilder var overlay: () -> Overlay
 
     // Drives the entrance/exit animation independently of mount, so the window can
     // start collapsed on the icon and then animate open.
     @State private var expanded = false
+    // Hand-off flag: once the open settles, the surface fades out so content with its
+    // own chrome owns the card look. Reset before any collapse so the surface is there
+    // to fold back onto the icon.
+    @State private var surfaceHandedOff = false
     // Measured height of the real card; the window matches it so nothing clips.
     @State private var cardHeight: CGFloat = 360
+    // For `contentOwnsBackground`, the actual frame (in morph space) of the real card the
+    // surface should morph into, so the entrance lands exactly on it rather than a
+    // generic window. Published by the content via `.morphCardAnchor()`.
+    @State private var measuredCardRect: CGRect? = nil
 
     private let sideMargin: CGFloat = 30
     private var cardWidth: CGFloat { containerSize.width - sideMargin * 2 }
@@ -109,9 +128,10 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private let verticalOffset: CGFloat = 12
 
     private var expandedRect: CGRect {
-        CGRect(x: (containerSize.width - cardWidth) / 2,
-               y: (containerSize.height - cardHeight) / 2 + verticalOffset,
-               width: cardWidth, height: cardHeight)
+        if contentOwnsBackground, let measuredCardRect { return measuredCardRect }
+        return CGRect(x: (containerSize.width - cardWidth) / 2,
+                      y: (containerSize.height - cardHeight) / 2 + verticalOffset,
+                      width: cardWidth, height: cardHeight)
     }
 
     private var windowRect: CGRect { expanded ? expandedRect : iconRect }
@@ -137,9 +157,22 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             .animation(.easeInOut(duration: 0.2), value: hideCard)
             overlay()
         }
+        .coordinateSpace(name: morphCoordinateSpace)
+        .onPreferenceChange(MorphCardFrameKey.self) { rect in
+            // Capture the first valid frame (the centered card, laid out before the
+            // entrance plays) and freeze it, so the surface lands on the real card size
+            // instead of the generic fallback window — and doesn't drift as pages scroll.
+            if measuredCardRect == nil, let rect, rect.height > 1 { measuredCardRect = rect }
+        }
         .onAppear { DispatchQueue.main.async { expanded = true } }
         .onChange(of: isPresented) { _, presented in
             if !presented { expanded = false }
+        }
+        .onChange(of: expanded) { _, isExpanded in
+            // Hand the card surface off to content that brings its own chrome. Set
+            // synchronously; the delayed animation keeps the surface up through the
+            // entrance, then fades it. On close it returns instantly to collapse.
+            if contentOwnsBackground { surfaceHandedOff = isExpanded }
         }
         .animation(morphAnimation, value: expanded)
         .animation(morphAnimation, value: cardHeight)
@@ -159,7 +192,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private var surface: some View {
         ZStack {
             Color.appCanvas
-            Color.accent.opacity(expanded ? 0 : 1)
+            iconTint.opacity(expanded ? 0 : 1)
         }
         .frame(width: windowRect.width, height: windowRect.height)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
@@ -178,27 +211,44 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                 .foregroundStyle(.white)
                 .opacity(expanded ? 0 : 1)
         }
-        .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
+        .shadow(color: iconTint.opacity(0.15), radius: 4, y: 2)
         .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
         .position(x: windowRect.midX, y: windowRect.midY)
+        .opacity(surfaceHandedOff ? 0 : 1)
+        // Keyed on surfaceHandedOff (not expanded) so it doesn't disturb the frame morph.
+        // Open: hold through the entrance, then fade. Close: reappear instantly.
+        .animation(.easeInOut(duration: 0.15).delay(expanded ? 0.30 : 0), value: surfaceHandedOff)
         .allowsHitTesting(false)
     }
 
-    // The real card content (no background of its own), pinned at the card's FINAL
-    // frame the whole time. Opacity is staged off the shared morph curve: it fades in
+    // The real card content. Opacity is staged off the shared morph curve: it fades in
     // only AFTER the surface has grown behind it, and fades out FAST on close so it's
     // gone before the surface collapses away — otherwise content floats with no
     // background behind it.
-    private var cardContent: some View {
-        card()
-            .frame(width: cardWidth)
-            .fixedSize(horizontal: false, vertical: true)
-            .background(heightReader)
-            .opacity(expanded ? 1 : 0)
-            .animation(expanded ? .easeIn(duration: 0.14).delay(0.16)
-                                 : nil, value: expanded)
-            .position(x: expandedRect.midX, y: expandedRect.midY)
-            .allowsHitTesting(expanded)
+    @ViewBuilder private var cardContent: some View {
+        if contentOwnsBackground {
+            // Content owns its chrome and may span the full screen (e.g. a full-width
+            // pager). Fill the container; the surface (faded off after entrance) only
+            // handles the icon→card growth.
+            card()
+                .frame(width: containerSize.width, height: containerSize.height)
+                .opacity(expanded ? 1 : 0)
+                .animation(expanded ? .easeIn(duration: 0.16).delay(0.14)
+                                     : .easeOut(duration: 0.10), value: expanded)
+                .allowsHitTesting(expanded)
+        } else {
+            // No background of its own — pinned at the card's FINAL frame the whole time,
+            // with the surface acting as its permanent background.
+            card()
+                .frame(width: cardWidth)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(heightReader)
+                .opacity(expanded ? 1 : 0)
+                .animation(expanded ? .easeIn(duration: 0.14).delay(0.16)
+                                     : nil, value: expanded)
+                .position(x: expandedRect.midX, y: expandedRect.midY)
+                .allowsHitTesting(expanded)
+        }
     }
 
     private var heightReader: some View {
@@ -230,6 +280,32 @@ struct InviteIconBoundsKey: PreferenceKey {
     }
 }
 
+let morphCoordinateSpace = "QuickInviteMorph.space"
+
+// Frame (in QuickInviteMorph's coordinate space) of the real card the morph surface
+// should grow into when the content owns its own background.
+struct MorphCardFrameKey: PreferenceKey {
+    static var defaultValue: CGRect? = nil
+    static func reduce(value: inout CGRect?, nextValue: () -> CGRect?) {
+        value = nextValue() ?? value
+    }
+}
+
+extension View {
+    /// Tags this view as the card the morph surface should land on (the morph entrance
+    /// grows into exactly this frame, then hands the background off to the content).
+    func morphCardAnchor() -> some View {
+        background(
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: MorphCardFrameKey.self,
+                    value: proxy.frame(in: .named(morphCoordinateSpace))
+                )
+            }
+        )
+    }
+}
+
 extension View {
     /// Tags this view as the morph source for `id`'s invite icon.
     func inviteIconAnchor(id: String) -> some View {
@@ -248,9 +324,11 @@ extension View {
         iconId: Binding<String?>,
         morphInviteId: Binding<String?>,
         hideCard: Bool = false,
+        contentOwnsBackground: Bool = false,
+        iconTint: Color = .accent,
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, contentOwnsBackground: contentOwnsBackground, iconTint: iconTint, card: card, overlay: overlay))
     }
 }

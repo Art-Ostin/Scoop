@@ -147,7 +147,11 @@ extension MeetContainer {
         
         //3. Actually send invite or decline profile
         if let event {
-            try? await vm.sendInvite(event: event, profile: profile)
+            do {
+                try await vm.sendInvite(event: event, profile: profile)
+            } catch {
+                print(error)
+            }
         } else {
             try? await vm.declineProfile(profile: profile)
         }

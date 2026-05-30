@@ -22,7 +22,6 @@ struct AppContainer: View {
                     Tab("", image: icon(.events),value: AppTab.events) { eventsView }
                     Tab("", image: icon(.pastEvents), value: AppTab.pastEvents) { pastEventsView }
                 }
-                .tabBarMinimizeBehavior(.onScrollDown)
             } else {
                 CustomTabBarContainerView(selection: $router.selectedTab) { tab in
                     switch tab {

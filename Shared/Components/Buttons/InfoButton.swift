@@ -17,7 +17,6 @@ struct TabInfoButton: View {
                     showScreen = true
                 } label: {
                     Image(systemName: "info.circle")
-
                         //1. Logic for Icon
                         .font(.body(18, .medium))
                         .foregroundStyle(Color.black)
@@ -25,7 +24,7 @@ struct TabInfoButton: View {
                         .glassIfAvailable(Circle(), isClear: true, thinMaterial: true)
 
                         //2. Logic for positioning
-                        .padding(.top, 10) //As its small icon, sits in correct position
+                        .padding(.top, 16) //As its small icon, sits in correct position
                         .padding(.horizontal, 22)
                 }
                 //3. Retracts up into the nav bar with a soft glass blur

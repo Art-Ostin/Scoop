@@ -37,7 +37,7 @@ struct RespondAcceptCard: View {
         .padding(.top, layout.topPadding)
         .padding(.bottom, layout.bottomPadding)
         .frame(maxWidth: .infinity)
-        .background(customBackground)
+        .background(customBackground.morphCardAnchor())
         .padding(.horizontal, ui.hasRespondMessage(vm.respondDraft) ? 24 : 30)
         .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)

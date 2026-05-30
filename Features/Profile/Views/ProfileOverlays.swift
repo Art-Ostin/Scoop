@@ -55,20 +55,29 @@ extension ProfileView {
         }
     }
 
-    // Drives the send-invite morph: non-nil (the profile id) only while a send-invite
-    // popup is open, so the morph never fires for respond/own-profile modes.
+    var isRespondMode: Bool {
+        if case .respondToInvite = mode { return true }
+        return false
+    }
+
+    // Drives the invite morph: non-nil (the profile id) only while a send-invite or
+    // respond-to-invite popup is open, so the morph never fires for view/own-profile.
     var sendInviteMorphId: Binding<String?> {
         Binding(
             get: {
-                if case .sendInvite = mode, ui.showPopup { return vm.profile.id }
-                return nil
+                guard ui.showPopup else { return nil }
+                switch mode {
+                case .sendInvite, .respondToInvite: return vm.profile.id
+                default: return nil
+                }
             },
             set: { ui.showPopup = ($0 != nil) }
         )
     }
 
     @ViewBuilder var sendInviteMorphCard: some View {
-        if case .sendInvite(let onSend, _) = mode {
+        switch mode {
+        case .sendInvite(let onSend, _):
             let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
@@ -77,6 +86,21 @@ extension ProfileView {
                 sendInvite: onSend,
                 requestConfirm: { pendingInvite = $0 }
             )
+        case .respondToInvite(let respondVM, let onResponse):
+            RespondPager(vm: respondVM, ui: respondUI, showPopup: $ui.showPopup, onResponse: onResponse)
+        default:
+            EmptyView()
+        }
+    }
+
+    // Full-screen sibling of the morph card. Respond mode hosts the three confirm
+    // alerts; send-invite mode hosts its single confirm.
+    @ViewBuilder var morphOverlay: some View {
+        switch mode {
+        case .respondToInvite(_, let onResponse):
+            Color.clear.respondConfirmAlerts(ui: respondUI, onResponse: onResponse)
+        default:
+            MorphConfirmAlert(pending: $pendingInvite)
         }
     }
 

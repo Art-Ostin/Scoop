@@ -18,6 +18,9 @@ struct ProfileView: View {
     // Pending send action while the morph confirm alert is up — hoisted so the alert
     // is hosted full-screen above the frame-clamped morph card.
     @State var pendingInvite: (() -> Void)?
+    // Respond-flow popup state, owned here so the morph card (the pager) and the
+    // full-screen confirm alerts share one source of truth.
+    @State var respondUI = RespondPopupUIState()
 
     let mode: ProfileMode
     let isMessageProfile: Bool
@@ -64,7 +67,7 @@ struct ProfileView: View {
                 //1. Profile Background
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
-                .onAppear { //Change so only applies when it is message container
+                .onAppear {
                     if isMessageProfile {
                         Task {
                             try? await Task.sleep(for: .seconds(0.1))
@@ -82,21 +85,24 @@ struct ProfileView: View {
                 .coordinateSpace(name: "profileZStack")
             }
         }
-        .overlay {
-            if ui.showPopup, case .respondToInvite(let respondVM, let onResponse) = mode {
-                RespondPopupContainer(vm: respondVM, showPopup: $ui.showPopup, onResponse: onResponse)
-            }
-        }
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar(hideBar: !ui.isDismissing)
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .offset(y: isUserProfile ? 0 : ui.profileOffset)
-        // Send-invite morphs out of the invite icon, matching the Meet flow.
-        .quickInviteMorph(iconId: sendInviteMorphId, morphInviteId: $ui.morphInviteId, hideCard: pendingInvite != nil) { _ in
+        // Send-invite AND respond-to-invite both morph out of the invite icon. Respond
+        // mode hosts a multi-page pager that owns its own card chrome, so the morph
+        // surface hands off (contentOwnsBackground) once expanded.
+        .quickInviteMorph(
+            iconId: sendInviteMorphId,
+            morphInviteId: $ui.morphInviteId,
+            hideCard: pendingInvite != nil,
+            contentOwnsBackground: isRespondMode,
+            iconTint: vm.viewProfileType == .invite ? .accent : .appGreen
+        ) { _ in
             sendInviteMorphCard
         } overlay: {
-            MorphConfirmAlert(pending: $pendingInvite)
+            morphOverlay
         }
     }
 }
