@@ -15,11 +15,17 @@ struct MeetContainer: View {
     let vm: InviteViewModel
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
-    @State private var morphInviteId: String?
+    
     // Holds the pending send action while the morph's confirm alert is up. Hoisted here
     // so the alert can be presented full-screen above the (frame-clamped) morph card.
+    @State private var morphInviteId: String?
     @State private var pendingInvite: (() -> Void)?
+    
+    //Logic for showing
+    @State private var isAtTopOfScroll = true
+    
     init(vm: InviteViewModel) { self.vm = vm }
+    
 
     var body: some View {
         ZStack {
@@ -27,11 +33,9 @@ struct MeetContainer: View {
                 meetView
                     .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Image(systemName: "xmark")
-                        }
-                    }
+            }
+            .overlay(alignment: .topTrailing) {
+                TabInfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
             }
 
             if let profileRec = ui.openProfile { profileView(profile: profileRec)}
@@ -49,7 +53,6 @@ struct MeetContainer: View {
 
 //Views
 extension MeetContainer {
-    
     private var meetView: some View {
         ScrollView {
             if vm.profiles.isEmpty {
@@ -58,6 +61,7 @@ extension MeetContainer {
                 profileCardsSection
             }
         }
+        .trackTopOfScroll($isAtTopOfScroll)
         .transition(.opacity)
         .id(vm.profiles.count)
         .scrollIndicators(.hidden)

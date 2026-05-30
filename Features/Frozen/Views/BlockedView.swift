@@ -53,7 +53,7 @@ struct BlockedView: View {
                 HStack {
                     SettingsButton(zoomNS: zoomNS) { showSettings = true }
                     Spacer()
-                    TabInfoButton(showScreen: $showBlockedInfo)
+                    TabInfoButton(showScreen: $showBlockedInfo, isAtTopOfScroll: true)
                 }
                 .padding(.horizontal)
             }

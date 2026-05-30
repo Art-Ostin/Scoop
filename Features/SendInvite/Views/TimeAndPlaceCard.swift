@@ -63,7 +63,7 @@ extension TimeAndPlaceCard {
     
     
     private var infoButton: some View {
-        TabInfoButton(showScreen: $showInfoScreen)
+        TabInfoButton(showScreen: $showInfoScreen, isAtTopOfScroll: true)
             .scaleEffect(0.9)
             .offset(y: -48)
             .padding(.horizontal, morphMode ? 0 : horizontalPadding())
