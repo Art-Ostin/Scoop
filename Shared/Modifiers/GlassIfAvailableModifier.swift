@@ -9,10 +9,11 @@ import SwiftUI
 
 extension View {
     @ViewBuilder
-    func glassIfAvailable<S: InsettableShape>(_ shape: S = Capsule(), isClear: Bool = true, thinMaterial: Bool = false) -> some View {
+    func glassIfAvailable<S: InsettableShape>(_ shape: S = Capsule(), isClear: Bool = true, thinMaterial: Bool = false, tint: Color? = nil) -> some View {
         if #available(iOS 26.0, *) {
+            let base: Glass = isClear ? .clear : .regular
             self
-                .glassEffect(isClear ? .clear : .regular, in: shape)
+                .glassEffect(tint.map { base.tint($0) } ?? base, in: shape)
         } else {
             self
                 .background {shape.fill(Color.appCanvas)}

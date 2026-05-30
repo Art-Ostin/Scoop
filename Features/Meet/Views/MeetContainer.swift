@@ -65,7 +65,7 @@ extension MeetContainer {
     }
 
     private var profileCardsSection: some View {
-        LazyVStack(spacing: 84) {
+        LazyVStack(spacing: 72) {
             ForEach(vm.profiles) { profile in
                 ProfileCard(
                     onTap: { openProfile(profile) },
@@ -79,7 +79,7 @@ extension MeetContainer {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 48)
+        .padding(.top, 36)
         .padding(.bottom, 60)
     }
             

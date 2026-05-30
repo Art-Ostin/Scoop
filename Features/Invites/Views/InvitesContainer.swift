@@ -106,11 +106,11 @@ extension InvitesContainer {
     
     @ViewBuilder
     private var invitesView: some View {
-        if vm.invites.isEmpty {
-            invitesPlaceHolder
-        } else {
-            NavigationStack {
-                AppScrollView(title: "Invites") {
+        NavigationStack {
+            AppScrollView(title: "Invites") {
+                if vm.invites.isEmpty {
+                    invitesPlaceHolder
+                } else {
                     InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
                         .padding(.top, 20)
                 }

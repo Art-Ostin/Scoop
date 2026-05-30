@@ -14,13 +14,20 @@ struct TabInfoButton: View {
             showScreen = true
         } label: {
             Image(systemName: "info.circle")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20, height: 20)
-                .frame(width: 35, height: 35)
-                .glassIfAvailable(Circle())
-                .contentShape(Circle())
+                .font(.body(18, .medium))
                 .foregroundStyle(Color.black)
+                .padding(6)
+                .glassIfAvailable(Circle(), isClear: true, thinMaterial: true)
         }
     }
 }
+
+/*
+     .resizable()
+     .scaledToFit()
+     .frame(width: 20, height: 20)
+     .frame(width: 35, height: 35)
+     .glassIfAvailable(Circle())
+     .contentShape(Circle())
+     .foregroundStyle(Color.black)
+ */

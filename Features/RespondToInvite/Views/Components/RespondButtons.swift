@@ -7,8 +7,40 @@
 
 import SwiftUI
 
+
+struct InviteButton: View {
+    @Bindable var vm: ProfileViewModel
+    @Binding var showInvite: Bool
+    var body: some View {
+        Button {
+            showInvite.toggle()
+        } label: {
+            Group {
+                if vm.viewProfileType == .accept {
+                    Image("LetterIconProfile")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                } else {
+                    Image("LetterIconProfile")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                }
+            }
+            .foregroundStyle(.white)
+            .frame(width: 40, height: 40)
+            .background(
+                Circle()
+                    .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false, tint: .accent)
+                    .surfaceShadow(.floating, strength: 3)
+            )
+        }
+        .customButtonStyle()
+    }
+}
+
 struct AcceptButton: View {
-    
     
     var isModified: Bool = false
     let isValid: Bool
@@ -32,7 +64,6 @@ struct AcceptButton: View {
     }
 }
 
-
 struct DeclineButton: View {
     let onDecline: () -> Void
     var body: some View {
@@ -49,10 +80,11 @@ struct DeclineButton: View {
     }
 }
 
+
 struct AddMessageButton: View {
     
     @Binding var showMessageScreen: Bool
-    
+
     let hasEventMessage: Bool
     
     var body: some View {
@@ -73,6 +105,7 @@ struct AddMessageButton: View {
         }
     }
 }
+
 
 struct ViewMessageButton: View {
     
@@ -101,10 +134,10 @@ struct ViewMessageButton: View {
     }
 }
 
+
 struct InviteRespondButton: View {
     
     let type: Event.EventType
-    
     let onTap: () -> Void
     
     var body: some View {
@@ -125,10 +158,7 @@ struct InviteRespondButton: View {
             .padding(6)
             .padding(.leading, 2)
             .padding(.trailing, 2)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
-            )
+            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false, tint: .accent)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
@@ -137,6 +167,22 @@ struct InviteRespondButton: View {
         .fixedSize(horizontal: true, vertical: false)
         .buttonStyle(.plain)
     }
-
 }
 
+
+//Update to mimic Revolut's custom button tap style
+struct PressableButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(withAnimation(.easeInOut) { configuration.isPressed ? 0.9 : 1 })
+            .brightness(configuration.isPressed ? 0.1 : 0)
+    }
+}
+
+extension View {
+    func customButtonStyle() -> some View {
+        buttonStyle(PressableButtonStyle())
+    }
+}
+
+ 
