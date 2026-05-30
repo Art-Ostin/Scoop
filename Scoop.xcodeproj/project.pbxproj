@@ -170,6 +170,7 @@
 		6591092E2E19B0810065696F /* Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109272E19B0810065696F /* Quotes.swift */; };
 		659109332E19C87B0065696F /* VerifyEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659109322E19C87B0065696F /* VerifyEmailView.swift */; };
 		6593365C2E193CEA00150AAC /* MapSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6593365B2E193CEA00150AAC /* MapSelectionView.swift */; };
+		65939C502FCAE78900B24D11 /* InviteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65939C4F2FCAE78900B24D11 /* InviteButton.swift */; };
 		6594971A2E01DD4000880921 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659496FE2E01DD4000880921 /* AppContainer.swift */; };
 		659497202E01DD4000880921 /* EnterEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497072E01DD4000880921 /* EnterEmailView.swift */; };
 		659497222E01DD4000880921 /* OnboardingHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497092E01DD4000880921 /* OnboardingHomeView.swift */; };
@@ -454,6 +455,7 @@
 		659109272E19B0810065696F /* Quotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quotes.swift; sourceTree = "<group>"; };
 		659109322E19C87B0065696F /* VerifyEmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyEmailView.swift; sourceTree = "<group>"; };
 		6593365B2E193CEA00150AAC /* MapSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionView.swift; sourceTree = "<group>"; };
+		65939C4F2FCAE78900B24D11 /* InviteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteButton.swift; sourceTree = "<group>"; };
 		659496FE2E01DD4000880921 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		659497072E01DD4000880921 /* EnterEmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterEmailView.swift; sourceTree = "<group>"; };
 		659497092E01DD4000880921 /* OnboardingHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomeView.swift; sourceTree = "<group>"; };
@@ -1295,6 +1297,7 @@
 				650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */,
 				65F660C32F23E79600AF791F /* InfoButton.swift */,
 				656373B42F50152F003A922D /* MinimalistButton.swift */,
+				65939C4F2FCAE78900B24D11 /* InviteButton.swift */,
 				65C8D1852E02CD94008B8A74 /* NavButton.swift */,
 				659109232E19AEC00065696F /* NextButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
@@ -1795,6 +1798,7 @@
 				657F303B2F68B61C0057D42C /* DismissToolbarItem.swift in Sources */,
 				65871F4E2F3A543200C9A87A /* ClearIcon.swift in Sources */,
 				65F450BF2E45567900AE3503 /* ImageModifiers.swift in Sources */,
+				65939C502FCAE78900B24D11 /* InviteButton.swift in Sources */,
 				653A78592E1340BA0098747F /* MessagesContainer.swift in Sources */,
 				65FE78D62F293C6C00DC2538 /* DropDownView.swift in Sources */,
 				65B4E3992FA606A40044EE9A /* UserSession.swift in Sources */,

@@ -120,10 +120,10 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     // One spring drives every animated property (frame, corner, fills, content
     // opacity) so the whole morph interpolates together like a `.contentTransition`,
     // rather than a snap followed by a staggered fade. The slight bounce gives the
-    // iOS 26 "gel" settle on open. Close uses easeOut so the surface shrinks on frame
-    // one (no slow spring onset), matching the instant content removal.
+    // iOS 26 "gel" settle. Close uses the same spring feel, slightly faster with less
+    // bounce so the collapse stays crisp.
     private let openAnimation: Animation = .spring(duration: 0.35, bounce: 0.2)
-    private let closeAnimation: Animation = .easeOut(duration: 0.26)
+    private let closeAnimation: Animation = .spring(duration: 0.28, bounce: 0.12)
     private var morphAnimation: Animation { expanded ? openAnimation : closeAnimation }
 
     var body: some View {
@@ -227,6 +227,13 @@ struct InviteIconBoundsKey: PreferenceKey {
     static var defaultValue: [String: Anchor<CGRect>] = [:]
     static func reduce(value: inout [String: Anchor<CGRect>], nextValue: () -> [String: Anchor<CGRect>]) {
         value.merge(nextValue()) { _, new in new }
+    }
+}
+
+extension View {
+    /// Tags this view as the morph source for `id`'s invite icon.
+    func inviteIconAnchor(id: String) -> some View {
+        anchorPreference(key: InviteIconBoundsKey.self, value: .bounds) { [id: $0] }
     }
 }
 

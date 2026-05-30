@@ -7,39 +7,6 @@
 
 import SwiftUI
 
-
-struct InviteButton: View {
-    @Bindable var vm: ProfileViewModel
-    @Binding var showInvite: Bool
-    var body: some View {
-        Button {
-            showInvite.toggle()
-        } label: {
-            Group {
-                if vm.viewProfileType == .accept {
-                    Image("LetterIconProfile")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                } else {
-                    Image("LetterIconProfile")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                }
-            }
-            .foregroundStyle(.white)
-            .frame(width: 40, height: 40)
-            .background(
-                Circle()
-                    .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false, tint: .accent)
-                    .surfaceShadow(.floating, strength: 3)
-            )
-        }
-        .customButtonStyle()
-    }
-}
-
 struct AcceptButton: View {
     
     var isModified: Bool = false

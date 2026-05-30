@@ -64,25 +64,8 @@ extension ProfileCard {
     }
 
     private var inviteButton: some View {
-        Button {
-            onQuickInvite()
-        } label: {
-            Image("LetterIconProfile")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24)
-        }
-        .foregroundStyle(.white)
-        .frame(width: 40, height: 40)
-        .background(
-            Circle()
-                .fill(Color.accent)
-                .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
-        )
-        .opacity(isMorphing ? 0 : 1)
-        .anchorPreference(key: InviteIconBoundsKey.self, value: .bounds) {
-            [profile.profile.id: $0]
-        }
+        InviteButton(isInviting: true, morphId: profile.profile.id, action: onQuickInvite)
+            .opacity(isMorphing ? 0 : 1)
     }
 
     private var infoSection: some View {

@@ -48,15 +48,8 @@ extension ProfileView {
     @ViewBuilder var inviteButton: some View {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
-            // Stays mounted (opacity-hidden) while a popup/morph is live so its bounds
-            // anchor remains available for the morph to grow from / fold back to.
-            InviteButton(vm: vm, showInvite: $ui.showPopup)
+            InviteButton(isInviting: vm.viewProfileType == .invite, morphId: vm.profile.id) { ui.showPopup.toggle() }
                 .opacity(ui.showPopup || ui.morphInviteId == vm.profile.id ? 0 : 1)
-                // Anchor measures the 40x40 button itself — must sit BEFORE the
-                // padding below, or the morph starts from the padded (tall) frame.
-                .anchorPreference(key: InviteIconBoundsKey.self, value: .bounds) {
-                    [vm.profile.id: $0]
-                }
                 .padding(.horizontal, 24)
                 .padding(.bottom, interpolate(from: 144, to: 0)) //144
         }
