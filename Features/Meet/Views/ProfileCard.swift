@@ -29,8 +29,7 @@ struct ProfileCard : View {
         Image(uiImage: displayImage)
             .resizable()
             .defaultImage(size, cardCornerRadius)
-            .overlay { backgroundBlur(isDetails: true)}
-            .overlay { backgroundBlur(isDetails: false)}
+            .overlay { backgroundBlur }
             .background(
                 RoundedRectangle(cornerRadius: cardCornerRadius)
                     .fill(Color.appCanvas)
@@ -53,34 +52,6 @@ struct ProfileCard : View {
 }
 
 extension ProfileCard {
-
-    fileprivate static let cardSpace = "ProfileCard.card"
-
-    // Blurred copy of the image, masked to a feathered rounded-rect that
-    // tracks the text's frame — gives a soft halo of blur only behind the text.
-    
-    private func backgroundBlur(isDetails: Bool) -> some View {
-        Image(uiImage: displayImage)
-            .resizable()
-            .scaledToFill()
-            .frame(width: max(size, 0), height: max(size, 0))
-            .blur(radius: 22)
-            .mask(detailsBlurMask(isDetails: isDetails))
-            .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius))
-            .allowsHitTesting(false)
-    }
-    
-    private func detailsBlurMask(isDetails: Bool) -> some View {
-        let padX: CGFloat = 4
-        let padY: CGFloat = 2
-        let feather: CGFloat = 4
-        let rect = isDetails ? detailsFrame.insetBy(dx: -padX, dy: -padY) : nameFrame.insetBy(dx: -padX, dy: -padY)
-        return RoundedRectangle(cornerRadius: 12)
-            .frame(width: max(rect.width, 0), height: max(rect.height, 0))
-            .position(x: rect.midX, y: rect.midY)
-            .blur(radius: feather)
-            .opacity(detailsFrame == .zero ? 0 : 1)
-    }
 
     private var cardOverlay: some View {
         HStack(alignment: .bottom) {
@@ -127,6 +98,42 @@ extension ProfileCard {
         }
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
+    }
+}
+
+//AI Code
+extension ProfileCard {
+    
+    fileprivate static let cardSpace = "ProfileCard.card"
+    
+    // Blurred copy of the image, masked to feathered rounded-rects that
+    // track the text frames — gives a soft halo of blur only behind the text.
+    private var backgroundBlur: some View {
+        Image(uiImage: displayImage)
+            .resizable()
+            .scaledToFill()
+            .frame(width: max(size, 0), height: max(size, 0))
+            .blur(radius: 22)
+            .mask {
+                ZStack {
+                    blurMask(for: nameFrame)
+                    blurMask(for: detailsFrame)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius))
+            .allowsHitTesting(false)
+    }
+
+    private func blurMask(for frame: CGRect) -> some View {
+        let padX: CGFloat = 4
+        let padY: CGFloat = 2
+        let feather: CGFloat = 4
+        let rect = frame.insetBy(dx: -padX, dy: -padY)
+        return RoundedRectangle(cornerRadius: 12)
+            .frame(width: max(rect.width, 0), height: max(rect.height, 0))
+            .position(x: rect.midX, y: rect.midY)
+            .blur(radius: feather)
+            .opacity(frame == .zero ? 0 : 1)
     }
 }
 

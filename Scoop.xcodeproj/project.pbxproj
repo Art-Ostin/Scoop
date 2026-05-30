@@ -208,6 +208,7 @@
 		65B4E39B2FA606D60044EE9A /* EventsSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E39A2FA606D60044EE9A /* EventsSession.swift */; };
 		65B672672FC48BE100479EA7 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B672662FC48BE100479EA7 /* AppRouter.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
+		65BDBD702FCAAF0F0021FA3D /* InviteMorph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBD6F2FCAAF0F0021FA3D /* InviteMorph.swift */; };
 		65BF98C42FA532C600FB37A6 /* BootingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BF98C32FA532C600FB37A6 /* BootingScreen.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
@@ -492,6 +493,7 @@
 		65B4E3982FA606A40044EE9A /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		65B4E39A2FA606D60044EE9A /* EventsSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsSession.swift; sourceTree = "<group>"; };
 		65B672662FC48BE100479EA7 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
+		65BDBD6F2FCAAF0F0021FA3D /* InviteMorph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMorph.swift; sourceTree = "<group>"; };
 		65BF98C32FA532C600FB37A6 /* BootingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BootingScreen.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeView.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -1028,6 +1030,7 @@
 		6549DA742F9E87A800C89DF2 /* SendInvite */ = {
 			isa = PBXGroup;
 			children = (
+				65BDBD6F2FCAAF0F0021FA3D /* InviteMorph.swift */,
 				65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */,
 				657486DD2FA8F80900F38738 /* TimeAndPlaceConstructors.swift */,
 				6549DA752F9E87C100C89DF2 /* Views */,
@@ -1740,6 +1743,7 @@
 				65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */,
 				65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */,
 				65F993D52F5893B200EC810B /* UserEventChatState.swift in Sources */,
+				65BDBD702FCAAF0F0021FA3D /* InviteMorph.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,
