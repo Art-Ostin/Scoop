@@ -100,6 +100,9 @@ struct CustomAlertModifier: ViewModifier {
 
     let onOK: () -> Void
     
+    // Animation used when the alert is dismissed (cancel/OK). Defaults to the show speed.
+    var hideAnimation: Animation = .easeInOut(duration: 0.18)
+
     func body(content: Content) -> some View {
         ZStack {
             content
@@ -129,7 +132,7 @@ struct CustomAlertModifier: ViewModifier {
                 .zIndex(999)
             }
         }
-        .animation(.easeInOut(duration: 0.18), value: isPresented)
+        .animation(isPresented ? .easeInOut(duration: 0.18) : hideAnimation, value: isPresented)
     }
 }
 
@@ -212,7 +215,7 @@ extension View {
         )
     }
         
-    func respondCustomAlert(isPresented: Binding<Bool>, type: RespondPopupInfo, onOK: @escaping () -> Void) -> some View {
+    func respondCustomAlert(isPresented: Binding<Bool>, type: RespondPopupInfo, hideAnimation: Animation = .easeInOut(duration: 0.18), onOK: @escaping () -> Void) -> some View {
         modifier(CustomAlertModifier(
             isPresented: isPresented,
             title: type.title,
@@ -221,7 +224,8 @@ extension View {
             cancelTitle: type.cancel,
             okTitle: type.understand,
             emoji: "🦥",
-            isConfirmInvite: true, onOK: onOK)
+            isConfirmInvite: true, onOK: onOK,
+            hideAnimation: hideAnimation)
         )
     }
     

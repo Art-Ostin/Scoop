@@ -30,8 +30,6 @@ struct TimeAndPlaceCard: ViewModifier {
 extension TimeAndPlaceCard {
     
     @ViewBuilder private var cardBackground: some View {
-        // In morph mode the surface is drawn by QuickInviteMorph (the growing window),
-        // so the card itself stays transparent — one surface, no double background.
         if !morphMode {
             ZStack { //Background done like this to fix bugs when popping up
                 RoundedRectangle(cornerRadius: 30)

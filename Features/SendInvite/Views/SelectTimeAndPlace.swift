@@ -29,9 +29,6 @@ struct SelectTimeAndPlace: View {
     //8. When false the caller supplies its own backdrop (e.g. the Meet morph overlay)
     var showBackdrop: Bool = true
 
-    //9. In morph mode the confirm alert must be hosted full-screen by the parent (the
-    //   card here is frame-clamped, so its own alert dim can't cover the screen). When
-    //   set, the Send button hands its send action up instead of showing the local alert.
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
     var body: some View {

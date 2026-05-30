@@ -38,7 +38,7 @@ struct MeetContainer: View {
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
-        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId) { id in
+        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)

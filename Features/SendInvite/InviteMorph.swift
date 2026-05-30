@@ -11,6 +11,9 @@ import SwiftUI
 struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     @Binding var iconId: String?
     @Binding var morphInviteId: String?
+    // Hides the morph card (surface + content) while a sibling confirm alert is up,
+    // so only the full-screen alert remains visible.
+    let hideCard: Bool
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the morph card (e.g. a confirmation alert) that must NOT
     // be clamped to the card's frame, so its dim can cover the whole screen.
@@ -39,6 +42,7 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                             isPresented: iconId != nil,
                             containerSize: geo.size,
                             onDismiss: { iconId = nil },
+                            hideCard: hideCard,
                             card: { card(id) },
                             overlay: overlay
                         )
@@ -89,6 +93,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let isPresented: Bool
     let containerSize: CGSize
     let onDismiss: () -> Void
+    let hideCard: Bool
     @ViewBuilder var card: () -> Card
     @ViewBuilder var overlay: () -> Overlay
 
@@ -125,8 +130,12 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     var body: some View {
         ZStack {
             backdrop
-            surface
-            cardContent
+            Group {
+                surface
+                cardContent
+            }
+            .opacity(hideCard ? 0 : 1)
+            .animation(.easeInOut(duration: 0.2), value: hideCard)
             overlay()
         }
         .onAppear { DispatchQueue.main.async { expanded = true } }
@@ -211,7 +220,7 @@ struct MorphConfirmAlert: View {
 
     var body: some View {
         Color.clear
-            .respondCustomAlert(isPresented: $pending.isPresent(), type: .newInvite) { pending?() }
+            .respondCustomAlert(isPresented: $pending.isPresent(), type: .newInvite, hideAnimation: .easeInOut(duration: 0.09)) { pending?() }
             .allowsHitTesting(pending != nil)
     }
 }
@@ -233,9 +242,10 @@ extension View {
     func quickInviteMorph<Card: View, Overlay: View>(
         iconId: Binding<String?>,
         morphInviteId: Binding<String?>,
+        hideCard: Bool = false,
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, card: card, overlay: overlay))
     }
 }

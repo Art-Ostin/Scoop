@@ -45,23 +45,6 @@ extension ProfileView {
         .offset(y: isOverlay ? 0 : 4) // base: hack to align to bottom of HStack
     }
 
-    @ViewBuilder var invitePopup: some View {
-        switch mode {
-        case .respondToInvite(let respondVM, let onResponse):
-            RespondPopupContainer(vm: respondVM, showPopup: $ui.showPopup, onResponse: onResponse)
-
-        case .sendInvite(let onSend, _):
-            let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
-            InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                showInvite: $ui.showPopup.asOptionalString, //converts a bool into an optional string
-                sendInvite: onSend
-            )
-        default:
-            EmptyView()
-        }
-    }
-
     @ViewBuilder var inviteButton: some View {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
