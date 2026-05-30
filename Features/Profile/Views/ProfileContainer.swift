@@ -79,12 +79,16 @@ struct ProfileView: View {
                 .coordinateSpace(name: "profileZStack")
             }
         }
-        .overlay { if ui.showPopup { invitePopup } }
+        .overlay { if ui.showPopup, case .respondToInvite = mode { invitePopup } }
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .hideTabBar(hideBar: !ui.isDismissing)
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .offset(y: isUserProfile ? 0 : ui.profileOffset)
+        // Send-invite morphs out of the invite icon, matching the Meet flow.
+        .quickInviteMorph(iconId: sendInviteMorphId, morphInviteId: $ui.morphInviteId) { _ in
+            sendInviteMorphCard
+        }
     }
 }
 

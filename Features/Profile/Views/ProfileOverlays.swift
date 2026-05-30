@@ -63,11 +63,43 @@ extension ProfileView {
     }
 
     @ViewBuilder var inviteButton: some View {
-        let showInviteButton = vm.viewProfileType != .view && vm.viewProfileType != .accepted && !ui.showPopup
-        if showInviteButton {
+        let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
+        if canInvite {
+            // Stays mounted (opacity-hidden) while a popup/morph is live so its bounds
+            // anchor remains available for the morph to grow from / fold back to.
             InviteButton(vm: vm, showInvite: $ui.showPopup)
+                .opacity(ui.showPopup || ui.morphInviteId == vm.profile.id ? 0 : 1)
+                // Anchor measures the 40x40 button itself — must sit BEFORE the
+                // padding below, or the morph starts from the padded (tall) frame.
+                .anchorPreference(key: InviteIconBoundsKey.self, value: .bounds) {
+                    [vm.profile.id: $0]
+                }
                 .padding(.horizontal, 24)
                 .padding(.bottom, interpolate(from: 144, to: 0)) //144
+        }
+    }
+
+    // Drives the send-invite morph: non-nil (the profile id) only while a send-invite
+    // popup is open, so the morph never fires for respond/own-profile modes.
+    var sendInviteMorphId: Binding<String?> {
+        Binding(
+            get: {
+                if case .sendInvite = mode, ui.showPopup { return vm.profile.id }
+                return nil
+            },
+            set: { ui.showPopup = ($0 != nil) }
+        )
+    }
+
+    @ViewBuilder var sendInviteMorphCard: some View {
+        if case .sendInvite(let onSend, _) = mode {
+            let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
+            InviteTimeAndPlaceView(
+                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
+                showInvite: $ui.showPopup.asOptionalString,
+                showBackdrop: false,
+                sendInvite: onSend
+            )
         }
     }
 

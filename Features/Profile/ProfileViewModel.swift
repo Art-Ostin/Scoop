@@ -66,6 +66,8 @@ enum ProfileViewType {
 
     //3. Logic with what screen showing
     var showPopup: Bool = false
+    //Cover-mount id for the send-invite morph; outlasts showPopup through the collapse.
+    var morphInviteId: String? = nil
 
     //4. Logic with opening and closing details
     var detailsOffset: CGFloat = 0

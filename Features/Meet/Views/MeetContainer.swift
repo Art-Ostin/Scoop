@@ -16,9 +16,6 @@ struct MeetContainer: View {
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
     @State private var morphInviteId: String?
-    // Icon frame in GLOBAL coordinates, so the morph (presented in a full-screen
-    // cover above the tab bar) starts exactly on the tapped invite button.
-    @State private var iconRect: CGRect = .zero
     init(vm: InviteViewModel) { self.vm = vm }
 
     var body: some View {
@@ -38,65 +35,12 @@ struct MeetContainer: View {
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
-        // Measure the tapped icon's global frame when a quick invite begins.
-        .overlayPreferenceValue(InviteIconBoundsKey.self) { anchors in
-            GeometryReader { proxy in
-                Color.clear
-                    .onChange(of: ui.quickInvite) { _, new in
-                        handleQuickInviteChange(new, anchors: anchors, proxy: proxy)
-                    }
-            }
-        }
-        // The morph lives ABOVE the TabView here, so the tab bar stays pinned behind
-        // it (covered by the blur) instead of animating away.
-        .fullScreenCover(isPresented: morphPresented) {
-            GeometryReader { geo in
-                if let id = morphInviteId {
-                    QuickInviteMorph(
-                        iconRect: iconRect,
-                        isPresented: ui.quickInvite != nil,
-                        containerSize: geo.size,
-                        onDismiss: { ui.quickInvite = nil }
-                    ) {
-                        timeAndPlaceView(id)
-                    }
-                }
-            }
-            .ignoresSafeArea()
-            .presentationBackground(.clear)
+        // Morphs the tapped invite icon into the time-and-place card. Presented above
+        // the TabView so the tab bar stays pinned behind its blur.
+        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId) { id in
+            timeAndPlaceView(id)
         }
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
-    }
-
-    private var morphPresented: Binding<Bool> {
-        Binding(get: { morphInviteId != nil },
-                set: { if !$0 { morphInviteId = nil } })
-    }
-
-    // Presents/dismisses the morph cover WITHOUT the system's slide animation, so the
-    // only motion is the morph itself. On present we also capture the icon's global
-    // frame; on dismiss we keep the cover mounted briefly so the collapse can play.
-    private func handleQuickInviteChange(_ new: String?, anchors: [String: Anchor<CGRect>], proxy: GeometryProxy) {
-        if let new, let anchor = anchors[new] {
-            let local = proxy[anchor]
-            let origin = proxy.frame(in: .global).origin
-            iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
-                              width: local.width, height: local.height)
-            withoutCoverAnimation { morphInviteId = new }
-        } else {
-            Task {
-                // Outlast the ~0.2s collapse so the cover stays mounted until the
-                // morph has fully folded back onto the icon.
-                try? await Task.sleep(for: .milliseconds(230))
-                if ui.quickInvite == nil { withoutCoverAnimation { morphInviteId = nil } }
-            }
-        }
-    }
-
-    private func withoutCoverAnimation(_ body: () -> Void) {
-        var txn = Transaction()
-        txn.disablesAnimations = true
-        withTransaction(txn, body)
     }
 }
 
@@ -210,6 +154,93 @@ extension MeetContainer {
     }
 }
 
+// MARK: - Quick invite morph presenter
+
+extension View {
+    /// Morphs `card` out of the invite icon whose `InviteIconBoundsKey` matches the
+    /// driving id. Drive `iconId` with the tapped invite source's id to present, and
+    /// set it to nil to collapse the morph back onto the icon. `morphInviteId` is the
+    /// cover-mount state, owned by the caller so it can hide the real icon (avoiding a
+    /// duplicate) while the morph is live — it outlasts `iconId` through the collapse.
+    func quickInviteMorph<Card: View>(
+        iconId: Binding<String?>,
+        morphInviteId: Binding<String?>,
+        @ViewBuilder card: @escaping (String) -> Card
+    ) -> some View {
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, card: card))
+    }
+}
+
+private struct QuickInviteMorphPresenter<Card: View>: ViewModifier {
+    @Binding var iconId: String?
+    @Binding var morphInviteId: String?
+    @ViewBuilder let card: (String) -> Card
+
+    // Icon frame in GLOBAL coordinates, so the morph (presented in a full-screen cover
+    // above the tab bar) starts exactly on the tapped invite button.
+    @State private var iconRect: CGRect = .zero
+
+    func body(content: Content) -> some View {
+        content
+            // Measure the tapped icon's global frame when a quick invite begins.
+            .overlayPreferenceValue(InviteIconBoundsKey.self) { anchors in
+                GeometryReader { proxy in
+                    Color.clear
+                        .onChange(of: iconId) { _, new in
+                            handleChange(new, anchors: anchors, proxy: proxy)
+                        }
+                }
+            }
+            .fullScreenCover(isPresented: morphPresented) {
+                GeometryReader { geo in
+                    if let id = morphInviteId {
+                        QuickInviteMorph(
+                            iconRect: iconRect,
+                            isPresented: iconId != nil,
+                            containerSize: geo.size,
+                            onDismiss: { iconId = nil }
+                        ) {
+                            card(id)
+                        }
+                    }
+                }
+                .ignoresSafeArea()
+                .presentationBackground(.clear)
+            }
+    }
+
+    private var morphPresented: Binding<Bool> {
+        Binding(get: { morphInviteId != nil },
+                set: { if !$0 { morphInviteId = nil } })
+    }
+
+    // Presents/dismisses the morph cover WITHOUT the system's slide animation, so the
+    // only motion is the morph itself. On present we also capture the icon's global
+    // frame; on dismiss we keep the cover mounted briefly so the collapse can play.
+    private func handleChange(_ new: String?, anchors: [String: Anchor<CGRect>], proxy: GeometryProxy) {
+        if let new, let anchor = anchors[new] {
+            let local = proxy[anchor]
+            let origin = proxy.frame(in: .global).origin
+            iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
+                              width: local.width, height: local.height)
+            withoutCoverAnimation { morphInviteId = new }
+        } else {
+            Task {
+                // Outlast the spring collapse so the cover stays mounted until the
+                // morph has fully folded back onto the icon.
+                try? await Task.sleep(for: .milliseconds(420))
+                if iconId == nil { withoutCoverAnimation { morphInviteId = nil } }
+            }
+        }
+    }
+
+    private func withoutCoverAnimation(_ body: () -> Void) {
+        var txn = Transaction()
+        txn.disablesAnimations = true
+        withTransaction(txn, body)
+    }
+}
+
 // MARK: - Quick invite morph
 
 // Morphs the invite icon (a small accent circle) into the SelectTimeAndPlace card.
@@ -247,10 +278,13 @@ struct QuickInviteMorph<Card: View>: View {
     private var windowRect: CGRect { expanded ? expandedRect : iconRect }
     private var cornerRadius: CGFloat { expanded ? 30 : iconRect.height / 2 }
 
-    // One smooth curve drives every animated property (frame, corner, fills, content
+    // One spring drives every animated property (frame, corner, fills, content
     // opacity) so the whole morph interpolates together like a `.contentTransition`,
-    // rather than a snap followed by a staggered fade. Symmetric on open and close.
-    private let morphAnimation: Animation = .smooth(duration: 0.2)
+    // rather than a snap followed by a staggered fade. The slight bounce gives the
+    // iOS 26 "gel" settle. The collapse runs a touch quicker than the open.
+    private let openAnimation: Animation = .spring(duration: 0.35, bounce: 0.2)
+    private let closeAnimation: Animation = .spring(duration: 0.26, bounce: 0.18)
+    private var morphAnimation: Animation { expanded ? openAnimation : closeAnimation }
 
     var body: some View {
         ZStack {
@@ -317,7 +351,7 @@ struct QuickInviteMorph<Card: View>: View {
             .fixedSize(horizontal: false, vertical: true)
             .background(heightReader)
             .opacity(expanded ? 1 : 0)
-            .animation(expanded ? .easeIn(duration: 0.12).delay(0.1)
+            .animation(expanded ? .easeIn(duration: 0.14).delay(0.16)
                                  : nil, value: expanded)
             .position(x: expandedRect.midX, y: expandedRect.midY)
             .allowsHitTesting(expanded)
