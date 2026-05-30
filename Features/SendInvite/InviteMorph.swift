@@ -41,7 +41,6 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                             iconRect: iconRect,
                             isPresented: iconId != nil,
                             containerSize: geo.size,
-                            onDismiss: { iconId = nil },
                             hideCard: hideCard,
                             card: { card(id) },
                             overlay: overlay
@@ -92,7 +91,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let iconRect: CGRect
     let isPresented: Bool
     let containerSize: CGSize
-    let onDismiss: () -> Void
     let hideCard: Bool
     @ViewBuilder var card: () -> Card
     @ViewBuilder var overlay: () -> Overlay
@@ -106,9 +104,9 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private let sideMargin: CGFloat = 30
     private var cardWidth: CGFloat { containerSize.width - sideMargin * 2 }
 
-    // Nudge the settled card down from dead-center; the morph still starts on the
-    // icon, so only the destination shifts.
-    private let verticalOffset: CGFloat = 24
+    // Vertical lift of the settled morph card (surface + content) from dead-center.
+    // The morph still starts on the icon, so only the destination shifts.
+    private let verticalOffset: CGFloat = 12
 
     private var expandedRect: CGRect {
         CGRect(x: (containerSize.width - cardWidth) / 2,
@@ -122,9 +120,10 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     // One spring drives every animated property (frame, corner, fills, content
     // opacity) so the whole morph interpolates together like a `.contentTransition`,
     // rather than a snap followed by a staggered fade. The slight bounce gives the
-    // iOS 26 "gel" settle. The collapse runs a touch quicker than the open.
+    // iOS 26 "gel" settle on open. Close uses easeOut so the surface shrinks on frame
+    // one (no slow spring onset), matching the instant content removal.
     private let openAnimation: Animation = .spring(duration: 0.35, bounce: 0.2)
-    private let closeAnimation: Animation = .spring(duration: 0.26, bounce: 0.18)
+    private let closeAnimation: Animation = .easeOut(duration: 0.26)
     private var morphAnimation: Animation { expanded ? openAnimation : closeAnimation }
 
     var body: some View {
@@ -151,8 +150,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             .fill(.thinMaterial)
             .ignoresSafeArea()
             .opacity(expanded ? 1 : 0)
-            .allowsHitTesting(expanded)
-            .onTapGesture { onDismiss() }
+            .allowsHitTesting(expanded) //blocks taps to content behind; dismiss is Hide-only
     }
 
     // The single morphing surface: the accent circle relaxes into the appCanvas card

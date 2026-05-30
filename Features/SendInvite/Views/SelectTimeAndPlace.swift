@@ -31,30 +31,39 @@ struct SelectTimeAndPlace: View {
 
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
+    //9. Vertical lift applied to the card in every mode (negative = up)
+    private let cardLift: CGFloat = -36
+
     var body: some View {
         ZStack {
             if showBackdrop && !isInviteResponse {
-                CustomScreenCover {showInvite = nil}
+                CustomScreenCover {}
             }
-            VStack(spacing: 0) {
-                popupTitle
-                VStack(spacing: 16) {
-                    InviteTypeRow(ui: ui, eventType: $draft.type, unparsedMessage: $draft.message)
-                    MapDivider()
-                    InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
-                    MapDivider()
-                    InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView)
+            VStack(spacing: showBackdrop ? 48 : 0) {
+                VStack(spacing: 0) {
+                    popupTitle
+                    VStack(spacing: 16) {
+                        InviteTypeRow(ui: ui, eventType: $draft.type, unparsedMessage: $draft.message)
+                        MapDivider()
+                        InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
+                        MapDivider()
+                        InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView)
+                    }
+                    .padding(.top, verticalPadding)
+                    .padding(.bottom, extraBottomPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .zIndex(1) //so pop ups always appear above the Action Button
+                    sendInviteButton
                 }
-                .padding(.top, verticalPadding)
-                .padding(.bottom, extraBottomPadding)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .zIndex(1) //so pop ups always appear above the Action Button
-                sendInviteButton
+                .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil, morphMode: !showBackdrop))
+                .overlay(alignment: .topLeading) { clearButton }
+                .overlay(alignment: .top) {messageOverlay}
+                .overlay(alignment: .bottom) { if !showBackdrop { hideButton.offset(y: 108) } }
+                .offset(y: showBackdrop ? cardLift : 0)
+                if showBackdrop {
+                    hideButton
+                }
             }
-            .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil, morphMode: !showBackdrop))
-            .overlay(alignment: .topLeading) { clearButton }
-            .offset(y: (showBackdrop && !isInviteResponse) ? 24 : 0)
-            .overlay(alignment: .top) {messageOverlay}
         }
         .hideTabBar(hideBar: showBackdrop)
         .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
@@ -73,9 +82,9 @@ extension SelectTimeAndPlace {
             } label: {
                 Text("Clear")
                     .font(.body(12, .regular))
-                    .foregroundStyle(Color (red: 0.7, green: 0.7, blue: 0.7))
+                    .foregroundStyle(Color (red: 0.8, green: 0.8, blue: 0.8))
                     .offset(y: -8)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 8)
             }
             .padding(.top, 24)
             .padding(.horizontal, (((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42) - (showBackdrop ? 0 : 24))
@@ -137,4 +146,16 @@ extension SelectTimeAndPlace {
     private var decreaseVerticalPadding: Bool {
         return (draft.message?.count ?? 0) > 40 && draft.place != nil
     }
+    
+    private var hideButton: some View {
+        Button {
+            showInvite = nil
+        } label: {
+            Text("Hide")
+                .font(.title(14, .bold))
+                .kerning(1.5)
+                .foregroundStyle(Color.black)
+        }
+    }
+    
 }

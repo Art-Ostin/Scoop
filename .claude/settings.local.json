@@ -32,7 +32,9 @@
       "Bash(xcodebuild -scheme \"Scoop\" -destination 'generic/platform=iOS Simulator' build)",
       "Bash(xcrun simctl *)",
       "Bash(xcodebuild build *)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build)",
+      "Bash(sed -n '34,70p' Features/SendInvite/Views/SelectTimeAndPlace.swift)",
+      "Bash(sed -n '149,202p' Features/Invites/Views/InviteCard.swift)"
     ]
   }
 }
