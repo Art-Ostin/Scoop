@@ -8,10 +8,7 @@ struct SelectTimeAndPlace: View {
 
     //2. The draft holds, proposedTimes, message, time and place, modified in this view
     @Binding var draft: EventFieldsDraft
-    
-    //3. property to hide and show the popup
-    @Binding var showInvite: String?
-    
+
     //4. Info required for viewLayout
     let name: String
     let image: UIImage
@@ -49,14 +46,10 @@ struct SelectTimeAndPlace: View {
                     .zIndex(1) //so pop ups always appear above the Action Button
                     sendInviteButton
                 }
-                .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil, morphMode: !isInviteResponse))
+                .timeAndPlaceCard(messageCount: draft.message?.count ?? 0, placeAdded: (draft.place != nil), morphMode: !isInviteResponse)
                 .overlay(alignment: .topLeading) { clearButton }
                 .overlay(alignment: .top) {messageOverlay}
-                .overlay(alignment: .bottom) { if !isInviteResponse { hideButton.offset(y: 108) } }
                 .offset(y: isInviteResponse ? cardLift : 0)
-                if isInviteResponse {
-                    hideButton
-                }
             }
         }
         .hideTabBar(hideBar: isInviteResponse)
@@ -70,19 +63,28 @@ struct SelectTimeAndPlace: View {
 extension SelectTimeAndPlace {
 
     @ViewBuilder private var clearButton: some View {
-        if hasDraftChanges {
-        Button {
-                deleteEventDefault()
+        HStack {
+            Button {
+                    deleteEventDefault()
+                } label: {
+                    Text("Clear")
+                        .font(.body(12, .regular))
+                        .foregroundStyle(Color (red: 0.8, green: 0.8, blue: 0.8))
+                }
+            Spacer()
+            
+            Button {
+                ui.showInfoScreen.toggle()
             } label: {
-                Text("Clear")
-                    .font(.body(12, .regular))
-                    .foregroundStyle(Color (red: 0.8, green: 0.8, blue: 0.8))
-                    .offset(y: -8)
-                    .padding(.horizontal, 8)
+                Image(systemName: "info.circle")
+                    .font(.body(12, .medium))
+                    .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
             }
-            .padding(.top, 24)
-            .padding(.horizontal, (((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42) - (isInviteResponse ? 0 : 24))
         }
+        .offset(y: -8)
+        .padding(.horizontal, 8)
+        .padding(.top, 24)
+        .padding(.horizontal, (((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42) - (isInviteResponse ? 0 : 24))
     }
     
     private var popupTitle: some View {
@@ -140,16 +142,21 @@ extension SelectTimeAndPlace {
     private var decreaseVerticalPadding: Bool {
         return (draft.message?.count ?? 0) > 40 && draft.place != nil
     }
-    
-    private var hideButton: some View {
-        Button {
-            showInvite = nil
-        } label: {
+}
+
+struct HidePopup: View {
+
+    let onHide: () -> Void
+
+    var body: some View {
+        Button(action: onHide) {
             Text("Hide")
                 .font(.title(14, .bold))
                 .kerning(1.5)
                 .foregroundStyle(Color.black)
+                .padding(72)
+                .contentShape(Rectangle())
         }
+        .padding(-72)
     }
-    
 }

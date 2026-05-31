@@ -1,0 +1,4 @@
+module Zoomable {
+header "Zoomable-Swift.h"
+export *
+}

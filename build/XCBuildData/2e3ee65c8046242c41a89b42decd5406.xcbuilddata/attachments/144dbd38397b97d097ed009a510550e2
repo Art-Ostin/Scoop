@@ -1,0 +1,4 @@
+module grpcWrapper {
+umbrella "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/grpc-binary/grpc-Wrapper/include"
+export *
+}

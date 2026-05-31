@@ -27,13 +27,12 @@ struct InvitesContainer: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
-        .hideTabBar(hideBar: ui.hideTab)
         .quickInviteMorph(
             iconId: $ui.showQuickInvite,
             morphInviteId: $morphInviteId,
             hideCard: pendingInvite != nil,
-            iconTint: .appCanvas,
-            showCollapsedGlyph: false
+            showsHideButton: true,
+            style: .plainCard.tinted(.appCanvas)
         ) { eventId in
             timeAndPlaceView(eventId)
         } overlay: {
@@ -83,7 +82,6 @@ extension InvitesContainer {
                     inviteModel: inviteModel,
                     defaults: vm.defaults
                 ),
-                showInvite: $ui.showQuickInvite,
                 sendInvite: { _ in respond(eventId, .newInvite) },
                 requestConfirm: { pendingInvite = $0 }
             )

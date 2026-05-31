@@ -81,7 +81,6 @@ extension ProfileView {
             let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                showInvite: $ui.showPopup.asOptionalString,
                 sendInvite: onSend,
                 requestConfirm: { pendingInvite = $0 }
             )

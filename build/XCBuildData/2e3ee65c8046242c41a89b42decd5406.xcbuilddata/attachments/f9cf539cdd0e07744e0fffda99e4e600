@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary.swiftconstvalues",
+    "dependencies" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary.d",
+    "diagnostics" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary.dia",
+    "emit-module-dependencies" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary-emit-module.dia",
+    "pch" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout-primary.swiftdeps"
+  },
+  "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/Sources/SwiftUIFlowLayout/SwiftUIFlowLayout.swift" : {
+    "index-unit-output-path" : "/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout.o",
+    "llvm-bc" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout.bc",
+    "object" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/swiftui-flow-layout/build/SwiftUIFlowLayout.build/Release-iphoneos/SwiftUIFlowLayout.build/Objects-normal/arm64/SwiftUIFlowLayout.o"
+  }
+}

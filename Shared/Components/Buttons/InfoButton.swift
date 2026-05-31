@@ -21,7 +21,7 @@ struct TabInfoButton: View {
                         .font(.body(18, .medium))
                         .foregroundStyle(Color.black)
                         .padding(6)
-                        .glassIfAvailable(Circle(), isClear: true, thinMaterial: true)
+//                        .glassIfAvailable(Circle(), isClear: true, thinMaterial: true)
 
                         //2. Logic for positioning
                         .padding(.top, 16) //As its small icon, sits in correct position
@@ -29,11 +29,26 @@ struct TabInfoButton: View {
                 }
                 //3. Retracts up into the nav bar with a soft glass blur
                 .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
+                .glassButtonStyle()
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isAtTopOfScroll)
     }
 }
+
+extension View {
+
+    @ViewBuilder
+    func glassButtonStyle() -> some View {
+        if #available(iOS 26.0, *) {
+            buttonStyle(.glass)
+        } else {
+            buttonStyle(.plain)
+        }
+    }
+}
+
+
 
 //To disappear when it is not at the top. 
 private struct ScrollTopTracker: ViewModifier {

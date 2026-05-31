@@ -128,8 +128,4 @@ extension InvitesViewModel {
 
     //5. The details Screen for invites
     var showDetails: Bool = false
-
-    //6. Determine if a popup is showing and when o h
-    var isPopup: Bool { showAcceptPopup != nil || showNewTimePopup != nil }
-    var hideTab: Bool { isPopup || selectedProfile != nil || showQuickInvite != nil || respondedToProfile != nil}
 }

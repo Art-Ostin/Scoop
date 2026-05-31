@@ -42,7 +42,7 @@ struct MeetContainer: View {
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
-        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil) { id in
+        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil, showsHideButton: true) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)
@@ -114,7 +114,6 @@ extension MeetContainer {
             let inviteModel = InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                showInvite: $ui.quickInvite,
                 sendInvite: { inviteDraft in
                     Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
                 },

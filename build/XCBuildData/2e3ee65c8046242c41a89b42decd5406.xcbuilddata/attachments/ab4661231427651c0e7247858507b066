@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary.swiftconstvalues",
+    "dependencies" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary.d",
+    "diagnostics" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary.dia",
+    "emit-module-dependencies" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary-emit-module.dia",
+    "pch" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable-primary.swiftdeps"
+  },
+  "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/Sources/Zoomable/Zoomable.swift" : {
+    "index-unit-output-path" : "/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable.o",
+    "llvm-bc" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable.bc",
+    "object" : "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/Zoomable/build/Zoomable.build/Release-iphoneos/Zoomable.build/Objects-normal/arm64/Zoomable.o"
+  }
+}

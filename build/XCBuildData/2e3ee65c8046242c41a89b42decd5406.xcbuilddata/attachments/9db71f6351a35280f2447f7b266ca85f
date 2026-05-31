@@ -1,0 +1,4 @@
+module opensslWrapper {
+umbrella "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/grpc-binary/openssl-grpc-Wrapper/include"
+export *
+}

@@ -1,0 +1,4 @@
+module ChatBubble {
+header "ChatBubble-Swift.h"
+export *
+}

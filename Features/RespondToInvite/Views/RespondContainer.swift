@@ -23,6 +23,11 @@ struct RespondPager: View {
 
     let onResponse: (ProfileResponse) -> Void
 
+    // Measured bottom edge of the accept card (in the pager's coordinate space). The Hide
+    // button pins to this so it sits just below the cards regardless of screen size, and
+    // stays put while pages scroll horizontally (only X changes as they scroll, Y is stable).
+    @State private var cardBottomY: CGFloat = 0
+
     var body: some View {
         GeometryReader { proxy in
             let cardWidth = proxy.size.width
@@ -46,11 +51,18 @@ struct RespondPager: View {
             .scrollTargetBehavior(.viewAligned)
             .scrollIndicators(.hidden)
             .scrollPosition(id: $ui.scrollPosition)
-            .onPreferenceChange(IsTimeOpen.self) { isTimeOpen in
+            .onPreferenceChange(IsTimeOpen.self) {isTimeOpen in
                 ui.showTimePopup = isTimeOpen
             }
         }
+        .coordinateSpace(name: respondPagerSpace)
         .overlay(alignment: .top) { timeMessageOverlay }
+        .overlay(alignment: .top) {
+            HidePopup(onHide: { showPopup = false })
+                .opacity(ui.popupShown || ui.dismissHidePopup || cardBottomY <= 1 ? 0 : 1)
+                .offset(y: cardBottomY + 96)
+        }
+        .onPreferenceChange(RespondCardBottomKey.self) { cardBottomY = $0 }
     }
 }
 
@@ -59,12 +71,11 @@ extension RespondPager {
     private func acceptInvitePage(cardWidth: CGFloat) -> some View {
         ZStack {
             Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {showPopup = false}
             RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $ui.confirmNewTimeInvite, confirmAcceptInvite: $ui.confirmAcceptInvite) {
                 onResponse(.decline)
             }
             .pageScrollTransition(anchor: .trailing, yOffset: 12)
+            .background(cardBottomReader)
         }
         .frame(width: cardWidth, alignment: .topLeading)
         .frame(maxHeight: .infinity, alignment: .topLeading)
@@ -73,10 +84,7 @@ extension RespondPager {
     private func counterInvitePage(cardWidth: CGFloat) -> some View {
         ZStack {
             Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {showPopup = false}
-
-            RespondTimeAndPlaceView(vm: vm, showInvite: $showPopup.asOptionalString) { onResponse(.newInvite)}
+            RespondTimeAndPlaceView(vm: vm) { onResponse(.newInvite)}
                 .pageScrollTransition(anchor: .leading, yOffset: 32)
         }
         .frame(width: cardWidth, alignment: .topLeading)
@@ -88,6 +96,24 @@ extension RespondPager {
         if vm.responseType == .modified {
             SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup)
         }
+    }
+
+    private var cardBottomReader: some View {
+        GeometryReader { proxy in
+            Color.clear.preference(
+                key: RespondCardBottomKey.self,
+                value: proxy.frame(in: .named(respondPagerSpace)).maxY
+            )
+        }
+    }
+}
+
+private let respondPagerSpace = "respondPager"
+
+private struct RespondCardBottomKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 

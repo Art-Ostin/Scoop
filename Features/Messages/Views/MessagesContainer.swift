@@ -49,7 +49,6 @@ struct MessagesContainer: View {
                     Image(systemName: "message.fill")
                         .font(.body.weight(.bold))
                         .padding(10)
-                    
                 }
                 .buttonStyle(.glassProminent)
             } else {

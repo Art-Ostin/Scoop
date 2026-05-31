@@ -9,7 +9,6 @@ import SwiftUI
 
 struct TimeAndPlaceCard: ViewModifier {
 
-    @Binding var showInfoScreen: Bool
     let messageCount: Int
     let placeAdded: Bool
     var morphMode: Bool = false
@@ -23,9 +22,27 @@ struct TimeAndPlaceCard: ViewModifier {
             .frame(maxWidth: .infinity)
             .background (cardBackground)
             .padding(.horizontal, morphMode ? 0 : horizontalPadding())
-            .overlay(alignment: .topTrailing) { infoButton }
     }
 }
+
+extension View {
+    
+    func timeAndPlaceCard(
+        messageCount: Int,
+        placeAdded: Bool,
+        morphMode: Bool = false
+    ) -> some View {
+        modifier(
+            TimeAndPlaceCard(
+                messageCount: messageCount,
+                placeAdded: placeAdded,
+                morphMode: morphMode
+            )
+        )
+    }
+}
+
+
 
 extension TimeAndPlaceCard {
     
@@ -60,12 +77,17 @@ extension TimeAndPlaceCard {
         
         return originalHPadding
     }
-    
-    
-    private var infoButton: some View {
-        TabInfoButton(showScreen: $showInfoScreen, isAtTopOfScroll: true)
-            .scaleEffect(0.9)
-            .offset(y: -48)
-            .padding(.horizontal, morphMode ? 0 : horizontalPadding())
-    }
 }
+
+
+/*
+ .overlay(alignment: .topTrailing) { infoButton }
+ 
+ private var infoButton: some View {
+     TabInfoButton(showScreen: $showInfoScreen, isAtTopOfScroll: true)
+         .scaleEffect(0.9)
+         .offset(y: -48)
+         .padding(.horizontal, morphMode ? 0 : horizontalPadding())
+ }
+ 
+ */
