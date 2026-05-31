@@ -37,7 +37,10 @@
       "Bash(sed -n '149,202p' Features/Invites/Views/InviteCard.swift)",
       "Bash(git log *)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop Test\" -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -destination 'generic/platform=iOS Simulator' -configuration Debug build)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme Scoop -destination 'generic/platform=iOS Simulator' -quiet build)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop Test\" -destination 'generic/platform=iOS Simulator' -configuration Debug build CODE_SIGNING_ALLOWED=NO)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -destination 'generic/platform=iOS Simulator' -configuration Debug build CODE_SIGNING_ALLOWED=NO)"
     ]
   }
 }

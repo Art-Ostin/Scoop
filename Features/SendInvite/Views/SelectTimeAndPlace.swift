@@ -26,9 +26,6 @@ struct SelectTimeAndPlace: View {
     //7.defaults only to pass into the MapView beneath
     let defaults: DefaultsManaging
 
-    //8. When false the caller supplies its own backdrop (e.g. the Meet morph overlay)
-    var showBackdrop: Bool = true
-
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
     //9. Vertical lift applied to the card in every mode (negative = up)
@@ -36,10 +33,7 @@ struct SelectTimeAndPlace: View {
 
     var body: some View {
         ZStack {
-            if showBackdrop && !isInviteResponse {
-                CustomScreenCover {}
-            }
-            VStack(spacing: showBackdrop ? 48 : 0) {
+            VStack(spacing: isInviteResponse ? 48 : 0) {
                 VStack(spacing: 0) {
                     popupTitle
                     VStack(spacing: 16) {
@@ -55,17 +49,17 @@ struct SelectTimeAndPlace: View {
                     .zIndex(1) //so pop ups always appear above the Action Button
                     sendInviteButton
                 }
-                .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil, morphMode: !showBackdrop))
+                .modifier(TimeAndPlaceCard(showInfoScreen: $ui.showInfoScreen, messageCount: draft.message?.count ?? 0, placeAdded: draft.place != nil, morphMode: !isInviteResponse))
                 .overlay(alignment: .topLeading) { clearButton }
                 .overlay(alignment: .top) {messageOverlay}
-                .overlay(alignment: .bottom) { if !showBackdrop { hideButton.offset(y: 108) } }
-                .offset(y: showBackdrop ? cardLift : 0)
-                if showBackdrop {
+                .overlay(alignment: .bottom) { if !isInviteResponse { hideButton.offset(y: 108) } }
+                .offset(y: isInviteResponse ? cardLift : 0)
+                if isInviteResponse {
                     hideButton
                 }
             }
         }
-        .hideTabBar(hideBar: showBackdrop)
+        .hideTabBar(hideBar: isInviteResponse)
         .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
@@ -87,7 +81,7 @@ extension SelectTimeAndPlace {
                     .padding(.horizontal, 8)
             }
             .padding(.top, 24)
-            .padding(.horizontal, (((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42) - (showBackdrop ? 0 : 24))
+            .padding(.horizontal, (((draft.message?.count ?? 0) > 35 || draft.place != nil) ? 36 : 42) - (isInviteResponse ? 0 : 24))
         }
     }
     

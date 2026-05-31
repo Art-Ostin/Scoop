@@ -117,7 +117,6 @@ extension InvitesViewModel {
     //2. Confirmation alerts triggered from invite cards (carry event.id)
     var showAcceptPopup: String?
     var showNewTimePopup: String?
-    var showNewInvitePopup: String?
     var showQuickInvite: String?
 
     //3. Show the respond Popup Screen
@@ -131,6 +130,6 @@ extension InvitesViewModel {
     var showDetails: Bool = false
 
     //6. Determine if a popup is showing and when o h
-    var isPopup: Bool { showAcceptPopup != nil || showNewTimePopup != nil || showNewInvitePopup != nil }
+    var isPopup: Bool { showAcceptPopup != nil || showNewTimePopup != nil }
     var hideTab: Bool { isPopup || selectedProfile != nil || showQuickInvite != nil || respondedToProfile != nil}
 }

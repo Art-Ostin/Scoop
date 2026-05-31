@@ -11,27 +11,6 @@ enum RespondScrollType {
     case acceptPage, counterInvitePage
 }
 
-//Here the viewModel, holding and being updated by the user's response is in a higher view, in ViewModel.
-//Therefore to trigger response, just pass in what type of response, and parent view triggers what to do.
-struct RespondPopupContainer: View {
-
-    @State private var ui = RespondPopupUIState()
-
-    @Bindable var vm: RespondViewModel
-    @Binding var showPopup: Bool
-
-    let onResponse: (ProfileResponse) -> Void
-
-    var body: some View {
-        ZStack {
-            CustomScreenCover { showPopup = false }
-            RespondPager(vm: vm, ui: ui, showPopup: $showPopup, onResponse: onResponse)
-        }
-        .hideTabBar()
-        .respondConfirmAlerts(ui: ui, onResponse: onResponse)
-    }
-}
-
 // The full-screen horizontal accept / counter-invite pager, with no backdrop or confirm
 // alerts of its own so it can be dropped into the quick-invite morph as the card content
 // (the morph supplies the backdrop and hosts the alerts). The accept card tags itself
@@ -123,7 +102,6 @@ struct RespondConfirmAlerts: ViewModifier {
         content
             .respondCustomAlert(isPresented: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime)}
             .respondCustomAlert(isPresented: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted)}
-            .respondCustomAlert(isPresented: $ui.confirmSendNewInvite, type: .newInvite) { ui.dismissHidePopup = true ; onResponse(.newInvite)}
     }
 }
 

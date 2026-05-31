@@ -11,7 +11,6 @@ import SwiftUI
 struct InviteTimeAndPlaceView: View {
     @State var vm: TimeAndPlaceViewModel
     @Binding var showInvite: String?
-    var showBackdrop: Bool = true
     let sendInvite: (EventFieldsDraft) -> Void
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
@@ -25,7 +24,6 @@ struct InviteTimeAndPlaceView: View {
             onSendInvite: {sendInvite(vm.event)},
             isInviteResponse: false,
             defaults: vm.defaults,
-            showBackdrop: showBackdrop,
             requestConfirm: requestConfirm
         )
     }

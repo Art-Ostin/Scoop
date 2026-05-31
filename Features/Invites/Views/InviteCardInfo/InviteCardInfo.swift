@@ -43,6 +43,7 @@ struct InviteCardInfo: View {
                 .padding(8)
                 .contentShape(.rect)
         }
+        .inviteIconAnchor(id: event.id)
         .padding(-8)
         .padding(.bottom, 12)
     }

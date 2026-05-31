@@ -24,6 +24,8 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // Duration of the icon→card open spring. Lets callers tune snappiness per flow
     // (e.g. respond opens slightly faster than send).
     let openDuration: Double
+    // Whether the collapsed surface shows the letter glyph (see QuickInviteMorph).
+    let showCollapsedGlyph: Bool
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the morph card (e.g. a confirmation alert) that must NOT
     // be clamped to the card's frame, so its dim can cover the whole screen.
@@ -55,6 +57,8 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                             contentOwnsBackground: contentOwnsBackground,
                             iconTint: iconTint,
                             openDuration: openDuration,
+                            showCollapsedGlyph: showCollapsedGlyph,
+                            onCollapsed: { if iconId == nil { withoutCoverAnimation { morphInviteId = nil } } },
                             card: { card(id) },
                             overlay: overlay
                         )
@@ -74,20 +78,15 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // only motion is the morph itself. On present we also capture the icon's global
     // frame; on dismiss we keep the cover mounted briefly so the collapse can play.
     private func handleChange(_ new: String?, anchors: [String: Anchor<CGRect>], proxy: GeometryProxy) {
-        if let new, let anchor = anchors[new] {
-            let local = proxy[anchor]
-            let origin = proxy.frame(in: .global).origin
-            iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
-                              width: local.width, height: local.height)
-            withoutCoverAnimation { morphInviteId = new }
-        } else {
-            Task {
-                // Outlast the spring collapse so the cover stays mounted until the
-                // morph has fully folded back onto the icon.
-                try? await Task.sleep(for: .milliseconds(420))
-                if iconId == nil { withoutCoverAnimation { morphInviteId = nil } }
-            }
-        }
+        // Only handle present here: capture the tapped icon's global frame and mount the
+        // cover. The collapse/unmount is driven by QuickInviteMorph's onCollapsed, which
+        // fires precisely when the fold-back lands.
+        guard let new, let anchor = anchors[new] else { return }
+        let local = proxy[anchor]
+        let origin = proxy.frame(in: .global).origin
+        iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
+                          width: local.width, height: local.height)
+        withoutCoverAnimation { morphInviteId = new }
     }
 
     private func withoutCoverAnimation(_ body: () -> Void) {
@@ -108,6 +107,12 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let contentOwnsBackground: Bool
     let iconTint: Color
     let openDuration: Double
+    // When false, the collapsed surface is a bare rounded rectangle (no letter glyph) —
+    // for sources that aren't the circular invite icon (e.g. a "Can't make it?" text button).
+    let showCollapsedGlyph: Bool
+    // Fired the instant the collapse animation lands, so the caller can unmount the cover
+    // exactly as the surface folds back — no settled-surface lingering over real content.
+    let onCollapsed: () -> Void
     @ViewBuilder var card: () -> Card
     @ViewBuilder var overlay: () -> Overlay
 
@@ -175,9 +180,15 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             // instead of the generic fallback window — and doesn't drift as pages scroll.
             if measuredCardRect == nil, let rect, rect.height > 1 { measuredCardRect = rect }
         }
-        .onAppear { DispatchQueue.main.async { expanded = true } }
+        .onAppear { DispatchQueue.main.async { withAnimation(openAnimation) { expanded = true } } }
         .onChange(of: isPresented) { _, presented in
-            if !presented { expanded = false }
+            if presented {
+                withAnimation(openAnimation) { expanded = true }
+            } else {
+                // Drive the collapse explicitly so its completion fires exactly when the
+                // surface lands; the caller then unmounts the cover on that same frame.
+                withAnimation(closeAnimation) { expanded = false } completion: { onCollapsed() }
+            }
         }
         .onChange(of: expanded) { _, isExpanded in
             // Hand the card surface off to content that brings its own chrome. Set
@@ -185,7 +196,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             // entrance, then fades it. On close it returns instantly to collapse.
             if contentOwnsBackground { surfaceHandedOff = isExpanded }
         }
-        .animation(morphAnimation, value: expanded)
         .animation(morphAnimation, value: cardHeight)
     }
 
@@ -215,12 +225,14 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                 .opacity(expanded ? 1 : 0)
         }
         .overlay {
-            Image("LetterIconProfile")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24)
-                .foregroundStyle(.white)
-                .opacity(expanded ? 0 : 1)
+            if showCollapsedGlyph {
+                Image("LetterIconProfile")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24)
+                    .foregroundStyle(.white)
+                    .opacity(expanded ? 0 : 1)
+            }
         }
         .shadow(color: iconTint.opacity(0.15), radius: 4, y: 2)
         .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
@@ -340,9 +352,10 @@ extension View {
         contentOwnsBackground: Bool = false,
         iconTint: Color = .accent,
         openDuration: Double = 0.35,
+        showCollapsedGlyph: Bool = true,
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, contentOwnsBackground: contentOwnsBackground, iconTint: iconTint, openDuration: openDuration, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, contentOwnsBackground: contentOwnsBackground, iconTint: iconTint, openDuration: openDuration, showCollapsedGlyph: showCollapsedGlyph, card: card, overlay: overlay))
     }
 }

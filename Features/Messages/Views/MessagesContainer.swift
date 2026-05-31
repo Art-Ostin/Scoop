@@ -41,6 +41,49 @@ struct MessagesContainer: View {
         .overlay(alignment: .topTrailing) { actionBar }
         .task(id: vm.user.imagePathURL) { await prepareUserImages() }
         .navigationDestination(for: PastEventsRoute.self, destination: destination)
+        .overlay {
+            if #available(iOS 26.0, *) {
+                Button {
+                    // action
+                } label: {
+                    Image(systemName: "message.fill")
+                        .font(.body.weight(.bold))
+                        .padding(10)
+                    
+                }
+                .buttonStyle(.glassProminent)
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if #available(iOS 26.0, *) {
+                Button {
+                    // action
+                } label: {
+                    Image(systemName: "message.fill")
+                        .font(.body.weight(.bold))
+                        .padding(10)
+                    
+                }
+                .buttonStyle(.glass)
+                .padding(.bottom, 144)
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+        .overlay(alignment: .bottom) {
+                Button {
+                    // action
+                } label: {
+                    Image(systemName: "message.fill")
+                        .font(.body.weight(.bold))
+                        .padding(10)
+                    
+                }
+                .buttonStyle(.borderless)
+                .padding(.bottom, 50)
+        }
     }
 }
 

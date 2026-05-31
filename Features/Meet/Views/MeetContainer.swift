@@ -115,7 +115,6 @@ extension MeetContainer {
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
                 showInvite: $ui.quickInvite,
-                showBackdrop: false,
                 sendInvite: { inviteDraft in
                     Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
                 },

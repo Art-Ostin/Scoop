@@ -82,7 +82,6 @@ extension ProfileView {
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
                 showInvite: $ui.showPopup.asOptionalString,
-                showBackdrop: false,
                 sendInvite: onSend,
                 requestConfirm: { pendingInvite = $0 }
             )

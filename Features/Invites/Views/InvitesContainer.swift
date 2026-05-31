@@ -13,25 +13,36 @@ struct InvitesContainer: View {
     
     @State var ui = InvitesUIState()
     @State var vm: InvitesViewModel
-    
+
+    @State private var morphInviteId: String?
+    @State private var pendingInvite: (() -> Void)?
+
     var body: some View {
         ZStack {
             invitesView
-            
+
             if let profile = ui.selectedProfile { profileView(profile: profile)}
-            
-            if let eventId = ui.showQuickInvite {timeAndPlaceView(eventId)}
-            
+
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
         .hideTabBar(hideBar: ui.hideTab)
-        
+        .quickInviteMorph(
+            iconId: $ui.showQuickInvite,
+            morphInviteId: $morphInviteId,
+            hideCard: pendingInvite != nil,
+            iconTint: .appCanvas,
+            showCollapsedGlyph: false
+        ) { eventId in
+            timeAndPlaceView(eventId)
+        } overlay: {
+            MorphConfirmAlert(pending: $pendingInvite)
+        }
+
         //The popups to respond to invite, from the invite card
         .respondItemCustomAlert(item: $ui.showAcceptPopup, type: .acceptInvite) { respond($0, .accepted) }
         .respondItemCustomAlert(item: $ui.showNewTimePopup, type: .sendNewTimes) { respond($0, .newTime) }
-        .respondItemCustomAlert(item: $ui.showNewInvitePopup, type: .newInvite) { respond($0, .newInvite) }
     }
 }
 
@@ -72,9 +83,10 @@ extension InvitesContainer {
                     inviteModel: inviteModel,
                     defaults: vm.defaults
                 ),
-                showInvite: $ui.showQuickInvite) {responseDraft in
-                    respond(eventId, .newInvite)
-                }
+                showInvite: $ui.showQuickInvite,
+                sendInvite: { _ in respond(eventId, .newInvite) },
+                requestConfirm: { pendingInvite = $0 }
+            )
         }
     }
     

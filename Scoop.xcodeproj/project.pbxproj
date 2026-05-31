@@ -30,7 +30,6 @@
 		650E8E5C2EB80D9E009F5454 /* DetailsSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */; };
 		650E8E5E2EB82F6F009F5454 /* EventDeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */; };
 		650F5F352F297C6D0099CECC /* OkDismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650F5F342F297C6D0099CECC /* OkDismissButton.swift */; };
-		6512639E2EAFCE50005E6930 /* CustomScreenCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */; };
 		65140B1C2F55E41000ED1DDE /* ChatThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1B2F55E40E00ED1DDE /* ChatThread.swift */; };
 		65140B1E2F55E92400ED1DDE /* ChatMessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1D2F55E92400ED1DDE /* ChatMessageModel.swift */; };
 		65140B202F55EE7400ED1DDE /* ChatRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */; };
@@ -91,7 +90,6 @@
 		654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009D2E35835900FFD504 /* AppDependencies.swift */; };
 		654C58952F6B5030002060C5 /* RespondButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C58942F6B5021002060C5 /* RespondButtons.swift */; };
 		654C58972F6B50B4002060C5 /* SelectAvailableDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */; };
-		654C58A12F6B7D7D002060C5 /* InviteSelectTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */; };
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
 		655AB8FF2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
@@ -318,7 +316,6 @@
 		650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsSections.swift; sourceTree = "<group>"; };
 		650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDeclineButton.swift; sourceTree = "<group>"; };
 		650F5F342F297C6D0099CECC /* OkDismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OkDismissButton.swift; sourceTree = "<group>"; };
-		6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomScreenCover.swift; sourceTree = "<group>"; };
 		65140B1B2F55E40E00ED1DDE /* ChatThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatThread.swift; sourceTree = "<group>"; };
 		65140B1D2F55E92400ED1DDE /* ChatMessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageModel.swift; sourceTree = "<group>"; };
 		65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRepo.swift; sourceTree = "<group>"; };
@@ -375,7 +372,6 @@
 		654C009D2E35835900FFD504 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		654C58942F6B5021002060C5 /* RespondButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondButtons.swift; sourceTree = "<group>"; };
 		654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAvailableDay.swift; sourceTree = "<group>"; };
-		654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteSelectTimeView.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
 		655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseAndCheckNavButton.swift; sourceTree = "<group>"; };
 		655CE0EB2F8BED3A00C9ECE3 /* InviteCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfo.swift; sourceTree = "<group>"; };
@@ -921,7 +917,6 @@
 				65A13BB82F8D7EC6009255D4 /* InviteCardMessageView.swift */,
 				65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */,
 				65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */,
-				654C58A02F6B7D7D002060C5 /* InviteSelectTimeView.swift */,
 				654C58962F6B50B4002060C5 /* SelectAvailableDay.swift */,
 			);
 			path = InviteCardInfo;
@@ -1330,7 +1325,6 @@
 			isa = PBXGroup;
 			children = (
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
-				6512639D2EAFCE50005E6930 /* CustomScreenCover.swift */,
 			);
 			path = Alerts;
 			sourceTree = "<group>";
@@ -1822,7 +1816,6 @@
 				65140B1E2F55E92400ED1DDE /* ChatMessageModel.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
 				65FFB9952FAFD4220006ED96 /* ProfileGestures.swift in Sources */,
-				6512639E2EAFCE50005E6930 /* CustomScreenCover.swift in Sources */,
 				65C7D6292E54007000B726B8 /* PendingProfile.swift in Sources */,
 				6509DCEB2F1D78C000455AB5 /* Languages.swift in Sources */,
 				6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */,
@@ -1835,7 +1828,6 @@
 				651D09BF2F3BC64F008773E8 /* CustomMapAnnotation.swift in Sources */,
 				655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */,
 				65F660C82F23EF9E00AF791F /* BlockedContextModel.swift in Sources */,
-				654C58A12F6B7D7D002060C5 /* InviteSelectTimeView.swift in Sources */,
 				6576831E2F5910C20094A02D /* ChatScrollView.swift in Sources */,
 				6577D7EB2E2077A200FFCF82 /* EditMyLifeAs.swift in Sources */,
 				6577D7E52E20454200FFCF82 /* OptionPill.swift in Sources */,

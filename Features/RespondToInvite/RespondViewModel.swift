@@ -19,8 +19,7 @@ class RespondPopupUIState {
     //Logic for which Popup to show
     var confirmNewTimeInvite: Bool = false
     var confirmAcceptInvite: Bool = false
-    var confirmSendNewInvite: Bool = false
-    var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite || confirmSendNewInvite}
+    var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite }
     
     //Track the scroll Position
     var scrollPosition: RespondScrollType? = .acceptPage
