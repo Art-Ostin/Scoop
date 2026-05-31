@@ -34,7 +34,7 @@ struct MeetInfoCover: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                ActionButton(isValid: true, text: "Done") { dismiss() }
+                ActionButton(text: "Done") { dismiss() }
                     .padding(.bottom, 28)
             }
         }

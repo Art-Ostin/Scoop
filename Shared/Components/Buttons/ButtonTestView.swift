@@ -10,17 +10,21 @@ struct ButtonTestView: View {
     var body: some View {
         
         VStack(spacing: 72) {
-            shrinkButton
+
+            noShadow
             
-            growButton
+            highShadow
             
+            mediumShadow
+
+            lowShadow
         }
     }
 }
 
 extension ButtonTestView {
     
-    private var growButton: some View {
+    private var noShadow: some View {
         
         Button {
         } label: {
@@ -30,14 +34,12 @@ extension ButtonTestView {
                 .frame(width: 24, height: 24)
                 .frame(width: 40, height: 40)
                 .glassIfAvailable(Circle(), isClear: false, tint: .accent)
-//                .surfaceShadow(.floating, strength: 3)
         }
-        .glassButtonStyleIfAvailable()
+        .customButtonPressAndShadow()
     }
-    
-    
-    
-    private var shrinkButton: some View {
+
+
+    private var highShadow: some View {
         
         Button {
         } label: {
@@ -46,11 +48,38 @@ extension ButtonTestView {
                 .scaledToFit()
                 .frame(width: 24, height: 24)
                 .frame(width: 40, height: 40)
-                .glassIfAvailable(Circle(), isClear: false, tint: .accent)
-                .surfaceShadow(.floating, strength: 3)
+                .buttonColourBackground(Circle())
         }
-        .buttonStyle(.secondary)
+        .customButtonPressAndShadow(.high)
     }
+    
+    private var mediumShadow: some View {
+        Button {
+        } label: {
+            Image("LetterIconProfile")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .frame(width: 40, height: 40)
+                .glassIfAvailable(Circle(), isClear: false, tint: .accent)
+        }
+        .customButtonPressAndShadow(.medium)
+    }
+
+    private var lowShadow: some View {
+
+        Button {
+        } label: {
+            Image("LetterIconProfile")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .frame(width: 40, height: 40)
+                .glassIfAvailable(Circle(), isClear: false, tint: .accent)
+        }
+        .customButtonPressAndShadow(.low)
+    }
+
 }
 
 

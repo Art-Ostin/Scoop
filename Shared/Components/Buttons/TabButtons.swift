@@ -66,6 +66,15 @@ extension View {
             buttonStyle(.plain)
         }
     }
+
+    @ViewBuilder
+    func glassProminentButtonStyleIfAvailable() -> some View {
+        if #available(iOS 26.0, *) {
+            buttonStyle(.glassProminent)
+        } else {
+            buttonStyle(.plain)
+        }
+    }
 }
 
 

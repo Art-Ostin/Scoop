@@ -44,7 +44,7 @@ struct OnboardingImages: View {
                     OnboardingPhotoCell(selectedImage: $selectedImage, index: index, image: $images[index])
                 }
             }
-            ActionButton(isValid: images.allSatisfy({$0 != nil}), text: "Complete") {
+            ActionButton(text: "Complete", isValid: images.allSatisfy({$0 != nil})) {
                 showSavingScreen = true
                 Task {
                     do {
