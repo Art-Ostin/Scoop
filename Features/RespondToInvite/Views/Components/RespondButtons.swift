@@ -108,21 +108,4 @@ struct InviteRespondButton: View {
     }
 }
 
-
-
-//Update to mimic Revolut's custom button tap style
-struct PressableButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(withAnimation(.easeInOut) { configuration.isPressed ? 0.9 : 1 })
-            .brightness(configuration.isPressed ? 0.1 : 0)
-    }
-}
-
-extension View {
-    func customButtonStyle() -> some View {
-        buttonStyle(PressableButtonStyle())
-    }
-}
-
  

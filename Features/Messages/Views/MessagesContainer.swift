@@ -28,19 +28,27 @@ struct MessagesContainer: View {
     }
 
     var body: some View {
-        AppScrollView(title: "Message") {
-            ZStack {
-                if vm.events.isEmpty {
-                    messagesAppearHereView
-                } else {
-                    matchesView
-                        .padding(.top, -12)
+        NavigationStack(path: $path) {
+            messageContainerRootView
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "gear")
+                                .font(.system(size: 15, weight: .semibold))
+                        }
+                        .controlSize(.small)
+                    }
                 }
-            }
         }
+        
+        .hideTabBar(hideBar: !path.isEmpty)
         .overlay(alignment: .topTrailing) { actionBar }
-        .task(id: vm.user.imagePathURL) { await prepareUserImages() }
-        .navigationDestination(for: PastEventsRoute.self, destination: destination)
+        
+        
+        
+        
         .overlay {
             if #available(iOS 26.0, *) {
                 Button {
@@ -55,38 +63,29 @@ struct MessagesContainer: View {
                 // Fallback on earlier versions
             }
         }
-        .overlay(alignment: .bottom) {
-            if #available(iOS 26.0, *) {
-                Button {
-                    // action
-                } label: {
-                    Image(systemName: "message.fill")
-                        .font(.body.weight(.bold))
-                        .padding(10)
-                    
-                }
-                .buttonStyle(.glass)
-                .padding(.bottom, 144)
-            } else {
-                // Fallback on earlier versions
-            }
-        }
-        .overlay(alignment: .bottom) {
-                Button {
-                    // action
-                } label: {
-                    Image(systemName: "message.fill")
-                        .font(.body.weight(.bold))
-                        .padding(10)
-                    
-                }
-                .buttonStyle(.borderless)
-                .padding(.bottom, 50)
-        }
     }
 }
 
 extension MessagesContainer {
+    
+    
+    private var messageContainerRootView: some View {
+        AppScrollView(title: "Message") {
+            ZStack {
+                if vm.events.isEmpty {
+                    messagesAppearHereView
+                } else {
+                    matchesView
+                        .padding(.top, -12)
+                }
+            }
+        }
+        .task(id: vm.user.imagePathURL) { await prepareUserImages() }
+        .navigationDestination(for: PastEventsRoute.self, destination: destination)
+    }
+    
+    
+    
     
     // MARK: - Subviews
     private var matchesView: some View {
@@ -119,11 +118,13 @@ extension MessagesContainer {
 
     private var actionBar: some View {
         HStack {
-            SettingsButton(zoomNS: settingsZoomNS, action: { path.append(PastEventsRoute.settings) })
+//            SettingsButton(zoomNS: settingsZoomNS, action: { path.append(PastEventsRoute.settings) })
             Spacer()
             profileButton
         }
         .padding(.horizontal, 16)
+        .allowsHitTesting(path.isEmpty)
+        .opacity(path.isEmpty ? 1 : 0)
     }
     
     private var profileButton: some View {

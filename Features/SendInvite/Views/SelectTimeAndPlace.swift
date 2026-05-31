@@ -154,9 +154,9 @@ struct HidePopup: View {
                 .font(.title(14, .bold))
                 .kerning(1.5)
                 .foregroundStyle(Color.black)
-                .padding(72)
+                .padding(36)
                 .contentShape(Rectangle())
         }
-        .padding(-72)
+        .padding(-36)
     }
 }

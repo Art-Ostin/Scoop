@@ -99,7 +99,10 @@ struct ProfileView: View {
             hideCard: pendingInvite != nil,
             showsHideButton: !isRespondMode,
             style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
-                .tinted(vm.viewProfileType == .invite ? .accent : .appGreen)
+                .tinted(vm.viewProfileType == .invite ? .accent : .appGreen),
+            // ProfileView already covers the tab bar, so present as an overlay to skip the
+            // cover-presentation latency that makes the morph pop in collapsed before opening.
+            presentsAsOverlay: true
         ) { _ in
             sendInviteMorphCard
         } overlay: {

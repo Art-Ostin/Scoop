@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+// Monotonic ms timestamp for morph timing diagnostics. Remove with the [MORPH] prints.
+func morphT() -> String {
+    String(format: "%.1fms", Date().timeIntervalSinceReferenceDate * 1000)
+}
+
 // MARK: - Style
 
 // Per-flow knobs for a quick-invite morph. Pick a preset (and optionally `.tint`);
@@ -17,7 +22,7 @@ struct QuickInviteMorphStyle {
     // the morph folds back onto it seamlessly.
     var tint: Color = .accent
     // Icon→card open spring duration; lets flows tune snappiness.
-    var openDuration: Double = 0.35
+    var openDuration: Double = 0.28
     // Whether the collapsed surface shows the letter glyph (off for non-icon sources).
     var showsGlyph: Bool = true
     // When the card content brings its own chrome (e.g. a pager), the surface grows into
@@ -48,6 +53,11 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // Floats a "Hide" dismiss control below the card (send flows only).
     let showsHideButton: Bool
     let style: QuickInviteMorphStyle
+    // When true, mount the morph as a plain SwiftUI overlay instead of a fullScreenCover.
+    // Hosts that already cover the tab bar (e.g. ProfileView) use this to skip the few
+    // frames of UIKit cover-presentation latency, so the morph expands in the same render
+    // pass as the tap instead of popping in collapsed first.
+    let presentsAsOverlay: Bool
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the card (e.g. a confirm alert) so its dim covers the screen
     // rather than being clamped to the card frame.
@@ -57,8 +67,9 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // tab bar) starts exactly on the source button.
     @State private var iconRect: CGRect = .zero
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content
+        let anchored = content
             .overlayPreferenceValue(InviteIconBoundsKey.self) { anchors in
                 GeometryReader { proxy in
                     Color.clear
@@ -67,26 +78,37 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                         }
                 }
             }
-            .fullScreenCover(isPresented: morphPresented) {
-                GeometryReader { geo in
-                    if let id = morphInviteId {
-                        QuickInviteMorph(
-                            iconRect: iconRect,
-                            isPresented: iconId != nil,
-                            containerSize: geo.size,
-                            hideCard: hideCard,
-                            style: style,
-                            onCollapsed: { if iconId == nil { withoutCoverAnimation { morphInviteId = nil } } },
-                            showsHideButton: showsHideButton,
-                            onHide: { iconId = nil },
-                            card: { card(id) },
-                            overlay: overlay
-                        )
-                    }
-                }
-                .ignoresSafeArea()
-                .presentationBackground(.clear)
+        if presentsAsOverlay {
+            // Renders in the same pass as the tap: the surface is on screen collapsed
+            // immediately and the open spring fires the next frame — no cover present step.
+            anchored.overlay { if morphInviteId != nil { morphLayer } }
+        } else {
+            // Cover: needed when the host still shows the tab bar, so the morph floats above it.
+            anchored.fullScreenCover(isPresented: morphPresented) {
+                morphLayer.presentationBackground(.clear)
             }
+        }
+    }
+
+    @ViewBuilder private var morphLayer: some View {
+        GeometryReader { geo in
+            let _ = print("[MORPH] \(morphT()) morphLayer geo.size=\(geo.size)")
+            if let id = morphInviteId {
+                QuickInviteMorph(
+                    iconRect: iconRect,
+                    isPresented: iconId != nil,
+                    containerSize: geo.size,
+                    hideCard: hideCard,
+                    style: style,
+                    onCollapsed: { if iconId == nil { withoutCoverAnimation { morphInviteId = nil } } },
+                    showsHideButton: showsHideButton,
+                    onHide: { iconId = nil },
+                    card: { card(id) },
+                    overlay: overlay
+                )
+            }
+        }
+        .ignoresSafeArea()
     }
 
     private var morphPresented: Binding<Bool> {
@@ -103,6 +125,7 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
         let origin = proxy.frame(in: .global).origin
         iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
                           width: local.width, height: local.height)
+        print("[MORPH] \(morphT()) handleChange → set morphInviteId=\(new) iconRect=\(iconRect)")
         withoutCoverAnimation { morphInviteId = new }
     }
 
@@ -134,6 +157,14 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
 
     // Drives entrance/exit independently of mount, so the window starts on the icon.
     @State private var expanded = false
+    // Lifecycle latch: false while mounted-but-not-yet-opened, flipped true the first time
+    // the open commits and kept true through the collapse. Gates the surface so the collapsed
+    // icon isn't shown during the pre-open idle frames. The cover path gets this grace period
+    // for free (its surface isn't on screen until presented); the overlay path is laid out
+    // immediately, so without this the static icon flashes for the frames before the spring
+    // fires. Latched off `expanded` (not the open trigger) so it can't reveal on the
+    // animation's "from" frame, where the window is still sitting on the icon.
+    @State private var revealed = false
     // Once the open settles, fade the surface so content with its own chrome owns the look.
     @State private var surfaceHandedOff = false
     // Measured height of the real card; the generic window matches it so nothing clips.
@@ -143,7 +174,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     @State private var measuredCardRect: CGRect? = nil
 
     private let sideMargin: CGFloat = 30
-    private var cardWidth: CGFloat { containerSize.width - sideMargin * 2 }
+    private var cardWidth: CGFloat { max(0, containerSize.width - sideMargin * 2) }
 
     // Vertical lift of the settled card from dead-center. The morph still starts on the icon.
     private let verticalOffset: CGFloat = 12
@@ -171,7 +202,8 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private var contentFadeDelay: Double { style.openDuration * (0.16 / 0.35) }
 
     var body: some View {
-        ZStack {
+        let _ = print("[MORPH] \(morphT()) render expanded=\(expanded) surfaceHandedOff=\(surfaceHandedOff) windowRect=\(windowRect)")
+        return ZStack {
             backdrop
             Group {
                 surface
@@ -185,10 +217,15 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
         .coordinateSpace(name: morphCoordinateSpace)
         .onPreferenceChange(MorphCardFrameKey.self) { rect in
             // Freeze the first valid frame so the surface lands on the real card size and
-            // doesn't drift as pages scroll.
-            if measuredCardRect == nil, let rect, rect.height > 1 { measuredCardRect = rect }
+            // doesn't drift as pages scroll. Animate the arrival so the in-flight open
+            // spring redirects smoothly toward the real card instead of hard-snapping.
+            guard measuredCardRect == nil, let rect, rect.height > 1 else { return }
+            withAnimation(openAnimation) { measuredCardRect = rect }
         }
-        .onAppear { DispatchQueue.main.async { withAnimation(openAnimation) { expanded = true } } }
+        .onAppear {
+            print("[MORPH] \(morphT()) QuickInviteMorph.onAppear (expanded=\(expanded)) → set expanded=true")
+            withAnimation(openAnimation) { expanded = true }
+        }
         .onChange(of: isPresented) { _, presented in
             if presented {
                 withAnimation(openAnimation) { expanded = true }
@@ -198,6 +235,10 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             }
         }
         .onChange(of: expanded) { _, isExpanded in
+            print("[MORPH] \(morphT()) expanded → \(isExpanded)")
+            // Reveal on the first commit of the open and stay revealed through the collapse,
+            // so the surface still folds back onto the icon on the way out.
+            if isExpanded { revealed = true }
             if style.contentOwnsBackground { surfaceHandedOff = isExpanded }
         }
         .animation(morphAnimation, value: cardHeight)
@@ -217,7 +258,9 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private var surface: some View {
         ZStack {
             Color.appCanvas
-            style.tint.opacity(expanded ? 0 : 1)
+            // DIAGNOSTIC (temporary): red while collapsed so we can tell whether the flash is
+            // the morph surface (red) or the real InviteButton (normal tint). Revert after.
+            Color.red.opacity(expanded ? 0 : 1)
         }
         .frame(width: windowRect.width, height: windowRect.height)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
@@ -244,6 +287,9 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
         // Open: hold through the entrance, then fade. Close: reappear instantly (nil
         // animation) so the surface is opaque the moment content vanishes, avoiding a gap.
         .animation(expanded ? .easeInOut(duration: 0.15).delay(handoffDelay) : nil, value: surfaceHandedOff)
+        // Grace-period gate (snaps, no animation), chained separately so it multiplies with
+        // the handoff fade above instead of fighting it. Hidden until the open commits.
+        .opacity(revealed ? 1 : 0)
         .allowsHitTesting(false)
     }
 
@@ -276,7 +322,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
         HidePopup(onHide: onHide)
             .position(x: expandedRect.midX, y: expandedRect.maxY + 90)
             .opacity(expanded && !hideCard ? 1 : 0)
-            .animation(.easeInOut(duration: 0.2), value: expanded)
+            .animation(.easeInOut(duration: 0.05), value: expanded)
             .allowsHitTesting(expanded && !hideCard)
     }
 
@@ -350,9 +396,10 @@ extension View {
         hideCard: Bool = false,
         showsHideButton: Bool = false,
         style: QuickInviteMorphStyle = .send,
+        presentsAsOverlay: Bool = false,
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, showsHideButton: showsHideButton, style: style, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, showsHideButton: showsHideButton, style: style, presentsAsOverlay: presentsAsOverlay, card: card, overlay: overlay))
     }
 }

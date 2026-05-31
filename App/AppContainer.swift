@@ -68,11 +68,8 @@ extension AppContainer {
 
     private var pastEventsView: some View {
         @Bindable var router = router
-        return NavigationStack(path: $router.pastEventPath) {
-            MessagesContainer(
-                vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader), path: $router.pastEventPath
-            )
-            .hideTabBar(hideBar: !router.pastEventPath.isEmpty)
-        }
+        return MessagesContainer(
+            vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader), path: $router.pastEventPath
+        )
     }
 }
