@@ -125,7 +125,7 @@ struct InviteRespondButton: View {
             .padding(6)
             .padding(.leading, 2)
             .padding(.trailing, 2)
-            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false, tint: .accent)
+            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)

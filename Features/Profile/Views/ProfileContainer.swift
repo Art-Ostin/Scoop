@@ -98,7 +98,8 @@ struct ProfileView: View {
             morphInviteId: $ui.morphInviteId,
             hideCard: pendingInvite != nil,
             contentOwnsBackground: isRespondMode,
-            iconTint: vm.viewProfileType == .invite ? .accent : .appGreen
+            iconTint: vm.viewProfileType == .invite ? .accent : .appGreen,
+            openDuration: isRespondMode ? 0.28 : 0.35
         ) { _ in
             sendInviteMorphCard
         } overlay: {

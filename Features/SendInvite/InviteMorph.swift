@@ -21,6 +21,9 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // Tint of the collapsed surface (the icon state). Must match the real source icon so
     // the morph folds back onto it seamlessly (e.g. green for respond, accent for send).
     let iconTint: Color
+    // Duration of the icon→card open spring. Lets callers tune snappiness per flow
+    // (e.g. respond opens slightly faster than send).
+    let openDuration: Double
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the morph card (e.g. a confirmation alert) that must NOT
     // be clamped to the card's frame, so its dim can cover the whole screen.
@@ -51,6 +54,7 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                             hideCard: hideCard,
                             contentOwnsBackground: contentOwnsBackground,
                             iconTint: iconTint,
+                            openDuration: openDuration,
                             card: { card(id) },
                             overlay: overlay
                         )
@@ -103,6 +107,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let hideCard: Bool
     let contentOwnsBackground: Bool
     let iconTint: Color
+    let openDuration: Double
     @ViewBuilder var card: () -> Card
     @ViewBuilder var overlay: () -> Overlay
 
@@ -142,9 +147,15 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     // rather than a snap followed by a staggered fade. The slight bounce gives the
     // iOS 26 "gel" settle. Close uses the same spring feel, slightly faster with less
     // bounce so the collapse stays crisp.
-    private let openAnimation: Animation = .spring(duration: 0.35, bounce: 0.2)
+    private var openAnimation: Animation { .spring(duration: openDuration, bounce: 0.2) }
     private let closeAnimation: Animation = .spring(duration: 0.28, bounce: 0.12)
     private var morphAnimation: Animation { expanded ? openAnimation : closeAnimation }
+
+    // Surface hold + content fade-in are staged as fractions of the open duration so they
+    // keep the same feel when a caller speeds the open up (tuned at the 0.35 baseline:
+    // 0.30 hold, 0.16 content fade-in).
+    private var handoffDelay: Double { openDuration * (0.30 / 0.35) }
+    private var contentFadeDelay: Double { openDuration * (0.16 / 0.35) }
 
     var body: some View {
         ZStack {
@@ -216,8 +227,10 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
         .position(x: windowRect.midX, y: windowRect.midY)
         .opacity(surfaceHandedOff ? 0 : 1)
         // Keyed on surfaceHandedOff (not expanded) so it doesn't disturb the frame morph.
-        // Open: hold through the entrance, then fade. Close: reappear instantly.
-        .animation(.easeInOut(duration: 0.15).delay(expanded ? 0.30 : 0), value: surfaceHandedOff)
+        // Open: hold through the entrance, then fade. Close: reappear instantly (nil
+        // animation) so the surface is already opaque at the full frame the moment the
+        // content vanishes — otherwise there's a blank gap before the collapse plays.
+        .animation(expanded ? .easeInOut(duration: 0.15).delay(handoffDelay) : nil, value: surfaceHandedOff)
         .allowsHitTesting(false)
     }
 
@@ -233,8 +246,8 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             card()
                 .frame(width: containerSize.width, height: containerSize.height)
                 .opacity(expanded ? 1 : 0)
-                .animation(expanded ? .easeIn(duration: 0.16).delay(0.14)
-                                     : .easeOut(duration: 0.10), value: expanded)
+                .animation(expanded ? .easeIn(duration: 0.14).delay(contentFadeDelay)
+                                     : nil, value: expanded)
                 .allowsHitTesting(expanded)
         } else {
             // No background of its own — pinned at the card's FINAL frame the whole time,
@@ -244,7 +257,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .background(heightReader)
                 .opacity(expanded ? 1 : 0)
-                .animation(expanded ? .easeIn(duration: 0.14).delay(0.16)
+                .animation(expanded ? .easeIn(duration: 0.14).delay(contentFadeDelay)
                                      : nil, value: expanded)
                 .position(x: expandedRect.midX, y: expandedRect.midY)
                 .allowsHitTesting(expanded)
@@ -326,9 +339,10 @@ extension View {
         hideCard: Bool = false,
         contentOwnsBackground: Bool = false,
         iconTint: Color = .accent,
+        openDuration: Double = 0.35,
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, contentOwnsBackground: contentOwnsBackground, iconTint: iconTint, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, contentOwnsBackground: contentOwnsBackground, iconTint: iconTint, openDuration: openDuration, card: card, overlay: overlay))
     }
 }

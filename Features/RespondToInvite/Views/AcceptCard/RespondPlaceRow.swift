@@ -60,6 +60,7 @@ extension RespondPlaceRow {
                 Text(location.name ?? "")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                    .multilineTextAlignment(.leading)
                 
                 Text(FormatEvent.addressWithoutCountry(location.address))
                     .font(.body(12, .medium))
