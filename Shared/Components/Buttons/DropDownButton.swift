@@ -74,7 +74,7 @@ struct DropDownButton: View {
         if showGlass {
             base
                 .padding(6)
-                .glassIfAvailable(Circle(), isClear: true)
+                .hoverButton(Circle())
                 .padding(-6)
                 .padding(.vertical, -3)
             

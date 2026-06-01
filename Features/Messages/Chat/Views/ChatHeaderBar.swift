@@ -37,7 +37,7 @@ extension ChatHeaderBar {
                 .font(.body(profileOpen ? 16 : 18, .bold))
                 .foregroundStyle(Color.black)
                 .padding(profileOpen ? 6 : 12)
-                .glassIfAvailable(Circle(), isClear: true)
+                .hoverButton(Circle())
         }
     }
     
@@ -55,7 +55,7 @@ extension ChatHeaderBar {
             .padding(.vertical, 3)
             .padding(.leading, 4)
             .padding(.trailing, 8)
-            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+            .hoverButton(RoundedRectangle(cornerRadius: 24))
             .opacity(profileOpen ? 0 : 1)
         }
     }
@@ -73,7 +73,7 @@ extension ChatHeaderBar {
              .contentShape(Rectangle())
              .foregroundStyle(Color.black)
              .padding(12)
-             .glassIfAvailable(Circle(), isClear: false)
+             .hoverButton(Circle())
      }
  }
  
@@ -86,7 +86,7 @@ extension ChatHeaderBar {
              .font(.body(16, .bold))
              .contentShape(Rectangle())
              .padding(6)
-             .glassIfAvailable(Circle(), isClear: true)
+             .hoverButton(Circle())
              .offset(y: -14)
      }
  }
@@ -117,7 +117,7 @@ extension ChatHeaderBar {
              .padding(.vertical, 3)
              .padding(.leading, 4)
              .padding(.trailing, 8)
-             .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+             .hoverButton(RoundedRectangle(cornerRadius: 24))
          }
      }
  }

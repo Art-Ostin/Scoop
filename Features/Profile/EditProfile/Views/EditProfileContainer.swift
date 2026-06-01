@@ -41,7 +41,7 @@ extension EditProfileContainer {
         HStack {
             saveButton
             Spacer()
-            DismissButton { dismiss() }
+            DismissButton(.cross)
                 .padding(.trailing, -16)
         }
         .padding(.top, 6)
@@ -65,7 +65,7 @@ extension EditProfileContainer {
                     .foregroundStyle(.accent)
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .glassIfAvailable()
+                    .hoverButton()
             }
         }
     }

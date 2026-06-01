@@ -91,7 +91,7 @@ struct ImageEditButton: View {
            .scaledToFit()
            .frame(width: 11, height: 11)
            .padding(3)
-           .glassIfAvailable(Circle())
+           .hoverButton(Circle())
    }
 }
 

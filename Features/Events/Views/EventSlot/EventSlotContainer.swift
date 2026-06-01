@@ -107,11 +107,11 @@ extension EventSlotContainer {
                 .frame(width: 22, height: 22)
                 .font(.body(17, .bold))
                 .padding(10)
-                .glassIfAvailable(isClear: true)
+//                .hoverButton()
                 .opacity(disableMap ? 1 : 0.5)
                 .expandHitArea(24)
-                .padding(.bottom, 96)
-                .padding(.horizontal, 24)
+//                .padding(.bottom, 96)
+//                .padding(.horizontal, 24)
         }
         .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
     }
@@ -138,7 +138,7 @@ private extension View {
          .frame(width: 22, height: 22)
          .font(.body(17, .bold))
          .padding(10)
-         .glassIfAvailable(isClear: true)
+         .hoverButton()
          .expandHitArea(24)
  }
  .padding(.bottom, 96)

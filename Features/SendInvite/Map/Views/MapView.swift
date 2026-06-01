@@ -114,7 +114,7 @@ struct MapView: View {
             }
             .mapControls{}
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
-            .overlay(alignment: .topTrailing) { DismissButton() {dismiss()} }
+            .overlay(alignment: .topTrailing) { DismissButton(.cross) }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
             .onChange(of: vm.selectedMapItem) { _, newItem in
@@ -241,7 +241,7 @@ extension MapView {
             }
             .frame(width: 45, height: 45, alignment: .center)
             .offset(y: isAppleMaps ? 1 : -1)
-            .glassIfAvailable(Circle(), isClear: false)
+            .hoverButton(Circle())
         }
     }
     

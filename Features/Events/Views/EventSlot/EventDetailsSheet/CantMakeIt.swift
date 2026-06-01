@@ -71,7 +71,7 @@ struct CantMakeIt: View {
                         .font(.body(17, .bold))
                         .foregroundStyle(Color.primary)
                         .padding(14)
-                        .glassIfAvailable(Circle())
+                        .hoverButton(Circle())
                 }
                 Spacer()
             }

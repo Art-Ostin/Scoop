@@ -23,7 +23,7 @@ struct InviteButton: View {
                 .frame(width: 24, height: 24)
                 .foregroundStyle(.white)
                 .frame(width: 40, height: 40)
-                .glassIfAvailable(Circle(), isClear: false, tint: isInviting ? .accent : .appGreen)
+                .hoverButton(Circle(), tint: isInviting ? .accent : .appGreen)
                 .surfaceShadow(.floating, strength: 3)
         }
         .inviteIconAnchor(id: morphId)//Shares location for morph

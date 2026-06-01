@@ -218,7 +218,7 @@ extension MapSelectionView {
             Image(systemName: "xmark")
                 .font(.body(15, .medium))
                 .frame(width: 35, height: 35)
-                .glassIfAvailable(Circle())
+                .hoverButton(Circle())
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
         }

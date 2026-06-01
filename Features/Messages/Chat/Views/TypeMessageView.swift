@@ -33,7 +33,7 @@ extension TypeMessageView {
             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
             .padding(.horizontal)
             .padding(.vertical, 10)
-            .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+            .hoverButton(RoundedRectangle(cornerRadius: 24))
             .lineSpacing(4)
             .focused(isFocused)
             .lineLimit(1...5)

@@ -28,7 +28,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .navigationBarBackButtonHidden(true)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .toolbar { DismissToolbarItem() }
+            .toolbar { DismissToolbarItem(.cross) }
             .padding(.horizontal, 24)
             .padding(.top, 24)
         }

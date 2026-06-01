@@ -98,7 +98,7 @@ extension ProfileDetailsView {
         Image(systemName: "chevron.down")
             .font(.body(16, .bold))
             .frame(width: 30, height: 30)
-            .glassIfAvailable()
+            .hoverButton()
             .padding()
             .padding(.horizontal, 6)
     }

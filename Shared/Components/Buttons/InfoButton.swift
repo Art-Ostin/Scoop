@@ -21,7 +21,7 @@ struct TabInfoButton: View {
                         .font(.body(18, .medium))
                         .foregroundStyle(Color.black)
                         .padding(6)
-                        .glassIfAvailable(Circle(), isClear: true, thinMaterial: true)
+                        .hoverButton(Circle(), thinMaterial: true)
 
                         //2. Logic for positioning
                         .padding(.top, 16) //As its small icon, sits in correct position

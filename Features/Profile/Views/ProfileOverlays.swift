@@ -32,7 +32,7 @@ extension ProfileView {
                 if isOverlay {
                     ProfileDismissButton(color: .white, isOverlay: true, onDismiss: onDismiss)
                         .padding(6)
-                        .glassIfAvailable(Circle())
+                        .hoverButton(Circle())
                 } else {
                     ProfileDismissButton(color: .black, isOverlay: false, onDismiss: onDismiss)
                 }

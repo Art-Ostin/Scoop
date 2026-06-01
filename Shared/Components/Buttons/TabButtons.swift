@@ -17,7 +17,7 @@
                  .scaledToFit()
                  .frame(width: 20, height: 20)
                  .frame(width: 35, height: 35)
-                 .glassIfAvailable(Circle())
+                 .hoverButton(Circle())
                  .contentShape(Circle())
                  .foregroundStyle(Color.black)
                  .matchedTransitionSource(id: "settings", in: zoomNS)

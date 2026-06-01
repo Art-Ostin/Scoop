@@ -50,7 +50,6 @@ struct PopButtonStyle: ButtonStyle {
                 withAnimation(.easeOut(duration: 0.48)) { opacity = 1 }
             }
         }
-
     }
 }
 

@@ -9,25 +9,27 @@ import SwiftUI
 
 //two shadow method: most modern and professional
 enum Elevation {
-    case low, medium, high
+    case ultraLow, low, medium, high
 
     static let pressedStrength: Double = 0.4
 
     // Tight, neutral shadow that anchors the element to the surface.
     fileprivate var contact: (opacity: Double, radius: CGFloat, y: CGFloat) {
         switch self {
-        case .low:    (0.10, 2, 1)
-        case .medium: (0.12, 4, 2)
-        case .high:   (0.14, 6, 3)
+        case .ultraLow: (0.08, 1, 0.5)
+        case .low:      (0.10, 2, 1)
+        case .medium:   (0.12, 4, 2)
+        case .high:     (0.14, 6, 3)
         }
     }
 
     // Soft, accent-tinted spread that gives the element lift.
     fileprivate var ambient: (opacity: Double, radius: CGFloat, y: CGFloat) {
         switch self {
-        case .low:    (0.06, 8, 4)
-        case .medium: (0.08, 16, 8)
-        case .high:   (0.10, 28, 16)
+        case .ultraLow: (0.04, 5, 2)
+        case .low:      (0.06, 8, 4)
+        case .medium:   (0.08, 16, 8)
+        case .high:     (0.10, 28, 16)
         }
     }
 }

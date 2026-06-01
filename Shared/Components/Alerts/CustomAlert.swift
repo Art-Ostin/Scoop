@@ -30,7 +30,7 @@ struct CustomAlertCard: View {
         }
         .padding(24)
         .frame(width: 320)
-        .glassIfAvailable(RoundedRectangle(cornerRadius: 24), isClear: false)
+        .hoverButton(RoundedRectangle(cornerRadius: 24))
         .defaultShadow()
         .frame(maxWidth: .infinity)
         .lineSpacing(8)

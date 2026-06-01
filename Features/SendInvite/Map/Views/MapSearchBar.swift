@@ -21,7 +21,7 @@ struct MapSearchBar: View {
                 .overlay(alignment: .leading) { searchIcon }
                 .overlay(alignment: .trailing) {deleteSearchButton}
                 .frame(height: 45)
-                .glassIfAvailable(Capsule(), isClear: false)
+                .hoverButton(Capsule())
                 .contentShape(Capsule())
                 .focused($isFocused)
                 .simultaneousGesture(TapGesture().onEnded {

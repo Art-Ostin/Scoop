@@ -7,84 +7,125 @@
 import SwiftUI
 
 struct ButtonTestView: View {
+    let dismissType: DismissType = .back
+    
     var body: some View {
-        
-        VStack(spacing: 72) {
+        NavigationStack {
+            VStack(spacing: 72) {
+                twentySixVersion
 
-            noShadow
-            
-            highShadow
-            
-            mediumShadow
-
-            lowShadow
+                eighteenVersion
+            }
+            .toolbar {DismissToolbarItem(.back)}
         }
     }
 }
 
 extension ButtonTestView {
     
-    private var noShadow: some View {
-        
-        Button {
-        } label: {
-            Image("LetterIconProfile")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
-                .frame(width: 40, height: 40)
-                .glassIfAvailable(Circle(), isClear: false, tint: .accent)
+    @ViewBuilder
+    private var twentySixVersion: some View {
+        if #available(iOS 26.0, *) {
+            Button {
+                
+            } label: {
+                buttonLabel
+            }
+            .foregroundStyle(Color.black)
+            .buttonStyle(.glassProminent)
+            .buttonBorderShape(.circle)
+            .tint(.clear)
         }
-        .customButtonPressAndShadow()
     }
 
-
-    private var highShadow: some View {
-        
+    private var eighteenVersion: some View {
         Button {
+            
         } label: {
-            Image("LetterIconProfile")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
-                .frame(width: 40, height: 40)
-                .buttonColourBackground(Circle())
+            buttonLabel
+                .padding(7)
+                .background(Circle().fill(.ultraThinMaterial).brightness(0.065))
+                .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
         }
-        .customButtonPressAndShadow(.high)
+        .customButtonPressAndShadow(.ultraLow)
     }
     
-    private var mediumShadow: some View {
-        Button {
-        } label: {
-            Image("LetterIconProfile")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
-                .frame(width: 40, height: 40)
-                .glassIfAvailable(Circle(), isClear: false, tint: .accent)
-        }
-        .customButtonPressAndShadow(.medium)
+    
+    private var buttonLabel: some View {
+        Image(systemName: dismissType == .cross ? "xmark" : "chevron.left")
+            .font(.system(size: dismissType == .cross ? 12 : 14, weight: .heavy))
+            .foregroundStyle(Color.black)
     }
-
-    private var lowShadow: some View {
-
-        Button {
-        } label: {
-            Image("LetterIconProfile")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
-                .frame(width: 40, height: 40)
-                .glassIfAvailable(Circle(), isClear: false, tint: .accent)
-        }
-        .customButtonPressAndShadow(.low)
-    }
-
 }
 
+/*
+ 
+ struct DismissButton: View {
+      
+     @Environment(\.dismiss) private var dismiss
+     
+     let dismissType: DismissType
+
+     var body: some View {
+         if #available(iOS 26.0, *) {
+             Button {
+                 dismiss()
+             } label: {
+                 buttonLabel
+             }
+             .foregroundStyle(Color.black)
+             .buttonStyle(.glassProminent)
+             .buttonBorderShape(.circle)
+             .tint(.clear)
+         } else {
+             Button {
+                 dismiss()
+             } label: {
+                 buttonLabel
+                     .padding(7)
+                     .background(Circle().fill(.ultraThinMaterial).brightness(0.065))
+                     .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
+             }
+             .customButtonPressAndShadow(.ultraLow)
+         }
+     }
+     
+     private var buttonLabel: some View {
+         Image(systemName: dismissType == .cross ? "xmark" : "chevron.left")
+             .font(.system(size: dismissType == .cross ? 12 : 14, weight: .heavy))
+             .foregroundStyle(Color.black)
+     }
+ }
+ */
 
 
 
-#Preview {
-    ButtonTestView()
-}
+
+/*
+ @ViewBuilder
+ private var twentySixVersion: some View {
+     if #available(iOS 26.0, *) {
+         Button {
+         } label: {
+             Image(systemName: "info.circle")
+         }
+         .foregroundStyle(Color.black)
+         .buttonStyle(.glassProminent)
+         .buttonBorderShape(.circle)
+         .tint(.clear)
+     }
+ }
+
+ private var eighteenVersion: some View {
+     Button {
+     } label: {
+         Image(systemName: "info.circle")          // match the 26 label
+             .padding(7)                             // breathing room glass adds for you
+             .background(Circle().fill(.ultraThinMaterial).brightness(0.065))   // translucent, like clear-tint glass
+             .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
+     }
+     .customButtonPressAndShadow(.ultraLow)              // single press response
+ }
+
+
+ */

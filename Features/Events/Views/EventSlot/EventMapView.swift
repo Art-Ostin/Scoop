@@ -212,7 +212,7 @@ private struct TwoFingerActivationOverlay: UIViewRepresentable {
  .padding(.horizontal, 8)
  .tint(.blue)
  .padding(.vertical, 6)
- .glassIfAvailable()
+ .hoverButton()
  .padding(.horizontal)
  .padding(.vertical, 10)
 

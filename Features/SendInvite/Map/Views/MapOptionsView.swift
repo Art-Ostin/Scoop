@@ -71,7 +71,7 @@ struct DeleteSearchButton: View {
             Image(systemName: "xmark")
                 .font(.body(18, .bold))
                 .frame(width: 45, height: 45)
-                .glassIfAvailable(Circle())
+                .hoverButton(Circle())
                 .contentShape(Circle())
                 .foregroundStyle(Color.black)
         }
