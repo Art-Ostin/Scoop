@@ -20,7 +20,7 @@ struct EnterEmailView: View {
             VStack(spacing: 72) {
                 SignUpTitle(text: "McGill Email")
                 enterEmailSection
-                NextButton(isEnabled: vm.isValid(email: vm.username)) {showVerification = true }
+                NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, 16)
             }
             .padding(.horizontal)
             .onAppear {isFocused = true}
@@ -30,7 +30,7 @@ struct EnterEmailView: View {
             .background(Color.appCanvas)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .toolbar { DismissToolbarItem()}
+            .toolbar { DismissToolbarItem(dismissType: .back)}
         }
     }
 }

@@ -15,7 +15,7 @@ struct OnboardingInterests: View {
     
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
-            .nextButton(isEnabled: selected.count >= 6, padding: 120) {
+            .nextButton(isValid: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
             .onAppear {

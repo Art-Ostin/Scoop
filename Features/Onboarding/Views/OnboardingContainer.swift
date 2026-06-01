@@ -56,6 +56,7 @@ struct OnboardingContainer: View {
                     }
             }
             .navigationBarTitleDisplayMode(.inline) //Fixes Bug: decreases the top container pushing all the content down
+            
         }
     }
 }

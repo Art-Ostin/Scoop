@@ -10,19 +10,31 @@ import SwiftUI
 
 
 extension View {
+    
+    func buttonBackground<S: InsettableShape>(_ shape: S, color: Color = .accent) -> some View {
+        self
+            .foregroundStyle(.white)
+            .buttonColourBackground(shape, tint: color)
+            .padding(16)
+            .contentShape(Rectangle())
+            .padding(-16)
+    }
+}
+
+
+
+extension View {
     @ViewBuilder
     func buttonColourBackground<S: InsettableShape>(_ shape: S, tint: Color = .accent) -> some View {
         if #available(iOS 26.0, *) {
             self
-                .glassEffect(.regular.tint(tint), in: shape)
+            .glassEffect(.regular.tint(tint), in: shape)
         } else {
             self
             .background(shape.fill(tint))
         }
     }
 }
-
-
 
 
 

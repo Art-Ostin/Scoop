@@ -15,6 +15,8 @@ import FirebaseAuth
     @ObservationIgnored private let session: Session
     @ObservationIgnored private let userRepo: UserRepository
     
+    @ObservationIgnored private var canAdvance = true //Variable to prevent double tapping
+    
     
     init(authService: AuthServicing, defaultManager: DefaultsManaging, session: Session, userRepo: UserRepository) {
         self.authService = authService
@@ -67,6 +69,12 @@ import FirebaseAuth
     
     
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
+        //1. Prevent quick double tapping logic
+        guard canAdvance else { return }
+        canAdvance = false
+        Task { try? await Task.sleep(for: .milliseconds(300)) ; canAdvance = true }
+        
+        //2. Actually move forward
         direction = .forward
         if !updateOnly { withAnimation(.easeInOut) { defaultManager.advanceOnboarding() } }
         defaultManager.update(kp, to: value)

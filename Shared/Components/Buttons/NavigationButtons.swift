@@ -8,21 +8,27 @@
 import SwiftUI
 
 
+
+enum DismissType { case back, cross}
+
+//Creates custom formatted toolbar Item, called then with .toolbar{DismissToolbarItem(.back)}
 struct DismissToolbarItem: ToolbarContent {
-    
+
     @Environment(\.dismiss) private var dismiss
-    let imageString: String
-    let isLeading: Bool
+
+    let dismissType: DismissType
+    var isLeading: Bool
     
-    init(imageString: String = "xmark", isLeading: Bool = true) {
-        self.imageString = imageString
+    //Custom init used so can call it with just .back
+    init(_ dismissType: DismissType, isLeading: Bool = true) {
+        self.dismissType = dismissType
         self.isLeading = isLeading
     }
     
     var body: some ToolbarContent {
         ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
             Button(action: { dismiss() }) {
-                Image(systemName: imageString)
+                Image(systemName: dismissType == .cross ? "xmark" : "chevron.back")
                     .font(.system(size: 12, weight: .heavy))
             }
         }

@@ -73,7 +73,7 @@ struct GenericSex: View {
                         }
                     }
                     if isOnboarding && customisedSex {
-                        NextButton(isEnabled: true) {
+                        NextButton(isValid: true) {
                             onTap(selectedOption)
                         }
                     }

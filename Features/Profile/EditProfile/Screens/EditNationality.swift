@@ -14,7 +14,7 @@ struct OnboardingNationality: View {
         GenericNationality(countriesSelected: $countriesSelected) {
             countriesSelected.toggle($0, limit: 3)
         }
-        .nextButton(isEnabled: countriesSelected.count > 0, padding: 140) {
+        .nextButton(isValid: countriesSelected.count > 0, padding: 140) {
             vm.saveAndNextStep(kp: \.nationality, to: countriesSelected)
         }
         .onAppear {

@@ -25,7 +25,7 @@ struct OnboardingPrompt: View {
     
     var body: some View {
         PromptGeneric(prompt: $prompt, promptIndex: promptIndex)
-            .nextButton(isEnabled: prompt.response.count > 3, padding: 24) {
+            .nextButton(isValid: prompt.response.count > 3, padding: 24) {
                 vm.saveAndNextStep(kp: keyPath, to: prompt)
             }
             .onAppear {

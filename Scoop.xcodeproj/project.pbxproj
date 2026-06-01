@@ -153,7 +153,7 @@
 		657BD3232F71E71200D7C29A /* RespondModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657BD3222F71E71200D7C29A /* RespondModels.swift */; };
 		657BD3272F71FC9A00D7C29A /* RespondViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */; };
 		657E61522F353B9300262821 /* MapSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657E61512F353B9300262821 /* MapSearchViewModel.swift */; };
-		657F303B2F68B61C0057D42C /* DismissToolbarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F303A2F68B61C0057D42C /* DismissToolbarItem.swift */; };
+		657F303B2F68B61C0057D42C /* NavigationButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F303A2F68B61C0057D42C /* NavigationButtons.swift */; };
 		657FD5452F91C8E00074255E /* CoreInfoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD5442F91C8E00074255E /* CoreInfoPage.swift */; };
 		657FD5492F92ABE50074255E /* EventDetailsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD5482F92ABE50074255E /* EventDetailsContainer.swift */; };
 		657FD54B2F92ABEF0074255E /* EventDetailsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */; };
@@ -438,7 +438,7 @@
 		657BD3222F71E71200D7C29A /* RespondModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondModels.swift; sourceTree = "<group>"; };
 		657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondViewModel.swift; sourceTree = "<group>"; };
 		657E61512F353B9300262821 /* MapSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchViewModel.swift; sourceTree = "<group>"; };
-		657F303A2F68B61C0057D42C /* DismissToolbarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissToolbarItem.swift; sourceTree = "<group>"; };
+		657F303A2F68B61C0057D42C /* NavigationButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButtons.swift; sourceTree = "<group>"; };
 		657FD5442F91C8E00074255E /* CoreInfoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreInfoPage.swift; sourceTree = "<group>"; };
 		657FD5482F92ABE50074255E /* EventDetailsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsContainer.swift; sourceTree = "<group>"; };
 		657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsInfo.swift; sourceTree = "<group>"; };
@@ -1289,19 +1289,19 @@
 			children = (
 				65BA061A2FCC99B000295AC6 /* ReusableParameters */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
-				655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */,
+				659109232E19AEC00065696F /* NextButton.swift */,
 				65DCFBBB2F327AB600B3EC50 /* DismissButton.swift */,
-				657F303A2F68B61C0057D42C /* DismissToolbarItem.swift */,
+				657F303A2F68B61C0057D42C /* NavigationButtons.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */,
 				656373B42F50152F003A922D /* MinimalistButton.swift */,
 				65939C4F2FCAE78900B24D11 /* InviteButton.swift */,
 				65C8D1852E02CD94008B8A74 /* NavButton.swift */,
-				659109232E19AEC00065696F /* NextButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
 				656B31D02F2501A3008641C1 /* TabButtons.swift */,
 				65D907C62FCC6DD5006EC5C8 /* ButtonTestView.swift */,
+				655AB8FE2F1ED082003A1DE7 /* CloseAndCheckNavButton.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -1803,7 +1803,7 @@
 				657FD5492F92ABE50074255E /* EventDetailsContainer.swift in Sources */,
 				65FAF98A2E414D1B0015E231 /* EventsContainer.swift in Sources */,
 				650DA36D2F6C5FFA0013EB30 /* RespondContainer.swift in Sources */,
-				657F303B2F68B61C0057D42C /* DismissToolbarItem.swift in Sources */,
+				657F303B2F68B61C0057D42C /* NavigationButtons.swift in Sources */,
 				65871F4E2F3A543200C9A87A /* ClearIcon.swift in Sources */,
 				65F450BF2E45567900AE3503 /* ImageModifiers.swift in Sources */,
 				65939C502FCAE78900B24D11 /* InviteButton.swift in Sources */,

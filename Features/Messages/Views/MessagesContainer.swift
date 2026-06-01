@@ -33,7 +33,7 @@ struct MessagesContainer: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            
+                            vm.signOut()
                         } label: {
                             Image(systemName: "gear")
                                 .font(.system(size: 15, weight: .semibold))

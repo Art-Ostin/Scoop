@@ -9,70 +9,28 @@ import SwiftUI
 
 struct NextButton: View {
     
-    let isEnabled: Bool
+    let isValid: Bool
     let onTap: () -> Void
-    
-    @State private var didTap = false
-
-    private var actuallyEnabled: Bool { isEnabled && !didTap}
-    
+        
     var body: some View {
-        Image("ForwardArrow")
-            .frame(width: 69, height: 44, alignment: .center)
-            .background(isEnabled ? Color.accent : Color.grayBackground)
-            .cornerRadius(33)
-            .shadow(color: isEnabled ? .black.opacity(0.2) : .clear , radius: 4, x: 0, y: 2)
-            .animation(.easeInOut(duration: 0.2), value: isEnabled)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .onTapGesture {
-                guard actuallyEnabled else {return}
-                didTap = true
-                withAnimation{onTap()}
-            }
-            .onAppear { didTap = false }
+        Button(action: onTap) {
+            Image("ForwardArrow")
+                .frame(width: 69, height: 44, alignment: .center)
+                .buttonBackground(RoundedRectangle(cornerRadius: 33), color: isValid ? (Color.accent) : Color.grayBackground)
+        }
+        .disabled(!isValid)
+        .customButtonPressAndShadow(isValid ? .medium : nil)
+        .frame(maxWidth: .infinity, alignment: .trailing) //Positioning on screen
     }
 }
 
-#Preview {
-    NextButton(isEnabled: false, onTap: {})
-}
-
-struct SubmitButton: View {
-    
-    let isEnabled: Bool
-    let onTap: () -> Void
-    
-    var body: some View {
-        Image(systemName: "checkmark")
-            .font(.body(22, .bold))
-            .background(
-                Circle()
-                    .frame(width: 50, height: 50)
-                    .foregroundStyle(isEnabled ? Color.accent : Color.grayBackground)
-                    .shadow(color: isEnabled ? .black.opacity(0.25) : .clear , radius: 2, x: 0, y: 2)
-            )
-            .foregroundStyle(Color.white)
-            .animation(.easeInOut(duration: 0.2), value: isEnabled)
-    }
-}
-
-//Convenience initialiser with the bottomTrailing modifier
-private struct NextButtonOverlay: ViewModifier {
-    let isEnabled: Bool
-    let padding: CGFloat
-    let onTap: () -> ()
-    
-    func body(content: Content) -> some View {
-        content.overlay(alignment: .bottomTrailing) {
-            NextButton(isEnabled: isEnabled, onTap: onTap)
+//Convenience so can just do .nextButton add adds it to screen in default position
+extension View {
+    func nextButton(isValid: Bool, padding: CGFloat = 144, onTap: @escaping () -> Void) -> some View {
+        overlay(alignment: .bottomTrailing) {
+            NextButton(isValid: isValid, onTap: onTap)
                 .padding(.horizontal)
                 .padding(.bottom, padding)
         }
-    }
-}
-
-extension View {
-    func nextButton(isEnabled: Bool, padding: CGFloat = 144, onTap: @escaping () -> Void) -> some View {
-        modifier(NextButtonOverlay(isEnabled: isEnabled,padding: padding, onTap: onTap))
     }
 }

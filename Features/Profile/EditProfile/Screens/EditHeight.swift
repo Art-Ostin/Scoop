@@ -13,7 +13,7 @@ struct OnboardingHeight: View {
     
     var body: some View {
         HeightGeneric(selection: $height)
-            .nextButton(isEnabled: true) {
+            .nextButton(isValid: true) {
                 vm.saveAndNextStep(kp: \.height, to: height)
             }
             .onAppear {

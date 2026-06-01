@@ -12,7 +12,6 @@ struct CloseAndCheckNavButton: ViewModifier {
     let check: Bool
     @Binding var triggerAlert: Bool
 
-    
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden(true)

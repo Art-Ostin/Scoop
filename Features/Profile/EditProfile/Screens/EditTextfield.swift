@@ -14,7 +14,7 @@ struct OnboardingTextField: View  {
 
     var body: some View {
         TextFieldGeneric(text: $text, field: field.title)
-            .nextButton(isEnabled: text.count > 2, padding: 36) {
+            .nextButton(isValid: text.count > 2, padding: 36) {
                 vm.saveAndNextStep(kp: field.draftKeyPath, to: text)
             }
             .onAppear {
