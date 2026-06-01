@@ -43,6 +43,7 @@ struct NavButton: View {
         }
     }
 }
+
 #Preview(traits: .sizeThatFitsLayout) {
     NavButton(.back)
 }

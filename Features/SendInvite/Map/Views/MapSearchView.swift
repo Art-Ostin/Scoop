@@ -139,8 +139,13 @@ extension MapSearchView {
             MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            DismissButton(.cross) { sheet = .optionsAndSearchBar }
-                .frame(width: 40)
+            GlassCircleButton(padding: 6) {
+                sheet = .optionsAndSearchBar
+            } buttonLabel: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 17, weight: .heavy))
+                    .foregroundStyle(Color.black)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 15)

@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-
-
 extension View {
     
     func buttonBackground<S: InsettableShape>(_ shape: S, color: Color = .accent) -> some View {
@@ -20,6 +18,7 @@ extension View {
             .padding(-16)
     }
 }
+
 
 extension View {
     @ViewBuilder
@@ -37,6 +36,10 @@ extension View {
 
 
 
+
+
+
+
 //Use when I don't have access to the .navigationBar
 extension View {
     @ViewBuilder
@@ -45,7 +48,7 @@ extension View {
             self
                 .foregroundStyle(Color.white)
                 .buttonStyle(.glassProminent)
-                .buttonBorderShape(shape as! ButtonBorderShape)
+//                .buttonBorderShape(shape as! ButtonBorderShape)
                 .tint(tint)
         } else {
             self
@@ -56,36 +59,3 @@ extension View {
         }
     }
 }
-
-/*
- extension ButtonTestView {
-     
-     @ViewBuilder
-     private var twentySixVersion: some View {
-         if #available(iOS 26.0, *) {
-             Button {
-             } label: {
-                 Image(systemName: "info.circle")
-             }
-             .foregroundStyle(Color.white)
-             .buttonStyle(.glassProminent)
-             .buttonBorderShape(.circle)
-             .tint(.accent)
-         }
-     }
-
-     private var eighteenVersion: some View {
-         Button {
-         } label: {
-             Image(systemName: "info.circle")          // match the 26 label
-                 .padding(7)
-                 .background(Circle().fill(Color.accent))
-                 .background(Circle().fill(.ultraThinMaterial).brightness(0.065)) // breathing room glass adds for you
-                 .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
-                 .foregroundStyle(Color.white)
-         }
-         .customButtonPressAndShadow(.ultraLow)              // single press response
-     }
- }
-
- */

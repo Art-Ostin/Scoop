@@ -12,58 +12,31 @@ struct ButtonTestView: View {
     var body: some View {
         NavigationStack {
             HStack(spacing: 32) {
-                twentySixVersion
-
-                eighteenVersion
+                infoButtonTest
                 
-                DismissButton(.cross)
+                DismissButton(type: .cross)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-//            .offset(y: -56.5)
             .padding(.leading, 48 + 36)
-            .toolbar {DismissToolbarItem(.cross)}
         }
     }
 }
 
 extension ButtonTestView {
-    @ViewBuilder
-    private var twentySixVersion: some View {
-        if #available(iOS 26.0, *) {
-            Button {
-
-            } label: {
-                buttonLabel
-                    .padding(6)
-            }
-            .foregroundStyle(Color.black)
-            .buttonStyle(.glassProminent)
-            .buttonBorderShape(.circle)
-            .tint(.clear)
-        }
-    }
-
-    private var eighteenVersion: some View {
+        
+    private var infoButtonTest: some View {
         Button {
-
+            
         } label: {
-            buttonLabel
-                .padding(15)
-                .background(
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .brightness(0.06)
-                )
+                Image(systemName: "info.circle")
+                    .font(.body(18, .medium))
+                    .padding(8)//Keeps size of pre Ios 26 and Ios 26 buttons the same
+                    .background(Circle().fill(.ultraThinMaterial).brightness(0.07))
+                    .foregroundStyle(Color.black)
+            }
+            .customButtonGrowAndShadow(.customGlassShadow)
         }
-        .customButtonGrowAndShadow(.customGlassShadow)
     }
-    
-    private var buttonLabel: some View {
-        Image(systemName: "chevron.left")
-            .font(.system(size: 17, weight: .heavy))
-            .foregroundStyle(Color.black)
-    }
-}
 
 
  struct NewDismissButton: View {
@@ -98,9 +71,3 @@ extension ButtonTestView {
          }
      }
  }
-
-/*
- .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 3)
- .shadow(color: .black.opacity(0.01), radius: 24, x: 0, y: 9)
-
- */

@@ -12,95 +12,52 @@ enum DismissType {
     var symbolName: String { self == .cross ? "xmark" : "chevron.left" }
 }
 
-// MARK: - Dismiss Button when .toolbar is available
-
-/// Customised Navigation dismiss button. Usage: .toolbar { DismissToolbarItem(.back) }
+///Dismiss Button when Toolbar is available
 struct DismissToolbarItem: ToolbarContent {
 
     @Environment(\.dismiss) private var dismiss
-
-    private let dismissType: DismissType
-    private let isLeading: Bool
-
-    init(_ dismissType: DismissType, isLeading: Bool = true) {
-        self.dismissType = dismissType
-        self.isLeading = isLeading
-    }
+    
+    let type: DismissType
+    var isLeading: Bool = true
 
     var body: some ToolbarContent {
         ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
-            Button { dismiss() } label: {
-                Image(systemName: dismissType.symbolName)
+            Button(action: dismiss.callAsFunction) {
+                Image(systemName: type.symbolName)
                     .font(.system(size: 14, weight: .heavy))
             }
         }
     }
 }
 
-// MARK: - Dismiss Button when .toolbar not available
-
+///Dismiss Button when toolbar unavailable
 struct DismissButton: View {
-
+    
     @Environment(\.dismiss) private var dismiss
-
-    let dismissType: DismissType
-    private let action: (() -> Void)?
-
-    init(_ dismissType: DismissType, action: (() -> Void)? = nil) {
-        self.dismissType = dismissType
-        self.action = action
-    }
-
-    private func handleTap() {
-        if let action { action() } else { dismiss() }
-    }
-
+    let type: DismissType
+    
     var body: some View {
-        if #available(iOS 26.0, *) {
-            Button { dismiss() } label: {
-                buttonLabel
-                    .padding(6)
-            }
-            .buttonStyle(.glassProminent)
-            .buttonBorderShape(.circle)
-            .tint(.clear)
-        } else {
-            Button { dismiss() } label: {
-                buttonLabel
-                    .padding(15)
-                    .background(Circle().fill(.ultraThinMaterial).brightness(0.065))
-            }
-            .customButtonGrowAndShadow(.customGlassShadow)
+        GlassCircleButton(padding: 6, action: dismiss.callAsFunction) {
+            Image(systemName: type.symbolName)
+                .font(.system(size: 17, weight: .heavy))
+                .foregroundStyle(Color.black)
         }
-    }
-
-    private var buttonLabel: some View {
-        Image(systemName: dismissType.symbolName)
-            .font(.system(size: 17, weight: .heavy))
-            .foregroundStyle(Color.black)
     }
 }
 
-// MARK: - Dismiss Button with Check, triggering alert
-
+///Dismiss Button with check used for onboarding
 struct CloseAndCheckNavButton: ViewModifier {
-
+    
     @Environment(\.dismiss) private var dismiss
     let check: Bool
     @Binding var triggerAlert: Bool
-
+    
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        if check {
-                            triggerAlert = true
-                        } else {
-                            dismiss()
-                        }
-                    } label: {
+                    Button { check ? (triggerAlert = true) : dismiss() } label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 14, weight: .heavy))
                     }
@@ -114,3 +71,4 @@ extension View {
         modifier(CloseAndCheckNavButton(check: check, triggerAlert: triggerAlert))
     }
 }
+

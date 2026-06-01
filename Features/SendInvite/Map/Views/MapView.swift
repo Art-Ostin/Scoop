@@ -82,8 +82,7 @@ struct MapView: View {
                                     .zIndex(isSelected ? 1000 : -100)
                             }
                             .tag(MapSelection(item))
-                            
-                        }
+z                        }
                     } else {
                         Marker(item: item)
                             .tag(MapSelection(item))
@@ -114,7 +113,7 @@ struct MapView: View {
             }
             .mapControls{}
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
-            .overlay(alignment: .topTrailing) { DismissButton(.cross) }
+            .overlay(alignment: .topTrailing) { DismissButton(type: .cross) }
             .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
             .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
             .onChange(of: vm.selectedMapItem) { _, newItem in

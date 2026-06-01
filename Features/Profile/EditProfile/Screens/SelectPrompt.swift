@@ -26,7 +26,7 @@ struct SelectPrompt: View {
             .padding(.leading, 24)
             .background(Color.white)
             .toolbar {
-                DismissToolbarItem(.cross, isLeading: false)
+                DismissToolbarItem(type: .cross, isLeading: false)
             }
             .navigationTitle(titles[promptIndex])
         }

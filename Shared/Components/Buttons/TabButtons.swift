@@ -42,7 +42,6 @@ struct TabInfoButton: View {
                         .font(.body(18, .medium))
                         .foregroundStyle(Color.black)
                         .contentShape(Circle())
-
                 }
                 //3. Retracts up into the nav bar with a soft glass blur
                 .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
