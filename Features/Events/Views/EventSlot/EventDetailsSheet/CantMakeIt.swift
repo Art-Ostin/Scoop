@@ -63,18 +63,8 @@ struct CantMakeIt: View {
         .padding(.horizontal, 24)
         .navigationBarBackButtonHidden(true)
         .safeAreaInset(edge: .top, spacing: 0) {
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.body(17, .bold))
-                        .foregroundStyle(Color.primary)
-                        .padding(14)
-                        .hoverButton(Circle())
-                }
-                Spacer()
-            }
+            DismissButton(type: .cross)
+            Spacer()
             .padding(.horizontal, 16)
             .padding(.top, 12)
             .padding(.bottom, 4)

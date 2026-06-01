@@ -79,6 +79,19 @@ extension View {
         .contentShape(.interaction, Rectangle())
         .padding(-inset)
     }
+    
+    
+    //6. Applies class background if availble
+    func glassBackgroundIfAvailable< S: InsettableShape>(shape: S) -> some View {
+        return Group {
+            if #available(iOS 26.0, *) {
+                self.glassEffect(in: shape)
+            } else {
+                self
+                    .background(shape.fill(Color.appCanvas))
+            }
+        }
+    }
 }
 
 

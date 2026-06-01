@@ -7,55 +7,23 @@
 
 import SwiftUI
 
+
+//Applies a colour Background to a button and glass background if in glass mode
 extension View {
     
     func buttonBackground<S: InsettableShape>(_ shape: S, color: Color = .accent) -> some View {
-        self
-            .foregroundStyle(.white)
-            .buttonColourBackground(shape, tint: color)
-            .padding(16)
-            .contentShape(Rectangle())
-            .padding(-16)
-    }
-}
-
-
-extension View {
-    @ViewBuilder
-    func buttonColourBackground<S: InsettableShape>(_ shape: S, tint: Color = .accent) -> some View {
-        if #available(iOS 26.0, *) {
-            self
-            .glassEffect(.regular.tint(tint), in: shape)
-        } else {
-            self
-            .background(shape.fill(tint))
+        let base = foregroundStyle(.white)
+        return Group {
+            if #available(iOS 26.0, *) {
+                base.glassEffect(.regular.tint(color), in: shape)
+            } else {
+                base
+                    .background(shape.fill(color))
+                    .buttonShadow(.customGlassShadow)
+            }
         }
-    }
-}
-
-
-
-
-
-
-
-
-//Use when I don't have access to the .navigationBar
-extension View {
-    @ViewBuilder
-    func hoverButton<S: InsettableShape>(_ shape: S = Capsule(), tint: Color = .clear) -> some View {
-        if #available(iOS 26.0, *) {
-            self
-                .foregroundStyle(Color.white)
-                .buttonStyle(.glassProminent)
-//                .buttonBorderShape(shape as! ButtonBorderShape)
-                .tint(tint)
-        } else {
-            self
-                .background {shape.fill(Color.appCanvas)}
-                .overlay {shape.strokeBorder(Color.grayBackground, lineWidth: 0.4)}
-                .customButtonPressAndShadow(.high, shadowColor: .black)
-//                .background(Capsule().fill(thinMaterial ? AnyShapeStyle(.ultraThinMaterial) : AnyShapeStyle(.clear)))
-        }
+        .padding(16)
+        .contentShape(Rectangle())
+        .padding(-16)
     }
 }

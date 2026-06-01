@@ -37,7 +37,7 @@ struct DismissButton: View {
     let type: DismissType
     
     var body: some View {
-        GlassCircleButton(padding: 6, action: dismiss.callAsFunction) {
+        GlassButton(padding: 6, action: dismiss.callAsFunction) {
             Image(systemName: type.symbolName)
                 .font(.system(size: 17, weight: .heavy))
                 .foregroundStyle(Color.black)

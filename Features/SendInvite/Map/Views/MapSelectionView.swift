@@ -21,11 +21,7 @@ struct MapSelectionView: View {
     @State private var isLoadingLookAround = false
     
     @State private var writeMaps = false
-    
-//    private var shouldPinContentToTop: Bool {
-//        lookAroundScene == nil && !isLoadingLookAround
-//    }
-    
+        
     var body: some View {
         
         //Have overlay topLeft scoop Logo when done
@@ -208,22 +204,17 @@ extension MapSelectionView {
     }
     
     private var dismissButton: some View {
-        Button {
+        GlassButton(padding: 6) {
             onExitSelection(.optionsAndSearchBar)
             //Only remove text if it is not a category (i.e. if more than 3 selected)
             if !(vm.results.count > 3) {
                 vm.searchText = ""
             }
-        } label: {
+        } buttonLabel: {
             Image(systemName: "xmark")
                 .font(.body(15, .medium))
-                .frame(width: 35, height: 35)
-                .hoverButton(Circle())
-                .contentShape(Circle())
-                .foregroundStyle(Color.black)
         }
-    }
-    
+    }    
 }
 
 
@@ -251,4 +242,10 @@ private struct MapSelectionAction<Icon: View>: View {
     }
 }
 
-// Color(red: 0, green: 0.09, blue: 0.72)
+/*
+ //    private var shouldPinContentToTop: Bool {
+ //        lookAroundScene == nil && !isLoadingLookAround
+ //    }
+ // Color(red: 0, green: 0.09, blue: 0.72)
+ 
+ */

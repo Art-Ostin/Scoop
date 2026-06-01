@@ -35,9 +35,9 @@ struct MeetContainer: View {
                     .navigationTitle("Meet")
             }
             .overlay(alignment: .topTrailing) {
-                TabInfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
+                InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
             }
-
+            
             if let profileRec = ui.openProfile { profileView(profile: profileRec)}
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}

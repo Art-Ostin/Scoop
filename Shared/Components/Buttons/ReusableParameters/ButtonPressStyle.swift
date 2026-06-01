@@ -53,15 +53,6 @@ struct ShrinkButtonStyle: ButtonStyle {
     }
 }
 
-extension View {
-    func customButtonPressAndShadow(_ elevation: Elevation? = nil, shadowColor: Color = .accent) -> some View {
-        self
-            .buttonStyle(ShrinkButtonStyle(elevation: elevation, shadowColor: shadowColor))
-            .simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.5).onEnded { _ in }
-            )
-    }
-}
 
 //Mirror of PopButtonStyle that grows and brightens instead of shrinking used for Ios 18 buttons
 struct GrowButtonStyle: ButtonStyle {
@@ -110,9 +101,17 @@ struct GrowButtonStyle: ButtonStyle {
 }
 
 extension View {
-    func customButtonGrowAndShadow(_ elevation: Elevation? = nil, shadowColor: Color = .accent) -> some View {
+        func shrinkButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
+            self
+                .buttonStyle(ShrinkButtonStyle(elevation: shadow, shadowColor: shadowColor))
+                .simultaneousGesture(
+                    LongPressGesture(minimumDuration: 0.5).onEnded { _ in }
+                )
+        }
+    
+    func growButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
         self
-            .buttonStyle(GrowButtonStyle(elevation: elevation, shadowColor: shadowColor))
+            .buttonStyle(GrowButtonStyle(elevation: shadow, shadowColor: shadowColor))
             .simultaneousGesture(
                 LongPressGesture(minimumDuration: 0.5).onEnded { _ in }
             )

@@ -139,7 +139,7 @@ extension MapSearchView {
             MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            GlassCircleButton(padding: 6) {
+            GlassButton(padding: 6) {
                 sheet = .optionsAndSearchBar
             } buttonLabel: {
                 Image(systemName: "xmark")

@@ -62,7 +62,6 @@ struct DropDownButton: View {
     
     @ViewBuilder
     private var buttonImage: some View {
-        
         let base = Image(systemName: "chevron.down")
             .font(.body(isAccept ? 15 : 17, .bold))
             .rotationEffect(.degrees(isExpanded ? 180 : 0))
@@ -74,7 +73,7 @@ struct DropDownButton: View {
         if showGlass {
             base
                 .padding(6)
-                .hoverButton(Circle())
+                .buttonBackground(.circle, color: .clear)
                 .padding(-6)
                 .padding(.vertical, -3)
             

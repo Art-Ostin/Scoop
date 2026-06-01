@@ -28,7 +28,7 @@ struct ActionButton: View {
                 .padding(.vertical, 12)
                 .buttonBackground(RoundedRectangle(cornerRadius: cornerRadius), color: color)
         }
-        .customButtonPressAndShadow(isValid && showShadow ? .medium : nil, shadowColor: color)
+        .shrinkButton(shadow: isValid && showShadow ? .medium : nil, shadowColor: color)
         .disabled(!isValid)
     }
 }

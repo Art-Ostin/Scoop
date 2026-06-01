@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 
 struct MapSearchBar: View {
+    
     @FocusState.Binding var isFocused: Bool
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
@@ -21,7 +22,7 @@ struct MapSearchBar: View {
                 .overlay(alignment: .leading) { searchIcon }
                 .overlay(alignment: .trailing) {deleteSearchButton}
                 .frame(height: 45)
-                .hoverButton(Capsule())
+                .buttonBackground(.capsule, color: .clear)
                 .contentShape(Capsule())
                 .focused($isFocused)
                 .simultaneousGesture(TapGesture().onEnded {

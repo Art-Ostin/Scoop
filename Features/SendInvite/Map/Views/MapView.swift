@@ -82,7 +82,7 @@ struct MapView: View {
                                     .zIndex(isSelected ? 1000 : -100)
                             }
                             .tag(MapSelection(item))
-z                        }
+                        }
                     } else {
                         Marker(item: item)
                             .tag(MapSelection(item))
@@ -228,10 +228,9 @@ extension MapView {
     private var mapsButton: some View {
         let isAppleMaps = vm.defaults.preferredMapType == .appleMaps
         
-        return Button {
+        return GlassButton {
             MapsRouter.openMaps(defaults: vm.defaults)
-        }
-        label: {
+        } buttonLabel: {
             VStack(spacing: isAppleMaps ? 2 : 3) {
                 Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
                 Text("Maps")
@@ -240,7 +239,6 @@ extension MapView {
             }
             .frame(width: 45, height: 45, alignment: .center)
             .offset(y: isAppleMaps ? 1 : -1)
-            .hoverButton(Circle())
         }
     }
     

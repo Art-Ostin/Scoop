@@ -97,7 +97,7 @@ struct InviteRespondButton: View {
             .padding(6)
             .padding(.leading, 2)
             .padding(.trailing, 2)
-            .hoverButton(RoundedRectangle(cornerRadius: 24))
+            .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)

@@ -25,7 +25,6 @@ struct MapOptionsView: View {
             .padding(.horizontal, 16)
             
             mapCategoryIcons
-
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, 16)
@@ -47,7 +46,7 @@ struct MapOptionsView: View {
                 .offset(x: -12)
             }
             .onAppear {
-                guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else { print("Nope") ; return }
+                guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else {return }
                 proxy.scrollTo(selected, anchor: .center)
                 print("scrolled to there")
             }
@@ -57,23 +56,28 @@ struct MapOptionsView: View {
             
         }
     }
+    
+    private var deleteSearchButton: some View {
+        GlassButton(padding: 6) {
+            vm.searchText = ""
+            vm.selectedMapCategory = nil
+        } buttonLabel: {
+            Image(systemName: "xmark")
+                .font(.body(18, .bold))
+        }
+    }
 }
 
 struct DeleteSearchButton: View {
-    
     @Bindable var vm: MapViewModel
     
     var body: some View {
-        Button {
-            vm.searchText = ""
-            vm.selectedMapCategory = nil
-        } label: {
-            Image(systemName: "xmark")
-                .font(.body(18, .bold))
-                .frame(width: 45, height: 45)
-                .hoverButton(Circle())
-                .contentShape(Circle())
-                .foregroundStyle(Color.black)
-        }
+            GlassButton(padding: 6) {
+                vm.searchText = ""
+                vm.selectedMapCategory = nil
+            } buttonLabel: {
+                Image(systemName: "xmark")
+                    .font(.body(18, .bold))
+            }
     }
 }

@@ -14,6 +14,7 @@ struct InviteButton: View {
     let morphId: String
     let action: () -> Void
     var body: some View {
+        
         Button {
             action()
         } label: {
@@ -22,10 +23,9 @@ struct InviteButton: View {
                 .scaledToFit()
                 .frame(width: 24, height: 24)
                 .foregroundStyle(.white)
-                .frame(width: 40, height: 40)
-                .hoverButton(Circle(), tint: isInviting ? .accent : .appGreen)
-                .surfaceShadow(.floating, strength: 3)
+                .buttonBackground(Circle(), color: .accent)
         }
+        .shrinkButton(shadow: .medium)
         .inviteIconAnchor(id: morphId)//Shares location for morph
     }
 }

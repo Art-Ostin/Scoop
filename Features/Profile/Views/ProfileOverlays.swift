@@ -30,11 +30,14 @@ extension ProfileView {
             Spacer()
             if !isUserProfile {
                 if isOverlay {
-                    ProfileDismissButton(color: .white, isOverlay: true, onDismiss: onDismiss)
-                        .padding(6)
-                        .hoverButton(Circle())
+                    GlassButton {
+                        onDismiss()
+                    } buttonLabel: {
+                        Image(systemName: "chevron.down")
+                            .font(.body(18, .bold))
+                    }
                 } else {
-                    ProfileDismissButton(color: .black, isOverlay: false, onDismiss: onDismiss)
+                    profileDismissButton
                 }
             }
         }
@@ -136,5 +139,19 @@ extension ProfileView {
         let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
         let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
         withAnimation(spring) { ui.profileOffset = 0 }
+    }
+    
+
+    private var profileDismissButton: some View {
+        Button {
+            if let onDismiss {
+                onDismiss()
+            }
+        } label: {
+            Image(systemName: "chevron.down")
+                .font(.body(18, .bold))
+                .foregroundStyle(.black)
+        }
+        .buttonStyle(.plain)
     }
 }

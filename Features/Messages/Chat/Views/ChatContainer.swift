@@ -11,6 +11,9 @@ import UIKit
 
 struct ChatContainer: View {
 
+    //0. Dismiss Profile
+    @Environment(\.dismiss) private var dismiss
+    
     //1. View Model
     @State private var vm: ChatViewModel
 
@@ -64,7 +67,7 @@ struct ChatContainer: View {
             //2. The overlay and structure
             .overlay(alignment: .topTrailing) { profileButton}
             .overlay { if profileRendered { profileView } }
-            .overlay(alignment: .top) { chatHeaderBar }
+            .overlay(alignment: .top) { chatDismissButton }
 
         //3. Hide the toolbar
         .toolbar(.hidden)
@@ -85,15 +88,6 @@ struct ChatContainer: View {
 //Other Views
 extension ChatContainer {
     
-    private var chatHeaderBar: some View {
-        ChatHeaderBar(
-            profileOpen: $profileOpen,
-            image: profileImages.first ?? UIImage(),
-            name: vm.eventProfile.profile.name,
-            isEvent: isEvent
-        )
-    }
-
     private var profileView: some View {
         ProfileView(
             vm: ProfileViewModel(
@@ -124,27 +118,56 @@ extension ChatContainer {
     }
     
     private var profileButton: some View {
-        Button {
-            var t = Transaction(animation: .spring(duration: 0.2, bounce: 0.1))
-            t.disablesAnimations = false
-            withTransaction(t) {
-                profileRendered = true
-                profileOpen = true
-            }
-        } label: {
-            HStack(spacing: 6) {
-                CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
-                    .scaleEffect(0.9)
-                
-                Text(vm.eventProfile.profile.name)
-                    .font(.body(16, .bold))
-                    .foregroundStyle(Color.black)
-            }
-            .padding(.vertical, 3)
-            .padding(.leading, 4)
-            .padding(.trailing, 8)
-            .hoverButton(RoundedRectangle(cornerRadius: 24))
-            .padding(.horizontal)
+        GlassButton(shape: .roundedRect(24)) {
+            onProfileTap()
+        } buttonLabel: {
+            profileLabel
+        }
+        .padding(.horizontal)
+    }
+    
+    //See if I can simplify this
+    private func onProfileTap () {
+        var t = Transaction(animation: .spring(duration: 0.2, bounce: 0.1))
+        t.disablesAnimations = false
+        withTransaction(t) {
+            profileRendered = true
+            profileOpen = true
         }
     }
+    
+    private var profileLabel: some View {
+        HStack(spacing: 6) {
+            CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
+                .scaleEffect(0.9)
+            
+            Text(vm.eventProfile.profile.name)
+                .font(.body(16, .bold))
+                .foregroundStyle(Color.black)
+        }
+    }
+    
+    
+    private var chatDismissButton: some View {
+        GlassButton(padding: profileOpen ? 6 : 12) {
+            dismiss()
+        } buttonLabel: {
+            Image(systemName: isEvent ? "xmark" : "chevron.left")
+                .font(.body(profileOpen ? 16 : 18, .bold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal)
+    }
 }
+
+/*
+ private var chatHeaderBar: some View {
+     ChatHeaderBar(
+         profileOpen: $profileOpen,
+         image: profileImages.first ?? UIImage(),
+         name: vm.eventProfile.profile.name,
+         isEvent: isEvent
+     )
+ }
+
+ */

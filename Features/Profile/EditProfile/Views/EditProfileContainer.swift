@@ -50,6 +50,10 @@ extension EditProfileContainer {
 
     @ViewBuilder
     private var saveButton: some View {
+        
+        
+        
+        
         if vm.showSaveButton {
             Button {
                 if !vm.updatedImages.isEmpty {
@@ -65,7 +69,8 @@ extension EditProfileContainer {
                     .foregroundStyle(.accent)
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .hoverButton()
+                    .glassBackgroundIfAvailable(shape: .capsule)
+                
             }
         }
     }

@@ -95,13 +95,13 @@ extension ProfileDetailsView {
     }
 
     private var dismissDetailsButton: some View {
-        Image(systemName: "chevron.down")
-            .font(.body(16, .bold))
-            .frame(width: 30, height: 30)
-            .hoverButton()
-            .padding()
-            .padding(.horizontal, 6)
+        GlassButton(action: {}) {
+            Image(systemName: "chevron.down")
+                .font(.body(16, .bold))
+        }
+        .scaleEffect(0.9)
     }
+        
 
     private var profileInterests: some View {
         DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {

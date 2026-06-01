@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct CirclePhoto: View {
-    
     let image: UIImage
     var showShadow: Bool = true
     var height: CGFloat = 35
@@ -49,6 +48,3 @@ struct RemoveIcon: View {
     }
 }
 
-//#Preview {
-//    CirclePhoto()
-//}

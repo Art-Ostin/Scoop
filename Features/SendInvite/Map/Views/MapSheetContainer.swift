@@ -97,9 +97,11 @@ extension MapSheetContainer {
 }
 
 
-enum MapSheets: CaseIterable, Equatable {
-    case searchBar, optionsAndSearchBar, large
 
+//Different Screen Detents
+enum MapSheets: CaseIterable, Equatable {
+    
+    case searchBar, optionsAndSearchBar, large
 
     static let searchDetent: PresentationDetent = .fraction(0.10)
     static let optionsDetent: PresentationDetent = .fraction(0.22)
@@ -131,21 +133,3 @@ enum MapSheets: CaseIterable, Equatable {
         }
     }
 }
-
-/*
- 
- MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
-     .opacity(sheet == .optionsAndSearchBar ? 1 : 0)
-     .allowsHitTesting(sheet == .optionsAndSearchBar)
- 
- MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
-     .opacity(sheet == .large ? 1 : 0)
-     .allowsHitTesting(sheet == .large)
- 
- mapSearchBar
-     .foregroundStyle(Color.black)
-     .opacity(sheet == .searchBar ? 1 : 0)
-     .allowsHitTesting(sheet == .searchBar)
-     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-
- */

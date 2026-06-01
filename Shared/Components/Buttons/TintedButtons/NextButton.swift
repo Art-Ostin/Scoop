@@ -19,7 +19,7 @@ struct NextButton: View {
                 .buttonBackground(RoundedRectangle(cornerRadius: 33), color: isValid ? (Color.accent) : Color.grayBackground)
         }
         .disabled(!isValid)
-        .customButtonPressAndShadow(isValid ? .medium : nil)
+        .shrinkButton(shadow: isValid ? .medium : nil)
         .frame(maxWidth: .infinity, alignment: .trailing) //Positioning on screen
     }
 }

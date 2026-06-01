@@ -7,46 +7,18 @@
 
  import SwiftUI
 
- struct SettingsButton: View {
-     let zoomNS: Namespace.ID
-     let action: () -> Void
-     var body: some View {
-         Button(action: action) {
-             Image(systemName: "gear")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 20, height: 20)
-                 .frame(width: 35, height: 35)
-                 .hoverButton(Circle())
-                 .contentShape(Circle())
-                 .foregroundStyle(Color.black)
-                 .matchedTransitionSource(id: "settings", in: zoomNS)
-         }
-     }
- }
-
-
-import SwiftUI
-
-struct TabInfoButton: View {
+struct InfoButton: View {
     @Binding var showScreen: Bool
-    let isAtTopOfScroll: Bool
+    var isAtTopOfScroll: Bool = true
+    
     var body: some View {
         Group {
-            if isAtTopOfScroll {
-                Button {
-                    showScreen = true
-                } label: {
+            if !isAtTopOfScroll {
+                GlassButton(action: {showScreen  = true}) {
                     Image(systemName: "info.circle")
-                        //1. Logic for Icon
                         .font(.body(18, .medium))
-                        .foregroundStyle(Color.black)
-                        .contentShape(Circle())
                 }
-                //3. Retracts up into the nav bar with a soft glass blur
                 .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
-                .buttonBorderShape(.circle)
-                .glassButtonStyleIfAvailable()
                 .padding(.top, 16) //As its small icon, sits in correct position
                 .padding(.horizontal, 22)
             }
@@ -54,6 +26,20 @@ struct TabInfoButton: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isAtTopOfScroll)
     }
 }
+
+//Settings Button
+ struct SettingsButton: View {
+     let zoomNS: Namespace.ID
+     let action: () -> Void
+     var body: some View {
+         GlassButton(padding: 2, action: action) {
+             Image(systemName: "gear")
+                 .font(.body(20, .medium))
+                 .matchedTransitionSource(id: "settings", in: zoomNS)
+         }
+     }
+ }
+
 
 extension View {
 
@@ -75,8 +61,6 @@ extension View {
         }
     }
 }
-
-
 
 //To disappear when it is not at the top.
 private struct ScrollTopTracker: ViewModifier {
@@ -101,3 +85,22 @@ extension View {
         modifier(ScrollTopTracker(isAtTop: isAtTop))
     }
 }
+
+
+/*
+ 
+ 
+ 
+ Button(action: action) {
+     Image(systemName: "gear")
+         .resizable()
+         .scaledToFit()
+         .frame(width: 20, height: 20)
+         .frame(width: 35, height: 35)
+         .hoverButton(Circle())
+         .contentShape(Circle())
+         .foregroundStyle(Color.black)
+         .matchedTransitionSource(id: "settings", in: zoomNS)
+ }
+
+ */

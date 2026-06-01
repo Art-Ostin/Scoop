@@ -99,7 +99,7 @@ extension FrozenView {
         HStack {
             SettingsButton(zoomNS: zoomNS) { showSettings = true }
             Spacer()
-            TabInfoButton(showScreen: $showInfo, isAtTopOfScroll: true)
+            InfoButton(showScreen: $showInfo, isAtTopOfScroll: true)
         }
         .padding(.horizontal)
     }

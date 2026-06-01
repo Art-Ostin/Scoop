@@ -85,11 +85,13 @@ struct ImageEditButton: View {
        }
    }
    var body: some View {
-       Image(editButton)
-           .resizable()
-           .scaledToFit()
-           .frame(width: 11, height: 11)
-           .padding(3)
-           .hoverButton(Circle())
+       GlassButton {
+           
+       } buttonLabel: {
+           Image(editButton)
+               .resizable()
+               .scaledToFit()
+               .frame(width: 11, height: 11)
+       }
    }
 }
