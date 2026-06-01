@@ -11,25 +11,30 @@ struct ButtonTestView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 72) {
+            HStack(spacing: 32) {
                 twentySixVersion
 
                 eighteenVersion
+                
+                DismissButton(.cross)
             }
-            .toolbar {DismissToolbarItem(.back)}
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+//            .offset(y: -56.5)
+            .padding(.leading, 48 + 36)
+            .toolbar {DismissToolbarItem(.cross)}
         }
     }
 }
 
 extension ButtonTestView {
-    
     @ViewBuilder
     private var twentySixVersion: some View {
         if #available(iOS 26.0, *) {
             Button {
-                
+
             } label: {
                 buttonLabel
+                    .padding(6)
             }
             .foregroundStyle(Color.black)
             .buttonStyle(.glassProminent)
@@ -40,92 +45,62 @@ extension ButtonTestView {
 
     private var eighteenVersion: some View {
         Button {
-            
+
         } label: {
             buttonLabel
-                .padding(7)
-                .background(Circle().fill(.ultraThinMaterial).brightness(0.065))
-                .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
+                .padding(15)
+                .background(
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .brightness(0.06)
+                )
         }
-        .customButtonPressAndShadow(.ultraLow)
+        .customButtonGrowAndShadow(.customGlassShadow)
     }
     
-    
     private var buttonLabel: some View {
-        Image(systemName: dismissType == .cross ? "xmark" : "chevron.left")
-            .font(.system(size: dismissType == .cross ? 12 : 14, weight: .heavy))
+        Image(systemName: "chevron.left")
+            .font(.system(size: 17, weight: .heavy))
             .foregroundStyle(Color.black)
     }
 }
 
-/*
- 
- struct DismissButton: View {
-      
-     @Environment(\.dismiss) private var dismiss
-     
-     let dismissType: DismissType
 
+ struct NewDismissButton: View {
+     let dismiss: () -> ()
      var body: some View {
-         if #available(iOS 26.0, *) {
-             Button {
-                 dismiss()
-             } label: {
-                 buttonLabel
-             }
-             .foregroundStyle(Color.black)
-             .buttonStyle(.glassProminent)
-             .buttonBorderShape(.circle)
-             .tint(.clear)
-         } else {
-             Button {
-                 dismiss()
-             } label: {
-                 buttonLabel
-                     .padding(7)
-                     .background(Circle().fill(.ultraThinMaterial).brightness(0.065))
-                     .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
-             }
-             .customButtonPressAndShadow(.ultraLow)
+         Button {
+             dismiss()
+         } label : {
+             Image(systemName: "xmark")
+                 .font(.body(18, .bold))
+                 .padding(12)
+                 .glassIfAvailable(Circle())
+                 .contentShape(Circle())
+                 .foregroundStyle(Color.black)
+                 .padding(.horizontal)
          }
      }
-     
-     private var buttonLabel: some View {
-         Image(systemName: dismissType == .cross ? "xmark" : "chevron.left")
-             .font(.system(size: dismissType == .cross ? 12 : 14, weight: .heavy))
-             .foregroundStyle(Color.black)
+ }
+ 
+ extension View {
+     @ViewBuilder
+     func glassIfAvailable<S: InsettableShape>(_ shape: S = Capsule(), isClear: Bool = true, thinMaterial: Bool = false) -> some View {
+         if #available(iOS 26.0, *) {
+             self
+                 .glassEffect(isClear ? .clear : .regular, in: shape)
+         } else {
+             self
+                 .background {shape.fill(Color.appCanvas)}
+                 .overlay {shape.strokeBorder(Color.grayBackground, lineWidth: 0.4)}
+                 .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                 .background(Capsule().fill(thinMaterial ? AnyShapeStyle(.ultraThinMaterial) : AnyShapeStyle(.clear)))
+         }
      }
  }
- */
-
-
-
 
 /*
- @ViewBuilder
- private var twentySixVersion: some View {
-     if #available(iOS 26.0, *) {
-         Button {
-         } label: {
-             Image(systemName: "info.circle")
-         }
-         .foregroundStyle(Color.black)
-         .buttonStyle(.glassProminent)
-         .buttonBorderShape(.circle)
-         .tint(.clear)
-     }
- }
-
- private var eighteenVersion: some View {
-     Button {
-     } label: {
-         Image(systemName: "info.circle")          // match the 26 label
-             .padding(7)                             // breathing room glass adds for you
-             .background(Circle().fill(.ultraThinMaterial).brightness(0.065))   // translucent, like clear-tint glass
-             .overlay(Circle().strokeBorder(Color.grayBackground, lineWidth: 0.4))
-     }
-     .customButtonPressAndShadow(.ultraLow)              // single press response
- }
-
+ .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 3)
+ .shadow(color: .black.opacity(0.01), radius: 24, x: 0, y: 9)
 
  */

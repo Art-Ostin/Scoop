@@ -47,7 +47,12 @@
       "Bash(xcodebuild -list -json)",
       "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS' build)",
       "Bash(sed -n '113,120p' Features/SendInvite/Map/Views/MapView.swift)",
-      "Bash(sed -n '138,146p' Features/SendInvite/Map/Views/MapSearchView.swift)"
+      "Bash(sed -n '138,146p' Features/SendInvite/Map/Views/MapSearchView.swift)",
+      "WebFetch(domain:www.donnywals.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(grep -i '\\\\.swift$')",
+      "Bash(grep -i 'swift$')",
+      "Bash(git ls-tree *)"
     ]
   }
 }
