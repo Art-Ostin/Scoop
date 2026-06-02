@@ -13,6 +13,7 @@ struct ActionButton: View {
     var isValid: Bool = true
     var isInvite: Bool = false
     var cornerRadius: CGFloat = 24
+    var hPadding: CGFloat = 36
     let onTap: () -> Void
     
     var color: Color {
@@ -25,7 +26,7 @@ struct ActionButton: View {
         ScoopButton(style: .tinted(color, shadow: shadow), shape: .rect(cornerRadius: cornerRadius), action: onTap) {
             Text(text)
                 .font(.body(18, .bold))
-                .padding(.horizontal, 36)
+                .padding(.horizontal, hPadding)
                 .padding(.vertical, 12)
         }
         .disabled(!isValid)

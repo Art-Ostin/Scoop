@@ -32,7 +32,11 @@ struct ChatScrollView: View {
         
         //1. The background of the scroll View
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        .customScrollFade(height: 100, showFade: true, edge: .top)
+        .scrollFadeIfAvailable(edge: .bottom)
+        .scrollFadeIfAvailable(edge: .top)
+
+
+//        .customScrollFade(height: 100, showFade: true, edge: .top)
         .background(Color.appCanvas)
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
@@ -110,5 +114,16 @@ extension ChatScrollView {
     }
 }
 
-
-
+extension View {
+    
+    @ViewBuilder
+    func scrollFadeIfAvailable (edge: Edge.Set) -> some View {
+        if #available(iOS 26.0, *) {
+            self
+                .scrollEdgeEffectStyle(.soft, for: edge)
+        } else {
+            self
+            .customScrollFade(height: 100, showFade: true, edge: .top)
+        }
+    }
+}

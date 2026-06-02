@@ -14,7 +14,6 @@ enum DismissType {
 
 ///Dismiss Button when Toolbar is available
 struct DismissToolbarItem: ToolbarContent {
-
     @Environment(\.dismiss) private var dismiss
     
     let type: DismissType

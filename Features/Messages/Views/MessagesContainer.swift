@@ -21,7 +21,6 @@ struct MessagesContainer: View {
 
     @Binding var path: NavigationPath
     
-    
     init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
         _path = path
@@ -30,17 +29,6 @@ struct MessagesContainer: View {
     var body: some View {
         NavigationStack(path: $path) {
             messageContainerRootView
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            vm.signOut()
-                        } label: {
-                            Image(systemName: "gear")
-                                .font(.system(size: 15, weight: .semibold))
-                        }
-                        .controlSize(.small)
-                    }
-                }
         }
         .hideTabBar(hideBar: !path.isEmpty)
         .overlay(alignment: .topTrailing) { actionBar }
@@ -105,24 +93,24 @@ extension MessagesContainer {
         .padding(.horizontal, 16)
         .allowsHitTesting(path.isEmpty)
         .opacity(path.isEmpty ? 1 : 0)
+        .disabled(!path.isEmpty)
     }
     
     private var profileButton: some View {
-        Button {
+        ScoopButton(shape: Circle(), size: .medium) {
             path.append(PastEventsRoute.editProfile)
         } label: {
-            Group { 
+            Group {
                 if let img = userProfileImages.first, img.size != .zero {
                     Image(uiImage: img)
                         .resizable()
                         .scaledToFill()
+                        .clipShape(Circle())
+                        .buttonShadow(.high)
                 } else {
                     Circle().fill(Color.gray.opacity(0.2))
                 }
             }
-            .frame(width: 35, height: 35)
-            .clipShape(Circle())
-            .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
             .matchedTransitionSource(id: "editProfile", in: profileZoomNS)
         }
     }
@@ -187,3 +175,23 @@ extension MessagesContainer {
         try await vm.readMessages(userEventId: eventProfile.event.id, userId: vm.user.id)
     }
 }
+
+/*
+ Button {
+     path.append(PastEventsRoute.editProfile)
+ } label: {
+     Group {
+         if let img = userProfileImages.first, img.size != .zero {
+             Image(uiImage: img)
+                 .resizable()
+                 .scaledToFill()
+         } else {
+             Circle().fill(Color.gray.opacity(0.2))
+         }
+     }
+     .frame(width: 35, height: 35)
+     .clipShape(Circle())
+     .shadow(color: .black.opacity(0.15), radius: 7, x: 0, y: 10)
+ }
+
+ */

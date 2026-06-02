@@ -33,10 +33,12 @@ extension TypeMessageView {
             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
             .padding(.horizontal)
             .padding(.vertical, 10)
-            .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
             .lineSpacing(4)
-            .focused(isFocused)
             .lineLimit(1...5)
+            .focused(isFocused)
+            .glassEffectIfAvailable(clear: false, interactive: true, shape: RoundedRectangle(cornerRadius: 24))
+            .contentShape(RoundedRectangle(cornerRadius: 24))
+            .onTapGesture { isFocused.wrappedValue = true }
     }
     
     private var sendMessageView: some View {
@@ -61,3 +63,21 @@ extension TypeMessageView {
         try await vm.sendMessage(text: savedText)
     }
 }
+
+/*
+ private var chatTextField: some View {
+     ScoopButton(shape: .rect(cornerRadius: 24)) {
+         isFocused = true
+     } label: {
+         TextField("Message...", text: $text, axis: .vertical)
+             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+             .padding(.horizontal)
+             .padding(.vertical, 10)
+             .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
+             .lineSpacing(4)
+             .focused(isFocused)
+             .lineLimit(1...5)
+     }
+ }
+
+ */

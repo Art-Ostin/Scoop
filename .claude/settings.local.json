@@ -52,7 +52,8 @@
       "WebFetch(domain:github.com)",
       "Bash(grep -i '\\\\.swift$')",
       "Bash(grep -i 'swift$')",
-      "Bash(git ls-tree *)"
+      "Bash(git ls-tree *)",
+      "WebFetch(domain:www.hackingwithswift.com)"
     ]
   }
 }

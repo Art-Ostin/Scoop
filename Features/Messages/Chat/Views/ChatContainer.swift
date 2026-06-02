@@ -27,6 +27,8 @@ struct ChatContainer: View {
     
     //4.if ChatContainer for events its different
     let isEvent: Bool
+    
+    let buttonHeight: CGFloat = 39
 
     init(
         defaults: DefaultsManaging,
@@ -50,13 +52,6 @@ struct ChatContainer: View {
         ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 TypeMessageView(vm: vm, isFocused: $isFocused)
-                    .overlay(alignment: .bottom) {
-                        LinearGradient.appCanvasFade(startPoint: .bottom, endPoint: .top)
-                            .frame(height: 100)
-                            .frame(maxWidth: .infinity)
-                            .allowsHitTesting(false)
-                            .offset(y: 35)
-                    }
             }
             .zIndex(2)
 
@@ -64,13 +59,11 @@ struct ChatContainer: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.appCanvas.ignoresSafeArea())
 
-            //2. The overlay and structure
-//            .overlay(alignment: .topTrailing) { profileButton}
-            .overlay { if profileRendered { profileView } }
-            .overlay(alignment: .top) { chatDismissButton }
+            .overlay(alignment: .topTrailing) {profileButton}
 
-        //3. Hide the toolbar
-        .toolbar(.hidden)
+            //2. The overlay and structure
+            .overlay { if profileRendered { profileView } }
+
         
         //4. Code to execute and listen for
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
@@ -82,6 +75,8 @@ struct ChatContainer: View {
         .onChange(of: profileOpen) { oldValue, newValue in
             if newValue {isFocused = false}
         }
+        .overlay(alignment: .topLeading) {chatDismissButton }
+        .navigationBarBackButtonHidden()
     }
 }
 
@@ -137,24 +132,44 @@ extension ChatContainer {
         }
     }
     
-    private var profileLabel: some View {
-        HStack(spacing: 6) {
-            CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
-                .scaleEffect(0.9)
-            
-            Text(vm.eventProfile.profile.name)
-                .font(.body(16, .bold))
-                .foregroundStyle(Color.black)
+    private var profileButton: some View {
+        ScoopButton(shape: .rect(cornerRadius: 24)) {
+            profileOpen = true
+        } label: {
+            HStack(spacing: 6) {
+                CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
+                    .scaleEffect(0.9)
+                
+                Text(vm.eventProfile.profile.name)
+                    .font(.body(16, .bold))
+                    .foregroundStyle(Color.black)
+            }
+            .frame(height: 39) //Same height as medium buttons keeps consistency
+            .padding(.trailing, 8)
+            .padding(.leading, 2)
         }
+        .padding(.horizontal)
     }
     
     
     private var chatDismissButton: some View {
-        ScoopButton(shape: Circle(), size: .medium, action: {dismiss()}) {
+        ScoopButton(shape: Circle(), action: {dismiss()}) {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
-                .font(.body(profileOpen ? 16 : 18, .bold))
+                .font(.system(size: 16, weight: .heavy))
+                .frame(width: 39, height: 39) //Slightly larger than default medium
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
     }
 }
+
+
+/*
+ //                    .overlay(alignment: .bottom) {
+ //                        LinearGradient.appCanvasFade(startPoint: .bottom, endPoint: .top)
+ //                            .frame(height: 100)
+ //                            .frame(maxWidth: .infinity)
+ //                            .allowsHitTesting(false)
+ //                            .offset(y: 35)
+ //                    }
+
+ */

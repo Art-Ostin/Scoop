@@ -92,6 +92,18 @@ extension View {
             }
         }
     }
+
+    //7. Configurable glass effect; falls back to a filled shape pre-iOS 26.
+    func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, shape: S) -> some View {
+        return Group {
+            if #available(iOS 26.0, *) {
+                let glass: Glass = clear ? .clear : .regular
+                self.glassEffect(interactive ? glass.interactive() : glass, in: shape)
+            } else {
+                self.background(shape.fill(Color.appCanvas))
+            }
+        }
+    }
 }
 
 
