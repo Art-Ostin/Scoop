@@ -8,19 +8,23 @@
 import SwiftUI
 
 struct NextButton: View {
-    
     let isValid: Bool
     let onTap: () -> Void
         
+    var shadow: Elevation? { isValid ? .medium : nil }
+    var color: Color { isValid ? .accent : .grayPlaceholder}
+    var radius: some Shape {.rect(cornerRadius: 33) }
+    
     var body: some View {
-        Button(action: onTap) {
+        ScoopButton(style: .tinted(.accent, shadow: shadow), shape: radius) {
+            onTap()
+        } label: {
             Image("ForwardArrow")
                 .frame(width: 69, height: 44, alignment: .center)
-                .buttonBackground(RoundedRectangle(cornerRadius: 33), color: isValid ? (Color.accent) : Color.grayBackground)
         }
-        .disabled(!isValid)
-        .shrinkButton(shadow: isValid ? .medium : nil)
         .frame(maxWidth: .infinity, alignment: .trailing) //Positioning on screen
+        .disabled(!isValid)
+        .animation(.spring(.snappy), value: isValid)
     }
 }
 

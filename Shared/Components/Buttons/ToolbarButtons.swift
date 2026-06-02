@@ -5,7 +5,9 @@
 //  Created by Art Ostin on 24/01/2026.
 //
 
- import SwiftUI
+import SwiftUI
+
+
 
 struct InfoButton: View {
     @Binding var showScreen: Bool
@@ -13,8 +15,8 @@ struct InfoButton: View {
     
     var body: some View {
         Group {
-            if !isAtTopOfScroll {
-                GlassButton(action: {showScreen  = true}) {
+            if isAtTopOfScroll {
+                ScoopButton(shape: Circle(), size: .medium, action: {showScreen = true}) {
                     Image(systemName: "info.circle")
                         .font(.body(18, .medium))
                 }
@@ -32,7 +34,8 @@ struct InfoButton: View {
      let zoomNS: Namespace.ID
      let action: () -> Void
      var body: some View {
-         GlassButton(padding: 2, action: action) {
+         
+         ScoopButton(shape: Circle(), size: .medium, action: action) {
              Image(systemName: "gear")
                  .font(.body(20, .medium))
                  .matchedTransitionSource(id: "settings", in: zoomNS)
@@ -85,22 +88,3 @@ extension View {
         modifier(ScrollTopTracker(isAtTop: isAtTop))
     }
 }
-
-
-/*
- 
- 
- 
- Button(action: action) {
-     Image(systemName: "gear")
-         .resizable()
-         .scaledToFit()
-         .frame(width: 20, height: 20)
-         .frame(width: 35, height: 35)
-         .hoverButton(Circle())
-         .contentShape(Circle())
-         .foregroundStyle(Color.black)
-         .matchedTransitionSource(id: "settings", in: zoomNS)
- }
-
- */

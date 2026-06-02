@@ -65,7 +65,7 @@ struct ChatContainer: View {
             .background(Color.appCanvas.ignoresSafeArea())
 
             //2. The overlay and structure
-            .overlay(alignment: .topTrailing) { profileButton}
+//            .overlay(alignment: .topTrailing) { profileButton}
             .overlay { if profileRendered { profileView } }
             .overlay(alignment: .top) { chatDismissButton }
 
@@ -117,14 +117,15 @@ extension ChatContainer {
         }
     }
     
-    private var profileButton: some View {
-        GlassButton(shape: .roundedRect(24)) {
-            onProfileTap()
-        } buttonLabel: {
-            profileLabel
-        }
-        .padding(.horizontal)
-    }
+//    private var profileButton: some View {
+////        GlassEffectButton(padding: 4, shape: .roundedRect(24)) {
+////            onProfileTap()
+////        } buttonLabel: {
+////            profileLabel
+////        }
+////        .controlSize(.mini)
+////        .padding(.horizontal)
+//    }
     
     //See if I can simplify this
     private func onProfileTap () {
@@ -149,9 +150,7 @@ extension ChatContainer {
     
     
     private var chatDismissButton: some View {
-        GlassButton(padding: profileOpen ? 6 : 12) {
-            dismiss()
-        } buttonLabel: {
+        ScoopButton(shape: Circle(), size: .medium, action: {dismiss()}) {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
                 .font(.body(profileOpen ? 16 : 18, .bold))
         }
@@ -159,15 +158,3 @@ extension ChatContainer {
         .padding(.horizontal)
     }
 }
-
-/*
- private var chatHeaderBar: some View {
-     ChatHeaderBar(
-         profileOpen: $profileOpen,
-         image: profileImages.first ?? UIImage(),
-         name: vm.eventProfile.profile.name,
-         isEvent: isEvent
-     )
- }
-
- */

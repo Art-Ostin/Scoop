@@ -139,6 +139,9 @@ extension MapSearchView {
             MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
+            // TEMP: glass button commented out for ButtonTest preview
+            EmptyView()
+            /*
             GlassButton(padding: 6) {
                 sheet = .optionsAndSearchBar
             } buttonLabel: {
@@ -146,6 +149,7 @@ extension MapSearchView {
                     .font(.system(size: 17, weight: .heavy))
                     .foregroundStyle(Color.black)
             }
+            */
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 15)

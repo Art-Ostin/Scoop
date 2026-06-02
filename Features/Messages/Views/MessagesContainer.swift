@@ -42,32 +42,12 @@ struct MessagesContainer: View {
                     }
                 }
         }
-        
         .hideTabBar(hideBar: !path.isEmpty)
         .overlay(alignment: .topTrailing) { actionBar }
-        
-        
-        
-        
-        .overlay {
-            if #available(iOS 26.0, *) {
-                Button {
-                    // action
-                } label: {
-                    Image(systemName: "message.fill")
-                        .font(.body.weight(.bold))
-                        .padding(10)
-                }
-                .buttonStyle(.glassProminent)
-            } else {
-                // Fallback on earlier versions
-            }
-        }
     }
 }
 
 extension MessagesContainer {
-    
     
     private var messageContainerRootView: some View {
         AppScrollView(title: "Message") {
@@ -118,7 +98,7 @@ extension MessagesContainer {
 
     private var actionBar: some View {
         HStack {
-//            SettingsButton(zoomNS: settingsZoomNS, action: { path.append(PastEventsRoute.settings) })
+            SettingsButton(zoomNS: settingsZoomNS, action: { path.append(PastEventsRoute.settings) })
             Spacer()
             profileButton
         }

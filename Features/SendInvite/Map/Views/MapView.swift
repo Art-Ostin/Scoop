@@ -228,6 +228,9 @@ extension MapView {
     private var mapsButton: some View {
         let isAppleMaps = vm.defaults.preferredMapType == .appleMaps
         
+        // TEMP: glass button commented out for ButtonTest preview
+        return AnyView(EmptyView())
+        /*
         return GlassButton {
             MapsRouter.openMaps(defaults: vm.defaults)
         } buttonLabel: {
@@ -240,6 +243,7 @@ extension MapView {
             .frame(width: 45, height: 45, alignment: .center)
             .offset(y: isAppleMaps ? 1 : -1)
         }
+        */
     }
     
     

@@ -30,12 +30,16 @@ extension ProfileView {
             Spacer()
             if !isUserProfile {
                 if isOverlay {
+                    // TEMP: glass button commented out for ButtonTest preview
+                    EmptyView()
+                    /*
                     GlassButton {
                         onDismiss()
                     } buttonLabel: {
                         Image(systemName: "chevron.down")
                             .font(.body(18, .bold))
                     }
+                    */
                 } else {
                     profileDismissButton
                 }

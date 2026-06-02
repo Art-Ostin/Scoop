@@ -14,18 +14,13 @@ struct InviteButton: View {
     let morphId: String
     let action: () -> Void
     var body: some View {
-        
-        Button {
-            action()
-        } label: {
+        ScoopButton(style: .tinted(isInviting ? Color.accent : Color.appGreen, shadow: .medium), shape: Circle(), action: action) {
             Image("LetterIconProfile")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(.white)
-                .buttonBackground(Circle(), color: .accent)
+                .frame(width: 40, height: 40)
         }
-        .shrinkButton(shadow: .medium)
         .inviteIconAnchor(id: morphId)//Shares location for morph
     }
 }

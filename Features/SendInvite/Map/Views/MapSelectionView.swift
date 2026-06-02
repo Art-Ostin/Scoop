@@ -204,6 +204,9 @@ extension MapSelectionView {
     }
     
     private var dismissButton: some View {
+        // TEMP: glass button commented out for ButtonTest preview
+        EmptyView()
+        /*
         GlassButton(padding: 6) {
             onExitSelection(.optionsAndSearchBar)
             //Only remove text if it is not a category (i.e. if more than 3 selected)
@@ -214,7 +217,8 @@ extension MapSelectionView {
             Image(systemName: "xmark")
                 .font(.body(15, .medium))
         }
-    }    
+        */
+    }
 }
 
 

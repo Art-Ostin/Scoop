@@ -32,22 +32,18 @@ struct DismissToolbarItem: ToolbarContent {
 
 ///Dismiss Button when toolbar unavailable
 struct DismissButton: View {
-    
     @Environment(\.dismiss) private var dismiss
     let type: DismissType
     
     var body: some View {
-        GlassButton(padding: 6, action: dismiss.callAsFunction) {
+        ScoopButton(shape: Circle(), size: .large, action: {dismiss()}) {
             Image(systemName: type.symbolName)
-                .font(.system(size: 17, weight: .heavy))
-                .foregroundStyle(Color.black)
         }
     }
 }
 
 ///Dismiss Button with check used for onboarding
 struct CloseAndCheckNavButton: ViewModifier {
-    
     @Environment(\.dismiss) private var dismiss
     let check: Bool
     @Binding var triggerAlert: Bool

@@ -13,22 +13,21 @@ struct ActionButton: View {
     var isValid: Bool = true
     var isInvite: Bool = false
     var cornerRadius: CGFloat = 24
-    var showShadow: Bool = true
     let onTap: () -> Void
     
     var color: Color {
         isValid ? (isInvite ? Color.appGreen : Color.accent) : Color.grayBackground
     }
+    
+    var shadow: Elevation? { isValid ? .high : nil}
 
     var body: some View {
-        Button(action: onTap) {
+        ScoopButton(style: .tinted(color, shadow: shadow), shape: .rect(cornerRadius: cornerRadius), action: onTap) {
             Text(text)
                 .font(.body(18, .bold))
-                .padding(.horizontal, showShadow ? 24 : 36)
+                .padding(.horizontal, 36)
                 .padding(.vertical, 12)
-                .buttonBackground(RoundedRectangle(cornerRadius: cornerRadius), color: color)
         }
-        .shrinkButton(shadow: isValid && showShadow ? .medium : nil, shadowColor: color)
         .disabled(!isValid)
     }
 }

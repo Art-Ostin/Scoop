@@ -7,67 +7,38 @@
 
 import SwiftUI
 
-//Takes elevation in as parameter as shadow subtly changes based of shadow
-struct ShrinkButtonStyle: ButtonStyle {
+// The pressed look for a button. Released values are always identity
+// (scale 1, opacity 1, brightness 0), so each preset only sets what it changes.
+struct PressEffect {
+    var scale: CGFloat
+    var opacity: Double = 1
+    var brightness: Double = 0
+    var pressDuration: Double
+    var release: (response: Double, damping: Double)
+
+    // Shrinks and dims — the standard tinted-button press.
+    static let shrink = PressEffect(scale: 0.9, opacity: 0.75, pressDuration: 0.12, release: (0.4, 0.45))
+    // Grows and brightens — used for the iOS 18 glass fallback.
+    static let grow = PressEffect(scale: 1.22, brightness: 0.2, pressDuration: 0.15, release: (0.35, 0.38))
+}
+
+// Shadow subtly changes with elevation, so it's taken as a parameter.
+struct PressButtonStyle: ButtonStyle {
+    var effect: PressEffect
     var elevation: Elevation?
     var shadowColor: Color = .accent
 
     func makeBody(configuration: Configuration) -> some View {
-        PressableLabel(configuration: configuration, elevation: elevation, shadowColor: shadowColor)
+        PressableLabel(configuration: configuration, effect: effect, elevation: elevation, shadowColor: shadowColor)
     }
 
     private struct PressableLabel: View {
         let configuration: Configuration
+        let effect: PressEffect
         let elevation: Elevation?
         let shadowColor: Color
         @State private var scale: CGFloat = 1
         @State private var opacity: Double = 1
-        @State private var shadowStrength: Double = 1
-        @State private var pressStart: Date?
-
-        var body: some View {
-            configuration.label
-                .scaleEffect(scale)
-                .opacity(opacity)
-                .buttonShadow(elevation, color: shadowColor, strength: shadowStrength)
-                .onChange(of: configuration.isPressed) { _, isPressed in
-                    onPressed(isPressed: isPressed)
-                }
-        }
-        
-        func onPressed(isPressed: Bool) {
-            guard !isPressed else {
-                pressStart = .now
-                withAnimation(.snappy(duration: 0.12)) {
-                    scale = 0.9; opacity = 0.75; shadowStrength = Elevation.pressedStrength
-                }
-                return
-            }
-            // Hold off the bounce so the dip stays visible on a fast tap.
-            let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
-            DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.45)) { scale = 1; shadowStrength = 1 }
-                withAnimation(.easeOut(duration: 0.48)) { opacity = 1 }
-            }
-        }
-    }
-}
-
-
-//Mirror of PopButtonStyle that grows and brightens instead of shrinking used for Ios 18 buttons
-struct GrowButtonStyle: ButtonStyle {
-    var elevation: Elevation?
-    var shadowColor: Color = .accent
-
-    func makeBody(configuration: Configuration) -> some View {
-        PressableLabel(configuration: configuration, elevation: elevation, shadowColor: shadowColor)
-    }
-
-    private struct PressableLabel: View {
-        let configuration: Configuration
-        let elevation: Elevation?
-        let shadowColor: Color
-        @State private var scale: CGFloat = 1
         @State private var brightness: Double = 0
         @State private var shadowStrength: Double = 1
         @State private var pressStart: Date?
@@ -75,45 +46,45 @@ struct GrowButtonStyle: ButtonStyle {
         var body: some View {
             configuration.label
                 .scaleEffect(scale)
+                .opacity(opacity)
                 .brightness(brightness)
                 .buttonShadow(elevation, color: shadowColor, strength: shadowStrength)
-                .onChange(of: configuration.isPressed) { _, isPressed in
-                    onPressed(isPressed: isPressed)
-                }
+                .onChange(of: configuration.isPressed) { _, isPressed in onPressed(isPressed) }
         }
 
-        func onPressed(isPressed: Bool) {
+        func onPressed(_ isPressed: Bool) {
             guard !isPressed else {
                 pressStart = .now
-                withAnimation(.snappy(duration: 0.15)) {
-                    scale = 1.18; brightness = 0.2; shadowStrength = Elevation.pressedStrength
+                withAnimation(.snappy(duration: effect.pressDuration)) {
+                    scale = effect.scale; opacity = effect.opacity; brightness = effect.brightness
+                    shadowStrength = Elevation.pressedStrength
                 }
                 return
             }
-            // Hold off the bounce so the grow stays visible on a fast tap.
+            // Hold off the bounce so the press stays visible on a fast tap.
             let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
             DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.38)) { scale = 1; shadowStrength = 1 }
-                withAnimation(.easeOut(duration: 0.48)) { brightness = 0 }
+                withAnimation(.spring(response: effect.release.response, dampingFraction: effect.release.damping)) {
+                    scale = 1; shadowStrength = 1
+                }
+                withAnimation(.easeOut(duration: 0.48)) { opacity = 1; brightness = 0 }
             }
         }
     }
 }
 
 extension View {
-        func shrinkButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
-            self
-                .buttonStyle(ShrinkButtonStyle(elevation: shadow, shadowColor: shadowColor))
-                .simultaneousGesture(
-                    LongPressGesture(minimumDuration: 0.5).onEnded { _ in }
-                )
-        }
-    
-    func growButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
-        self
-            .buttonStyle(GrowButtonStyle(elevation: shadow, shadowColor: shadowColor))
-            .simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.5).onEnded { _ in }
-            )
+
+    func shrinkButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
+        pressButton(.shrink, shadow: shadow, shadowColor: shadowColor)
+    }
+
+    func growButton(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent) -> some View {
+        pressButton(.grow, shadow: shadow, shadowColor: shadowColor)
+    }
+
+    private func pressButton(_ effect: PressEffect, shadow: Elevation?, shadowColor: Color) -> some View {
+        buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, shadowColor: shadowColor))
+            .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
     }
 }

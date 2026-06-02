@@ -58,6 +58,9 @@ struct MapOptionsView: View {
     }
     
     private var deleteSearchButton: some View {
+        // TEMP: glass button commented out for ButtonTest preview
+        EmptyView()
+        /*
         GlassButton(padding: 6) {
             vm.searchText = ""
             vm.selectedMapCategory = nil
@@ -65,6 +68,7 @@ struct MapOptionsView: View {
             Image(systemName: "xmark")
                 .font(.body(18, .bold))
         }
+        */
     }
 }
 
@@ -72,6 +76,9 @@ struct DeleteSearchButton: View {
     @Bindable var vm: MapViewModel
     
     var body: some View {
+            // TEMP: glass button commented out for ButtonTest preview
+            EmptyView()
+            /*
             GlassButton(padding: 6) {
                 vm.searchText = ""
                 vm.selectedMapCategory = nil
@@ -79,5 +86,6 @@ struct DeleteSearchButton: View {
                 Image(systemName: "xmark")
                     .font(.body(18, .bold))
             }
+            */
     }
 }

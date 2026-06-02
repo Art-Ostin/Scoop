@@ -95,11 +95,15 @@ extension ProfileDetailsView {
     }
 
     private var dismissDetailsButton: some View {
+        // TEMP: glass button commented out for ButtonTest preview
+        EmptyView()
+        /*
         GlassButton(action: {}) {
             Image(systemName: "chevron.down")
                 .font(.body(16, .bold))
         }
         .scaleEffect(0.9)
+        */
     }
         
 

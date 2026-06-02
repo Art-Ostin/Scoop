@@ -96,13 +96,15 @@ extension SelectTimeAndPlace {
     }
     
     private var sendInviteButton: some View {
-        ActionButton(text: "Send Invite", isValid: !ui.showConfirmPopup && InviteIsValid && !showTwoDays, showShadow: false) {
+        let isValid = !ui.showConfirmPopup && InviteIsValid && !showTwoDays
+        return ActionButton(text: "Send Invite", isValid: isValid) {
             if let requestConfirm {
                 requestConfirm(onSendInvite)
             } else {
                 ui.showConfirmPopup = true
             }
         }
+        
     }
         
     private var addMessageView: some View {
