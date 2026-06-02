@@ -70,6 +70,7 @@ extension SelectTimeAndPlace {
                     Text("Clear")
                         .font(.body(12, .regular))
                         .foregroundStyle(Color (red: 0.8, green: 0.8, blue: 0.8))
+                        .offset(y: 1) //so inline not on top of info button
                 }
             Spacer()
             
@@ -97,14 +98,13 @@ extension SelectTimeAndPlace {
     
     private var sendInviteButton: some View {
         let isValid = !ui.showConfirmPopup && InviteIsValid && !showTwoDays
-        return ActionButton(text: "Send Invite", isValid: isValid) {
+        return ActionButton(text: "Send Invite", isValid: isValid, showShadow: false) {
             if let requestConfirm {
                 requestConfirm(onSendInvite)
             } else {
                 ui.showConfirmPopup = true
             }
         }
-        
     }
         
     private var addMessageView: some View {

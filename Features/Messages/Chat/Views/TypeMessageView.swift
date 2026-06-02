@@ -15,7 +15,7 @@ struct TypeMessageView: View {
     var isFocused: FocusState<Bool>.Binding
 
     var body: some View {
-        HStack (alignment: .bottom, spacing: 6) {
+        HStack(alignment: .bottom, spacing: 6) {
             chatTextField
             sendMessageView
         }
@@ -41,18 +41,16 @@ extension TypeMessageView {
             .onTapGesture { isFocused.wrappedValue = true }
     }
     
+    @ViewBuilder
     private var sendMessageView: some View {
-        Button {
+        let color = text.isEmpty ? Color.grayBackground : Color.accent
+        let elevation: Elevation? = text.isEmpty ? nil : .customGlassShadow
+
+        ScoopButton(style: .tinted(color, shadow: elevation), shape: Circle(), size: .large) {
             Task { try await sendMessage() }
         } label: {
             Image("SendArrow")
                 .scaleEffect(0.8)
-                .frame(width: 44, height: 44)
-                .background(
-                    text.isEmpty ? Color.grayBackground : Color.accent,
-                    in: Circle()
-                )
-                .shadow(color: .black.opacity(text.isEmpty ? 0 : 0.1), radius: 3, y: 2)
         }
         .disabled(text.isEmpty)
     }
@@ -64,20 +62,3 @@ extension TypeMessageView {
     }
 }
 
-/*
- private var chatTextField: some View {
-     ScoopButton(shape: .rect(cornerRadius: 24)) {
-         isFocused = true
-     } label: {
-         TextField("Message...", text: $text, axis: .vertical)
-             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-             .padding(.horizontal)
-             .padding(.vertical, 10)
-             .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
-             .lineSpacing(4)
-             .focused(isFocused)
-             .lineLimit(1...5)
-     }
- }
-
- */

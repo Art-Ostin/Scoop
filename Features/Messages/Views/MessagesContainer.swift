@@ -44,7 +44,6 @@ extension MessagesContainer {
                     messagesAppearHereView
                 } else {
                     matchesView
-                        .padding(.top, -12)
                 }
             }
         }

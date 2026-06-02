@@ -27,12 +27,7 @@ struct MeetInfoCover: View {
             .scrollIndicators(.hidden)
             .navigationTitle("How it Works")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Image(systemName: "xmark")
-                        .font(.body(12, .bold))
-                }
-            }
+            .toolbar { DismissToolbarItem(type: .cross) }
             .overlay(alignment: .bottom) {
                 ActionButton(text: "Done") { dismiss() }
                     .padding(.bottom, 28)

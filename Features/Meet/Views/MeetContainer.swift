@@ -83,8 +83,8 @@ extension MeetContainer {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 36)
         .padding(.bottom, 60)
+        .padding(.top, 36)
     }
             
     private func profileView(profile: UserProfile) -> some View {

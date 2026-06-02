@@ -112,15 +112,6 @@ extension ChatContainer {
         }
     }
     
-//    private var profileButton: some View {
-////        GlassEffectButton(padding: 4, shape: .roundedRect(24)) {
-////            onProfileTap()
-////        } buttonLabel: {
-////            profileLabel
-////        }
-////        .controlSize(.mini)
-////        .padding(.horizontal)
-//    }
     
     //See if I can simplify this
     private func onProfileTap () {
@@ -134,7 +125,7 @@ extension ChatContainer {
     
     private var profileButton: some View {
         ScoopButton(shape: .rect(cornerRadius: 24)) {
-            profileOpen = true
+            onProfileTap()
         } label: {
             HStack(spacing: 6) {
                 CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
@@ -153,10 +144,11 @@ extension ChatContainer {
     
     
     private var chatDismissButton: some View {
-        ScoopButton(shape: Circle(), action: {dismiss()}) {
+        let size: CGFloat =  profileOpen ? 30 : 39
+        return ScoopButton(shape: Circle(), action: {dismiss()}) {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
-                .font(.system(size: 16, weight: .heavy))
-                .frame(width: 39, height: 39) //Slightly larger than default medium
+                .font(.system(size: profileOpen ? 14 : 16, weight: .heavy))
+                .frame(width: size, height: size) //Slightly larger than default medium
         }
         .padding(.horizontal)
     }

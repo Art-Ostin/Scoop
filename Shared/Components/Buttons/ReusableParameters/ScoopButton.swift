@@ -70,6 +70,7 @@ extension ScoopButton {
                 Button(action: action) {
                     sizedLabel()
                         .glassEffect(.regular.tint(color), in: shape)
+                        .contentShape(shape) //Fixes bug keep!
                 }
                 .shrinkButton(shadow: shadow, shadowColor: color)
             } else {

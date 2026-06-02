@@ -12,6 +12,7 @@ struct ActionButton: View {
     let text: String
     var isValid: Bool = true
     var isInvite: Bool = false
+    var showShadow: Bool = true //Don't want shadow on action button for cards
     var cornerRadius: CGFloat = 24
     var hPadding: CGFloat = 36
     let onTap: () -> Void
@@ -20,7 +21,7 @@ struct ActionButton: View {
         isValid ? (isInvite ? Color.appGreen : Color.accent) : Color.grayBackground
     }
     
-    var shadow: Elevation? { isValid ? .high : nil}
+    var shadow: Elevation? { isValid && showShadow ? .high : nil}
 
     var body: some View {
         ScoopButton(style: .tinted(color, shadow: shadow), shape: .rect(cornerRadius: cornerRadius), action: onTap) {
