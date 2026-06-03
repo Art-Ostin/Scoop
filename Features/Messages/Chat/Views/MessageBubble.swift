@@ -41,7 +41,7 @@ struct MessageBubbleView: View {
     }
     
     var backgroundColor: Color {
-        isInviteMessage ? isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93) : isMyChat ? Color.accent :  Color(uiColor: .systemGray6).opacity(0.8)
+        isInviteMessage ? (isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93)) : (isMyChat ? Color.accent :  Color(red: 0.94, green: 0.93, blue: 0.92))
     }
     
     var body: some View {
@@ -160,12 +160,27 @@ extension MessageBubbleView {
             .foregroundStyle(isInviteMessage ? Color.accent : isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
     }
     
+    private enum BubbleRadius {
+        static let invite: CGFloat = 12
+        static let full: CGFloat = 10
+        static let tight: CGFloat = 4
+        static let joined: CGFloat = 0
+    }
+
+    private var outerRadius: CGFloat {
+        isInviteMessage ? BubbleRadius.invite : BubbleRadius.full
+    }
+
+    private var innerRadius: CGFloat {
+        isInviteMessage ? BubbleRadius.invite : BubbleRadius.tight
+    }
+
     private var bubbleShape: MessageBubbleShape {
         MessageBubbleShape(
-            topLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (newAuthor ? (isInviteMessage ? 12 : 16) : 4),
-            bottomLeadingRadius: isMyChat ? (isInviteMessage ? 12 : 16) : (nextIsNewAuthor ? 0 : isInviteMessage ? 12 : 4),
-            bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? 0 : 4): (isInviteMessage ? 12 : 16),
-            topTrailingRadius: isMyChat ? (newAuthor ? (isInviteMessage ? 12 : 16) : 4) : (isInviteMessage ? 12 : 16),
+            topLeadingRadius: isMyChat ? outerRadius : (newAuthor ? outerRadius : BubbleRadius.tight),
+            bottomLeadingRadius: isMyChat ? outerRadius : (nextIsNewAuthor ? BubbleRadius.joined : innerRadius),
+            bottomTrailingRadius: isMyChat ? (nextIsNewAuthor ? BubbleRadius.joined : BubbleRadius.tight) : outerRadius,
+            topTrailingRadius: isMyChat ? (newAuthor ? outerRadius : BubbleRadius.tight) : outerRadius,
             tail: nextIsNewAuthor ? (isMyChat ? .trailing : .leading) : .none
         )
     }

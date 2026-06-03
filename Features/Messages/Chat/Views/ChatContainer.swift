@@ -58,12 +58,11 @@ struct ChatContainer: View {
             //1. The background and scope
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.appCanvas.ignoresSafeArea())
-
+            .customScrollFade(height: 135, edge: .top, isStrong: true)
             .overlay(alignment: .topTrailing) {profileButton}
 
             //2. The overlay and structure
             .overlay { if profileRendered { profileView } }
-
         
         //4. Code to execute and listen for
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
