@@ -14,8 +14,7 @@ struct FrozenView: View {
     @State var showInfo: Bool = false
     @State var showSettings : Bool = false
     @State var tabSelection: Int = 0
-    @Namespace var zoomNS
-    
+
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
             VStack(spacing: 72) {
@@ -97,7 +96,7 @@ extension FrozenView {
     
     private var actionBar: some View {
         HStack {
-            SettingsButton(zoomNS: zoomNS) { showSettings = true }
+//            SettingsButton { showSettings = true }
             Spacer()
             InfoButton(showScreen: $showInfo, isAtTopOfScroll: true)
         }

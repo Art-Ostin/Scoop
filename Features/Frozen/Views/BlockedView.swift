@@ -14,8 +14,7 @@ struct BlockedView: View {
     
     @State var showSettings: Bool = false
     @State var showBlockedInfo = false
-    @Namespace var zoomNS
-    
+
     var body: some View {
         if let blockedContext = vm.user.blockedContext {
             VStack(spacing: 48) {
@@ -51,7 +50,7 @@ struct BlockedView: View {
             }
             .overlay(alignment: .topLeading) {
                 HStack {
-                    SettingsButton(zoomNS: zoomNS) { showSettings = true }
+//                    SettingsButton { showSettings = true }
                     Spacer()
                     InfoButton(showScreen: $showBlockedInfo)
                 }

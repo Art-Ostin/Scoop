@@ -38,12 +38,14 @@ class ChatViewModel {
 
     func isNewAuthor(for message: MessageModel) -> Bool {
         guard let idx = messages.firstIndex(where: { $0.id == message.id }), idx > 0 else { return true }
-        return messages[idx - 1].authorId != message.authorId
+        return messages[idx - 1].authorId != message.authorId || isNewDay(for: message)
     }
 
     func isNextNewAuthor(for message: MessageModel) -> Bool {
         guard let idx = messages.firstIndex(where: { $0.id == message.id }) else { return true }
-        return idx == messages.count - 1 || messages[idx + 1].authorId != message.authorId
+        guard idx < messages.count - 1 else { return true }
+        let next = messages[idx + 1]
+        return next.authorId != message.authorId || isNewDay(for: next)
     }
 
     func isNewDay(for message: MessageModel) -> Bool {

@@ -37,7 +37,7 @@ extension Session {
         appendInvites(try await profileLoader.fromEvents([event]))
     }
 
-    //4. Function called if event modified at all. When user accepts invite when session active, this is triggered
+    //4. Function called if event modified at all. When user accepts invite when session active or new message, this is triggered
     private func handleModified(_ event: UserEvent) {
         switch event.status {
         case .accepted:     acceptInvite(eventId: event.id)

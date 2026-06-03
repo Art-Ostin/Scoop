@@ -22,7 +22,13 @@ struct EventProfile: Identifiable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+    
+    //Ensures it updates the view, when messages update 
     static func == (lhs: EventProfile, rhs: EventProfile) -> Bool {
         lhs.id == rhs.id
+        && lhs.event.chatState?.lastMessagePreview == rhs.event.chatState?.lastMessagePreview
+        && lhs.event.chatState?.unreadCount == rhs.event.chatState?.unreadCount
+        && lhs.event.chatState?.lastMessageAt == rhs.event.chatState?.lastMessageAt
     }
 }
+

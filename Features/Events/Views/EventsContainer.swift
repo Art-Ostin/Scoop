@@ -23,13 +23,16 @@ struct EventsContainer: View {
     @State private var scrollProgress: Double = 0
 
     var body: some View {
-        
             Group {
                 if vm.events.isEmpty {
-                    EventsPlaceholder()
+                        AppScrollView(title: "Events") {
+                            EventsPlaceholder()
+                        }
                 } else {
                     ZStack {
-                        eventsScrollView
+                        AppScrollView(title: "Events") {
+                            eventsScrollView
+                        }
 
                         if let profile = ui.selectedProfile {
                             profileView(profile: profile)

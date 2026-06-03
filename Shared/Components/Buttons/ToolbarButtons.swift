@@ -8,7 +8,6 @@
 import SwiftUI
 
 
-
 struct InfoButton: View {
     @Binding var showScreen: Bool
     var isAtTopOfScroll: Bool = true
@@ -29,19 +28,16 @@ struct InfoButton: View {
     }
 }
 
-//Settings Button
- struct SettingsButton: View {
-     let zoomNS: Namespace.ID
-     let action: () -> Void
-     var body: some View {
-         
-         ScoopButton(shape: Circle(), size: .medium, action: action) {
-             Image(systemName: "gear")
-                 .font(.body(20, .medium))
-                 .matchedTransitionSource(id: "settings", in: zoomNS)
-         }
-     }
- }
+//Created here as frozen & Blocked view need it
+struct SettingsButton: View {
+    let action: () -> ()
+    var body: some View {
+        ScoopButton(shape: Circle(), size: .medium, action: action) {
+            Image(systemName: "gear")
+                .font(.body(14, .medium))
+        }
+    }
+}
 
 
 extension View {
