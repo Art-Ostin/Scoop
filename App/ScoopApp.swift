@@ -29,10 +29,3 @@ struct ScoopApp: App {
         }
     }
 }
-/*
- //            ToolbarZoomExample()
- //            ProfileZoomTest()
-             
- //            ProfileMorphTest()
- //            ProfileImageTest()
- */

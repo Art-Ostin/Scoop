@@ -17,6 +17,8 @@ struct ProfileCard : View {
     // While a morph is live for this profile, the morph surface *is* the button,
     // so the real one hides to avoid a duplicate during expand/collapse.
     var isMorphing: Bool = false
+    
+    let zoomNS: Namespace.ID
 
     private let cardCornerRadius: CGFloat = 22
 
@@ -28,6 +30,7 @@ struct ProfileCard : View {
     var body: some View {
         Image(uiImage: displayImage)
             .resizable()
+            .matchedTransitionSource(id: profile.id, in: zoomNS)
             .defaultImage(size, cardCornerRadius)
             .overlay { backgroundBlur(isDetails: true) }
             .overlay { backgroundBlur(isDetails: false) }

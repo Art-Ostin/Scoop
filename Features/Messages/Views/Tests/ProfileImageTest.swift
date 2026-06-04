@@ -208,10 +208,9 @@ struct ProfileZoomTest: View {
 }
 
 struct ProfileGalleryDestination: View {
-    // Chrome fades in on appear (concurrent with the zoom). The zoom still scales the
-    // whole destination, but a uniform color/text being scaled is imperceptible — so
-    // visually only the gallery photo reads as zooming while the background fades in.
     @State private var showChrome = false
+    
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -227,9 +226,13 @@ struct ProfileGalleryDestination: View {
                     .opacity(showChrome ? 1 : 0)
             }
         }
+        .onTapGesture {
+            dismiss()
+        }
         .onAppear {
             withAnimation(.easeIn(duration: 0.3)) { showChrome = true }
         }
+        
     }
 
     // Lives inside the destination — exactly where ProfileView's image/gallery sits.

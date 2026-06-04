@@ -7,8 +7,6 @@ import SwiftUI
 
 enum PastEventsRoute: Hashable {
     case chat(EventProfile)
-    case settings
-    case editProfile
 }
 
 //1. Need to user overlay, not toolbar, for messages, as toolbar does not allow zoomTransition
@@ -47,7 +45,7 @@ struct MessagesContainer: View {
             .navigationDestination(for: PastEventsRoute.self, destination: destination)
             .fullScreenCover(isPresented: $showSettings) {
                 settingScreen()
-            } //
+            }
             .fullScreenCover(isPresented: $showProfile) {
                 userProfileScreen()
             }
@@ -92,8 +90,12 @@ extension MessagesContainer {
     private var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             SettingsButton { showSettings = true }
-                .matchedTransitionSource(id: "settings", in: settingsZoom)
-                .offset(x: -10) //So it anchors to the left
+                .matchedTransitionSource(id: "settings", in: settingsZoom) { source in
+                    source
+                        .clipShape(.rect(cornerRadius: 27)) // small performance improvement
+                        /*.background(Color.appCanvas)*/
+                }
+                .padding(.leading, -10) //So it anchors to the left
         }
         .hideToolbarBackground()
     }
@@ -108,11 +110,10 @@ extension MessagesContainer {
                     Image(uiImage: img)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 35, height: 35)
+                        .frame(width: 35, height: 35, alignment: .trailing)
                         .clipShape(Circle())
                 }
                 .matchedTransitionSource(id: "profile", in: profileZoom)
-                .offset(x: 10)
             } else {
                 Circle()
                     .fill(Color.gray.opacity(0.2))
@@ -130,10 +131,6 @@ extension MessagesContainer {
         switch route {
         case .chat(let eventProfile):
             chatScreen(for: eventProfile)
-        case .settings:
-            settingScreen()
-        case .editProfile:
-            userProfileScreen()
         }
     }
     
@@ -157,6 +154,7 @@ extension MessagesContainer {
     
     private func settingScreen() -> some View {
         SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+//        ProfileGalleryDestination()
             .navigationTransition(.zoom(sourceID: "settings", in: settingsZoom))
     }
     

@@ -10,7 +10,7 @@ import UIKit
 
 
 struct ChatContainer: View {
-
+    
     //0. Dismiss Profile
     @Environment(\.dismiss) private var dismiss
     

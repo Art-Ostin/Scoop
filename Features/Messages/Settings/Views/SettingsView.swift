@@ -11,29 +11,24 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State var vm: SettingsViewModel
     
-    
-
     init(vm: SettingsViewModel) { self.vm = vm }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 36) {
-                meetTheTeam
-
-                keySettingsSection
-
-                PreferredMapView(vm: vm)
-
-                signOutSection
+        NavigationStack { //As Settings appears in full screen cover
+            AppScrollView(title: "Settings") {
+                VStack(spacing: 36) {
+                    meetTheTeam
+                    
+                    keySettingsSection
+                    
+                    PreferredMapView(vm: vm)
+                    signOutSection
+                }
+                .toolbar { DismissToolbarItem(type: .cross, isLeading: false) }
+                .padding(24)
+                .navigationBarBackButtonHidden()
             }
-            .navigationTitle("Settings")
-            .navigationBarBackButtonHidden(true)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .toolbar { DismissToolbarItem(type: .cross) }
-            .padding(.horizontal, 24)
-            .padding(.top, 24)
         }
-        .background(Color.appCanvas.ignoresSafeArea())
     }
 }
 
@@ -99,10 +94,6 @@ extension SettingsView {
             .padding(.leading, 16)
     }
     
-    
-    
-    
-    
     private var keySettingsSection: some View {
         
         CustomList(title: "legal") {
@@ -120,8 +111,6 @@ extension SettingsView {
         .font(.body(17, .medium))
         .foregroundStyle(Color.black)
     }
-    
-    
     
     private var softDivider: some View {
         Rectangle()
