@@ -64,7 +64,10 @@
       "WebFetch(domain:www.appcoda.com)",
       "Bash(python3 -c ' *)",
       "WebFetch(domain:www.youtube.com)",
-      "WebFetch(domain:swiftui-lab.com)"
+      "WebFetch(domain:swiftui-lab.com)",
+      "Read(//Users/napoleon/.ssh/**)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o BatchMode=yes -T git@github.com)",
+      "Bash(git remote *)"
     ]
   }
 }
