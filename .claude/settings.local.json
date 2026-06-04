@@ -67,7 +67,15 @@
       "WebFetch(domain:swiftui-lab.com)",
       "Read(//Users/napoleon/.ssh/**)",
       "Bash(ssh -o StrictHostKeyChecking=no -o BatchMode=yes -T git@github.com)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(ssh -V)",
+      "Bash(ssh-keygen -lf ~/.ssh/id_rsa.pub)",
+      "Bash(ssh-keygen -t ed25519 -C \"artostin@gmail.com\" -f ~/.ssh/id_ed25519)",
+      "Bash(ssh-add --apple-use-keychain ~/.ssh/id_ed25519)",
+      "Bash(pbcopy)",
+      "Bash(awk ' *)",
+      "Bash(find . -name \"*.swift\" -not -path \"./.git/*\" -exec cat {} +)",
+      "Bash(ssh -T git@github.com)"
     ]
   }
 }

@@ -154,7 +154,6 @@ extension MessagesContainer {
     
     private func settingScreen() -> some View {
         SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
-//        ProfileGalleryDestination()
             .navigationTransition(.zoom(sourceID: "settings", in: settingsZoom))
     }
     

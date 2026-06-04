@@ -17,11 +17,15 @@ struct EditProfileView: View {
     
     var body: some View {
         AppScrollView(title: "Edit Profile") {
-            ImagesView(vm: vm, selectedImage: $selectedImage)
-            PromptsView(vm: vm)
-            InfoView(vm: vm)
-            InterestsView(vm: vm)
-            PreferencesView(vm: vm)
+            VStack(spacing: 48) {
+                ImagesView(vm: vm, selectedImage: $selectedImage)
+                PromptsView(vm: vm)
+                InfoView(vm: vm)
+                InterestsView(vm: vm)
+                PreferencesView(vm: vm)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 36)
         }
     }
 }

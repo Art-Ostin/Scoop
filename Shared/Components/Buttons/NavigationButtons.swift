@@ -34,6 +34,7 @@ struct DismissButton: View {
     @Environment(\.dismiss) private var dismiss
     let type: DismissType
     
+    
     var body: some View {
         ScoopButton(shape: Circle(), size: .large, action: {dismiss()}) {
             Image(systemName: type.symbolName)

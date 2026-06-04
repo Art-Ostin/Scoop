@@ -23,9 +23,7 @@ struct MeetContainer: View {
     
     //Logic for showing
     @State private var isAtTopOfScroll = true
-    
-    @Namespace var zoomID
-    
+
     init(vm: InviteViewModel) { self.vm = vm }
     
 
@@ -35,16 +33,12 @@ struct MeetContainer: View {
                 meetView
                     .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
-                    .fullScreenCover(item: $ui.openProfile) { profile  in
-                        profileView(profile: profile)
-                            .navigationTransition(.zoom(sourceID: profile.id, in: zoomID))
-                    }
             }
             .overlay(alignment: .topTrailing) {
                 InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
             }
-            
-//            if let profileRec = ui.openProfile { profileView(profile: profileRec)}
+
+            if let profileRec = ui.openProfile { profileView(profile: profileRec) }
 
             if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
         }
@@ -82,7 +76,7 @@ extension MeetContainer {
                     onQuickInvite: { ui.quickInvite = profile.profile.id },
                     profile: profile, size: imageSize,
                     imageLoader: vm.imageLoader,
-                    isMorphing: morphInviteId == profile.profile.id, zoomNS: zoomID)
+                    isMorphing: morphInviteId == profile.profile.id)
                     .task { await vm.loadProfileImages(profile: profile.profile) }
                     .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
             }

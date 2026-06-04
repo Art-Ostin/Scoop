@@ -18,8 +18,11 @@ struct EditProfileContainer: View {
     var body: some View {
         ZStack {
             if isEdit {
-                EditProfileView(vm: vm, selectedImage: $selectedImage)
-                    .transition(.move(edge: .trailing))
+                NavigationStack { //EditProfileContainer is presented in a full screen
+                    EditProfileView(vm: vm, selectedImage: $selectedImage)
+                        .navigationDestination(for: EditProfileRoute.self, destination: destination)
+                }
+                .transition(.move(edge: .trailing))
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
                     .transition(.move(edge: .leading))
@@ -27,9 +30,8 @@ struct EditProfileContainer: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit) }
-        .overlay(alignment: .top) { editAction }
+        .overlay(alignment: .top) { editProfileHeader }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(for: EditProfileRoute.self, destination: destination)
         .fullScreenCover(item: $selectedImage) {imageEditScreen($0)}
         .task {if vm.images.isEmpty  {await vm.loadImages()}}
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
@@ -37,16 +39,24 @@ struct EditProfileContainer: View {
 }
 
 extension EditProfileContainer {
-    private var editAction: some View {
+    private var editProfileHeader: some View {
         HStack {
             saveButton
             Spacer()
             DismissButton(type: .cross)
-                .padding(.trailing, -16)
         }
-        .padding(.top, 6)
         .padding(.horizontal, 20)
     }
+    
+    private var dismissButton: some View {
+        
+//        
+//        ScoopButton(shape: Circle(), size: .large, action: {dismiss()}) {
+//            Image(systemName: type.symbolName)
+//        }
+    }
+    
+    
 
     @ViewBuilder
     private var saveButton: some View {
