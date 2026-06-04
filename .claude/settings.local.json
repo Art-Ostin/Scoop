@@ -75,7 +75,8 @@
       "Bash(pbcopy)",
       "Bash(awk ' *)",
       "Bash(find . -name \"*.swift\" -not -path \"./.git/*\" -exec cat {} +)",
-      "Bash(ssh -T git@github.com)"
+      "Bash(ssh -T git@github.com)",
+      "Bash(ssh-add -l)"
     ]
   }
 }
