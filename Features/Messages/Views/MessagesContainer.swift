@@ -17,8 +17,14 @@ struct MessagesContainer: View {
     @State private var vm: MessagesViewModel
     @State private var userProfileImages: [UIImage] = []
     
-    @State private var showSheet = false
-    
+    @State private var showSettings = false
+    @Namespace private var settingsZoom
+
+
+    @State private var showProfile = false
+    @Namespace private var profileZoom
+
+    //Path owned by parent to jump
     @Binding var path: NavigationPath
     
     init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
@@ -37,14 +43,17 @@ struct MessagesContainer: View {
                     }
                 }
             }
-            .toolbar { messagesToolbar }
+            .toolbar {settingsButton ; profileButton}
             .navigationDestination(for: PastEventsRoute.self, destination: destination)
+            .fullScreenCover(isPresented: $showSettings) {
+                settingScreen()
+            } //
+            .fullScreenCover(isPresented: $showProfile) {
+                userProfileScreen()
+            }
         }
         .task { await prepareUserImages() }
         .hideTabBar(hideBar: !path.isEmpty)
-        .fullScreenCover(isPresented: $showSheet) {
-            settingScreen()
-        }
     }
 }
 
@@ -78,50 +87,44 @@ extension MessagesContainer {
     
 //2. Components used in Container
 extension MessagesContainer {
-    //2. The different components of the view
+    
     @ToolbarContentBuilder
-    private var messagesToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) { settingsButton }.hideToolbarBackground()
-        ToolbarItem(placement: .topBarTrailing) { profileButton }.hideToolbarBackground()
+    private var settingsButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            SettingsButton { showSettings = true }
+                .matchedTransitionSource(id: "settings", in: settingsZoom)
+                .offset(x: -10) //So it anchors to the left
+        }
+        .hideToolbarBackground()
     }
     
-    //A. The Button and the Icon for profile
-    private var profileButton: some View {
-        ScoopButton(shape: Circle(), size: .medium) {
-            path.append(PastEventsRoute.editProfile)
-        } label: {
-            profileIcon
+    @ToolbarContentBuilder
+    private var profileButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            if let img = userProfileImages.first, img.size != .zero {
+                ScoopButton(shape: Circle()) {
+                    showProfile = true
+                } label: {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 35, height: 35)
+                        .clipShape(Circle())
+                }
+                .matchedTransitionSource(id: "profile", in: profileZoom)
+                .offset(x: 10)
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 35, height: 35)
+            }
         }
-        .offset(x: 10)//As Tabbackground hidden, this pins it to outer edge
-    }
-    
-    @ViewBuilder
-    private var profileIcon: some View {
-        if let img = userProfileImages.first, img.size != .zero {
-            Image(uiImage: img)               // was `image` — use `img`
-                .resizable()
-                .scaledToFill()
-                .clipShape(Circle())
-                .buttonShadow(.high)
-        } else {
-            Circle()
-                .fill(Color.gray.opacity(0.2))
-        }
-    }
-    
-    
-    private var settingsButton: some View {
-        SettingsButton {
-            showSheet = true
-        }
-        .offset(x: -10)//As TabButton background hidden, this pins it to outer edge
+        .hideToolbarBackground()
     }
 }
-
     
 //2. screens to go to, and navigation wiring where to go
 extension MessagesContainer {
-    
     @ViewBuilder
     private func destination(for route: PastEventsRoute) -> some View {
         switch route {
@@ -135,26 +138,26 @@ extension MessagesContainer {
     }
     
     private func userProfileScreen() -> some View {
-        NavigationStack {
-            EditProfileContainer(
-                vm: EditProfileViewModel(
-                    s: vm.s,
-                    storageService: vm.storageService,
-                    userRepo: vm.userRepo,
-                    imageLoader: vm.imageLoader,
-                    importedImages: userProfileImages
-                ),
-                profileVM: ProfileViewModel(
-                    profile: vm.user,
-                    imageLoader: vm.imageLoader,
-                    defaults: vm.defaults
-                )
+        EditProfileContainer(
+            vm: EditProfileViewModel(
+                s: vm.s,
+                storageService: vm.storageService,
+                userRepo: vm.userRepo,
+                imageLoader: vm.imageLoader,
+                importedImages: userProfileImages
+            ),
+            profileVM: ProfileViewModel(
+                profile: vm.user,
+                imageLoader: vm.imageLoader,
+                defaults: vm.defaults
             )
-        }
+        )
+        .navigationTransition(.zoom(sourceID: "profile", in: profileZoom))
     }
     
     private func settingScreen() -> some View {
         SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+            .navigationTransition(.zoom(sourceID: "settings", in: settingsZoom))
     }
     
     private func chatScreen(for eventProfile: EventProfile) -> some View {
@@ -168,11 +171,11 @@ extension MessagesContainer {
         )
         .task { try? await updateMessagesToRead(eventProfile) }
     }
-    
 }
 
 //3. components only used in this screen
 extension MessagesContainer {
+    
     private func prepareUserImages() async {
         userProfileImages = await vm.loadUserImages()
     }

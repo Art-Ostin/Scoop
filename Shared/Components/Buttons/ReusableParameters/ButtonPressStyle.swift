@@ -73,6 +73,68 @@ struct PressButtonStyle: ButtonStyle {
     }
 }
 
+// Same press look as PressButtonStyle, but driven by a gesture so it can be
+// applied to any view (e.g. an Image) without wrapping it in a Button.
+struct PressEffectModifier: ViewModifier {
+    var effect: PressEffect
+    var elevation: Elevation?
+    var shadowColor: Color = .accent
+    var action: (() -> Void)?
+
+    @State private var isPressed = false
+    @State private var scale: CGFloat = 1
+    @State private var opacity: Double = 1
+    @State private var brightness: Double = 0
+    @State private var shadowStrength: Double = 1
+    @State private var pressStart: Date?
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(scale)
+            .opacity(opacity)
+            .brightness(brightness)
+            .buttonShadow(elevation, color: shadowColor, strength: shadowStrength)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        guard !isPressed else { return }
+                        isPressed = true
+                        onPressed(true)
+                    }
+                    .onEnded { value in
+                        isPressed = false
+                        onPressed(false)
+                        // Only fire if released inside the view's bounds.
+                        if let action,
+                           value.translation.width.magnitude < 10,
+                           value.translation.height.magnitude < 10 {
+                            action()
+                        }
+                    }
+            )
+    }
+
+    func onPressed(_ isPressed: Bool) {
+        guard !isPressed else {
+            pressStart = .now
+            withAnimation(.snappy(duration: effect.pressDuration)) {
+                scale = effect.scale; opacity = effect.opacity; brightness = effect.brightness
+                shadowStrength = Elevation.pressedStrength
+            }
+            return
+        }
+        // Hold off the bounce so the press stays visible on a fast tap.
+        let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) {
+            withAnimation(.spring(response: effect.release.response, dampingFraction: effect.release.damping)) {
+                scale = 1; shadowStrength = 1
+            }
+            withAnimation(.easeOut(duration: 0.48)) { opacity = 1; brightness = 0 }
+        }
+    }
+}
+
 extension View {
 
     func shrinkButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
@@ -86,5 +148,14 @@ extension View {
     private func pressButton(_ effect: PressEffect, shadow: Elevation?, shadowColor: Color) -> some View {
         buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, shadowColor: shadowColor))
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
+    }
+
+    // Apply the press effect directly to any view (e.g. an Image).
+    func shrinkPress(shadow: Elevation? = nil, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
+        modifier(PressEffectModifier(effect: .shrink, elevation: shadow, shadowColor: shadowColor, action: action))
+    }
+
+    func growPress(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
+        modifier(PressEffectModifier(effect: .grow, elevation: shadow, shadowColor: shadowColor, action: action))
     }
 }

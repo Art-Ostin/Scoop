@@ -81,7 +81,7 @@ struct ChatContainer: View {
 
 //Other Views
 extension ChatContainer {
-    
+
     private var profileView: some View {
         ProfileView(
             vm: ProfileViewModel(

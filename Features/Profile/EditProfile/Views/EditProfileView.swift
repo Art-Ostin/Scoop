@@ -16,13 +16,12 @@ struct EditProfileView: View {
     @Binding var selectedImage: ImageSlot?
     
     var body: some View {
-        ScrollView {
+        AppScrollView(title: "Edit Profile") {
             ImagesView(vm: vm, selectedImage: $selectedImage)
             PromptsView(vm: vm)
             InfoView(vm: vm)
             InterestsView(vm: vm)
             PreferencesView(vm: vm)
         }
-        .navigationTitle("Edit Profile")
     }
 }

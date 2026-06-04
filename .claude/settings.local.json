@@ -60,7 +60,11 @@
       "Bash(python3 -c \"import sys,json;d=json.load\\(sys.stdin\\);print\\('SCHEMES:',d.get\\('project',{}\\).get\\('schemes'\\)\\)\")",
       "Bash(xcodebuild -scheme \"Scoop\" -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
       "WebFetch(domain:douglashill.co)",
-      "Bash(find /Users/napoleon/Documents/Scoop -type f -name \"*.swift\" -exec grep -l \"matchedGeometryEffect\\\\|hero\\\\|image.*morph\" {} \\\\;)"
+      "Bash(find /Users/napoleon/Documents/Scoop -type f -name \"*.swift\" -exec grep -l \"matchedGeometryEffect\\\\|hero\\\\|image.*morph\" {} \\\\;)",
+      "WebFetch(domain:www.appcoda.com)",
+      "Bash(python3 -c ' *)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebFetch(domain:swiftui-lab.com)"
     ]
   }
 }
