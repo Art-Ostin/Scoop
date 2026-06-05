@@ -93,7 +93,7 @@ extension MessagesContainer {
                 .matchedTransitionSource(id: "settings", in: settingsZoom) { source in
                     source
                         .clipShape(.rect(cornerRadius: 27)) // small performance improvement
-                        /*.background(Color.appCanvas)*/
+                        .background(Color.appCanvas)
                 }
                 .padding(.leading, -10) //So it anchors to the left
         }

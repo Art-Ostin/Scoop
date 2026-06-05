@@ -20,7 +20,7 @@ struct RespondAcceptCard: View {
     typealias layout = RespondUIState.PopupLayout
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 6) { //Spacing decided mostly by bottom padding
             respondTitle
                 .padding(.bottom, layout.titleToTimeSpacing)
                 .opacity(popupShown ? 0 : 1)
@@ -99,18 +99,31 @@ extension RespondAcceptCard {
     
     @ViewBuilder
     private var actionSection: some View {
-        let isModified = vm.respondDraft.respondType != .original
-
         HStack {
             DeclineButton { onDecline() }
             Spacer()
-            AcceptButton(isModified: isModified, isValid: vm.respondDraft.canSendNewTime && !popupShown) {
-                if isModified {
-                    confirmNewTimePopup = true
-                } else {
-                    confirmAcceptInvite = true
-                }
+            acceptButton
+        }
+    }
+    
+    
+    private var acceptButton: some View {
+        let isModified = vm.respondDraft.respondType != .original
+        let isValid = vm.respondDraft.canSendNewTime && !popupShown
+        let colour: Color = isModified ? .accent : (isValid ? .appGreen : .grayPlaceholder) 
+
+        return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: 16)) {
+            if isModified {
+                confirmNewTimePopup = true
+            } else {
+                confirmAcceptInvite = true
             }
+        } label: {
+            Text(isModified ? "Invite with new time" + "s" : "Accept")
+                .foregroundStyle(Color.white)
+                .font(.body(isModified ? 14 : 16, .bold))
+                .frame(width: 135)
+                .frame(height: 40)
         }
     }
     
@@ -125,7 +138,7 @@ extension RespondAcceptCard {
             }
     }
 }
-
+//Delete Accept Button
 /*
  
  */

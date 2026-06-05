@@ -15,48 +15,62 @@ struct EditProfileContainer: View {
     @State var selectedImage: ImageSlot? = nil
     @State var showSavingScreen: Bool = false
 
+    @State var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
+    
+    @State var path: [EditProfileRoute] = [] //To track if empty or not. If not empty (i.e. edit Profile screen) hide certain views.
     var body: some View {
         ZStack {
             if isEdit {
-                NavigationStack { //EditProfileContainer is presented in a full screen
+                NavigationStack(path: $path) {
                     EditProfileView(vm: vm, selectedImage: $selectedImage)
-                        .navigationDestination(for: EditProfileRoute.self, destination: destination)
+//                        .clipped()  //Fixes bug of content over extending
+                        .transition(.move(edge: .trailing))
                 }
-                .transition(.move(edge: .trailing))
             } else {
                 ProfileView(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
+//                    .clipped() //Fixes bug of content over extending
                     .transition(.move(edge: .leading))
             }
         }
+        .navigationDestination(for: EditProfileRoute.self, destination: destination)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit) }
+        .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit, pathIsEmpty: path.isEmpty) }
         .overlay(alignment: .top) { editProfileHeader }
         .toolbar(.hidden, for: .navigationBar)
         .fullScreenCover(item: $selectedImage) {imageEditScreen($0)}
         .task {if vm.images.isEmpty  {await vm.loadImages()}}
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
+        .onPreferenceChange(ProfileDetailsOpenKey.self) { isDetailsOpen = $0 }
     }
 }
 
 extension EditProfileContainer {
     private var editProfileHeader: some View {
         HStack {
-            saveButton
+            editProfileDismissButton
             Spacer()
-            DismissButton(type: .cross)
+            saveButton
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
     }
     
-    private var dismissButton: some View {
+    @ViewBuilder
+    private var editProfileDismissButton: some View {
+        let shrinkDismiss: Bool = !isEdit && isDetailsOpen
         
-//        
-//        ScoopButton(shape: Circle(), size: .large, action: {dismiss()}) {
-//            Image(systemName: type.symbolName)
-//        }
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .large) {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .foregroundStyle(shrinkDismiss ? .white : .black)
+        }
+        .offset(x: !isEdit ? -1 : 0, y: !isEdit ? -1 : 0)
+        .offset(x: shrinkDismiss ? -2 : 0) // Put it in top corner if shrink mode
+        .scaleEffect(shrinkDismiss ? 0.7 : !isEdit ? 0.7 :  1, anchor: .topLeading)
+        .animation(.snappy, value: shrinkDismiss)
+        .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
+        .allowsHitTesting(path.isEmpty ? true  : false)
     }
-    
-    
 
     @ViewBuilder
     private var saveButton: some View {
@@ -76,8 +90,9 @@ extension EditProfileContainer {
                     .padding(.horizontal)
                     .padding(.vertical, 8)
                     .glassBackgroundIfAvailable(shape: .capsule)
-                
             }
+            .opacity(path.isEmpty ? 1 : 0)
+            .allowsHitTesting(path.isEmpty ? true : false)
         }
     }
     
@@ -101,6 +116,14 @@ extension EditProfileContainer {
         case .languages:             EditLanguages(vm: vm)
         case .desiredAgeRange:       EditPreferredYears(vm: vm)
         }
+    }
+}
+
+struct ProfileDetailsOpenKey: PreferenceKey {
+    static var defaultValue: Bool = false
+
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
     }
 }
 

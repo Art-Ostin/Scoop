@@ -7,29 +7,33 @@
 
 import SwiftUI
 
-struct AcceptButton: View {
-    
-    var isModified: Bool = false
-    let isValid: Bool
-    let onAccept: () -> Void
-        
-    var body: some View {
-        Button {
-            onAccept()
-        } label: {
-            Text(isModified ? "Invite with new time" + "s" : "Accept")
-                .foregroundStyle(Color.white)
-                .font(.body(isModified ? 14 : 16, .bold))
-                .frame(width: 135)
-                .frame(height: 40)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .foregroundStyle(isModified ? (isValid ? Color.accent : Color.grayBackground ) : Color.appGreen)
-                )
-        }
-        .disabled(isModified && !isValid)
-    }
-}
+/*
+ 
+ struct AcceptButton: View {
+     
+     var isModified: Bool = false
+     let isValid: Bool
+     let onAccept: () -> Void
+         
+     var body: some View {
+         Button {
+             onAccept()
+         } label: {
+             Text(isModified ? "Invite with new time" + "s" : "Accept")
+                 .foregroundStyle(Color.white)
+                 .font(.body(isModified ? 14 : 16, .bold))
+                 .frame(width: 135)
+                 .frame(height: 40)
+                 .background(
+                     RoundedRectangle(cornerRadius: 16)
+                         .foregroundStyle(isModified ? (isValid ? Color.accent : Color.grayBackground ) : Color.appGreen)
+                 )
+         }
+         .disabled(isModified && !isValid)
+     }
+ }
+ */
+
 
 struct DeclineButton: View {
     let onDecline: () -> Void
@@ -87,17 +91,13 @@ struct InviteRespondButton: View {
         } label: {
             HStack(spacing: 0) {
                 Text("\(type.emoji)\(type.title)")
-                    .font(.body(14, .bold))
+                    .font(.body(18, .bold))
                 
                 Image(systemName: "info.circle")
-                    .font(.body(8, .medium))
+                    .font(.body(10, .medium))
                     .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
                     .offset(y: -3)
             }
-            .padding(6)
-            .padding(.leading, 2)
-            .padding(.trailing, 2)
-            .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)
@@ -108,4 +108,12 @@ struct InviteRespondButton: View {
     }
 }
 
+//Hiding glass background
+/*
+ //            .padding(6)
+ //            .padding(.leading, 2)
+ //            .padding(.trailing, 2)
+ //            .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
+
+ */
  

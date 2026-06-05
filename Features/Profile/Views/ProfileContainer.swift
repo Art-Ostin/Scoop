@@ -108,6 +108,7 @@ struct ProfileView: View {
         } overlay: {
             morphOverlay
         }
+        .preference(key: ProfileDetailsOpenKey.self, value: ui.detailsOpen)
     }
 }
 
@@ -124,6 +125,7 @@ extension ProfileView {
                     overlayTitle(onDismiss: { dismissProfile(using: geo) })
                         .padding(.top, 12)
                         .opacity(interpolate(from: 0, to: 1, impactStart: 0.5, impactEnd: 1))
+                        .offset(x: isUserProfile ? 36 : 0)
                 }
                 .onGeometryChange(for: CGFloat.self) { geo in
                     geo.frame(in: .named("profileZStack")).maxY

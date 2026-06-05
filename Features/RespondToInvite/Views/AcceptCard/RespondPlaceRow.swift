@@ -22,7 +22,9 @@ struct RespondPlaceRow: View {
         } label: {
             HStack(spacing: 0) {
                 Image("MiniMapIcon")
+                    .scaleEffect(1.2, anchor: .leading)
                     .padding(.trailing, 24)
+                    .offset(x: -2, y: -0.5) //fine tuning
                 eventNameAndAddress
                     .layoutPriority(1)
                 Spacer(minLength: 12)
@@ -60,7 +62,7 @@ extension RespondPlaceRow {
                 Text(location.name ?? "")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
-                    .multilineTextAlignment(.leading)
+                    .lineLimit(1)
                 
                 Text(FormatEvent.addressWithoutCountry(location.address))
                     .font(.body(12, .medium))

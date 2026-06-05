@@ -56,13 +56,13 @@ extension InviteCardEvent {
         HStack {
             DeclineButton { onDecline(vm.respondDraft.originalInvite.event)}
             Spacer()
-            AcceptButton(isModified: isModified, isValid: vm.respondDraft.canSendNewTime) {
-                if isModified {
-                    showNewTimePopup = event.id
-                } else {
-                    showAcceptPopup = event.id
-                }
-            }
+//            AcceptButton(isModified: isModified, isValid: vm.respondDraft.canSendNewTime) {
+//                if isModified {
+//                    showNewTimePopup = event.id
+//                } else {
+//                    showAcceptPopup = event.id
+//                }
+//            }
         }
         .opacity(showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!showTimePopup)

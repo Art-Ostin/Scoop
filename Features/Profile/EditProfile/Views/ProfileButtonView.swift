@@ -11,6 +11,8 @@ struct EditProfileButton: View {
     
     @Binding var isEdit: Bool
     
+    let pathIsEmpty: Bool
+    
     var body: some View {
         Group {
             if isEdit {
@@ -42,6 +44,8 @@ struct EditProfileButton: View {
         .padding(.bottom)
         .onTapGesture {withAnimation (.easeInOut(duration: 0.3)) {isEdit.toggle()}}
         .animation(.spring(), value: isEdit)
+        .opacity(pathIsEmpty ? 1 : 0)
+        .allowsHitTesting(pathIsEmpty ? true : false)
     }
 }
 

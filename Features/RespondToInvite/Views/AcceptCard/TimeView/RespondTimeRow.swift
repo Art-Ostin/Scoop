@@ -38,6 +38,7 @@ extension RespondTimeRow {
         return HStack(spacing: 22) {
             Image("MiniClockIcon")
                 .opacity(showTimePopup ? 0.03 : 1)
+                .scaleEffect(1.2, anchor: .leading)
             VStack(alignment: .leading, spacing: 0) {
                 timeTitle
                 if !hasRespondMessage && !isCardInvite && inviteMessage?.isEmpty == false {
