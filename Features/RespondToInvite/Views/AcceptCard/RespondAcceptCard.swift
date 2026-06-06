@@ -109,8 +109,9 @@ extension RespondAcceptCard {
     
     private var acceptButton: some View {
         let isModified = vm.respondDraft.respondType != .original
-        let isValid = vm.respondDraft.canSendNewTime && !popupShown
-        let colour: Color = isModified ? .accent : (isValid ? .appGreen : .grayPlaceholder) 
+        let isValid = vm.respondDraft.originalInvite.selectedDay != nil
+
+        let colour: Color = isModified ? .accent : (isValid ? .appGreen : .grayPlaceholder)
 
         return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: 16)) {
             if isModified {

@@ -48,6 +48,7 @@ extension SelectTypeView {
         .contentShape(Rectangle())
         .onTapGesture { selectType(eventType: eventType)}
     }
+    
     private func selectType(eventType: Event.EventType) {
         if eventType == .custom && message.isEmpty {
             showMessageScreen = true

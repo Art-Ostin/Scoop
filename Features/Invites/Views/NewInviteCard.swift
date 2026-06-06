@@ -11,25 +11,31 @@ struct NewInviteCard: View {
     
     @State var imageSize: CGFloat = 100
     let eventProfile: EventProfile
-    
+    var isMorphing: Bool = false
+    @Binding var selectedProfile: UserProfile?
+    let onRespond: () -> Void
+
     var body: some View {
         VStack(spacing: 24) {
             profileImage
             eventInfo
         }
         .modifier(InviteBackgroundCard())
-        .getImageSize(imageSize: $imageSize, horizontalPadding: 8) //inner edge only; 16 outer lives in InvitesView
+        .getImageSize(imageSize: $imageSize, horizontalPadding: 6) //inner edge only; 16 outer lives in InvitesView
+        .padding(.top, -10) //shift it closer to tile
     }
 }
 
 extension NewInviteCard {
 
     private var profileImage: some View {
+    
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
             .scaledToFill()
-            .frame(width: imageSize, height: imageSize + 25) //Have slightly long Image
+            .frame(width: imageSize, height: imageSize + 12) //Have slightly long Image
             .clipShape(UnevenRoundedRectangle(cornerRadii: .init( topLeading: 18, bottomLeading: 13, bottomTrailing: 13, topTrailing: 18)))
+            .onTapGesture {selectedProfile = eventProfile.profile}
     }
     
     private var eventInfo: some View {
@@ -39,35 +45,41 @@ extension NewInviteCard {
             eventTime
             eventPlace
         }
-        .font(.body(17, .medium))
+        .font(.body(18, .medium))
         .foregroundStyle(Color(white: 0.15))
         .overlay(alignment: .topTrailing) {
-            InviteButton(isInviting: false, morphId: "test") {}
+            InviteButton(isInviting: false, morphId: eventProfile.event.id, isInviteCard: true) { onRespond() }
+                .opacity(isMorphing ? 0 : 1)
+                .padding(.horizontal, -12)
         }
-        .padding(.horizontal, 8) //Extra padding for this
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 24)
     }
 }
 extension NewInviteCard {
         
     private var eventTitle: some View {
-        Text("\(eventProfile.profile.name) Invite")
-            .font(.body(20, .bold))
+        Text("\(eventProfile.profile.name)'s Invite")
+            .font(.body(22, .bold))
             .foregroundStyle(Color.black)
     }
     
     private var eventType: some View {
         let type = eventProfile.event.type
-       return HStack(spacing: 12){
+       return HStack(spacing: 18) {
             Text("\(type.emoji)")
+               .frame(width: 20, alignment: .leading)
+               .offset(x: type == .drink ?  -1 : 0)//Fine tuning due to image being slightly different
             Text("\(type.longTitle)")
         }
     }
     
     private var eventTime: some View {
-        HStack(spacing: 13) {
+        HStack(spacing: 18) {
             Image("MiniClockIcon")
-                .scaleEffect(1.1)
-            
+                .scaleEffect(1.1, anchor: .bottom)
+                .frame(width: 20, alignment: .leading)
+
             Text(formattedDay)
         }
     }
@@ -75,9 +87,11 @@ extension NewInviteCard {
     private var eventPlace: some View {
         let location = eventProfile.event.location
 
-        return HStack(spacing: 16) {
+        return HStack(alignment: .top, spacing: 18) {
             Image("MiniMapIcon")
-                .scaleEffect(1.1)
+                .scaleEffect(1.2, anchor: .bottom)
+                .frame(width: 20, alignment: .leading)
+                .offset(y: 5) // Fine Tuning
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(location.name ?? "")
@@ -102,14 +116,13 @@ extension NewInviteCard {
 }
 
 struct InviteBackgroundCard: ViewModifier {
-    
     func body(content: Content) -> some View {
         content
-            .padding([.horizontal, .top], 8)
+            .padding([.horizontal, .top], 6)
             .padding(.bottom, 30)
             .frame(maxWidth: .infinity)
             .background(Color.appCanvas)
             .clipShape(.rect(cornerRadius: 24))
-            .customShadow(.card, strength: 2)
+            .customShadow(.card, strength: 1)
     }
 }

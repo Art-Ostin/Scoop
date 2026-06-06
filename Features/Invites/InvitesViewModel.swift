@@ -119,6 +119,10 @@ extension InvitesViewModel {
     var showNewTimePopup: String?
     var showQuickInvite: String?
 
+    //2b. Respond-popup morph: iconId driver + mount id (outlives iconId through the collapse)
+    var showRespondPopup: String?
+    var respondMorphId: String?
+
     //3. Show the respond Popup Screen
     var respondedToProfile: ProfileResponse?
 

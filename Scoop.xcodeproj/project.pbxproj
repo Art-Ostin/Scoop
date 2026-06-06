@@ -282,6 +282,7 @@
 		65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF42E229E5F006CF3CD /* EditProfileList.swift */; };
 		65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */; };
 		65FFB9952FAFD4220006ED96 /* ProfileGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FFB9942FAFD4220006ED96 /* ProfileGestures.swift */; };
+		65FFC2062FD4617900B7D1B4 /* DropDownTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FFC2052FD4617900B7D1B4 /* DropDownTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -570,6 +571,7 @@
 		65FEDAF42E229E5F006CF3CD /* EditProfileList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileList.swift; sourceTree = "<group>"; };
 		65FEDBA42E2306C5006CF3CD /* ProfileButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButtonView.swift; sourceTree = "<group>"; };
 		65FFB9942FAFD4220006ED96 /* ProfileGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileGestures.swift; sourceTree = "<group>"; };
+		65FFC2052FD4617900B7D1B4 /* DropDownTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -916,9 +918,10 @@
 			children = (
 				65AF14932F6445EB00031513 /* InvitesContainer.swift */,
 				65F3B4732F9F5031007D1EEB /* InvitesView.swift */,
-				65ED38892F64656600AD5600 /* InviteCard.swift */,
 				65D978B02FD4340F00C22646 /* NewInviteCard.swift */,
+				65FFC2052FD4617900B7D1B4 /* DropDownTest.swift */,
 				6549DA6A2F9E85D900C89DF2 /* InviteCardInfo */,
+				65ED38892F64656600AD5600 /* InviteCard.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1851,6 +1854,7 @@
 				65FAF98A2E414D1B0015E231 /* EventsContainer.swift in Sources */,
 				650DA36D2F6C5FFA0013EB30 /* RespondContainer.swift in Sources */,
 				657F303B2F68B61C0057D42C /* NavigationButtons.swift in Sources */,
+				65FFC2062FD4617900B7D1B4 /* DropDownTest.swift in Sources */,
 				65871F4E2F3A543200C9A87A /* ClearIcon.swift in Sources */,
 				65F450BF2E45567900AE3503 /* ImageModifiers.swift in Sources */,
 				65939C502FCAE78900B24D11 /* InviteButton.swift in Sources */,

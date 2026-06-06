@@ -12,8 +12,9 @@ struct InviteButton: View {
 
     let isInviting: Bool
     let morphId: String
-    let action: () -> Void
     var isInviteCard: Bool = false
+
+    let action: () -> Void
     
     var body: some View {
         ScoopButton(style: .tinted(isInviting ? Color.accent : Color.appGreen, shadow:  isInviteCard ? nil : .high), shape: Circle(), action: action) {

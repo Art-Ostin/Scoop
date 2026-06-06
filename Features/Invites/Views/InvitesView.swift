@@ -16,8 +16,13 @@ struct InvitesView: View {
     var body: some View {
         VStack(spacing: 96) {
             ForEach(vm.invites, id: \.self) { invite in
-                NewInviteCard(eventProfile: invite)
-                    .task { await vm.ensureImagesLoaded(for: invite.profile) }
+                NewInviteCard(
+                    eventProfile: invite,
+                    isMorphing: ui.respondMorphId == invite.event.id,
+                    selectedProfile: $ui.selectedProfile,
+                    onRespond: { ui.showRespondPopup = invite.event.id }
+                )
+                .task { await vm.ensureImagesLoaded(for: invite.profile) }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

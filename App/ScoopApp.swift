@@ -23,8 +23,6 @@ struct ScoopApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            InviteCardNew()
-//
             RootView()
                 .environment(dep)
                 .environment(router)

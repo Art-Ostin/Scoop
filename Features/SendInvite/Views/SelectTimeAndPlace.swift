@@ -64,7 +64,8 @@ extension SelectTimeAndPlace {
 
     @ViewBuilder private var clearButton: some View {
         HStack {
-            Button {
+            if hasDraftChanges {
+                Button {
                     deleteEventDefault()
                 } label: {
                     Text("Clear")
@@ -72,6 +73,7 @@ extension SelectTimeAndPlace {
                         .foregroundStyle(Color (red: 0.8, green: 0.8, blue: 0.8))
                         .offset(y: 1) //so inline not on top of info button
                 }
+            }
             Spacer()
             
             Button {

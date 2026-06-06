@@ -7,33 +7,6 @@
 
 import SwiftUI
 
-/*
- 
- struct AcceptButton: View {
-     
-     var isModified: Bool = false
-     let isValid: Bool
-     let onAccept: () -> Void
-         
-     var body: some View {
-         Button {
-             onAccept()
-         } label: {
-             Text(isModified ? "Invite with new time" + "s" : "Accept")
-                 .foregroundStyle(Color.white)
-                 .font(.body(isModified ? 14 : 16, .bold))
-                 .frame(width: 135)
-                 .frame(height: 40)
-                 .background(
-                     RoundedRectangle(cornerRadius: 16)
-                         .foregroundStyle(isModified ? (isValid ? Color.accent : Color.grayBackground ) : Color.appGreen)
-                 )
-         }
-         .disabled(isModified && !isValid)
-     }
- }
- */
-
 
 struct DeclineButton: View {
     let onDecline: () -> Void

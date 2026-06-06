@@ -16,6 +16,8 @@ struct InvitesContainer: View {
 
     @State private var morphInviteId: String?
     @State private var pendingInvite: (() -> Void)?
+    // Respond-flow popup state, shared by the morph card (the pager) and its confirm alerts.
+    @State private var respondUI = RespondPopupUIState()
 
     var body: some View {
         ZStack {
@@ -39,6 +41,17 @@ struct InvitesContainer: View {
             MorphConfirmAlert(pending: $pendingInvite)
         }
 
+        //The respond popup morphs out of the tapped invite card's invite button.
+        .quickInviteMorph(
+            iconId: $ui.showRespondPopup,
+            morphInviteId: $ui.respondMorphId,
+            style: .respond
+        ) { eventId in
+            respondPager(eventId)
+        } overlay: {
+            respondOverlay
+        }
+
         //The popups to respond to invite, from the invite card
         .respondItemCustomAlert(item: $ui.showAcceptPopup, type: .acceptInvite) { respond($0, .accepted) }
         .respondItemCustomAlert(item: $ui.showNewTimePopup, type: .sendNewTimes) { respond($0, .newTime) }
@@ -51,8 +64,8 @@ extension InvitesContainer {
     
     @ViewBuilder
     private func profileView(profile: UserProfile) -> some View {
-        if let eventProfile = vm.eventProfile(for: profile.id),
-           let respondVM = vm.respondVMs[eventProfile.event.id] {
+        if let eventProfile = vm.eventProfile(for: profile.id) {
+            let respondVM = vm.respondVM(for: eventProfile)
             ProfileView(
                 vm: ProfileViewModel(
                     profile: eventProfile.profile,
@@ -70,6 +83,29 @@ extension InvitesContainer {
             .zIndex(1)
             .transition(.move(edge: .bottom))
         }
+    }
+
+    @ViewBuilder
+    private func respondPager(_ eventId: String) -> some View {
+        if let eventProfile = vm.eventProfile(forEventId: eventId) {
+            RespondPager(
+                vm: vm.respondVM(for: eventProfile),
+                ui: respondUI,
+                showPopup: respondShowPopup
+            ) { type in respond(eventId, type) }
+        }
+    }
+
+    @ViewBuilder
+    private var respondOverlay: some View {
+        Color.clear.respondConfirmAlerts(ui: respondUI) { type in
+            if let id = ui.respondMorphId { respond(id, type) }
+        }
+    }
+
+    private var respondShowPopup: Binding<Bool> {
+        Binding(get: { ui.showRespondPopup != nil },
+                set: { if !$0 { ui.showRespondPopup = nil } })
     }
 
     @ViewBuilder
@@ -123,6 +159,7 @@ extension InvitesContainer {
 extension InvitesContainer {
     //Different functions used in container
     private func respond(_ eventId: String, _ type: ProfileResponse) {
+        ui.showRespondPopup = nil //collapse the respond morph once a response is sent
         Task { try await respondToProfile(respondType: type, eventId: eventId)}
     }
     
