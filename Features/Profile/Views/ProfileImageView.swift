@@ -86,7 +86,7 @@ extension ProfileImageView {
         return Image(uiImage: image)
             .resizable()
             .defaultImage(60, 10)
-            .customSubtleShadow(strength: selection == index ? 4 : 0)
+            .customShadow(.card, strength: selection == index ? 4 : 0)
             .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
     }
 }

@@ -63,7 +63,7 @@ struct ImageCell: View {
                 .scaledToFill()
                 .frame(width: size, height: size)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                .defaultShadow()
+                .customShadow(.floating)
             RoundedRectangle(cornerRadius: 10)
                 .frame(width: size, height: size)
                 .foregroundStyle(Color.clear)

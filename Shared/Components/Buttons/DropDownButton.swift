@@ -96,7 +96,7 @@ struct DropDownButton: View {
                 .background(
                     Circle().foregroundStyle(.white)
                 )
-                .surfaceShadow(.floating, strength: 0.5)
+                .customShadow(.floating, strength: 0.5)
                 .contentShape(Rectangle())
                 .padding(14)     // bigger hit area
         }

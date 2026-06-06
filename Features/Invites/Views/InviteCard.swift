@@ -94,7 +94,7 @@ struct InviteCardStyle: ViewModifier {
                 RoundedRectangle(cornerRadius: 22)
                 .foregroundStyle(Color.appCanvas)
             )
-            .customSubtleShadow(strength: 0.8)
+            .customShadow(.card, strength: 2)
     }
 }
 

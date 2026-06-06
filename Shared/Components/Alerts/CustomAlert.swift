@@ -31,7 +31,7 @@ struct CustomAlertCard: View {
         .padding(24)
         .frame(width: 320)
         .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
-        .defaultShadow()
+        .customShadow(.floating)
         .frame(maxWidth: .infinity)
         .lineSpacing(8)
     }

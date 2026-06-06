@@ -131,7 +131,7 @@ extension RespondAcceptCard {
         ZStack { //Background done like this to fix bugs when popping up
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .fill(Color.appCanvas)
-                .surfaceShadow(.card, strength: ui.showTimePopup ? 0 : 1)
+                .customShadow(.floating, strength: ui.showTimePopup ? 0 : 0.7)
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .inset(by: 0.5)
                 .stroke(Color.grayBackground, lineWidth: 0.5)

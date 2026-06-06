@@ -59,7 +59,7 @@ struct CustomMapAnnotation: View {
                 }
             }
             .foregroundStyle(.white)
-            .defaultShadow()
+            .customShadow(.floating)
             
             ZStack {
                 Circle()

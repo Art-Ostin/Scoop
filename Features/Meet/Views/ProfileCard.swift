@@ -35,7 +35,7 @@ struct ProfileCard : View {
                 RoundedRectangle(cornerRadius: cardCornerRadius)
                     .fill(Color.appCanvas)
             )
-            .customSubtleShadow(strength: 4) //Keep Shadow here. Works Nicely
+            .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
             .contentShape(Rectangle())
             .onTapGesture { onTap() }

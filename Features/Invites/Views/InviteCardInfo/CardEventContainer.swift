@@ -146,7 +146,7 @@ extension CardEventContainer {
             .allowsHitTesting(selectedTab == .event && invitesUI.showTimePopup)
             .zIndex(2)
             .offset(y: 16)
-            .surfaceShadow(.card)
+            .customShadow(.floating, strength: 0.7)
         }
     }
     

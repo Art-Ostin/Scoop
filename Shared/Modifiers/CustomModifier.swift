@@ -32,7 +32,6 @@ struct ImageMeasure: ViewModifier {
         content
             .background (
                 GeometryReader { geo in
-                    let screenWidth = geo.size.width
                     Color.clear
                         .onGeometryChange(for: CGFloat.self) { geo in
                             geo.size.width

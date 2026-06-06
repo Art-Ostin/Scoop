@@ -64,7 +64,7 @@ struct EventMapView: View {
         .onAppear {
             cameraPosition = .camera(defaultCamera)
         }
-        .surfaceShadow(.floating, strength: !disableMap  ? 0.6 : 0)
+        .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
         .animation(toggleAnimation, value: disableMap)
         .task(id: disableMap) {
             guard disableMap else { return }

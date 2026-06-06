@@ -78,7 +78,7 @@ extension MeetContainer {
                     imageLoader: vm.imageLoader,
                     isMorphing: morphInviteId == profile.profile.id)
                     .task { await vm.loadProfileImages(profile: profile.profile) }
-                    .customSubtleShadow(strength: 4)//Shadow works Nicely Keep!
+                    .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
             }
         }
         .padding(.horizontal, 16)

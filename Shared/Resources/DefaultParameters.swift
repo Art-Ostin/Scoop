@@ -23,7 +23,6 @@ extension Comparable {
 }
 
 extension Color {
-    
     static let appBackground = Color(red: 0.42, green: 0.40, blue: 0.30)
         
     static let appCanvas = Color(red: 0.99, green: 0.98, blue: 0.97)
@@ -36,7 +35,7 @@ extension Color {
     
     static let secondary = Color (red: 0, green: 0.6, blue: 0.52)
     
-    static let appGreen =  Color(red: 0.01, green: 0.6, blue: 0.52)
+    static let appGreen =   Color(red: 0, green: 0.47, blue: 0.41)
     
     static let appRed = Color(red: 0.86, green: 0.21, blue: 0.27)
     

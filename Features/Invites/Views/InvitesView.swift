@@ -14,14 +14,14 @@ struct InvitesView: View {
     let onDecline: (String) -> ()
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 96) {
             ForEach(vm.invites, id: \.self) { invite in
-                inviteCard(invite: invite)
+                NewInviteCard(eventProfile: invite)
                     .task { await vm.ensureImagesLoaded(for: invite.profile) }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
     }
 }
 

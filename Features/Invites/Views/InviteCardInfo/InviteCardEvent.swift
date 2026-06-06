@@ -56,16 +56,27 @@ extension InviteCardEvent {
         HStack {
             DeclineButton { onDecline(vm.respondDraft.originalInvite.event)}
             Spacer()
-//            AcceptButton(isModified: isModified, isValid: vm.respondDraft.canSendNewTime) {
-//                if isModified {
-//                    showNewTimePopup = event.id
-//                } else {
-//                    showAcceptPopup = event.id
-//                }
-//            }
+            ScoopButton(style: .tinted(Color.appGreen, shadow: nil), shape: .rect(cornerRadius: 16)) {
+            } label: {
+                Text("Accept")
+                    .foregroundStyle(Color.white)
+                    .font(.body(14, .bold))
+                    .frame(width: 135)
+                    .frame(height: 40)
+            }
         }
         .opacity(showTimePopup ? 0.1 : 1)
         .allowsHitTesting(!showTimePopup)
     }
 }
 
+
+/*
+ //            AcceptButton(isModified: isModified, isValid: vm.respondDraft.canSendNewTime) {
+ //                if isModified {
+ //                    showNewTimePopup = event.id
+ //                } else {
+ //                    showAcceptPopup = event.id
+ //                }
+ //            }
+ */
