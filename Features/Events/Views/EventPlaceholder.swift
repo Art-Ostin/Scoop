@@ -12,7 +12,7 @@ struct EventsPlaceholder: View {
     @State var showInfo: Bool = false
         
     var body: some View {
-            ScrollView {
+            AppScrollView(title: "Meeting") {
             VStack(spacing: 84) {
                 Text("Upcoming Events appear here")
                     .font(.title(16, .medium))

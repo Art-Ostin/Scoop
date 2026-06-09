@@ -11,38 +11,26 @@ struct EventSlotContainer: View {
     
     @State private var disableMap: Bool = true
     @State private var mapEnabledAt: Date?
-
+    
     @Bindable var ui: EventUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
     let zoomNS: Namespace.ID
-
+    
     let openMaps: () -> ()
-
+    
     var body: some View {
-        ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 32) {
-                        EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-                        clockView
-                        eventDetailsContainer
-                        eventMap(proxy: proxy).id("MapsView")
-                        howItWorksView
-                        cantMakeItButton
-                    }
-                    .padding(.bottom, 72)
-                }
-                .onChange(of: disableMap) { _, isDisabled in
-                    mapEnabledAt = isDisabled ? nil : .now
-                }
-                .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                    geometry.contentOffset.y
-                } action: { disableMapOnScroll($0, $1)}
-                .overlay(alignment: .bottomTrailing) {messageButton}
-                    
-                }
+        VStack(spacing: 32) {
+            EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
+            clockView
+            eventDetailsContainer
+            eventMap()
+            howItWorksView
+            cantMakeItButton
         }
+        .padding(.bottom, 72)
     }
+}
 
 // Different Views
 extension EventSlotContainer {
@@ -58,9 +46,8 @@ extension EventSlotContainer {
             .dimWhenMapActive($disableMap)
     }
     
-    private func eventMap(proxy: ScrollViewProxy) -> some View {
+    private func eventMap() -> some View {
         EventMapView(
-            proxy: proxy,
             event: eventProfile.event,
             imageSize: imageSize,
             disableMap: $disableMap
@@ -107,11 +94,11 @@ extension EventSlotContainer {
                 .frame(width: 22, height: 22)
                 .font(.body(17, .bold))
                 .padding(10)
-//                .hoverButton()
+            //                .hoverButton()
                 .opacity(disableMap ? 1 : 0.5)
                 .expandHitArea(24)
-//                .padding(.bottom, 96)
-//                .padding(.horizontal, 24)
+            //                .padding(.bottom, 96)
+            //                .padding(.horizontal, 24)
         }
         .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
     }
@@ -126,23 +113,3 @@ private extension View {
     }
 }
 
-/*
- 
- 
- Button {
-     ui.messageProfile = eventProfile
- } label: {
-     Image("NewMessageIcon")
-         .resizable()
-         .scaledToFit()
-         .frame(width: 22, height: 22)
-         .font(.body(17, .bold))
-         .padding(10)
-         .hoverButton()
-         .expandHitArea(24)
- }
- .padding(.bottom, 96)
- .padding(.horizontal, 24)
- .dimWhenMapActive($disableMap)
-
- */

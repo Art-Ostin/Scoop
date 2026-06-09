@@ -56,14 +56,13 @@ extension AppContainer {
     private var invitesView: some View {
         InvitesContainer(vm: InvitesViewModel(session: dep.session, defaults: dep.defaultsManager, imageLoader: dep.imageLoader, eventRepo: dep.eventRepo))
     }
+    
     private var eventsView: some View {
         @Bindable var router = router
-        return NavigationStack(path: $router.eventsPath) {
-            EventsContainer(
-                vm: EventViewModel(session: dep.session, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader),
-                showMessageScreen: $router.showMessageScreen, path: $router.eventsPath
-            )
-        }
+        return EventsContainer(
+            vm: EventViewModel(session: dep.session, userRepo: dep.userRepo, defaults: dep.defaultsManager, eventRepo: dep.eventRepo, chatRepo: dep.chatRepo, imageLoader: dep.imageLoader),
+            showMessageScreen: $router.showMessageScreen, path: $router.eventsPath
+        )
     }
 
     private var pastEventsView: some View {
