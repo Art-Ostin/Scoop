@@ -25,10 +25,10 @@ struct CountdownTimer<Content: View>: View {
     
     var body: some View {
         content(timeRemaining)
-            .onReceive(timer) { _ in updateTimeRemaining() }
+            .onReceive(timer) { _ in withAnimation(.easeOut(duration: 0.08)) { updateTimeRemaining() } }
             .onAppear { updateTimeRemaining() }
     }
-    
+
     private func updateTimeRemaining() {
         if Date() >= targetTime {
             timeRemaining = DateComponents(day: 0, hour: 0, minute: 0, second: 0)

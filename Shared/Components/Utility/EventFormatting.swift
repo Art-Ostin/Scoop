@@ -11,11 +11,20 @@ public enum FormatEvent {
     
     //Format event Time
     static func dayAndTime(_ date: Date, wide: Bool = true, withHour: Bool = true) -> String {
-        let day = date.formatted( .dateTime .weekday(wide ? .wide : .abbreviated).day())
-        let month = date.formatted(.dateTime.month(wide ? .wide : .abbreviated))
+        let cal = Calendar.current
         let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        
-        return withHour ? "\(day) \(month) · \(hour)" : "\(day) \(month)"
+
+        let dayPart: String
+        if cal.isDateInToday(date) {
+            dayPart = "Today"
+        } else if cal.isDateInTomorrow(date) {
+            dayPart = "Tomorrow"
+        } else {
+            let weekday = date.formatted(.dateTime.weekday(wide ? .wide : .abbreviated))
+            let monthDay = date.formatted(.dateTime.month(wide ? .wide : .abbreviated).day())
+            dayPart = "\(weekday), \(monthDay)"
+        }
+        return withHour ? "\(dayPart) · \(hour)" : dayPart
     }
     
     
@@ -35,6 +44,7 @@ public enum FormatEvent {
         guard let i = address.lastIndex(of: ",") else { return address }
         return String(address[..<i]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
+    
     
     static func messageTime(_ date: Date) -> String {
         let cal = Calendar.current

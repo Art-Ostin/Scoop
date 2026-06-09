@@ -37,13 +37,22 @@ extension EventSlotContainer {
     
     private var clockView: some View {
         eventProfile.event.acceptedTime.map {
-            LargeClockView(targetTime: $0, showShadow: false)
+            EventClock(targetTime: $0)
         }
     }
     
+    @ViewBuilder
     private var eventDetailsContainer: some View {
-        EventDetailsContainer(ui: ui, event: eventProfile.event){ openMaps()}
-            .dimWhenMapActive($disableMap)
+        let event = eventProfile.event
+        if let acceptedTime = event.acceptedTime {
+            EventDetails(
+                type: event.type,
+                message: event.message,
+                time: acceptedTime,
+                place: event.location
+            )
+                .dimWhenMapActive($disableMap)
+        }
     }
     
     private func eventMap() -> some View {
@@ -104,12 +113,36 @@ extension EventSlotContainer {
     }
 }
 
-private extension View {
+extension View {
+    
     func dimWhenMapActive(_ disableMap: Binding<Bool>) -> some View {
         opacity(disableMap.wrappedValue ? 1 : 0.5)
             .onTapGesture {
                 if !disableMap.wrappedValue { disableMap.wrappedValue = true }
             }
+    }
+    
+    //Used on all the cards
+    func eventCardShadowBackground() -> some View {
+        self
+            .background (
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.appCanvas)
+                    .shadow(color: .black.opacity(0.025), radius: 4, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.015), radius: 12, x: 0, y: 0)
+            )
+    }
+    
+    //Put eventTextOverlay as viewExtension as used also in details view
+    func eventTextOverlay() -> some View {
+        self
+            .font(.custom("SFProRounded-Semibold", size: 13))
+            .foregroundStyle(Color(white: 0.68))
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background(Color.appCanvas)
+            .padding(.horizontal, 36)//Indent in by 16
+            .offset(y: -10)//Shifts it up
     }
 }
 
