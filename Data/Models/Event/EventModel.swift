@@ -130,6 +130,23 @@ extension Event.EventType {
         }
     }
     
+    func howItWorksEvent(_ name: String) -> String { //Update later
+        switch self {
+        case .drink:
+            return "Meet up just the two of you and grab a drink together"
+        case .doubleDate:
+            return "Both bring a friend and meet for a double Date"
+        case .socialMeet:
+            return "Go with hour friends to the venue and meet them & their friends there"
+        case .custom:
+            return "For a custom meet, do whatever the other person has proposed in the invite."
+            
+        }
+    }
+    
+    
+    
+    
     func howItWorksWithEvent(_ event: UserEvent) -> String {
         switch self {
         case .drink:

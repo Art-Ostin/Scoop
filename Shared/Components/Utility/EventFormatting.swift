@@ -46,16 +46,16 @@ public enum FormatEvent {
     }
     
     
-    static func messageTime(_ date: Date) -> String {
+    static func messageTime(_ date: Date, withToday: Bool = true) -> String {
         let cal = Calendar.current
         
         //1. Case 1: If date is same day as today, return time
-        if cal.isDateInToday(date) {
+        if cal.isDateInToday(date) && withToday {
             return date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
         }
         
         //2. Case 2: If Date is yesterday, return 'Yesterday'
-        else if cal.isDateInYesterday(date) {
+        else if cal.isDateInYesterday(date) && withToday  {
             return "Yesterday"
         }
         

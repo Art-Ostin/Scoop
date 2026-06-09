@@ -24,9 +24,9 @@ struct EventSlotContainer: View {
             EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
             clockView
             eventDetailsContainer
-            eventMap()
-            howItWorksView
-            cantMakeItButton
+            EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
+            eventDivider
+            eventInfoSection
         }
         .padding(.bottom, 72)
     }
@@ -38,6 +38,14 @@ extension EventSlotContainer {
     private var clockView: some View {
         eventProfile.event.acceptedTime.map {
             EventClock(targetTime: $0)
+        }
+    }
+    
+    @ViewBuilder
+    private var eventInfoSection: some View {
+        let e = eventProfile.event
+        if let acceptedTime = e.acceptedTime {
+            EventInfo(location: e.location, eventTime: acceptedTime, otherUserName: e.otherUserName, evenType: e.type)
         }
     }
     
@@ -55,15 +63,6 @@ extension EventSlotContainer {
         }
     }
     
-    private func eventMap() -> some View {
-        EventMapView(
-            event: eventProfile.event,
-            imageSize: imageSize,
-            disableMap: $disableMap
-        ) {
-            openMaps()
-        }
-    }
     
     private var howItWorksView: some View {
         CoreInfoPage(event: eventProfile.event)
@@ -77,23 +76,19 @@ extension EventSlotContainer {
             disableMap = true
         }
     }
+    
+    private var eventDivider: some View {
+        RoundedRectangle(cornerRadius: 1)
+            .fill(Color(white: 0.8))
+            .frame(maxWidth: .infinity, maxHeight: 1)
+            .padding(.horizontal, 72)
+            .padding(.vertical, 4)//add tad more padding here than default
+    }
 }
 
 //Views Buttons
 extension EventSlotContainer {
     
-    private var cantMakeItButton: some View {
-        Button {
-            ui.showCantMakeIt = eventProfile
-        } label: {
-            Text("Can't Make It?")
-                .font(.body(14, .bold))
-                .contentShape(Rectangle())
-                .foregroundStyle(Color.accent)
-                .padding(.trailing, 24)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
     
     private var messageButton: some View {
         NavigationLink(value: eventProfile) {
@@ -103,11 +98,11 @@ extension EventSlotContainer {
                 .frame(width: 22, height: 22)
                 .font(.body(17, .bold))
                 .padding(10)
-            //                .hoverButton()
+//                            .hoverButton()
                 .opacity(disableMap ? 1 : 0.5)
                 .expandHitArea(24)
-            //                .padding(.bottom, 96)
-            //                .padding(.horizontal, 24)
+//                            .padding(.bottom, 96)
+//                            .padding(.horizontal, 24)
         }
         .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
     }
@@ -146,3 +141,22 @@ extension View {
     }
 }
 
+
+
+/*
+ cantMakeItButton
+
+ private var cantMakeItButton: some View {
+     Button {
+         ui.showCantMakeIt = eventProfile
+     } label: {
+         Text("Can't Make It?")
+             .font(.body(14, .bold))
+             .contentShape(Rectangle())
+             .foregroundStyle(Color.accent)
+             .padding(.trailing, 24)
+     }
+     .frame(maxWidth: .infinity, alignment: .leading)
+ }
+
+ */

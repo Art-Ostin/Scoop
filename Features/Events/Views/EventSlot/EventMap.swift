@@ -6,16 +6,81 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct EventMap: View {
+    let location: EventLocation
+    let imageSize: CGFloat
+    @Binding var disableMap: Bool
+    let openMaps: () -> ()
+    
     var body: some View {
-        VStack {
-            
-            
+        VStack(spacing: 12) {
+            EventMapView(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
+            locationInfo
         }
+        .padding(.bottom, 16)
+        .stroke(16, lineWidth: disableMap ? 1 : 0, color: Color.grayBackground)
+        .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
+        .eventCardShadowBackground()
     }
 }
 
-#Preview {
-    EventMap()
+extension EventMap {
+
+    private var locationInfo: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            locationTextSection
+            locationButtonSection
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 24)
+    }
+    
+    @ViewBuilder
+    private var locationTextSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(location.name ?? "")
+                    .font(.body(19, .bold))
+                Spacer()
+                Text("1.3km")
+                    .font(.body(15, .bold))
+            }
+            .foregroundStyle(Color(white: 0.07))
+            
+            Text("Nightclub")   // update later so actually shows location
+                .font(.body(15, .regular))
+                .foregroundStyle(Color(white: 0.12))
+            
+            if let category = location.mapItem.pointOfInterestCategory {
+            }
+            
+            Text(location.address ?? "")
+                .font(.body(15, .regular))
+                .foregroundStyle(Color(white: 0.5))
+        }
+    }
+    
+    private var locationButtonSection: some View {
+        HStack {
+            locationIcon(text: "7 min", icon: "EventCarIcon", isMap: false)
+            Spacer()
+            locationIcon(text: "23 min", icon: "EventWalkIcon", isMap: false)
+            Spacer()
+            locationIcon(text: "Maps", icon: "EventMapsIcon", isMap: true)
+        }
+    }
+    
+    private func locationIcon(text: String, icon: String, isMap: Bool) -> some View {
+        VStack(spacing: 0) {
+            Image(icon)
+            
+            Text(text)
+                .font(.system(size: 11, weight: .bold))
+        }
+        .frame(width: 75, height: 40)
+        .background(RoundedRectangle(cornerRadius: 10.5).fill(Color.white))
+        .stroke(10.5, lineWidth: 1, color: isMap ? Color(red: 0.26, green: 0.52, blue: 0.96) : Color(white: 0.92))
+    }
 }
