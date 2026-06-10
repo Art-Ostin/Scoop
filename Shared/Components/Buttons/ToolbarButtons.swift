@@ -19,12 +19,12 @@ struct InfoButton: View {
                     Image(systemName: "info.circle")
                         .font(.body(18, .medium))
                 }
-                .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
+                .transition(.scoopPop)
                 .padding(.top, 16) //As its small icon, sits in correct position
                 .padding(.horizontal, 22)
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isAtTopOfScroll)
+        .animation(.scoopPop, value: isAtTopOfScroll)
     }
 }
 

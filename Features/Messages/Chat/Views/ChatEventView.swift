@@ -90,4 +90,3 @@ extension ChatEventView {
         return "\(type.emoji) \(type.title)"
     }
 }
-

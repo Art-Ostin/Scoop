@@ -57,10 +57,11 @@ struct CustomScrollFade: ViewModifier {
                     }
                 }
                 .frame(height: height)
+                .offset(y: isDetails ? 1 : 0) //So stroke on details is still always shown
                 .allowsHitTesting(false)
                 .padding(.horizontal, isDetails ? 1 : 0)
                 .clipShape(.rect(cornerRadius: isDetails ? 30 : 0))
-                 .ignoresSafeArea(edges: edge == .top ? .top : .bottom) //Important this goes at end
+                .ignoresSafeArea(edges: edge == .top ? .top : .bottom) //Important this goes at end
             }
         }
     }

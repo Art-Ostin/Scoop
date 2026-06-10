@@ -78,7 +78,11 @@
       "Bash(ssh -T git@github.com)",
       "Bash(ssh-add -l)",
       "Bash(grep -rn \"hoverButton\" /Users/napoleon/Documents --include=\"*.swift\" -l 2>/dev/null | grep -v Scoop/Features | head; echo \"===\"; grep -rn \"func hoverButton\" /Users/napoleon/Documents/Scoop/Shared 2>/dev/null)",
-      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)"
+      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)",
+      "Bash(cd /Users/napoleon/Documents/Scoop; xcodebuild -project Scoop.xcodeproj -scheme \"Scoop Test\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"EXIT: $?\")",
+      "Bash(awk '/Schemes:/{f=1} f')",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build)",
+      "Bash(SDK=\"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk\"; IFACE=\"$SDK/System/Library/Frameworks/SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface\"; echo \"=== AnyTransition struct + inits ===\"; grep -nE \"struct AnyTransition|extension SwiftUICore.AnyTransition|public init\" \"$IFACE\" | grep -iE \"anytransition|init\" | sed -n '1,30p'; echo \"=== init taking Transition ===\"; awk 'NR>=16040 && NR<=16080' \"$IFACE\")"
     ]
   }
 }

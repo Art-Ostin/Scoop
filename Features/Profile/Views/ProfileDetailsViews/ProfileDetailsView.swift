@@ -60,10 +60,15 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll, isDetails: true)
         .scrollDisabled(ui.isDraggingDetails || !ui.detailsOpen)
         .overlay(alignment: .topTrailing) {
-            dismissDetailsButton
-                .opacity(!ui.isAtTopOfScroll && ui.detailsFullyOpen ? 1 : 0)
-                .animation(.smooth(duration: 0.2), value: ui.detailsFullyOpen)
-                .animation(.smooth(duration: 0.2), value: ui.isAtTopOfScroll)
+            Group {
+                if !ui.isAtTopOfScroll && ui.detailsFullyOpen {
+                    dismissDetailsButton
+                        .transition(.scoopPop)
+                        .padding()
+                }
+            }
+            .animation(.scoopPop, value: ui.detailsFullyOpen)
+            .animation(.scoopPop, value: ui.isAtTopOfScroll)
         }
     }
 }
@@ -95,15 +100,12 @@ extension ProfileDetailsView {
     }
 
     private var dismissDetailsButton: some View {
-        // TEMP: glass button commented out for ButtonTest preview
-        EmptyView()
-        /*
-        GlassButton(action: {}) {
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .small) {
+            ui.animateDetails(to: false)
+        } label: {
             Image(systemName: "chevron.down")
-                .font(.body(16, .bold))
+                .font(.body(15, .bold))
         }
-        .scaleEffect(0.9)
-        */
     }
         
 

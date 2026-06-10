@@ -36,7 +36,6 @@ struct EventsContainer: View {
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
         .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 20) //16 padding, /4 inside padding on card
-        .hideTabBar(hideBar: !path.isEmpty)
         .onChange(of: showMessageScreen) { _, newValue in
             handleDeepLink(eventId: newValue)
         }
@@ -129,6 +128,7 @@ extension EventsContainer {
                     .scaledToFit()
                     .frame(width: 22, height: 22)
                     .padding(10)
+                    .glassBackgroundIfAvailable(shape: Circle())
                     .expandHitArea(24)
             }
             .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
@@ -151,6 +151,7 @@ extension EventsContainer {
             isEvent: true
         )
         .navigationTransition(.zoom(sourceID: eventProfile.id, in: zoomNS))
+        .hideTabBar() //Chat hides the bar itself (only present while pushed), so nothing forces the bar visible while the profile overlay is up — letting ProfileView own the bar, like Meet/Invites
     }
     
     private func profileView(profile: UserProfile) -> some View {

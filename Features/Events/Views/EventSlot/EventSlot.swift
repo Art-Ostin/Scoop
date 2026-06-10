@@ -108,7 +108,6 @@ extension View {
     func eventCardShadowBackground() -> some View {
         self
             .background (
-                
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.appCanvas)
                     .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.0125), radius: 4, x: 0, y: 1)

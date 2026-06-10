@@ -28,10 +28,10 @@ struct TabInfoButton: View {
                         .padding(.horizontal, 22)
                 }
                 //3. Retracts up into the nav bar with a soft glass blur
-                .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
+                .transition(.scoopPop)
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isAtTopOfScroll)
+        .animation(.scoopPop, value: isAtTopOfScroll)
     }
 }
 
