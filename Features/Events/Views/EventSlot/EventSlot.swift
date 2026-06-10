@@ -24,9 +24,10 @@ struct EventSlot: View {
             eventImageCard
             eventDetailsContainer
                 .padding(.top, 4)//Looks more natural as detailTitle pokes up a top.
-            EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             eventDivider
             eventInfoSection
+            eventDivider
+            EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
         }
         .padding(.bottom, 72)
     }
@@ -53,7 +54,7 @@ extension EventSlot {
     private var eventInfoSection: some View {
         let e = eventProfile.event
         if let acceptedTime = e.acceptedTime {
-            EventInfo(location: e.location, eventTime: acceptedTime, otherUserName: e.otherUserName, evenType: e.type)
+            EventInfo(location: e.location, eventTime: acceptedTime, otherUserName: e.otherUserName, eventType: e.type)
         }
     }
     
@@ -110,16 +111,17 @@ extension View {
             .background (
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.appCanvas)
-                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.0125), radius: 4, x: 0, y: 1)
-                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.0075), radius: 12, x: 0, y: 0)
+                    .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0125), radius: 4, x: 0, y: 1)
+                    .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0075), radius: 12, x: 0, y: 0)
             )
+            .stroke(16, lineWidth: 1, color: Color(white: 0.94))
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view
-    func eventTextOverlay() -> some View {
+    func eventTextOverlay(isDetails: Bool = false) -> some View {
         self
             .font(.custom("SFProRounded-Semibold", size: 13))
-            .foregroundStyle(Color(white: 0.68))
+            .foregroundStyle(isDetails ? Color(red: 0.55, green: 0, blue: 0.25) : Color(white: 0.68))
             .padding(.horizontal, 4)
             .padding(.vertical, 2)
             .background(Color.appCanvas)

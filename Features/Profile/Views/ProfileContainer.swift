@@ -14,7 +14,6 @@ struct ProfileView: View {
     @State var vm: ProfileViewModel
 
     @State var ui = ProfileUIState()
-    @State private var imageBottomSettleTask: Task<Void, Never>?
     // Pending send action while the morph confirm alert is up — hoisted so the alert
     // is hosted full-screen above the frame-clamped morph card.
     @State var pendingInvite: (() -> Void)?
@@ -60,13 +59,15 @@ struct ProfileView: View {
             ZoomContainer {
                 ZStack(alignment: .top) {
                     titleAndImage(geo: geo)
-                        .simultaneousGesture(profileDrag(geo: geo))
-                    
+
                     detailsView
                 }
                 //1. Profile Background
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(profileBackground)
+                //2. One gesture for the whole surface — paging, scrolling, moving the
+                //card and dismissing are disambiguated in ProfileGestures.swift.
+                .simultaneousGesture(profileDrag(geo: geo))
                 .onAppear {
                     if isMessageProfile {
                         Task {
@@ -75,12 +76,7 @@ struct ProfileView: View {
                         }
                     }
                 }
-                
-                //2. Appearing above screen
-                .overlay(alignment: .bottomTrailing) { inviteButton }
-                .overlay(alignment: .bottomLeading) { declineButton }
-                
-                
+
                 //3.Specify coordinate space for measuring
                 .coordinateSpace(name: "profileZStack")
             }
@@ -89,7 +85,7 @@ struct ProfileView: View {
         .hideTabBar(hideBar: !ui.isDismissing)
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
-        .offset(y: isUserProfile ? 0 : ui.profileOffset)
+        .modifier(ProfileDismissDragEffect(ui: ui, enabled: !isUserProfile))
         // Send-invite AND respond-to-invite both morph out of the invite icon. Respond
         // mode hosts a multi-page pager that owns its own card chrome, so the morph
         // surface hands off (contentOwnsBackground) once expanded.
@@ -114,43 +110,45 @@ struct ProfileView: View {
 
 extension ProfileView {
     
-    //Positioning is controlled by offset as it makes it easier to adjust with details
+    //Rest position comes from layout (top padding); the drag moves everything with
+    //transforms only, so no frame of a drag ever runs a layout pass.
     private func titleAndImage(geo: GeometryProxy) -> some View {
         VStack(spacing: 24) {
             profileTitle(geo: geo)
-                .opacity(interpolate(from: 1, to: 0, impactStart: 0, impactEnd: 0.75))
+                .modifier(DetailsFadeEffect(ui: ui, from: 1, to: 0, impactEnd: 0.75))
 
             ProfileImageView(ui: ui, vm: vm, importedImages: profileImages)
                 .overlay(alignment: .topLeading) {
                     overlayTitle(onDismiss: { dismissProfile(using: geo) })
                         .padding(.top, 12)
-                        .opacity(interpolate(from: 0, to: 1, impactStart: 0.5, impactEnd: 1))
+                        .modifier(DetailsFadeEffect(ui: ui, from: 0, to: 1, impactStart: 0.5))
                         .offset(x: isUserProfile ? 36 : 0)
                 }
-                .onGeometryChange(for: CGFloat.self) { geo in
-                    geo.frame(in: .named("profileZStack")).maxY
-                } action: { bottom in
-                    guard !ui.hasUpdatedImageBottom else { return }
-                    ui.imageBottom = bottom
-                    //Stop updating the imageBottom after it stops changing after 0.3 seconds
-                    imageBottomSettleTask?.cancel()
-                    imageBottomSettleTask = Task {
-                        try? await Task.sleep(for: .seconds(0.3))
-                        guard !Task.isCancelled else { return }
-                        ui.hasUpdatedImageBottom = true
-                    }
-                }
         }
-        .offset(y: interpolate(from: 36, to: -54)) //Logic dealing offset of top part
+        //Header height anchors the details card. A size is transform-independent, so
+        //this fires on real layout changes only — never while dragging.
+        .onGeometryChange(for: CGFloat.self) { geo in
+            geo.size.height
+        } action: { height in
+            ui.headerHeight = height
+        }
+        .padding(.top, ui.headerTopPadding)
+        .modifier(ProfileHeaderDragEffect(ui: ui))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
-    
+
     private var detailsView: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: vm.profile, event: vm.event)
-            .offset(y: ui.detailsOffset)
-            .padding(.top, ui.imageBottom + 24) //24 spacing between bottom of image, and start of details
-            .scaleEffect(interpolate(from: 0.97, to: 1))
-            .simultaneousGesture(detailsDrag)
+            .modifier(DetailsCardDragEffect(ui: ui))
+            //Resting top edge in the gesture's space for the started-on-card test.
+            //Geometry ignores the drag transform, so this is the layout position and
+            //fires only on real layout changes — never while dragging.
+            .onGeometryChange(for: CGFloat.self) { geo in
+                geo.frame(in: .global).minY
+            } action: { minY in
+                ui.restingCardTopGlobal = minY
+            }
+            .padding(.top, ui.detailsRestingTop) //24 spacing between bottom of image, and start of details
             .opacity(showDetails || !isMessageProfile ? 1 : 0)
     }
 

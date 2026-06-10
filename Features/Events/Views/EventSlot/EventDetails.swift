@@ -95,7 +95,7 @@ extension EventDetails {
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.body(12, .medium))
-                    .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
+                    .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
                 
                 Text(mainText)
                     .font(.body(17, .bold))
@@ -109,7 +109,7 @@ extension EventDetails {
     
     private var detailsOverlay: some View {
         Text("Details")
-            .eventTextOverlay()
+            .eventTextOverlay(isDetails: true)
     }
 
     private func flipButton(toBack: Bool) -> some View {
@@ -117,9 +117,11 @@ extension EventDetails {
             showBack = toBack
         } label: {
             Image(systemName: "info.circle")
-                .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
-                .font(.body(12, .medium))
+                .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
+//                .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
+                .font(.body(14, .medium))
         }
+        .growButton()
     }
 }
 
@@ -128,7 +130,6 @@ struct DetailsBackground: ViewModifier {
         content
             .padding(.horizontal, 32)
             .padding(.vertical, 24)
-            .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
             .eventCardShadowBackground()
     }
 }

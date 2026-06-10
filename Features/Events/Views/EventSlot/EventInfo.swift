@@ -12,7 +12,7 @@ struct EventInfo: View {
     let location: EventLocation
     let eventTime: Date
     let otherUserName: String
-    let evenType: Event.EventType
+    let eventType: Event.EventType
     
     
     @State var scrollProgress: Double = 0
@@ -21,9 +21,8 @@ struct EventInfo: View {
     
     var body: some View {
         VStack(spacing: 36){
-            Text("How it Works")
+            Text("\(eventType.emoji) \(eventType.longTitle)")
                 .font(.system(size: 24, weight: .medium, design: .serif))
-            
             scrollSection
             AnimatedPageIndicator(count: EventInfoData.allCases.count, progress: scrollProgress)
         }
@@ -57,7 +56,7 @@ extension EventInfo {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 250, height: 250)
-            Text(type.text(location: location, eventTime: eventTime, otherUserName: otherUserName, eventType: evenType))
+            Text(type.text(location: location, eventTime: eventTime, otherUserName: otherUserName, eventType: eventType))
                 .font(.body(17, .medium))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)

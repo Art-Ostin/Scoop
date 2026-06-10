@@ -7,13 +7,7 @@
 
 import SwiftUI
 
-/// A blurred copy of `image`, revealed only through a feathered rounded-rect
-/// halo behind each measured text frame — giving a soft pool of blur under the
-/// text so it stays legible over a busy photo.
-///
-/// Pass one frame per text element you want haloed (e.g. just the name, or the
-/// name *and* a details line). Frames still at `.zero` (not yet measured) are
-/// skipped, so nothing flashes in the top-left before layout settles.
+//To blur behind the images in the app
 struct BackgroundBlur: View {
 
     let image: UIImage
@@ -44,7 +38,7 @@ struct BackgroundBlur: View {
     @ViewBuilder
     private func halo(for frame: CGRect) -> some View {
         if frame != .zero {
-            let rect = frame.insetBy(dx: -4, dy: -2)
+            let rect = frame.insetBy(dx: -4, dy: 4)
             RoundedRectangle(cornerRadius: maskCornerRadius)
                 .frame(width: max(rect.width, 0), height: max(rect.height, 0))
                 .position(x: rect.midX, y: rect.midY)

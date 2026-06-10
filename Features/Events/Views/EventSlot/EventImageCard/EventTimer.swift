@@ -17,7 +17,7 @@ struct EventTimer: View {
     
     var body: some View {
         
-        HStack(spacing: 24) {
+        HStack(spacing: 20) {
             
             photoOverlap
             
@@ -77,16 +77,16 @@ extension EventTimer {
     private func timeSection(time: Int, type: String) -> some View {
         VStack(spacing: 0) {
             Text("\(time)")
-                .font(.custom("SFProRounded-Semibold", size: 26))
+                .font(.custom("SFProRounded-Semibold", size: 28))
                 .monospacedDigit()
                 .contentTransition(.numericText(countsDown: true))
                 .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
             
             Text(type)
                 .foregroundStyle(Color(white: 0.8))
-                .font(.custom("SFProRounded-Medium", size: 12))
+                .font(.custom("SFProRounded-Medium", size: 8))
         }
-        .frame(width: 35, height: 21)
+        .frame(width: 37, height: 21)
     }
     
     private var divider: some View {

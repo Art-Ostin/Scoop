@@ -25,7 +25,9 @@ struct EventImage: View {
             )
             .contentShape(Rectangle())
             .onTapGesture {openProfile()}
-            .overlay {backgroundBlur}
+            .overlay {
+                BackgroundBlur(image: eventProfile.image ?? UIImage(), size: imageSize, frames: [namePosition], maskCornerRadius: 8)
+            }
             .overlay(alignment: .bottomLeading) { nameOverlay}
             .coordinateSpace(name: EventImage.cardSpace)
             .onPreferenceChange(EventNameFrameKey.self) {namePosition = $0}
@@ -48,32 +50,8 @@ struct EventImage: View {
     }
 }
 
-//Logic dealing with the background Blur
 extension EventImage {
     fileprivate static let cardSpace = "ProfileCard.card"
-    
-    private var backgroundBlur: some View {
-        Image(uiImage: eventProfile.image ?? UIImage())
-            .resizable()
-            .scaledToFill()
-            .frame(width: max(imageSize, 0), height: max(imageSize, 0))
-            .blur(radius: 22)
-            .mask(nameBlurMask)
-            .clipShape(RoundedRectangle(cornerRadius: 22)) //Corner Radius of the card
-            .allowsHitTesting(false)
-    }
-    
-    private var nameBlurMask: some View {
-        let padX: CGFloat = 4
-        let padY: CGFloat = -4
-        let feather: CGFloat = 4
-        let rect = namePosition.insetBy(dx: -padX, dy: -padY)
-        return RoundedRectangle(cornerRadius: 8)
-            .frame(width: max(rect.width, 0), height: max(rect.height, 0))
-            .position(x: rect.midX, y: rect.midY)
-            .blur(radius: feather)
-            .opacity(namePosition == .zero ? 0 : 1)
-    }
 }
 
 private struct EventNameFrameKey: PreferenceKey {

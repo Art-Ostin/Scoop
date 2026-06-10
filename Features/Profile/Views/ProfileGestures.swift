@@ -7,167 +7,209 @@
 
 import SwiftUI
 
+//How a drag is resolved once the finger moves past the slop distance.
 enum DragType {
     case undecided
-    case horizontal
-    case vertical
-    case profileVertical
-    case detailsVertical
+    case horizontal     //image pager owns it
+    case scrollOwned    //details scroll owns it; may hand off to .details at the top
+    case details        //moving the details card between detents
+    case dismiss        //pulling the whole profile down
 }
 
-//Logic to deal with ProfileDrag
+//One drag gesture for the whole profile. It decides once what the finger means
+//(page images / scroll details / move the card / dismiss the profile) and from then
+//on only writes detailsOffset or profileOffset — both transform-only leaves — so
+//tracking never triggers a layout pass.
 extension ProfileView {
-    
+
+    //Measured in .global to match restingCardTopGlobal, the card-boundary reference.
     func profileDrag(geo: GeometryProxy) -> some Gesture {
-        DragGesture(coordinateSpace: .global)
+        DragGesture(minimumDistance: 6, coordinateSpace: .global)
             .onChanged { value in
-                let y = value.translation.height
-                let x = value.translation.width
-
                 if ui.dragType == .undecided {
-                    if abs(x) > 6 || abs(y) > 6 {
-                        ui.dragType = abs(y) > abs(x) ? .vertical : .horizontal
-                    }
+                    let x = value.translation.width
+                    let y = value.translation.height
+                    guard abs(x) > 6 || abs(y) > 6 else { return }
+                    ui.dragType = abs(y) > abs(x) ? classifyVertical(value) : .horizontal
+                    if ui.dragType == .details { commitDetailsDrag(value) }
+                    if ui.dragType == .dismiss { ui.dragCommitTranslation = y }
                 }
-                guard ui.dragType == .vertical
-                    || ui.dragType == .profileVertical
-                    || ui.dragType == .detailsVertical else { return }
-
-                if ui.dragType == .vertical {
-                    
-                    ui.dragType = y > 0  && !ui.detailsOpen ? .profileVertical : .detailsVertical
-                    ui.dragCommitTranslation = y
-                    if ui.dragType == .detailsVertical {
-                        ui.isDraggingDetails = true
-                    }
+                //An open card hands off from scrolling the moment the content tops out
+                //while the finger is still pulling down.
+                if ui.dragType == .scrollOwned, ui.isAtTopOfScroll, value.translation.height > 0 {
+                    ui.dragType = .details
+                    commitDetailsDrag(value)
                 }
 
+                let relative = value.translation.height - ui.dragCommitTranslation
                 switch ui.dragType {
-                case .profileVertical:
-                    ui.profileOffset = max(0, y - ui.dragCommitTranslation)
-                case .detailsVertical:
-                    let base = ui.detailsOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
-                    let relative = y - ui.dragCommitTranslation
-                    ui.detailsOffset = rubberBand(value: base + relative,
-                                                  min: ui.detailsOpenOffset,
-                                                  max: ui.detailsClosedOffset)
+                case .details:
+                    let offset = rubberBand(value: ui.dragBase + relative,
+                                            min: ui.detailsOpenOffset,
+                                            max: ui.detailsClosedOffset,
+                                            dimension: geo.size.height)
+                    ui.detailsOffset = offset
+                    //Non-animated writes bypass animatableData, so keep the mirror exact.
+                    ui.presentedDetailsOffset = offset
+                case .dismiss:
+                    ui.profileOffset = max(0, relative)
                 default:
                     break
                 }
             }
             .onEnded { value in
                 defer { ui.dragType = .undecided }
-                guard ui.dragType != .horizontal && ui.dragType != .undecided else { return }
-                if ui.dragType == .profileVertical {
-                    onProfileEnded(for: value, geo: geo)
-                } else if ui.dragType == .detailsVertical {
-                    onDetailsEnded(value: value)
+                switch ui.dragType {
+                case .details: endDetailsDrag(value)
+                case .dismiss: endProfileDrag(value, geo: geo)
+                default: break
                 }
             }
     }
-    
-    
-    private func onProfileEnded(for value: DragGesture.Value, geo: GeometryProxy) {
-        if shouldDismiss(for: value, geo: geo) {
-            animateDismiss(using: geo, releaseVelocity: value.velocity.height)
+
+    //Resolve what a vertical drag means from the card state and where it started.
+    private func classifyVertical(_ value: DragGesture.Value) -> DragType {
+        //Resting layout top plus the live drag/animation offset = on-screen top.
+        let cardTop = ui.restingCardTopGlobal + ui.presentedDetailsOffset
+        let startedOnCard = value.startLocation.y >= cardTop
+        if ui.detailsOpen {
+            //Header above the open card always moves it; the card itself scrolls its
+            //content and only follows a downward pull from the top.
+            guard startedOnCard else { return .details }
+            return (ui.isAtTopOfScroll && value.translation.height > 0) ? .details : .scrollOwned
+        }
+        if value.translation.height < 0 { return .details } //pull up anywhere opens
+        //Downward when closed: rubber-band the card if the drag started on it,
+        //dismiss the profile if it started on the header (own profile never dismisses).
+        if startedOnCard { return .details }
+        return isUserProfile ? .horizontal : .dismiss
+    }
+
+    //Snapshot the gesture so the card continues from exactly where it is on screen —
+    //including mid-animation, which a plain state read would teleport past.
+    private func commitDetailsDrag(_ value: DragGesture.Value) {
+        //Flag first: it guards the stale snap-animation completion that the
+        //interrupting write below may fire.
+        ui.isDraggingDetails = true
+        ui.dragCommitTranslation = value.translation.height
+        ui.dragBase = ui.presentedDetailsOffset
+        var t = Transaction()
+        t.disablesAnimations = true
+        withTransaction(t) { ui.detailsOffset = ui.presentedDetailsOffset }
+    }
+
+    private func endDetailsDrag(_ value: DragGesture.Value) {
+        guard ui.isDraggingDetails else { return }
+        ui.isDraggingDetails = false
+        let velocity = value.velocity.height
+        //Project where momentum would land the card, then settle to the nearest
+        //detent — the same selection rule as the system sheet.
+        let projected = ui.detailsOffset + project(velocity: velocity)
+        let willOpen = abs(projected - ui.detailsOpenOffset) < abs(projected - ui.detailsClosedOffset)
+        ui.animateDetails(to: willOpen, velocity: velocity)
+    }
+
+    private func endProfileDrag(_ value: DragGesture.Value, geo: GeometryProxy) {
+        let velocity = value.velocity.height
+        let projected = ui.profileOffset + project(velocity: velocity)
+        if projected > geo.size.height * 0.25 {
+            animateDismiss(using: geo, releaseVelocity: velocity)
         } else {
-            animateSnapBack(releaseVelocity: value.velocity.height)
+            animateSnapBack(releaseVelocity: velocity)
         }
     }
 
-    private func shouldDismiss(for value: DragGesture.Value, geo: GeometryProxy) -> Bool {
-        let velocity = value.velocity.height
-        let velocityThreshold: CGFloat = 500
-        if velocity < -velocityThreshold { return false }
-        if velocity > velocityThreshold { return true }
-        return value.translation.height > geo.size.height * 0.2
+    //Distance a free deceleration would travel (UIScrollView's .normal rate).
+    private func project(velocity: CGFloat) -> CGFloat {
+        let rate: CGFloat = 0.998
+        return (velocity / 1000) * rate / (1 - rate)
+    }
+
+    //UIScrollView's rubber band: f(x) = (x·d·c) / (d + c·x) with c = 0.55 and
+    //d = the view dimension. Approaches d asymptotically — the generous, gradual
+    //resistance of the system sheet pulled past its range.
+    private func rubberBand(value: CGFloat, min lo: CGFloat, max hi: CGFloat, dimension d: CGFloat) -> CGFloat {
+        let c: CGFloat = 0.55
+        func band(_ x: CGFloat) -> CGFloat { (x * d * c) / (d + c * x) }
+        if value > hi { return hi + band(value - hi) }
+        if value < lo { return lo - band(lo - value) }
+        return value
     }
 }
 
-//Logic to deal with DetailsDrag
-extension ProfileView {
+//MARK: - Drag effect leaves
+//The bodies below are the ONLY thing SwiftUI re-evaluates per drag frame: the
+//per-frame offsets live in ProfileUIState and only these modifiers read them.
+//All of them are transforms or opacity — none can trigger a layout pass.
 
-    var detailsDrag: some Gesture {
-        DragGesture(coordinateSpace: .named("profileZStack"))
-            .onChanged { value in
-                // When details is open, only commit to dragging on a downward motion
-                // at the top of the scroll. Otherwise let the ScrollView handle it.
-                if !ui.isDraggingDetails {
-                    let canDrag = ui.detailsOpen
-                        ? (ui.isAtTopOfScroll && value.translation.height > 0)
-                        : true
-                    guard canDrag else { return }
-                    ui.isDraggingDetails = true
-                    // Snapshot translation at commit so handoff from scroll → drag has no jump
-                    ui.dragCommitTranslation = value.translation.height
-                }
-                let base = ui.detailsOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
-                let relative = value.translation.height - ui.dragCommitTranslation
-                let proposed = base + relative
-                ui.detailsOffset = rubberBand(value: proposed,
-                                           min: ui.detailsOpenOffset,
-                                           max: ui.detailsClosedOffset)
-            }
-            .onEnded { value in
-                onDetailsEnded(value: value)
-            }
+//Card position + lift. This leaf owns the per-frame read of detailsOffset and
+//hands the value to the Animatable modifier below.
+struct DetailsCardDragEffect: ViewModifier {
+    var ui: ProfileUIState
+    func body(content: Content) -> some View {
+        content.modifier(AnimatedCardOffset(offset: ui.detailsOffset, ui: ui))
     }
-    
-    
-    private func onDetailsEnded (value: DragGesture.Value) {
-        guard ui.isDraggingDetails else { return }
-        ui.isDraggingDetails = false
-        let target = nextDetent(for: value, commitTranslation: ui.dragCommitTranslation)
-        let signedDistance = target - ui.detailsOffset
-        let initialV: CGFloat = abs(signedDistance) > 0.001
-            ? value.velocity.height / signedDistance
-            : 0
-        ui.animateDetails(to: target == ui.detailsOpenOffset, initialVelocity: initialV)
-    }
+}
 
-    // Create a rubber band
-    private func rubberBand(value: CGFloat, min lo: CGFloat, max hi: CGFloat) -> CGFloat {
-        let limit: CGFloat = 100
-        let c: CGFloat = 0.7
-        if value > hi {
-            let x = value - hi
-            return hi + (1 - 1 / (x * c / limit + 1)) * limit
-        } else if value < lo {
-            let x = lo - value
-            return lo - (1 - 1 / (x * c / limit + 1)) * limit
+//During a snap spring the animation system interpolates animatableData every frame;
+//the setter mirrors those values into presentedDetailsOffset so a new drag can catch
+//the card mid-flight (geometry readers can't see .offset transforms, so this is the
+//only true source of the card's on-screen position). Scale derives from the same
+//interpolated value so it can never desync from the offset. Anchoring the scale to
+//.top keeps the card edge glued to the finger (a centre anchor makes the top edge
+//creep as the scale changes).
+struct AnimatedCardOffset: ViewModifier, Animatable {
+    var offset: CGFloat
+    var ui: ProfileUIState
+
+    var animatableData: CGFloat {
+        get { offset }
+        set {
+            offset = newValue
+            ui.presentedDetailsOffset = newValue
         }
-        return value
     }
-    
-    // Resolves which detent to snap to from gesture velocity + translation,
-    private func nextDetent(for value: DragGesture.Value, commitTranslation: CGFloat) -> CGFloat {
-        let velocity = value.velocity.height          // pts/sec, + = down, - = up
-        let translation = value.translation.height - commitTranslation
-        let velocityThreshold: CGFloat = 250          // a "flick"
-        let distanceThreshold: CGFloat = 100          // a deliberate drag
 
-        var willOpen = ui.detailsOpen
-        if abs(velocity) > velocityThreshold {
-            willOpen = velocity < 0
-        } else if ui.detailsOpen, translation > distanceThreshold {
-            willOpen = false
-        } else if !ui.detailsOpen, translation < -distanceThreshold {
-            willOpen = true
-        }
-        return willOpen ? ui.detailsOpenOffset : ui.detailsClosedOffset
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(0.97 + 0.03 * ui.progress(for: offset), anchor: .top)
+            .offset(y: offset)
     }
-    
-    
-    //Details open from 0% to 100%. Many transition occur from 0% (start) to 100% (end) needed at same rate.
-    //Function takes start and end value of transition, and make it transition at same rate as % details drag done.
-    //impactStart/impactEnd restrict the transition to a sub-range of the drag progress (e.g. 0.5...1 = last 50%).
-    func interpolate(from start: CGFloat = 0, to end: CGFloat, impactStart: CGFloat = 0, impactEnd: CGFloat = 1) -> CGFloat {
-        let denom = abs(ui.detailsOpenOffset - ui.detailsClosedOffset)
-        guard denom > 0.0001 else { return start }
-        let progress = min(max(abs(ui.detailsOffset - ui.detailsClosedOffset) / denom, 0), 1)
-        let span = impactEnd - impactStart
-        guard span > 0.0001 else { return progress >= impactEnd ? end : start }
-        let t = min(max((progress - impactStart) / span, 0), 1)
-        return start + (end - start) * t
+}
+
+//Header (title + image) slides up as the card opens.
+struct ProfileHeaderDragEffect: ViewModifier {
+    var ui: ProfileUIState
+    func body(content: Content) -> some View {
+        content.offset(y: ui.interpolate(from: 0, to: -90))
+    }
+}
+
+//Opacity tied to drag progress over a sub-range.
+struct DetailsFadeEffect: ViewModifier {
+    var ui: ProfileUIState
+    let from: CGFloat
+    let to: CGFloat
+    var impactStart: CGFloat = 0
+    var impactEnd: CGFloat = 1
+    func body(content: Content) -> some View {
+        content.opacity(ui.interpolate(from: from, to: to, impactStart: impactStart, impactEnd: impactEnd))
+    }
+}
+
+//Invite button drops toward the bottom edge as details open.
+struct InviteButtonDragEffect: ViewModifier {
+    var ui: ProfileUIState
+    func body(content: Content) -> some View {
+        content.offset(y: ui.interpolate(from: 0, to: 144))
+    }
+}
+
+//Whole-profile slide for the pull-to-dismiss drag.
+struct ProfileDismissDragEffect: ViewModifier {
+    var ui: ProfileUIState
+    let enabled: Bool
+    func body(content: Content) -> some View {
+        content.offset(y: enabled ? ui.profileOffset : 0)
     }
 }

@@ -55,7 +55,10 @@ extension ProfileView {
             InviteButton(isInviting: vm.viewProfileType == .invite, morphId: vm.profile.id) { ui.showPopup.toggle() }
                 .opacity(ui.showPopup || ui.morphInviteId == vm.profile.id ? 0 : 1)
                 .padding(.horizontal, 24)
-                .padding(.bottom, interpolate(from: 144, to: 0)) //144
+                //Rest at 144, drop to the edge as details open. Offset, not padding,
+                //so the drag never triggers a layout pass.
+                .padding(.bottom, 144)
+                .modifier(InviteButtonDragEffect(ui: ui))
         }
     }
 
@@ -123,7 +126,7 @@ extension ProfileView {
         let target = geo.size.height + geo.safeAreaInsets.bottom + geo.safeAreaInsets.top + 100
         let signedDistance = target - ui.profileOffset
         let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
-        let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
+        let spring = Animation.fluidSpring(response: 0.45, dampingRatio: 1.0, relativeVelocity: initialV)
 
         ui.isDismissing = true
         withAnimation(spring) { onDismissStart?() }
@@ -138,7 +141,7 @@ extension ProfileView {
     func animateSnapBack(releaseVelocity: CGFloat) {
         let signedDistance = -ui.profileOffset
         let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
-        let spring = Animation.interpolatingSpring(mass: 1.2, stiffness: 240, damping: 26, initialVelocity: initialV)
+        let spring = Animation.fluidSpring(response: 0.45, dampingRatio: 1.0, relativeVelocity: initialV)
         withAnimation(spring) { ui.profileOffset = 0 }
     }
     

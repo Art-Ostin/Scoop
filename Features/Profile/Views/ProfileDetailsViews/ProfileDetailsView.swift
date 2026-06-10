@@ -37,8 +37,10 @@ struct ProfileDetailsView: View {
             .onTapGesture { toggleDetails() }
         }
         .scrollPosition($scrollPosition)
-        .onScrollPhaseChange { oldPhase, newPhase in
-            ui.touchingScrollView = newPhase == .tracking || newPhase == .interacting
+        .onChange(of: ui.isDraggingDetails) { _, dragging in
+            //Pin any in-flight top bounce when the card takes over the gesture, so
+            //content doesn't sit frozen mid-bounce while the card moves.
+            if dragging { scrollPosition.scrollTo(edge: .top) }
         }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y

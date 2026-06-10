@@ -30,6 +30,5 @@ struct EventImageCard: View {
                 .fill(Color.appCanvas)
                 .eventCardShadowBackground()
         )
-        .stroke(16, lineWidth: 1, color: Color(white: 0.93))
     }
 }

@@ -87,29 +87,4 @@ extension ProfileCard {
 extension ProfileCard {
 
     fileprivate static let cardSpace = "ProfileCard.card"
-
-    // Blurred copy of the image, masked to a feathered rounded-rect that
-    // tracks the text's frame — gives a soft halo of blur only behind the text.
-    private func backgroundBlur(isDetails: Bool) -> some View {
-        Image(uiImage: displayImage)
-            .resizable()
-            .scaledToFill()
-            .frame(width: max(size, 0), height: max(size, 0))
-            .blur(radius: 22)
-            .mask(detailsBlurMask(isDetails: isDetails))
-            .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius))
-            .allowsHitTesting(false)
-    }
-
-    private func detailsBlurMask(isDetails: Bool) -> some View {
-        let padX: CGFloat = 4
-        let padY: CGFloat = 2
-        let feather: CGFloat = 4
-        let rect = isDetails ? detailsFrame.insetBy(dx: -padX, dy: -padY) : nameFrame.insetBy(dx: -padX, dy: -padY)
-        return RoundedRectangle(cornerRadius: 12)
-            .frame(width: max(rect.width, 0), height: max(rect.height, 0))
-            .position(x: rect.midX, y: rect.midY)
-            .blur(radius: feather)
-            .opacity(detailsFrame == .zero ? 0 : 1)
-    }
 }
