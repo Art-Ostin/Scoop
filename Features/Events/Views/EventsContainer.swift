@@ -23,6 +23,8 @@ struct EventsContainer: View {
     
     @State private var scrollProgress: Double = 0
     @State private var showInlineTitle = false
+    
+    @State var userImage: UIImage? = nil
 
     var body: some View {
         ZStack {
@@ -33,11 +35,12 @@ struct EventsContainer: View {
             if let profile = ui.selectedProfile {profileView(profile: profile)}
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
-        .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 16)
+        .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 20) //16 padding, /4 inside padding on card
         .hideTabBar(hideBar: !path.isEmpty)
         .onChange(of: showMessageScreen) { _, newValue in
             handleDeepLink(eventId: newValue)
         }
+        .task {userImage = try? await vm.fetchUserImage() }
     }
 }
 
@@ -72,7 +75,7 @@ extension EventsContainer {
         .toolbarBackground(showInlineTitle ? .visible : .hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text("Meeting")
+                Text("Events")
                     .font(.title(17, .semibold))
                     .opacity(showInlineTitle ? 1 : 0)
             }
@@ -83,7 +86,7 @@ extension EventsContainer {
     private func eventPage(_ eventProfile: EventProfile) -> some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 24) {
-                Text("Meeting")
+                Text("Events")
                     .font(.title(32, .bold))
                     .opacity(showInlineTitle ? 0 : 1)
                 eventSlot(eventProfile)
@@ -105,9 +108,14 @@ extension EventsContainer {
         }
     }
 
+    @ViewBuilder
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
-            EventSlotContainer(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, zoomNS: zoomNS) { openMaps(eventProfile)}
-                .task{await loadProfileImages(eventProfile.profile)}
+        if let userImage {
+            EventSlot(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, zoomNS: zoomNS, userImage: userImage) {
+                openMaps(eventProfile)
+            }
+                    .task{await loadProfileImages(eventProfile.profile)}
+        }
     }
 }
 

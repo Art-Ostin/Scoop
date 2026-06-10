@@ -32,6 +32,11 @@ import FirebaseFirestore
     }
 
     var events: [EventProfile] { session.events}
+    
+    
+    func fetchUserImage() async throws -> UIImage? {
+        try await imageLoader.fetchFirstImage(profile: session.user)
+    }
 
     func event(id: String?) -> EventProfile? {
         guard let id else { return nil }

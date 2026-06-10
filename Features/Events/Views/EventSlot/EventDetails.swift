@@ -13,6 +13,8 @@ struct EventDetails: View {
     let message: String?
     let time: Date
     let place: EventLocation
+    
+    let openMaps: () -> ()
         
     var body: some View {
         VStack(spacing: 18) {
@@ -51,14 +53,32 @@ extension EventDetails {
         .frame(width: 20, alignment: .leading)
     }
     
+    @ViewBuilder
     private func detailText(title: String, mainText: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.body(12, .medium))
-                .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
-            
-            Text(mainText)
-                .font(.body(17, .bold))
+
+        if title == "WHERE" {
+            Button {
+                openMaps()
+            } label: {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(title)
+                        .font(.body(12, .medium))
+                        .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
+                    
+                    Text(mainText)
+                        .font(.body(17, .bold))
+                        .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
+                }
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.body(12, .medium))
+                    .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
+                
+                Text(mainText)
+                    .font(.body(17, .bold))
+            }
         }
     }
     
@@ -85,8 +105,3 @@ struct DetailsBackground: ViewModifier {
             .eventCardShadowBackground()
     }
 }
-/*
- .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
- .shadow(color: .black.opacity(0.03), radius: 12, x: 0, y: 0)
-
- */

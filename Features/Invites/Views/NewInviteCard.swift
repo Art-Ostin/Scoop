@@ -16,7 +16,7 @@ struct NewInviteCard: View {
     let onRespond: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             profileImage
             eventInfo
         }
@@ -39,9 +39,11 @@ extension NewInviteCard {
     }
     
     private var eventInfo: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            eventTitle
-            eventType
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
+                eventTitle
+                eventType
+            }
             eventTime
             eventPlace
         }

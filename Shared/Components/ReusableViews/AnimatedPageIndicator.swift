@@ -25,7 +25,7 @@ struct AnimatedPageIndicator: View {
                 let height = dotSize * shrink
 
                 Capsule()
-                    .fill(Color.secondary.opacity(0.25))
+                    .fill(Color.grayPlaceholder)
                     .overlay(
                         Capsule().fill(.primary).opacity(closeness)
                     )

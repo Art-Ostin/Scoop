@@ -24,10 +24,8 @@ struct EventInfo: View {
             Text("How it Works")
                 .font(.system(size: 24, weight: .medium, design: .serif))
             
-            VStack(spacing: 12) {
-                scrollSection
-                AnimatedPageIndicator(count: EventInfoData.allCases.count, progress: scrollProgress)
-            }
+            scrollSection
+            AnimatedPageIndicator(count: EventInfoData.allCases.count, progress: scrollProgress)
         }
     }
 }
@@ -36,7 +34,7 @@ extension EventInfo {
     
     var scrollSection: some View {
         ScrollView(.horizontal) {
-            HStack {
+            HStack(spacing: 0) {
                 ForEach(EventInfoData.allCases, id: \.self) { infoType in
                     eventInfoSlot(type: infoType)
                 }
@@ -44,6 +42,7 @@ extension EventInfo {
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging) // Makes scroll view snap to each place.
+        .padding(.horizontal, -16) // Negates parent's 16pt inset so carousel is full-bleed
         .onScrollGeometryChange(for: Double.self) { geo in
             let width = geo.containerSize.width
             return width > 0 ? geo.contentOffset.x / width : 0
@@ -53,15 +52,16 @@ extension EventInfo {
     }
     
     private func eventInfoSlot(type: EventInfoData) -> some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 36) {
             Image(type.image)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 250, height: 250)
             Text(type.text(location: location, eventTime: eventTime, otherUserName: otherUserName, eventType: evenType))
-                .font(.body(15, .medium))
+                .font(.body(17, .medium))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+                .padding(.horizontal, 24)
         }
         .containerRelativeFrame(.horizontal)
     }

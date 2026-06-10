@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EventImageView: View {
+struct EventImage: View {
     
     @Bindable var ui: EventUIState
     
@@ -18,19 +18,23 @@ struct EventImageView: View {
     var body: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
-            .defaultImage(imageSize)
+            .scaledToFill()
+            .frame(width: max(imageSize, 0), height: max(imageSize, 0))
+            .clipShape(
+                UnevenRoundedRectangle(topLeadingRadius: 14, bottomLeadingRadius: 10, bottomTrailingRadius: 10, topTrailingRadius: 14)
+            )
             .contentShape(Rectangle())
             .onTapGesture {openProfile()}
             .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) { nameOverlay}
-            .coordinateSpace(name: EventImageView.cardSpace)
+            .coordinateSpace(name: EventImage.cardSpace)
             .onPreferenceChange(EventNameFrameKey.self) {namePosition = $0}
     }
     
     private var nameOverlay: some View {
-        Text(eventProfile.profile.name)
+        Text("Meeting \(eventProfile.profile.name)")
             .font(.body(24, .bold))
-            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImageView.cardSpace)) }
+            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImage.cardSpace)) }
             .padding(.vertical)
             .padding(.horizontal)
             .foregroundStyle(.white)
@@ -44,7 +48,7 @@ struct EventImageView: View {
 }
 
 //Logic dealing with the background Blur
-extension EventImageView {
+extension EventImage {
     fileprivate static let cardSpace = "ProfileCard.card"
     
     private var backgroundBlur: some View {

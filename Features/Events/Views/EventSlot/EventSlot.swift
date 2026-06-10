@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EventSlotContainer: View {
+struct EventSlot: View {
     
     @State private var disableMap: Bool = true
     @State private var mapEnabledAt: Date?
@@ -16,13 +16,13 @@ struct EventSlotContainer: View {
     let eventProfile: EventProfile
     let imageSize: CGFloat
     let zoomNS: Namespace.ID
-    
+    let userImage: UIImage
+
     let openMaps: () -> ()
     
     var body: some View {
         VStack(spacing: 32) {
-            EventImageView(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
-            clockView
+            eventImageCard
             eventDetailsContainer
             EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             eventDivider
@@ -33,13 +33,21 @@ struct EventSlotContainer: View {
 }
 
 // Different Views
-extension EventSlotContainer {
+extension EventSlot {
     
-    private var clockView: some View {
-        eventProfile.event.acceptedTime.map {
-            EventClock(targetTime: $0)
+    @ViewBuilder
+    private var eventImageCard: some View {
+        eventProfile.event.acceptedTime.map { targetTime in
+            EventImageCard(
+                ui: ui,
+                eventProfile: eventProfile,
+                imageSize: imageSize,
+                userImage: userImage,
+                targetTime: targetTime
+            )
         }
     }
+    
     
     @ViewBuilder
     private var eventInfoSection: some View {
@@ -57,7 +65,8 @@ extension EventSlotContainer {
                 type: event.type,
                 message: event.message,
                 time: acceptedTime,
-                place: event.location
+                place: event.location,
+                openMaps: openMaps
             )
                 .dimWhenMapActive($disableMap)
         }
@@ -87,7 +96,7 @@ extension EventSlotContainer {
 }
 
 //Views Buttons
-extension EventSlotContainer {
+extension EventSlot {
     
     
     private var messageButton: some View {
@@ -123,8 +132,8 @@ extension View {
             .background (
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.appCanvas)
-                    .shadow(color: .black.opacity(0.025), radius: 4, x: 0, y: 1)
-                    .shadow(color: .black.opacity(0.015), radius: 12, x: 0, y: 0)
+                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.025), radius: 4, x: 0, y: 1)
+                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.015), radius: 12, x: 0, y: 0)
             )
     }
     
@@ -158,5 +167,13 @@ extension View {
      }
      .frame(maxWidth: .infinity, alignment: .leading)
  }
+ 
+ 
+ private var clockView: some View {
+     eventProfile.event.acceptedTime.map {
+         EventClock(targetTime: $0)
+     }
+ }
+
 
  */

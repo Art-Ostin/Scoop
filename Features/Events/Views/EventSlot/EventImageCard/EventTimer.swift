@@ -8,12 +8,54 @@
 
 import SwiftUI
 
-struct EventClock: View {
+struct EventTimer: View {
+    
+    let userImage: UIImage
+    let profileImage: UIImage
     
     let targetTime: Date
     
     var body: some View {
         
+        HStack(spacing: 24) {
+            
+            photoOverlap
+            
+            clockView
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 20)
+    }
+}
+
+
+
+extension EventTimer {    
+    var photoOverlap: some View {
+        ZStack(alignment: .topLeading) {
+            circlePhoto(image: userImage)        // back photo
+
+            circlePhoto(image: profileImage)       // front photo, overlaps
+                .offset(x: 16, y: 14)
+        }
+        .frame(width: 60, height: 56, alignment: .topLeading)
+    }
+
+    
+    func circlePhoto(image: UIImage) -> some View {
+        CirclePhoto(image: image, showShadow: false, height: 38)
+            .stroke(100, lineWidth: 1.5, color: Color.appCanvas)
+    }
+    
+}
+
+
+
+
+//All Logic for the clock
+extension EventTimer {
+    
+    private var clockView: some View {
         CountdownTimer(targetTime: targetTime) { timeRemaining in
             let days = timeRemaining.day ?? 0
             let hours = timeRemaining.hour ?? 0
@@ -29,17 +71,13 @@ struct EventClock: View {
                 divider
                 timeSection(time: seconds, type: "SEC")
             }
-            .modifier(ClockBackground())
-            .overlay(alignment: .topLeading) {startsInView}
         }
     }
-}
-
-extension EventClock {
+    
     private func timeSection(time: Int, type: String) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 0) {
             Text("\(time)")
-                .font(.custom("SFProRounded-Semibold", size: 30))
+                .font(.custom("SFProRounded-Semibold", size: 26))
                 .monospacedDigit()
                 .contentTransition(.numericText(countsDown: true))
                 .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
@@ -48,7 +86,7 @@ extension EventClock {
                 .foregroundStyle(Color(white: 0.8))
                 .font(.custom("SFProRounded-Medium", size: 12))
         }
-        .frame(width: 40, height: 21)
+        .frame(width: 35, height: 21)
     }
     
     private var divider: some View {
@@ -57,22 +95,6 @@ extension EventClock {
             .frame(width: 1, height: 14.5)
             .offset(y: -4)
             .frame(maxWidth: .infinity)
-    }
-    
-    private var startsInView: some View {
-        Text("Starts in")
-            .eventTextOverlay()
-    }
-}
-
-struct ClockBackground: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(.vertical, 32)
-            .padding(.horizontal, 32)
-            .frame(maxWidth: .infinity)
-            .stroke(16, lineWidth: 1, color: .accent)
-            .eventCardShadowBackground()
     }
 }
 
