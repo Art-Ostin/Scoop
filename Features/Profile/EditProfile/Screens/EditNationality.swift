@@ -321,7 +321,7 @@ extension Array where Element == String {
 
 extension View {
     @ViewBuilder
-    func glassRectangle() -> some View {
+    func glassRectangle(radius: CGFloat = 36) -> some View {
         if #available(iOS 26.0, *) {
             self.glassEffect(in: .rect(cornerRadius: 36))
         } else {

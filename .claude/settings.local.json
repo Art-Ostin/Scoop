@@ -76,7 +76,9 @@
       "Bash(awk ' *)",
       "Bash(find . -name \"*.swift\" -not -path \"./.git/*\" -exec cat {} +)",
       "Bash(ssh -T git@github.com)",
-      "Bash(ssh-add -l)"
+      "Bash(ssh-add -l)",
+      "Bash(grep -rn \"hoverButton\" /Users/napoleon/Documents --include=\"*.swift\" -l 2>/dev/null | grep -v Scoop/Features | head; echo \"===\"; grep -rn \"func hoverButton\" /Users/napoleon/Documents/Scoop/Shared 2>/dev/null)",
+      "Bash(xcodebuild -scheme Scoop -destination 'generic/platform=iOS Simulator' -configuration Debug build)"
     ]
   }
 }

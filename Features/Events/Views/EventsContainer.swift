@@ -71,6 +71,7 @@ extension EventsContainer {
         .scrollPosition(id: $ui.selectedEventId)
         .scrollIndicators(.hidden)
         .colorBackground()
+        .overlay(alignment: .bottomTrailing) { messageOverlay }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(showInlineTitle ? .visible : .hidden, for: .navigationBar)
         .toolbar {
@@ -111,10 +112,28 @@ extension EventsContainer {
     @ViewBuilder
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
         if let userImage {
-            EventSlot(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, zoomNS: zoomNS, userImage: userImage) {
+            EventSlot(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, userImage: userImage) {
                 openMaps(eventProfile)
             }
                     .task{await loadProfileImages(eventProfile.profile)}
+        }
+    }
+
+    //Floats above the current event page and zooms into its chat
+    @ViewBuilder
+    private var messageOverlay: some View {
+        if let eventProfile = currentProfile {
+            NavigationLink(value: eventProfile) {
+                Image("NewMessageIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                    .padding(10)
+                    .expandHitArea(24)
+            }
+            .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
+            .padding(.bottom, 96)
+            .padding(.horizontal, 24)
         }
     }
 }

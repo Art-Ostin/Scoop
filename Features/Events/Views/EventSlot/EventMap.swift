@@ -19,6 +19,7 @@ struct EventMap: View {
             EventMapView(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             locationInfo
         }
+        .padding([.horizontal, .top], 4)
         .padding(.bottom, 16)
         .stroke(16, lineWidth: disableMap ? 1 : 0, color: Color.grayBackground)
         .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
@@ -54,6 +55,7 @@ extension EventMap {
                 .foregroundStyle(Color(white: 0.12))
             
             if let category = location.mapItem.pointOfInterestCategory {
+                
             }
             
             Text(location.address ?? "")

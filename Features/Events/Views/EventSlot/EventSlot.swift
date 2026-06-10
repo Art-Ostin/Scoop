@@ -15,15 +15,15 @@ struct EventSlot: View {
     @Bindable var ui: EventUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
-    let zoomNS: Namespace.ID
     let userImage: UIImage
 
     let openMaps: () -> ()
     
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 36) {
             eventImageCard
             eventDetailsContainer
+                .padding(.top, 4)//Looks more natural as detailTitle pokes up a top.
             EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             eventDivider
             eventInfoSection
@@ -95,28 +95,6 @@ extension EventSlot {
     }
 }
 
-//Views Buttons
-extension EventSlot {
-    
-    
-    private var messageButton: some View {
-        NavigationLink(value: eventProfile) {
-            Image("NewMessageIcon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 22, height: 22)
-                .font(.body(17, .bold))
-                .padding(10)
-//                            .hoverButton()
-                .opacity(disableMap ? 1 : 0.5)
-                .expandHitArea(24)
-//                            .padding(.bottom, 96)
-//                            .padding(.horizontal, 24)
-        }
-        .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
-    }
-}
-
 extension View {
     
     func dimWhenMapActive(_ disableMap: Binding<Bool>) -> some View {
@@ -130,10 +108,11 @@ extension View {
     func eventCardShadowBackground() -> some View {
         self
             .background (
+                
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.appCanvas)
-                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.025), radius: 4, x: 0, y: 1)
-                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.015), radius: 12, x: 0, y: 0)
+                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.0125), radius: 4, x: 0, y: 1)
+                    .shadow(color: Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.0075), radius: 12, x: 0, y: 0)
             )
     }
     

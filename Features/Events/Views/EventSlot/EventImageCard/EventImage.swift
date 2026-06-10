@@ -64,7 +64,7 @@ extension EventImage {
     
     private var nameBlurMask: some View {
         let padX: CGFloat = 4
-        let padY: CGFloat = 2
+        let padY: CGFloat = -4
         let feather: CGFloat = 4
         let rect = namePosition.insetBy(dx: -padX, dy: -padY)
         return RoundedRectangle(cornerRadius: 8)

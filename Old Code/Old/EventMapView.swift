@@ -50,8 +50,8 @@ struct EventMapView: View {
         .tint(.blue)
         .clipShape(UnevenRoundedRectangle(
                 topLeadingRadius: 16,
-                bottomLeadingRadius: 0,
-                bottomTrailingRadius: 0,
+                bottomLeadingRadius: 8,
+                bottomTrailingRadius: 8,
                 topTrailingRadius: 16))
         .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .frame(width: max(imageSize, 0), height: max(mapHeight, 0))
