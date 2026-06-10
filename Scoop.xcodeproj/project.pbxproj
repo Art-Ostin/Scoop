@@ -138,6 +138,7 @@
 		657486DC2FA8D5D000F38738 /* TimeAndPlaceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DB2FA8D5D000F38738 /* TimeAndPlaceCard.swift */; };
 		657486DE2FA8F80900F38738 /* TimeAndPlaceConstructors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DD2FA8F80900F38738 /* TimeAndPlaceConstructors.swift */; };
 		65761E3A2FD9C5B9007CA835 /* EventDetailsHowItWorks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */; };
+		65761E3C2FD9DC1A007CA835 /* BackgroundBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */; };
 		6576831E2F5910C20094A02D /* ChatScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831D2F5910C20094A02D /* ChatScrollView.swift */; };
 		657683202F59111C0094A02D /* TypeMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831F2F59111C0094A02D /* TypeMessageView.swift */; };
 		657683222F5913F70094A02D /* ChatDayDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657683212F5913F70094A02D /* ChatDayDivider.swift */; };
@@ -431,6 +432,7 @@
 		657486DB2FA8D5D000F38738 /* TimeAndPlaceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceCard.swift; sourceTree = "<group>"; };
 		657486DD2FA8F80900F38738 /* TimeAndPlaceConstructors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceConstructors.swift; sourceTree = "<group>"; };
 		65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsHowItWorks.swift; sourceTree = "<group>"; };
+		65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundBlur.swift; sourceTree = "<group>"; };
 		6576831D2F5910C20094A02D /* ChatScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScrollView.swift; sourceTree = "<group>"; };
 		6576831F2F59111C0094A02D /* TypeMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeMessageView.swift; sourceTree = "<group>"; };
 		657683212F5913F70094A02D /* ChatDayDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatDayDivider.swift; sourceTree = "<group>"; };
@@ -681,6 +683,7 @@
 			isa = PBXGroup;
 			children = (
 				65F704512F6EDF5D00CE29C5 /* CardBackground.swift */,
+				65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */,
 				65B059572EE4CF0F00427B95 /* CustomModifier.swift */,
 				65A070572EE09F85009F798B /* CustomViewModifiers.swift */,
 				65A070592EE09F85009F798B /* ShadowModifiers.swift */,
@@ -1983,6 +1986,7 @@
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
 				655D92DC2F6B358E00A99685 /* CustomDivider.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */,
+				65761E3C2FD9DC1A007CA835 /* BackgroundBlur.swift in Sources */,
 				65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */,
 				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */,

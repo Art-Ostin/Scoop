@@ -82,7 +82,9 @@
       "Bash(cd /Users/napoleon/Documents/Scoop; xcodebuild -project Scoop.xcodeproj -scheme \"Scoop Test\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"EXIT: $?\")",
       "Bash(awk '/Schemes:/{f=1} f')",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build)",
-      "Bash(SDK=\"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk\"; IFACE=\"$SDK/System/Library/Frameworks/SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface\"; echo \"=== AnyTransition struct + inits ===\"; grep -nE \"struct AnyTransition|extension SwiftUICore.AnyTransition|public init\" \"$IFACE\" | grep -iE \"anytransition|init\" | sed -n '1,30p'; echo \"=== init taking Transition ===\"; awk 'NR>=16040 && NR<=16080' \"$IFACE\")"
+      "Bash(SDK=\"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk\"; IFACE=\"$SDK/System/Library/Frameworks/SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface\"; echo \"=== AnyTransition struct + inits ===\"; grep -nE \"struct AnyTransition|extension SwiftUICore.AnyTransition|public init\" \"$IFACE\" | grep -iE \"anytransition|init\" | sed -n '1,30p'; echo \"=== init taking Transition ===\"; awk 'NR>=16040 && NR<=16080' \"$IFACE\")",
+      "Bash(xcodebuild -scheme \"Scoop Test\" -project Scoop.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -configuration Debug build)",
+      "Bash(xcodebuild -scheme \"Scoop\" -project Scoop.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -configuration Debug build)"
     ]
   }
 }

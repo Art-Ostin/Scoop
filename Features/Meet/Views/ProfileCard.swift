@@ -29,8 +29,9 @@ struct ProfileCard : View {
         Image(uiImage: displayImage)
             .resizable()
             .defaultImage(size, cardCornerRadius)
-            .overlay { backgroundBlur(isDetails: true) }
-            .overlay { backgroundBlur(isDetails: false) }
+            .overlay {
+                BackgroundBlur(image: displayImage, size: size, frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
+            }
             .background(
                 RoundedRectangle(cornerRadius: cardCornerRadius)
                     .fill(Color.appCanvas)

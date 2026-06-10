@@ -43,6 +43,7 @@ struct EventImage: View {
     private func openProfile() {
         if ui.selectedProfile == nil {
             ui.selectedProfile = eventProfile.profile
+            ui.hideTabForProfile = true
         }
     }
 }
