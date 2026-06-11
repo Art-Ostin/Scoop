@@ -11,8 +11,8 @@ enum ProfileTitleStyle { case base, overlay }
 
 extension ProfileView {
 
-    func profileTitle(geo: GeometryProxy) -> some View {
-        titleBar(style: .base, onDismiss: { dismissProfile(using: geo) })
+    func profileTitle() -> some View {
+        titleBar(style: .base, onDismiss: dismissProfile)
     }
 
     func overlayTitle(onDismiss: @escaping () -> Void) -> some View {
@@ -38,7 +38,7 @@ extension ProfileView {
                             .foregroundStyle(Color.white)
                     }
                 } else {
-                    profileDismissButton
+                    profileDismissButton(onDismiss: onDismiss)
                 }
             }
         }
@@ -118,39 +118,65 @@ extension ProfileView {
         }
     }
     
-    func dismissProfile(using geo: GeometryProxy) {
-        animateDismiss(using: geo, releaseVelocity: 0)
+    func dismissProfile() {
+        animateDismiss(releaseVelocity: 0)
     }
 
-    func animateDismiss(using geo: GeometryProxy, releaseVelocity: CGFloat) {
-        let target = geo.size.height + geo.safeAreaInsets.bottom + geo.safeAreaInsets.top + 100
-        let signedDistance = target - ui.profileOffset
-        let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
+    //Reverse zoom with native release physics. beginZoomClose snapshots the
+    //details header shift (so the math targets where the pager is actually drawn),
+    //then a velocity-carrying spring drives closeProgress to 1:
+    //ProfileZoomDismissModifier lerps the surface from wherever the drag left it
+    //onto the source card — scale, clip, corner radius, shadow and dim converge in
+    //the same spring, cross-dissolving into the real source at the end. Button
+    //taps run the identical spring from zero velocity.
+    func animateDismiss(releaseVelocity: CGFloat) {
+        //No morph host: only the own-profile preview, which never dismisses — tear
+        //down directly if a dismiss ever fires there.
+        guard let morph else { onDismissStart?(); onDismiss?(); return }
+        guard morph.canMorphClose else { animateSnapBack(releaseVelocity: releaseVelocity); return }
+        morph.beginZoomClose(pagerVisualShift: ui.interpolate(from: 0, to: -90))
+        //Normalize the finger's pixel velocity into closeProgress units over the
+        //remaining travel, so released momentum carries into the spring.
+        let travel = morph.closeTravel(currentDrag: ui.profileOffset)
+        let initialV: CGFloat = abs(travel) > 1 ? releaseVelocity / travel : 0
         let spring = Animation.fluidSpring(response: 0.45, dampingRatio: 1.0, relativeVelocity: initialV)
-
-        ui.isDismissing = true
-        withAnimation(spring) { onDismissStart?() }
         withAnimation(spring) {
-            ui.profileOffset = target
+            onDismissStart?()
+            morph.closeProgress = 1
         } completion: {
             var t = Transaction(); t.disablesAnimations = true
-            withTransaction(t) { onDismiss?() }
+            withTransaction(t) {
+                morph.finishClose()
+                onDismiss?()
+            }
         }
     }
 
+    //Cancelled drag: spring both axes home carrying the release velocity. The
+    //spring interpolates through ZoomDismissRender's animatableData, so the
+    //restoration runs in the same metric space as the drag — no snapping, and a
+    //regrab catches it mid-flight via the presented mirrors.
     func animateSnapBack(releaseVelocity: CGFloat) {
         let signedDistance = -ui.profileOffset
         let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
-        let spring = Animation.fluidSpring(response: 0.45, dampingRatio: 1.0, relativeVelocity: initialV)
-        withAnimation(spring) { ui.profileOffset = 0 }
+        let spring = Animation.fluidSpring(response: 0.42, dampingRatio: 1.0, relativeVelocity: initialV)
+        withAnimation(spring) {
+            ui.profileOffset = 0
+            ui.profileOffsetX = 0
+        } completion: {
+            //A regrab that caught the snap-back makes this completion stale — the
+            //pager stays locked until the new gesture resolves.
+            guard ui.dragType != .dismiss else { return }
+            ui.isDismissDragging = false
+        }
     }
     
 
-    private var profileDismissButton: some View {
+    //Routes through dismissProfile (passed in), so every dismiss path — chevron,
+    //overlay X, drag release — runs the same animated close.
+    private func profileDismissButton(onDismiss: @escaping () -> Void) -> some View {
         Button {
-            if let onDismiss {
-                onDismiss()
-            }
+            onDismiss()
         } label: {
             Image(systemName: "chevron.down")
                 .font(.body(18, .bold))

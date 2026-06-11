@@ -8,12 +8,15 @@
 import SwiftUI
 
 struct NewInviteCard: View {
-    
+
     @State var imageSize: CGFloat = 100
+    @Environment(ProfileMorphState.self) private var profileMorph: ProfileMorphState?
     let eventProfile: EventProfile
     var isMorphing: Bool = false
     @Binding var selectedProfile: UserProfile?
     let onRespond: () -> Void
+
+    private static let imageRadii = RectangleCornerRadii(topLeading: 18, bottomLeading: 13, bottomTrailing: 13, topTrailing: 18)
 
     var body: some View {
         VStack(spacing: 20) {
@@ -29,13 +32,22 @@ struct NewInviteCard: View {
 extension NewInviteCard {
 
     private var profileImage: some View {
-    
+
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
             .scaledToFill()
             .frame(width: imageSize, height: imageSize + 12) //Have slightly long Image
-            .clipShape(UnevenRoundedRectangle(cornerRadii: .init( topLeading: 18, bottomLeading: 13, bottomTrailing: 13, topTrailing: 18)))
-            .onTapGesture {selectedProfile = eventProfile.profile}
+            .clipShape(UnevenRoundedRectangle(cornerRadii: Self.imageRadii))
+            .onTapGesture { openProfile() }
+            //The profile morph flies a copy of this image, so the real one hides
+            //for exactly the frames the copy is on screen.
+            .profileMorphSource(id: eventProfile.profile.id, radii: Self.imageRadii)
+    }
+
+    private func openProfile() {
+        guard selectedProfile == nil else { return }
+        profileMorph?.beginOpen(id: eventProfile.profile.id, image: eventProfile.image)
+        selectedProfile = eventProfile.profile
     }
     
     private var eventInfo: some View {

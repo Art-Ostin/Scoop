@@ -134,9 +134,21 @@ enum ProfileViewType {
     //Cover-mount id for the send-invite morph; outlasts showPopup through the collapse.
     var morphInviteId: String? = nil
 
-    //6. Logic with Profile dismiss
+    //6. Logic with Profile dismiss. The drag is 2D: profileOffset (y) drives the
+    //native-style shrink, profileOffsetX is the damped horizontal follow. The
+    //presented* mirrors track the on-screen values through springs (same pattern
+    //as presentedDetailsOffset) so a regrab catches a snap-back mid-flight.
     var profileOffset: CGFloat = 0
-    var isDismissing: Bool = false
+    var profileOffsetX: CGFloat = 0
+    //True from the moment a drag is classified as a dismiss until it snaps back
+    //(or the profile unmounts). Observed, but flips only twice per gesture — the
+    //pager reads it to pause horizontal scrolling, like the native zoom dismissal
+    //locking the content while the transition owns the surface.
+    var isDismissDragging: Bool = false
+    @ObservationIgnored var presentedProfileOffset: CGFloat = 0
+    @ObservationIgnored var presentedProfileOffsetX: CGFloat = 0
+    @ObservationIgnored var dragBaseX: CGFloat = 0
+    @ObservationIgnored var dragCommitTranslationX: CGFloat = 0
 }
 
 extension Animation {

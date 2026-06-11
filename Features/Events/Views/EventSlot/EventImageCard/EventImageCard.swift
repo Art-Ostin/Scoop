@@ -22,7 +22,7 @@ struct EventImageCard: View {
             
             EventTimer(userImage: userImage, profileImage: eventProfile.image ?? UIImage(), targetTime: targetTime)
         }
-        .padding([.top, .horizontal], 4)
+        .padding([.top, .horizontal], 6)
         .padding(.bottom, 10)
         .frame(maxWidth: .infinity)
         .background(

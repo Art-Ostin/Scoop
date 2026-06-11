@@ -8,20 +8,21 @@
 import SwiftUI
 
 struct EventImage: View {
-    
+
     @Bindable var ui: EventUIState
-    
+    @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
+
     let eventProfile: EventProfile
     let imageSize: CGFloat
     @State var namePosition: CGRect = .zero
-    
+
     var body: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
             .resizable()
             .scaledToFill()
             .frame(width: max(imageSize, 0), height: max(imageSize, 0))
             .clipShape(
-                UnevenRoundedRectangle(topLeadingRadius: 14, bottomLeadingRadius: 10, bottomTrailingRadius: 10, topTrailingRadius: 14)
+                UnevenRoundedRectangle(cornerRadii: ProfileMorphState.cardRadii)
             )
             .contentShape(Rectangle())
             .onTapGesture {openProfile()}
@@ -31,6 +32,9 @@ struct EventImage: View {
             .overlay(alignment: .bottomLeading) { nameOverlay}
             .coordinateSpace(name: EventImage.cardSpace)
             .onPreferenceChange(EventNameFrameKey.self) {namePosition = $0}
+            //The morph flies a copy of this image, so the real one (and its
+            //overlays) hides for exactly the frames the copy is on screen.
+            .profileMorphSource(id: eventProfile.profile.id, radii: ProfileMorphState.cardRadii)
     }
     
     private var nameOverlay: some View {
@@ -43,10 +47,9 @@ struct EventImage: View {
     }
     
     private func openProfile() {
-        if ui.selectedProfile == nil {
-            ui.selectedProfile = eventProfile.profile
-            ui.hideTabForProfile = true
-        }
+        guard ui.selectedProfile == nil else { return }
+        morph?.beginOpen(id: eventProfile.profile.id, image: eventProfile.image)
+        ui.selectedProfile = eventProfile.profile
     }
 }
 

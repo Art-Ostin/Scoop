@@ -24,6 +24,10 @@ struct ChatContainer: View {
 
     //3. Load Profile Images
     @State var profileImages: [UIImage] = []
+
+    //Header circle photo → profile pager hero morph (see ProfileMorph.swift).
+    //Owned here so it shadows any morph injected by a presenting container.
+    @State private var profileMorph = ProfileMorphState()
     
     //4.if ChatContainer for events its different
     let isEvent: Bool
@@ -61,8 +65,12 @@ struct ChatContainer: View {
             .customScrollFade(height: 135, edge: .top, isStrong: true)
             .overlay(alignment: .topTrailing) {profileButton}
 
-            //2. The overlay and structure
-            .overlay { if profileRendered { profileView } }
+            //2. The profile presents above the root TabView (behind it here, the
+            //chat is what's revealed during the zoom dismissal — the bar stays
+            //hidden path-based while a chat is pushed).
+            .profileOverlay(id: profileRendered ? vm.eventProfile.profile.id : nil) {
+                if profileRendered { profileView }
+            }
         
         //4. Code to execute and listen for
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
@@ -76,6 +84,7 @@ struct ChatContainer: View {
         }
         .overlay(alignment: .topLeading) {chatDismissButton }
         .navigationBarBackButtonHidden()
+        .profileMorphHost(profileMorph)
     }
 }
 
@@ -96,8 +105,10 @@ extension ChatContainer {
             onDismissStart: { profileOpen = false }
         )
         .id(vm.eventProfile.profile.id)
-        .zIndex(1)
-        .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .identity))
+        //Cross-fades in the same 0.3s transaction as the circle-photo flight.
+        .opacity(profileMorph.contentOpacity)
+        //Rendered at the app root, outside this container's environment.
+        .environment(profileMorph)
     }
         
     private func messageAppearCode() {
@@ -112,16 +123,13 @@ extension ChatContainer {
     }
     
     
-    //See if I can simplify this
     private func onProfileTap () {
-        var t = Transaction(animation: .spring(duration: 0.2, bounce: 0.1))
-        t.disablesAnimations = false
-        withTransaction(t) {
-            profileRendered = true
-            profileOpen = true
-        }
+        guard !profileRendered else { return }
+        profileMorph.beginOpen(id: vm.eventProfile.profile.id, image: profileImages.first)
+        profileRendered = true
+        profileOpen = true
     }
-    
+
     private var profileButton: some View {
         ScoopButton(shape: .rect(cornerRadius: 24)) {
             onProfileTap()
@@ -129,7 +137,10 @@ extension ChatContainer {
             HStack(spacing: 6) {
                 CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
                     .scaleEffect(0.9)
-                
+                    //Flight source. The circle is drawn at 0.9 scale, which geometry
+                    //can't see — visualScale shrinks the reported frame to match.
+                    .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: 35 / 2, visualScale: 0.9)
+
                 Text(vm.eventProfile.profile.name)
                     .font(.body(16, .bold))
                     .foregroundStyle(Color.black)

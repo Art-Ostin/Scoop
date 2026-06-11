@@ -20,6 +20,9 @@ struct MeetContainer: View {
     // so the alert can be presented full-screen above the (frame-clamped) morph card.
     @State private var morphInviteId: String?
     @State private var pendingInvite: (() -> Void)?
+
+    //Card image → profile pager hero morph (see ProfileMorph.swift)
+    @State private var profileMorph = ProfileMorphState()
     
     //Logic for showing
     @State private var isAtTopOfScroll = true
@@ -38,9 +41,16 @@ struct MeetContainer: View {
                 InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
             }
 
-            if let profileRec = ui.openProfile { profileView(profile: profileRec) }
-
-            if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
+        }
+        .profileMorphHost(profileMorph)
+        //Both present above the root TabView: the real tab bar sits behind the
+        //profile (revealed + dimmed during the zoom dismissal) and the response
+        //cover physically occludes it.
+        .profileOverlay(id: ui.openProfile?.id) {
+            if let profile = ui.openProfile { profileView(profile: profile) }
+        }
+        .profileOverlay(.cover, id: ui.respondedToProfile.map { "\($0)" }) {
+            if let response = ui.respondedToProfile { RespondedToProfileView(response: response) }
         }
         .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil, showsHideButton: true) { id in
             timeAndPlaceView(id)
@@ -72,7 +82,7 @@ extension MeetContainer {
         LazyVStack(spacing: 72) {
             ForEach(vm.profiles) { profile in
                 ProfileCard(
-                    onTap: { openProfile(profile) },
+                    onTap: { image in openProfile(profile, image: image) },
                     onQuickInvite: { ui.quickInvite = profile.profile.id },
                     profile: profile, size: imageSize,
                     imageLoader: vm.imageLoader,
@@ -92,7 +102,7 @@ extension MeetContainer {
                 profile: profile,
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
-            profileImages: vm.profileImages[profile.id] ?? [],
+            profileImages: vm.profileImages[profile.id] ?? seedImages(for: profile),
             mode: .sendInvite(
                 onSend: { draft in
                     Task { await respondToProfile(event: draft, profile: profile) }
@@ -104,8 +114,16 @@ extension MeetContainer {
             onDismiss: { ui.openProfile = nil }
         )
         .id(profile.id)
-        .zIndex(1)
-        .transition(.move(edge: .bottom))
+        //Cross-fades in the same 0.3s transaction as the card image flight.
+        .opacity(profileMorph.contentOpacity)
+        //Rendered at the app root, outside this container's environment.
+        .environment(profileMorph)
+    }
+
+    //If the async profile images haven't landed yet, seed the pager with the card
+    //image so the morph destination exists (and is identical) on frame one.
+    private func seedImages(for profile: UserProfile) -> [UIImage] {
+        vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
     @ViewBuilder private func timeAndPlaceView(_ profileId: String) -> some View {
@@ -125,10 +143,10 @@ extension MeetContainer {
 //Functions
 extension MeetContainer {
     
-    private func openProfile(_ profile: PendingProfile) {
-        if ui.openProfile == nil {
-            ui.openProfile = profile.profile
-        }
+    private func openProfile(_ profile: PendingProfile, image: UIImage) {
+        guard ui.openProfile == nil else { return }
+        profileMorph.beginOpen(id: profile.profile.id, image: image)
+        ui.openProfile = profile.profile
     }
 
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
@@ -139,8 +157,10 @@ extension MeetContainer {
         
         try? await Task.sleep(for: .milliseconds(200)) //Animation is 0.18 seconds so 0.02 buffer
         //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
+        //(programmatic teardown behind the response cover — no flight, just reset)
         ui.openProfile = nil
         ui.quickInvite = nil
+        profileMorph.reset()
         
         //3. Actually send invite or decline profile
         if let event {

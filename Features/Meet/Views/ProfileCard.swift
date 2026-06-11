@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ProfileCard : View {
 
-    let onTap: () -> Void
+    //Hands back the image actually on screen, so the profile morph flies exactly it.
+    let onTap: (UIImage) -> Void
     let onQuickInvite: () -> Void
     let profile: PendingProfile
     let size: CGFloat
@@ -39,11 +40,14 @@ struct ProfileCard : View {
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
             .contentShape(Rectangle())
-            .onTapGesture { onTap() }
+            .onTapGesture { onTap(displayImage) }
             .coordinateSpace(name: ProfileCard.cardSpace)
             .task(id: profile.id) {
                 image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
             }
+            //The profile morph flies a copy of this card image, so the whole card
+            //hides for exactly the frames the copy is on screen.
+            .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
     }
 
     private var displayImage: UIImage {

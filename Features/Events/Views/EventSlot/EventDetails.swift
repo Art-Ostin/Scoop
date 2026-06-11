@@ -117,8 +117,7 @@ extension EventDetails {
             showBack = toBack
         } label: {
             Image(systemName: "info.circle")
-                .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
-//                .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
+                .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
                 .font(.body(14, .medium))
         }
         .growButton()

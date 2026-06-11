@@ -25,18 +25,27 @@ struct EventsContainer: View {
     @State private var showInlineTitle = false
     
     @State var userImage: UIImage? = nil
+    @State private var morph = ProfileMorphState()
 
     var body: some View {
         ZStack {
             NavigationStack(path: $path) {
                 eventsRootView
                     .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
+                    .toolbar {tabTest}
+                
             }
-            if let profile = ui.selectedProfile {profileView(profile: profile)}
+        }
+        //The floating copy of the tapped card image, flying between card and pager.
+        .profileMorphHost(morph)
+        //Presents above the root TabView, so the real tab bar sits behind the
+        //profile — covered while open, revealed + dimmed during the zoom dismissal.
+        .profileOverlay(id: ui.selectedProfile?.id) {
+            if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
-        .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 20) //16 padding, /4 inside padding on card
-        .hideTabBar(hideBar: !path.isEmpty || ui.hideTabForProfile) //Chat: path-based, so it reappears the moment you pop (no flicker). Profile: ui.hideTabForProfile flips off at dismiss-start, matching ProfileView so the bar reappears in sync
+        .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 22) //16 padding, /6 inside padding on card
+        .hideTabBar(hideBar: !path.isEmpty) //Chat: path-based, so it reappears the moment you pop (no flicker)
         .onChange(of: showMessageScreen) { _, newValue in
             handleDeepLink(eventId: newValue)
         }
@@ -158,15 +167,38 @@ extension EventsContainer {
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
             vm:ProfileViewModel(profile: profile, event: vm.event(forProfile: profile.id)?.event, imageLoader: vm.imageLoader, defaults: vm.defaults),
-            profileImages: ui.profileImages[profile.id] ?? [],
+            profileImages: ui.profileImages[profile.id] ?? seedImages(for: profile),
             mode: .viewProfile,
-            onDismiss: { ui.selectedProfile = nil },
-            onDismissStart: { ui.hideTabForProfile = false })
+            onDismiss: { ui.selectedProfile = nil })
         .id(profile.id)
-        .zIndex(1)
-        .transition(.move(edge: .bottom))
+        //Cross-fades in the same 0.3s transaction as the image flight (no slide —
+        //the morphing image is the hero, everything else fades around it).
+        .opacity(morph.contentOpacity)
+        //Rendered at the app root, outside this container's environment.
+        .environment(morph)
+    }
+
+    //If the async profile images haven't landed yet, seed the pager with the tapped
+    //card image so the morph destination exists (and is identical) on frame one.
+    private func seedImages(for profile: UserProfile) -> [UIImage] {
+        vm.event(forProfile: profile.id)?.image.map { [$0] } ?? []
+    }
+    
+    private var tabTest: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            ScoopButton(style: .clearGlass, shape: .rect(cornerRadius: 16)) {
+            } label: {
+                Text("Arthur · 23 May")
+                    .font(.body(15, .bold))
+                    .frame(height: 35)
+                    .padding(.horizontal, 10)
+                    .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
+            }
+        }
+        .hideToolbarBackground()
     }
 }
+
 
 //Functions and Components
 extension EventsContainer {
@@ -187,3 +219,5 @@ extension EventsContainer {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
 }
+
+

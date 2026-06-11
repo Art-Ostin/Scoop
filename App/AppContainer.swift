@@ -11,29 +11,39 @@ struct AppContainer: View {
     @Environment(AppDependencies.self) private var dep
     @Environment(AppRouter.self) private var router
 
+    //Profiles present here, above the TabView, so the real tab bar sits behind
+    //them — covered while open, revealed and dimmed during the zoom dismissal
+    //(see ProfileOverlayPresenter in ProfileMorph.swift).
+    @State private var profileOverlay = ProfileOverlayPresenter()
+
     var body: some View {
         @Bindable var router = router
 
-        Group {
-            if #available(iOS 26.0, *) {
-                TabView(selection: $router.selectedTab) {
-                    Tab("", image: icon(.meet), value: AppTab.meet) { meetView }
-                    Tab("", image: icon(.invites),value: AppTab.invites) { invitesView }
-                    Tab("", image: icon(.events),value: AppTab.events) { eventsView }
-                    Tab("", image: icon(.pastEvents), value: AppTab.pastEvents) { pastEventsView }
-                }
-            } else {
-                CustomTabBarContainerView(selection: $router.selectedTab) { tab in
-                    switch tab {
-                    case .meet:       meetView
-                    case .invites:    invitesView
-                    case .events:     eventsView
-                    case .pastEvents: pastEventsView
+        ZStack {
+            Group {
+                if #available(iOS 26.0, *) {
+                    TabView(selection: $router.selectedTab) {
+                        Tab("", image: icon(.meet), value: AppTab.meet) { meetView }
+                        Tab("", image: icon(.invites),value: AppTab.invites) { invitesView }
+                        Tab("", image: icon(.events),value: AppTab.events) { eventsView }
+                        Tab("", image: icon(.pastEvents), value: AppTab.pastEvents) { pastEventsView }
+                    }
+                } else {
+                    CustomTabBarContainerView(selection: $router.selectedTab) { tab in
+                        switch tab {
+                        case .meet:       meetView
+                        case .invites:    invitesView
+                        case .events:     eventsView
+                        case .pastEvents: pastEventsView
+                        }
                     }
                 }
             }
+
+            ProfileOverlayLayer(presenter: profileOverlay)
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
+        .environment(profileOverlay)
     }
 }
 

@@ -26,13 +26,16 @@ extension ProfileView {
     func profileDrag(geo: GeometryProxy) -> some Gesture {
         DragGesture(minimumDistance: 6, coordinateSpace: .global)
             .onChanged { value in
+                //A committed close owns the surface; new touches wait for the
+                //next presentation so animation states can never conflict.
+                guard morph?.phase != .closing else { return }
                 if ui.dragType == .undecided {
                     let x = value.translation.width
                     let y = value.translation.height
                     guard abs(x) > 6 || abs(y) > 6 else { return }
                     ui.dragType = abs(y) > abs(x) ? classifyVertical(value) : .horizontal
                     if ui.dragType == .details { commitDetailsDrag(value) }
-                    if ui.dragType == .dismiss { ui.dragCommitTranslation = y }
+                    if ui.dragType == .dismiss { commitDismissDrag(value) }
                 }
                 //An open card hands off from scrolling the moment the content tops out
                 //while the finger is still pulling down.
@@ -52,12 +55,18 @@ extension ProfileView {
                     //Non-animated writes bypass animatableData, so keep the mirror exact.
                     ui.presentedDetailsOffset = offset
                 case .dismiss:
-                    ui.profileOffset = max(0, relative)
+                    //Bidirectional, both axes: down drives the shrink, up reverses
+                    //it back to rest; x is the damped native-style side-follow.
+                    ui.profileOffset = max(0, ui.dragBase + relative)
+                    ui.profileOffsetX = ui.dragBaseX + (value.translation.width - ui.dragCommitTranslationX)
+                    ui.presentedProfileOffset = ui.profileOffset
+                    ui.presentedProfileOffsetX = ui.profileOffsetX
                 default:
                     break
                 }
             }
             .onEnded { value in
+                guard morph?.phase != .closing else { ui.dragType = .undecided; return }
                 defer { ui.dragType = .undecided }
                 switch ui.dragType {
                 case .details: endDetailsDrag(value)
@@ -109,11 +118,30 @@ extension ProfileView {
         ui.animateDetails(to: willOpen, velocity: velocity)
     }
 
+    //Snapshot the gesture so the surface continues from exactly where it is on
+    //screen — a regrab catches a snap-back spring mid-flight instead of
+    //teleporting back to rest.
+    private func commitDismissDrag(_ value: DragGesture.Value) {
+        ui.isDismissDragging = true
+        ui.dragCommitTranslation = value.translation.height
+        ui.dragCommitTranslationX = value.translation.width
+        ui.dragBase = ui.presentedProfileOffset
+        ui.dragBaseX = ui.presentedProfileOffsetX
+        var t = Transaction()
+        t.disablesAnimations = true
+        withTransaction(t) {
+            ui.profileOffset = ui.presentedProfileOffset
+            ui.profileOffsetX = ui.presentedProfileOffsetX
+        }
+    }
+
     private func endProfileDrag(_ value: DragGesture.Value, geo: GeometryProxy) {
         let velocity = value.velocity.height
+        //Native completes once the momentum-projected resting point passes about
+        //a third of the screen — a flick projects far past it from a short drag.
         let projected = ui.profileOffset + project(velocity: velocity)
-        if projected > geo.size.height * 0.25 {
-            animateDismiss(using: geo, releaseVelocity: velocity)
+        if projected > geo.size.height * 0.3 {
+            animateDismiss(releaseVelocity: velocity)
         } else {
             animateSnapBack(releaseVelocity: velocity)
         }
@@ -202,14 +230,5 @@ struct InviteButtonDragEffect: ViewModifier {
     var ui: ProfileUIState
     func body(content: Content) -> some View {
         content.offset(y: ui.interpolate(from: 0, to: 144))
-    }
-}
-
-//Whole-profile slide for the pull-to-dismiss drag.
-struct ProfileDismissDragEffect: ViewModifier {
-    var ui: ProfileUIState
-    let enabled: Bool
-    func body(content: Content) -> some View {
-        content.offset(y: enabled ? ui.profileOffset : 0)
     }
 }

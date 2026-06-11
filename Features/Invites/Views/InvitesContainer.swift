@@ -19,13 +19,23 @@ struct InvitesContainer: View {
     // Respond-flow popup state, shared by the morph card (the pager) and its confirm alerts.
     @State private var respondUI = RespondPopupUIState()
 
+    //Invite-card image → profile pager hero morph (see ProfileMorph.swift)
+    @State private var profileMorph = ProfileMorphState()
+
     var body: some View {
         ZStack {
             invitesView
 
-            if let profile = ui.selectedProfile { profileView(profile: profile)}
-
-            if let response = ui.respondedToProfile {RespondedToProfileView(response: response)}
+        }
+        .profileMorphHost(profileMorph)
+        //Both present above the root TabView: the real tab bar sits behind the
+        //profile (revealed + dimmed during the zoom dismissal) and the response
+        //cover physically occludes it.
+        .profileOverlay(id: ui.selectedProfile?.id) {
+            if let profile = ui.selectedProfile { profileView(profile: profile) }
+        }
+        .profileOverlay(.cover, id: ui.respondedToProfile.map { "\($0)" }) {
+            if let response = ui.respondedToProfile { RespondedToProfileView(response: response) }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.easeInOut(duration: 0.25), value: ui.showTimePopup)
@@ -73,15 +83,19 @@ extension InvitesContainer {
                     imageLoader: vm.imageLoader,
                     defaults: vm.defaults
                 ),
-                profileImages: vm.profileImages[eventProfile.profile.id] ?? [],
+                //Seed with the tapped card image if the async set hasn't landed, so
+                //the morph destination exists (and is identical) on frame one.
+                profileImages: vm.profileImages[eventProfile.profile.id] ?? eventProfile.image.map { [$0] } ?? [],
                 mode: .respondToInvite(respondVM: respondVM) {responseType in
                     respond(eventProfile.event.id, responseType)
                 },
                 onDismiss: { ui.selectedProfile = nil }
             )
             .id(eventProfile.profile.id)
-            .zIndex(1)
-            .transition(.move(edge: .bottom))
+            //Cross-fades in the same 0.3s transaction as the invite image flight.
+            .opacity(profileMorph.contentOpacity)
+            //Rendered at the app root, outside this container's environment.
+            .environment(profileMorph)
         }
     }
 
@@ -168,7 +182,9 @@ extension InvitesContainer {
         async let minDelay: Void = Task.sleep(for: .milliseconds(750))
         ui.respondedToProfile = respondType
         try? await Task.sleep(for: .milliseconds(550))
+        //Programmatic teardown behind the response cover — no flight, just reset.
         ui.selectedProfile = nil
+        profileMorph.reset()
         try await respondToProfileAction(respondType: respondType, eventId: eventId)
         try? await minDelay
         ui.respondedToProfile = nil
