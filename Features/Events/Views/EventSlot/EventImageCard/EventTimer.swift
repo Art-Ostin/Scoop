@@ -44,7 +44,10 @@ extension EventTimer {
     
     func circlePhoto(image: UIImage) -> some View {
         CirclePhoto(image: image, showShadow: false, height: 38)
-            .stroke(100, lineWidth: 1.5, color: Color.appCanvas)
+            .overlay {
+                Circle()
+                    .stroke(Color.appCanvas, lineWidth: 1.5)
+            }
     }
     
 }
