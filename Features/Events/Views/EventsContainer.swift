@@ -14,6 +14,10 @@ struct EventsContainer: View {
 
     @Binding var showMessageScreen: String?
 
+    @State var openInfo = false
+    @State var isAtTopOfScroll = true
+    
+    
     private var currentProfile: EventProfile? {
         vm.event(id: ui.selectedEventId) ?? vm.events.first
     }
@@ -32,14 +36,20 @@ struct EventsContainer: View {
             NavigationStack(path: $path) {
                 eventsRootView
                     .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
-                    .toolbar {tabTest}
-                
             }
+//            .overlay(alignment: .topTrailing) {
+//                ScrollView(.horizontal) {
+//                    HStack(spacing: 0) {
+//                        ForEach(vm.events, id: \.self) { eventProfile in
+//                            eventButton(eventProfile: eventProfile)
+//                        }
+//                    }
+//                    .defaultScrollAnchor(.trailing)
+//                    .padding(.bottom)
+//                }
+//            }
         }
-        //The floating copy of the tapped card image, flying between card and pager.
         .profileMorphHost(morph)
-        //Presents above the root TabView, so the real tab bar sits behind the
-        //profile — covered while open, revealed + dimmed during the zoom dismissal.
         .profileOverlay(id: ui.selectedProfile?.id) {
             if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
@@ -50,7 +60,6 @@ struct EventsContainer: View {
             handleDeepLink(eventId: newValue)
         }
         .task {userImage = try? await vm.fetchUserImage() }
-        
     }
 }
 
@@ -91,15 +100,20 @@ extension EventsContainer {
                     .opacity(showInlineTitle ? 1 : 0)
             }
         }
-        .onChange(of: ui.selectedEventId) { showInlineTitle = false }
+        .onChange(of: ui.selectedEventId) {
+            showInlineTitle = false
+            isAtTopOfScroll = true
+        }
     }
 
     private func eventPage(_ eventProfile: EventProfile) -> some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 24) {
-                Text("Events")
-                    .font(.title(32, .bold))
-                    .opacity(showInlineTitle ? 0 : 1)
+                if let name = vm.events.first(where: {$0.id == ui.selectedEventId})?.profile.name {
+                    Text("Meeting \(name)")
+                        .font(.title(28, .bold))
+                        .opacity(showInlineTitle ? 0 : 1)
+                }
                 eventSlot(eventProfile)
             }
             .padding(.horizontal, 16)
@@ -107,10 +121,12 @@ extension EventsContainer {
             .padding(.bottom, 84)
         }
         .scrollIndicators(.hidden)
+        //Check if at top of scroll
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y + geo.contentInsets.top
         } action: { _, distanceFromTop in
             guard (ui.selectedEventId ?? vm.events.first?.id) == eventProfile.id else { return }
+            isAtTopOfScroll = distanceFromTop <= 40
             var transaction = Transaction()
             transaction.disablesAnimations = true
             withTransaction(transaction) {
@@ -171,10 +187,7 @@ extension EventsContainer {
             mode: .viewProfile,
             onDismiss: { ui.selectedProfile = nil })
         .id(profile.id)
-        //Cross-fades in the same 0.3s transaction as the image flight (no slide —
-        //the morphing image is the hero, everything else fades around it).
         .opacity(morph.contentOpacity)
-        //Rendered at the app root, outside this container's environment.
         .environment(morph)
     }
 
@@ -182,20 +195,6 @@ extension EventsContainer {
     //card image so the morph destination exists (and is identical) on frame one.
     private func seedImages(for profile: UserProfile) -> [UIImage] {
         vm.event(forProfile: profile.id)?.image.map { [$0] } ?? []
-    }
-    
-    private var tabTest: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            ScoopButton(style: .clearGlass, shape: .rect(cornerRadius: 16)) {
-            } label: {
-                Text("Arthur · 23 May")
-                    .font(.body(15, .bold))
-                    .frame(height: 35)
-                    .padding(.horizontal, 10)
-                    .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
-            }
-        }
-        .hideToolbarBackground()
     }
 }
 
@@ -218,6 +217,71 @@ extension EventsContainer {
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
+    
+    
+    
+    
+    
+    
+}
+
+//Formatting for event overlay
+extension EventsContainer {
+    
+    private func eventButton(eventProfile: EventProfile) -> some View {
+        Group {
+            if isAtTopOfScroll {
+                ScoopButton(shape: Capsule(), action: {openInfo = true}) {
+                    Text(eventFormatter(event: eventProfile))
+                        .font(.body(14, .medium))
+                        .frame(height: 30)
+                        .padding(.horizontal, 10)
+                    
+//                        .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
+                }
+                .offset(y: -2)
+                .transition(.scoopPop)
+                .padding(.top, 16) //As its small icon, sits in correct position
+                .padding(.horizontal, 16)
+            }
+        }
+        .animation(.scoopPop, value: isAtTopOfScroll)
+    }
+    
+    private func eventFormatter(event: EventProfile) -> String {
+        let name = event.profile.name
+
+        guard let date = event.event.acceptedTime else {
+            return name
+        }
+
+        let month = date.formatted(.dateTime.month(.abbreviated))
+        let monthDay = date.formatted(.dateTime.day(.defaultDigits))
+
+        return "\(name) · \(monthDay) \(month)"
+    }
 }
 
 
+/*
+ private var eventTest: some View {
+     Group {
+         if isAtTopOfScroll {
+             ScoopButton(shape: Capsule(), action: {openInfo = true}) {
+                 Text("Arthur · 23 May")
+                     .font(.body(14, .medium))
+                     .frame(height: 30)
+                     .padding(.horizontal, 10)
+                 
+//                        .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
+             }
+             .offset(y: -2)
+             .transition(.scoopPop)
+             .padding(.top, 16) //As its small icon, sits in correct position
+             .padding(.horizontal, 16)
+         }
+     }
+     .animation(.scoopPop, value: isAtTopOfScroll)
+ }
+
+ */

@@ -26,10 +26,10 @@ struct EventImage: View {
             )
             .contentShape(Rectangle())
             .onTapGesture {openProfile()}
-            .overlay {
-                BackgroundBlur(image: eventProfile.image ?? UIImage(), size: imageSize, frames: [namePosition], maskCornerRadius: 8)
-            }
-            .overlay(alignment: .bottomLeading) { nameOverlay}
+//            .overlay {
+//                BackgroundBlur(image: eventProfile.image ?? UIImage(), size: imageSize, frames: [namePosition], maskCornerRadius: 8)
+//            }
+//            .overlay(alignment: .bottomLeading) { nameOverlay}
             .coordinateSpace(name: EventImage.cardSpace)
             .onPreferenceChange(EventNameFrameKey.self) {namePosition = $0}
             //The morph flies a copy of this image, so the real one (and its
@@ -37,14 +37,14 @@ struct EventImage: View {
             .profileMorphSource(id: eventProfile.profile.id, radii: ProfileMorphState.cardRadii)
     }
     
-    private var nameOverlay: some View {
-        Text("Meeting \(eventProfile.profile.name)")
-            .font(.body(24, .bold))
-            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImage.cardSpace)) }
-            .padding(.vertical)
-            .padding(.horizontal)
-            .foregroundStyle(.white)
-    }
+//    private var nameOverlay: some View {
+//        Text("Meeting \(eventProfile.profile.name)")
+//            .font(.body(24, .bold))
+//            .measure(key: EventNameFrameKey.self) { $0.frame(in: .named(EventImage.cardSpace)) }
+//            .padding(.vertical)
+//            .padding(.horizontal)
+//            .foregroundStyle(.white)
+//    }
     
     private func openProfile() {
         guard ui.selectedProfile == nil else { return }
@@ -63,3 +63,7 @@ private struct EventNameFrameKey: PreferenceKey {
         value = nextValue()
     }
 }
+
+/*
+ 
+ */

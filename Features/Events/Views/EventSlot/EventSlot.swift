@@ -114,7 +114,7 @@ extension View {
                     .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0125), radius: 4, x: 0, y: 1)
                     .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0075), radius: 12, x: 0, y: 0)
             )
-            .stroke(16, lineWidth: 1, color: Color(white: 0.93))
+            .stroke(16, lineWidth: 0.85, color: Color(white: 0.94))
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view

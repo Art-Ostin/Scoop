@@ -91,8 +91,8 @@ extension EventTimer {
     
     private var divider: some View {
         RoundedRectangle(cornerRadius: 2)
-            .fill(Color(white: 0.8))
-            .frame(width: 1, height: 14.5)
+            .fill(Color(white: 0.93))
+            .frame(width: 0.85, height: 14)
             .offset(y: -4)
             .frame(maxWidth: .infinity)
     }

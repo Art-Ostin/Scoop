@@ -17,13 +17,13 @@ struct EventImageCard: View {
     
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             EventImage(ui: ui, eventProfile: eventProfile, imageSize: imageSize)
             
             EventTimer(userImage: userImage, profileImage: eventProfile.image ?? UIImage(), targetTime: targetTime)
         }
         .padding([.top, .horizontal], 6)
-        .padding(.bottom, 10)
+        .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 16)

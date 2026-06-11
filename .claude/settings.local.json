@@ -89,7 +89,8 @@
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"exit=$?\"; grep -c \"error:\" /tmp/scoop_build.log)",
       "WebFetch(domain:medium.com)",
       "Bash(xcrun --sdk iphonesimulator --show-sdk-path)",
-      "Bash(grep -A2 'struct UnevenRoundedRectangle' __CMDSUB_OUTPUT__/System/Library/Frameworks/SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/arm64-apple-ios-simulator.swiftinterface)"
+      "Bash(grep -A2 'struct UnevenRoundedRectangle' __CMDSUB_OUTPUT__/System/Library/Frameworks/SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/arm64-apple-ios-simulator.swiftinterface)",
+      "Bash(echo \"xcodebuild exit code: $?\")"
     ]
   }
 }
