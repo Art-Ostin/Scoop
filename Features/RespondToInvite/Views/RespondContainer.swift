@@ -19,6 +19,7 @@ struct RespondPager: View {
 
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondPopupUIState
+    
     @Binding var showPopup: Bool
 
     let onResponse: (ProfileResponse) -> Void
@@ -117,9 +118,7 @@ private struct RespondCardBottomKey: PreferenceKey {
     }
 }
 
-// The three confirm alerts for the respond flow. Hosted as a full-screen sibling of the
-// pager (its own modifier) so its dim covers the whole screen rather than being clamped
-// to the morph card frame.
+
 struct RespondConfirmAlerts: ViewModifier {
     @Bindable var ui: RespondPopupUIState
     let onResponse: (ProfileResponse) -> Void
@@ -131,13 +130,8 @@ struct RespondConfirmAlerts: ViewModifier {
     }
 }
 
-extension View {
-    func respondConfirmAlerts(ui: RespondPopupUIState, onResponse: @escaping (ProfileResponse) -> Void) -> some View {
-        modifier(RespondConfirmAlerts(ui: ui, onResponse: onResponse))
-    }
-}
 
-private extension View {
+extension View {
     func pageScrollTransition(anchor: UnitPoint, yOffset: CGFloat) -> some View {
         scrollTransition(.interactive, axis: .horizontal) { content, phase in
             let progress = 1 - min(abs(phase.value), 1)
@@ -145,4 +139,9 @@ private extension View {
             return content.scaleEffect(scale, anchor: anchor).offset(y: yOffset)
         }
     }
+    
+    func respondConfirmAlerts(ui: RespondPopupUIState, onResponse: @escaping (ProfileResponse) -> Void) -> some View {
+        modifier(RespondConfirmAlerts(ui: ui, onResponse: onResponse))
+    }
 }
+

@@ -91,6 +91,29 @@ class RespondViewModel {
     }
 }
 
+@Observable final class NewRespondUIState {
+    
+    //1. Determine if 0, 1 or 2 messages
+    func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {
+        respondDraft.originalInvite.event.message?.isEmpty == false
+    }
+    
+    func hasRespondMessage(_ respondDraft: RespondDraft) -> Bool {
+        respondDraft.respondMessage?.isEmpty == false
+    }
+
+    func hasBothMessages(_ respondDraft: RespondDraft) -> Bool {
+        return hasEventMessage(respondDraft) && hasRespondMessage(respondDraft)
+    }
+    
+    var showTimePopup: Bool = false
+    var showMeetInfo: Bool = false
+    var showMessageScreen: Bool = false
+}
+
+
+
+
 @Observable final class RespondUIState {
     enum Tab {
         case message, event, details
@@ -105,13 +128,7 @@ class RespondViewModel {
         respondDraft.originalInvite.event.message?.isEmpty == false
     }
     
-    func hasRespondMessage(_ respondDraft: RespondDraft) -> Bool {
-        respondDraft.respondMessage?.isEmpty == false
-    }
     
-    func hasBothMessages(_ respondDraft: RespondDraft) -> Bool {
-        return hasEventMessage(respondDraft) && hasRespondMessage(respondDraft)
-    }
     
     enum CardLayout {
         static let titleToTimeSpacing: CGFloat = 9.25

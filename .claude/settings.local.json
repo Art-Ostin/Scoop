@@ -90,7 +90,13 @@
       "WebFetch(domain:medium.com)",
       "Bash(xcrun --sdk iphonesimulator --show-sdk-path)",
       "Bash(grep -A2 'struct UnevenRoundedRectangle' __CMDSUB_OUTPUT__/System/Library/Frameworks/SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/arm64-apple-ios-simulator.swiftinterface)",
-      "Bash(echo \"xcodebuild exit code: $?\")"
+      "Bash(echo \"xcodebuild exit code: $?\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build2.log 2>&1; echo \"exit: $?\"; grep -c \"error:\" /tmp/scoop_build2.log)",
+      "Bash(python3 -)",
+      "Bash(xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios18.4-simulator -parse-as-library TestApp.swift -o PagerTest.app/PagerTest)",
+      "Bash(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i pagertest | head -3; xcrun simctl spawn booted log show --last 3m --predicate 'process == \"PagerTest\"' 2>/dev/null | grep -iE \"error|crash|exception|fault\" | head -10)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1 *)"
     ]
   }
 }

@@ -89,7 +89,6 @@ final class EventUIState {
 
     var selectedEventId: String?
     var imageSize: CGFloat = 0
-    var isScrollNavBarVisible: Bool = false
     var profileImages: [String: [UIImage]] = [:]
 }
 

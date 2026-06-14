@@ -147,7 +147,6 @@ extension SelectTimeAndPlace {
         return (draft.message?.count ?? 0) > 40 && draft.place != nil
     }
 }
-
 struct HidePopup: View {
 
     let onHide: () -> Void
@@ -163,4 +162,14 @@ struct HidePopup: View {
         }
         .padding(-36)
     }
+}
+
+extension View {
+    
+    func smallTextFont() -> some View {
+        self
+            .font(.body(14, .regular))
+            .foregroundStyle(Color(red: 0.65, green: 0.65, blue: 0.7))
+    }
+    
 }

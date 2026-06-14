@@ -79,15 +79,3 @@ extension TimeAndPlaceCard {
     }
 }
 
-
-/*
- .overlay(alignment: .topTrailing) { infoButton }
- 
- private var infoButton: some View {
-     TabInfoButton(showScreen: $showInfoScreen, isAtTopOfScroll: true)
-         .scaleEffect(0.9)
-         .offset(y: -48)
-         .padding(.horizontal, morphMode ? 0 : horizontalPadding())
- }
- 
- */

@@ -81,12 +81,29 @@ struct InviteRespondButton: View {
     }
 }
 
-//Hiding glass background
-/*
- //            .padding(6)
- //            .padding(.leading, 2)
- //            .padding(.trailing, 2)
- //            .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
 
- */
- 
+//Logic for EventTypeButton
+struct EventTypeButton: View {
+    
+    let type: Event.EventType
+    @Binding var showInfo: Bool
+    
+    var longTitle: Bool = false
+    
+    var body: some View {
+        
+        Button {
+            showInfo.toggle()
+        } label: {
+            HStack(spacing: 2) {
+                Text("\(type.emoji) \(longTitle ? type.longTitle : type.title)")
+                    .font(.body(17, .bold))
+                Image(systemName: "info.circle")
+                    .font(.body(12, .medium))
+                    .foregroundStyle(Color(white: 0.8))
+                    .offset(x: 6, y: -3) // so goes slightly outside view
+            }
+        }
+        .shrinkButton(shadow: nil)
+    }
+}

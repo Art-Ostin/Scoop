@@ -36,6 +36,7 @@ struct MeetContainer: View {
                 meetView
                     .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
+                    .scoopNavigationBarFonts()
             }
             .overlay(alignment: .topTrailing) {
                 InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)

@@ -23,5 +23,6 @@ struct AppScrollView<Content: View>: View {
         .colorBackground()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
+        .scoopNavigationBarFonts()
     }
 }

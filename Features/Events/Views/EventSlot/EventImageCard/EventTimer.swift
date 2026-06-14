@@ -49,7 +49,6 @@ extension EventTimer {
                     .stroke(Color.appCanvas, lineWidth: 1.5)
             }
     }
-    
 }
 
 

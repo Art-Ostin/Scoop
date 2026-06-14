@@ -20,6 +20,7 @@ struct RespondTitle: View {
         HStack(spacing: 16) {
             eventTitle
             InviteRespondButton(type: event.type) { showInfo = true}
+            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(showTimePopup ? 0.03 : 1)
@@ -41,11 +42,3 @@ extension RespondTitle {
         .layoutPriority(1)
     }
 }
-
-/*
- 
- Image(systemName: "info.circle")
-     .foregroundStyle(Color.grayText).opacity(0.8)
-     .font(.body(14, .medium))
-     .offset(y: -4)
- */

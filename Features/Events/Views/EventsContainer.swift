@@ -14,40 +14,20 @@ struct EventsContainer: View {
 
     @Binding var showMessageScreen: String?
 
-    @State var openInfo = false
-    @State var isAtTopOfScroll = true
-    
-    
     private var currentProfile: EventProfile? {
         vm.event(id: ui.selectedEventId) ?? vm.events.first
     }
-    
+
     @Namespace var zoomNS
     @Binding var path: NavigationPath
-    
-    @State private var scrollProgress: Double = 0
-    @State private var showInlineTitle = false
-    
+
     @State var userImage: UIImage? = nil
     @State private var morph = ProfileMorphState()
 
     var body: some View {
-        ZStack {
-            NavigationStack(path: $path) {
-                eventsRootView
-                    .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
-            }
-//            .overlay(alignment: .topTrailing) {
-//                ScrollView(.horizontal) {
-//                    HStack(spacing: 0) {
-//                        ForEach(vm.events, id: \.self) { eventProfile in
-//                            eventButton(eventProfile: eventProfile)
-//                        }
-//                    }
-//                    .defaultScrollAnchor(.trailing)
-//                    .padding(.bottom)
-//                }
-//            }
+        NavigationStack(path: $path) {
+            eventsRootView
+                .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
         }
         .profileMorphHost(morph)
         .profileOverlay(id: ui.selectedProfile?.id) {
@@ -65,21 +45,31 @@ struct EventsContainer: View {
 
 //The Event Slots screens
 extension EventsContainer {
-    
-    @ViewBuilder
+
+    //Same shell as the other containers: one stable AppScrollView owns the
+    //vertical scroll and the native title (Scoop font via scoopNavigationBarFonts),
+    //and the empty/loaded branch swaps inside it — swapping the whole scroll view
+    //out from under the stack makes the system reconfigure the bar from scratch.
+    //The pager inside it only swipes the event slots horizontally.
     private var eventsRootView: some View {
+        AppScrollView(title: vm.events.isEmpty ? "Events" : "Meeting \(currentProfile?.profile.name ?? "")") {
             if vm.events.isEmpty {
                 EventsPlaceholder()
             } else {
-                eventsScrollView
+                eventsPager
             }
         }
-    
-    private var eventsScrollView: some View {
+        .overlay(alignment: .bottomTrailing) { messageButton }
+    }
+
+    private var eventsPager: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
                 ForEach(vm.events) { eventProfile in
-                    eventPage(eventProfile)
+                    eventSlot(eventProfile)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 84)
                         .containerRelativeFrame(.horizontal)
                         .id(eventProfile.id)
                 }
@@ -89,50 +79,6 @@ extension EventsContainer {
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $ui.selectedEventId)
         .scrollIndicators(.hidden)
-        .colorBackground()
-        .overlay(alignment: .bottomTrailing) { messageOverlay }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(showInlineTitle ? .visible : .hidden, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("Events")
-                    .font(.title(17, .semibold))
-                    .opacity(showInlineTitle ? 1 : 0)
-            }
-        }
-        .onChange(of: ui.selectedEventId) {
-            showInlineTitle = false
-            isAtTopOfScroll = true
-        }
-    }
-
-    private func eventPage(_ eventProfile: EventProfile) -> some View {
-        ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 24) {
-                if let name = vm.events.first(where: {$0.id == ui.selectedEventId})?.profile.name {
-                    Text("Meeting \(name)")
-                        .font(.title(28, .bold))
-                        .opacity(showInlineTitle ? 0 : 1)
-                }
-                eventSlot(eventProfile)
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 84)
-        }
-        .scrollIndicators(.hidden)
-        //Check if at top of scroll
-        .onScrollGeometryChange(for: CGFloat.self) { geo in
-            geo.contentOffset.y + geo.contentInsets.top
-        } action: { _, distanceFromTop in
-            guard (ui.selectedEventId ?? vm.events.first?.id) == eventProfile.id else { return }
-            isAtTopOfScroll = distanceFromTop <= 40
-            var transaction = Transaction()
-            transaction.disablesAnimations = true
-            withTransaction(transaction) {
-                showInlineTitle = distanceFromTop > 40
-            }
-        }
     }
 
     @ViewBuilder
@@ -141,13 +87,13 @@ extension EventsContainer {
             EventSlot(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, userImage: userImage) {
                 openMaps(eventProfile)
             }
-                    .task{await loadProfileImages(eventProfile.profile)}
+            .task {await loadProfileImages(eventProfile.profile)}
         }
     }
 
     //Floats above the current event page and zooms into its chat
     @ViewBuilder
-    private var messageOverlay: some View {
+    private var messageButton: some View {
         if let eventProfile = currentProfile {
             NavigationLink(value: eventProfile) {
                 Image("NewMessageIcon")
@@ -167,7 +113,7 @@ extension EventsContainer {
 
 //The different Views
 extension EventsContainer {
-    
+
     private func chatView(eventProfile: EventProfile) -> some View {
         ChatContainer(
             defaults: vm.defaults,
@@ -179,7 +125,7 @@ extension EventsContainer {
         )
         .navigationTransition(.zoom(sourceID: eventProfile.id, in: zoomNS))
     }
-    
+
     private func profileView(profile: UserProfile) -> some View {
         ProfileView(
             vm:ProfileViewModel(profile: profile, event: vm.event(forProfile: profile.id)?.event, imageLoader: vm.imageLoader, defaults: vm.defaults),
@@ -201,87 +147,21 @@ extension EventsContainer {
 
 //Functions and Components
 extension EventsContainer {
-    
+
     //1. Load Images
     private func loadProfileImages(_ profile: UserProfile) async {
         let loadedImages = await vm.loadImages(profile: profile)
         ui.profileImages[profile.id] = loadedImages
     }
-    
+
     private func handleDeepLink(eventId: String?) {
         guard let eventId, let eventProfile = vm.event(id: eventId) else { return }
+        ui.selectedEventId = eventProfile.id //Jump the pager to that event's page first
         if path.isEmpty { path.append(eventProfile) }
         showMessageScreen = nil
     }
-    
+
     private func openMaps(_ eventProfile: EventProfile) {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
-    
-    
-    
-    
-    
-    
 }
-
-//Formatting for event overlay
-extension EventsContainer {
-    
-    private func eventButton(eventProfile: EventProfile) -> some View {
-        Group {
-            if isAtTopOfScroll {
-                ScoopButton(shape: Capsule(), action: {openInfo = true}) {
-                    Text(eventFormatter(event: eventProfile))
-                        .font(.body(14, .medium))
-                        .frame(height: 30)
-                        .padding(.horizontal, 10)
-                    
-//                        .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
-                }
-                .offset(y: -2)
-                .transition(.scoopPop)
-                .padding(.top, 16) //As its small icon, sits in correct position
-                .padding(.horizontal, 16)
-            }
-        }
-        .animation(.scoopPop, value: isAtTopOfScroll)
-    }
-    
-    private func eventFormatter(event: EventProfile) -> String {
-        let name = event.profile.name
-
-        guard let date = event.event.acceptedTime else {
-            return name
-        }
-
-        let month = date.formatted(.dateTime.month(.abbreviated))
-        let monthDay = date.formatted(.dateTime.day(.defaultDigits))
-
-        return "\(name) · \(monthDay) \(month)"
-    }
-}
-
-
-/*
- private var eventTest: some View {
-     Group {
-         if isAtTopOfScroll {
-             ScoopButton(shape: Capsule(), action: {openInfo = true}) {
-                 Text("Arthur · 23 May")
-                     .font(.body(14, .medium))
-                     .frame(height: 30)
-                     .padding(.horizontal, 10)
-                 
-//                        .stroke(16, lineWidth: 1, color: Color(red: 0.55, green: 0, blue: 0.25))
-             }
-             .offset(y: -2)
-             .transition(.scoopPop)
-             .padding(.top, 16) //As its small icon, sits in correct position
-             .padding(.horizontal, 16)
-         }
-     }
-     .animation(.scoopPop, value: isAtTopOfScroll)
- }
-
- */

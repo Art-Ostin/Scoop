@@ -25,12 +25,12 @@ struct RespondAcceptCard: View {
                 .padding(.bottom, layout.titleToTimeSpacing)
                 .opacity(popupShown ? 0 : 1)
             respondTime
-                .padding(.bottom, ui.hasBothMessages(vm.respondDraft) ? 12 : layout.timeToPlaceSpacing)
+//                .padding(.bottom, ui.hasBothMessages(vm.respondDraft) ? 12 : layout.timeToPlaceSpacing)
             respondPlace
             respondMessages
                 .padding(.top, 20)
             actionSection
-                .padding(.top, ui.hasBothMessages(vm.respondDraft) ? 20 : layout.actionTopSpacing) //decrease vertical spacing when there are messages
+//                .padding(.top, ui.hasBothMessages(vm.respondDraft) ? 20 : layout.actionTopSpacing) //decrease vertical spacing when there are messages
         }
         .zIndex(1)
         .padding(.horizontal, layout.horizontalPadding)
@@ -38,7 +38,7 @@ struct RespondAcceptCard: View {
         .padding(.bottom, layout.bottomPadding)
         .frame(maxWidth: .infinity)
         .background(customBackground.morphCardAnchor())
-        .padding(.horizontal, ui.hasRespondMessage(vm.respondDraft) ? 24 : 30)
+//        .padding(.horizontal, ui.hasRespondMessage(vm.respondDraft) ? 24 : 30)
         .animation(.easeInOut(duration: 0.2), value: ui.showTimePopup)
         .animation(.easeInOut(duration: 0.2), value: vm.respondDraft.respondType)
         .animation(.easeInOut(duration: 0.2), value: popupShown)
@@ -66,12 +66,13 @@ extension RespondAcceptCard {
     }
     
     private var respondPlace: some View {
-        RespondPlaceRow(
-            showMessageScreen: $ui.showMessageScreen,
-            location: event.location, defaults: vm.defaults, //Defaults needed to open up Maps router
-            noEventMessages: (!ui.hasEventMessage(vm.respondDraft) && !ui.hasRespondMessage(vm.respondDraft))
-        )
-        .disabled(ui.showTimePopup)
+        EmptyView()
+//        RespondPlaceRow(
+//            showMessageScreen: $ui.showMessageScreen,
+//            location: event.location, defaults: vm.defaults, //Defaults needed to open up Maps router
+//            noEventMessages: (!ui.hasEventMessage(vm.respondDraft) && !ui.hasRespondMessage(vm.respondDraft))
+//        )
+//        .disabled(ui.showTimePopup)
     }
     
     private var addMessageView: some View {
@@ -86,15 +87,16 @@ extension RespondAcceptCard {
     
     @ViewBuilder
     private var respondMessages: some View {
+        EmptyView()
         let e = vm.respondDraft
-        if ui.hasBothMessages(vm.respondDraft) {
-            if let eventMessage = e.originalInvite.event.message, let respondMessage = e.respondMessage {
-                VStack(alignment: .leading, spacing: 12) {
-                    RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: eventMessage, isMyChat: false)
-                    RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
-                }
-            }
-        }
+//        if ui.hasBothMessages(vm.respondDraft) {
+//            if let eventMessage = e.originalInvite.event.message, let respondMessage = e.respondMessage {
+//                VStack(alignment: .leading, spacing: 12) {
+//                    RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: eventMessage, isMyChat: false)
+//                    RespondTextBubble(showMessageScreen: $ui.showMessageScreen, message: respondMessage, isMyChat: true, isNewTime: vm.responseType == .modified)
+//                }
+//            }
+//        }
     }
     
     @ViewBuilder
