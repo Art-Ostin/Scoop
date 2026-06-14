@@ -15,7 +15,7 @@ struct AnimatedPageIndicator: View {
     var activeWidth: CGFloat = 22
     var spacing: CGFloat = 8
     var activeColor: Color = .primary
-    var inactiveColor: Color = Color.secondary.opacity(0.25)
+    var inactiveColor: Color = Color.grayPlaceholder.opacity(0.25)
 
     var body: some View {
         HStack(spacing: spacing) {

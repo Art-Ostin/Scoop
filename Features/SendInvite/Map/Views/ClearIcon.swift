@@ -16,7 +16,7 @@ struct ClearIcon: View {
     }
     
     var gradient: LinearGradient {
-        type?.gradient ?? LinearGradient(colors: [.accent, Color.appColorTint], startPoint: .bottom, endPoint: .top)
+        type?.gradient ?? LinearGradient(colors: [.accent, .accent], startPoint: .bottom, endPoint: .top)
     }
     
     var body: some View {

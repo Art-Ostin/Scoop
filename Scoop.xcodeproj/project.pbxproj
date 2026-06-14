@@ -164,6 +164,12 @@
 		657BD3272F71FC9A00D7C29A /* RespondViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */; };
 		657E61522F353B9300262821 /* MapSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657E61512F353B9300262821 /* MapSearchViewModel.swift */; };
 		657F303B2F68B61C0057D42C /* NavigationButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F303A2F68B61C0057D42C /* NavigationButtons.swift */; };
+		657F61AC2FDF087500B2F903 /* ScoopShadows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61AB2FDF087500B2F903 /* ScoopShadows.swift */; };
+		657F61AE2FDF08C300B2F903 /* CardFlip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61AD2FDF08C300B2F903 /* CardFlip.swift */; };
+		657F61B12FDF0B4B00B2F903 /* CardBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B02FDF0B4B00B2F903 /* CardBackground.swift */; };
+		657F61B32FDF0CB600B2F903 /* Strokes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B22FDF0CB600B2F903 /* Strokes.swift */; };
+		657F61B52FDF125300B2F903 /* ScoopColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B42FDF125300B2F903 /* ScoopColors.swift */; };
+		657F61B72FDF127600B2F903 /* ScoopFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B62FDF127600B2F903 /* ScoopFonts.swift */; };
 		657FD5452F91C8E00074255E /* CoreInfoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD5442F91C8E00074255E /* CoreInfoPage.swift */; };
 		657FD5492F92ABE50074255E /* EventDetailsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD5482F92ABE50074255E /* EventDetailsContainer.swift */; };
 		657FD54B2F92ABEF0074255E /* EventDetailsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */; };
@@ -466,6 +472,12 @@
 		657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondViewModel.swift; sourceTree = "<group>"; };
 		657E61512F353B9300262821 /* MapSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchViewModel.swift; sourceTree = "<group>"; };
 		657F303A2F68B61C0057D42C /* NavigationButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButtons.swift; sourceTree = "<group>"; };
+		657F61AB2FDF087500B2F903 /* ScoopShadows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopShadows.swift; sourceTree = "<group>"; };
+		657F61AD2FDF08C300B2F903 /* CardFlip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardFlip.swift; sourceTree = "<group>"; };
+		657F61B02FDF0B4B00B2F903 /* CardBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardBackground.swift; sourceTree = "<group>"; };
+		657F61B22FDF0CB600B2F903 /* Strokes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strokes.swift; sourceTree = "<group>"; };
+		657F61B42FDF125300B2F903 /* ScoopColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopColors.swift; sourceTree = "<group>"; };
+		657F61B62FDF127600B2F903 /* ScoopFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopFonts.swift; sourceTree = "<group>"; };
 		657FD5442F91C8E00074255E /* CoreInfoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreInfoPage.swift; sourceTree = "<group>"; };
 		657FD5482F92ABE50074255E /* EventDetailsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsContainer.swift; sourceTree = "<group>"; };
 		657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsInfo.swift; sourceTree = "<group>"; };
@@ -693,7 +705,6 @@
 		652B154C2F301EC30042A3E1 /* Modifiers */ = {
 			isa = PBXGroup;
 			children = (
-				65F704512F6EDF5D00CE29C5 /* CardBackground.swift */,
 				65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */,
 				65B059572EE4CF0F00427B95 /* CustomModifier.swift */,
 				65A070572EE09F85009F798B /* CustomViewModifiers.swift */,
@@ -1148,10 +1159,9 @@
 			isa = PBXGroup;
 			children = (
 				650DA36C2F6C5FFA0013EB30 /* RespondContainer.swift */,
-				65F7044D2F6EDA4100CE29C5 /* RespondDetailsView.swift */,
 				65F704532F6EE15400CE29C5 /* RespondAcceptContainer.swift */,
+				65F7044D2F6EDA4100CE29C5 /* RespondDetailsView.swift */,
 				6549DA7C2F9E8E5000C89DF2 /* AcceptCard */,
-				65ADAE4F2FDD943800095248 /* Old Code */,
 				6549DA7E2F9E8E9E00C89DF2 /* Components */,
 			);
 			path = Views;
@@ -1310,6 +1320,7 @@
 		6549DA892F9E914F00C89DF2 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				657F61AF2FDF0AC700B2F903 /* ReusableModifiers */,
 				65BDBD4E2FC95CD80021FA3D /* ReusableViews */,
 				6549DA8A2F9E916A00C89DF2 /* Buttons */,
 				6549DA8B2F9E91FD00C89DF2 /* Navigation */,
@@ -1318,7 +1329,6 @@
 				65FAF99C2E42BAC30015E231 /* Timers */,
 				6549DA8E2F9E966500C89DF2 /* Alerts */,
 				652B15542F30D3630042A3E1 /* Utility */,
-				65D366C32FC95887000180B3 /* AppScrollView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1331,7 +1341,6 @@
 				657F303A2F68B61C0057D42C /* NavigationButtons.swift */,
 				656B31D02F2501A3008641C1 /* ToolbarButtons.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
-				650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */,
 				656373B42F50152F003A922D /* MinimalistButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
@@ -1370,6 +1379,8 @@
 			isa = PBXGroup;
 			children = (
 				65376D792E05A7AF0058D225 /* DefaultParameters.swift */,
+				657F61B42FDF125300B2F903 /* ScoopColors.swift */,
+				657F61B62FDF127600B2F903 /* ScoopFonts.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1468,6 +1479,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		657F61AF2FDF0AC700B2F903 /* ReusableModifiers */ = {
+			isa = PBXGroup;
+			children = (
+				657F61AB2FDF087500B2F903 /* ScoopShadows.swift */,
+				657F61B02FDF0B4B00B2F903 /* CardBackground.swift */,
+				657F61B22FDF0CB600B2F903 /* Strokes.swift */,
+			);
+			path = ReusableModifiers;
+			sourceTree = "<group>";
+		};
 		659497012E01DD4000880921 /* Features */ = {
 			isa = PBXGroup;
 			children = (
@@ -1487,10 +1508,13 @@
 		6598527B2FD7FD3400D75CA5 /* Old Code */ = {
 			isa = PBXGroup;
 			children = (
+				65ADAE4F2FDD943800095248 /* Old Code */,
 				653FB5792F688A2E00440E41 /* EventInfoView.swift */,
 				6536063C2F238077006334D6 /* EventDetailsOld.swift */,
 				658CC0AC2FC1C703008B0958 /* EventsScrollView.swift */,
 				6560FD2F2FD963D600518BD9 /* Old */,
+				65F704512F6EDF5D00CE29C5 /* CardBackground.swift */,
+				650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */,
 			);
 			path = "Old Code";
 			sourceTree = "<group>";
@@ -1530,9 +1554,11 @@
 		65BDBD4E2FC95CD80021FA3D /* ReusableViews */ = {
 			isa = PBXGroup;
 			children = (
+				657F61AD2FDF08C300B2F903 /* CardFlip.swift */,
 				6573EABD2FDAF91600FDD87A /* CustomMenu.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 				65FE22412FC833D200DCB65A /* AnimatedPageIndicator.swift */,
+				65D366C32FC95887000180B3 /* AppScrollView.swift */,
 			);
 			path = ReusableViews;
 			sourceTree = "<group>";
@@ -1791,6 +1817,7 @@
 				6506F0292FBAED6200058A84 /* ChatPreviewModel.swift in Sources */,
 				65E5C91A2E50E7700093410B /* Session.swift in Sources */,
 				65BF98C42FA532C600FB37A6 /* BootingScreen.swift in Sources */,
+				657F61B52FDF125300B2F903 /* ScoopColors.swift in Sources */,
 				653FB5782F68886700440E41 /* EventMapView.swift in Sources */,
 				6594971A2E01DD4000880921 /* AppContainer.swift in Sources */,
 				65F3B4742F9F5031007D1EEB /* InvitesView.swift in Sources */,
@@ -1826,6 +1853,7 @@
 				65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */,
 				65D25A692FA9D66A00008632 /* BoolToStringBinding.swift in Sources */,
 				65E5C8FA2E4EAAE70093410B /* SelectTimeAndPlace.swift in Sources */,
+				657F61B32FDF0CB600B2F903 /* Strokes.swift in Sources */,
 				654982D82E3152C000CA335F /* ProfileImages.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
 				657683202F59111C0094A02D /* TypeMessageView.swift in Sources */,
@@ -1835,6 +1863,7 @@
 				653FB57A2F688A2E00440E41 /* EventInfoView.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventViewModel.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MessagesViewModel.swift in Sources */,
+				657F61B72FDF127600B2F903 /* ScoopFonts.swift in Sources */,
 				65A13BB92F8D7EC6009255D4 /* InviteCardMessageView.swift in Sources */,
 				6573EABE2FDAF91600FDD87A /* CustomMenu.swift in Sources */,
 				6509DCEF2F1D8C0000455AB5 /* ScrollFade.swift in Sources */,
@@ -1849,6 +1878,7 @@
 				65E1C99A2F719DFB00CBB388 /* InvitedTimeCell.swift in Sources */,
 				65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */,
 				65ADAE4E2FDC617300095248 /* MenuTester.swift in Sources */,
+				657F61AC2FDF087500B2F903 /* ScoopShadows.swift in Sources */,
 				65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */,
 				6570CADD2F28D6EE00CBEA67 /* DropDownButton.swift in Sources */,
 				656BD4432FD155E500EE8FC8 /* SettingsButton.swift in Sources */,
@@ -1903,6 +1933,7 @@
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */,
 				65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */,
+				657F61B12FDF0B4B00B2F903 /* CardBackground.swift in Sources */,
 				657BD3232F71E71200D7C29A /* RespondModels.swift in Sources */,
 				65E5C9262E51FBB10093410B /* InviteViewModel.swift in Sources */,
 				6523E5342F3B8F0100271C8F /* MapCategoryIcon.swift in Sources */,
@@ -2015,6 +2046,7 @@
 				655D92DC2F6B358E00A99685 /* CustomDivider.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */,
 				65761E3C2FD9DC1A007CA835 /* BackgroundBlur.swift in Sources */,
+				657F61AE2FDF08C300B2F903 /* CardFlip.swift in Sources */,
 				65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */,
 				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
 				65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */,

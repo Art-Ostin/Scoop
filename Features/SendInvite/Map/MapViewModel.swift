@@ -35,7 +35,7 @@ import UIKit
     
     var showAnimation = false
     
-    var markerTint: Color = Color.appColorTint
+    var markerTint: Color = Color.accent
     
     
     var selectedMapCategory: MapCategory? {
@@ -102,7 +102,7 @@ import UIKit
             //If categorySelect set to nil, delete all the existing values
             results.removeAll()
             searchText = ""
-            markerTint = .appColorTint
+            markerTint = .accent
         }
     }
     

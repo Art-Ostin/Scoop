@@ -135,8 +135,8 @@ struct CustomMenuBuilder: View {
                 }
                 Divider()
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(44)), count: 4), spacing: 10) {
-                    ForEach([Color.appGreen, .appRed, .warningYellow, .appColorTint,
-                             .secondary, .grayText, .appBackground, .dangerRed], id: \.self) { color in
+                    ForEach([Color.appGreen, .accent, .warningYellow,
+                             .grayPlaceholder, .grayText, .appCanvas, .dangerRed], id: \.self) { color in
                         Circle()
                             .fill(color)
                             .frame(width: 38, height: 38)
@@ -164,7 +164,7 @@ struct CustomMenuBuilder: View {
             Text(title).font(.body(15))
             Spacer()
         }
-        .foregroundStyle(role == .destructive ? Color.appRed : .primary)
+        .foregroundStyle(role == .destructive ? Color.dangerRed : .primary)
         .padding(.horizontal, 16)
         .frame(height: 44)
         .customMenuItem(action: action)

@@ -13,33 +13,36 @@ struct RespondAcceptContainer: View {
     @Binding var confirmNewTimeInvite: Bool
     @Binding var confirmAcceptInvite: Bool
     @State var ui = NewRespondUIState()
+    
     let onDecline: () -> Void
     
     var body: some View {
-        ZStack(alignment: .top) {
-            RespondCard(
-                vm: vm,
-                ui: ui,
-                confirmNewTimePopup: $confirmNewTimeInvite,
-                confirmAcceptInvite: $confirmAcceptInvite) {
-                    onDecline()
-                }
-                .opacity(ui.showMeetInfo ? 0 : 1)
-                .allowsHitTesting(!ui.showMeetInfo)
-                .zIndex(ui.showMeetInfo ? 0 : 1)
+        CardFlipContainer(showBack: $ui.showMeetInfo) {
+            respondCard
                 .offset(y: 16)
-                .opacity(confirmNewTimeInvite ? 0 : 1)
-            
-            RespondDetailsView(event: vm.respondDraft.originalInvite.event, showInfo: $ui.showMeetInfo, image: vm.image)
-                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                .opacity(ui.showMeetInfo ? 1 : 0)
-                .allowsHitTesting(ui.showMeetInfo)
-                .zIndex(ui.showMeetInfo ? 1 : 0)
+        } backCard: {
+            respondDetails
         }
-        .frame(maxWidth: .infinity, alignment: .top)
         .padding(.top, 32)
-        .rotation3DEffect(.degrees(ui.showMeetInfo ? 180 : 0), axis: (x: 0, y:1, z:0))
-        .animation(.easeInOut, value: ui.showMeetInfo)
         .preference(key: IsTimeOpen.self, value: ui.showTimePopup)
+    }
+}
+
+extension RespondAcceptContainer {
+    private var respondCard: some View {
+        RespondCard(
+            vm: vm,
+            ui: ui,
+            confirmNewTimePopup: $confirmNewTimeInvite,
+            confirmAcceptInvite: $confirmAcceptInvite) {
+                onDecline()
+            }
+    }
+    
+    private var respondDetails: some View {
+        RespondDetailsView(
+            event: vm.respondDraft.originalInvite.event,
+            showInfo: $ui.showMeetInfo, image: vm.image
+        )
     }
 }

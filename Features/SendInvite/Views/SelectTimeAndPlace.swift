@@ -46,6 +46,8 @@ struct SelectTimeAndPlace: View {
                     .zIndex(1) //so pop ups always appear above the Action Button
                     sendInviteButton
                 }
+                
+                
                 .timeAndPlaceCard(messageCount: draft.message?.count ?? 0, placeAdded: (draft.place != nil), morphMode: !isInviteResponse)
                 .overlay(alignment: .topLeading) { clearButton }
                 .overlay(alignment: .top) {messageOverlay}
@@ -164,12 +166,16 @@ struct HidePopup: View {
     }
 }
 
-extension View {
+
+struct TimeAndPlaceBackground {
     
+    
+}
+
+extension View {
     func smallTextFont() -> some View {
         self
             .font(.body(14, .regular))
             .foregroundStyle(Color(red: 0.65, green: 0.65, blue: 0.7))
     }
-    
 }

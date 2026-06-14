@@ -211,8 +211,8 @@ extension SelectTimeView {
         .pickerStyle(.wheel)
         .frame(width: 160, height: 130)
         .labelsHidden()
-        .tint(.appRed)
-        .accentColor(.appRed)
+        .tint(.accent)
+        .accentColor(.accent)
     }
     
     private func syncTimePickerIfNeeded() {

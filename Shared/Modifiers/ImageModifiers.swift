@@ -10,7 +10,6 @@ import SwiftUI
 
 
 struct ImageModifier: ViewModifier {
-    
     let size: CGFloat
     let radius: CGFloat
 

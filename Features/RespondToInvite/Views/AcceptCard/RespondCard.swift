@@ -46,7 +46,7 @@ extension RespondCard {
     private var titleNameAndPhoto: some View {
         HStack(spacing: 12) {
             CirclePhoto(image: vm.image, showShadow: false, height: 25).offset(x: -2)
-            Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)") //REPLACE with event.otherUserName
+            Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
                 .font(.title(22))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -58,7 +58,6 @@ extension RespondCard {
 
 //Logic for time and Place
 extension RespondCard {
-        
     private var timeAndPlaceSection: some View {
         VStack(spacing: 18) {
             timeRow
@@ -92,7 +91,7 @@ extension RespondCard {
         
     private var actionSection: some View {
         HStack {
-            DeclineButton { onDecline() }
+            declineButton
             Spacer()
             acceptButton
         }
@@ -119,23 +118,45 @@ extension RespondCard {
                 .frame(height: 40)
         }
     }
+    
+    private var declineButton: some View {
+        Button {
+            onDecline()
+        } label: {
+            Text("Decline")
+                .font(.body(16, .bold))
+                .foregroundStyle(Color(red: 0.36, green: 0.36, blue: 0.36))
+                .frame(width: 135)
+                .frame(height: 40)
+                .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
+        }
+    }
 }
 
+//Card Background
 struct RespondCardBackground: ViewModifier {
     
     func body(content: Content) -> some View {
         content
             .padding(.vertical, 18)
             .padding(.horizontal, 24)
-            .background(
-                RoundedRectangle(cornerRadius: 30)
-                    .fill(Color.appCanvas)
-                    .stroke(Color(red: 0.93, green: 0.93, blue: 0.93), lineWidth: 1)
-                    .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
-                    .shadow(color: Color.appGreen.opacity(0.04), radius: 20, x: 0, y: 0)
-            )
-            .morphCardAnchor() //Sets it as destination view
+            .inviteCardBackground(radius: 30, color: Color.grayBackground)
             .padding(.horizontal, 32)
             .offset(y: 24)
+    }
+}
+
+//InviteCardBackground. used for the SendInvite and AcceptInvite popupCards so put in view extension
+extension View {
+    
+    func inviteCardBackground(radius: CGFloat = 30, color: Color = .accent) -> some View {
+        self
+            .background (
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color.appCanvas)
+                    .rectangleStroke(radius: 30, lineWidth: 1, color: Color.grayBackground)
+                    .cardShadow(color: .accent)
+            )
+            .morphCardAnchor() //Sets it as destination view
     }
 }
