@@ -32,7 +32,7 @@ struct InvitedTimeCell: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background (RoundedRectangle(cornerRadius: 16).fill(Color.white))
+        .background(Color.white, in: .rect(cornerRadius: 16))
         .opacity(status != .available ? 0.4 : 1)
         .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
         .overlay(alignment: .topTrailing) {if (status != .available) {timeStatus}}

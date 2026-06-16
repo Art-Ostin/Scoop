@@ -58,6 +58,7 @@ extension RespondCard {
 
 //Logic for time and Place
 extension RespondCard {
+    
     private var timeAndPlaceSection: some View {
         VStack(spacing: 18) {
             timeRow
@@ -140,15 +141,13 @@ struct RespondCardBackground: ViewModifier {
         content
             .padding(.vertical, 18)
             .padding(.horizontal, 24)
-            .inviteCardBackground(radius: 30, color: Color.grayBackground)
+            .inviteCardBackground(radius: 30, color: Color.appGreen) //Slight green tint for shadow
             .padding(.horizontal, 32)
-            .offset(y: 24)
     }
 }
 
-//InviteCardBackground. used for the SendInvite and AcceptInvite popupCards so put in view extension
+//InviteCardBackground. used for the SendInvite, AcceptInvite popupCards so put in view extension
 extension View {
-    
     func inviteCardBackground(radius: CGFloat = 30, color: Color = .accent) -> some View {
         self
             .background (

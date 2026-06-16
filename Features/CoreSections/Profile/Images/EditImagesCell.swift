@@ -36,7 +36,7 @@ extension OnboardingPhotoCell {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 120, height: 120)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(.rect(cornerRadius: 10))
         }
     }
     func loadPickedImage () async {
@@ -62,7 +62,7 @@ struct ImageCell: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(.rect(cornerRadius: 10))
                 .customShadow(.floating)
             RoundedRectangle(cornerRadius: 10)
                 .frame(width: size, height: size)

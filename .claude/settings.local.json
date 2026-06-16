@@ -96,7 +96,14 @@
       "Bash(python3 -)",
       "Bash(xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios18.4-simulator -parse-as-library TestApp.swift -o PagerTest.app/PagerTest)",
       "Bash(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i pagertest | head -3; xcrun simctl spawn booted log show --last 3m --predicate 'process == \"PagerTest\"' 2>/dev/null | grep -iE \"error|crash|exception|fault\" | head -10)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1 *)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1 *)",
+      "WebFetch(domain:nilcoalescing.com)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "WebFetch(domain:dev.to)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d[0]['text']\\)\")",
+      "Bash(bc)",
+      "Bash(python3 - /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/419d40fc-909d-48a3-bdd8-5dcb8a1b0b67/tool-results/toolu_01MAapteNKjqvS96FQwmryJe.json)"
     ]
   }
 }

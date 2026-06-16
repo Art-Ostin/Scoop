@@ -120,7 +120,7 @@ extension AddMessageView {
     private var headerSection: some View {
         HStack(alignment: .firstTextBaseline) {
             Text("Add Message")
-                .font(.custom("SFProRounded-Bold", size: 24))
+                .font(.title(24))
             
             Spacer()
             

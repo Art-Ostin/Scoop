@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct InvitesContainer: View {
-    
     @Environment(AppRouter.self) private var router
     
     @State var ui = InvitesUIState()
@@ -25,12 +24,8 @@ struct InvitesContainer: View {
     var body: some View {
         ZStack {
             invitesView
-
         }
         .profileMorphHost(profileMorph)
-        //Both present above the root TabView: the real tab bar sits behind the
-        //profile (revealed + dimmed during the zoom dismissal) and the response
-        //cover physically occludes it.
         .profileOverlay(id: ui.selectedProfile?.id) {
             if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
@@ -102,10 +97,10 @@ extension InvitesContainer {
     @ViewBuilder
     private func respondPager(_ eventId: String) -> some View {
         if let eventProfile = vm.eventProfile(forEventId: eventId) {
-            RespondPager(
+            RespondContainer(
                 vm: vm.respondVM(for: eventProfile),
                 ui: respondUI,
-                showPopup: respondShowPopup
+                onHide: { ui.closeRespond() }
             ) { type in respond(eventId, type) }
         }
     }
@@ -115,11 +110,6 @@ extension InvitesContainer {
         Color.clear.respondConfirmAlerts(ui: respondUI) { type in
             if let id = ui.respondMorphId { respond(id, type) }
         }
-    }
-
-    private var respondShowPopup: Binding<Bool> {
-        Binding(get: { ui.showRespondPopup != nil },
-                set: { if !$0 { ui.showRespondPopup = nil } })
     }
 
     @ViewBuilder
@@ -173,7 +163,7 @@ extension InvitesContainer {
 extension InvitesContainer {
     //Different functions used in container
     private func respond(_ eventId: String, _ type: ProfileResponse) {
-        ui.showRespondPopup = nil //collapse the respond morph once a response is sent
+        ui.closeRespond() //collapse the respond morph once a response is sent
         Task { try await respondToProfile(respondType: type, eventId: eventId)}
     }
     

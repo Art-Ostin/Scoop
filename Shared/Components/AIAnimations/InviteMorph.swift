@@ -263,7 +263,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             Color.red.opacity(expanded ? 0 : 1)
         }
         .frame(width: windowRect.width, height: windowRect.height)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .clipShape(.rect(cornerRadius: cornerRadius, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .inset(by: 0.5)
@@ -307,7 +307,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                 card()
                     .frame(width: cardWidth)
                     .fixedSize(horizontal: false, vertical: true)
-                    .background(heightReader)
+                    .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { cardHeight = $0 }
                     .position(x: expandedRect.midX, y: expandedRect.midY)
             }
         }
@@ -326,13 +326,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             .allowsHitTesting(expanded && !hideCard)
     }
 
-    private var heightReader: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .onAppear { cardHeight = proxy.size.height }
-                .onChange(of: proxy.size.height) { _, h in cardHeight = h }
-        }
-    }
 }
 
 // Full-screen confirm alert for the morph send flow. Used as a `quickInviteMorph` overlay

@@ -11,11 +11,7 @@ enum RespondScrollType {
     case acceptPage, counterInvitePage
 }
 
-// The full-screen horizontal accept / counter-invite pager, with no backdrop or confirm
-// alerts of its own so it can be dropped into the quick-invite morph as the card content
-// (the morph supplies the backdrop and hosts the alerts). The accept card tags itself
-// with `.morphCardAnchor()` so the morph surface grows into exactly that card.
-struct RespondPager: View {
+struct OldRespondContainer: View {
 
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondPopupUIState
@@ -24,9 +20,6 @@ struct RespondPager: View {
 
     let onResponse: (ProfileResponse) -> Void
 
-    // Measured bottom edge of the accept card (in the pager's coordinate space). The Hide
-    // button pins to this so it sits just below the cards regardless of screen size, and
-    // stays put while pages scroll horizontally (only X changes as they scroll, Y is stable).
     @State private var cardBottomY: CGFloat = 0
 
     var body: some View {
@@ -67,15 +60,16 @@ struct RespondPager: View {
     }
 }
 
-extension RespondPager {
+
+extension OldRespondContainer {
 
     private func acceptInvitePage(cardWidth: CGFloat) -> some View {
         ZStack {
             Color.clear
-            RespondAcceptContainer(vm: vm, confirmNewTimeInvite: $ui.confirmNewTimeInvite, confirmAcceptInvite: $ui.confirmAcceptInvite) {
-                onResponse(.decline)
-            }
-            .pageScrollTransition(anchor: .trailing, yOffset: 12)
+//            RespondCardContainer(vm: vm, confirmNewTimeInvite: $ui.confirmNewTimeInvite, confirmAcceptInvite: $ui.confirmAcceptInvite) {
+//                onResponse(.decline)
+//            }
+//            .pageScrollTransition(anchor: .trailing, yOffset: 12)
             .background(cardBottomReader)
         }
         .frame(width: cardWidth, alignment: .topLeading)
@@ -130,18 +124,8 @@ struct RespondConfirmAlerts: ViewModifier {
     }
 }
 
-
 extension View {
-    func pageScrollTransition(anchor: UnitPoint, yOffset: CGFloat) -> some View {
-        scrollTransition(.interactive, axis: .horizontal) { content, phase in
-            let progress = 1 - min(abs(phase.value), 1)
-            let scale = CGFloat(0.5 + progress * 0.5)
-            return content.scaleEffect(scale, anchor: anchor).offset(y: yOffset)
-        }
-    }
-    
     func respondConfirmAlerts(ui: RespondPopupUIState, onResponse: @escaping (ProfileResponse) -> Void) -> some View {
         modifier(RespondConfirmAlerts(ui: ui, onResponse: onResponse))
     }
 }
-

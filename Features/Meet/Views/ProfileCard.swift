@@ -28,15 +28,11 @@ struct ProfileCard : View {
 
     var body: some View {
         Image(uiImage: displayImage)
-            .resizable()
             .defaultImage(size, cardCornerRadius)
             .overlay {
                 BackgroundBlur(image: displayImage, size: size, frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
             }
-            .background(
-                RoundedRectangle(cornerRadius: cardCornerRadius)
-                    .fill(Color.appCanvas)
-            )
+            .background(Color.appCanvas, in: .rect(cornerRadius: cardCornerRadius))
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
             .contentShape(Rectangle())

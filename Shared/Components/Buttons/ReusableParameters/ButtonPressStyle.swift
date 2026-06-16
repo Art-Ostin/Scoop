@@ -151,10 +151,6 @@ extension View {
     }
 
     // Apply the press effect directly to any view (e.g. an Image).
-    func shrinkPress(shadow: Elevation? = nil, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
-        modifier(PressEffectModifier(effect: .shrink, elevation: shadow, shadowColor: shadowColor, action: action))
-    }
-
     func growPress(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
         modifier(PressEffectModifier(effect: .grow, elevation: shadow, shadowColor: shadowColor, action: action))
     }

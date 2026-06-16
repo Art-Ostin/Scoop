@@ -123,6 +123,11 @@ extension InvitesViewModel {
     var showRespondPopup: String?
     var respondMorphId: String?
 
+    //Open/close the respond popup by intent. The id doubles as the morph origin (which
+    //invite icon to fly out of); nil means closed.
+    func openRespond(_ eventId: String) { showRespondPopup = eventId }
+    func closeRespond()                  { showRespondPopup = nil }
+
     //3. Show the respond Popup Screen
     var respondedToProfile: ProfileResponse?
 

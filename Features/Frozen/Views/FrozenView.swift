@@ -13,7 +13,7 @@ struct FrozenView: View {
     
     @State var showInfo: Bool = false
     @State var showSettings : Bool = false
-    @State var tabSelection: Int = 0
+    @State var tabSelection: Int? = 0
 
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
@@ -54,33 +54,40 @@ extension FrozenView {
     }
     
     private func tabSection(frozenContext: BlockedContext, frozenUntilDate: Date) -> some View {
-        TabView(selection: $tabSelection) {
-            BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .tag(0)
-                .onTapGesture {
-                    showInfo.toggle()
-                }
-            
-            VStack(spacing: 48) {
-                LargeClockView(targetTime: frozenUntilDate)
-                    .frame(maxWidth: .infinity)
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .containerRelativeFrame(.horizontal)
                     .onTapGesture {
                         showInfo.toggle()
                     }
-                
-                Text(verbatim: vm.user.email)
-                    .font(.body(14, .medium))
-                    .foregroundStyle(Color.grayText)
+                    .id(0)
+
+                VStack(spacing: 48) {
+                    LargeClockView(targetTime: frozenUntilDate)
+                        .frame(maxWidth: .infinity)
+                        .onTapGesture {
+                            showInfo.toggle()
+                        }
+
+                    Text(verbatim: vm.user.email)
+                        .font(.body(14, .medium))
+                        .foregroundStyle(Color.grayText)
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
+                .padding(.top, 24)
+                .containerRelativeFrame(.horizontal)
+                .id(1)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 24)
-            .tag(1)
-            
+            .scrollTargetLayout()
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $tabSelection)
+        .scrollIndicators(.hidden)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) {
-            PageIndicator(count: 2, selection: tabSelection)
+            PageIndicator(count: 2, selection: tabSelection ?? 0)
                 .padding(.bottom, 36)
         }
     }

@@ -83,10 +83,7 @@ struct SexOptionPill: View {
                     Image("EditButton")
                         .scaleEffect(0.7)
                         .frame(width: 20, height: 20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 0)
-                                .fill(Color.appCanvas)
-                        )
+                        .background(Color.appCanvas)
                         .offset(x: 4, y: -4)
                 }
                 .onTapGesture { editText = true }

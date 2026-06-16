@@ -56,6 +56,7 @@ struct GenericInterests: View {
     @Binding var selected: [String]
     @State var currentScroll: Int? = 0
     @State var selectedScroll: Int? = 0
+    @State private var selectedScrollPos = ScrollPosition()
     @Namespace private var tabNamespace
     
     var selectedMax: Bool {selected.count >= 10}
@@ -89,34 +90,32 @@ struct GenericInterests: View {
 
 extension GenericInterests {
     private var selectedInterestsView: some View {
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal) {
-                    HStack(alignment: .top) {
-                        ClearRectangle(size: 10)
-                        ForEach(selected, id: \.self) { selection in
-                            OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    selected.removeAll { $0 == text }
-                                }
+            ScrollView(.horizontal) {
+                HStack(alignment: .top) {
+                    ClearRectangle(size: 10)
+                    ForEach(selected, id: \.self) { selection in
+                        OptionCell(text: selection, selection: $selected, fillColour: false) { text in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selected.removeAll { $0 == text }
                             }
-                            .offset(y: 5)
                         }
-                        ClearRectangle(size: 30)
-                            .id("End Scroll")
+                        .offset(y: 5)
                     }
-                    .frame(height: 45)
+                    ClearRectangle(size: 30)
                 }
-                .onChange(of: selected.count) { oldValue, newValue in
-                    if newValue > oldValue {
-                        Task {
-                            try? await Task.sleep(nanoseconds: 50_000_000)
-                            withAnimation(.easeInOut(duration: 0.4)) { proxy.scrollTo("End Scroll", anchor: .trailing) }
-                        }
-                    }
-                }
-                .scrollIndicators(.never)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: 45)
             }
+            .scrollPosition($selectedScrollPos)
+            .onChange(of: selected.count) { oldValue, newValue in
+                if newValue > oldValue {
+                    Task {
+                        try? await Task.sleep(nanoseconds: 50_000_000)
+                        withAnimation(.easeInOut(duration: 0.4)) { selectedScrollPos.scrollTo(edge: .trailing) }
+                    }
+                }
+            }
+            .scrollIndicators(.never)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
 

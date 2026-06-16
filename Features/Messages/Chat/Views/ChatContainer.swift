@@ -98,7 +98,6 @@ extension ChatContainer {
                 event: vm.eventProfile.event,
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
-            isMessageProfile: true, //Only time Message Profile so different load
             profileImages: profileImages,
             mode: .viewProfile,
             onDismiss: { profileRendered = false },

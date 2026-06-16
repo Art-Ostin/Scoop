@@ -68,24 +68,3 @@ extension FrozenWithEvents {
     }
 }
 
-/*
- .overlayPreferenceValue(TitleBoundsKey.self) { anchor in
-     GeometryReader { proxy in
-         if let anchor {
-             let rect = proxy[anchor, in: .named("EventsSpace")]
-             Button {
-                 showFrozenInfo.toggle()
-             } label: {
-                 Image(systemName: "info.circle")
-                     .foregroundStyle(.black)
-                     .contentShape(Circle())
-             }
-             .frame(width: 24, height: 24)
-             .position(x: rect.maxX + 12, y: rect.minY) // top-right
-             .buttonStyle(.plain)
-             .zIndex(1)
-         }
-     }
- }
-
- */

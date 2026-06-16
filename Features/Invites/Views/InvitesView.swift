@@ -20,7 +20,7 @@ struct InvitesView: View {
                     eventProfile: invite,
                     isMorphing: ui.respondMorphId == invite.event.id,
                     selectedProfile: $ui.selectedProfile,
-                    onRespond: { ui.showRespondPopup = invite.event.id }
+                    onRespond: { ui.openRespond(invite.event.id) }
                 )
                 .task { await vm.ensureImagesLoaded(for: invite.profile) }
             }

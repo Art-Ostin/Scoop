@@ -93,9 +93,9 @@ extension CardEventContainer {
         InviteCardMessageView(vm: vm, showMessageSection: $ui.showMessageSection, showMessageScreen: $showMessageScreen)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
-            .measure(key: CardEventPageHeightKey.self) { proxy in
-                [.message: proxy.size.height]
-            }
+//            .measure(key: CardEventPageHeightKey.self) { proxy in
+//                [.message: proxy.size.height]
+//            }
     }
     
     private var eventPage: some View {
@@ -110,9 +110,9 @@ extension CardEventContainer {
             .opacity(ui.showMessageSection ? 0 : 1)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
-            .measure(key: CardEventPageHeightKey.self) { proxy in
-                [.event: proxy.size.height]
-            }
+//            .measure(key: CardEventPageHeightKey.self) { proxy in
+//                [.event: proxy.size.height]
+//            }
     }
     
     private var infoPage: some View {
@@ -123,9 +123,9 @@ extension CardEventContainer {
             decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3
         )
         .padding(.horizontal, 24)
-        .measure(key: CardEventPageHeightKey.self) { proxy in
-            [.details: proxy.size.height]
-        }
+//        .measure(key: CardEventPageHeightKey.self) { proxy in
+//            [.details: proxy.size.height]
+//        }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     

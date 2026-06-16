@@ -12,7 +12,7 @@ struct SignUpView: View {
     
     @Environment(AppDependencies.self) private var dep
     @State var showCover: Bool = false
-    @State var tabSelection: Int = 0
+    @State var tabSelection: Int? = 0
     
     @State var isShowing: Bool = false
     
@@ -23,7 +23,7 @@ struct SignUpView: View {
             
             VStack(spacing: 24) {
                 tabSection
-                PageIndicator(count: 2, selection: tabSelection)
+                PageIndicator(count: 2, selection: tabSelection ?? 0)
             }
             VStack(spacing: 8) {
                 ActionButton(text: "Login / Sign Up", hPadding: 24) { showCover = true}
@@ -45,23 +45,30 @@ struct SignUpView: View {
 extension SignUpView {
     
     private var tabSection: some View {
-        TabView(selection: $tabSelection) {
-            Image("CoolGuys")
-                .resizable().scaledToFit()
-                .tag(0)
-            
-            VStack(spacing: 36) {
-                (Text("Skip small talk: ").bold() + Text("No 'likes'. Match, then send a time & place to meet."))
-                (Text("Social Scoop: ").bold() + Text("Meet amongst each other's friends, or a double date!"))
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                Image("CoolGuys")
+                    .resizable().scaledToFit()
+                    .containerRelativeFrame([.horizontal, .vertical])
+                    .id(0)
+
+                VStack(spacing: 36) {
+                    (Text("Skip small talk: ").bold() + Text("No 'likes'. Match, then send a time & place to meet."))
+                    (Text("Social Scoop: ").bold() + Text("Meet amongst each other's friends, or a double date!"))
+                }
+                .font(.body(.regular))
+                .lineSpacing(12)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 48)
+                .containerRelativeFrame([.horizontal, .vertical])
+                .id(1)
             }
-            .font(.body(.regular))
-            .lineSpacing(12)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 48)
-            .tag(1)
+            .scrollTargetLayout()
         }
         .frame(height: 200)
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $tabSelection)
+        .scrollIndicators(.hidden)
     }
     
     private var titleSection: some View {

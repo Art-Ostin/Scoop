@@ -79,14 +79,14 @@ extension EventTimer {
     private func timeSection(time: Int, type: String) -> some View {
         VStack(spacing: 0) {
             Text("\(time)")
-                .font(.custom("SFProRounded-Bold", size: 28))
+                .font(.title(28))
                 .monospacedDigit()
                 .contentTransition(.numericText(countsDown: true))
                 .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
             
             Text(type)
                 .foregroundStyle(Color(white: 0.8))
-                .font(.custom("SFProRounded-Medium", size: 8))
+                .font(.title(8, .medium))
         }
         .frame(width: 37, height: 21)
     }

@@ -23,7 +23,6 @@ struct SelectTimeView: View {
     private let dayCount = 11
     var isRespondMode: Bool = false
     var isRespondPopup: Bool = false
-        
     
     var body: some View {
         VStack(spacing: 12) {
@@ -41,7 +40,7 @@ struct SelectTimeView: View {
         .padding(.horizontal, isRespondMode ? 0 : 24)
         .padding(.top, isRespondMode ? 0 : 24)
         .padding(.bottom, isRespondMode ? -12 : 0)
-        .background { if !isRespondMode {CardBackground(color: .black, cornerRadius: 16)}}
+//        .background { if !isRespondMode {CardBackground(color: .black, cornerRadius: 16)}}
         .onAppear { syncTimePickerIfNeeded() }
         .onChange(of: selectedHour)   { _, _ in commitTimeIfChanged() }
         .onChange(of: selectedMinute) { _, _ in commitTimeIfChanged() }
@@ -212,7 +211,6 @@ extension SelectTimeView {
         .frame(width: 160, height: 130)
         .labelsHidden()
         .tint(.accent)
-        .accentColor(.accent)
     }
     
     private func syncTimePickerIfNeeded() {

@@ -120,7 +120,7 @@ extension View {
     //Put eventTextOverlay as viewExtension as used also in details view
     func eventTextOverlay(isDetails: Bool = false) -> some View {
         self
-            .font(.custom("SFProRounded-Semibold", size: 13))
+            .font(.title(13, .semibold))
             .foregroundStyle(isDetails ? Color(red: 0.55, green: 0, blue: 0.25) : Color(white: 0.68))
             .padding(.horizontal, 4)
             .padding(.vertical, 2)

@@ -21,9 +21,9 @@ struct EventDetailsView: View {
             InviteCardPlaceRow(location: event.location, isMeetUp: true) {openMap()}
             detailRow
         }
-        .measure(key: EventDetailsHeight.self) { geo in
-            return geo.size.height
-        }
+//        .measure(key: EventDetailsHeight.self) { geo in
+//            return geo.size.height
+//        }
     }
     
     private var detailRow: some View {

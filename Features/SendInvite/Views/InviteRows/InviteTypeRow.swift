@@ -19,11 +19,6 @@ struct InviteTypeRow: View {
     }
     
     var body: some View {
-        HStack {
-            Text("What")
-        }
-        
-        
         
         CustomMenu {
             SelectTypeView(type: $eventType, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)

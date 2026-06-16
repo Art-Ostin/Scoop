@@ -14,7 +14,8 @@ struct MapOptionsView: View {
     @Binding var sheet: MapSheets
     
     @Binding var  useSelectedDetent: Bool
-    
+    @State private var scrollPos = ScrollPosition(idType: MapCategory.self)
+
     var body: some View {
         VStack(spacing: 24) {
             HStack(spacing: 6) {
@@ -31,30 +32,28 @@ struct MapOptionsView: View {
     }
     
     private var mapCategoryIcons: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal) {
-                HStack(spacing: 36) {
-                    ClearRectangle(size: 0)
-                    ForEach(MapCategory.allCases) { category in
-                        if category != .park {
-                            MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm, useSelectedDetent: $useSelectedDetent)
-                                .id(category)
-                        }
+        ScrollView(.horizontal) {
+            HStack(spacing: 36) {
+                ClearRectangle(size: 0)
+                ForEach(MapCategory.allCases) { category in
+                    if category != .park {
+                        MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm, useSelectedDetent: $useSelectedDetent)
+                            .id(category)
                     }
-                    ClearRectangle(size: 0)
                 }
-                .offset(x: -12)
+                ClearRectangle(size: 0)
             }
-            .onAppear {
-                guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else {return }
-                proxy.scrollTo(selected, anchor: .center)
-                print("scrolled to there")
-            }
-            .scrollIndicators(.never)
-            .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
-            .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: false)
-            
+            .scrollTargetLayout()
+            .offset(x: -12)
         }
+        .scrollPosition($scrollPos)
+        .onAppear {
+            guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else {return }
+            scrollPos.scrollTo(id: selected, anchor: .center)
+        }
+        .scrollIndicators(.never)
+        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
+        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: false)
     }
     
     private var deleteSearchButton: some View {

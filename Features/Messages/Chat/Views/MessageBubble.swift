@@ -17,6 +17,7 @@ struct MessageBubbleView: View {
     @State var isTimeBelow: Bool = true
     @State private var inlineTimeReservation: CGFloat = 0
     @State private var maxBubbleWidth: CGFloat = 0
+    @State private var bubbleContentWidth: CGFloat = 0
 
     let chat: MessageModel
     let newAuthor: Bool
@@ -186,26 +187,20 @@ extension MessageBubbleView {
     }
     
     private var geometryMeasure: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .onAppear { updateTimePlacement(bubbleWidth: proxy.size.width) }
-                .onChange(of: proxy.size.width) { _, w in updateTimePlacement(bubbleWidth: w) }
-                .onChange(of: chat.content) { _, _ in updateTimePlacement(bubbleWidth: proxy.size.width) }
-        }
+        Color.clear
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
+                bubbleContentWidth = w
+                updateTimePlacement(bubbleWidth: w)
+            }
+            .onChange(of: chat.content) { _, _ in updateTimePlacement(bubbleWidth: bubbleContentWidth) }
     }
 
     private var parentWidthMeasure: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .onAppear {
-                    maxBubbleWidth = proxy.size.width
-                    updateTimePlacement(bubbleWidth: proxy.size.width)
-                }
-                .onChange(of: proxy.size.width) { _, w in
-                    maxBubbleWidth = w
-                    updateTimePlacement(bubbleWidth: w)
-                }
-        }
+        Color.clear
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
+                maxBubbleWidth = w
+                updateTimePlacement(bubbleWidth: w)
+            }
     }
 }
 

@@ -50,23 +50,13 @@ struct RespondDetailsView: View {
             title
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 DetailSection(event: event, type: detail)
+                    .lineSpacing(4)
             }
-        }
-        .lineSpacing(4)
-        .padding(.top, 18)
-        .padding(.horizontal, 22)
-        .padding(.bottom, 42)
-        .overlay(alignment: .bottomTrailing) {
             inviteButton
-                .padding(.horizontal, 20)
-                .padding(.bottom, 14)
         }
-        .frame(maxWidth: .infinity)
-        .background(CardBackground())
-        .padding(.horizontal, 24)
-        .onTapGesture {
-            showInfo.toggle()
-        }
+        //1. Card Background, overlay and tap behaviour
+        .modifier(RespondCardBackground())//Same background as the acceptCard
+        .onTapGesture {showInfo.toggle()}
     }
 }
 
@@ -74,33 +64,29 @@ extension RespondDetailsView {
     
     private var title: some View {
         Text(event.type.emoji + " " + event.type.longTitle)
-            .font(.custom("SFProRounded-Bold", size: 18))
+            .font(.title(18))
             .frame(maxWidth: .infinity, alignment: .center)
     }
     
     private var inviteButton: some View {
-        Button {
+        ScoopButton(shape: Capsule()) {
             showInfo.toggle()
         } label: {
             HStack(spacing: 8) {
                 CirclePhoto(image: image, showShadow: false, height: 24)
                 
                 Text("Invite")
-                    .font(.custom("SFProRounded-Bold", size: 14))
+                    .font(.title(14, .bold))
                     .foregroundStyle(Color.appGreen)
             }
-            .padding(.leading, 6)
-            .padding(.trailing, 8)
-            .padding(.vertical, 3)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .foregroundStyle(Color.white.opacity(0.7))
-            )
-            .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-            .stroke(100, lineWidth: 1, color: .green.opacity(0.1))
+            .padding(.leading, 2) //As Image
+            .padding(.trailing, 6)
+            .padding(.vertical, 2) //As Image so smalle
         }
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 }
+
 
 struct DetailSection: View {
     let event: UserEvent
@@ -124,3 +110,26 @@ struct DetailSection: View {
         }
     }
 }
+
+
+
+
+/*
+ Button {
+     showInfo.toggle()
+ } label: {
+     HStack(spacing: 8) {
+         CirclePhoto(image: image, showShadow: false, height: 24)
+         
+         Text("Invite")
+             .font(.title(14, .bold))
+             .foregroundStyle(Color.appGreen)
+     }
+     .padding(.leading, 6)
+     .padding(.trailing, 8)
+     .padding(.vertical, 3)
+     .background(Color.white.opacity(0.7), in: .rect(cornerRadius: 24))
+     .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+     .stroke(100, lineWidth: 1, color: .green.opacity(0.1))
+ }
+ */

@@ -11,6 +11,7 @@ struct RespondTextBubble: View {
     
     @Binding var showMessageScreen: Bool
     @State var isTextBelow = false
+    @State private var bubbleContentWidth: CGFloat = 0
     
     let message: String
     let isMyChat: Bool
@@ -70,12 +71,12 @@ extension RespondTextBubble {
     }
     
     private var geometryMeasure: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .onAppear { updateTimePlacement(bubbleWidth: proxy.size.width) }
-                .onChange(of: proxy.size.width) { _, w in updateTimePlacement(bubbleWidth: w) }
-                .onChange(of: message) { _, _ in updateTimePlacement(bubbleWidth: proxy.size.width) }
-        }
+        Color.clear
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
+                bubbleContentWidth = w
+                updateTimePlacement(bubbleWidth: w)
+            }
+            .onChange(of: message) { _, _ in updateTimePlacement(bubbleWidth: bubbleContentWidth) }
     }
     
     private func updateTimePlacement(bubbleWidth: CGFloat) {

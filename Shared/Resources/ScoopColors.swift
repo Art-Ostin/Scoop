@@ -10,14 +10,16 @@ import SwiftUI
 extension Color {
     static let appCanvas = Color(red: 0.99, green: 0.98, blue: 0.97)
 
+    static let appGreen =  Color(red: 0, green: 0.47, blue: 0.41)
+    
+    //2. Three diffrent grays used around the app
     static let grayBackground = Color (red: 0.93, green: 0.93, blue: 0.93)
-
+    
+    static let grayPlaceholder = Color (red: 0.85, green: 0.85, blue: 0.85)
+    
     static let grayText = Color (red: 0.6, green: 0.6, blue: 0.6)
 
-    static let grayPlaceholder = Color (red: 0.85, green: 0.85, blue: 0.85)
-
-    static let appGreen =   Color(red: 0, green: 0.47, blue: 0.41)
-
+    //3. Bootstrap colours used around app
     static let dangerRed = Color(red: 0.94, green: 0.08, blue: 0.24)
 
     static let warningYellow = Color(red: 1, green: 0.75, blue: 0.03)

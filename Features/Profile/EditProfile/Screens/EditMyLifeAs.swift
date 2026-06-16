@@ -24,7 +24,7 @@ enum Field: String, CaseIterable, Hashable, Identifiable {
 struct EditMyLifeAs: View {
     @Bindable var vm: EditProfileViewModel
 
-    @State private var selection: Field = .movie
+    @State private var selection: Field? = .movie
     @State private var selectedValues: [Field: String] = [:]
 
     @FocusState private var focus: Field?
@@ -38,10 +38,19 @@ struct EditMyLifeAs: View {
     }
     
     var body: some View {
-        TabView(selection: $selection) {
-            ForEach(Field.allCases) { page(for: $0).tag($0)}
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(Field.allCases) { field in
+                    page(for: field)
+                        .containerRelativeFrame([.horizontal, .vertical])
+                        .id(field)
+                }
+            }
+            .scrollTargetLayout()
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $selection)
+        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay(alignment: .bottom) {
             tabs

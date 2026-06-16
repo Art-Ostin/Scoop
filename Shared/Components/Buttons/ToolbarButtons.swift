@@ -40,27 +40,6 @@ struct SettingsButton: View {
 }
 
 
-extension View {
-
-    @ViewBuilder
-    func glassButtonStyleIfAvailable() -> some View {
-        if #available(iOS 26.0, *) {
-            buttonStyle(.glass)
-        } else {
-            buttonStyle(.plain)
-        }
-    }
-
-    @ViewBuilder
-    func glassProminentButtonStyleIfAvailable() -> some View {
-        if #available(iOS 26.0, *) {
-            buttonStyle(.glassProminent)
-        } else {
-            buttonStyle(.plain)
-        }
-    }
-}
-
 //To disappear when it is not at the top.
 private struct ScrollTopTracker: ViewModifier {
     @Binding var isAtTop: Bool

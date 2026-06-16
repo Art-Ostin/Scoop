@@ -98,12 +98,3 @@ extension View {
         self.modifier(CustomHorizontalScrollFade(width: width, showFade: showFade, fromLeading: fromLeading, isCardInvite: isCardInvite))
     }
 }
-
-
-
-struct ScrollNavBarVisibleKey: PreferenceKey {
-    static var defaultValue: Bool = false
-    static func reduce(value: inout Bool, nextValue: () -> Bool) {
-        value = value || nextValue()
-    }
-}

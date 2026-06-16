@@ -68,7 +68,7 @@ struct DropDownView<Row: View, DropDown: View> : View {
     private var dropdownMenu: some View {
         dropDown()
             .padding(24)
-            .readHeight(syncMenuHeight)
+            .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: syncMenuHeight)
             .offset(y: showOptions ? 0 : hiddenOffsetY)
             .mask(alignment: opensAbove ? .bottom : .top) {
                 Rectangle()
@@ -108,20 +108,3 @@ struct DropDownView<Row: View, DropDown: View> : View {
     }
 }
 
-private struct ViewHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
-private extension View {
-    func readHeight(_ onChange: @escaping (CGFloat) -> Void) -> some View {
-        background(
-            GeometryReader { proxy in
-                Color.clear.preference(key: ViewHeightKey.self, value: proxy.size.height)
-            }
-        )
-        .onPreferenceChange(ViewHeightKey.self, perform: onChange)
-    }
-}

@@ -31,7 +31,6 @@ struct ProfileImagesEditing: View {
                     .font(.body(17, .bold))
                 
                 Image(uiImage: importedImage.image)
-                    .resizable()
                     .defaultImage(imageSize, 16)
                     .overlay(alignment: .bottomTrailing) { changeImageButton }
                     .overlay(alignment: .bottomLeading) { cropPhotoIcon }
@@ -112,10 +111,7 @@ extension ProfileImagesEditing {
                     .font(.body(12, .bold))
             }
             .frame(width: 115, height: 28)
-            .background (
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(Color.black.opacity(0.5))
-            )
+            .background(Color.black.opacity(0.5), in: .rect(cornerRadius: 8))
             .padding()
         }
     }
@@ -127,10 +123,7 @@ extension ProfileImagesEditing {
             Image("CropImageIcon")
         }
         .frame(width: 30, height: 28)
-        .background (
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.black.opacity(0.5))
-        )
+        .background(Color.black.opacity(0.5), in: .rect(cornerRadius: 12))
         .padding()
     }
     

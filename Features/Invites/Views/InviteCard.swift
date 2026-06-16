@@ -23,9 +23,7 @@ struct InviteCard: View {
     private let contentPadding: CGFloat = 6
     
     var dayCount: Int { vm.respondDraft.newTime.proposedTimes.dates.count}
-    var type: Event.EventType {vm.respondDraft.originalInvite.event.type}
-    var hideInvite: Bool { ((type == .doubleDate || type == .drink) && dayCount == 1) ||  ui.showTimePopup && dayCount >= 2}
-    
+
     var body: some View {
         VStack(spacing: 0) {
             profileImage
@@ -36,7 +34,6 @@ struct InviteCard: View {
         .onTapGesture {if ui.showTimePopup {ui.showTimePopup = false}}
         .overlay(alignment: .top) {addingTimeInfoOverlay}
         .getImageSize(imageSize: $imageSize, horizontalPadding: contentPadding)
-        .preference(key: HideInvitePreferenceKey.self, value: hideInvite)
     }
 }
 
@@ -76,7 +73,6 @@ extension InviteCard {
     
     private var profileImage: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
-            .resizable()
             .defaultImage(imageSize)
             .contentShape(Rectangle())
             .onTapGesture {openProfile(eventProfile.profile)}
@@ -90,18 +86,7 @@ struct InviteCardStyle: ViewModifier {
         content
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 22)
-                .foregroundStyle(Color.appCanvas)
-            )
+            .background(Color.appCanvas, in: .rect(cornerRadius: 22))
             .customShadow(.card, strength: 2)
-    }
-}
-
-struct HideInvitePreferenceKey: PreferenceKey {
-    static var defaultValue: Bool = false
-    
-    static func reduce(value: inout Bool, nextValue: () -> Bool) {
-        value = nextValue()
     }
 }

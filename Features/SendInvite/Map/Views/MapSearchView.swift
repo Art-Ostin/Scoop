@@ -227,7 +227,7 @@ private struct MapSearchBox<Content: View>: View {
                 content
             }
             .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(.rect(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)

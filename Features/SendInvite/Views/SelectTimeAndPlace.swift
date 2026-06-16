@@ -96,7 +96,7 @@ extension SelectTimeAndPlace {
         HStack(spacing: 8) {
             CirclePhoto(image: image, showShadow: false, height: 30)
             Text(isInviteResponse ? "Send New Invite" : "Meet \(name)")
-                .font(.custom("SFProRounded-Bold", size: 24))
+                .font(.title(24))
         }
     }
     

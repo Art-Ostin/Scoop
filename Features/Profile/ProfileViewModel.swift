@@ -23,14 +23,18 @@ enum ProfileViewType {
 
     var viewProfileType: ProfileViewType
 
-    init(profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading, defaults: DefaultsManaging) {
+    //Profile Images
+    private(set) var images: [UIImage]
+    private var hasLoaded = false
+
+    init(profile: UserProfile, event: UserEvent? = nil, imageLoader: ImageLoading, defaults: DefaultsManaging, images: [UIImage] = []) {
         self.profile = profile
         self.imageLoader = imageLoader
         self.event = event
         self.defaults = defaults
+        self.images = images
         self.viewProfileType = Self.loadProfileViewType(event: event)
     }
-
 
     private static func loadProfileViewType(event: UserEvent? = nil) -> ProfileViewType {
         if event?.status == .pastAccepted {
@@ -43,11 +47,23 @@ enum ProfileViewType {
             return .invite
         }
     }
+    
+    func seed(_ images: [UIImage]) {
+        guard !images.isEmpty else { return }
+        self.images = images
+    }
 
-    func loadImages() async -> [UIImage] {
-        return await imageLoader.loadProfileImages(profile)
+    func loadImagesIfNeeded() async {
+        guard !hasLoaded, images.count <= 1 else { return }
+        let loaded = await imageLoader.loadProfileImages(profile)
+        guard !loaded.isEmpty else { return }
+        images = loaded
+        hasLoaded = true
     }
 }
+
+
+
 
 
 @Observable final class ProfileUIState {
@@ -92,22 +108,12 @@ enum ProfileViewType {
     var headerHeight: CGFloat = 0
     var detailsRestingTop: CGFloat { headerTopPadding + headerHeight + 24 }
 
-    //4. Gesture session bookkeeping. Not observed: mutating these mid-gesture must
-    //never invalidate a view.
     @ObservationIgnored var dragType: DragType = .undecided
     @ObservationIgnored var dragBase: CGFloat = 0
     @ObservationIgnored var dragCommitTranslation: CGFloat = 0
-    //Mirror of the card's on-screen offset so a new drag can catch the card
-    //mid-animation exactly where the user sees it. Fed by AnimatedCardOffset's
-    //animatableData during snaps and by the gesture during drags — .offset is a pure
-    //render transform that geometry readers cannot see, so onGeometryChange can't
-    //provide this value.
     @ObservationIgnored var presentedDetailsOffset: CGFloat = 0
-    //Card's RESTING top edge in global coordinates (geometry ignores the drag
-    //transform, so this measures the layout position — add presentedDetailsOffset
-    //for the on-screen top). Starts at .infinity so touches count as "not on the
-    //card" until first measured.
     @ObservationIgnored var restingCardTopGlobal: CGFloat = .infinity
+    @ObservationIgnored var containerHeight: CGFloat = 0
 
     func animateDetails(to willOpen: Bool, velocity: CGFloat = 0) {
         let target = willOpen ? detailsOpenOffset : detailsClosedOffset

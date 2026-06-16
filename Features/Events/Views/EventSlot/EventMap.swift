@@ -82,7 +82,7 @@ extension EventMap {
                 .font(.system(size: 11, weight: .bold))
         }
         .frame(width: 75, height: 40)
-        .background(RoundedRectangle(cornerRadius: 10.5).fill(Color.white))
+        .background(Color.white, in: .rect(cornerRadius: 10.5))
         .stroke(10.5, lineWidth: 1, color: isMap ? Color(red: 0.26, green: 0.52, blue: 0.96) : Color(white: 0.92))
     }
 }

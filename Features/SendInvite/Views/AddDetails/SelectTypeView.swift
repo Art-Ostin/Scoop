@@ -22,11 +22,10 @@ struct SelectTypeView: View {
         }
         .padding(24)
         .frame(width: 300)
-        .cornerRadius(12)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .background {
-            CardBackground(color: .black, cornerRadius: 12)
-        }
+        .clipShape(.rect(cornerRadius: 12))
+//        .background {
+//            CardBackground(color: .black, cornerRadius: 12)
+//        }
         .font(.body(18))
     }
 }

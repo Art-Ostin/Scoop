@@ -23,7 +23,7 @@ enum DragType {
 extension ProfileView {
 
     //Measured in .global to match restingCardTopGlobal, the card-boundary reference.
-    func profileDrag(geo: GeometryProxy) -> some Gesture {
+    func profileDrag() -> some Gesture {
         DragGesture(minimumDistance: 6, coordinateSpace: .global)
             .onChanged { value in
                 //A committed close owns the surface; new touches wait for the
@@ -50,7 +50,7 @@ extension ProfileView {
                     let offset = rubberBand(value: ui.dragBase + relative,
                                             min: ui.detailsOpenOffset,
                                             max: ui.detailsClosedOffset,
-                                            dimension: geo.size.height)
+                                            dimension: ui.containerHeight)
                     ui.detailsOffset = offset
                     //Non-animated writes bypass animatableData, so keep the mirror exact.
                     ui.presentedDetailsOffset = offset
@@ -70,7 +70,7 @@ extension ProfileView {
                 defer { ui.dragType = .undecided }
                 switch ui.dragType {
                 case .details: endDetailsDrag(value)
-                case .dismiss: endProfileDrag(value, geo: geo)
+                case .dismiss: endProfileDrag(value)
                 default: break
                 }
             }
@@ -135,12 +135,12 @@ extension ProfileView {
         }
     }
 
-    private func endProfileDrag(_ value: DragGesture.Value, geo: GeometryProxy) {
+    private func endProfileDrag(_ value: DragGesture.Value) {
         let velocity = value.velocity.height
         //Native completes once the momentum-projected resting point passes about
         //a third of the screen — a flick projects far past it from a short drag.
         let projected = ui.profileOffset + project(velocity: velocity)
-        if projected > geo.size.height * 0.3 {
+        if projected > ui.containerHeight * 0.3 {
             animateDismiss(releaseVelocity: velocity)
         } else {
             animateSnapBack(releaseVelocity: velocity)

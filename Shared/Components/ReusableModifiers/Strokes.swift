@@ -25,8 +25,3 @@ extension View {
             }
     }
 }
-
-/*
-Example
- .stroke(RoundedRectangle(cornerRadius: 30), linewidth: 1, Color: .appGray)
- */

@@ -24,7 +24,6 @@ struct RespondAcceptContainer: View {
             respondDetails
         }
         .padding(.top, 32)
-        .preference(key: IsTimeOpen.self, value: ui.showTimePopup)
     }
 }
 

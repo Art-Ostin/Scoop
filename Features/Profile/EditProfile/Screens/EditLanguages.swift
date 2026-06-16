@@ -16,6 +16,7 @@ struct EditLanguages: View {
     @State var isTopOfScroll: Bool = false
     @State private var isScrolling = false
     @State private var flashMaxText: Set<String> = []
+    @State private var selectedScrollPos = ScrollPosition()
     
     private var filteredLanguages: [String] {
         let all = WorldLanguages.top120Alphabetical
@@ -132,33 +133,31 @@ extension EditLanguages {
     }
     
     private var selectedView: some View {
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal) {
-                    HStack(alignment: .bottom, spacing: 23) {
-                        ClearRectangle(size: 1)
-                        ForEach(selected, id: \.self) { selection in
-                            OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    selected.removeAll { $0 == text }
-                                }
+            ScrollView(.horizontal) {
+                HStack(alignment: .bottom, spacing: 23) {
+                    ClearRectangle(size: 1)
+                    ForEach(selected, id: \.self) { selection in
+                        OptionCell(text: selection, selection: $selected, fillColour: false) { text in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selected.removeAll { $0 == text }
                             }
                         }
-                        ClearRectangle(size: 30)
-                            .id("End Scroll")
                     }
-                    .frame(height: 48)
+                    ClearRectangle(size: 30)
                 }
-                .onChange(of: selected.count) {oldValue, newValue in
-                    if newValue > oldValue {
-                        Task {
-                            try? await Task.sleep(nanoseconds: 50_000_000)
-                            withAnimation(.easeInOut(duration: 0.4)) { proxy.scrollTo("End Scroll", anchor: .trailing) }
-                        }
-                    }
-                }
-                .scrollIndicators(.never)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: 48)
             }
+            .scrollPosition($selectedScrollPos)
+            .onChange(of: selected.count) {oldValue, newValue in
+                if newValue > oldValue {
+                    Task {
+                        try? await Task.sleep(nanoseconds: 50_000_000)
+                        withAnimation(.easeInOut(duration: 0.4)) { selectedScrollPos.scrollTo(edge: .trailing) }
+                    }
+                }
+            }
+            .scrollIndicators(.never)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     func checkIfTopOfScroll(_ geo: ScrollGeometry) -> Bool {

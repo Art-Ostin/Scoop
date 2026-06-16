@@ -71,7 +71,7 @@ extension NewInviteCard {
     }
 }
 extension NewInviteCard {
-        
+    
     private var eventTitle: some View {
         Text("\(eventProfile.profile.name)'s Invite")
             .font(.body(22, .bold))

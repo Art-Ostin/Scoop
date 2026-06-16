@@ -37,7 +37,7 @@ struct RespondSelectTime: View {
         .frame(width: cardWidth, alignment: .leading)
         .padding(.top, horizontalInset)
         .compositingGroup()
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(.rect(cornerRadius: 16, style: .continuous))
         .background(customBackground)
         .animation(.smooth(duration: 0.2), value: showCustomTime)
     }
@@ -113,7 +113,7 @@ extension RespondSelectTime {
     private var timeDropDownTitle: some View {
         HStack {
             Text(showCustomTime ? "Propose New Time" : "Invited Times")
-                .font(.custom("SFProRounded-Medium", size: 16))
+                .font(.title(16, .medium))
                 .foregroundStyle(Color.grayText)
             Spacer()
             
@@ -137,7 +137,7 @@ extension RespondSelectTime {
     private var optionsLabel: some View {
         Text("Options")
             .foregroundStyle(Color.appGreen)
-            .font(.custom("SFProRounded-Bold", size: 12))
+            .font(.title(12))
             .padding(4)
             .kerning(0.5)
             .padding(.horizontal, 6)

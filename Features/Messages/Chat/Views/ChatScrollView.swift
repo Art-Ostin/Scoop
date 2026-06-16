@@ -99,9 +99,6 @@ extension ChatScrollView {
                 scrollToBottomEdge(animated: true)
             }
         } else {
-            // Far from bottom: don't jump — let onScrollGeometryChange shift the offset
-            // by the keyboard-driven container shrinkage so the message above the input
-            // bar stays visually pinned (WhatsApp behavior).
             compensateOnShrink = true
         }
     }

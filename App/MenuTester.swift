@@ -75,10 +75,7 @@ struct MenuTester: View {
             .font(.body(14, .bold))
             .foregroundStyle(Color.white)
             .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.blue)
-            )
+            .background(Color.blue, in: .rect(cornerRadius: 16))
     }
 }
 
