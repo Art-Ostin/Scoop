@@ -44,9 +44,6 @@ struct MeetContainer: View {
 
         }
         .profileMorphHost(profileMorph)
-        //Both present above the root TabView: the real tab bar sits behind the
-        //profile (revealed + dimmed during the zoom dismissal) and the response
-        //cover physically occludes it.
         .profileOverlay(id: ui.openProfile?.id) {
             if let profile = ui.openProfile { profileView(profile: profile) }
         }

@@ -10,7 +10,7 @@ import Foundation
 public enum FormatEvent {
     
     //Format event Time
-    static func dayAndTime(_ date: Date, wide: Bool = true, withHour: Bool = true) -> String {
+    static func dayAndTime(_ date: Date, wide: Bool = true, withHour: Bool = true, monthWide: Bool = true) -> String {
         let cal = Calendar.current
         let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
 
@@ -21,7 +21,7 @@ public enum FormatEvent {
             dayPart = "Tomorrow"
         } else {
             let weekday = date.formatted(.dateTime.weekday(wide ? .wide : .abbreviated))
-            let monthDay = date.formatted(.dateTime.month(wide ? .wide : .abbreviated).day())
+            let monthDay = date.formatted(.dateTime.month(wide && monthWide ? .wide : .abbreviated).day())
             dayPart = "\(weekday), \(monthDay)"
         }
         return withHour ? "\(dayPart) · \(hour)" : dayPart

@@ -1,6 +1,7 @@
 import SwiftUI
-import MapKit
 
+
+//Vertical spacing here is adaptive. Therefore, it is controlled by the type, time, place padding not the vertical stacks
 
 struct SendInviteContainer: View {
     //1. Controls what popup is showing or not
@@ -26,13 +27,13 @@ struct SendInviteContainer: View {
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 0) {
             inviteTitle
             timePlaceAndType
             sendInviteButton
         }
-        .modifier(InviteCardBackground())
         .overlay(alignment: .topLeading) { clearAndInfoButtons }
+        .modifier(InviteCardBackground())
         
         //All Logic of what screen to show and where
         .hideTabBar(hideBar: isInviteResponse)
@@ -45,7 +46,6 @@ struct SendInviteContainer: View {
 
 //Key Components
 extension SendInviteContainer {
-    
     //1. Main Views
     private var inviteTitle: some View {
         HStack(spacing: 8) {
@@ -56,13 +56,12 @@ extension SendInviteContainer {
     }
 
     private var timePlaceAndType: some View {
-        VStack(spacing: 28) {
-            InviteTypeRow(ui: ui, eventType: $draft.type, unparsedMessage: $draft.message)
+        VStack(spacing: 0) {
+            InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
             MapDivider()
             InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
             MapDivider()
-                .foregroundStyle(Color.blue)
-            InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView)
+            InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
         }
         .zIndex(1) //so pop ups always appear above the Action Button
     }
@@ -83,7 +82,7 @@ struct InviteCardBackground: ViewModifier {
         content
             .padding(.horizontal, 32)
             .padding(.vertical, 24)
-            .inviteCardBackground(color: .accent) //Uses same background as respondCard
+            .inviteCardBackground(color: .grayText) //Uses same background as respondCard
     }
 }
 

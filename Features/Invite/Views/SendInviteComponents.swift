@@ -13,17 +13,16 @@ extension SendInviteContainer {
     
     //1. Clear and Info Button Logic
     var clearAndInfoButtons: some View {
-    HStack {
-        if hasDraftChanges { clearButton}
-        Spacer()
-        infoButton
+        HStack {
+            if hasDraftChanges { clearButton}
+            Spacer()
+            infoButton
+        }
+        .offset(y: -8)
+        .padding(.horizontal, -6)
     }
-    .offset(y: -8)
-    .padding(.horizontal, 8)
-    .padding(.top, 24)
-}
     
-    private var clearButton: some View {
+    var clearButton: some View {
         Button {
             deleteEventDefault()
         } label: {
@@ -46,37 +45,35 @@ extension SendInviteContainer {
         .growButton()
     }
     
-    //2. Invite Button
-     var sendInviteButton: some View {
-        let isValid = !ui.showConfirmPopup && InviteIsValid
-        return ActionButton(text: "Send Invite", isValid: isValid, showShadow: false) {
-            if let requestConfirm {
-                requestConfirm(onSendInvite)
-            } else {
-                ui.showConfirmPopup = true
-            }
-        }
-    }
-    
-    //3. Logic for if the buttons are valid
-    private var hasDraftChanges: Bool {
+    var hasDraftChanges: Bool {
         !draft.time.dates.isEmpty || draft.place != nil || draft.type != .drink || draft.message != nil
     }
     
-    private var InviteIsValid: Bool {
-        !draft.time.dates.isEmpty && draft.place != nil
+    //2. Invite Button and valid logic
+   var sendInviteButton: some View {
+        let isValid = !ui.showConfirmPopup &&  !draft.time.dates.isEmpty && draft.place != nil
+
+       return ActionButton(text: "Send Invite", isValid: isValid, showShadow: false) {
+           if let requestConfirm {
+               requestConfirm(onSendInvite)
+           } else {
+               ui.showConfirmPopup = true
+           }
+       }
     }
+    
 }
 
 
 //Used througout code
 extension View {
-    func smallTextFont() -> some View {
-        self
+    func inviteTypeText(_ detailFont: DetailFont) -> some View {
+        Text(detailFont.rawValue.capitalized)
             .font(.body(14, .regular))
-            .foregroundStyle(Color(red: 0.65, green: 0.65, blue: 0.7))
+            .foregroundStyle(Color(red: 0.65, green: 0.65, blue: 0.65))
     }
 }
-
-
+enum DetailFont: String {
+    case when, `where`, what
+}
 

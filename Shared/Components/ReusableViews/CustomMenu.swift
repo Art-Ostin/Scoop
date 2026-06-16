@@ -237,6 +237,10 @@ enum CustomMenuSpec {
     static let standardWidth: CGFloat = 250
     /// Gap between the label and the menu edge.
     static let anchorGap: CGFloat = 6
+    /// Fine-tuning nudge applied to the final placement: shifts the platter
+    /// right and down from its anchor-aligned position.
+    static let placementOffsetX: CGFloat = 12
+    static let placementOffsetY: CGFloat = 24
     /// Minimum distance kept from safe-area edges.
     static let screenMargin: CGFloat = 9
     /// Drags shorter than this count as a tap on the label (menu stays open).
@@ -903,10 +907,10 @@ private struct CustomMenuOverlayRoot: View {
         }
 
         /// Below the label when it fits, else above, else whichever side is
-        /// larger. iOS 26: top (or bottom) edge flush with the label's and
-        /// horizontally centred on it; classic: 6pt gap, edge-aligned. The
-        /// unit anchor is the point on the menu nearest the label (legacy
-        /// scale transform origin).
+        /// larger. iOS 26: top (or bottom) edge flush with the label's; classic:
+        /// 6pt gap. Both edge-align horizontally to the label (left edge for a
+        /// leading label, right edge for a trailing one). The unit anchor is the
+        /// point on the menu nearest the label (legacy scale transform origin).
         func placement(for size: CGSize) -> (origin: CGPoint, anchor: UnitPoint) {
             let below: Bool
             if size.height <= spaceBelow {
@@ -924,11 +928,14 @@ private struct CustomMenuOverlayRoot: View {
                 y = below ? anchor.maxY + CustomMenuSpec.anchorGap
                           : anchor.minY - CustomMenuSpec.anchorGap - size.height
             }
+            y += CustomMenuSpec.placementOffsetY
             y = y.clamped(to: available.minY...max(available.minY, available.maxY - size.height))
 
-            var x = overlapsAnchor
-                ? anchor.midX - size.width / 2
-                : (anchor.midX <= bounds.width / 2 ? anchor.minX : anchor.maxX - size.width)
+            // Edge-align to the label: a label in the left half aligns its left
+            // edge, one in the right half aligns its right edge — so a trailing
+            // trigger's menu lines its right edge up with the label's, like native.
+            var x = anchor.midX <= bounds.width / 2 ? anchor.minX : anchor.maxX - size.width
+            x += CustomMenuSpec.placementOffsetX
             x = x.clamped(to: available.minX...max(available.minX, available.maxX - size.width))
 
             let unitX = ((anchor.midX - x) / max(size.width, 1)).clamped(to: 0...1)

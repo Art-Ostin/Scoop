@@ -103,7 +103,9 @@
       "WebFetch(domain:dev.to)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d[0]['text']\\)\")",
       "Bash(bc)",
-      "Bash(python3 - /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/419d40fc-909d-48a3-bdd8-5dcb8a1b0b67/tool-results/toolu_01MAapteNKjqvS96FQwmryJe.json)"
+      "Bash(python3 - /Users/napoleon/.claude/projects/-Users-napoleon-Documents-Scoop/419d40fc-909d-48a3-bdd8-5dcb8a1b0b67/tool-results/toolu_01MAapteNKjqvS96FQwmryJe.json)",
+      "Bash(echo \"xcodebuild exit: $?\")",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"error count: $\\(grep -c 'error:' /tmp/scoop_build.log\\)\")"
     ]
   }
 }

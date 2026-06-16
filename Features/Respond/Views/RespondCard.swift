@@ -152,7 +152,7 @@ extension View {
         self
             .background(Color.appCanvas, in: .rect(cornerRadius: radius))
             .rectangleStroke(radius: 30, lineWidth: 1, color: Color.grayBackground)
-            .cardShadow(color: .accent)
+            .cardShadow(color: color)
             .morphCardAnchor() //Sets it as destination view
     }
 }

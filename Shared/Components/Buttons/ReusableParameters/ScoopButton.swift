@@ -21,6 +21,9 @@ struct ScoopButton<Content: View, S: Shape>: View {
     
     var size: ButtonSize? = nil
     var weight: Font.Weight = .heavy
+    // Tinted-only: when true and the shadow is nil, render a flat fill instead of
+    // glass so there's no native glassEffect shadow. Opt-in (ActionButton uses it).
+    var flatWhenShadowless: Bool = false
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
@@ -66,7 +69,7 @@ extension ScoopButton {
     @ViewBuilder
     private func coloredButton(color: Color, shadow: Elevation?) -> some View {
         Group {
-            if #available(iOS 26.0, *) {
+            if #available(iOS 26.0, *), !(flatWhenShadowless && shadow == nil) { //opted-in shadowless tints fall through to the flat fill below
                 Button(action: action) {
                     sizedLabel()
                         .glassEffect(.regular.tint(color), in: shape)
