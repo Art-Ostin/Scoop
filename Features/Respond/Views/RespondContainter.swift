@@ -47,7 +47,7 @@ extension RespondContainer {
     
     private var newInviteCard: some View {
         RespondTimeAndPlaceView(vm: vm) { onResponse(.newInvite)}
-            .offset(y: 48)//Moves it down 30 points so aligned with the Respond Card
+            .offset(y: 16) //So vertically aligned with respondCard
     }
     
     private var hideButton: some View {
@@ -55,3 +55,21 @@ extension RespondContainer {
             .offset(y: cardBottomY + 96) //Position hide button 96 points below bottom of respond card
     }
 }
+
+struct HidePopup: View {
+
+    let onHide: () -> Void
+
+    var body: some View {
+        Button(action: onHide) {
+            Text("Hide")
+                .font(.title(14, .bold))
+                .kerning(1.5)
+                .foregroundStyle(Color.black)
+                .padding(36)
+                .contentShape(Rectangle())
+        }
+        .padding(-36)
+    }
+}
+

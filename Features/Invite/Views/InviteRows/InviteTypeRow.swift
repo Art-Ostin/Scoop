@@ -27,13 +27,6 @@ struct InviteTypeRow: View {
         }
 
         
-        
-//        
-//        DropDownView(verticalOffset: message.isEmpty ? 48 : 24, showOptions: ui.binding(for: .type)) {
-//            inviteTypeRow
-//        } dropDown: {
-//            SelectTypeView(type: $eventType, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)
-//        }
     }
 }
 

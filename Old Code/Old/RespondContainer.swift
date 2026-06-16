@@ -51,11 +51,11 @@ struct OldRespondContainer: View {
         }
         .coordinateSpace(name: respondPagerSpace)
         .overlay(alignment: .top) { timeMessageOverlay }
-        .overlay(alignment: .top) {
-            HidePopup(onHide: { showPopup = false })
-                .opacity(ui.popupShown || ui.dismissHidePopup || cardBottomY <= 1 ? 0 : 1)
-                .offset(y: cardBottomY + 96)
-        }
+//        .overlay(alignment: .top) {
+////            HidePopup(onHide: { showPopup = false })
+//                .opacity(ui.popupShown || ui.dismissHidePopup || cardBottomY <= 1 ? 0 : 1)
+//                .offset(y: cardBottomY + 96)
+//        }
         .onPreferenceChange(RespondCardBottomKey.self) { cardBottomY = $0 }
     }
 }

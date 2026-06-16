@@ -25,7 +25,6 @@ struct CardFlipContainer<FrontCard: View, BackCard: View>: View {
                 .opacity(showBack ? 1 : 0)
                 .allowsHitTesting(showBack)
                 .zIndex(showBack ? 1 : 0)
-
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .rotation3DEffect(.degrees(showBack ? 180 : 0), axis: (x: 0, y:1, z:0))

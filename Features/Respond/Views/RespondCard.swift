@@ -142,20 +142,17 @@ struct RespondCardBackground: ViewModifier {
             .padding(.vertical, 18)
             .padding(.horizontal, 24)
             .inviteCardBackground(radius: 30, color: Color.appGreen) //Slight green tint for shadow
-            .padding(.horizontal, 32)
     }
 }
+
 
 //InviteCardBackground. used for the SendInvite, AcceptInvite popupCards so put in view extension
 extension View {
     func inviteCardBackground(radius: CGFloat = 30, color: Color = .accent) -> some View {
         self
-            .background (
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color.appCanvas)
-                    .rectangleStroke(radius: 30, lineWidth: 1, color: Color.grayBackground)
-                    .cardShadow(color: .accent)
-            )
+            .background(Color.appCanvas, in: .rect(cornerRadius: radius))
+            .rectangleStroke(radius: 30, lineWidth: 1, color: Color.grayBackground)
+            .cardShadow(color: .accent)
             .morphCardAnchor() //Sets it as destination view
     }
 }

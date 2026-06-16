@@ -14,7 +14,7 @@ struct InviteTimeAndPlaceView: View {
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
     var body: some View {
-        SelectTimeAndPlace(
+        TimeAndPlaceContainer(
             draft: $vm.event,
             name: vm.inviteModel.name,
             image: vm.inviteModel.image,
@@ -34,7 +34,7 @@ struct RespondTimeAndPlaceView: View {
     var event: UserEvent { vm.respondDraft.originalInvite.event }
 
     var body: some View {
-        SelectTimeAndPlace(
+        TimeAndPlaceContainer(
             draft: $vm.respondDraft.newEvent,
             name: event.otherUserName,
             image: vm.image,
