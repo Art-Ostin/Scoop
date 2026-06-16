@@ -82,7 +82,7 @@ struct InviteCardBackground: ViewModifier {
         content
             .padding(.horizontal, 32)
             .padding(.vertical, 24)
-            .inviteCardBackground(color: .grayText) //Uses same background as respondCard
+            .inviteCardBackground()
     }
 }
 

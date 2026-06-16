@@ -41,7 +41,6 @@ struct MeetContainer: View {
             .overlay(alignment: .topTrailing) {
                 InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
             }
-
         }
         .profileMorphHost(profileMorph)
         .profileOverlay(id: ui.openProfile?.id) {

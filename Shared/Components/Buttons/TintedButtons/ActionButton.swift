@@ -24,7 +24,7 @@ struct ActionButton: View {
     var shadow: Elevation? { isValid && showShadow ? .high : nil}
 
     var body: some View {
-        ScoopButton(style: .tinted(color, shadow: shadow), shape: .rect(cornerRadius: cornerRadius), flatWhenShadowless: true, action: onTap) {
+        ScoopButton(style: .tinted(color, shadow: shadow), shape: .rect(cornerRadius: cornerRadius), action: onTap) {
             Text(text)
                 .font(.body(18, .bold))
                 .padding(.horizontal, hPadding)

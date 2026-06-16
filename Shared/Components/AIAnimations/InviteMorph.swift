@@ -258,9 +258,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private var surface: some View {
         ZStack {
             Color.appCanvas
-            // DIAGNOSTIC (temporary): red while collapsed so we can tell whether the flash is
-            // the morph surface (red) or the real InviteButton (normal tint). Revert after.
-            Color.red.opacity(expanded ? 0 : 1)
         }
         .frame(width: windowRect.width, height: windowRect.height)
         .clipShape(.rect(cornerRadius: cornerRadius, style: .continuous))
@@ -280,8 +277,8 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                     .opacity(expanded ? 0 : 1)
             }
         }
-        .shadow(color: style.tint.opacity(0.15), radius: 4, y: 2)
-        .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
+//        .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+//        .shadow(color: .white.opacity(0.2), radius: 7, x: 0, y: 5)
         .position(x: windowRect.midX, y: windowRect.midY)
         .opacity(surfaceHandedOff ? 0 : 1)
         // Open: hold through the entrance, then fade. Close: reappear instantly (nil

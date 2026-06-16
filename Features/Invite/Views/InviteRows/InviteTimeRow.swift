@@ -81,13 +81,16 @@ extension InviteTimeRow {
 extension InviteTimeRow {
     
     private var multipleTimeView: some View {
-        
-        CustomMenu {
+
+        // The label spans the full row width (its title row has a Spacer), so the
+        // automatic centre-based edge guess misfires — pin it to trailing so the
+        // menu lines up on the right like the single-time row.
+        CustomMenu(alignment: .trailing) {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         } label: {
             HStack(spacing: 12) {
-                VStack(spacing: 6){
+                VStack(spacing: 4){
                     multipleTimeTitleAndHour
                     ForEach(times.indices, id: \.self) {idx in
                         let time = times[idx]
@@ -140,7 +143,7 @@ extension InviteTimeRow {
     }
     
     private var timeVerticalBottomPadding: CGFloat {
-        times.count > 1 ? 18 : 28
+        times.count > 1 ? 12 : 28
     }
 }
 

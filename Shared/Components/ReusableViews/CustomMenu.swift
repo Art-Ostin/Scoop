@@ -205,6 +205,12 @@ enum CustomMenuSpec {
     /// Close morph length before the label is restored and the halo melts.
     static let closeMorphDuration: TimeInterval = 0.4
     static let lensFadeDuration: TimeInterval = 0.18
+    /// On close, the glass is fully present at this progress and melts linearly to
+    /// nothing by progress 0 — i.e. it fades across the final expand (the circle
+    /// relaxing back into the label), so the label alone lands and there's no
+    /// glass left to pop. 0.35 lines the fade up with the start of the expand;
+    /// smaller concentrates it later / quicker near the very end.
+    static let closeGlassFadeProgress: CGFloat = 0.35
     /// Platter shadow at full bloom (native casts a wide soft shadow).
     static let platterShadowOpacity: CGFloat = 0.1
     static let platterShadowRadius: CGFloat = 24
@@ -254,6 +260,14 @@ enum CustomMenuSpec {
 
 // MARK: - CustomMenu
 
+/// Which edge of the label the menu aligns its corresponding edge to.
+/// `.automatic` picks the edge by whichever screen half the label's centre sits
+/// in (the native default) — use `.leading` / `.trailing` when the label is wide
+/// enough that its centre is ambiguous (e.g. a full-width row with a Spacer).
+enum CustomMenuAlignment {
+    case leading, trailing, automatic
+}
+
 struct CustomMenu<Content: View, Label: View>: View {
 
     @ViewBuilder var content: () -> Content
@@ -261,21 +275,35 @@ struct CustomMenu<Content: View, Label: View>: View {
     /// Corner radius of the label's own shape so the closing lens lands on it
     /// exactly (defaults to a capsule). Mismatched corners read as a snap.
     var labelCornerRadius: CGFloat?
+    /// Which label edge the menu aligns to (see `CustomMenuAlignment`).
+    var alignment: CustomMenuAlignment
+    /// Nudge applied to the final placement (positive = right / down). Defaults
+    /// to the spec values; override per call site to fine-tune.
+    var placementOffset: CGSize
 
     @State private var controller = CustomMenuController()
     @State private var labelFrame: CGRect = .zero
     @GestureState private var isPressed = false
 
     init(labelCornerRadius: CGFloat? = nil,
+         alignment: CustomMenuAlignment = .automatic,
+         placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
+         placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.labelCornerRadius = labelCornerRadius
+        self.alignment = alignment
+        self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.content = content
         self.label = label
     }
 
     var body: some View {
-        label()
+        // While the menu is open, keep the controller's rendered label in sync
+        // with the latest state so the dismiss morph shrinks showing the
+        // post-selection value instead of the snapshot taken when it opened.
+        let _ = syncPresentedLabel()
+        return label()
             .contentShape(Rectangle())
             // iOS 26: the overlay's lens swallows the label, so the real one
             // hides while the menu is up (it is the menu now), like native.
@@ -285,9 +313,23 @@ struct CustomMenu<Content: View, Label: View>: View {
                 proxy.frame(in: .global)
             } action: { frame in
                 labelFrame = frame
+                // Keep the close target on the label's current frame (it reflows
+                // when a selection changes its text) so the lens lands cleanly.
+                controller.updateCollapseAnchor(frame)
             }
             .gesture(pressAndDrag)
             .onDisappear { controller.dismiss(animated: false) }
+    }
+
+    /// Pushes the freshest label closure into the controller, deferred one runloop
+    /// turn so it lands cleanly after the current view-update pass. No-op while the
+    /// menu is closed.
+    private func syncPresentedLabel() {
+        guard controller.isPresented else { return }
+        let makeLabel = label
+        DispatchQueue.main.async {
+            controller.updateLabel { AnyView(makeLabel()) }
+        }
     }
 
     /// Native menus open on touch-down and support press-drag-release selection,
@@ -301,6 +343,8 @@ struct CustomMenu<Content: View, Label: View>: View {
                         anchor: labelFrame,
                         label: { AnyView(label()) },
                         labelCornerRadius: labelCornerRadius,
+                        alignment: alignment,
+                        placementOffset: placementOffset,
                         content: { AnyView(content()) }
                     )
                 }
@@ -395,9 +439,16 @@ final class CustomMenuController {
 
     private(set) var phase: Phase = .measuring
     private(set) var anchor: CGRect = .zero
+    /// The label's *live* frame, tracked while presented so the close morph
+    /// collapses onto where the label is now (it may have reflowed after a
+    /// selection), not the frame captured at open time. Placement keeps using the
+    /// fixed `anchor` so the open menu never moves underfoot.
+    private(set) var collapseAnchor: CGRect = .zero
     private(set) var content: (() -> AnyView)?
     private(set) var labelView: (() -> AnyView)?
     private(set) var labelCornerRadius: CGFloat?
+    private(set) var alignment: CustomMenuAlignment = .automatic
+    private(set) var placementOffset: CGSize = .zero
     /// iOS 26: the real label hides while the overlay's lens carries its copy.
     private(set) var hidesLabel = false
     /// iOS 26: signals the overlay to melt the lens halo off the restored label.
@@ -424,6 +475,8 @@ final class CustomMenuController {
     func present(anchor: CGRect,
                  label: @escaping () -> AnyView,
                  labelCornerRadius: CGFloat?,
+                 alignment: CustomMenuAlignment,
+                 placementOffset: CGSize,
                  content: @escaping () -> AnyView) {
         guard window == nil,
               let scene = UIApplication.shared.connectedScenes
@@ -432,8 +485,11 @@ final class CustomMenuController {
         else { return }
 
         self.anchor = anchor
+        self.collapseAnchor = anchor
         self.labelView = label
         self.labelCornerRadius = labelCornerRadius
+        self.alignment = alignment
+        self.placementOffset = placementOffset
         self.content = content
         phase = .measuring
 
@@ -449,6 +505,21 @@ final class CustomMenuController {
 
     func markShown() {
         if phase == .measuring { phase = .shown }
+    }
+
+    /// Re-points the rendered label at the latest closure so the dismiss morph
+    /// shrinks showing the current value (e.g. after a selection) rather than the
+    /// snapshot captured when the menu opened. No-op while not presented.
+    func updateLabel(_ label: @escaping () -> AnyView) {
+        guard window != nil else { return }
+        labelView = label
+    }
+
+    /// Tracks the label's live frame so the close morph lands exactly on it even
+    /// after a selection reflows the label. No-op while not presented.
+    func updateCollapseAnchor(_ frame: CGRect) {
+        guard window != nil, frame != .zero else { return }
+        collapseAnchor = frame
     }
 
     /// Called by the overlay the moment its lens (pixel-identical to the
@@ -488,6 +559,9 @@ final class CustomMenuController {
         content = nil
         labelView = nil
         labelCornerRadius = nil
+        alignment = .automatic
+        placementOffset = .zero
+        collapseAnchor = .zero
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
@@ -584,7 +658,8 @@ private struct CustomMenuOverlayRoot: View {
 
     var body: some View {
         GeometryReader { geo in
-            let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: overlapsAnchor)
+            let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: overlapsAnchor,
+                                  alignment: controller.alignment, placementOffset: controller.placementOffset)
             ZStack(alignment: .topLeading) {
                 // Swallows every outside touch, exactly like the native menu.
                 Color.clear
@@ -668,22 +743,28 @@ private struct CustomMenuOverlayRoot: View {
 
         if let size = menuSize {
             let menuRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
-            GlassEffectContainer(spacing: CustomMenuSpec.morphSpacing) {
-                // Placed with layout (padding inside the modifier), not .offset:
-                // glass geometry inside the container follows layout positions.
-                ZStack(alignment: .topLeading) {
-                    chromeCore(content: content, metrics: metrics)
-                        .modifier(MenuLensMorph(
-                            progress: morphProgress,
-                            collapsed: controller.anchor,
-                            collapsedRadius: controller.labelCornerRadius ?? controller.anchor.height / 2,
-                            expanded: menuRect,
-                            label: controller.labelView?()
-                        ))
-                        .opacity(lensOpacity)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            // Collapse onto the label's live frame, falling back to the open-time
+            // anchor before the first geometry update lands.
+            let collapsedRect = controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor
+            // No GlassEffectContainer: with a single lens shape it isn't needed,
+            // and the container both composites its glass ABOVE sibling content
+            // (so the label can't sit over it) and ignores per-view .opacity (so
+            // the glass can't fade). Standalone .glassEffect honours both, which is
+            // what lets the glass melt out under the label on close.
+            // Positioned with layout padding (inside the modifier), never .offset.
+            ZStack(alignment: .topLeading) {
+                chromeCore(content: content, metrics: metrics)
+                    .modifier(MenuLensMorph(
+                        progress: morphProgress,
+                        collapsed: collapsedRect,
+                        collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
+                        expanded: menuRect,
+                        label: controller.labelView?(),
+                        isClosing: controller.phase == .dismissing
+                    ))
+                    .opacity(lensOpacity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
     }
 
@@ -772,6 +853,9 @@ private struct CustomMenuOverlayRoot: View {
         let collapsedRadius: CGFloat
         let expanded: CGRect
         let label: AnyView?
+        /// While dismissing, the glass melts off over the final expand so the
+        /// label finishes the motion alone (no glass left to pop afterwards).
+        let isClosing: Bool
 
         var animatableData: CGFloat {
             get { progress }
@@ -834,10 +918,16 @@ private struct CustomMenuOverlayRoot: View {
             // The swallowed label shrinks with the droplet so it stays inside.
             let labelScale = min(2, min(w / max(collapsed.width, 1),
                                         h / max(collapsed.height, 1)))
+            // On close only, melt the glass off across the final expand (p → 0) so
+            // the label — layered on top — is what finishes landing on the button,
+            // with no glass left to fade out in a separate beat afterwards.
+            let glassOpacity: Double = isClosing
+                ? Double((p / CustomMenuSpec.closeGlassFadeProgress).clamped(to: 0...1))
+                : 1
 
             ZStack(alignment: .topLeading) {
-                // Menu content squeezes into the current lens bounds, sharpening
-                // from a refracted blur as the platter forms (reverse on close).
+                // Glass platter + menu content. The glass rides this layer so it
+                // can fade out independently of the label on close.
                 content
                     .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
                     .scaleEffect(x: w / max(expanded.width, 1),
@@ -845,9 +935,17 @@ private struct CustomMenuOverlayRoot: View {
                                  anchor: .topLeading)
                     .blur(radius: (1 - p).clamped(to: 0...1) * CustomMenuSpec.lensBlur)
                     .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
+                    .frame(width: w, height: h, alignment: .topLeading)
+                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius, style: .continuous))
+                    // Native platters cast a wide soft shadow; it grows with the
+                    // bloom so the resting button state casts none.
+                    .shadow(color: .black.opacity(CustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
+                            radius: CustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
+                            y: CustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
+                    .opacity(glassOpacity)
 
-                // The swallowed label: refracts and dissolves inside the droplet,
-                // re-materializes as the lens shrinks back onto the button.
+                // The swallowed label, layered ON TOP of the glass so on close it
+                // outlives the glass fade and is what lands on the button.
                 // fixedSize keeps its intrinsic layout (no reflow/truncation);
                 // it shrinks purely visually with the droplet.
                 if let label {
@@ -860,12 +958,6 @@ private struct CustomMenuOverlayRoot: View {
                 }
             }
             .frame(width: w, height: h, alignment: .topLeading)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius, style: .continuous))
-            // Native platters cast a wide soft shadow; it grows with the bloom
-            // so the resting button state casts none.
-            .shadow(color: .black.opacity(CustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
-                    radius: CustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
-                    y: CustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
             .padding(.leading, max(0, lens.rect.minX))
             .padding(.top, max(0, lens.rect.minY))
         }
@@ -879,13 +971,18 @@ private struct CustomMenuOverlayRoot: View {
         /// iOS 26 menus cover the source button's rect (near edges flush, no
         /// gap, per device recordings); the classic menu floats 6pt away.
         let overlapsAnchor: Bool
+        /// Which label edge the menu aligns to.
+        let alignment: CustomMenuAlignment
+        /// Nudge applied to the final placement (positive = right / down).
+        let placementOffset: CGSize
         let spaceBelow: CGFloat
         let spaceAbove: CGFloat
 
         var maxHeight: CGFloat { max(spaceBelow, spaceAbove) }
         var maxWidth: CGFloat { available.width }
 
-        init(geo: GeometryProxy, anchor: CGRect, overlapsAnchor: Bool) {
+        init(geo: GeometryProxy, anchor: CGRect, overlapsAnchor: Bool,
+             alignment: CustomMenuAlignment, placementOffset: CGSize) {
             let safe = geo.safeAreaInsets
             let margin = CustomMenuSpec.screenMargin
             bounds = geo.size
@@ -897,6 +994,8 @@ private struct CustomMenuOverlayRoot: View {
             )
             self.anchor = anchor
             self.overlapsAnchor = overlapsAnchor
+            self.alignment = alignment
+            self.placementOffset = placementOffset
             if overlapsAnchor {
                 spaceBelow = available.maxY - anchor.minY
                 spaceAbove = anchor.maxY - available.minY
@@ -928,14 +1027,23 @@ private struct CustomMenuOverlayRoot: View {
                 y = below ? anchor.maxY + CustomMenuSpec.anchorGap
                           : anchor.minY - CustomMenuSpec.anchorGap - size.height
             }
-            y += CustomMenuSpec.placementOffsetY
+            y += placementOffset.height
             y = y.clamped(to: available.minY...max(available.minY, available.maxY - size.height))
 
-            // Edge-align to the label: a label in the left half aligns its left
-            // edge, one in the right half aligns its right edge — so a trailing
-            // trigger's menu lines its right edge up with the label's, like native.
-            var x = anchor.midX <= bounds.width / 2 ? anchor.minX : anchor.maxX - size.width
-            x += CustomMenuSpec.placementOffsetX
+            // Edge-align to the label: leading aligns left edges, trailing aligns
+            // right edges (so a trailing trigger's menu lines its right edge up
+            // with the label's). `.automatic` guesses from the label's centre —
+            // unreliable for a full-width label, which is why wide rows pass an
+            // explicit alignment.
+            let leadingX = anchor.minX
+            let trailingX = anchor.maxX - size.width
+            var x: CGFloat
+            switch alignment {
+            case .leading:  x = leadingX
+            case .trailing: x = trailingX
+            case .automatic: x = anchor.midX <= bounds.width / 2 ? leadingX : trailingX
+            }
+            x += placementOffset.width
             x = x.clamped(to: available.minX...max(available.minX, available.maxX - size.width))
 
             let unitX = ((anchor.midX - x) / max(size.width, 1)).clamped(to: 0...1)
