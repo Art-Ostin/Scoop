@@ -152,6 +152,7 @@ extension View {
         self
             .background(Color.appCanvas, in: .rect(cornerRadius: 30))
             .rectangleStroke(radius: 30, lineWidth: 1, color: .grayBackground)
+            .compositingGroup()
             .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
             .shadow(color: .black.opacity(0.04), radius: 20, x: 0, y: 0)
             .morphCardAnchor() //Sets it as destination view

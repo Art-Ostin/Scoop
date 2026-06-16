@@ -50,18 +50,36 @@ extension SendInviteContainer {
     }
     
     //2. Invite Button and valid logic
+@ViewBuilder
    var sendInviteButton: some View {
         let isValid = !ui.showConfirmPopup &&  !draft.time.dates.isEmpty && draft.place != nil
-
-       return ActionButton(text: "Send Invite", isValid: isValid, showShadow: false) {
-           if let requestConfirm {
-               requestConfirm(onSendInvite)
-           } else {
-               ui.showConfirmPopup = true
-           }
+       
+       //Don't want glass button when not valid here, as it gives shadow and looks poor. (So given placehodler field)
+       if isValid {
+           sendInviteValidButton
+       } else {
+           sendInvitePlaceholder
        }
     }
     
+    private var sendInviteValidButton: some View {
+        ActionButton(text: "Send Invite", isValid: true, showShadow: false) {
+            if let requestConfirm {
+                requestConfirm(onSendInvite)
+            } else {
+                ui.showConfirmPopup = true
+            }
+        }
+    }
+    
+    private var sendInvitePlaceholder: some View {
+        Text("Send Invite")
+            .font(.body(18, .bold))
+            .padding(.horizontal, 36)
+            .padding(.vertical, 12)
+            .foregroundStyle(.white)
+            .background(Color.grayBackground, in: .rect(cornerRadius: 24))
+    }
 }
 
 
