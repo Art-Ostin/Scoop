@@ -53,10 +53,15 @@ class TimeAndPlaceViewModel {
     var showInfoScreen: Bool = false
     let rowHeight: CGFloat = 50
     var showConfirmPopup: Bool = false
-
+    
+    var messageLineCount: Int = 0
+    
     //Even though driven by customMenu, reported here, so can disable Invite button when enabled
     var popupOpen: Bool = false
-
+    
+    var popupOpenDelayed = false //actually opens it after a delay -> makes it tad smoother
+    
+    
     func binding(for popup: Popup) -> Binding<Bool> {
         Binding(
             get: { self.activePopup == popup },

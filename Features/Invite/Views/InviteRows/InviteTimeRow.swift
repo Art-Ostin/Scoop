@@ -10,6 +10,7 @@ import SwiftUI
 
 struct InviteTimeRow: View {
 
+    @Bindable var ui: TimeAndPlaceUIState
     @Binding var showTimePopup: Bool
     @Binding var proposedTimes: ProposedTimes
 
@@ -29,8 +30,10 @@ struct InviteTimeRow: View {
         Group {
             if times.count <= 1 {
                 singleTimeOrLessRow
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             } else {
                 multipleTimeView
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             }
         }
         //1. Adaptive padding based of content
@@ -52,7 +55,10 @@ extension InviteTimeRow {
     }
     
     private var selectTimeButton: some View {
-        CustomMenu {
+        CustomMenu(
+            onOpen: { ui.popupOpen = true },
+            onClose: { ui.popupOpen = false }
+        ) {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         } label: {
@@ -66,13 +72,17 @@ extension InviteTimeRow {
             if let proposedDay = times.first {
                Text( FormatEvent.dayAndTime(proposedDay, wide: true, withHour: true))
                     .font(.body(17, .medium))
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             } else {
                 Text("Choose Time")
                     .kerning(0.32)
                     .font(.body(16, .regular))
                     .foregroundStyle(Color(white: 0.4))
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             }
+            
             Image("InviteChevron")
+                .opacity(ui.popupOpenDelayed ? 0 : 1)
         }
     }
     
@@ -90,18 +100,23 @@ extension InviteTimeRow {
                     multipleTimeRow(idx: idx, time: time)
                 }
             }
+            
+            customMenu
         }
     }
     
     private var customMenu: some View {
         
         CustomMenu(
-            placementOffsetY: CustomMenuSpec.placementOffsetY + Self.chevronTapInsetY
+            placementOffsetY: CustomMenuSpec.placementOffsetY + Self.chevronTapInsetY,
+            onOpen: { ui.popupOpen = true },
+            onClose: { ui.popupOpen = false }
         ) {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         } label: {
             Image("InviteChevron")
+                .opacity(ui.popupOpenDelayed ? 0 : 1)
                 .frame(width: Self.chevronTapTarget, height: Self.chevronTapTarget)//Expands hit area
         }
         .frame(width: Self.chevronArtSize.width, height: Self.chevronArtSize.height)//Expands hit area

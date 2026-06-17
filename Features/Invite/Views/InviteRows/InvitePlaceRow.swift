@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InvitePlaceRow: View {
     
+    @Bindable var ui: TimeAndPlaceUIState
     @Binding var eventLocation: EventLocation?
     @Binding var showMapView: Bool
     
@@ -48,12 +49,17 @@ extension InvitePlaceRow {
                             .foregroundStyle(.gray)
                             .lineLimit(1)
                     }
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                 } else {
                     Text("Choose Place")
                         .font(.body(16, .regular))
                         .foregroundStyle(Color(white: 0.4))
+                        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                 }
+                
+                //Don't show chevron when popup open as smoother show clear rectangle so content doesn't shift
                 Image("InviteChevron")
+                    .opacity(ui.popupOpenDelayed ? 0 : 1)
             }
         }
     }

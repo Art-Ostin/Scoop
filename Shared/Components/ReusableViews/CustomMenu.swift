@@ -280,6 +280,14 @@ struct CustomMenu<Content: View, Label: View>: View {
     /// Nudge applied to the final placement (positive = right / down). Defaults
     /// to the spec values; override per call site to fine-tune.
     var placementOffset: CGSize
+    /// Fires the instant the menu is requested to open (on touch-down, before the
+    /// bloom animation) — not when the content view appears, so there's no morph
+    /// lag. Use this instead of `.onAppear` on the content.
+    var onOpen: (() -> Void)?
+    /// Fires the instant dismissal is requested (any path: tap-away, drag-release,
+    /// selection, programmatic) — not when the close morph + teardown finishes, so
+    /// there's no ~0.58s lag. Use this instead of `.onDisappear` on the content.
+    var onClose: (() -> Void)?
 
     @State private var controller = CustomMenuController()
     @State private var labelFrame: CGRect = .zero
@@ -289,11 +297,15 @@ struct CustomMenu<Content: View, Label: View>: View {
          alignment: CustomMenuAlignment = .automatic,
          placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
+         onOpen: (() -> Void)? = nil,
+         onClose: (() -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.labelCornerRadius = labelCornerRadius
         self.alignment = alignment
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
+        self.onOpen = onOpen
+        self.onClose = onClose
         self.content = content
         self.label = label
     }
@@ -339,12 +351,14 @@ struct CustomMenu<Content: View, Label: View>: View {
             .updating($isPressed) { _, state, _ in state = true }
             .onChanged { value in
                 if !controller.isPresented {
+                    onOpen?()
                     controller.present(
                         anchor: labelFrame,
                         label: { AnyView(label()) },
                         labelCornerRadius: labelCornerRadius,
                         alignment: alignment,
                         placementOffset: placementOffset,
+                        onClose: onClose,
                         content: { AnyView(content()) }
                     )
                 }
@@ -461,6 +475,8 @@ final class CustomMenuController {
 
     @ObservationIgnored private var window: UIWindow?
     @ObservationIgnored private var items: [UUID: Item] = [:]
+    /// Fired once at the top of `dismiss()` (any path), cleared on teardown.
+    @ObservationIgnored private var onClose: (() -> Void)?
     @ObservationIgnored private var suppressAutoDismiss = false
     @ObservationIgnored private var generation = 0
     @ObservationIgnored private let selectionHaptic = UISelectionFeedbackGenerator()
@@ -477,6 +493,7 @@ final class CustomMenuController {
                  labelCornerRadius: CGFloat?,
                  alignment: CustomMenuAlignment,
                  placementOffset: CGSize,
+                 onClose: (() -> Void)? = nil,
                  content: @escaping () -> AnyView) {
         guard window == nil,
               let scene = UIApplication.shared.connectedScenes
@@ -490,6 +507,7 @@ final class CustomMenuController {
         self.labelCornerRadius = labelCornerRadius
         self.alignment = alignment
         self.placementOffset = placementOffset
+        self.onClose = onClose
         self.content = content
         phase = .measuring
 
@@ -530,6 +548,9 @@ final class CustomMenuController {
 
     func dismiss(animated: Bool = true) {
         guard window != nil, phase != .dismissing else { return }
+        // Fire the moment dismissal is requested — before the close morph runs —
+        // so callers don't wait out the animation + teardown.
+        onClose?()
         guard animated else { tearDown(); return }
         phase = .dismissing
         let gen = generation
@@ -556,6 +577,7 @@ final class CustomMenuController {
         generation += 1
         window?.isHidden = true
         window = nil
+        onClose = nil
         content = nil
         labelView = nil
         labelCornerRadius = nil

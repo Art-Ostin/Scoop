@@ -4,8 +4,9 @@ import SwiftUI
 //Vertical spacing here is adaptive. Therefore, it is controlled by the type, time, place padding not the vertical stacks
 
 struct SendInviteContainer: View {
-    //0. Gap from each screen edge to the card. Fed into the morph via `style.sideMargin`
-    //at the call sites, so adjust the card's screen margin here.
+    //0. Base gap from each screen edge to the card. Passed to the morph as the entrance-fallback
+    //width (`style.sideMargin`) at the call sites. The live, adaptive margin is `cardMargin`,
+    //which the card now owns directly via padding (content-owns-background morph).
     static let screenMargin: CGFloat = 26
 
     //1. Controls what popup is showing or not
@@ -30,15 +31,24 @@ struct SendInviteContainer: View {
 
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
+
     var body: some View {
         VStack(spacing: 0) {
             inviteTitle
             timePlaceAndType
             sendInviteButton
         }
+        .frame(maxWidth: .infinity)                 //stretch the card out to its margin-inset width
         .overlay(alignment: .topTrailing) { clearAndInfoButtons }
-        .modifier(InviteCardBackground())
-        
+        .modifier(InviteCardBackground())            //draws the card chrome + publishes morphCardAnchor
+        .padding(.horizontal, cardMargin)            //the screen margin, owned here and adaptive to content
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center) //center in the morph's full-screen frame
+        .padding(.top, 24)                           //small downward lift, matching the morph's old verticalOffset
+        //One spring drives every adaptive change together: the card width (cardMargin) and the
+        //rows' vertical padding (messageLineCount, which can change height without changing margin).
+        .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
+        .task(id: ui.popupOpen) { await addPopupDelay() }
+
         //All Logic of what screen to show and where
         .hideTabBar(hideBar: isInviteResponse)
         .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
@@ -63,9 +73,9 @@ extension SendInviteContainer {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
             LightDivider()
-            InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
+            InviteTimeRow(ui: ui, showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
             LightDivider()
-            InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
+            InvitePlaceRow(ui: ui, eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
         }
         .zIndex(1) //so pop ups always appear above the Action Button
     }

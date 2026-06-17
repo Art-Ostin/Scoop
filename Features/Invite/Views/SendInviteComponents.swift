@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-//The Clear and Info Buttons
+//Logic for Clear and Info Buttons
 extension SendInviteContainer {
     
     //1. Clear and Info Button Logic
@@ -24,7 +24,8 @@ extension SendInviteContainer {
     
     var clearButton: some View {
         Button {
-            deleteEventDefault()
+            //One animation owns the whole clear so every row's content cross-fades together.
+            withAnimation(.easeInOut(duration: 0.2)) { deleteEventDefault() }
         } label: {
             Image(systemName: "trash")
                 .font(.body(12, .regular))
@@ -53,15 +54,24 @@ extension SendInviteContainer {
 
 //Logic for the inviteButton
 extension SendInviteContainer {
+    
+    func addPopupDelay() async {
+        let isOpen = ui.popupOpen
+        try? await Task.sleep(for: isOpen ? .milliseconds(150) : .milliseconds(40))
+        ui.popupOpenDelayed = isOpen
+    }
+    
     @ViewBuilder
     var sendInviteButton: some View {
     let isValid = !ui.showConfirmPopup &&  !draft.time.dates.isEmpty && draft.place != nil
     
     //Don't want glass button when not valid here, as it gives shadow and looks poor. (So given placehodler field)
-    if isValid && !ui.popupOpen {
+        if isValid && !ui.popupOpenDelayed { //using delay as makes it smoother
         sendInviteValidButton
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     } else {
         sendInvitePlaceholder
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     }
 }
     
@@ -85,20 +95,43 @@ extension SendInviteContainer {
     }
 }
 
-//Logic for increasing width
+
+//Logic for increasing width and padding of elements
 extension SendInviteContainer {
+
+    var cardMargin: CGFloat {
+        var margin = Self.screenMargin
+        
+        
+        
+        
+        
+        
+        
+        //Effective message line count: 0 the instant the message is empty, so clearing resolves the
+        //margin in one transaction instead of lagging a step behind ui.messageLineCount.
+        let messageLines = hasMessageText ? ui.messageLineCount : 0
+        //Tighten if 3 days are proposed
+        if draft.time.dates.count == 3 { margin -= 2 }
+        //Tighten if a place is added alongside 2+ proposed days
+        if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
+        //Tighten as the message grows (1 line, then again at 3 lines)
+        if messageLines >= 1 { margin -= 2 }
+        if messageLines == 3 { margin -= 2 }
+        return margin
+    }
+
+    private var hasMessageText: Bool {
+        !(draft.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    //2. The Vertical padding for the selectType Row
     
-    //Max Inset is 26. Min Inset is 16. Things that expand it
-    /*
-     1 line message
-     2 line message
-     3 line message
-     
-     2 proposed times
-     3 proposed times
-     
-     a place is added
-     */
+    
+    //3. The Vertical padding for the selectTime Row
+    
+    
+    //4. The vertical padding for the selectPlace Row
     
 }
 

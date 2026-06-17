@@ -15,21 +15,19 @@ struct InviteTypeRow: View {
     @Binding var unparsedMessage: String?
     
     @State private var messageHeight: CGFloat = 0
+    //The message we last derived a line count from. Lets us ignore height re-measures caused by
+    //the margin animation re-wrapping the same text, so the line count (and margin) can't oscillate.
+    @State private var lastCountedMessage = ""
 
     var message: String  {
         (unparsedMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var lineCount: Int {
-        guard !message.isEmpty, messageHeight > 0 else { return 0 }
-        let lineHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
-        return min(3, Int((messageHeight / lineHeight).rounded()))
-    }
 
     var body: some View {
             HStack {
                 inviteTypeText(.what)
-                Spacer()
+                Spacer(minLength: 16)
                 inviteTypeButton
             }
             .padding(.top, typeTopPadding)
@@ -42,10 +40,11 @@ extension InviteTypeRow {
     
     @ViewBuilder
     private var inviteTypeButton: some View {
-        CustomMenu {
+        CustomMenu(
+            onOpen: { ui.popupOpen = true },
+            onClose: { ui.popupOpen = false }
+        ) {
             SelectTypeView(type: $type, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)
-                .onAppear { ui.popupOpen = true }
-                .onDisappear { ui.popupOpen = false }
         } label: {
             inviteTypeIcon
         }
@@ -55,8 +54,11 @@ extension InviteTypeRow {
         HStack(spacing: 12) {
             VStack(alignment: .trailing) {
                 
-                Text( type.longTitle) //type.emoji + " " + Removed the Emoji
+                Text(type.longTitle) //type.emoji + " " + Removed the Emoji
                     .font(.body(17, .medium))
+                    .contentTransition(.opacity)
+                    .geometryGroup() //Fixes for clear transition
+
                 
                 
                 if !message.isEmpty {
@@ -66,31 +68,55 @@ extension InviteTypeRow {
                         .lineLimit(3)
                         .multilineTextAlignment(.trailing)
                     
-                    //Measure the rendered height; lineCount is derived from it
                         .onGeometryChange(for: CGFloat.self) { geo in
                             geo.size.height
                         } action: { newValue in
                             messageHeight = newValue
                         }
+                        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                 }
             }
             Image("InviteChevron")
         }
+        .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
+        .onChange(of: message) { _, _ in updateLineHeight() } //clearing/edits: recount (and reset) on text change
     }
     
+    
+    private func updateLineHeight() {
+        //1. No message (incl. clear): reset the count, and the dedupe key so the next message recounts.
+        if message.isEmpty {
+            ui.messageLineCount = 0
+            lastCountedMessage = ""
+            return
+        }
+        guard message != lastCountedMessage, messageHeight > 0 else { return }
+
+        let lineHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
+        ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
+        lastCountedMessage = message
+    }
+    
+    //Line count to lay out against. Falls back to 0 the instant the message is empty, so on clear
+    //the padding grows back in the SAME render the text is removed. (ui.messageLineCount is updated
+    //a transaction later via onChange, which would otherwise make the row shrink then expand.)
+    private var displayedLineCount: Int {
+        message.isEmpty ? 0 : ui.messageLineCount
+    }
+
     private var typeTopPadding: CGFloat {
-        if lineCount == 0 {
+        if displayedLineCount == 0 {
             28
-        } else if lineCount == 1 {
+        } else if displayedLineCount == 1 {
             24
         } else {
             20
         }
     }
-    
-    
+
+
     private var typeBottomPadding: CGFloat {
-        if lineCount == 0 {
+        if displayedLineCount == 0 {
             28
         } else {
             14

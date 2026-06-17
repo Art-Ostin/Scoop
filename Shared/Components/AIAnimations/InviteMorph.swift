@@ -28,10 +28,10 @@ struct QuickInviteMorphStyle {
     // When the card content brings its own chrome (e.g. a pager), the surface grows into
     // the content's `.morphCardAnchor()` frame then fades out, handing off the background.
     var contentOwnsBackground: Bool = false
-    // Gap from each screen edge to the settled card. Drives both the card content frame and
-    // the surface's destination, so they stay locked together. Only used by surface-backed
-    // styles (.send/.plainCard); content-owns-background styles (.respond) size themselves,
-    // so set their margin on the card instead (e.g. RespondContainer.screenMargin).
+    // Entrance-fallback gap from each screen edge to the settled card. Used only for the first
+    // open frame, before the content publishes its real frame via `.morphCardAnchor()`.
+    // Content-owns-background styles size themselves, so the live margin lives on the card
+    // (e.g. SendInviteContainer.cardMargin, RespondContainer.screenMargin).
     var sideMargin: CGFloat = 30
 
     func tinted(_ color: Color) -> Self {
@@ -46,12 +46,15 @@ struct QuickInviteMorphStyle {
         return copy
     }
 
-    // Morph surface IS the card; content draws no background of its own.
-    static let send = QuickInviteMorphStyle()
+    // Send card owns its chrome (`inviteCardBackground` + `.morphCardAnchor()`); the surface
+    // grows into it then hands off, so the card owns its width/margin (adaptive — see
+    // SendInviteContainer.cardMargin).
+    static let send = QuickInviteMorphStyle(contentOwnsBackground: true)
     // Content owns its chrome and tags it with `.morphCardAnchor()`; surface hands off.
     static let respond = QuickInviteMorphStyle(openDuration: 0.28, contentOwnsBackground: true)
-    // Bare rounded surface morphing from a non-icon source (no letter glyph).
-    static let plainCard = QuickInviteMorphStyle(showsGlyph: false)
+    // Bare rounded surface from a non-icon source (no letter glyph); send card owns its
+    // background, same as `.send`.
+    static let plainCard = QuickInviteMorphStyle(showsGlyph: false, contentOwnsBackground: true)
 }
 
 // MARK: - Presenter

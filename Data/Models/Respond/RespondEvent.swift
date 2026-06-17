@@ -43,7 +43,7 @@ struct EventResponse {
     }
 }
 
-struct EventFieldsDraft: Codable {
+struct EventFieldsDraft: Codable, Equatable {
     var type: Event.EventType = .drink
     var time: ProposedTimes = .init()
     var place: EventLocation?
