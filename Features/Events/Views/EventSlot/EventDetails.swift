@@ -38,9 +38,9 @@ struct EventDetails: View {
     private var frontFace: some View {
         VStack(spacing: 18) {
             detailSection(title: "WHAT", mainText: type.longTitle, image: type.emoji, isType: true)
-            divider
+            LightDivider()
             detailSection(title: "WHEN", mainText: FormatEvent.dayAndTime(time), image: "EventClockIcon")
-            divider
+            LightDivider()
             detailSection(title: "WHERE", mainText: place.name ?? place.address ?? "Event Place?", image: "EventMapIcon")
         }
         .overlay(alignment: .topTrailing) {
@@ -100,11 +100,6 @@ extension EventDetails {
                 Text(mainText)
                     .font(.body(17, .bold))
             }
-    }
-    private var divider: some View {
-        RoundedRectangle(cornerRadius: 10)
-        .frame(maxWidth: .infinity, maxHeight: 1)
-        .foregroundStyle(Color(white: 0.93))
     }
     
     private var detailsOverlay: some View {

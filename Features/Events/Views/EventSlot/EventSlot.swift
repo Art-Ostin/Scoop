@@ -108,12 +108,10 @@ extension View {
     //Used on all the cards
     func eventCardShadowBackground() -> some View {
         self
-            .background (
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.appCanvas)
-                    .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0125), radius: 4, x: 0, y: 1)
-                    .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0075), radius: 12, x: 0, y: 0)
-            )
+            .background (Color.appCanvas, in: .rect(cornerRadius: 16))
+            .compositingGroup()
+            .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0125), radius: 4, x: 0, y: 1)
+            .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0075), radius: 12, x: 0, y: 0)
             .stroke(16, lineWidth: 0.85, color: Color(white: 0.94))
     }
     

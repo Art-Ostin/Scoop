@@ -44,6 +44,8 @@ extension InviteTypeRow {
     private var inviteTypeButton: some View {
         CustomMenu {
             SelectTypeView(type: $type, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)
+                .onAppear { ui.popupOpen = true }
+                .onDisappear { ui.popupOpen = false }
         } label: {
             inviteTypeIcon
         }
@@ -53,7 +55,7 @@ extension InviteTypeRow {
         HStack(spacing: 12) {
             VStack(alignment: .trailing) {
                 
-                Text(type.emoji + " " + type.longTitle)
+                Text( type.longTitle) //type.emoji + " " + Removed the Emoji
                     .font(.body(17, .medium))
                 
                 

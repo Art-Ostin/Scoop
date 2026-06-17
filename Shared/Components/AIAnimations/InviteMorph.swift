@@ -28,10 +28,21 @@ struct QuickInviteMorphStyle {
     // When the card content brings its own chrome (e.g. a pager), the surface grows into
     // the content's `.morphCardAnchor()` frame then fades out, handing off the background.
     var contentOwnsBackground: Bool = false
+    // Gap from each screen edge to the settled card. Drives both the card content frame and
+    // the surface's destination, so they stay locked together. Only used by surface-backed
+    // styles (.send/.plainCard); content-owns-background styles (.respond) size themselves,
+    // so set their margin on the card instead (e.g. RespondContainer.screenMargin).
+    var sideMargin: CGFloat = 30
 
     func tinted(_ color: Color) -> Self {
         var copy = self
         copy.tint = color
+        return copy
+    }
+
+    func sideMargin(_ margin: CGFloat) -> Self {
+        var copy = self
+        copy.sideMargin = margin
         return copy
     }
 
@@ -173,7 +184,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     // entrance lands exactly on the real card. Used when the content owns its background.
     @State private var measuredCardRect: CGRect? = nil
 
-    private let sideMargin: CGFloat = 30
+    private var sideMargin: CGFloat { style.sideMargin }
     private var cardWidth: CGFloat { max(0, containerSize.width - sideMargin * 2) }
 
     // Vertical lift of the settled card from dead-center. The morph still starts on the icon.

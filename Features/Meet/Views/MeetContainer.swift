@@ -49,7 +49,7 @@ struct MeetContainer: View {
         .profileOverlay(.cover, id: ui.respondedToProfile.map { "\($0)" }) {
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response) }
         }
-        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil, showsHideButton: true) { id in
+        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil, showsHideButton: true, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)

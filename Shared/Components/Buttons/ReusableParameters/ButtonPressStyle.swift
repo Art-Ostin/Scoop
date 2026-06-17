@@ -141,8 +141,10 @@ extension View {
         pressButton(.shrink, shadow: shadow, shadowColor: shadowColor)
     }
 
-    func growButton(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent) -> some View {
-        pressButton(.grow, shadow: shadow, shadowColor: shadowColor)
+    func growButton(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, brightness: Double? = nil) -> some View {
+        var effect = PressEffect.grow
+        if let brightness { effect.brightness = brightness }
+        return pressButton(effect, shadow: shadow, shadowColor: shadowColor)
     }
 
     private func pressButton(_ effect: PressEffect, shadow: Elevation?, shadowColor: Color) -> some View {
@@ -151,7 +153,9 @@ extension View {
     }
 
     // Apply the press effect directly to any view (e.g. an Image).
-    func growPress(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
-        modifier(PressEffectModifier(effect: .grow, elevation: shadow, shadowColor: shadowColor, action: action))
+    func growPress(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, brightness: Double? = nil, action: (() -> Void)? = nil) -> some View {
+        var effect = PressEffect.grow
+        if let brightness { effect.brightness = brightness }
+        return modifier(PressEffectModifier(effect: effect, elevation: shadow, shadowColor: shadowColor, action: action))
     }
 }

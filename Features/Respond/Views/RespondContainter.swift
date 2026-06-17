@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct RespondContainer: View {
-    
+
+    //Gap from each screen edge to the card. The respond card owns its width (content-owns-
+    //background morph), so its margin lives here as the scroll peek — not in the morph's
+    //sideMargin. Adjust the respond card's screen margin here.
+    static let screenMargin: CGFloat = 32
+
     @State var cardBottomY: CGFloat = 0
 
     @Bindable var vm: RespondViewModel
@@ -18,7 +23,7 @@ struct RespondContainer: View {
     let onResponse: (ProfileResponse) -> Void
     
     var body: some View {
-        HorizontalScrollView(peek: 32) {
+        HorizontalScrollView(peek: Self.screenMargin) {
             respondCard
                 .getBottom(coordinateSpace: "RespondSpace", bottom: $cardBottomY) //Bottom of card needed for positioning the 'hide button'
                 .horizontalScrollSlot(id: RespondScrollType.acceptPage, shrinkAnchor: .trailing)

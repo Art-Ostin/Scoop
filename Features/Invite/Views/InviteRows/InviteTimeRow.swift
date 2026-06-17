@@ -12,7 +12,7 @@ struct InviteTimeRow: View {
 
     @Binding var showTimePopup: Bool
     @Binding var proposedTimes: ProposedTimes
-    
+
     let type: Event.EventType
     
     var times: [Date] {
@@ -82,35 +82,33 @@ extension InviteTimeRow {
     
     private var multipleTimeView: some View {
         
-        // The label spans the full row width (its title row has a Spacer), so the
-        // automatic centre-based edge guess misfires — pin it to trailing so the
-        // menu lines up on the right like the single-time row.
         HStack(spacing: 12) {
-            VStack(spacing: 4){
+            VStack(spacing: 8){
                 multipleTimeTitleAndHour
                 ForEach(times.indices, id: \.self) {idx in
                     let time = times[idx]
                     multipleTimeRow(idx: idx, time: time)
                 }
             }
-            CustomMenu(placementOffsetY: CustomMenuSpec.placementOffsetY + Self.chevronTapInsetY) {
-                SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
-                    .zIndex(2)
-            } label: {
-                // 44×44 tap target (Apple HIG minimum). The chevron art is only
-                // ~7×12pt, so on its own it was a tiny hit area. CustomMenu uses
-                // this label's frame as its contentShape, so framing it to 44×44
-                // is what enlarges the hit region.
-                Image("InviteChevron")
-                    .frame(width: Self.chevronTapTarget, height: Self.chevronTapTarget)
-            }
-            // Keep the row layout pixel-identical: report the chevron's intrinsic
-            // footprint to the HStack so the time rows / chevron don't move; the
-            // 44×44 hit area just overflows this frame (unclipped, still tappable).
-            // placementOffsetY above re-centres the popup for the taller anchor.
-            .frame(width: Self.chevronArtSize.width, height: Self.chevronArtSize.height)
         }
     }
+    
+    private var customMenu: some View {
+        
+        CustomMenu(
+            placementOffsetY: CustomMenuSpec.placementOffsetY + Self.chevronTapInsetY
+        ) {
+            SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
+                .zIndex(2)
+        } label: {
+            Image("InviteChevron")
+                .frame(width: Self.chevronTapTarget, height: Self.chevronTapTarget)//Expands hit area
+        }
+        .frame(width: Self.chevronArtSize.width, height: Self.chevronArtSize.height)//Expands hit area
+    }
+    
+    
+    
     
     @ViewBuilder
     private var multipleTimeTitleAndHour: some View {
@@ -149,11 +147,23 @@ extension InviteTimeRow {
 extension InviteTimeRow {
     //Padding adjusted pased of view
     private var timeVerticalTopPadding: CGFloat {
-        times.count > 1 ? 14 : 28
+        if times.count <= 1 {
+            return 28
+        } else if times.count == 2 {
+            return 20
+        } else {
+            return 16
+        }
     }
 
     private var timeVerticalBottomPadding: CGFloat {
-        times.count > 1 ? 12 : 28
+        if times.count <= 1 {
+            return 28
+        } else if times.count == 2 {
+            return 18
+        } else  {
+            return 14
+        }
     }
 }
 
@@ -169,38 +179,3 @@ extension InviteTimeRow {
     /// placement so the popup opens where it did with the small chevron anchor.
     fileprivate static let chevronTapInsetY: CGFloat = (chevronTapTarget - chevronArtSize.height) / 2
 }
-
-
-
-
-
-/*
- 
- DropDownView(verticalOffset: 42, showOptions: $showTimePopup) {
-     ProposedTimesRow(dates: times, showTimePopup: $showTimePopup, isAccept: false)
-         .padding(.vertical, 4)
-         .frame(minHeight: 40)
- } dropDown: {
-     SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
-         .zIndex(2)
- }
-
- DropDownView(verticalOffset: 42, showOptions: $showTimePopup) {
-     ProposedTimesRow(dates: times, showTimePopup: $showTimePopup, isAccept: false)
-         .padding(.vertical, 4)
-         .frame(minHeight: 40)
- } dropDown: {
-     SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
-         .zIndex(2)
- }
- */
-/*
- if times.count > 1 {
-     if let firstDate = times.first {
-         Text(FormatEvent.hourTime(firstDate))
-             .font(.footnote)
-             .foregroundStyle(Color.gray)
-     }
- }
-
- */

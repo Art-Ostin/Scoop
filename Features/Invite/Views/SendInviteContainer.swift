@@ -4,6 +4,10 @@ import SwiftUI
 //Vertical spacing here is adaptive. Therefore, it is controlled by the type, time, place padding not the vertical stacks
 
 struct SendInviteContainer: View {
+    //0. Gap from each screen edge to the card. Fed into the morph via `style.sideMargin`
+    //at the call sites, so adjust the card's screen margin here.
+    static let screenMargin: CGFloat = 26
+
     //1. Controls what popup is showing or not
     @State var ui = TimeAndPlaceUIState()
 
@@ -32,7 +36,7 @@ struct SendInviteContainer: View {
             timePlaceAndType
             sendInviteButton
         }
-        .overlay(alignment: .topLeading) { clearAndInfoButtons }
+        .overlay(alignment: .topTrailing) { clearAndInfoButtons }
         .modifier(InviteCardBackground())
         
         //All Logic of what screen to show and where
@@ -58,9 +62,9 @@ extension SendInviteContainer {
     private var timePlaceAndType: some View {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
-            MapDivider()
+            LightDivider()
             InviteTimeRow(showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
-            MapDivider()
+            LightDivider()
             InvitePlaceRow(eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
         }
         .zIndex(1) //so pop ups always appear above the Action Button
@@ -81,7 +85,7 @@ struct InviteCardBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 32)
-            .padding(.vertical, 24)
+            .padding(.vertical, 28)
             .inviteCardBackground()
     }
 }

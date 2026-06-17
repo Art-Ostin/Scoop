@@ -54,10 +54,14 @@ class TimeAndPlaceViewModel {
     let rowHeight: CGFloat = 50
     var showConfirmPopup: Bool = false
 
+    //Even though driven by customMenu, reported here, so can disable Invite button when enabled
+    var popupOpen: Bool = false
+
     func binding(for popup: Popup) -> Binding<Bool> {
         Binding(
             get: { self.activePopup == popup },
             set: { self.activePopup = $0 ? popup : nil }
         )
     }
+
 }

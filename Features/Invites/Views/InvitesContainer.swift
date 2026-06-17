@@ -39,7 +39,7 @@ struct InvitesContainer: View {
             morphInviteId: $morphInviteId,
             hideCard: pendingInvite != nil,
             showsHideButton: true,
-            style: .plainCard.tinted(.appCanvas)
+            style: .plainCard.tinted(.appCanvas).sideMargin(SendInviteContainer.screenMargin)
         ) { eventId in
             timeAndPlaceView(eventId)
         } overlay: {
