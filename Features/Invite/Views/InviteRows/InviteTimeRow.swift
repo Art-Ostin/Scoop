@@ -30,16 +30,11 @@ struct InviteTimeRow: View {
         Group {
             if times.count <= 1 {
                 singleTimeOrLessRow
-                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             } else {
                 multipleTimeView
-                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             }
         }
-        //1. Adaptive padding based of content
-        .padding(.top, timeVerticalTopPadding)
-        .padding(.bottom, timeVerticalBottomPadding)
-        
+        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     }
 }
 
@@ -158,29 +153,6 @@ extension InviteTimeRow {
 
 
 
-
-extension InviteTimeRow {
-    //Padding adjusted pased of view
-    private var timeVerticalTopPadding: CGFloat {
-        if times.count <= 1 {
-            return 28
-        } else if times.count == 2 {
-            return 20
-        } else {
-            return 16
-        }
-    }
-
-    private var timeVerticalBottomPadding: CGFloat {
-        if times.count <= 1 {
-            return 28
-        } else if times.count == 2 {
-            return 18
-        } else  {
-            return 14
-        }
-    }
-}
 
 // MARK: - Multiple-times chevron tap target
 extension InviteTimeRow {

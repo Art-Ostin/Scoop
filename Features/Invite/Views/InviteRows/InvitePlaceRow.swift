@@ -21,8 +21,6 @@ struct InvitePlaceRow: View {
             Spacer()
             chooseButton
         }
-        .padding(.top, placeTopPadding)
-        .padding(.bottom, placeBottomPadding)
     }
 }
 
@@ -49,12 +47,10 @@ extension InvitePlaceRow {
                             .foregroundStyle(.gray)
                             .lineLimit(1)
                     }
-                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                 } else {
                     Text("Choose Place")
                         .font(.body(16, .regular))
                         .foregroundStyle(Color(white: 0.4))
-                        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                 }
                 
                 //Don't show chevron when popup open as smoother show clear rectangle so content doesn't shift
@@ -64,13 +60,6 @@ extension InvitePlaceRow {
         }
     }
     
-    private var placeTopPadding: CGFloat {
-        eventLocation != nil ? 16 : 28
-    }
-    
-    private var placeBottomPadding: CGFloat {
-        eventLocation != nil ? 24 : 28
-    }
 }
 
 

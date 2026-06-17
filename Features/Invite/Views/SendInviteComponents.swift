@@ -68,10 +68,8 @@ extension SendInviteContainer {
     //Don't want glass button when not valid here, as it gives shadow and looks poor. (So given placehodler field)
         if isValid && !ui.popupOpenDelayed { //using delay as makes it smoother
         sendInviteValidButton
-            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     } else {
         sendInvitePlaceholder
-            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     }
 }
     
@@ -102,37 +100,72 @@ extension SendInviteContainer {
     var cardMargin: CGFloat {
         var margin = Self.screenMargin
         
+        //1. Decrease if message lines is 1 and more if 3
+        if ui.messageLineCount >= 1 { margin -= 2 }
+        if ui.messageLineCount == 3 {margin -= 2}
         
-        
-        
-        
-        
-        
-        //Effective message line count: 0 the instant the message is empty, so clearing resolves the
-        //margin in one transaction instead of lagging a step behind ui.messageLineCount.
-        let messageLines = hasMessageText ? ui.messageLineCount : 0
-        //Tighten if 3 days are proposed
+        //2. Decrease if times 2 or 3
+        if draft.time.dates.count >= 2 { margin -= 2 }
         if draft.time.dates.count == 3 { margin -= 2 }
-        //Tighten if a place is added alongside 2+ proposed days
+        
+        //3. if time is greater than 1 and place added decrease
         if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
-        //Tighten as the message grows (1 line, then again at 3 lines)
-        if messageLines >= 1 { margin -= 2 }
-        if messageLines == 3 { margin -= 2 }
         return margin
     }
 
-    private var hasMessageText: Bool {
-        !(draft.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    //2. The Vertical padding for the selectType Row
+    //Lines to lay out against; 0 the instant the message is empty so clearing resolves in one render.
+    private var typeMessageLines: Int {
+        let hasMessage = !(draft.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return hasMessage ? ui.messageLineCount : 0
     }
 
-    //2. The Vertical padding for the selectType Row
-    
-    
+    var typeTopPadding: CGFloat {
+        if typeMessageLines == 0 {
+            28
+        } else if typeMessageLines == 1 {
+            20
+        } else {
+            16
+        }
+    }
+
+    var typeBottomPadding: CGFloat {
+        typeMessageLines == 0 ? 28 : 14
+    }
+
     //3. The Vertical padding for the selectTime Row
-    
-    
+    var timeTopPadding: CGFloat {
+        let count = draft.time.dates.count
+        if count <= 1 {
+            return 28
+        } else if count == 2 {
+            return 20
+        } else {
+            return 16
+        }
+    }
+
+    var timeBottomPadding: CGFloat {
+        let count = draft.time.dates.count
+        if count <= 1 {
+            return 28
+        } else if count == 2 {
+            return 18
+        } else {
+            return 14
+        }
+    }
+
     //4. The vertical padding for the selectPlace Row
-    
+    var placeTopPadding: CGFloat {
+        draft.place != nil ? 16 : 28
+    }
+
+    var placeBottomPadding: CGFloat {
+        draft.place != nil ? 24 : 28
+    }
+
 }
 
 
@@ -150,3 +183,22 @@ enum DetailFont: String {
     case when, `where`, what
 }
 
+
+/*
+ 
+ 
+ 
+ 
+ 
+ //Effective message line count: 0 the instant the message is empty, so clearing resolves the
+ //margin in one transaction instead of lagging a step behind ui.messageLineCount.
+ let messageLines = hasMessageText ? ui.messageLineCount : 0
+ //Tighten if 3 days are proposed
+ if draft.time.dates.count == 3 { margin -= 2 }
+ //Tighten if a place is added alongside 2+ proposed days
+ if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
+ //Tighten as the message grows (1 line, then again at 3 lines)
+ if messageLines >= 1 { margin -= 2 }
+ if messageLines == 3 { margin -= 2 }
+ return margin
+ */

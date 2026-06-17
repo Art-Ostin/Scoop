@@ -30,8 +30,6 @@ struct InviteTypeRow: View {
                 Spacer(minLength: 16)
                 inviteTypeButton
             }
-            .padding(.top, typeTopPadding)
-            .padding(.bottom, typeBottomPadding)
     }
 }
 
@@ -58,8 +56,6 @@ extension InviteTypeRow {
                     .font(.body(17, .medium))
                     .contentTransition(.opacity)
                     .geometryGroup() //Fixes for clear transition
-
-                
                 
                 if !message.isEmpty {
                     Text(message)
@@ -97,29 +93,4 @@ extension InviteTypeRow {
         lastCountedMessage = message
     }
     
-    //Line count to lay out against. Falls back to 0 the instant the message is empty, so on clear
-    //the padding grows back in the SAME render the text is removed. (ui.messageLineCount is updated
-    //a transaction later via onChange, which would otherwise make the row shrink then expand.)
-    private var displayedLineCount: Int {
-        message.isEmpty ? 0 : ui.messageLineCount
-    }
-
-    private var typeTopPadding: CGFloat {
-        if displayedLineCount == 0 {
-            28
-        } else if displayedLineCount == 1 {
-            24
-        } else {
-            20
-        }
-    }
-
-
-    private var typeBottomPadding: CGFloat {
-        if displayedLineCount == 0 {
-            28
-        } else {
-            14
-        }
-    }
 }

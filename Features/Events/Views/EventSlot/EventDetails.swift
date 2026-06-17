@@ -91,7 +91,6 @@ extension EventDetails {
     
     @ViewBuilder
     private func detailText(title: String, mainText: String) -> some View {
-
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.body(12, .medium))

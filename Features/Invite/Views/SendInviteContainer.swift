@@ -72,10 +72,16 @@ extension SendInviteContainer {
     private var timePlaceAndType: some View {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
+                .padding(.top, typeTopPadding)
+                .padding(.bottom, typeBottomPadding)
             LightDivider()
             InviteTimeRow(ui: ui, showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
+                .padding(.top, timeTopPadding)
+                .padding(.bottom, timeBottomPadding)
             LightDivider()
             InvitePlaceRow(ui: ui, eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
+                .padding(.top, placeTopPadding)
+                .padding(.bottom, placeBottomPadding)
         }
         .zIndex(1) //so pop ups always appear above the Action Button
     }
