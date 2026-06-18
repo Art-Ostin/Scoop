@@ -23,9 +23,10 @@
 //  Inside the content closure:
 //      .customMenuItem { ... }        — row participates in drag-to-select highlight,
 //                                       runs its action and dismisses on selection.
-//      .customMenuKeepsPresented()    — opt a control (Toggle, Stepper…) out of the
-//                                       tap-anywhere auto-dismiss.
-//      @Environment(\.customMenuDismiss) — programmatic dismissal from content.
+//      @Environment(\.customMenuDismiss) — programmatic dismissal from content. A tap
+//                                       on the menu's own content never auto-dismisses;
+//                                       call this action (or use .customMenuItem) to
+//                                       close it. Tapping outside still dismisses.
 //
 //  ── iOS 26 lens-morph mechanics (replicated from device recordings) ─────────
 //  Native iOS 26 menus do a "lens morph" that passes THROUGH A CIRCLE: on open
@@ -109,7 +110,6 @@ struct CustomMenuBuilder: View {
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 44)
-                .customMenuKeepsPresented()
                 Divider()
                 menuRow("Delete", icon: "trash", role: .destructive) { }
             }
@@ -199,6 +199,11 @@ enum CustomMenuSpec {
     static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
     /// Shrinking back through the circles never bounces (~0.4s on device).
     static let bloomClose = Animation.smooth(duration: 0.38)
+    /// After the menu is open, content can reflow (e.g. an info row expands) and
+    /// change the platter's height. Grow it with this curve — matched to the
+    /// content's own expand animation — so the glass tracks the content instead
+    /// of snapping. Only applies post-open; the initial sizing stays unanimated.
+    static let reflowResize = Animation.smooth(duration: 0.3)
     /// After the close morph lands on the button, the lens halo melts off the
     /// restored label rather than popping out in one frame.
     static let lensFadeOut = Animation.easeOut(duration: 0.15)
@@ -216,10 +221,6 @@ enum CustomMenuSpec {
     static let platterShadowRadius: CGFloat = 24
     static let platterShadowY: CGFloat = 10
 
-    static var platterShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: platterCornerRadius, style: .continuous)
-    }
-
     // ── Pre-26 fallback (classic menu) ──
     /// Scale the menu collapses to at the anchor point when hidden.
     static let collapsedScale: CGFloat = 0.2
@@ -233,10 +234,6 @@ enum CustomMenuSpec {
     /// Window teardown after the classic close animation has finished.
     static let teardownDelay: TimeInterval = 0.32
     static let legacyCornerRadius: CGFloat = 13
-
-    static var legacyShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: legacyCornerRadius, style: .continuous)
-    }
 
     // ── Shared metrics ──
     /// Standard native menu width; opt in with .frame(width:) on your content.
@@ -275,6 +272,10 @@ struct CustomMenu<Content: View, Label: View>: View {
     /// Corner radius of the label's own shape so the closing lens lands on it
     /// exactly (defaults to a capsule). Mismatched corners read as a snap.
     var labelCornerRadius: CGFloat?
+    /// Corner radius of the menu platter itself. `nil` uses the spec defaults
+    /// (26pt on iOS 26's glass, 13pt on the pre-26 platter); pass a value to
+    /// override from the call site without touching `CustomMenu`.
+    var cornerRadius: CGFloat?
     /// Which label edge the menu aligns to (see `CustomMenuAlignment`).
     var alignment: CustomMenuAlignment
     /// Nudge applied to the final placement (positive = right / down). Defaults
@@ -294,6 +295,7 @@ struct CustomMenu<Content: View, Label: View>: View {
     @GestureState private var isPressed = false
 
     init(labelCornerRadius: CGFloat? = nil,
+         cornerRadius: CGFloat? = nil,
          alignment: CustomMenuAlignment = .automatic,
          placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
@@ -302,6 +304,7 @@ struct CustomMenu<Content: View, Label: View>: View {
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.labelCornerRadius = labelCornerRadius
+        self.cornerRadius = cornerRadius
         self.alignment = alignment
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
@@ -356,6 +359,7 @@ struct CustomMenu<Content: View, Label: View>: View {
                         anchor: labelFrame,
                         label: { AnyView(label()) },
                         labelCornerRadius: labelCornerRadius,
+                        cornerRadius: cornerRadius,
                         alignment: alignment,
                         placementOffset: placementOffset,
                         onClose: onClose,
@@ -390,11 +394,6 @@ extension View {
     /// fires `action` on tap or drag-release, and dismisses the menu.
     func customMenuItem(action: @escaping () -> Void) -> some View {
         modifier(CustomMenuItemModifier(action: action))
-    }
-
-    /// Taps on this view no longer auto-dismiss the menu (for toggles, steppers…).
-    func customMenuKeepsPresented() -> some View {
-        modifier(CustomMenuKeepsPresentedModifier())
     }
 }
 
@@ -434,16 +433,6 @@ private struct CustomMenuItemModifier: ViewModifier {
     }
 }
 
-private struct CustomMenuKeepsPresentedModifier: ViewModifier {
-    @Environment(CustomMenuController.self) private var controller: CustomMenuController?
-
-    func body(content: Content) -> some View {
-        content.simultaneousGesture(TapGesture().onEnded {
-            controller?.suppressNextAutoDismiss()
-        })
-    }
-}
-
 // MARK: - Controller (window lifecycle + drag-select state)
 
 @MainActor @Observable
@@ -461,6 +450,8 @@ final class CustomMenuController {
     private(set) var content: (() -> AnyView)?
     private(set) var labelView: (() -> AnyView)?
     private(set) var labelCornerRadius: CGFloat?
+    /// Caller-supplied platter corner radius; `nil` falls back to the spec value.
+    private(set) var cornerRadius: CGFloat?
     private(set) var alignment: CustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
     /// iOS 26: the real label hides while the overlay's lens carries its copy.
@@ -477,7 +468,6 @@ final class CustomMenuController {
     @ObservationIgnored private var items: [UUID: Item] = [:]
     /// Fired once at the top of `dismiss()` (any path), cleared on teardown.
     @ObservationIgnored private var onClose: (() -> Void)?
-    @ObservationIgnored private var suppressAutoDismiss = false
     @ObservationIgnored private var generation = 0
     @ObservationIgnored private let selectionHaptic = UISelectionFeedbackGenerator()
 
@@ -491,6 +481,7 @@ final class CustomMenuController {
     func present(anchor: CGRect,
                  label: @escaping () -> AnyView,
                  labelCornerRadius: CGFloat?,
+                 cornerRadius: CGFloat? = nil,
                  alignment: CustomMenuAlignment,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
@@ -505,6 +496,7 @@ final class CustomMenuController {
         self.collapseAnchor = anchor
         self.labelView = label
         self.labelCornerRadius = labelCornerRadius
+        self.cornerRadius = cornerRadius
         self.alignment = alignment
         self.placementOffset = placementOffset
         self.onClose = onClose
@@ -581,13 +573,13 @@ final class CustomMenuController {
         content = nil
         labelView = nil
         labelCornerRadius = nil
+        cornerRadius = nil
         alignment = .automatic
         placementOffset = .zero
         collapseAnchor = .zero
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
-        suppressAutoDismiss = false
         hidesLabel = false
         lensDissolve = false
         phase = .measuring
@@ -636,25 +628,6 @@ final class CustomMenuController {
         } else {
             highlightedItemID = nil
         }
-    }
-
-    // MARK: Tap-anywhere auto-dismiss
-
-    /// Runs as a simultaneous gesture on the whole menu. Deferred one runloop turn
-    /// so a `.customMenuKeepsPresented()` child seen in the same tap can veto it.
-    func insideTapped() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self, self.phase == .shown else { return }
-            if self.suppressAutoDismiss {
-                self.suppressAutoDismiss = false
-            } else {
-                self.dismiss()
-            }
-        }
-    }
-
-    func suppressNextAutoDismiss() {
-        suppressAutoDismiss = true
     }
 }
 
@@ -741,23 +714,29 @@ private struct CustomMenuOverlayRoot: View {
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
-                menuSize = size
                 controller.menuFrame = CGRect(origin: metrics.placement(for: size).origin, size: size)
-                // Wait for the scroll-capped pass before blooming oversized menus.
-                if !appeared, size.height <= metrics.maxHeight + 1 {
-                    appeared = true
-                    controller.markShown()
-                    // The lens is pixel-identical to the label at progress 0, so
-                    // it takes over the button instantly (no fade-in — that adds
-                    // perceptible lag between tap and motion) and the morph
-                    // begins the same beat.
-                    lensOpacity = 1
-                    controller.hideSourceLabel()
-                    // Escape the layout transaction so the morph animates from a
-                    // committed frame instead of snapping on initial render.
-                    DispatchQueue.main.async {
-                        withAnimation(CustomMenuSpec.bloomOpen) {
-                            morphProgress = 1
+                if appeared {
+                    // Post-open reflow (e.g. an info row expanded): animate the
+                    // platter's height to track the content instead of snapping.
+                    withAnimation(CustomMenuSpec.reflowResize) { menuSize = size }
+                } else {
+                    menuSize = size
+                    // Wait for the scroll-capped pass before blooming oversized menus.
+                    if size.height <= metrics.maxHeight + 1 {
+                        appeared = true
+                        controller.markShown()
+                        // The lens is pixel-identical to the label at progress 0, so
+                        // it takes over the button instantly (no fade-in — that adds
+                        // perceptible lag between tap and motion) and the morph
+                        // begins the same beat.
+                        lensOpacity = 1
+                        controller.hideSourceLabel()
+                        // Escape the layout transaction so the morph animates from a
+                        // committed frame instead of snapping on initial render.
+                        DispatchQueue.main.async {
+                            withAnimation(CustomMenuSpec.bloomOpen) {
+                                morphProgress = 1
+                            }
                         }
                     }
                 }
@@ -781,6 +760,7 @@ private struct CustomMenuOverlayRoot: View {
                         collapsed: collapsedRect,
                         collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
                         expanded: menuRect,
+                        platterRadius: controller.cornerRadius ?? CustomMenuSpec.platterCornerRadius,
                         label: controller.labelView?(),
                         isClosing: controller.phase == .dismissing
                     ))
@@ -796,15 +776,19 @@ private struct CustomMenuOverlayRoot: View {
     private func legacyPresentation(content: AnyView, metrics: Metrics) -> some View {
         let visible = appeared && controller.phase == .shown
         let placement = metrics.placement(for: menuSize ?? .zero)
+        let platterShape = RoundedRectangle(
+            cornerRadius: controller.cornerRadius ?? CustomMenuSpec.legacyCornerRadius,
+            style: .continuous
+        )
 
         chromeCore(content: content, metrics: metrics)
             .background {
-                CustomMenuSpec.legacyShape
+                platterShape
                     .fill(.regularMaterial)
                     .shadow(color: .black.opacity(0.12), radius: 32, y: 16)
                     .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
             }
-            .clipShape(CustomMenuSpec.legacyShape)
+            .clipShape(platterShape)
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
@@ -838,7 +822,6 @@ private struct CustomMenuOverlayRoot: View {
             } action: { height in
                 contentIdealHeight = height
             }
-            .simultaneousGesture(TapGesture().onEnded { controller.insideTapped() })
 
         Group {
             if let ideal = contentIdealHeight, ideal > metrics.maxHeight {
@@ -874,6 +857,8 @@ private struct CustomMenuOverlayRoot: View {
         /// The label's own corner radius, so the lens lands exactly on its shape.
         let collapsedRadius: CGFloat
         let expanded: CGRect
+        /// The platter's resting corner radius (caller-supplied or spec default).
+        let platterRadius: CGFloat
         let label: AnyView?
         /// While dismissing, the glass melts off over the final expand so the
         /// label finishes the motion alone (no glass left to pop afterwards).
@@ -927,7 +912,7 @@ private struct CustomMenuOverlayRoot: View {
                 cx = lerp(mid.x, end.x, t)
                 cy = lerp(mid.y, end.y, t)
                 radius = min(min(w, h) / 2,
-                             lerp(big / 2, CustomMenuSpec.platterCornerRadius, t))
+                             lerp(big / 2, platterRadius, t))
             }
             return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), radius)
         }

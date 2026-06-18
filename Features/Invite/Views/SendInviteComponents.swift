@@ -124,9 +124,9 @@ extension SendInviteContainer {
         if typeMessageLines == 0 {
             28
         } else if typeMessageLines == 1 {
-            20
+            24
         } else {
-            16
+            20
         }
     }
 

@@ -158,4 +158,9 @@ extension View {
         if let brightness { effect.brightness = brightness }
         return modifier(PressEffectModifier(effect: effect, elevation: shadow, shadowColor: shadowColor, action: action))
     }
+    
+    //Same for the shrink Press
+    func shrinkPress(shadow: Elevation? = nil, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
+        modifier(PressEffectModifier(effect: .shrink, elevation: shadow, shadowColor: shadowColor, action: action))
+    }
 }

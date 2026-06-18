@@ -35,10 +35,8 @@ struct CustomList<Content: View> : View {
 
                 if showInfoText {
                     Text("Choose which map app opens for seeing the locations of events")
-                        .font(.body(12, .regular))
-                        .foregroundStyle(Color.grayText)
+                        .infoText()
                         .padding(.horizontal, 16)
-                        .lineSpacing(4)
                 }
             }
             VStack(spacing: 6) {

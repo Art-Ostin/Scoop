@@ -21,6 +21,7 @@ struct AddMessageView: View {
     @State var showSaved: Bool = false
     @State var hasEditedThisSession: Bool = false
     @State private var keyPressToken = 0
+    @State private var openTypes: Set<Event.EventType> = []
         
     private let messageLimit = 130
     private let warningThreshold = 25
@@ -128,7 +129,7 @@ extension AddMessageView {
                 DropDownView(shiftLeft: true, showOptions: $showTypePopup) {
                     dropdownTitle
                 } dropDown: {
-                    SelectTypeView(type: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
+                    SelectTypeView(openTypes: $openTypes, selectedType: $eventType, showMessageScreen: $showMessageScreen, showTypePopup: $showTypePopup, message: message ?? "")
                 }
             } else {
                 let emoji = eventType.emoji

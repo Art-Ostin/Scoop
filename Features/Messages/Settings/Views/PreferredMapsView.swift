@@ -21,7 +21,9 @@ struct PreferredMapView: View {
     var body: some View {
         
         ZStack(alignment: .topTrailing) {
-            
+            savedAndInfoSection
+                .offset(x: -4, y: showSavedIcon ? -6 : -4)
+
             CustomList(title: "Preferred Maps", showInfoText: showInfoText) {
                 HStack {
                     mapOption(mapType: .googleMaps)
@@ -31,8 +33,6 @@ struct PreferredMapView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            savedAndInfoSection
-                .offset(x: -4, y: showSavedIcon ? -6 : -4)
         }
     }
 }
@@ -61,11 +61,10 @@ extension PreferredMapView {
                 showInfoText.toggle()
             }
         } label: {
-            Image(systemName: "info.circle")
-                .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
-                .font(.body(12, .medium))
+            SmallInfoIcon()
         }
     }
+    
     
     private func mapOption(mapType: PreferredMapType) -> some View {
         let isAppleMaps = mapType == .appleMaps

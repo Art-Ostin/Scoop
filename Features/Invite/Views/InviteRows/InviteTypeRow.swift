@@ -18,6 +18,11 @@ struct InviteTypeRow: View {
     //The message we last derived a line count from. Lets us ignore height re-measures caused by
     //the margin animation re-wrapping the same text, so the line count (and margin) can't oscillate.
     @State private var lastCountedMessage = ""
+    
+    
+    //Owned here (not inside SelectTypeView) so the menu's sizing copy and visible
+    //copy share it and the platter grows when an info section expands.
+    @State private var openInfoTypes: Set<Event.EventType> = []
 
     var message: String  {
         (unparsedMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -38,11 +43,8 @@ extension InviteTypeRow {
     
     @ViewBuilder
     private var inviteTypeButton: some View {
-        CustomMenu(
-            onOpen: { ui.popupOpen = true },
-            onClose: { ui.popupOpen = false }
-        ) {
-            SelectTypeView(type: $type, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)
+        CustomMenu(cornerRadius: 16, onOpen: { ui.popupOpen = true }, onClose: { ui.popupOpen = false }) {
+            SelectTypeView(openTypes: $openInfoTypes, selectedType: $type, showMessageScreen: $ui.showMessageScreen, showTypePopup: ui.binding(for: .type), message: message)
         } label: {
             inviteTypeIcon
         }

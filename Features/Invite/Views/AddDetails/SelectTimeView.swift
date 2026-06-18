@@ -14,6 +14,9 @@ struct SelectTimeView: View {
     let type: Event.EventType
     @State var clickedMax = false
     @Binding var showTimePopup: Bool
+    //When shown inside a CustomMenu, taps no longer auto-dismiss it, so the Done
+    //button closes it explicitly. Outside a menu (respond mode) this is a no-op.
+    @Environment(\.customMenuDismiss) private var dismissMenu
     @State private var shakeTicksByDay: [Date: Int] = [:]
     @State private var clickedUnavailbleDay = false
     @State private var selectedHour = 22
@@ -141,6 +144,7 @@ extension SelectTimeView {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     showTimePopup.toggle()
                 }
+                dismissMenu()
             }
             .padding(.bottom, isRespondMode ? 96 : 80)
     }

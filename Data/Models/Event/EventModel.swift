@@ -17,7 +17,7 @@ struct Event: Identifiable, Codable {
     }
         
     enum EventType: String, CaseIterable, Codable, Hashable {
-        case drink, doubleDate, socialMeet, custom
+        case socialMeet, doubleDate, drink, custom
     }
         
     //1: Event Identifiers
@@ -81,7 +81,7 @@ extension Event.EventType {
     var longTitle: String {
         switch self {
             case .drink:
-                return "Grab A Drink"
+                return "Grab a Drink"
             case .doubleDate:
                 return  "Double Date"
             case .socialMeet:
