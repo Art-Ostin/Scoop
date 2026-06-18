@@ -103,7 +103,7 @@ extension SelectTypeView {
         return RoundedRectangle(cornerRadius: 10)
             .frame(maxWidth: .infinity)
             .frame(height: thickness)
-            .foregroundStyle(Color(white: 0.93))
+            .foregroundStyle(Color(white: 0.95))
     }
 }
 
@@ -183,7 +183,7 @@ struct SelectTypeCardBackground: ViewModifier {
     //The 'Menu' takes care of background, this simply give it the parameters
     func body(content: Content) -> some View {
         content
-            .frame(width: 280)
+            .frame(width: 270)
             .rectangleStroke(corners: corners, lineWidth: 1, color: Color.grayBackground)
     }
 }

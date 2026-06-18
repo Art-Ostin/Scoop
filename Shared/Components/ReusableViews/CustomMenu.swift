@@ -316,6 +316,13 @@ struct CustomMenu<Content: View, Label: View>: View {
     /// close. `nil` (the default) means no footer, so existing call sites are unaffected.
     /// Items inside it use `.customMenuItem` / `customMenuDismiss` just like content.
     var footer: (() -> AnyView)?
+    /// Keeps the trigger label in place while the menu is open instead of letting the
+    /// iOS 26 lens swallow it. The bloom is unchanged — the glass still morphs out of
+    /// the label's frame — but the real label stays visible underneath and the lens
+    /// carries no fading copy of it. Pre-26 already keeps the label, so this only
+    /// affects the iOS 26 lens morph. Default `false` preserves the native
+    /// "label becomes the menu" behavior (and the demo harness).
+    var keepsLabel: Bool
 
     @State private var controller = CustomMenuController()
     @State private var labelFrame: CGRect = .zero
@@ -326,6 +333,7 @@ struct CustomMenu<Content: View, Label: View>: View {
          cornerRadii: RectangleCornerRadii? = nil,
          footerCornerRadii: RectangleCornerRadii? = nil,
          alignment: CustomMenuAlignment = .automatic,
+         keepsLabel: Bool = false,
          placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
          onOpen: (() -> Void)? = nil,
@@ -338,6 +346,7 @@ struct CustomMenu<Content: View, Label: View>: View {
         self.cornerRadii = cornerRadii
         self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
+        self.keepsLabel = keepsLabel
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
         self.onClose = onClose
@@ -396,6 +405,7 @@ struct CustomMenu<Content: View, Label: View>: View {
                         cornerRadii: cornerRadii,
                         footerCornerRadii: footerCornerRadii,
                         alignment: alignment,
+                        keepsLabel: keepsLabel,
                         placementOffset: placementOffset,
                         onClose: onClose,
                         footer: footer,
@@ -525,6 +535,8 @@ final class CustomMenuController {
     private(set) var footerCornerRadii: RectangleCornerRadii?
     private(set) var alignment: CustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
+    /// Keep the trigger label in place (don't let the lens swallow it). See `CustomMenu.keepsLabel`.
+    private(set) var keepsLabel = false
     /// iOS 26: the real label hides while the overlay's lens carries its copy.
     private(set) var hidesLabel = false
     /// iOS 26: signals the overlay to melt the lens halo off the restored label.
@@ -556,6 +568,7 @@ final class CustomMenuController {
                  cornerRadii: RectangleCornerRadii? = nil,
                  footerCornerRadii: RectangleCornerRadii? = nil,
                  alignment: CustomMenuAlignment,
+                 keepsLabel: Bool = false,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
                  footer: (() -> AnyView)? = nil,
@@ -574,6 +587,7 @@ final class CustomMenuController {
         self.cornerRadii = cornerRadii
         self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
+        self.keepsLabel = keepsLabel
         self.placementOffset = placementOffset
         self.onClose = onClose
         self.footer = footer
@@ -655,6 +669,7 @@ final class CustomMenuController {
         cornerRadii = nil
         footerCornerRadii = nil
         alignment = .automatic
+        keepsLabel = false
         placementOffset = .zero
         collapseAnchor = .zero
         items = [:]
@@ -915,7 +930,10 @@ private struct CustomMenuOverlayRoot: View {
                         // perceptible lag between tap and motion) and the morph
                         // begins the same beat.
                         lensOpacity = 1
-                        controller.hideSourceLabel()
+                        // Normally the lens swallows the label (it IS the menu now);
+                        // with keepsLabel the real label stays put and the glass just
+                        // blooms out from over it.
+                        if !controller.keepsLabel { controller.hideSourceLabel() }
                         // Escape the layout transaction so the morph animates from a
                         // committed frame instead of snapping on initial render.
                         DispatchQueue.main.async {
@@ -947,7 +965,9 @@ private struct CustomMenuOverlayRoot: View {
                         expanded: menuRect,
                         platterCorners: controller.cornerRadii
                             ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? CustomMenuSpec.platterCornerRadius),
-                        label: controller.labelView?(),
+                        // keepsLabel leaves the real label in the app tree, so the
+                        // lens must not also carry a copy (it would double-render).
+                        label: controller.keepsLabel ? nil : controller.labelView?(),
                         isClosing: controller.phase == .dismissing
                     ))
                     .opacity(lensOpacity)

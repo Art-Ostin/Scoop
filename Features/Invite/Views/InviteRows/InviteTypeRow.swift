@@ -50,6 +50,7 @@ extension InviteTypeRow {
         CustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
+            keepsLabel: true, //title + chevron stay put; the glass just blooms out from over them
             onOpen: { ui.popupOpen = true },
             onClose: { ui.popupOpen = false ; openInfoTypes.removeAll()   },
             footer: { AnyView(AddMessageFooter(message: message,
