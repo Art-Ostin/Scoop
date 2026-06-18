@@ -52,6 +52,7 @@ extension InviteTypeRow {
         CustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
+            placementOffsetY: 36, //12pt lower than the 24pt default
             onOpen: { ui.typePopupOpen = true },
             onClose: { ui.typePopupOpen = false ; openInfoTypes.removeAll()   },
             footer: { AnyView(addMessageFooter) }
@@ -66,7 +67,7 @@ extension InviteTypeRow {
         HStack(spacing: 12) {
             VStack(alignment: .trailing) {
                 
-                Text(type.longTitle) //type.emoji + " " + Removed the Emoji
+                Text(type.longTitle)
                     .font(.body(17, .medium))
                     .contentTransition(.opacity)
                     .geometryGroup() //Fixes for clear transition
@@ -75,7 +76,7 @@ extension InviteTypeRow {
                     inviteMessage
                 }
             }
-            Image("InviteChevron")
+            DropDownButton(isOpen: ui.typePopupOpen)
         }
         .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
         .onChange(of: message) { _, _ in updateLineHeight() } //clearing/edits: recount (and reset) on text change

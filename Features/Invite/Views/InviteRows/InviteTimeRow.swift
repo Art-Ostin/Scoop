@@ -111,7 +111,7 @@ extension InviteTimeRow {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         } label: {
-            Image("InviteChevron")
+            DropDownButton(isOpen: ui.timePopupOpen)
                 .opacity(ui.typePopupOpenDelayed ? 0 : 1)
                 .frame(width: Self.chevronTapTarget, height: Self.chevronTapTarget)//Expands hit area
         }

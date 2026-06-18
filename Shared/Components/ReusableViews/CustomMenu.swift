@@ -61,9 +61,10 @@
 //     like UIKit does, so it can never be clipped by scroll views, the nav stack
 //     or the tab bar. Anchor frames assume the app window fills the scene
 //     (always true on iPhone; iPad floating windows may offset slightly).
-//   • Touch-down opening means a label inside a ScrollView will claim drags that
-//     start on it; UIKit avoids this with delaysContentTouches, which has no
-//     public SwiftUI equivalent.
+//   • The label opens the menu on release (a completed tap), not touch-down, so it
+//     reads like a normal button press; the zero-distance press gesture still claims
+//     the touch, so a label inside a ScrollView can still swallow a scroll that
+//     begins on it (UIKit's delaysContentTouches has no public SwiftUI equivalent).
 //
 
 import SwiftUI
@@ -188,10 +189,10 @@ enum CustomMenuSpec {
     /// into, pinned to the label's trailing edge. Tune for a smaller/larger
     /// starting dot.
     static let expansionOriginDiameter: CGFloat = 16
-    /// Bloom timing against the native open (~0.45s, slight settle).
-    static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
+    /// Bloom timing (slightly quicker than the native ~0.45s open, same slight settle).
+    static let bloomOpen = Animation.spring(response: 0.32, dampingFraction: 0.82)
     /// Shrinking back into the origin circle never bounces (~0.4s on device).
-    static let bloomClose = Animation.smooth(duration: 0.38)
+    static let bloomClose = Animation.smooth(duration: 0.25) //Slightly snappier close
     /// After the menu is open, content can reflow (e.g. an info row expands) and
     /// change the platter's height. Grow it with this curve — matched to the
     /// content's own expand animation — so the glass tracks the content instead
@@ -206,12 +207,13 @@ enum CustomMenuSpec {
     /// Close morph length before the leftover glass halo melts.
     static let closeMorphDuration: TimeInterval = 0.4
     static let lensFadeDuration: TimeInterval = 0.18
-    /// On close, the glass is fully present at this progress and melts linearly to
-    /// nothing by progress 0 — i.e. it fades out as the platter shrinks back into
-    /// the trailing-edge circle, so there's no glass dot left to pop. 0.35 lines
-    /// the fade up with the last stretch of the shrink; smaller concentrates it
-    /// later / quicker near the very end.
-    static let closeGlassFadeProgress: CGFloat = 0.35
+    /// On close, the glass stays fully opaque until progress drops below this, then
+    /// melts linearly to nothing by progress 0 — so the platter shrinks back into the
+    /// trailing-edge circle still solid (mirroring the opaque grow on open) and only
+    /// fades over the final stretch, leaving no glass dot to pop. Larger starts the
+    /// fade earlier / while the platter is still big (0.35 washed it out mid-shrink);
+    /// smaller keeps it solid longer and concentrates the fade right at the dot.
+    static let closeGlassFadeProgress: CGFloat = 0.05
     /// Platter shadow at full bloom (native casts a wide soft shadow).
     static let platterShadowOpacity: CGFloat = 0.1
     static let platterShadowRadius: CGFloat = 24
@@ -254,11 +256,14 @@ enum CustomMenuSpec {
     static let screenMargin: CGFloat = 9
     /// Drags shorter than this count as a tap on the label (menu stays open).
     static let tapSlop: CGFloat = 10
+    /// How far beyond the label's rect a touch still counts as "on the label" when the
+    /// menu is open, for the re-tap-to-close shrink. The bare anchor is a small target,
+    /// so pad it generously to make the press feedback fire reliably.
+    static let labelPressHitSlop: CGFloat = 24
 
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
     static let highlightCornerRadius: CGFloat = 14
-    static let pressedLabelOpacity: CGFloat = 0.5
 }
 
 // MARK: - CustomMenu
@@ -339,10 +344,20 @@ struct CustomMenu<Content: View, Label: View>: View {
         // out of a small circle at the label's trailing edge, so the real label is
         // always visible underneath (never swallowed/hidden). It reflows naturally
         // on selection, so the close morph collapses onto its current value.
-        label()
+        // Same shrink + opacity as `.shrinkPress`, reusing only the shared
+        // `PressEffect.shrink` *values*. The press is driven by this view's own
+        // `isPressed` gesture state below, so all of the drop-down's tap/press logic
+        // lives in this file (no second gesture from PressEffectModifier to fight
+        // `pressAndDrag`, and nothing added to ButtonPressStyle).
+        let press = PressEffect.shrink
+        // Shrink while the finger is on the label — whether the menu is closed (this
+        // view's own `pressAndDrag` sets `isPressed`) or already open (the overlay
+        // window sits on top and swallows the touch, so it reports the press back
+        // through `controller.labelPressed`). Without the second term, re-tapping the
+        // label to close it wouldn't shrink, since this view's gesture never sees it.
+        let pressed = isPressed || controller.labelPressed
+        return label()
             .contentShape(Rectangle())
-            .opacity(isPressed ? CustomMenuSpec.pressedLabelOpacity : 1)
-            .animation(.easeOut(duration: 0.1), value: isPressed)
             .onGeometryChange(for: CGRect.self) { proxy in
                 proxy.frame(in: .global)
             } action: { frame in
@@ -351,34 +366,42 @@ struct CustomMenu<Content: View, Label: View>: View {
                 // when a selection changes its text) so the morph lands cleanly.
                 controller.updateCollapseAnchor(frame)
             }
+            // Press feedback applied AFTER the geometry read so the shrink transform
+            // never feeds back into the anchor frame used to place/collapse the menu.
+            .scaleEffect(pressed ? press.scale : 1)
+            .opacity(pressed ? press.opacity : 1)
+            .animation(pressed
+                       ? .snappy(duration: press.pressDuration)
+                       : .spring(response: press.release.response, dampingFraction: press.release.damping),
+                       value: pressed)
             .gesture(pressAndDrag)
             .onDisappear { controller.dismiss(animated: false) }
     }
 
-    /// Native menus open on touch-down and support press-drag-release selection,
-    /// so a single zero-distance drag drives the whole interaction.
+    /// The label presses (shrinks) under the finger via `$isPressed`, then expands
+    /// the menu on release — a completed tap — instead of on touch-down, so it reads
+    /// like a normal button tap. (This drops the native press-drag-to-select flow;
+    /// once the menu is open, items are chosen by tapping them.)
     private var pressAndDrag: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .updating($isPressed) { _, state, _ in state = true }
-            .onChanged { value in
-                if !controller.isPresented {
-                    onOpen?()
-                    controller.present(
-                        anchor: labelFrame,
-                        cornerRadius: cornerRadius,
-                        cornerRadii: cornerRadii,
-                        footerCornerRadii: footerCornerRadii,
-                        alignment: alignment,
-                        placementOffset: placementOffset,
-                        onClose: onClose,
-                        footer: footer,
-                        content: { AnyView(content()) }
-                    )
-                }
-                controller.dragMoved(to: value.location)
-            }
             .onEnded { value in
-                controller.dragEnded(at: value.location, translation: value.translation)
+                guard !controller.isPresented else { return }
+                // Releases that travelled too far are scrolls/drags, not taps.
+                let distance = hypot(value.translation.width, value.translation.height)
+                guard distance < CustomMenuSpec.tapSlop else { return }
+                onOpen?()
+                controller.present(
+                    anchor: labelFrame,
+                    cornerRadius: cornerRadius,
+                    cornerRadii: cornerRadii,
+                    footerCornerRadii: footerCornerRadii,
+                    alignment: alignment,
+                    placementOffset: placementOffset,
+                    onClose: onClose,
+                    footer: footer,
+                    content: { AnyView(content()) }
+                )
             }
     }
 }
@@ -501,6 +524,11 @@ final class CustomMenuController {
     private(set) var highlightedItemID: UUID?
     /// Laid-out menu frame in screen coordinates, set by the overlay.
     var menuFrame: CGRect = .zero
+    /// While the menu is open the overlay window covers the label, so the label's own
+    /// gesture can't see a press on it. The overlay sets this when a touch lands on the
+    /// anchor rect, and the label observes it (cross-window, same controller) to shrink
+    /// — so re-tapping the label to close it still presses, just like opening it does.
+    var labelPressed = false
 
     var isPresented: Bool { window != nil }
 
@@ -610,6 +638,7 @@ final class CustomMenuController {
         highlightedItemID = nil
         menuFrame = .zero
         lensDissolve = false
+        labelPressed = false
         phase = .measuring
     }
 
@@ -684,10 +713,26 @@ private struct CustomMenuOverlayRoot: View {
             let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: overlapsAnchor,
                                   alignment: controller.alignment, placementOffset: controller.placementOffset)
             ZStack(alignment: .topLeading) {
-                // Swallows every outside touch, exactly like the native menu.
+                // Swallows every outside touch, exactly like the native menu. A touch
+                // that lands on the label (the anchor rect) drives the label's shrink
+                // through the controller — the overlay window covers the label, so its
+                // own gesture can't see this press — then dismisses on release, so
+                // re-tapping the label to close it presses just like opening it.
                 Color.clear
                     .contentShape(Rectangle())
-                    .onTapGesture { controller.dismiss() }
+                    .gesture(
+                        DragGesture(minimumDistance: 0, coordinateSpace: .global)
+                            .onChanged { value in
+                                // Pad the label rect so taps just outside it still press.
+                                let hit = controller.anchor.insetBy(dx: -CustomMenuSpec.labelPressHitSlop,
+                                                                    dy: -CustomMenuSpec.labelPressHitSlop)
+                                controller.labelPressed = hit.contains(value.startLocation)
+                            }
+                            .onEnded { _ in
+                                controller.labelPressed = false
+                                controller.dismiss()
+                            }
+                    )
 
                 // Detached accessory rides UNDER the platter (lower z) so it emerges
                 // from the menu's bottom edge during the bloom (placed once sized).

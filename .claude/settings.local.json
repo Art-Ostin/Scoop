@@ -109,7 +109,8 @@
       "Bash(xcrun --find avconvert)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"--- errors ---\"; grep -c \"error:\" /tmp/scoop_build.log; grep -E \"error:\" /tmp/scoop_build.log | head -30)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"--- error count ---\"; grep -c \"error:\" /tmp/scoop_build.log; echo \"--- any errors ---\"; grep -E \"error:\" /tmp/scoop_build.log | head -30)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"error count: $\\(grep -c \"error:\" /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -20)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"error count: $\\(grep -c \"error:\" /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -20)",
+      "Bash(git -C /Users/napoleon/Documents/Scoop status --short)"
     ]
   }
 }

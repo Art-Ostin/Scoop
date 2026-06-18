@@ -92,7 +92,7 @@ extension AddMessageView {
                 .contentShape(.rect)
                 .onTapGesture { showTypePopup.toggle()}
             
-            DropDownButton(isExpanded: $showTypePopup)
+            DropDownButton(isOpen: showTypePopup)
         }
     }
     

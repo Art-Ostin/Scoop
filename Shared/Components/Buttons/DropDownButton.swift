@@ -7,7 +7,19 @@
 
 import SwiftUI
 
+struct DropDownButton: View {
+    let isOpen: Bool
+    
+    var body: some View {
+        Image("InviteChevron")
+            .rotationEffect(.degrees(isOpen ? 90 : 0))
+            .animation(.snappy(duration: 0.2, extraBounce: 0.01), value: isOpen)
+    }
+}
 
+
+
+//Old Drop Down Chevron
 struct DropDownChevron: View {
     @Binding var showTimePopup: Bool
     
@@ -41,7 +53,7 @@ struct DropDownChevron: View {
 
 
 
-struct DropDownButton: View {
+struct DropDownButtonOld: View {
     
     @Binding var isExpanded: Bool
     
@@ -51,7 +63,7 @@ struct DropDownButton: View {
     
     var body: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
+            withAnimation(.spring(duration: 0.25)) {
                 isExpanded.toggle()
             }
         } label: {
@@ -81,10 +93,6 @@ struct DropDownButton: View {
             base
         }
     }
-}
-
-#Preview {
-    DropDownButton(isExpanded: .constant(false))
 }
 
 
