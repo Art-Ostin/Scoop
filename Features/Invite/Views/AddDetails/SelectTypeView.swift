@@ -57,6 +57,7 @@ extension SelectTypeView {
         .padding(.bottom, openTypes.contains(type) ? 12 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
         .padding(.horizontal, 24)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
+        .padding(.top, type == Event.EventType.allCases.first ? 2 : 0) //extra padding for the first one
         .shrinkPress {selectType(eventType: type) }
     }
     
@@ -69,7 +70,8 @@ extension SelectTypeView {
             
             Text(type.longTitle)
                 .font(.body(18, type == selectedType ? .bold : .medium))
-                .kerning(kerningAmount(type))
+                .kerning(kerningAmount(type)) //Fine tuned kerning so all same width
+                .kerning(type == selectedType && type != .custom ? -0.55 : 0)
                 .foregroundStyle(type == selectedType ? Color.accent : Color.black)
             
             Spacer(minLength: 4) // reserve trailing space so a long title clears the overlaid icon
@@ -82,7 +84,7 @@ extension SelectTypeView {
                 toggleTypeInfo(type)
             }
         } label: {
-            SmallInfoIcon(size: 10)
+            SmallInfoIcon(size: 10, colour: Color(red: 0.85, green: 0.85, blue: 0.85))
                 //Fine tuned padding so hit area large, but not intruding on main button
                 .padding(.trailing, 16)
                 .padding(.top, 8)
@@ -114,7 +116,7 @@ extension SelectTypeView {
     private func kerningAmount(_ type: Event.EventType) -> CGFloat {
         switch type {
         case .socialMeet:
-            return 1.17
+            return 1.25
             
         case .doubleDate:
             return 0.75
@@ -123,7 +125,7 @@ extension SelectTypeView {
             return 0.525
             
         case .custom:
-            return 0
+            return -0.3
         }
     }
 

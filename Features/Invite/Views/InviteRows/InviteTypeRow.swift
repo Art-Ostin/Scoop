@@ -27,8 +27,8 @@ struct InviteTypeRow: View {
     @State private var openInfoTypes: Set<Event.EventType> = []
 
     //Choose corner radius for different drop down menus
-    private let menuCorners = RectangleCornerRadii(top: 16, bottom: 6)
-    private let footerCorners = RectangleCornerRadii(top: 6, bottom: 14)
+    private let menuCorners = RectangleCornerRadii(top: 20, bottom: 6)
+    private let footerCorners = RectangleCornerRadii(top: 6, bottom: 18)
 
     var message: String  {
         (unparsedMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -66,20 +66,32 @@ extension InviteTypeRow {
     private var inviteTypeIcon: some View {
         HStack(spacing: 12) {
             VStack(alignment: .trailing) {
-                
+
                 Text(type.longTitle)
                     .font(.body(17, .medium))
-                    .contentTransition(.opacity)
-                    .geometryGroup() //Fixes for clear transition
-                
+                    .id(type)
+                    .transition(titleSlide)
+
                 if !message.isEmpty {
                     inviteMessage
                 }
             }
+            .animation(.linear(duration: 0.2), value: type)
             DropDownButton(isOpen: ui.typePopupOpen)
         }
+//        .clipped()
         .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
         .onChange(of: message) { _, _ in updateLineHeight() } //clearing/edits: recount (and reset) on text change
+    }
+
+    private var titleSlide: AnyTransition {
+        let offCard: CGFloat = 180
+        return .asymmetric(
+            insertion: .offset(x: offCard).animation(.linear(duration: 0.2))
+                .combined(with: .opacity.animation(.smooth(duration: 0.2))),
+            removal: .offset(x: -20).animation(.linear(duration: 0.2))
+                .combined(with: .opacity.animation(.smooth(duration: 0.25)))
+        )
     }
     
     

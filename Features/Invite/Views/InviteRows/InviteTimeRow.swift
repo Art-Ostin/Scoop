@@ -34,7 +34,7 @@ struct InviteTimeRow: View {
                 multipleTimeView
             }
         }
-        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+        .transition(.opacity.animation(.smooth(duration: 0.2)))
     }
 }
 
@@ -68,13 +68,13 @@ extension InviteTimeRow {
             if let proposedDay = times.first {
                Text( FormatEvent.dayAndTime(proposedDay, wide: true, withHour: true))
                     .font(.body(17, .medium))
-                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+                    .transition(.opacity.animation(.smooth(duration: 0.2)))
             } else {
                 Text("Choose Time")
                     .kerning(0.32)
                     .font(.body(16, .regular))
                     .foregroundStyle(Color(white: 0.4))
-                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+                    .transition(.opacity.animation(.smooth(duration: 0.2)))
             }
             
             Image("InviteChevron")

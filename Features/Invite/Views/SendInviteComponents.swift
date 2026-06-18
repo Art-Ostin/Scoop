@@ -70,7 +70,7 @@ extension SendInviteContainer {
     @ViewBuilder
     var sendInviteButton: some View {
     let isValid = !ui.showConfirmPopup &&  !draft.time.dates.isEmpty && draft.place != nil
-    let noPopup = !ui.timePopupOpenDelayed || !ui.typePopupOpenDelayed
+    let noPopup = !ui.timePopupOpenDelayed && !ui.typePopupOpenDelayed
         
     //Don't want glass button when not valid here, as it gives shadow and looks poor. (So given placehodler field)
         if isValid && noPopup { //using delay as makes it smoother
@@ -129,7 +129,7 @@ extension SendInviteContainer {
 
     var typeTopPadding: CGFloat {
         if typeMessageLines == 0 {
-            28
+            30
         } else if typeMessageLines == 1 {
             24
         } else {
@@ -138,14 +138,14 @@ extension SendInviteContainer {
     }
 
     var typeBottomPadding: CGFloat {
-        typeMessageLines == 0 ? 28 : 14
+        typeMessageLines == 0 ? 30 : 14
     }
 
     //3. The Vertical padding for the selectTime Row
     var timeTopPadding: CGFloat {
         let count = draft.time.dates.count
         if count <= 1 {
-            return 28
+            return 30
         } else if count == 2 {
             return 20
         } else {
@@ -156,7 +156,7 @@ extension SendInviteContainer {
     var timeBottomPadding: CGFloat {
         let count = draft.time.dates.count
         if count <= 1 {
-            return 28
+            return 30
         } else if count == 2 {
             return 18
         } else {
@@ -166,11 +166,11 @@ extension SendInviteContainer {
 
     //4. The vertical padding for the selectPlace Row
     var placeTopPadding: CGFloat {
-        draft.place != nil ? 16 : 28
+        draft.place != nil ? 16 : 30
     }
 
     var placeBottomPadding: CGFloat {
-        draft.place != nil ? 24 : 28
+        draft.place != nil ? 24 : 30
     }
 
 }
