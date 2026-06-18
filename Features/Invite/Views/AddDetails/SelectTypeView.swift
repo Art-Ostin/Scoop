@@ -93,10 +93,6 @@ extension SelectTypeView {
         .shrinkButton()
     }
 
-    //3. The Info drop down section. Revealed by a top-down height wipe — the rows below
-    //slide down and uncover the text at full opacity (mirroring the Preferred Maps settings
-    //reveal), instead of the text fading in while the divider opens. The wipe rides the same
-    //withAnimation(.snappy) around `openTypes` from infoButton, so the stroke stays in sync.
     private func typeInfo(_ type: Event.EventType) -> some View {
         RevealingInfoText(text: type.howItWorks, isOpen: openTypes.contains(type))
     }
@@ -152,10 +148,6 @@ extension SelectTypeView {
         }
     }
 }
-
-
-
-
 
 
 private struct RevealingInfoText: View {

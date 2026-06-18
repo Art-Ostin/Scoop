@@ -245,6 +245,14 @@ enum CustomMenuSpec {
     static let anchorGap: CGFloat = 6
     /// Gap between the main platter and the detached footer accessory.
     static let footerGap: CGFloat = 6
+    /// The footer sits `footerGap` below the platter at a LOWER z-order, so the
+    /// platter's drop shadow (platterShadow* below) paints over the footer's
+    /// finished pixels and it reads ~5% darker than the platter face (measured
+    /// F0F4F5 vs E4EAEC over the same wallpaper). The shadow can't be cast
+    /// selectively around the footer, so the footer pre-brightens by this much:
+    /// once the platter shadow darkens it, it lands back on the platter's tone.
+    /// Additive (SwiftUI `.brightness`); tune alongside `platterShadowOpacity`.
+    static let footerShadowCompensation: Double = 0.05
     /// Fine-tuning nudge applied to the final placement: shifts the platter
     /// right and down from its anchor-aligned position.
     static let placementOffsetX: CGFloat = 12
@@ -438,7 +446,13 @@ struct CustomMenuFooterPlatter: ViewModifier {
     func body(content: Content) -> some View {
         let shape = UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
         if #available(iOS 26.0, *) {
-            content.glassEffect(.regular, in: shape)
+            content
+                .glassEffect(.regular, in: shape)
+                // Cancel the platter's drop shadow that bleeds onto this footer (it
+                // sits a hair below the platter at a lower z, so the shadow paints
+                // over it). Pre-brightening here lands the footer back on the
+                // platter's tone once that shadow darkens it. See footerShadowCompensation.
+                .brightness(CustomMenuSpec.footerShadowCompensation)
         } else {
             content
                 .background(shape.fill(.regularMaterial))

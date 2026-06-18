@@ -21,13 +21,11 @@ struct InviteTypeRow: View {
     @State private var lastCountedMessage = ""
     
     
-    //Owned here (not inside SelectTypeView) so the menu's sizing copy and visible
+    //Chooses which sections info is open, controlled here as need to update
     @State private var openInfoTypes: Set<Event.EventType> = []
 
-    //Platter corners: round (16) on the outer/top edge, tighter (10) on the edge facing
-    //the footer.
+    //Choose corner radius for different drop down menus
     private let menuCorners = RectangleCornerRadii(top: 16, bottom: 6)
-    //Footer corners, set independently of the platter (no longer the mirror).
     private let footerCorners = RectangleCornerRadii(top: 6, bottom: 14)
 
     var message: String  {
@@ -53,7 +51,7 @@ extension InviteTypeRow {
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
             onOpen: { ui.popupOpen = true },
-            onClose: { ui.popupOpen = false },
+            onClose: { ui.popupOpen = false ; openInfoTypes.removeAll()   },
             footer: { AnyView(AddMessageFooter(message: message,
                                                showMessageScreen: $ui.showMessageScreen,
                                                cardCorners: footerCorners)) }
