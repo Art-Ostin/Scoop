@@ -55,18 +55,25 @@ extension SendInviteContainer {
 //Logic for the inviteButton
 extension SendInviteContainer {
     
-    func addPopupDelay() async {
-        let isOpen = ui.popupOpen
+    func addTimePopupDelay() async {
+        let isOpen = ui.timePopupOpen
         try? await Task.sleep(for: isOpen ? .milliseconds(150) : .milliseconds(40))
-        ui.popupOpenDelayed = isOpen
+        ui.timePopupOpenDelayed = isOpen
+    }
+    
+    func addTypePopupDelay() async {
+        let isOpen = ui.typePopupOpen
+        try? await Task.sleep(for: isOpen ? .milliseconds(150) : .milliseconds(40))
+        ui.typePopupOpenDelayed = isOpen
     }
     
     @ViewBuilder
     var sendInviteButton: some View {
     let isValid = !ui.showConfirmPopup &&  !draft.time.dates.isEmpty && draft.place != nil
-    
+    let noPopup = !ui.timePopupOpenDelayed || !ui.typePopupOpenDelayed
+        
     //Don't want glass button when not valid here, as it gives shadow and looks poor. (So given placehodler field)
-        if isValid && !ui.popupOpenDelayed { //using delay as makes it smoother
+        if isValid && noPopup { //using delay as makes it smoother
         sendInviteValidButton
     } else {
         sendInvitePlaceholder

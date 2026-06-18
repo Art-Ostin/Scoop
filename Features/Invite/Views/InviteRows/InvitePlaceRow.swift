@@ -55,7 +55,7 @@ extension InvitePlaceRow {
                 
                 //Don't show chevron when popup open as smoother show clear rectangle so content doesn't shift
                 Image("InviteChevron")
-                    .opacity(ui.popupOpenDelayed ? 0 : 1)
+                    .opacity(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed ? 0 : 1)
             }
         }
     }

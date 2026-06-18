@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct InviteTypeRow: View {
+    
+    @Environment(\.customMenuDismiss) private var menuDismiss
 
     @Bindable var ui: TimeAndPlaceUIState
     
@@ -50,12 +52,9 @@ extension InviteTypeRow {
         CustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
-            keepsLabel: true, //title + chevron stay put; the glass just blooms out from over them
-            onOpen: { ui.popupOpen = true },
-            onClose: { ui.popupOpen = false ; openInfoTypes.removeAll()   },
-            footer: { AnyView(AddMessageFooter(message: message,
-                                               showMessageScreen: $ui.showMessageScreen,
-                                               cardCorners: footerCorners)) }
+            onOpen: { ui.typePopupOpen = true },
+            onClose: { ui.typePopupOpen = false ; openInfoTypes.removeAll()   },
+            footer: { AnyView(addMessageFooter) }
         ) {
             selectTypeView //detached "Add a Message" card now lives in the footer below
         } label: {
@@ -81,6 +80,8 @@ extension InviteTypeRow {
         .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
         .onChange(of: message) { _, _ in updateLineHeight() } //clearing/edits: recount (and reset) on text change
     }
+    
+    
     
     
     private var inviteMessage: some View {
@@ -123,40 +124,27 @@ extension InviteTypeRow {
         ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
         lastCountedMessage = message
     }
-
-}
-
-
-//The detached "Add a Message" card, rendered as CustomMenu's footer. It is its own
-//View (not a computed property of InviteTypeRow) on purpose: it reads
-//`customMenuDismiss` from where it actually renders — INSIDE the menu overlay — so the
-//tap closes the menu and then opens the sheet. Read on InviteTypeRow that environment
-//resolves to the main tree and is a no-op.
-private struct AddMessageFooter: View {
-
-    @Environment(\.customMenuDismiss) private var menuDismiss
-
-    let message: String
-    @Binding var showMessageScreen: Bool
-    //Mirror of the platter's corners: tight (10) on the edge facing the menu, round
-    //(16) on the bottom — so the stroke matches the footer's own glass shape.
-    let cardCorners: RectangleCornerRadii
-
-    var body: some View {
+    
+    
+    
+    private var addMessageFooter: some View {
+        
         Text(message.isEmpty ? "Add a Message" : "Edit Message")
             .foregroundStyle(Color.black)
             .font(.body(16, .bold))
             .kerning(0.5)
             .frame(height: 40)
-            .modifier(SelectTypeCardBackground(corners: cardCorners)) //same stroked card as the type list
-            .customMenuFooterPlatter(corners: cardCorners) //own the glass platter so the press scales it, not just the inside
+            .modifier(SelectTypeCardBackground(corners: footerCorners)) //same stroked card as the type list
+            .customMenuFooterPlatter(corners: footerCorners) //own the glass platter so the press scales it, not just the inside
             .contentShape(.rect)
-            .shrinkPress { //now wraps the platter → the whole container shrinks on press
+            .shrinkPress {
                 menuDismiss()
-                showMessageScreen = true
+                ui.showMessageScreen = true
             }
     }
+
 }
+
 
 /*
  

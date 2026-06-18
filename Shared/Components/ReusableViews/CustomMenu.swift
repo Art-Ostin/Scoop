@@ -16,10 +16,6 @@
 //          // the trigger view
 //      }
 //
-//      Pass labelCornerRadius if the label is not a capsule, so the closing
-//      lens lands exactly on its shape:
-//      CustomMenu(labelCornerRadius: 25) { ... } label: { ... }
-//
 //  Inside the content closure:
 //      .customMenuItem { ... }        — row participates in drag-to-select highlight,
 //                                       runs its action and dismisses on selection.
@@ -28,18 +24,19 @@
 //                                       call this action (or use .customMenuItem) to
 //                                       close it. Tapping outside still dismisses.
 //
-//  ── iOS 26 lens-morph mechanics (replicated from device recordings) ─────────
-//  Native iOS 26 menus do a "lens morph" that passes THROUGH A CIRCLE: on open
-//  the button squeezes into a small droplet circle at its own centre (label
-//  refracting inside), the circle inflates while travelling toward the menu's
-//  centre, then relaxes into the rounded-rect platter — which COVERS the
-//  button's rect (near edges flush, no gap) and is centred on it — while the
-//  menu content de-blurs and materializes. Dismissal is the exact reverse;
-//  the button re-materializes inside the shrinking droplet.
-//  Implementation: ONE persistent glass view whose keyframed frame/radius/
-//  content are interpolated by an Animatable modifier (MenuLensMorph) under
-//  withAnimation. The real label hides while the lens covers it (it IS the
-//  menu, like native).
+//  ── iOS 26 bloom mechanics ──────────────────────────────────────────────────
+//  On open, the glass platter grows directly out of a SMALL CIRCLE pinned to the
+//  label's trailing edge, straight into the rounded-rect platter, while the menu
+//  content de-blurs and materializes. There is no intermediate droplet or
+//  travelling-circle phase: the shape only ever grows monotonically from the
+//  origin circle to the platter. Dismissal is the exact reverse — the platter
+//  shrinks back into the small trailing-edge circle and the glass melts off.
+//  The real label is NOT captured or hidden: it stays visible in the app tree
+//  underneath, and the glass simply blooms out from over its trailing edge.
+//  (An earlier version routed the morph THROUGH a circle, native-style, swallowing
+//  the label; that initial transition was removed by request.)
+//  Implementation: ONE persistent glass view whose frame/radius/content are
+//  interpolated by an Animatable modifier (MenuLensMorph) under withAnimation.
 //  No glass transitions are used — verified broken/limited on iOS 26.0:
 //   • glassEffectID same-ID "replace" swaps render as an INSTANT swap.
 //   • The liquid metaball merge only occurs between comparably-sized glass
@@ -184,20 +181,16 @@ enum CustomMenuSpec {
     static let platterCornerRadius: CGFloat = 26
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
-    /// Peak refraction blur while content is being swallowed/materialized
-    /// (matched against device recordings of the native lens).
+    /// Peak refraction blur while the menu content is materializing as the
+    /// platter grows (de-blurs to 0 by the time the platter is full).
     static let lensBlur: CGFloat = 8
-    /// Droplet circle diameter as a multiple of the label height (the small
-    /// circle the button squeezes into — ~64pt for a 44pt button on device).
-    static let dropletScale: CGFloat = 1.45
-    /// Inflated circle diameter relative to the menu's smaller dimension
-    /// (~180pt for a 240×140 menu in the device recording).
-    static let lensCircleScale: CGFloat = 1.25
-    /// How far toward the menu's centre the inflated circle has travelled.
-    static let lensTravelBias: CGFloat = 0.75
-    /// Lens morph timing against the native open (~0.45s, slight settle).
+    /// Diameter of the small circle the platter grows out of / collapses back
+    /// into, pinned to the label's trailing edge. Tune for a smaller/larger
+    /// starting dot.
+    static let expansionOriginDiameter: CGFloat = 16
+    /// Bloom timing against the native open (~0.45s, slight settle).
     static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
-    /// Shrinking back through the circles never bounces (~0.4s on device).
+    /// Shrinking back into the origin circle never bounces (~0.4s on device).
     static let bloomClose = Animation.smooth(duration: 0.38)
     /// After the menu is open, content can reflow (e.g. an info row expands) and
     /// change the platter's height. Grow it with this curve — matched to the
@@ -207,17 +200,17 @@ enum CustomMenuSpec {
     /// info toggle uses `.snappy(duration: 0.3)`); a different spring here makes
     /// the platter fill drift ahead of the content's own stroke as it extends.
     static let reflowResize = Animation.snappy(duration: 0.3)
-    /// After the close morph lands on the button, the lens halo melts off the
-    /// restored label rather than popping out in one frame.
+    /// After the close morph reaches the trailing-edge circle, any leftover glass
+    /// halo melts off rather than popping out in one frame.
     static let lensFadeOut = Animation.easeOut(duration: 0.15)
-    /// Close morph length before the label is restored and the halo melts.
+    /// Close morph length before the leftover glass halo melts.
     static let closeMorphDuration: TimeInterval = 0.4
     static let lensFadeDuration: TimeInterval = 0.18
     /// On close, the glass is fully present at this progress and melts linearly to
-    /// nothing by progress 0 — i.e. it fades across the final expand (the circle
-    /// relaxing back into the label), so the label alone lands and there's no
-    /// glass left to pop. 0.35 lines the fade up with the start of the expand;
-    /// smaller concentrates it later / quicker near the very end.
+    /// nothing by progress 0 — i.e. it fades out as the platter shrinks back into
+    /// the trailing-edge circle, so there's no glass dot left to pop. 0.35 lines
+    /// the fade up with the last stretch of the shrink; smaller concentrates it
+    /// later / quicker near the very end.
     static let closeGlassFadeProgress: CGFloat = 0.35
     /// Platter shadow at full bloom (native casts a wide soft shadow).
     static let platterShadowOpacity: CGFloat = 0.1
@@ -282,9 +275,6 @@ struct CustomMenu<Content: View, Label: View>: View {
 
     @ViewBuilder var content: () -> Content
     @ViewBuilder var label: () -> Label
-    /// Corner radius of the label's own shape so the closing lens lands on it
-    /// exactly (defaults to a capsule). Mismatched corners read as a snap.
-    var labelCornerRadius: CGFloat?
     /// Corner radius of the menu platter itself. `nil` uses the spec defaults
     /// (26pt on iOS 26's glass, 13pt on the pre-26 platter); pass a value to
     /// override from the call site without touching `CustomMenu`.
@@ -316,24 +306,15 @@ struct CustomMenu<Content: View, Label: View>: View {
     /// close. `nil` (the default) means no footer, so existing call sites are unaffected.
     /// Items inside it use `.customMenuItem` / `customMenuDismiss` just like content.
     var footer: (() -> AnyView)?
-    /// Keeps the trigger label in place while the menu is open instead of letting the
-    /// iOS 26 lens swallow it. The bloom is unchanged — the glass still morphs out of
-    /// the label's frame — but the real label stays visible underneath and the lens
-    /// carries no fading copy of it. Pre-26 already keeps the label, so this only
-    /// affects the iOS 26 lens morph. Default `false` preserves the native
-    /// "label becomes the menu" behavior (and the demo harness).
-    var keepsLabel: Bool
 
     @State private var controller = CustomMenuController()
     @State private var labelFrame: CGRect = .zero
     @GestureState private var isPressed = false
 
-    init(labelCornerRadius: CGFloat? = nil,
-         cornerRadius: CGFloat? = nil,
+    init(cornerRadius: CGFloat? = nil,
          cornerRadii: RectangleCornerRadii? = nil,
          footerCornerRadii: RectangleCornerRadii? = nil,
          alignment: CustomMenuAlignment = .automatic,
-         keepsLabel: Bool = false,
          placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
          onOpen: (() -> Void)? = nil,
@@ -341,12 +322,10 @@ struct CustomMenu<Content: View, Label: View>: View {
          footer: (() -> AnyView)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
-        self.labelCornerRadius = labelCornerRadius
         self.cornerRadius = cornerRadius
         self.cornerRadii = cornerRadii
         self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
-        self.keepsLabel = keepsLabel
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
         self.onClose = onClose
@@ -356,37 +335,24 @@ struct CustomMenu<Content: View, Label: View>: View {
     }
 
     var body: some View {
-        // While the menu is open, keep the controller's rendered label in sync
-        // with the latest state so the dismiss morph shrinks showing the
-        // post-selection value instead of the snapshot taken when it opened.
-        let _ = syncPresentedLabel()
-        return label()
+        // The label stays in place while the menu is open: the glass platter blooms
+        // out of a small circle at the label's trailing edge, so the real label is
+        // always visible underneath (never swallowed/hidden). It reflows naturally
+        // on selection, so the close morph collapses onto its current value.
+        label()
             .contentShape(Rectangle())
-            // iOS 26: the overlay's lens swallows the label, so the real one
-            // hides while the menu is up (it is the menu now), like native.
-            .opacity(controller.hidesLabel ? 0 : (isPressed ? CustomMenuSpec.pressedLabelOpacity : 1))
+            .opacity(isPressed ? CustomMenuSpec.pressedLabelOpacity : 1)
             .animation(.easeOut(duration: 0.1), value: isPressed)
             .onGeometryChange(for: CGRect.self) { proxy in
                 proxy.frame(in: .global)
             } action: { frame in
                 labelFrame = frame
                 // Keep the close target on the label's current frame (it reflows
-                // when a selection changes its text) so the lens lands cleanly.
+                // when a selection changes its text) so the morph lands cleanly.
                 controller.updateCollapseAnchor(frame)
             }
             .gesture(pressAndDrag)
             .onDisappear { controller.dismiss(animated: false) }
-    }
-
-    /// Pushes the freshest label closure into the controller, deferred one runloop
-    /// turn so it lands cleanly after the current view-update pass. No-op while the
-    /// menu is closed.
-    private func syncPresentedLabel() {
-        guard controller.isPresented else { return }
-        let makeLabel = label
-        DispatchQueue.main.async {
-            controller.updateLabel { AnyView(makeLabel()) }
-        }
     }
 
     /// Native menus open on touch-down and support press-drag-release selection,
@@ -399,13 +365,10 @@ struct CustomMenu<Content: View, Label: View>: View {
                     onOpen?()
                     controller.present(
                         anchor: labelFrame,
-                        label: { AnyView(label()) },
-                        labelCornerRadius: labelCornerRadius,
                         cornerRadius: cornerRadius,
                         cornerRadii: cornerRadii,
                         footerCornerRadii: footerCornerRadii,
                         alignment: alignment,
-                        keepsLabel: keepsLabel,
                         placementOffset: placementOffset,
                         onClose: onClose,
                         footer: footer,
@@ -525,8 +488,6 @@ final class CustomMenuController {
     private(set) var content: (() -> AnyView)?
     /// Detached accessory rendered as its own glass card below the platter.
     private(set) var footer: (() -> AnyView)?
-    private(set) var labelView: (() -> AnyView)?
-    private(set) var labelCornerRadius: CGFloat?
     /// Caller-supplied platter corner radius; `nil` falls back to the spec value.
     private(set) var cornerRadius: CGFloat?
     /// Caller-supplied per-corner platter radii; overrides `cornerRadius` when set.
@@ -535,11 +496,7 @@ final class CustomMenuController {
     private(set) var footerCornerRadii: RectangleCornerRadii?
     private(set) var alignment: CustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
-    /// Keep the trigger label in place (don't let the lens swallow it). See `CustomMenu.keepsLabel`.
-    private(set) var keepsLabel = false
-    /// iOS 26: the real label hides while the overlay's lens carries its copy.
-    private(set) var hidesLabel = false
-    /// iOS 26: signals the overlay to melt the lens halo off the restored label.
+    /// iOS 26: signals the overlay to melt the leftover glass halo at the end of close.
     private(set) var lensDissolve = false
     private(set) var highlightedItemID: UUID?
     /// Laid-out menu frame in screen coordinates, set by the overlay.
@@ -562,13 +519,10 @@ final class CustomMenuController {
     // MARK: Presentation
 
     func present(anchor: CGRect,
-                 label: @escaping () -> AnyView,
-                 labelCornerRadius: CGFloat?,
                  cornerRadius: CGFloat? = nil,
                  cornerRadii: RectangleCornerRadii? = nil,
                  footerCornerRadii: RectangleCornerRadii? = nil,
                  alignment: CustomMenuAlignment,
-                 keepsLabel: Bool = false,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
                  footer: (() -> AnyView)? = nil,
@@ -581,13 +535,10 @@ final class CustomMenuController {
 
         self.anchor = anchor
         self.collapseAnchor = anchor
-        self.labelView = label
-        self.labelCornerRadius = labelCornerRadius
         self.cornerRadius = cornerRadius
         self.cornerRadii = cornerRadii
         self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
-        self.keepsLabel = keepsLabel
         self.placementOffset = placementOffset
         self.onClose = onClose
         self.footer = footer
@@ -608,25 +559,11 @@ final class CustomMenuController {
         if phase == .measuring { phase = .shown }
     }
 
-    /// Re-points the rendered label at the latest closure so the dismiss morph
-    /// shrinks showing the current value (e.g. after a selection) rather than the
-    /// snapshot captured when the menu opened. No-op while not presented.
-    func updateLabel(_ label: @escaping () -> AnyView) {
-        guard window != nil else { return }
-        labelView = label
-    }
-
     /// Tracks the label's live frame so the close morph lands exactly on it even
     /// after a selection reflows the label. No-op while not presented.
     func updateCollapseAnchor(_ frame: CGRect) {
         guard window != nil, frame != .zero else { return }
         collapseAnchor = frame
-    }
-
-    /// Called by the overlay the moment its lens (pixel-identical to the
-    /// label at progress 0) is on screen, so there is overlap, never a gap.
-    func hideSourceLabel() {
-        hidesLabel = true
     }
 
     func dismiss(animated: Bool = true) {
@@ -638,12 +575,12 @@ final class CustomMenuController {
         phase = .dismissing
         let gen = generation
         if #available(iOS 26.0, *) {
-            // Close morph lands on the button → restore the real label under
-            // the pixel-identical lens copy → melt the halo off → teardown.
+            // The platter shrinks back into the small circle at the label's trailing
+            // edge (close mirrors open) → melt the leftover glass halo off → teardown.
+            // The real label was visible underneath the whole time.
             Task {
                 try? await Task.sleep(for: .seconds(CustomMenuSpec.closeMorphDuration))
                 guard generation == gen else { return }
-                hidesLabel = false
                 lensDissolve = true
                 try? await Task.sleep(for: .seconds(CustomMenuSpec.lensFadeDuration))
                 if generation == gen { tearDown() }
@@ -663,19 +600,15 @@ final class CustomMenuController {
         onClose = nil
         content = nil
         footer = nil
-        labelView = nil
-        labelCornerRadius = nil
         cornerRadius = nil
         cornerRadii = nil
         footerCornerRadii = nil
         alignment = .automatic
-        keepsLabel = false
         placementOffset = .zero
         collapseAnchor = .zero
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
-        hidesLabel = false
         lensDissolve = false
         phase = .measuring
     }
@@ -735,10 +668,10 @@ private struct CustomMenuOverlayRoot: View {
     @State private var menuSize: CGSize?
     @State private var contentIdealHeight: CGFloat?
     @State private var appeared = false
-    /// iOS 26 lens morph: 0 = lens sits on the label, 1 = full menu platter.
+    /// iOS 26 bloom: 0 = small circle at the label's trailing edge, 1 = full menu platter.
     @State private var morphProgress: CGFloat = 0
-    /// iOS 26: the halo materializes over the button on open and melts off
-    /// the restored button at the end of the close — never pops.
+    /// iOS 26: present for the whole bloom; melts off at the very end of the
+    /// close so the leftover glass never pops.
     @State private var lensOpacity: Double = 0
 
     private var overlapsAnchor: Bool {
@@ -887,14 +820,13 @@ private struct CustomMenuOverlayRoot: View {
 
     // MARK: iOS 26 — Liquid Glass bloom
 
-    /// The native iOS 26 lens morph, replicated from frame-by-frame analysis of
-    /// a real device recording: on open, the button's rect becomes a glass lens
-    /// that swallows the label (its pixels blur/refract inside), then the lens
-    /// grows from the label's rect to the menu's rect while the menu content
-    /// de-blurs and materializes. Dismissal is the exact reverse — the menu
-    /// liquefies back into the button and the label re-materializes inside.
-    /// One persistent glass view + Animatable frame interpolation; no glass
-    /// transitions involved (the broken ones aren't needed).
+    /// The iOS 26 glass bloom: on open, the platter grows out of a small circle
+    /// pinned to the label's trailing edge straight into the menu's rect while the
+    /// menu content de-blurs and materializes. Dismissal is the exact reverse — the
+    /// platter shrinks back into that trailing-edge circle and the glass melts off.
+    /// The real label stays visible underneath the whole time (never captured).
+    /// One persistent glass view + Animatable frame interpolation (MenuLensMorph);
+    /// no glass transitions involved (the broken ones aren't needed).
     @available(iOS 26.0, *)
     @ViewBuilder
     private func glassPresentation(content: AnyView, metrics: Metrics) -> some View {
@@ -925,15 +857,11 @@ private struct CustomMenuOverlayRoot: View {
                     if size.height <= metrics.maxHeight + 1 {
                         appeared = true
                         controller.markShown()
-                        // The lens is pixel-identical to the label at progress 0, so
-                        // it takes over the button instantly (no fade-in — that adds
-                        // perceptible lag between tap and motion) and the morph
-                        // begins the same beat.
+                        // The glass starts as a small circle at the label's trailing
+                        // edge, so it's on screen instantly (no fade-in lag between
+                        // tap and motion). The real label stays in place underneath —
+                        // it is never hidden or swallowed.
                         lensOpacity = 1
-                        // Normally the lens swallows the label (it IS the menu now);
-                        // with keepsLabel the real label stays put and the glass just
-                        // blooms out from over it.
-                        if !controller.keepsLabel { controller.hideSourceLabel() }
                         // Escape the layout transaction so the morph animates from a
                         // committed frame instead of snapping on initial render.
                         DispatchQueue.main.async {
@@ -948,26 +876,22 @@ private struct CustomMenuOverlayRoot: View {
         if let size = menuSize {
             let menuRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
             // Collapse onto the label's live frame, falling back to the open-time
-            // anchor before the first geometry update lands.
+            // anchor before the first geometry update lands. The morph's origin
+            // circle is pinned to this frame's trailing edge.
             let collapsedRect = controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor
-            // No GlassEffectContainer: with a single lens shape it isn't needed,
-            // and the container both composites its glass ABOVE sibling content
-            // (so the label can't sit over it) and ignores per-view .opacity (so
-            // the glass can't fade). Standalone .glassEffect honours both, which is
-            // what lets the glass melt out under the label on close.
+            // No GlassEffectContainer: with a single glass shape it isn't needed,
+            // and the container ignores per-view .opacity (so the glass couldn't
+            // fade). Standalone .glassEffect honours it, which is what lets the
+            // glass melt out on close.
             // Positioned with layout padding (inside the modifier), never .offset.
             ZStack(alignment: .topLeading) {
                 chromeCore(content: content, metrics: metrics)
                     .modifier(MenuLensMorph(
                         progress: morphProgress,
                         collapsed: collapsedRect,
-                        collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
                         expanded: menuRect,
                         platterCorners: controller.cornerRadii
                             ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? CustomMenuSpec.platterCornerRadius),
-                        // keepsLabel leaves the real label in the app tree, so the
-                        // lens must not also carry a copy (it would double-render).
-                        label: controller.keepsLabel ? nil : controller.labelView?(),
                         isClosing: controller.phase == .dismissing
                     ))
                     .opacity(lensOpacity)
@@ -1045,30 +969,25 @@ private struct CustomMenuOverlayRoot: View {
         .fixedSize(horizontal: true, vertical: false)
     }
 
-    /// The lens morph, keyframed from device recordings of the native menu.
-    /// The glass lens travels through a CIRCLE phase rather than interpolating
-    /// rect-to-rect:
-    ///   p 0.00→0.35  the button squeezes into a small droplet circle at its
-    ///                own centre, its label refracting inside;
-    ///   p 0.35→0.70  the circle inflates while travelling most of the way
-    ///                toward the menu's centre;
-    ///   p 0.70→1.00  the circle relaxes into the rounded-rect platter while
-    ///                the menu content materializes.
-    /// Dismissal runs the same path in reverse (menu → circles → button).
-    /// Animatable progress drives layout, so SwiftUI interpolates every spring
-    /// frame through this modifier.
+    /// The open/close morph. The glass platter grows directly out of a small
+    /// circle pinned to the label's trailing edge straight into the menu's
+    /// rounded-rect platter, while the menu content de-blurs and materializes.
+    /// Closing runs the same path in reverse (platter → small trailing-edge
+    /// circle). There is no "droplet" or travelling-circle phase — the shape
+    /// only ever grows monotonically from the origin circle to the platter — and
+    /// the real label is never captured: it stays visible in the app tree
+    /// underneath. Animatable progress drives layout, so SwiftUI interpolates
+    /// every spring frame through this modifier.
     @available(iOS 26.0, *)
     private struct MenuLensMorph: ViewModifier, Animatable {
         var progress: CGFloat
+        /// The label's live frame; the morph's origin circle is pinned to its trailing edge.
         let collapsed: CGRect
-        /// The label's own corner radius, so the lens lands exactly on its shape.
-        let collapsedRadius: CGFloat
         let expanded: CGRect
         /// The platter's resting per-corner radii (caller-supplied or spec default).
         let platterCorners: RectangleCornerRadii
-        let label: AnyView?
-        /// While dismissing, the glass melts off over the final expand so the
-        /// label finishes the motion alone (no glass left to pop afterwards).
+        /// While dismissing, the glass melts off as it shrinks back into the
+        /// origin circle, so nothing pops at the end.
         let isClosing: Bool
 
         var animatableData: CGFloat {
@@ -1080,56 +999,34 @@ private struct CustomMenuOverlayRoot: View {
             a + (b - a) * t
         }
 
-        /// Piecewise lens geometry across the keyframes above.
+        /// A single monotonic growth from the origin circle (a small circle at the
+        /// label's trailing edge) straight to the menu platter — no intermediate
+        /// droplet or travelling-circle phase. `p` 0 → 1 grows and translates the
+        /// shape from the origin to the platter; the close (1 → 0) reverses it.
         private func lensFrame(_ p: CGFloat) -> (rect: CGRect, corners: RectangleCornerRadii) {
-            let small = collapsed.height * CustomMenuSpec.dropletScale
-            let big = max(small * 1.5,
-                          min(min(expanded.width, expanded.height) * CustomMenuSpec.lensCircleScale,
-                              max(expanded.width, expanded.height) * 0.75))
-            let start = CGPoint(x: collapsed.midX, y: collapsed.midY)
-            let end = CGPoint(x: expanded.midX, y: expanded.midY)
-            // The big circle has already travelled most of the way to the menu.
-            let mid = CGPoint(x: lerp(start.x, end.x, CustomMenuSpec.lensTravelBias),
-                              y: lerp(start.y, end.y, CustomMenuSpec.lensTravelBias))
+            let t = p.clamped(to: 0...1)
+            let origin = CustomMenuSpec.expansionOriginDiameter
+            // Start: a small circle sitting just inside the label's trailing edge.
+            // End: the full menu platter, centred on its own rect.
+            let startCenter = CGPoint(x: collapsed.maxX - origin / 2, y: collapsed.midY)
+            let endCenter = CGPoint(x: expanded.midX, y: expanded.midY)
 
-            let w: CGFloat, h: CGFloat, cx: CGFloat, cy: CGFloat
-            let corners: RectangleCornerRadii
-            if p < 0.35 {
-                // Button → droplet circle, holding the button's centre. Radius
-                // starts at the label's own corner radius so the closing lens
-                // lands exactly on the button's shape, never a different one.
-                let t = max(0, p / 0.35)
-                w = lerp(collapsed.width, small, t)
-                h = lerp(collapsed.height, small, t)
-                cx = start.x
-                cy = start.y
-                corners = RectangleCornerRadii(uniform: min(min(w, h) / 2, lerp(collapsedRadius, small / 2, t)))
-            } else if p < 0.7 {
-                // Droplet inflates and travels toward the menu.
-                let t = (p - 0.35) / 0.35
-                w = lerp(small, big, t)
-                h = w
-                cx = lerp(start.x, mid.x, t)
-                cy = lerp(start.y, mid.y, t)
-                corners = RectangleCornerRadii(uniform: w / 2)
-            } else {
-                // Circle relaxes into the platter (spring overshoot extrapolates).
-                // Each corner eases independently from the circle to its resting
-                // value, so a platter with differing top/bottom radii resolves cleanly.
-                let t = (p - 0.7) / 0.3
-                w = lerp(big, expanded.width, t)
-                h = lerp(big, expanded.height, t)
-                cx = lerp(mid.x, end.x, t)
-                cy = lerp(mid.y, end.y, t)
-                let cap = min(w, h) / 2
-                let circle = big / 2
-                corners = RectangleCornerRadii(
-                    topLeading: min(cap, lerp(circle, platterCorners.topLeading, t)),
-                    bottomLeading: min(cap, lerp(circle, platterCorners.bottomLeading, t)),
-                    bottomTrailing: min(cap, lerp(circle, platterCorners.bottomTrailing, t)),
-                    topTrailing: min(cap, lerp(circle, platterCorners.topTrailing, t))
-                )
-            }
+            let w = lerp(origin, expanded.width, t)
+            let h = lerp(origin, expanded.height, t)
+            let cx = lerp(startCenter.x, endCenter.x, t)
+            let cy = lerp(startCenter.y, endCenter.y, t)
+
+            // Corners ease from a full circle (origin / 2) to the platter's resting
+            // radii, each capped at a half-side so the shape stays a clean
+            // circle/pill while it's still small and resolves to the platter as it grows.
+            let cap = min(w, h) / 2
+            let circle = origin / 2
+            let corners = RectangleCornerRadii(
+                topLeading: min(cap, lerp(circle, platterCorners.topLeading, t)),
+                bottomLeading: min(cap, lerp(circle, platterCorners.bottomLeading, t)),
+                bottomTrailing: min(cap, lerp(circle, platterCorners.bottomTrailing, t)),
+                topTrailing: min(cap, lerp(circle, platterCorners.topTrailing, t))
+            )
             return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), corners)
         }
 
@@ -1138,51 +1035,34 @@ private struct CustomMenuOverlayRoot: View {
             let lens = lensFrame(p)
             let w = lens.rect.width
             let h = lens.rect.height
-            // The swallowed label shrinks with the droplet so it stays inside.
-            let labelScale = min(2, min(w / max(collapsed.width, 1),
-                                        h / max(collapsed.height, 1)))
-            // On close only, melt the glass off across the final expand (p → 0) so
-            // the label — layered on top — is what finishes landing on the button,
-            // with no glass left to fade out in a separate beat afterwards.
+            // On close, melt the glass off as it shrinks back into the origin
+            // circle (p → 0) so nothing pops at the end; the real label is already
+            // visible underneath, so there is nothing left to restore.
             let glassOpacity: Double = isClosing
                 ? Double((p / CustomMenuSpec.closeGlassFadeProgress).clamped(to: 0...1))
                 : 1
 
-            ZStack(alignment: .topLeading) {
-                // Glass platter + menu content. The glass rides this layer so it
-                // can fade out independently of the label on close.
-                content
-                    .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
-                    .scaleEffect(x: w / max(expanded.width, 1),
-                                 y: h / max(expanded.height, 1),
-                                 anchor: .topLeading)
-                    .blur(radius: (1 - p).clamped(to: 0...1) * CustomMenuSpec.lensBlur)
-                    .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
-                    .frame(width: w, height: h, alignment: .topLeading)
-                    .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: lens.corners, style: .continuous))
-                    // Native platters cast a wide soft shadow; it grows with the
-                    // bloom so the resting button state casts none.
-                    .shadow(color: .black.opacity(CustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
-                            radius: CustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
-                            y: CustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
-                    .opacity(glassOpacity)
-
-                // The swallowed label, layered ON TOP of the glass so on close it
-                // outlives the glass fade and is what lands on the button.
-                // fixedSize keeps its intrinsic layout (no reflow/truncation);
-                // it shrinks purely visually with the droplet.
-                if let label {
-                    label
-                        .fixedSize()
-                        .scaleEffect(labelScale)
-                        .frame(width: w, height: h)
-                        .blur(radius: p.clamped(to: 0...1) * CustomMenuSpec.lensBlur)
-                        .opacity(Double((1 - p * 2.2).clamped(to: 0...1)))
-                }
-            }
-            .frame(width: w, height: h, alignment: .topLeading)
-            .padding(.leading, max(0, lens.rect.minX))
-            .padding(.top, max(0, lens.rect.minY))
+            // Glass platter + menu content, scaled from the origin circle up to
+            // the full platter. The content de-blurs and fades in over the back
+            // half of the growth (unchanged from before).
+            content
+                .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
+                .scaleEffect(x: w / max(expanded.width, 1),
+                             y: h / max(expanded.height, 1),
+                             anchor: .topLeading)
+                .blur(radius: (1 - p).clamped(to: 0...1) * CustomMenuSpec.lensBlur)
+                .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
+                .frame(width: w, height: h, alignment: .topLeading)
+                .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: lens.corners, style: .continuous))
+                // Native platters cast a wide soft shadow; it grows with the bloom
+                // so the small origin circle casts almost none.
+                .shadow(color: .black.opacity(CustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
+                        radius: CustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
+                        y: CustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
+                .opacity(glassOpacity)
+                .frame(width: w, height: h, alignment: .topLeading)
+                .padding(.leading, max(0, lens.rect.minX))
+                .padding(.top, max(0, lens.rect.minY))
         }
     }
 

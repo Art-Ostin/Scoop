@@ -56,11 +56,12 @@ class TimeAndPlaceViewModel {
     
     var messageLineCount: Int = 0
     
-    //Even though driven by customMenu, reported here, so can disable Invite button when enabled
-    var popupOpen: Bool = false
+    //Drive certain behaviour is popup open
+    var typePopupOpen: Bool = false
+    var timePopupOpen: Bool = false
     
-    var popupOpenDelayed = false //actually opens it after a delay -> makes it tad smoother
-    
+    var typePopupOpenDelayed: Bool = false
+    var timePopupOpenDelayed: Bool = false
     
     func binding(for popup: Popup) -> Binding<Bool> {
         Binding(
@@ -70,3 +71,11 @@ class TimeAndPlaceViewModel {
     }
 
 }
+
+/*
+ 
+ var popupOpen: Bool = false
+ 
+ var popupOpenDelayed = false //actually opens it after a delay -> makes it tad smoother
+
+ */

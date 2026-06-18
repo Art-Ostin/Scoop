@@ -47,8 +47,9 @@ struct SendInviteContainer: View {
         //One spring drives every adaptive change together: the card width (cardMargin) and the
         //rows' vertical padding (messageLineCount, which can change height without changing margin).
         .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
-        .task(id: ui.popupOpen) { await addPopupDelay() }
-        .morphPopupOpen(ui.popupOpenDelayed)         //hide the morph's floating Hide button while a popup is open
+        .task(id: ui.timePopupOpen) { await addTimePopupDelay() }
+        .task(id: ui.typePopupOpen) { await addTypePopupDelay()}
+        .morphPopupOpen(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed) //hide the morph's floating Hide button while a popup is open
 
         //All Logic of what screen to show and where
         .hideTabBar(hideBar: isInviteResponse)

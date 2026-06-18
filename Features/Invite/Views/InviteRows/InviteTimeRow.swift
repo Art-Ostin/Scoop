@@ -51,13 +51,14 @@ extension InviteTimeRow {
     
     private var selectTimeButton: some View {
         CustomMenu(
-            onOpen: { ui.popupOpen = true },
-            onClose: { ui.popupOpen = false }
+            onOpen: { ui.timePopupOpen = true },
+            onClose: { ui.timePopupOpen = false }
         ) {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         } label: {
             selectTimeLabel
+            
         }
     }
     
@@ -77,8 +78,8 @@ extension InviteTimeRow {
             }
             
             Image("InviteChevron")
-                .opacity(ui.popupOpenDelayed ? 0 : 1)
         }
+        .opacity(ui.typePopupOpenDelayed ? 0 : 1)
     }
     
 }
@@ -104,14 +105,14 @@ extension InviteTimeRow {
         
         CustomMenu(
             placementOffsetY: CustomMenuSpec.placementOffsetY + Self.chevronTapInsetY,
-            onOpen: { ui.popupOpen = true },
-            onClose: { ui.popupOpen = false }
+            onOpen: { ui.timePopupOpen = true },
+            onClose: { ui.timePopupOpen = false }
         ) {
             SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
                 .zIndex(2)
         } label: {
             Image("InviteChevron")
-                .opacity(ui.popupOpenDelayed ? 0 : 1)
+                .opacity(ui.typePopupOpenDelayed ? 0 : 1)
                 .frame(width: Self.chevronTapTarget, height: Self.chevronTapTarget)//Expands hit area
         }
         .frame(width: Self.chevronArtSize.width, height: Self.chevronArtSize.height)//Expands hit area
@@ -132,6 +133,7 @@ extension InviteTimeRow {
             if let firstDay = times.first {
                 Text(FormatEvent.hourTime(firstDay))
                     .font(.body(13, .bold))
+                    .opacity(ui.typePopupOpenDelayed ? 0 : 1) //Hide it when typePopup Open -> Makes bit smoother
             }
         }
     }
@@ -145,6 +147,7 @@ extension InviteTimeRow {
             Spacer()
             Text(FormatEvent.dayAndTime(time, withHour: false))
                 .font(.body(15, .regular))
+                .opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
     }
 }
