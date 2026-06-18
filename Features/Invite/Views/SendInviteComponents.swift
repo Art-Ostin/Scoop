@@ -47,7 +47,7 @@ extension SendInviteContainer {
     }
     
     var hasDraftChanges: Bool {
-        !draft.time.dates.isEmpty || draft.place != nil || draft.type != .drink || draft.message != nil
+        !draft.time.dates.isEmpty || draft.place != nil || draft.type != .socialMeet || draft.message != nil
     }
     
 }

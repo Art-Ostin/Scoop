@@ -11,6 +11,8 @@ import UIKit
 
 struct AddMessageView: View {
     
+    @Environment(\.dismiss) private var dismiss
+    
     @Binding var eventType: Event.EventType
     @Binding var showMessageScreen: Bool
     @Binding var message: String?
@@ -35,8 +37,9 @@ struct AddMessageView: View {
             textFieldSection
                 .padding(.top, 24)
             
-            OkDismissButton()
+            ActionButton(text: "Done") { dismiss() }
                 .padding(.top, isRespondMessage ? 24 : 36)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
         .overlay(alignment: .topTrailing) {
             if showSaved {
@@ -44,15 +47,8 @@ struct AddMessageView: View {
                     .offset(y: -36)
             }
         }
-        .overlay(alignment: .top) {
-            if isRespondMessage {
-                Text("Accept \(name ?? "")'s invite with a message")
-                    .font(.body(14, .medium))
-                    .foregroundStyle(Color.grayText).opacity(0.8)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .offset(y: -60)
-            }
-        }
+        .overlay(alignment: .top) {addMessageNote}
+        
         .padding(.top, isRespondMessage ? 108 : 96)
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
@@ -118,9 +114,11 @@ extension AddMessageView {
             }
         }
     
+    
     private var headerSection: some View {
         HStack(alignment: .firstTextBaseline) {
             Text("Add Message")
+                .kerning(0.5)
                 .font(.title(24))
             
             Spacer()
@@ -142,18 +140,17 @@ extension AddMessageView {
         .frame(maxWidth: .infinity)
         .zIndex(1)
     }
+    
+    
+    private var addMessageNote: some View {
+        
+        let text: String = isRespondMessage ?  "Accept \(name ?? "")'s invite with a message" :  "Add a note to your invite for \(name ?? "them")"
+        
+        return Text(text)
+            .font(.body(14, .medium))
+            .foregroundStyle(Color.grayText).opacity(0.8)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .offset(y: -60)
+    }
 }
 
-/*
- 
- private var messageBinding: Binding<String> {
-     Binding(
-         get: { vm.event.message ?? "" },
-         set: { vm.event.message = $0 }
-     )
- }
-
- @Bindable var vm: TimeAndPlaceViewModel
- @Bindable var ui: TimeAndPlaceUIState
-
- */

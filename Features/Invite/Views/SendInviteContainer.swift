@@ -48,6 +48,7 @@ struct SendInviteContainer: View {
         //rows' vertical padding (messageLineCount, which can change height without changing margin).
         .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
         .task(id: ui.popupOpen) { await addPopupDelay() }
+        .morphPopupOpen(ui.popupOpenDelayed)         //hide the morph's floating Hide button while a popup is open
 
         //All Logic of what screen to show and where
         .hideTabBar(hideBar: isInviteResponse)

@@ -10,6 +10,20 @@ import SwiftUI
 struct OkDismissButton: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
+        
+        ScoopButton(
+            style: .tinted(.accent, shadow: .medium),
+            shape: RoundedRectangle(cornerRadius: 16)
+        ) {
+            dismiss()
+        } label: {
+            Text("OK")
+                .frame(width: 100, height: 40)
+            
+        }
+
+        
+        
         Button {
             dismiss()
         } label : {

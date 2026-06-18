@@ -186,6 +186,9 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     // Destination frame (morph space) published by content via `.morphCardAnchor()`, so the
     // entrance lands exactly on the real card. Used when the content owns its background.
     @State private var measuredCardRect: CGRect? = nil
+    // True while the card has an inner popup open (time/place pickers); hides the floating
+    // Hide control so it doesn't sit under the popup. Published up via MorphPopupOpenKey.
+    @State private var popupOpen = false
 
     private var sideMargin: CGFloat { style.sideMargin }
     private var cardWidth: CGFloat { max(0, containerSize.width - sideMargin * 2) }
@@ -236,6 +239,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             guard measuredCardRect == nil, let rect, rect.height > 1 else { return }
             withAnimation(openAnimation) { measuredCardRect = rect }
         }
+        .onPreferenceChange(MorphPopupOpenKey.self) { popupOpen = $0 }
         .onAppear {
             print("[MORPH] \(morphT()) QuickInviteMorph.onAppear (expanded=\(expanded)) → set expanded=true")
             withAnimation(openAnimation) { expanded = true }
@@ -332,9 +336,10 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private var hideButton: some View {
         HidePopup(onHide: onHide)
             .position(x: expandedRect.midX, y: expandedRect.maxY + 90)
-            .opacity(expanded && !hideCard ? 1 : 0)
+            .opacity(expanded && !hideCard && !popupOpen ? 1 : 0)
             .animation(.easeInOut(duration: 0.05), value: expanded)
-            .allowsHitTesting(expanded && !hideCard)
+            .animation(.smooth(duration: 0.2), value: popupOpen)
+            .allowsHitTesting(expanded && !hideCard && !popupOpen)
     }
 
 }
@@ -369,6 +374,15 @@ struct MorphCardFrameKey: PreferenceKey {
     }
 }
 
+// Published by the card when an inner popup (time/place pickers) is open, so the morph can
+// hide the floating Hide control while the popup is showing.
+struct MorphPopupOpenKey: PreferenceKey {
+    static var defaultValue: Bool = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
 extension View {
     /// END destination: tags this view as the card the morph surface grows into (used when
     /// the content owns its background, e.g. `.respond`).
@@ -386,6 +400,12 @@ extension View {
     /// START destination: tags this view as the morph source for `id`'s invite icon.
     func inviteIconAnchor(id: String) -> some View {
         anchorPreference(key: InviteIconBoundsKey.self, value: .bounds) { [id: $0] }
+    }
+
+    /// Publishes "a popup is open inside me" up to the morph, so it can hide the floating
+    /// Hide control while the popup is showing.
+    func morphPopupOpen(_ isOpen: Bool) -> some View {
+        preference(key: MorphPopupOpenKey.self, value: isOpen)
     }
 }
 

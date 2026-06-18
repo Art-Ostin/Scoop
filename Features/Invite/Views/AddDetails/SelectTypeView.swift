@@ -22,32 +22,39 @@ struct SelectTypeView: View {
     @Binding var selectedType: Event.EventType
     @Binding var showMessageScreen: Bool
     @Binding var showTypePopup: Bool
-    
+
     let message: String
-    
+
+    //Card corners. Default uniform 16; the invite menu passes top 16 / bottom 10 so it
+    //pairs with the "Add a Message" footer beneath it.
+    var cardCorners: RectangleCornerRadii = RectangleCornerRadii(uniform: 16)
+
     var body: some View {
         VStack(spacing: 0) {
             ForEach(Event.EventType.allCases, id: \.self) {eventType in
                     typeRow(eventType)
-                    
+
                     if eventType != Event.EventType.allCases.last {
                         thinDivider
                             .padding(.horizontal, 24)
                     }
             }
         }
-        .modifier(SelectTypeCardBackground())
+        .modifier(SelectTypeCardBackground(corners: cardCorners))
     }
 }
 
 extension SelectTypeView {
         
     private func typeRow(_ type: Event.EventType) -> some View {
-        VStack(spacing: 8) {
+        //spacing 0: the 8pt gap under the title now lives inside the revealed region
+        //(RevealingInfoText) so it wipes open with the text and leaves no gap when closed.
+        VStack(spacing: 0) {
             typeText(type)
             typeInfo(type)
         }
-        .padding(.vertical, openTypes.contains(type) ? 16 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
+        .padding(.top, 20)
+        .padding(.bottom, openTypes.contains(type) ? 12 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
         .padding(.horizontal, 24)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
         .shrinkPress {selectType(eventType: type) }
@@ -71,7 +78,7 @@ extension SelectTypeView {
             
     private func infoButton(_ type: Event.EventType) -> some View {
         Button {
-            withAnimation(.smooth(duration: 0.3)) {
+            withAnimation(.snappy(duration: 0.3)) { //Changing animation here, causes bug with the stroke, which must be updated in the inviteMorph. Be careful
                 toggleTypeInfo(type)
             }
         } label: {
@@ -86,16 +93,12 @@ extension SelectTypeView {
         .shrinkButton()
     }
 
-    //3. The Info drop down section
+    //3. The Info drop down section. Revealed by a top-down height wipe — the rows below
+    //slide down and uncover the text at full opacity (mirroring the Preferred Maps settings
+    //reveal), instead of the text fading in while the divider opens. The wipe rides the same
+    //withAnimation(.snappy) around `openTypes` from infoButton, so the stroke stays in sync.
     private func typeInfo(_ type: Event.EventType) -> some View {
-        let infoIsOpen = openTypes.contains(type)
-        return Group {
-            if infoIsOpen {
-                Text(type.howItWorks)
-                    .infoText()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
+        RevealingInfoText(text: type.howItWorks, isOpen: openTypes.contains(type))
     }
     
     private var thinDivider: some View {
@@ -134,7 +137,7 @@ extension SelectTypeView {
             showMessageScreen = true
         }
         selectedType = eventType
-        withAnimation(.easeInOut(duration: 0.25)) {
+        withAnimation(.smooth(duration: 0.25)) {
             showTypePopup = false
         }
         dismissMenu()
@@ -153,12 +156,42 @@ extension SelectTypeView {
 
 
 
+
+
+private struct RevealingInfoText: View {
+    let text: String
+    let isOpen: Bool
+
+    @State private var contentHeight: CGFloat = 0
+
+    var body: some View {
+        Text(text)
+            .infoText()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true) //Bug Fix: keep every line
+            .padding(.top, 8) //the gap below the title, revealed together with the text
+        
+            .onGeometryChange(for: CGFloat.self) { geo in
+                geo.size.height
+            } action: { newHeight in
+                contentHeight = newHeight
+            }
+        
+            .frame(height: isOpen ? contentHeight : 0, alignment: .top)
+            .clipped()
+    }
+}
+
 struct SelectTypeCardBackground: ViewModifier {
+
+    //Defaults to a uniform 16 so existing uses are unchanged; the invite menu passes
+    //uneven corners to pair the card with its footer.
+    var corners: RectangleCornerRadii = RectangleCornerRadii(uniform: 16)
 
     //The 'Menu' takes care of background, this simply give it the parameters
     func body(content: Content) -> some View {
         content
             .frame(width: 280)
-            .rectangleStroke(radius: 16, lineWidth: 1, color: Color.grayBackground)
+            .rectangleStroke(corners: corners, lineWidth: 1, color: Color.grayBackground)
     }
 }
