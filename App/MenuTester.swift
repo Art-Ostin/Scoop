@@ -48,7 +48,7 @@ struct MenuTester: View {
         
         
         VStack(spacing: 96) {
-            CustomMenu {
+            TypeCustomMenu {
                 VStack {
                     Text("Hello World")
                     Text("Hello World")

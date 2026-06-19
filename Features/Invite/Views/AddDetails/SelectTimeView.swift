@@ -14,7 +14,7 @@ struct SelectTimeView: View {
     var isRespondMode = false
 
     // MARK: Internal state
-    @Environment(\.customMenuDismiss) private var dismissMenu
+    @Environment(\.typeCustomMenuDismiss) private var dismissMenu
     @State private var selectedHour = 22
     @State private var selectedMinute = 30
     @State private var warning: DayWarning?
@@ -160,8 +160,8 @@ private struct SelectTimeBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(width: 265)
-            .padding(.horizontal, isRespond ? 0 : 24)
-            .padding(.top, isRespond ? 0 : 24)
+            .padding(.horizontal, isRespond ? 0 : 20)
+            .padding(.top, isRespond ? 0 : 20)
             .padding(.bottom, isRespond ? -12 : 0)
     }
 }

@@ -47,7 +47,7 @@ extension InviteTypeRow {
     
     @ViewBuilder
     private var inviteTypeButton: some View {
-        CustomMenu(
+        TypeCustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
             morphsFromTrailingPoint: message.isEmpty ? false : true, //Only morph from end if there is a message
@@ -134,7 +134,7 @@ extension InviteTypeRow {
 
 private struct AddMessageFooter: View {
 
-    @Environment(\.customMenuDismiss) private var menuDismiss
+    @Environment(\.typeCustomMenuDismiss) private var menuDismiss
 
     let message: String
     let corners: RectangleCornerRadii
@@ -147,7 +147,7 @@ private struct AddMessageFooter: View {
             .kerning(0.5)
             .frame(height: 40)
             .modifier(SelectTypeCardBackground(corners: corners)) //same stroked card as the type list
-            .customMenuFooterPlatter(corners: corners) //own the glass platter so the press scales it, not just the inside
+            .typeCustomMenuFooterPlatter(corners: corners) //own the glass platter so the press scales it, not just the inside
             .contentShape(.rect)
             .shrinkPress {
                 onSelect()

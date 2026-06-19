@@ -4,24 +4,24 @@
 //
 //  Created by Art Ostin on 11/06/2026.
 //
-//  CustomMenu — a reusable recreation of the native menu presentation that
+//  TypeCustomMenu — a reusable recreation of the native menu presentation that
 //  accepts fully arbitrary content. On iOS 26+ it reproduces the Liquid Glass
 //  menu: a glass bubble that morphs ("blooms") out of the label, and morphs
 //  back into it on dismissal. Pre-26 it falls back to the classic scale/fade.
 //
 //  Usage:
-//      CustomMenu {
+//      TypeCustomMenu {
 //          // any SwiftUI view / layout
 //      } label: {
 //          // the trigger view
 //      }
 //
 //  Inside the content closure:
-//      .customMenuItem { ... }        — row participates in drag-to-select highlight,
+//      .typeCustomMenuItem { ... }        — row participates in drag-to-select highlight,
 //                                       runs its action and dismisses on selection.
-//      @Environment(\.customMenuDismiss) — programmatic dismissal from content. A tap
+//      @Environment(\.typeCustomMenuDismiss) — programmatic dismissal from content. A tap
 //                                       on the menu's own content never auto-dismisses;
-//                                       call this action (or use .customMenuItem) to
+//                                       call this action (or use .typeCustomMenuItem) to
 //                                       close it. Tapping outside still dismisses.
 //
 //  ── iOS 26 bloom mechanics ──────────────────────────────────────────────────
@@ -49,7 +49,7 @@
 //
 //  ── Fidelity notes / limitations ─────────────────────────────────────────────
 //  The real menu is drawn by private UIKit classes whose exact spring, material
-//  and shadow values are not public; `CustomMenuSpec` holds tuned approximations
+//  and shadow values are not public; `TypeCustomMenuSpec` holds tuned approximations
 //  (community references converge on .bouncy(≈0.4) for glass morphs).
 //   • The platter uses .glassEffect(.regular); the system menu material adds
 //     private vibrancy/shadow treatment that public glass lacks.
@@ -72,7 +72,7 @@ import UIKit
 
 // MARK: - Demo / harness
 
-struct CustomMenuBuilder: View {
+struct TypeCustomMenuBuilder: View {
 
     @State private var flavour = "Vanilla"
     @State private var doubleScoop = false
@@ -95,7 +95,7 @@ struct CustomMenuBuilder: View {
 
     /// Looks like a stock pull-down menu, built from arbitrary rows.
     private var classicMenu: some View {
-        CustomMenu {
+        TypeCustomMenu {
             VStack(spacing: 0) {
                 menuRow("Edit Event", icon: "pencil") { }
                 Divider()
@@ -111,7 +111,7 @@ struct CustomMenuBuilder: View {
                 Divider()
                 menuRow("Delete", icon: "trash", role: .destructive) { }
             }
-            .frame(width: CustomMenuSpec.standardWidth)
+            .frame(width: TypeCustomMenuSpec.standardWidth)
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 24))
@@ -122,13 +122,13 @@ struct CustomMenuBuilder: View {
 
     /// Arbitrary layout: a reaction bar over a colour grid — impossible in a native Menu.
     private var freeformMenu: some View {
-        CustomMenu {
+        TypeCustomMenu {
             VStack(spacing: 12) {
                 HStack(spacing: 14) {
                     ForEach(["🍦", "🍨", "🍧", "🍫", "🍓"], id: \.self) { emoji in
                         Text(emoji)
                             .font(.system(size: 28))
-                            .customMenuItem { flavour = emoji }
+                            .typeCustomMenuItem { flavour = emoji }
                     }
                 }
                 Divider()
@@ -138,7 +138,7 @@ struct CustomMenuBuilder: View {
                         Circle()
                             .fill(color)
                             .frame(width: 38, height: 38)
-                            .customMenuItem { }
+                            .typeCustomMenuItem { }
                     }
                 }
             }
@@ -165,17 +165,17 @@ struct CustomMenuBuilder: View {
         .foregroundStyle(role == .destructive ? Color.dangerRed : .primary)
         .padding(.horizontal, 16)
         .frame(height: 44)
-        .customMenuItem(action: action)
+        .typeCustomMenuItem(action: action)
     }
 }
 
 #Preview {
-    CustomMenuBuilder()
+    TypeCustomMenuBuilder()
 }
 
 // MARK: - Spec (approximations of the private native values)
 
-enum CustomMenuSpec {
+enum TypeCustomMenuSpec {
 
     // ── iOS 26 Liquid Glass lens morph ──
     /// Platter corner radius — fixed stand-in for the system's concentric radius.
@@ -269,23 +269,23 @@ enum CustomMenuSpec {
     static let highlightCornerRadius: CGFloat = 14
 }
 
-// MARK: - CustomMenu
+// MARK: - TypeCustomMenu
 
 /// Which edge of the label the menu aligns its corresponding edge to.
 /// `.automatic` picks the edge by whichever screen half the label's centre sits
 /// in (the native default) — use `.leading` / `.trailing` when the label is wide
 /// enough that its centre is ambiguous (e.g. a full-width row with a Spacer).
-enum CustomMenuAlignment {
+enum TypeCustomMenuAlignment {
     case leading, trailing, automatic
 }
 
-struct CustomMenu<Content: View, Label: View>: View {
+struct TypeCustomMenu<Content: View, Label: View>: View {
 
     @ViewBuilder var content: () -> Content
     @ViewBuilder var label: () -> Label
     /// Corner radius of the menu platter itself. `nil` uses the spec defaults
     /// (26pt on iOS 26's glass, 13pt on the pre-26 platter); pass a value to
-    /// override from the call site without touching `CustomMenu`.
+    /// override from the call site without touching `TypeCustomMenu`.
     var cornerRadius: CGFloat?
     /// Per-corner platter radii, for cards whose top/bottom corners differ. When
     /// set it overrides `cornerRadius`, and the footer (if any) uses the vertical
@@ -294,8 +294,8 @@ struct CustomMenu<Content: View, Label: View>: View {
     /// Explicit footer corners. `nil` keeps the mirror-of-platter default; set this
     /// to give the footer its own radii independent of the platter.
     var footerCornerRadii: RectangleCornerRadii?
-    /// Which label edge the menu aligns to (see `CustomMenuAlignment`).
-    var alignment: CustomMenuAlignment
+    /// Which label edge the menu aligns to (see `TypeCustomMenuAlignment`).
+    var alignment: TypeCustomMenuAlignment
     /// iOS 26 glass bloom origin. `false` (default) grows the platter from / collapses
     /// it back into the label's full frame (the whole button). `true` reverts to the
     /// original behaviour: a small circle at the label's trailing edge. No effect on
@@ -314,23 +314,23 @@ struct CustomMenu<Content: View, Label: View>: View {
     var onClose: (() -> Void)?
     /// Optional detached accessory card rendered as its own platter below the main menu,
     /// with a gap (the wallpaper shows through). The footer supplies its own material via
-    /// `.customMenuFooterPlatter`; CustomMenu only sizes, positions and morphs it. It is
+    /// `.typeCustomMenuFooterPlatter`; TypeCustomMenu only sizes, positions and morphs it. It is
     /// never part of the lens morph — it fades/scales in once the menu is open and out on
     /// close. `nil` (the default) means no footer, so existing call sites are unaffected.
-    /// Items inside it use `.customMenuItem` / `customMenuDismiss` just like content.
+    /// Items inside it use `.typeCustomMenuItem` / `typeCustomMenuDismiss` just like content.
     var footer: (() -> AnyView)?
 
-    @State private var controller = CustomMenuController()
+    @State private var controller = TypeCustomMenuController()
     @State private var labelFrame: CGRect = .zero
     @GestureState private var isPressed = false
 
     init(cornerRadius: CGFloat? = nil,
          cornerRadii: RectangleCornerRadii? = nil,
          footerCornerRadii: RectangleCornerRadii? = nil,
-         alignment: CustomMenuAlignment = .automatic,
+         alignment: TypeCustomMenuAlignment = .automatic,
          morphsFromTrailingPoint: Bool = false,
-         placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
-         placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
+         placementOffsetX: CGFloat = TypeCustomMenuSpec.placementOffsetX,
+         placementOffsetY: CGFloat = TypeCustomMenuSpec.placementOffsetY,
          onOpen: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
          footer: (() -> AnyView)? = nil,
@@ -399,7 +399,7 @@ struct CustomMenu<Content: View, Label: View>: View {
                 guard !controller.isPresented else { return }
                 // Releases that travelled too far are scrolls/drags, not taps.
                 let distance = hypot(value.translation.width, value.translation.height)
-                guard distance < CustomMenuSpec.tapSlop else { return }
+                guard distance < TypeCustomMenuSpec.tapSlop else { return }
                 onOpen?()
                 controller.present(
                     anchor: labelFrame,
@@ -423,19 +423,19 @@ struct CustomMenu<Content: View, Label: View>: View {
 /// - `morph`: the default glass bloom-close (the platter shrinks back into the label).
 /// - `pop`: removes the platter + footer with the `.scoopPop` transition (blur + scale).
 /// - `instant`: tears the window down immediately, no animation.
-enum CustomMenuDismissStyle { case morph, pop, instant }
+enum TypeCustomMenuDismissStyle { case morph, pop, instant }
 
-struct CustomMenuDismissAction {
-    /// Pass a `CustomMenuDismissStyle` to pick the exit (default `.morph`). E.g.
+struct TypeCustomMenuDismissAction {
+    /// Pass a `TypeCustomMenuDismissStyle` to pick the exit (default `.morph`). E.g.
     /// `dismiss(.pop)` for the scoopPop transition, `dismiss(.instant)` for no animation.
-    var action: (CustomMenuDismissStyle) -> Void = { _ in }
-    func callAsFunction(_ style: CustomMenuDismissStyle = .morph) { action(style) }
+    var action: (TypeCustomMenuDismissStyle) -> Void = { _ in }
+    func callAsFunction(_ style: TypeCustomMenuDismissStyle = .morph) { action(style) }
 }
 
 extension EnvironmentValues {
-    @Entry var customMenuDismiss = CustomMenuDismissAction()
+    @Entry var typeCustomMenuDismiss = TypeCustomMenuDismissAction()
     /// True inside the hidden copy used only for sizing — items must not register.
-    @Entry var customMenuIsMeasuring = false
+    @Entry var typeCustomMenuIsMeasuring = false
 }
 
 // MARK: - Content modifiers
@@ -443,20 +443,20 @@ extension EnvironmentValues {
 extension View {
     /// Marks a view as a selectable menu row: it highlights while a drag hovers it,
     /// fires `action` on tap or drag-release, and dismisses the menu.
-    func customMenuItem(action: @escaping () -> Void) -> some View {
-        modifier(CustomMenuItemModifier(action: action))
+    func typeCustomMenuItem(action: @escaping () -> Void) -> some View {
+        modifier(TypeCustomMenuItemModifier(action: action))
     }
 
     /// The detached menu-footer material — glass on iOS 26, frosted material + soft shadow
     /// on the classic platter — so a footer card matches the menu's own material. Exposed
-    /// (rather than imposed by CustomMenu) so a footer owns its platter: a press effect on
+    /// (rather than imposed by TypeCustomMenu) so a footer owns its platter: a press effect on
     /// the footer then scales the whole glass card, not just its inner content.
-    func customMenuFooterPlatter(corners: RectangleCornerRadii) -> some View {
-        modifier(CustomMenuFooterPlatter(corners: corners))
+    func typeCustomMenuFooterPlatter(corners: RectangleCornerRadii) -> some View {
+        modifier(TypeCustomMenuFooterPlatter(corners: corners))
     }
 }
 
-struct CustomMenuFooterPlatter: ViewModifier {
+struct TypeCustomMenuFooterPlatter: ViewModifier {
     let corners: RectangleCornerRadii
     func body(content: Content) -> some View {
         let shape = UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
@@ -467,7 +467,7 @@ struct CustomMenuFooterPlatter: ViewModifier {
                 // sits a hair below the platter at a lower z, so the shadow paints
                 // over it). Pre-brightening here lands the footer back on the
                 // platter's tone once that shadow darkens it. See footerShadowCompensation.
-                .brightness(CustomMenuSpec.footerShadowCompensation)
+                .brightness(TypeCustomMenuSpec.footerShadowCompensation)
         } else {
             content
                 .background(shape.fill(.regularMaterial))
@@ -477,9 +477,9 @@ struct CustomMenuFooterPlatter: ViewModifier {
     }
 }
 
-private struct CustomMenuItemModifier: ViewModifier {
-    @Environment(CustomMenuController.self) private var controller: CustomMenuController?
-    @Environment(\.customMenuIsMeasuring) private var isMeasuring
+private struct TypeCustomMenuItemModifier: ViewModifier {
+    @Environment(TypeCustomMenuController.self) private var controller: TypeCustomMenuController?
+    @Environment(\.typeCustomMenuIsMeasuring) private var isMeasuring
     let action: () -> Void
     @State private var id = UUID()
 
@@ -489,11 +489,11 @@ private struct CustomMenuItemModifier: ViewModifier {
             .background {
                 if controller?.highlightedItemID == id {
                     if #available(iOS 26.0, *) {
-                        RoundedRectangle(cornerRadius: CustomMenuSpec.highlightCornerRadius, style: .continuous)
-                            .fill(CustomMenuSpec.highlightFill)
+                        RoundedRectangle(cornerRadius: TypeCustomMenuSpec.highlightCornerRadius, style: .continuous)
+                            .fill(TypeCustomMenuSpec.highlightFill)
                             .padding(3)
                     } else {
-                        CustomMenuSpec.highlightFill
+                        TypeCustomMenuSpec.highlightFill
                     }
                 }
             }
@@ -516,13 +516,13 @@ private struct CustomMenuItemModifier: ViewModifier {
 // MARK: - Controller (window lifecycle + drag-select state)
 
 @MainActor @Observable
-final class CustomMenuController {
+final class TypeCustomMenuController {
 
     enum Phase { case measuring, shown, dismissing }
 
     private(set) var phase: Phase = .measuring
     /// How the in-flight dismissal should animate; the overlay reads it to pick the exit.
-    private(set) var dismissStyle: CustomMenuDismissStyle = .morph
+    private(set) var dismissStyle: TypeCustomMenuDismissStyle = .morph
     private(set) var anchor: CGRect = .zero
     /// The label's *live* frame, tracked while presented so the close morph
     /// collapses onto where the label is now (it may have reflowed after a
@@ -538,9 +538,9 @@ final class CustomMenuController {
     private(set) var cornerRadii: RectangleCornerRadii?
     /// Caller-supplied footer corners; `nil` falls back to the mirror of the platter.
     private(set) var footerCornerRadii: RectangleCornerRadii?
-    private(set) var alignment: CustomMenuAlignment = .automatic
+    private(set) var alignment: TypeCustomMenuAlignment = .automatic
     /// Caller-supplied: iOS 26 glass bloom grows from a small trailing-edge circle
-    /// instead of the whole button. See `CustomMenu.morphsFromTrailingPoint`.
+    /// instead of the whole button. See `TypeCustomMenu.morphsFromTrailingPoint`.
     private(set) var morphsFromTrailingPoint = false
     private(set) var placementOffset: CGSize = .zero
     /// iOS 26: signals the overlay to melt the leftover glass halo at the end of close.
@@ -574,7 +574,7 @@ final class CustomMenuController {
                  cornerRadius: CGFloat? = nil,
                  cornerRadii: RectangleCornerRadii? = nil,
                  footerCornerRadii: RectangleCornerRadii? = nil,
-                 alignment: CustomMenuAlignment,
+                 alignment: TypeCustomMenuAlignment,
                  morphsFromTrailingPoint: Bool = false,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
@@ -599,7 +599,7 @@ final class CustomMenuController {
         self.content = content
         phase = .measuring
 
-        let host = UIHostingController(rootView: CustomMenuOverlayRoot(controller: self))
+        let host = UIHostingController(rootView: TypeCustomMenuOverlayRoot(controller: self))
         host.view.backgroundColor = .clear
         let win = UIWindow(windowScene: scene)
         win.rootViewController = host
@@ -620,7 +620,7 @@ final class CustomMenuController {
         collapseAnchor = frame
     }
 
-    func dismiss(style: CustomMenuDismissStyle = .morph) {
+    func dismiss(style: TypeCustomMenuDismissStyle = .morph) {
         guard window != nil, phase != .dismissing else { return }
         // Fire the moment dismissal is requested — before any close animation runs —
         // so callers don't wait out the animation + teardown.
@@ -633,7 +633,7 @@ final class CustomMenuController {
             // The overlay removes the platter + footer with the `.scoopPop` transition;
             // tear the window down once that spring has settled.
             Task {
-                try? await Task.sleep(for: .seconds(CustomMenuSpec.popCloseDuration))
+                try? await Task.sleep(for: .seconds(TypeCustomMenuSpec.popCloseDuration))
                 if generation == gen { tearDown() }
             }
             return
@@ -643,15 +643,15 @@ final class CustomMenuController {
             // open) → melt the leftover glass halo off → teardown. The real label
             // was visible underneath the whole time.
             Task {
-                try? await Task.sleep(for: .seconds(CustomMenuSpec.closeMorphDuration))
+                try? await Task.sleep(for: .seconds(TypeCustomMenuSpec.closeMorphDuration))
                 guard generation == gen else { return }
                 lensDissolve = true
-                try? await Task.sleep(for: .seconds(CustomMenuSpec.lensFadeDuration))
+                try? await Task.sleep(for: .seconds(TypeCustomMenuSpec.lensFadeDuration))
                 if generation == gen { tearDown() }
             }
         } else {
             Task {
-                try? await Task.sleep(for: .seconds(CustomMenuSpec.teardownDelay))
+                try? await Task.sleep(for: .seconds(TypeCustomMenuSpec.teardownDelay))
                 if generation == gen { tearDown() }
             }
         }
@@ -715,7 +715,7 @@ final class CustomMenuController {
         if let id = highlightedItemID, let item = items[id] {
             item.action()
             dismiss()
-        } else if distance >= CustomMenuSpec.tapSlop,
+        } else if distance >= TypeCustomMenuSpec.tapSlop,
                   !menuFrame.contains(point),
                   !anchor.contains(point) {
             // Released after dragging away from both menu and label.
@@ -728,9 +728,9 @@ final class CustomMenuController {
 
 // MARK: - Overlay root (lives in the transparent UIWindow)
 
-private struct CustomMenuOverlayRoot: View {
+private struct TypeCustomMenuOverlayRoot: View {
 
-    let controller: CustomMenuController
+    let controller: TypeCustomMenuController
 
     @State private var menuSize: CGSize?
     @State private var contentIdealHeight: CGFloat?
@@ -766,8 +766,8 @@ private struct CustomMenuOverlayRoot: View {
                         DragGesture(minimumDistance: 0, coordinateSpace: .global)
                             .onChanged { value in
                                 // Pad the label rect so taps just outside it still press.
-                                let hit = controller.anchor.insetBy(dx: -CustomMenuSpec.labelPressHitSlop,
-                                                                    dy: -CustomMenuSpec.labelPressHitSlop)
+                                let hit = controller.anchor.insetBy(dx: -TypeCustomMenuSpec.labelPressHitSlop,
+                                                                    dy: -TypeCustomMenuSpec.labelPressHitSlop)
                                 controller.labelPressed = hit.contains(value.startLocation)
                             }
                             .onEnded { _ in
@@ -805,7 +805,7 @@ private struct CustomMenuOverlayRoot: View {
                     // Remove the platter + footer with the scoopPop transition.
                     withAnimation(.scoopPop) { popExit = true }
                 } else if #available(iOS 26.0, *) {
-                    withAnimation(CustomMenuSpec.bloomClose) {
+                    withAnimation(TypeCustomMenuSpec.bloomClose) {
                         morphProgress = 0
                     }
                 }
@@ -813,7 +813,7 @@ private struct CustomMenuOverlayRoot: View {
             .onChange(of: controller.lensDissolve) { _, dissolve in
                 guard dissolve else { return }
                 if #available(iOS 26.0, *) {
-                    withAnimation(CustomMenuSpec.lensFadeOut) {
+                    withAnimation(TypeCustomMenuSpec.lensFadeOut) {
                         lensOpacity = 0
                     }
                 }
@@ -825,22 +825,22 @@ private struct CustomMenuOverlayRoot: View {
     // MARK: Detached footer accessory
 
     /// A separate card sitting a gap below the platter — never part of the lens morph. The
-    /// footer draws its own material (`.customMenuFooterPlatter`); here we only fade + scale
+    /// footer draws its own material (`.typeCustomMenuFooterPlatter`); here we only fade + scale
     /// it in once the menu is shown and out the instant dismissal begins. Positioned off the
     /// platter's settled `menuFrame`, so it tracks width/placement automatically. Items inside
-    /// it get the same `controller` + `customMenuDismiss` environment as the menu content, so
-    /// `.customMenuItem` and `@Environment(\.customMenuDismiss)` work identically.
+    /// it get the same `controller` + `typeCustomMenuDismiss` environment as the menu content, so
+    /// `.typeCustomMenuItem` and `@Environment(\.typeCustomMenuDismiss)` work identically.
     @ViewBuilder
     private func footerCard(_ footer: AnyView) -> some View {
         let frame = controller.menuFrame
 
         // The footer is a self-contained card: it draws its OWN platter (via
-        // `.customMenuFooterPlatter`) and its own press effect, so a tap scales the whole
-        // glass card rather than just its inner content. CustomMenu only sizes, positions
+        // `.typeCustomMenuFooterPlatter`) and its own press effect, so a tap scales the whole
+        // glass card rather than just its inner content. TypeCustomMenu only sizes, positions
         // and morphs it; items inside still get the menu's environment for dismiss/highlight.
         let card = footer
             .environment(controller)
-            .environment(\.customMenuDismiss, CustomMenuDismissAction { [weak controller] style in
+            .environment(\.typeCustomMenuDismiss, TypeCustomMenuDismissAction { [weak controller] style in
                 controller?.dismiss(style: style)
             })
             .fixedSize()                                    //let the footer keep its own width
@@ -853,7 +853,7 @@ private struct CustomMenuOverlayRoot: View {
                 progress: morphProgress,
                 top: frame.minY,
                 bottom: frame.maxY,
-                gap: CustomMenuSpec.footerGap,
+                gap: TypeCustomMenuSpec.footerGap,
                 leftX: frame.minX,
                 width: frame.width
             ))
@@ -865,7 +865,7 @@ private struct CustomMenuOverlayRoot: View {
                 .opacity(visible ? 1 : 0)
                 .scaleEffect(visible ? 1 : 0.96, anchor: .top)
                 .animation(.easeOut(duration: 0.18), value: visible)
-                .offset(x: frame.minX, y: frame.maxY + CustomMenuSpec.footerGap)
+                .offset(x: frame.minX, y: frame.maxY + TypeCustomMenuSpec.footerGap)
         }
     }
 
@@ -929,7 +929,7 @@ private struct CustomMenuOverlayRoot: View {
         // Hidden sizing copy: always laid out so the platter's final rect is
         // known before the morph starts.
         chromeCore(content: content, metrics: metrics)
-            .environment(\.customMenuIsMeasuring, true)
+            .environment(\.typeCustomMenuIsMeasuring, true)
             .opacity(0)
             .allowsHitTesting(false)
             .onGeometryChange(for: CGSize.self) { proxy in
@@ -942,7 +942,7 @@ private struct CustomMenuOverlayRoot: View {
                     // (menuFrame) on the same curve, so the detached footer glides
                     // down with the growing card instead of snapping to the new
                     // edge while the platter eases.
-                    withAnimation(CustomMenuSpec.reflowResize) {
+                    withAnimation(TypeCustomMenuSpec.reflowResize) {
                         controller.menuFrame = placed
                         menuSize = size
                     }
@@ -961,7 +961,7 @@ private struct CustomMenuOverlayRoot: View {
                         // Escape the layout transaction so the morph animates from a
                         // committed frame instead of snapping on initial render.
                         DispatchQueue.main.async {
-                            withAnimation(CustomMenuSpec.bloomOpen) {
+                            withAnimation(TypeCustomMenuSpec.bloomOpen) {
                                 morphProgress = 1
                             }
                         }
@@ -987,7 +987,7 @@ private struct CustomMenuOverlayRoot: View {
                         collapsed: collapsedRect,
                         expanded: menuRect,
                         platterCorners: controller.cornerRadii
-                            ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? CustomMenuSpec.platterCornerRadius),
+                            ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? TypeCustomMenuSpec.platterCornerRadius),
                         fromTrailingPoint: controller.morphsFromTrailingPoint,
                         isClosing: controller.phase == .dismissing
                     ))
@@ -1005,7 +1005,7 @@ private struct CustomMenuOverlayRoot: View {
         let placement = metrics.placement(for: menuSize ?? .zero)
         let platterShape = UnevenRoundedRectangle(
             cornerRadii: controller.cornerRadii
-                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? CustomMenuSpec.legacyCornerRadius),
+                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? TypeCustomMenuSpec.legacyCornerRadius),
             style: .continuous
         )
 
@@ -1028,10 +1028,10 @@ private struct CustomMenuOverlayRoot: View {
                     controller.markShown()
                 }
             }
-            .scaleEffect(visible ? 1 : CustomMenuSpec.collapsedScale, anchor: placement.anchor)
-            .animation(visible ? CustomMenuSpec.openScale : CustomMenuSpec.closeScale, value: visible)
+            .scaleEffect(visible ? 1 : TypeCustomMenuSpec.collapsedScale, anchor: placement.anchor)
+            .animation(visible ? TypeCustomMenuSpec.openScale : TypeCustomMenuSpec.closeScale, value: visible)
             .opacity(visible ? 1 : 0)
-            .animation(visible ? CustomMenuSpec.openFade : CustomMenuSpec.closeFade, value: visible)
+            .animation(visible ? TypeCustomMenuSpec.openFade : TypeCustomMenuSpec.closeFade, value: visible)
             .opacity(menuSize == nil ? 0 : 1)
             .offset(x: placement.origin.x, y: placement.origin.y)
     }
@@ -1042,7 +1042,7 @@ private struct CustomMenuOverlayRoot: View {
     private func chromeCore(content: AnyView, metrics: Metrics) -> some View {
         let inner = content
             .environment(controller)
-            .environment(\.customMenuDismiss, CustomMenuDismissAction { [weak controller] style in
+            .environment(\.typeCustomMenuDismiss, TypeCustomMenuDismissAction { [weak controller] style in
                 controller?.dismiss(style: style)
             })
             .onGeometryChange(for: CGFloat.self) { proxy in
@@ -1113,7 +1113,7 @@ private struct CustomMenuOverlayRoot: View {
             let startRect: CGRect
             let startCorner: CGFloat
             if fromTrailingPoint {
-                let d = CustomMenuSpec.expansionOriginDiameter
+                let d = TypeCustomMenuSpec.expansionOriginDiameter
                 startRect = CGRect(x: collapsed.maxX - d, y: collapsed.midY - d / 2, width: d, height: d)
                 startCorner = d / 2                                      // a full circle
             } else {
@@ -1148,7 +1148,7 @@ private struct CustomMenuOverlayRoot: View {
             // frame (p → 0) so nothing pops at the end; the real label is already
             // visible underneath, so there is nothing left to restore.
             let glassOpacity: Double = isClosing
-                ? Double((p / CustomMenuSpec.closeGlassFadeProgress).clamped(to: 0...1))
+                ? Double((p / TypeCustomMenuSpec.closeGlassFadeProgress).clamped(to: 0...1))
                 : 1
 
             // Glass platter + menu content, scaled from the button frame up to
@@ -1159,15 +1159,15 @@ private struct CustomMenuOverlayRoot: View {
                 .scaleEffect(x: w / max(expanded.width, 1),
                              y: h / max(expanded.height, 1),
                              anchor: .topLeading)
-                .blur(radius: (1 - p).clamped(to: 0...1) * CustomMenuSpec.lensBlur)
+                .blur(radius: (1 - p).clamped(to: 0...1) * TypeCustomMenuSpec.lensBlur)
                 .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
                 .frame(width: w, height: h, alignment: .topLeading)
                 .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: lens.corners, style: .continuous))
                 // Native platters cast a wide soft shadow; it grows with the bloom
                 // so the small origin circle casts almost none.
-                .shadow(color: .black.opacity(CustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
-                        radius: CustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
-                        y: CustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
+                .shadow(color: .black.opacity(TypeCustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
+                        radius: TypeCustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
+                        y: TypeCustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
                 .opacity(glassOpacity)
                 .frame(width: w, height: h, alignment: .topLeading)
                 .padding(.leading, max(0, lens.rect.minX))
@@ -1184,7 +1184,7 @@ private struct CustomMenuOverlayRoot: View {
         /// gap, per device recordings); the classic menu floats 6pt away.
         let overlapsAnchor: Bool
         /// Which label edge the menu aligns to.
-        let alignment: CustomMenuAlignment
+        let alignment: TypeCustomMenuAlignment
         /// Nudge applied to the final placement (positive = right / down).
         let placementOffset: CGSize
         let spaceBelow: CGFloat
@@ -1194,9 +1194,9 @@ private struct CustomMenuOverlayRoot: View {
         var maxWidth: CGFloat { available.width }
 
         init(geo: GeometryProxy, anchor: CGRect, overlapsAnchor: Bool,
-             alignment: CustomMenuAlignment, placementOffset: CGSize) {
+             alignment: TypeCustomMenuAlignment, placementOffset: CGSize) {
             let safe = geo.safeAreaInsets
-            let margin = CustomMenuSpec.screenMargin
+            let margin = TypeCustomMenuSpec.screenMargin
             bounds = geo.size
             available = CGRect(
                 x: safe.leading + margin,
@@ -1212,8 +1212,8 @@ private struct CustomMenuOverlayRoot: View {
                 spaceBelow = available.maxY - anchor.minY
                 spaceAbove = anchor.maxY - available.minY
             } else {
-                spaceBelow = available.maxY - (anchor.maxY + CustomMenuSpec.anchorGap)
-                spaceAbove = (anchor.minY - CustomMenuSpec.anchorGap) - available.minY
+                spaceBelow = available.maxY - (anchor.maxY + TypeCustomMenuSpec.anchorGap)
+                spaceAbove = (anchor.minY - TypeCustomMenuSpec.anchorGap) - available.minY
             }
         }
 
@@ -1236,8 +1236,8 @@ private struct CustomMenuOverlayRoot: View {
             if overlapsAnchor {
                 y = below ? anchor.minY : anchor.maxY - size.height
             } else {
-                y = below ? anchor.maxY + CustomMenuSpec.anchorGap
-                          : anchor.minY - CustomMenuSpec.anchorGap - size.height
+                y = below ? anchor.maxY + TypeCustomMenuSpec.anchorGap
+                          : anchor.minY - TypeCustomMenuSpec.anchorGap - size.height
             }
             y += placementOffset.height
             y = y.clamped(to: available.minY...max(available.minY, available.maxY - size.height))

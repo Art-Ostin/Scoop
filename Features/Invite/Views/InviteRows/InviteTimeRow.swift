@@ -26,6 +26,9 @@ struct InviteTimeRow: View {
     
     var body: some View {
         
+
+        
+        
         //Shows two different views if there is more than one time proposed
         Group {
             if times.count <= 1 {
@@ -41,6 +44,10 @@ struct InviteTimeRow: View {
 //If less than 2 proposed times
 extension InviteTimeRow {
     
+    
+    
+    
+    
     private var singleTimeOrLessRow: some View {
         HStack {
             inviteTypeText(.when)
@@ -50,7 +57,7 @@ extension InviteTimeRow {
     }
     
     private var selectTimeButton: some View {
-        CustomMenu(
+        TimeCustomMenu(
             onOpen: { ui.timePopupOpen = true },
             onClose: { ui.timePopupOpen = false }
         ) {
@@ -58,7 +65,6 @@ extension InviteTimeRow {
                 .zIndex(2)
         } label: {
             selectTimeLabel
-            
         }
     }
     
@@ -96,15 +102,13 @@ extension InviteTimeRow {
                     multipleTimeRow(idx: idx, time: time)
                 }
             }
-            
             customMenu
         }
     }
     
     private var customMenu: some View {
-        
-        CustomMenu(
-            placementOffsetY: CustomMenuSpec.placementOffsetY + Self.chevronTapInsetY,
+        TimeCustomMenu(
+            placementOffsetY: TypeCustomMenuSpec.placementOffsetY + Self.chevronTapInsetY,
             onOpen: { ui.timePopupOpen = true },
             onClose: { ui.timePopupOpen = false }
         ) {

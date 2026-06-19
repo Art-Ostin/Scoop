@@ -13,7 +13,7 @@ struct SelectTypeView: View {
     @Environment(\.displayScale) private var displayScale
 
     //2. Needed to dismiss menu
-    @Environment(\.customMenuDismiss) private var dismissMenu
+    @Environment(\.typeCustomMenuDismiss) private var dismissMenu
     
     //3. types with info open given in a binding, as needed to pass up to
     @Binding var openTypes: Set<Event.EventType>
