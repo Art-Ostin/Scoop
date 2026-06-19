@@ -7,21 +7,23 @@
 
 import SwiftUI
 
+enum DayWarning: String { case maxReached = "Max 3", dayUnavailable = "Day Unavailable" }
+
 struct SelectTimeView: View {
+    
+    @Environment(\.customMenuDismiss) private var dismissMenu
+
+    
+    @State private var warning: DayWarning?
+    
     
     //Updating a proposedTime
     @Binding var proposedTimes: ProposedTimes
     let type: Event.EventType
-    @State var clickedMax = false
-    @Binding var showTimePopup: Bool
-    //When shown inside a CustomMenu, taps no longer auto-dismiss it, so the Done
-    //button closes it explicitly. Outside a menu (respond mode) this is a no-op.
-    @Environment(\.customMenuDismiss) private var dismissMenu
-    @State private var shakeTicksByDay: [Date: Int] = [:]
-    @State private var clickedUnavailbleDay = false
     @State private var selectedHour = 22
     @State private var selectedMinute = 30
-    
+    @State private var didSeed = false
+
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayCount = 11
     var isRespondMode: Bool = false
@@ -31,169 +33,102 @@ struct SelectTimeView: View {
         VStack(spacing: 12) {
             dayPicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
-
             Divider()
                 .padding(.horizontal, isRespondMode ? 16 : 0)
             timePicker
                 .scaleEffect(isRespondMode ? 0.95 : 1)
                 .offset(y: isRespondMode ? -10 : 0)
         }
-        .frame(width: (isRespondMode && !isRespondPopup) ? 270 : 265)
+        //1. The Card Background and overlays
+        .modifier(SelectTimeBackground(isRespond: isRespondMode))
         .overlay(alignment: .bottomTrailing) {doneButton}
-        .padding(.horizontal, isRespondMode ? 0 : 24)
-        .padding(.top, isRespondMode ? 0 : 24)
-        .padding(.bottom, isRespondMode ? -12 : 0)
-//        .background { if !isRespondMode {CardBackground(color: .black, cornerRadius: 16)}}
-        .onAppear { syncTimePickerIfNeeded() }
-        .onChange(of: selectedHour)   { _, _ in commitTimeIfChanged() }
-        .onChange(of: selectedMinute) { _, _ in commitTimeIfChanged() }
-        .onChange(of: proposedTimes.dates) { syncTimePickerIfNeeded()}
-        .overlay(alignment: .top) {maxIcon}
-        .task(id: clickedMax) {await clickedMaxFunc()}
-        .task(id: clickedUnavailbleDay) {await clickedUnavailableDayFunc() }
-        .animation(.easeInOut(duration: 0.2), value: clickedMax)
-        .animation(.easeInOut(duration: 0.2), value: clickedUnavailbleDay)
-        .overlay(alignment: .top) { if isRespondMode{ infoSection}}
+        .overlay(alignment: .top) {infoSection}
+
+        //Updating time
+        .task(id: selectedHour * 60 + selectedMinute) { syncTime() }
+        .task(id: warning) {await clickedUnavailableDay()}
+        
+        //Animations
+        .animation(.easeInOut(duration: 0.2), value: warning)
     }
 }
 
-//Views
-
+//1. The select Time View
 extension SelectTimeView {
-    
-    private func clickedMaxFunc() async {
-        guard clickedMax == true else {return}
-        try? await Task.sleep(for: .seconds(1))
-        withAnimation(.easeInOut(duration: 0.2)) { clickedMax = false }
-    }
-    
-    private func clickedUnavailableDayFunc() async {
-        guard clickedUnavailbleDay == true else {return}
-        try? await Task.sleep(for: .seconds(1))
-        withAnimation(.easeInOut(duration: 0.2)) { clickedUnavailbleDay = false }
-    }
-    
-    @ViewBuilder
-    private var infoSection: some View {
-        Group {
-            if clickedMax {
-                Text("Max 3")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(Color.warningYellow)
-            } else if clickedUnavailbleDay {
-                Text("Day Unavailable")
-                    .font(.body(12, .bold))
-                    .foregroundStyle(Color.warningYellow)
-            }
-        }
-        .padding(.horizontal)
-        .background(Color.appCanvas)
-        .padding(.top, 98)
-    }
-    
-    @ViewBuilder
-    private var maxIcon: some View {
-        if !isRespondMode {
-            Group {
-                if clickedMax {
-                    Text("Max 3")
-                } else if clickedUnavailbleDay {
-                    Text("Day Unavailable")
-                }
-            }
-            .font(.body(12, .bold))
-            .foregroundStyle(Color.warningYellow)
-            .offset(y: -18)
-        }
-    }
-    
-    private var days: [Date] {
-        let calendar = Calendar.current
-        let startOfToday = calendar.startOfDay(for: Date())
-        return (0..<dayCount).compactMap { offset in
-            calendar.date(byAdding: .day, value: offset, to: startOfToday)
-        }
-    }
     
     private var dayPicker: some View {
         return LazyVGrid(columns: columns, spacing: 10) {
-            ForEach(0..<7) {idx in
-                Text(days[idx], format: .dateTime.weekday(.abbreviated))
-                    .font(.body(12, .regular))
-                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
-            }
-            ForEach(days.indices, id: \.self) { idx in
-                event(idx: idx)
+            dayOfWeekText
+            
+            ForEach(availableDays.indices, id: \.self) { idx in
+                let day = availableDays[idx]
+                DayCell(day: day, isSelected: proposedTimes.contains(day: day)) {
+                    selectDay(day: day)
+                }
             }
         }
     }
     
-    private var doneButton: some View {
-            ZStack {
-                Image("TickButton") //"GreenTickMark"
-                    .scaleEffect(0.9)
-                Circle()
-                    .stroke(Color.black, lineWidth: 1)
-                    .scaleEffect(0.8)
-            }
-            .padding(3)                 // hit area / breathing room
-            .background(Color.appCanvas)
-            .frame(width: 40, height: 40)
-            .contentShape(Circle())
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showTimePopup.toggle()
-                }
-                dismissMenu()
-            }
-            .padding(.bottom, isRespondMode ? 96 : 80)
+    private var dayOfWeekText: some View {
+        ForEach(0..<7) {idx in
+            Text(availableDays[idx], format: .dateTime.weekday(.abbreviated))
+                .font(.body(12, .regular))
+                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+        }
     }
+    
+    private func selectDay(day: Date) -> Bool {
+        let hitMax = proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
+        if hitMax { warning = .maxReached }
+        return hitMax
+    }
+}
 
-    @ViewBuilder
-    private func event(idx: Int) -> some View {
-        let day = days[idx]
-        let isToday = Calendar.current.isDateInToday(day)
-        let isSelected = proposedTimes.contains(day: day)
-        
-        let keyDay = Calendar.current.startOfDay(for: day)
-        let shakeValue = shakeTicksByDay[keyDay, default: 0]
-        
+private struct DayCell: View {
+    let day: Date
+    let isSelected: Bool
+    let onTap: () -> Bool
+
+    @State private var shake = false
+
+    var body: some View {
         Button {
-            if isToday {
-                shakeTicksByDay[keyDay, default: 0] += 1
-                clickedUnavailbleDay.toggle()
-                return
-            }
-            
-            withAnimation(.easeInOut(duration: 0.2)) {
-                let hitMax = proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
-                if hitMax {
-                    shakeTicksByDay[keyDay, default: 0] += 1   // <- triggers shake
-                    clickedMax.toggle()
-                }
-            }
-            }label: {
+            if onTap() { shake.toggle() }
+        } label: {
             Text(day, format: .dateTime.day())
                 .font(.body(18, isSelected ? .bold : .medium))
-                .foregroundStyle(isToday ? Color.grayPlaceholder : isSelected ? .accent : .black)
+                .foregroundStyle(isSelected ? .accent : .black)
                 .frame(width: 30, height: 30)
                 .background(
-                       Circle()
+                    Circle()
                         .offset(y: -1)
                         .strokeBorder(.black, lineWidth: isSelected ? 1 : 0)
                         .transaction { $0.animation = .linear(duration: 0.03) }
                 )
                 .contentShape(.rect)
         }
-        .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
-        .animation(shakeValue > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeValue)
-        .task(id: shakeValue) {
-            guard shakeValue > 0 else { return }
-            let captured = shakeValue
-            try? await Task.sleep(for: .seconds(1))
-            if shakeTicksByDay[keyDay, default: 0] == captured {
-                withAnimation { shakeTicksByDay[keyDay] = 0 } // stop shaking
-            }
+        .showShakeAnimation(bool: shake)
+    }
+}
+
+//2. Key Compoenents
+extension SelectTimeView {
+    
+    @ViewBuilder
+    private var infoSection: some View {
+        if let warning {
+            Text(warning.rawValue)
+                .font(.body(12, .bold))
+                .foregroundStyle(Color.warningYellow)
+                .padding(.horizontal).background(Color.appCanvas).padding(.top, 98)
+        }
+    }
+        
+    private var availableDays: [Date] {
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: Date())
+        return (0..<dayCount).compactMap { offset in
+            calendar.date(byAdding: .day, value: offset, to: startOfToday)
         }
     }
     
@@ -217,22 +152,59 @@ extension SelectTimeView {
         .tint(.accent)
     }
     
-    private func syncTimePickerIfNeeded() {
-        guard let first = proposedTimes.dates.first else { return }
-        let calendar = Calendar.current
-        let newHour = calendar.component(.hour, from: first.date)
-        let newMinute = calendar.component(.minute, from: first.date)
-        if newHour != selectedHour || newMinute != selectedMinute {
-            selectedHour = newHour
-            selectedMinute = newMinute
-        }
+    private var doneButton: some View {
+            ZStack {
+                Image("TickButton") //"GreenTickMark"
+                    .scaleEffect(0.9)
+                Circle()
+                    .stroke(Color.black, lineWidth: 1)
+                    .scaleEffect(0.8)
+            }
+            .padding(3)                 // hit area / breathing room
+            .background(Color.appCanvas)
+            .frame(width: 40, height: 40)
+            .contentShape(Circle())
+            .onTapGesture {
+                dismissMenu()
+            }
+            .padding(.bottom, isRespondMode ? 96 : 80)
     }
-    private func commitTimeIfChanged() {
-        guard let firstDate = proposedTimes.dates.first?.date else { return}
+}
+
+//Functions needed
+extension SelectTimeView {
+    
+    private var firstHM: (hour: Int, minute: Int)? {
+        guard let date = proposedTimes.dates.first?.date else { return nil }
         let cal = Calendar.current
-        let storedHour   = cal.component(.hour,   from: firstDate)
-        let storedMinute = cal.component(.minute, from: firstDate)
-        guard storedHour != selectedHour || storedMinute != selectedMinute else { return }
+        return (cal.component(.hour, from: date), cal.component(.minute, from: date))
+    }
+
+    private func syncTime() {
+        guard didSeed else {
+            didSeed = true
+            if let hm = firstHM { (selectedHour, selectedMinute) = hm }
+            return
+        }
         proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
+    }
+
+    private func clickedUnavailableDay() async {
+        guard warning != nil else { return }
+            try? await Task.sleep(for: .seconds(1))
+            withAnimation(.easeInOut(duration: 0.2)) { warning = nil }
+    }
+}
+
+private struct SelectTimeBackground: ViewModifier {
+    
+    let isRespond: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .frame(width: (isRespond && !isRespond) ? 270 : 265)
+            .padding(.horizontal, isRespond ? 0 : 24)
+            .padding(.top, isRespond ? 0 : 24)
+            .padding(.bottom, isRespond ? -12 : 0)
     }
 }

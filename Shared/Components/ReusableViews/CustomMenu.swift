@@ -25,16 +25,16 @@
 //                                       close it. Tapping outside still dismisses.
 //
 //  ── iOS 26 bloom mechanics ──────────────────────────────────────────────────
-//  On open, the glass platter grows directly out of a SMALL CIRCLE pinned to the
-//  label's trailing edge, straight into the rounded-rect platter, while the menu
-//  content de-blurs and materializes. There is no intermediate droplet or
-//  travelling-circle phase: the shape only ever grows monotonically from the
-//  origin circle to the platter. Dismissal is the exact reverse — the platter
-//  shrinks back into the small trailing-edge circle and the glass melts off.
+//  On open, the glass platter grows directly out of the LABEL'S FULL FRAME (the
+//  whole button), straight into the rounded-rect platter, while the menu content
+//  de-blurs and materializes. There is no intermediate droplet or travelling
+//  phase: the shape only ever grows monotonically from the button's rect to the
+//  platter. Dismissal is the exact reverse — the platter shrinks back into the
+//  button's frame and the glass melts off.
 //  The real label is NOT captured or hidden: it stays visible in the app tree
-//  underneath, and the glass simply blooms out from over its trailing edge.
-//  (An earlier version routed the morph THROUGH a circle, native-style, swallowing
-//  the label; that initial transition was removed by request.)
+//  underneath, and the glass simply blooms out from over it.
+//  (An earlier version grew the morph out of a small trailing-edge circle; the
+//  start/end geometry was widened to the whole button by request.)
 //  Implementation: ONE persistent glass view whose frame/radius/content are
 //  interpolated by an Animatable modifier (MenuLensMorph) under withAnimation.
 //  No glass transitions are used — verified broken/limited on iOS 26.0:
@@ -185,14 +185,14 @@ enum CustomMenuSpec {
     /// Peak refraction blur while the menu content is materializing as the
     /// platter grows (de-blurs to 0 by the time the platter is full).
     static let lensBlur: CGFloat = 8
-    /// Diameter of the small circle the platter grows out of / collapses back
-    /// into, pinned to the label's trailing edge. Tune for a smaller/larger
-    /// starting dot.
+    /// Diameter of the small circle the platter grows out of / collapses back into
+    /// when a call site opts into the trailing-point origin (`morphsFromTrailingPoint`).
+    /// Unused for the default whole-button morph.
     static let expansionOriginDiameter: CGFloat = 16
     /// Bloom timing (slightly quicker than the native ~0.45s open, same slight settle).
     static let bloomOpen = Animation.spring(response: 0.32, dampingFraction: 0.82)
-    /// Shrinking back into the origin circle never bounces (~0.4s on device).
-    static let bloomClose = Animation.smooth(duration: 0.25) //Slightly snappier close
+    /// Shrinking back into the button frame never bounces (~0.4s on device).
+    static let bloomClose = Animation.snappy(duration: 0.25) //Slightly snappier close
     /// After the menu is open, content can reflow (e.g. an info row expands) and
     /// change the platter's height. Grow it with this curve — matched to the
     /// content's own expand animation — so the glass tracks the content instead
@@ -203,16 +203,19 @@ enum CustomMenuSpec {
     static let reflowResize = Animation.snappy(duration: 0.3)
     /// After the close morph reaches the trailing-edge circle, any leftover glass
     /// halo melts off rather than popping out in one frame.
-    static let lensFadeOut = Animation.easeOut(duration: 0.15)
+    static let lensFadeOut = Animation.snappy(duration: 0.05)
     /// Close morph length before the leftover glass halo melts.
-    static let closeMorphDuration: TimeInterval = 0.4
-    static let lensFadeDuration: TimeInterval = 0.18
+    static let closeMorphDuration: TimeInterval = 0.3
+    static let lensFadeDuration: TimeInterval = 0.15
+    /// How long the `.pop` dismiss (the `.scoopPop` transition) runs before the window
+    /// tears down. Matches the settle of `Animation.scoopPop` (response 0.35, slight bounce).
+    static let popCloseDuration: TimeInterval = 0.5
     /// On close, the glass stays fully opaque until progress drops below this, then
     /// melts linearly to nothing by progress 0 — so the platter shrinks back into the
-    /// trailing-edge circle still solid (mirroring the opaque grow on open) and only
-    /// fades over the final stretch, leaving no glass dot to pop. Larger starts the
+    /// button's frame still solid (mirroring the opaque grow on open) and only
+    /// fades over the final stretch, leaving nothing to pop. Larger starts the
     /// fade earlier / while the platter is still big (0.35 washed it out mid-shrink);
-    /// smaller keeps it solid longer and concentrates the fade right at the dot.
+    /// smaller keeps it solid longer and concentrates the fade right at the button.
     static let closeGlassFadeProgress: CGFloat = 0.05
     /// Platter shadow at full bloom (native casts a wide soft shadow).
     static let platterShadowOpacity: CGFloat = 0.1
@@ -293,6 +296,11 @@ struct CustomMenu<Content: View, Label: View>: View {
     var footerCornerRadii: RectangleCornerRadii?
     /// Which label edge the menu aligns to (see `CustomMenuAlignment`).
     var alignment: CustomMenuAlignment
+    /// iOS 26 glass bloom origin. `false` (default) grows the platter from / collapses
+    /// it back into the label's full frame (the whole button). `true` reverts to the
+    /// original behaviour: a small circle at the label's trailing edge. No effect on
+    /// the pre-26 fallback (which always scales from an anchor point near the label).
+    var morphsFromTrailingPoint: Bool
     /// Nudge applied to the final placement (positive = right / down). Defaults
     /// to the spec values; override per call site to fine-tune.
     var placementOffset: CGSize
@@ -320,6 +328,7 @@ struct CustomMenu<Content: View, Label: View>: View {
          cornerRadii: RectangleCornerRadii? = nil,
          footerCornerRadii: RectangleCornerRadii? = nil,
          alignment: CustomMenuAlignment = .automatic,
+         morphsFromTrailingPoint: Bool = false,
          placementOffsetX: CGFloat = CustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = CustomMenuSpec.placementOffsetY,
          onOpen: (() -> Void)? = nil,
@@ -331,6 +340,7 @@ struct CustomMenu<Content: View, Label: View>: View {
         self.cornerRadii = cornerRadii
         self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
+        self.morphsFromTrailingPoint = morphsFromTrailingPoint
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
         self.onClose = onClose
@@ -375,7 +385,7 @@ struct CustomMenu<Content: View, Label: View>: View {
                        : .spring(response: press.release.response, dampingFraction: press.release.damping),
                        value: pressed)
             .gesture(pressAndDrag)
-            .onDisappear { controller.dismiss(animated: false) }
+            .onDisappear { controller.dismiss(style: .instant) }
     }
 
     /// The label presses (shrinks) under the finger via `$isPressed`, then expands
@@ -397,6 +407,7 @@ struct CustomMenu<Content: View, Label: View>: View {
                     cornerRadii: cornerRadii,
                     footerCornerRadii: footerCornerRadii,
                     alignment: alignment,
+                    morphsFromTrailingPoint: morphsFromTrailingPoint,
                     placementOffset: placementOffset,
                     onClose: onClose,
                     footer: footer,
@@ -408,9 +419,17 @@ struct CustomMenu<Content: View, Label: View>: View {
 
 // MARK: - Dismiss action environment
 
+/// How the menu leaves the screen.
+/// - `morph`: the default glass bloom-close (the platter shrinks back into the label).
+/// - `pop`: removes the platter + footer with the `.scoopPop` transition (blur + scale).
+/// - `instant`: tears the window down immediately, no animation.
+enum CustomMenuDismissStyle { case morph, pop, instant }
+
 struct CustomMenuDismissAction {
-    var action: () -> Void = {}
-    func callAsFunction() { action() }
+    /// Pass a `CustomMenuDismissStyle` to pick the exit (default `.morph`). E.g.
+    /// `dismiss(.pop)` for the scoopPop transition, `dismiss(.instant)` for no animation.
+    var action: (CustomMenuDismissStyle) -> Void = { _ in }
+    func callAsFunction(_ style: CustomMenuDismissStyle = .morph) { action(style) }
 }
 
 extension EnvironmentValues {
@@ -502,6 +521,8 @@ final class CustomMenuController {
     enum Phase { case measuring, shown, dismissing }
 
     private(set) var phase: Phase = .measuring
+    /// How the in-flight dismissal should animate; the overlay reads it to pick the exit.
+    private(set) var dismissStyle: CustomMenuDismissStyle = .morph
     private(set) var anchor: CGRect = .zero
     /// The label's *live* frame, tracked while presented so the close morph
     /// collapses onto where the label is now (it may have reflowed after a
@@ -518,6 +539,9 @@ final class CustomMenuController {
     /// Caller-supplied footer corners; `nil` falls back to the mirror of the platter.
     private(set) var footerCornerRadii: RectangleCornerRadii?
     private(set) var alignment: CustomMenuAlignment = .automatic
+    /// Caller-supplied: iOS 26 glass bloom grows from a small trailing-edge circle
+    /// instead of the whole button. See `CustomMenu.morphsFromTrailingPoint`.
+    private(set) var morphsFromTrailingPoint = false
     private(set) var placementOffset: CGSize = .zero
     /// iOS 26: signals the overlay to melt the leftover glass halo at the end of close.
     private(set) var lensDissolve = false
@@ -551,6 +575,7 @@ final class CustomMenuController {
                  cornerRadii: RectangleCornerRadii? = nil,
                  footerCornerRadii: RectangleCornerRadii? = nil,
                  alignment: CustomMenuAlignment,
+                 morphsFromTrailingPoint: Bool = false,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
                  footer: (() -> AnyView)? = nil,
@@ -567,6 +592,7 @@ final class CustomMenuController {
         self.cornerRadii = cornerRadii
         self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
+        self.morphsFromTrailingPoint = morphsFromTrailingPoint
         self.placementOffset = placementOffset
         self.onClose = onClose
         self.footer = footer
@@ -594,18 +620,28 @@ final class CustomMenuController {
         collapseAnchor = frame
     }
 
-    func dismiss(animated: Bool = true) {
+    func dismiss(style: CustomMenuDismissStyle = .morph) {
         guard window != nil, phase != .dismissing else { return }
-        // Fire the moment dismissal is requested — before the close morph runs —
+        // Fire the moment dismissal is requested — before any close animation runs —
         // so callers don't wait out the animation + teardown.
         onClose?()
-        guard animated else { tearDown(); return }
+        guard style != .instant else { tearDown(); return }
+        dismissStyle = style
         phase = .dismissing
         let gen = generation
+        if style == .pop {
+            // The overlay removes the platter + footer with the `.scoopPop` transition;
+            // tear the window down once that spring has settled.
+            Task {
+                try? await Task.sleep(for: .seconds(CustomMenuSpec.popCloseDuration))
+                if generation == gen { tearDown() }
+            }
+            return
+        }
         if #available(iOS 26.0, *) {
-            // The platter shrinks back into the small circle at the label's trailing
-            // edge (close mirrors open) → melt the leftover glass halo off → teardown.
-            // The real label was visible underneath the whole time.
+            // The platter shrinks back into the label's full frame (close mirrors
+            // open) → melt the leftover glass halo off → teardown. The real label
+            // was visible underneath the whole time.
             Task {
                 try? await Task.sleep(for: .seconds(CustomMenuSpec.closeMorphDuration))
                 guard generation == gen else { return }
@@ -632,6 +668,7 @@ final class CustomMenuController {
         cornerRadii = nil
         footerCornerRadii = nil
         alignment = .automatic
+        morphsFromTrailingPoint = false
         placementOffset = .zero
         collapseAnchor = .zero
         items = [:]
@@ -639,6 +676,7 @@ final class CustomMenuController {
         menuFrame = .zero
         lensDissolve = false
         labelPressed = false
+        dismissStyle = .morph
         phase = .measuring
     }
 
@@ -702,6 +740,10 @@ private struct CustomMenuOverlayRoot: View {
     /// iOS 26: present for the whole bloom; melts off at the very end of the
     /// close so the leftover glass never pops.
     @State private var lensOpacity: Double = 0
+    /// `.pop` dismiss: flipped true to remove the platter + footer with the
+    /// `.scoopPop` transition (instead of the morph close). The window tears down
+    /// after `popCloseDuration`.
+    @State private var popExit = false
 
     private var overlapsAnchor: Bool {
         if #available(iOS 26.0, *) { return true }
@@ -736,24 +778,33 @@ private struct CustomMenuOverlayRoot: View {
 
                 // Detached accessory rides UNDER the platter (lower z) so it emerges
                 // from the menu's bottom edge during the bloom (placed once sized).
-                if let footer = controller.footer, controller.menuFrame != .zero {
+                // On a `.pop` dismiss it's removed with the platter via `.scoopPop`.
+                if let footer = controller.footer, controller.menuFrame != .zero, !popExit {
                     footerCard(footer())
+                        .transition(.scoopPop)
                 }
 
-                if let content = controller.content {
+                // `.pop` dismiss removes this with the `.scoopPop` transition; the morph
+                // close instead keeps it mounted and animates `morphProgress` to 0.
+                if let content = controller.content, !popExit {
                     if #available(iOS 26.0, *) {
                         glassPresentation(content: content(), metrics: metrics)
+                            .transition(.scoopPop)
                     } else {
                         legacyPresentation(content: content(), metrics: metrics)
+                            .transition(.scoopPop)
                     }
                 }
             }
             .onChange(of: geo.size) { _, _ in
-                controller.dismiss(animated: false)
+                controller.dismiss(style: .instant)
             }
             .onChange(of: controller.phase) { _, newPhase in
                 guard newPhase == .dismissing else { return }
-                if #available(iOS 26.0, *) {
+                if controller.dismissStyle == .pop {
+                    // Remove the platter + footer with the scoopPop transition.
+                    withAnimation(.scoopPop) { popExit = true }
+                } else if #available(iOS 26.0, *) {
                     withAnimation(CustomMenuSpec.bloomClose) {
                         morphProgress = 0
                     }
@@ -789,8 +840,8 @@ private struct CustomMenuOverlayRoot: View {
         // and morphs it; items inside still get the menu's environment for dismiss/highlight.
         let card = footer
             .environment(controller)
-            .environment(\.customMenuDismiss, CustomMenuDismissAction { [weak controller] in
-                controller?.dismiss()
+            .environment(\.customMenuDismiss, CustomMenuDismissAction { [weak controller] style in
+                controller?.dismiss(style: style)
             })
             .fixedSize()                                    //let the footer keep its own width
 
@@ -865,10 +916,10 @@ private struct CustomMenuOverlayRoot: View {
 
     // MARK: iOS 26 — Liquid Glass bloom
 
-    /// The iOS 26 glass bloom: on open, the platter grows out of a small circle
-    /// pinned to the label's trailing edge straight into the menu's rect while the
-    /// menu content de-blurs and materializes. Dismissal is the exact reverse — the
-    /// platter shrinks back into that trailing-edge circle and the glass melts off.
+    /// The iOS 26 glass bloom: on open, the platter grows out of the label's full
+    /// frame (the whole button) straight into the menu's rect while the menu
+    /// content de-blurs and materializes. Dismissal is the exact reverse — the
+    /// platter shrinks back into the button's frame and the glass melts off.
     /// The real label stays visible underneath the whole time (never captured).
     /// One persistent glass view + Animatable frame interpolation (MenuLensMorph);
     /// no glass transitions involved (the broken ones aren't needed).
@@ -902,10 +953,10 @@ private struct CustomMenuOverlayRoot: View {
                     if size.height <= metrics.maxHeight + 1 {
                         appeared = true
                         controller.markShown()
-                        // The glass starts as a small circle at the label's trailing
-                        // edge, so it's on screen instantly (no fade-in lag between
-                        // tap and motion). The real label stays in place underneath —
-                        // it is never hidden or swallowed.
+                        // The glass starts at the label's full frame, so it's on
+                        // screen instantly (no fade-in lag between tap and motion).
+                        // The real label stays in place underneath — it is never
+                        // hidden or swallowed.
                         lensOpacity = 1
                         // Escape the layout transaction so the morph animates from a
                         // committed frame instead of snapping on initial render.
@@ -921,8 +972,8 @@ private struct CustomMenuOverlayRoot: View {
         if let size = menuSize {
             let menuRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
             // Collapse onto the label's live frame, falling back to the open-time
-            // anchor before the first geometry update lands. The morph's origin
-            // circle is pinned to this frame's trailing edge.
+            // anchor before the first geometry update lands. The morph grows from /
+            // shrinks back into this full frame.
             let collapsedRect = controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor
             // No GlassEffectContainer: with a single glass shape it isn't needed,
             // and the container ignores per-view .opacity (so the glass couldn't
@@ -937,6 +988,7 @@ private struct CustomMenuOverlayRoot: View {
                         expanded: menuRect,
                         platterCorners: controller.cornerRadii
                             ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? CustomMenuSpec.platterCornerRadius),
+                        fromTrailingPoint: controller.morphsFromTrailingPoint,
                         isClosing: controller.phase == .dismissing
                     ))
                     .opacity(lensOpacity)
@@ -990,8 +1042,8 @@ private struct CustomMenuOverlayRoot: View {
     private func chromeCore(content: AnyView, metrics: Metrics) -> some View {
         let inner = content
             .environment(controller)
-            .environment(\.customMenuDismiss, CustomMenuDismissAction { [weak controller] in
-                controller?.dismiss()
+            .environment(\.customMenuDismiss, CustomMenuDismissAction { [weak controller] style in
+                controller?.dismiss(style: style)
             })
             .onGeometryChange(for: CGFloat.self) { proxy in
                 proxy.size.height
@@ -1014,25 +1066,28 @@ private struct CustomMenuOverlayRoot: View {
         .fixedSize(horizontal: true, vertical: false)
     }
 
-    /// The open/close morph. The glass platter grows directly out of a small
-    /// circle pinned to the label's trailing edge straight into the menu's
-    /// rounded-rect platter, while the menu content de-blurs and materializes.
-    /// Closing runs the same path in reverse (platter → small trailing-edge
-    /// circle). There is no "droplet" or travelling-circle phase — the shape
-    /// only ever grows monotonically from the origin circle to the platter — and
-    /// the real label is never captured: it stays visible in the app tree
-    /// underneath. Animatable progress drives layout, so SwiftUI interpolates
-    /// every spring frame through this modifier.
+    /// The open/close morph. The glass platter grows directly out of its start shape
+    /// straight into the menu's rounded-rect platter, while the menu content de-blurs
+    /// and materializes. Closing runs the same path in reverse. The start shape is
+    /// either the label's full frame (the whole button, default) or a small circle at
+    /// the label's trailing edge (`fromTrailingPoint`). There is no "droplet" or
+    /// travelling phase — the shape only ever grows monotonically from start to platter
+    /// — and the real label is never captured: it stays visible in the app tree
+    /// underneath. Animatable progress drives layout, so SwiftUI interpolates every
+    /// spring frame through this modifier.
     @available(iOS 26.0, *)
     private struct MenuLensMorph: ViewModifier, Animatable {
         var progress: CGFloat
-        /// The label's live frame; the morph's origin circle is pinned to its trailing edge.
+        /// The label's live frame (the whole button); the morph grows from / collapses into it.
         let collapsed: CGRect
         let expanded: CGRect
         /// The platter's resting per-corner radii (caller-supplied or spec default).
         let platterCorners: RectangleCornerRadii
+        /// When true, the morph starts/ends as a small circle at the label's trailing
+        /// edge instead of the whole `collapsed` frame.
+        let fromTrailingPoint: Bool
         /// While dismissing, the glass melts off as it shrinks back into the
-        /// origin circle, so nothing pops at the end.
+        /// start shape, so nothing pops at the end.
         let isClosing: Bool
 
         var animatableData: CGFloat {
@@ -1044,33 +1099,42 @@ private struct CustomMenuOverlayRoot: View {
             a + (b - a) * t
         }
 
-        /// A single monotonic growth from the origin circle (a small circle at the
-        /// label's trailing edge) straight to the menu platter — no intermediate
-        /// droplet or travelling-circle phase. `p` 0 → 1 grows and translates the
-        /// shape from the origin to the platter; the close (1 → 0) reverses it.
+        /// A single monotonic growth from the start shape straight to the menu
+        /// platter — no intermediate droplet or travelling phase. `p` 0 → 1 grows
+        /// and translates the shape from start to platter; the close (1 → 0)
+        /// reverses it. The start shape is the whole button by default, or a small
+        /// circle at the label's trailing edge when `fromTrailingPoint` is set.
         private func lensFrame(_ p: CGFloat) -> (rect: CGRect, corners: RectangleCornerRadii) {
             let t = p.clamped(to: 0...1)
-            let origin = CustomMenuSpec.expansionOriginDiameter
-            // Start: a small circle sitting just inside the label's trailing edge.
-            // End: the full menu platter, centred on its own rect.
-            let startCenter = CGPoint(x: collapsed.maxX - origin / 2, y: collapsed.midY)
-            let endCenter = CGPoint(x: expanded.midX, y: expanded.midY)
 
-            let w = lerp(origin, expanded.width, t)
-            let h = lerp(origin, expanded.height, t)
-            let cx = lerp(startCenter.x, endCenter.x, t)
-            let cy = lerp(startCenter.y, endCenter.y, t)
+            // Start shape. Whole-button (default): the label's full frame, growing as
+            // if the button itself expands. Trailing-point: a small circle just inside
+            // the label's trailing edge, blooming out of that dot. End is the platter.
+            let startRect: CGRect
+            let startCorner: CGFloat
+            if fromTrailingPoint {
+                let d = CustomMenuSpec.expansionOriginDiameter
+                startRect = CGRect(x: collapsed.maxX - d, y: collapsed.midY - d / 2, width: d, height: d)
+                startCorner = d / 2                                      // a full circle
+            } else {
+                startRect = collapsed
+                startCorner = min(collapsed.width, collapsed.height) / 2 // the button's capsule
+            }
 
-            // Corners ease from a full circle (origin / 2) to the platter's resting
-            // radii, each capped at a half-side so the shape stays a clean
-            // circle/pill while it's still small and resolves to the platter as it grows.
+            let w = lerp(startRect.width, expanded.width, t)
+            let h = lerp(startRect.height, expanded.height, t)
+            let cx = lerp(startRect.midX, expanded.midX, t)
+            let cy = lerp(startRect.midY, expanded.midY, t)
+
+            // Corners ease from the start shape (circle or capsule) to the platter's
+            // resting radii, each capped at a half-side so the shape stays a clean
+            // circle/pill/rounded-rect at every step.
             let cap = min(w, h) / 2
-            let circle = origin / 2
             let corners = RectangleCornerRadii(
-                topLeading: min(cap, lerp(circle, platterCorners.topLeading, t)),
-                bottomLeading: min(cap, lerp(circle, platterCorners.bottomLeading, t)),
-                bottomTrailing: min(cap, lerp(circle, platterCorners.bottomTrailing, t)),
-                topTrailing: min(cap, lerp(circle, platterCorners.topTrailing, t))
+                topLeading: min(cap, lerp(startCorner, platterCorners.topLeading, t)),
+                bottomLeading: min(cap, lerp(startCorner, platterCorners.bottomLeading, t)),
+                bottomTrailing: min(cap, lerp(startCorner, platterCorners.bottomTrailing, t)),
+                topTrailing: min(cap, lerp(startCorner, platterCorners.topTrailing, t))
             )
             return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), corners)
         }
@@ -1080,14 +1144,14 @@ private struct CustomMenuOverlayRoot: View {
             let lens = lensFrame(p)
             let w = lens.rect.width
             let h = lens.rect.height
-            // On close, melt the glass off as it shrinks back into the origin
-            // circle (p → 0) so nothing pops at the end; the real label is already
+            // On close, melt the glass off as it shrinks back into the button
+            // frame (p → 0) so nothing pops at the end; the real label is already
             // visible underneath, so there is nothing left to restore.
             let glassOpacity: Double = isClosing
                 ? Double((p / CustomMenuSpec.closeGlassFadeProgress).clamped(to: 0...1))
                 : 1
 
-            // Glass platter + menu content, scaled from the origin circle up to
+            // Glass platter + menu content, scaled from the button frame up to
             // the full platter. The content de-blurs and fades in over the back
             // half of the growth (unchanged from before).
             content

@@ -184,19 +184,14 @@ struct InterestSection: View {
     let options: [String]
     let title: String?
     let image: String?
-    @State private var shakeTicks: [String: Int] = [:]
-    
-    @Binding var selected: [String]
-    
-    
-    let onInterestTap: (String) -> ()
-    
-    var selectedMax: Bool {selected.count >= 10}
-    
-    
-    @State private var flashMaxText: Set<String> = []
 
-    
+    @Binding var selected: [String]
+
+
+    let onInterestTap: (String) -> ()
+
+    var selectedMax: Bool {selected.count >= 10}
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .center, spacing: 24) {
@@ -215,30 +210,41 @@ struct InterestSection: View {
             .padding(.bottom, 16)
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
-                OptionCell(text: input,
-                           selection: $selected,
-                           overlayText: flashMaxText.contains(input) ? "max 10" : nil) { text in
-                    let tapped = text
-                    if selected.contains(tapped) {
-                        onInterestTap(tapped)
-                    } else if selected.count >= 10 {
-                        shakeTicks[tapped, default: 0] &+= 1
-                        flashMaxText.insert(tapped)
-                        Task { @MainActor in
-                            try? await Task.sleep(nanoseconds: 1_000_000_000)
-                                flashMaxText.remove(tapped)
-                        }
-                    } else {
-                        onInterestTap(tapped)
-                    }
-                }
-                .modifier(Shake(animatableData: CGFloat(shakeTicks[input, default: 0])))
-                .animation(.easeInOut(duration: 0.6), value: shakeTicks[input, default: 0])
-                .animation(.easeInOut(duration: 0.4), value: flashMaxText)
+                InterestOptionCell(text: input, selected: $selected, onInterestTap: onInterestTap)
             }
             .offset(x: -5)
         }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
+    }
+}
+
+private struct InterestOptionCell: View {
+    let text: String
+    @Binding var selected: [String]
+    let onInterestTap: (String) -> Void
+
+    @State private var shake = false
+    @State private var flashMax = false
+
+    var body: some View {
+        OptionCell(text: text,
+                   selection: $selected,
+                   overlayText: flashMax ? "max 10" : nil) { tapped in
+            if selected.contains(tapped) {
+                onInterestTap(tapped)
+            } else if selected.count >= 10 {
+                shake.toggle()
+                flashMax = true
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(1))
+                    flashMax = false
+                }
+            } else {
+                onInterestTap(tapped)
+            }
+        }
+        .showShakeAnimation(bool: shake)
+        .animation(.easeInOut(duration: 0.4), value: flashMax)
     }
 }
 

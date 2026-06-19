@@ -108,7 +108,7 @@ extension SendInviteContainer {
         var margin = Self.screenMargin
         
         //1. Decrease if message lines is 1 and more if 3
-        if ui.messageLineCount >= 1 { margin -= 2 }
+        if ui.messageLineCount >= 2 { margin -= 2 }
         if ui.messageLineCount == 3 {margin -= 2}
         
         //2. Decrease if times 2 or 3
@@ -129,11 +129,11 @@ extension SendInviteContainer {
 
     var typeTopPadding: CGFloat {
         if typeMessageLines == 0 {
-            30
+            32
         } else if typeMessageLines == 1 {
-            24
+            26
         } else {
-            20
+            22
         }
     }
 
@@ -147,9 +147,9 @@ extension SendInviteContainer {
         if count <= 1 {
             return 30
         } else if count == 2 {
-            return 20
+            return 24
         } else {
-            return 16
+            return 20
         }
     }
 
@@ -158,9 +158,9 @@ extension SendInviteContainer {
         if count <= 1 {
             return 30
         } else if count == 2 {
-            return 18
+            return 22
         } else {
-            return 14
+            return 18
         }
     }
 
@@ -170,9 +170,8 @@ extension SendInviteContainer {
     }
 
     var placeBottomPadding: CGFloat {
-        draft.place != nil ? 24 : 30
+        draft.place != nil ? 24 : 32
     }
-
 }
 
 

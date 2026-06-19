@@ -7,7 +7,7 @@ struct SendInviteContainer: View {
     //0. Base gap from each screen edge to the card. Passed to the morph as the entrance-fallback
     //width (`style.sideMargin`) at the call sites. The live, adaptive margin is `cardMargin`,
     //which the card now owns directly via padding (content-owns-background morph).
-    static let screenMargin: CGFloat = 28
+    static let screenMargin: CGFloat = 30
 
     //1. Controls what popup is showing or not
     @State var ui = TimeAndPlaceUIState()

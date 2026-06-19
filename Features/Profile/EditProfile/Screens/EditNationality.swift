@@ -48,8 +48,6 @@ struct EditNationality: View {
 }
 
 struct GenericNationality: View {
-    @State private var shakeTicks: [String: Int] = [:]
-    
     @State private var scrollPosition: String? = "A"
 
     @Namespace private var alphabetUnderline
@@ -141,7 +139,7 @@ extension GenericNationality {
             VStack(spacing: 48) {
                 LazyVGrid(columns: columns, spacing: 36) {
                     ForEach(CountryDataServices.shared.popularCountries) { country in
-                        flagItem(country: country)
+                        FlagItem(country: country, countriesSelected: $countriesSelected, onCountryTap: onCountryTap)
                             .padding(.top, 3.5)
                     }
                 }
@@ -157,7 +155,7 @@ extension GenericNationality {
                         
                         LazyVGrid(columns: columns, spacing: 36) {
                             ForEach(group.countries) { country in
-                                flagItem(country: country)
+                                FlagItem(country: country, countriesSelected: $countriesSelected, onCountryTap: onCountryTap)
                             }
                         }
                     }
@@ -171,33 +169,36 @@ extension GenericNationality {
         .customScrollFade(height: 30, showFade: true)
     }
     
-    private func isSelected(_ country: String) -> Bool {
-        countriesSelected.contains(country)
-    }
-    
-    private func flagItem(country: CountryData) -> some View {
-        
-        let shakeValue = shakeTicks[country.flag, default: 0]
-        let message = "max 3"
+}
 
-        return VStack(spacing: 6) {
+private struct FlagItem: View {
+    let country: CountryData
+    @Binding var countriesSelected: [String]
+    let onCountryTap: (String) -> Void
+
+    @State private var shake = false
+    @State private var flashMax = false
+
+    private var isSelected: Bool { countriesSelected.contains(country.flag) }
+
+    var body: some View {
+        VStack(spacing: 6) {
             Text(country.flag)
                 .font(.system(size: 24))
                 .padding(6)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.grayPlaceholder, lineWidth: 1)
-                        .fill(isSelected(country.flag) ? Color.blue : Color.clear)
+                        .fill(isSelected ? Color.blue : Color.clear)
                 )
                 .overlay(alignment: .topTrailing) {
-                    CircleIcon(isSelected(country.flag) ? "minus" : "plus")
+                    CircleIcon(isSelected ? "minus" : "plus")
                         .offset(x: 3, y: -3)
                 }
-                .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
-                .animation(shakeValue > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeValue)
-            
-            if shakeValue > 0 {
-                Text(message)
+                .showShakeAnimation(bool: shake)
+
+            if flashMax {
+                Text("max 3")
                     .font(.body(12, .bold))
                     .foregroundStyle(.accent)
             } else {
@@ -207,23 +208,18 @@ extension GenericNationality {
             }
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
-        .onChange(of: shakeTicks[country.flag, default: 0]) { oldValue, newValue in
-            guard newValue > 0 else { return }
-            
-            Task {
-                try? await Task.sleep(for: .seconds(1))
-                if shakeTicks[country.flag, default: 0] == newValue {
-                    withAnimation { shakeTicks[country.flag] = 0 }
-                }
-            }
-        }
-        
+        .animation(.easeInOut(duration: 0.3), value: flashMax)
         .onTapGesture {
             withAnimation(.smooth(duration: 0.2)) {
                 if countriesSelected.contains(country.flag) {
                     countriesSelected.removeAll { $0 == country.flag }
                 } else if countriesSelected.count >= 3 {
-                    shakeTicks[country.flag, default: 0] += 1
+                    shake.toggle()
+                    flashMax = true
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .seconds(1))
+                        flashMax = false
+                    }
                 } else {
                     onCountryTap(country.flag)
                 }

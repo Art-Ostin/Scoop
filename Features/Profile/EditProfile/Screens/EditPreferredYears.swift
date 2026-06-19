@@ -14,10 +14,7 @@ struct EditPreferredYears: View {
     }
     let grid = [GridItem(.flexible()), GridItem(.flexible())]
     let options = ["U0", "U1", "U2", "U3", "U4"]
-    
-    @State private var shakeTicks: [String: Int] = [:]
-    @State private var messageTicks: [String: Int] = [:]
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 84) {
             Text("Preferred Years")
@@ -25,7 +22,7 @@ struct EditPreferredYears: View {
                 .padding(.horizontal, 24)
             LazyVGrid(columns: grid, spacing: 48) {
                 ForEach(options, id: \.self) { option in
-                    optionPill(option)
+                    YearPill(title: option, selection: selection)
                 }
             }
         }
@@ -35,14 +32,16 @@ struct EditPreferredYears: View {
     }
 }
 
-extension EditPreferredYears {
-    @ViewBuilder
-    private func optionPill(_ title: String) -> some View {
-        let isSelected = selection.wrappedValue.contains(title)
+private struct YearPill: View {
+    let title: String
+    @Binding var selection: [String]
 
-        let shakeValue = shakeTicks[title, default: 0]
-        let messageValue = messageTicks[title, default: 0]
+    @State private var shake = false
+    @State private var showMessage = false
 
+    private var isSelected: Bool { selection.contains(title) }
+
+    var body: some View {
         VStack(spacing: 8) {
             Text(title)
                 .frame(width: 148, height: 44)
@@ -58,11 +57,10 @@ extension EditPreferredYears {
                             .padding(6)
                     }
                 }
-                .modifier(Shake(animatableData: shakeValue == 0 ? 0 : CGFloat(shakeValue)))
-                .animation(shakeValue > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeValue)
+                .showShakeAnimation(bool: shake)
 
             Group {
-                if messageValue > 0 {
+                if showMessage {
                     Text("Can only deselect 2 years")
                         .font(.body(12, .bold))
                         .foregroundStyle(.accent)
@@ -72,40 +70,26 @@ extension EditPreferredYears {
                         .font(.body(12, .bold))
                 }
             }
-            .animation(.easeInOut(duration: 0.5), value: messageValue)
-        }
-        .task(id: shakeValue) {
-            guard shakeValue > 0 else { return }
-            try? await Task.sleep(for: .seconds(0.5))
-            await MainActor.run {
-                if shakeTicks[title, default: 0] == shakeValue {
-                    shakeTicks[title] = 0
-                }
-            }
-        }
-        .task(id: messageValue) {
-            guard messageValue > 0 else { return }
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                if messageTicks[title, default: 0] == messageValue {
-                    messageTicks[title] = 0
-                }
-            }
+            .animation(.easeInOut(duration: 0.5), value: showMessage)
         }
         .onTapGesture {
-            var current = selection.wrappedValue
+            var current = selection
 
             if let idx = current.firstIndex(of: title) {
                 if current.count < 4 {
-                    shakeTicks[title, default: 0] += 1
-                    messageTicks[title, default: 0] += 1
+                    shake.toggle()
+                    showMessage = true
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .seconds(2))
+                        showMessage = false
+                    }
                     return
                 }
                 current.remove(at: idx)
             } else {
                 current.append(title)
             }
-            selection.wrappedValue = current
+            selection = current
         }
     }
 }

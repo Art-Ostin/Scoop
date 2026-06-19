@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct InviteTypeRow: View {
-    
-    @Environment(\.customMenuDismiss) private var menuDismiss
 
     @Bindable var ui: TimeAndPlaceUIState
     
@@ -52,6 +50,7 @@ extension InviteTypeRow {
         CustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
+            morphsFromTrailingPoint: message.isEmpty ? false : true, //Only morph from end if there is a message
             placementOffsetY: 36, //12pt lower than the 24pt default
             onOpen: { ui.typePopupOpen = true },
             onClose: { ui.typePopupOpen = false ; openInfoTypes.removeAll()   },
@@ -69,33 +68,19 @@ extension InviteTypeRow {
 
                 Text(type.longTitle)
                     .font(.body(17, .medium))
-                    .id(type)
-                    .transition(titleSlide)
-
+                
                 if !message.isEmpty {
                     inviteMessage
                 }
             }
-            .animation(.linear(duration: 0.2), value: type)
             DropDownButton(isOpen: ui.typePopupOpen)
         }
-//        .clipped()
+        .geometryGroup()
+        .contentTransition(.opacity)
         .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
         .onChange(of: message) { _, _ in updateLineHeight() } //clearing/edits: recount (and reset) on text change
     }
 
-    private var titleSlide: AnyTransition {
-        let offCard: CGFloat = 180
-        return .asymmetric(
-            insertion: .offset(x: offCard).animation(.linear(duration: 0.2))
-                .combined(with: .opacity.animation(.smooth(duration: 0.2))),
-            removal: .offset(x: -20).animation(.linear(duration: 0.2))
-                .combined(with: .opacity.animation(.smooth(duration: 0.25)))
-        )
-    }
-    
-    
-    
     
     private var inviteMessage: some View {
         Text(message)
@@ -141,35 +126,35 @@ extension InviteTypeRow {
     
     
     private var addMessageFooter: some View {
-        
+        AddMessageFooter(message: message, corners: footerCorners) {
+            ui.showMessageScreen = true
+        }
+    }
+}
+
+private struct AddMessageFooter: View {
+
+    @Environment(\.customMenuDismiss) private var menuDismiss
+
+    let message: String
+    let corners: RectangleCornerRadii
+    let onSelect: () -> Void
+
+    var body: some View {
         Text(message.isEmpty ? "Add a Message" : "Edit Message")
             .foregroundStyle(Color.black)
             .font(.body(16, .bold))
             .kerning(0.5)
             .frame(height: 40)
-            .modifier(SelectTypeCardBackground(corners: footerCorners)) //same stroked card as the type list
-            .customMenuFooterPlatter(corners: footerCorners) //own the glass platter so the press scales it, not just the inside
+            .modifier(SelectTypeCardBackground(corners: corners)) //same stroked card as the type list
+            .customMenuFooterPlatter(corners: corners) //own the glass platter so the press scales it, not just the inside
             .contentShape(.rect)
             .shrinkPress {
-                menuDismiss()
-                ui.showMessageScreen = true
+                onSelect()
+                Task {
+                    try? await Task.sleep(for: .seconds(0.04))
+                    menuDismiss(.instant)
+                }
             }
     }
-
 }
-
-
-/*
- 
- Button {
-     ui.showMessageScreen.toggle()
- } label: {
-     Text(message.isEmpty ? "Add a Message" : "Edit Message")
-         .foregroundStyle(Color.black)
-         .font(.body(16, .bold))
-         .kerning(0.5)
-         .frame(height: 40)
-         .modifier(SelectTypeCardBackground()) //Same background as select Type
-         .shrinkPress()
- }
- */

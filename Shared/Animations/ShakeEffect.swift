@@ -7,28 +7,42 @@
 
 import SwiftUI
 
-struct Shake: GeometryEffect {
-    var travel: CGFloat = 8
-    var shakes: CGFloat = 6
-    var animatableData: CGFloat
-    
-    func effectValue(size: CGSize) -> ProjectionTransform {
-        
-        
-        let x = travel * sin(animatableData * .pi * shakes)
-        return ProjectionTransform(CGAffineTransform(translationX: x, y: 0))
+// MARK: - Shake-on-trigger modifier
+
+extension View {
+
+    func showShakeAnimation(bool: Bool) -> some View {
+        modifier(ShakeOnTrigger(trigger: bool))
     }
 }
 
-// MARK: - Default show / dismiss animation
+private struct ShakeOnTrigger: ViewModifier {
+    /// We watch this flag; every change to it plays one shake.
+    var trigger: Bool
 
+    func body(content: Content) -> some View {
+        content.keyframeAnimator(initialValue: CGFloat.zero, trigger: trigger) { view, x in
+            view.offset(x: x)
+        } keyframes: { _ in
+            KeyframeTrack {
+                CubicKeyframe(-9, duration: 0.06)   // initial jolt
+                CubicKeyframe( 9, duration: 0.10)
+                CubicKeyframe(-7, duration: 0.10)
+                CubicKeyframe( 7, duration: 0.10)
+                CubicKeyframe(-3, duration: 0.08)   // decaying…
+                CubicKeyframe( 0, duration: 0.06)   // …back to rest
+            }
+        }
+    }
+}
+
+
+// MARK: - Default show / dismiss animation
 extension Animation {
-    /// Scoop's default spring for showing & dismissing UI (info buttons, overlays, etc.).
     static let scoopPop: Animation = .spring(response: 0.35, dampingFraction: 0.7)
 }
 
 extension AnyTransition {
-    /// Scoop's default appear / disappear transition: a soft blur replace with a slight scale from the top.
     static var scoopPop: AnyTransition {
         AnyTransition(.blurReplace).combined(with: .scale(scale: 0.8, anchor: .top))
     }

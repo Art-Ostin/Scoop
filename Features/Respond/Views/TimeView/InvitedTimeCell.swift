@@ -20,8 +20,8 @@ struct InvitedTimeCell: View {
     var isSelected: Bool { selectedDay == date}
     
     //Shaking animation
-    @State private var shakeTick = 0
-    var isShaking: Bool { shakeTick > 0 }
+    @State private var shake = false        // toggled to fire a shake
+    @State private var isShaking = false    // true while the warning text flashes yellow
     
     var body: some View {
         
@@ -38,9 +38,8 @@ struct InvitedTimeCell: View {
         .overlay(alignment: .topTrailing) {if (status != .available) {timeStatus}}
         .contentShape(.rect)
         .onTapGesture {clickCell()}
-        .modifier(Shake(animatableData: shakeTick == 0 ? 0 : CGFloat(shakeTick)))
-        .animation(shakeTick > 0 ? .easeInOut(duration: 0.5) : .none, value: shakeTick)
-        .task(id: shakeTick) {await shakeTickFunc()}
+        .showShakeAnimation(bool: shake)
+        .task(id: isShaking) {await resetShakeFlag()}
     }
 }
 
@@ -80,7 +79,8 @@ extension InvitedTimeCell {
     
     private func clickCell() {
         guard status == .available else {
-            shakeTick += 1
+            shake.toggle()
+            isShaking = true
             return
         }
         withAnimation(.easeInOut(duration: 0.2)) {
@@ -90,12 +90,9 @@ extension InvitedTimeCell {
         }
     }
     
-    private func shakeTickFunc()  async  {
-        guard shakeTick > 0 else { return }
-        let captured = shakeTick
+    private func resetShakeFlag()  async  {
+        guard isShaking else { return }
         try? await Task.sleep(for: .seconds(1))
-        if shakeTick == captured {
-            withAnimation { shakeTick = 0 }
-        }
+        withAnimation { isShaking = false }
     }
 }

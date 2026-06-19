@@ -84,7 +84,7 @@ extension SelectTypeView {
                 toggleTypeInfo(type)
             }
         } label: {
-            SmallInfoIcon(size: 10, colour: Color(red: 0.85, green: 0.85, blue: 0.85))
+            SmallInfoIcon(size: 10, colour: Color(red: 0.88, green: 0.88, blue: 0.88))
                 //Fine tuned padding so hit area large, but not intruding on main button
                 .padding(.trailing, 16)
                 .padding(.top, 8)
@@ -132,13 +132,17 @@ extension SelectTypeView {
     //2. Logic handling when I select a type
     private func selectType(eventType: Event.EventType) {
         if eventType == .custom && message.isEmpty {
+            selectedType = .custom
             showMessageScreen = true
-        }
-        selectedType = eventType
-        withAnimation(.smooth(duration: 0.25)) {
+            Task {
+                try? await Task.sleep(for: .seconds(0.04))
+                dismissMenu(.instant)
+            }
+        } else {
+            selectedType = eventType
             showTypePopup = false
+            dismissMenu()
         }
-        dismissMenu()
     }
     
     //3. Logic to open info of a section
