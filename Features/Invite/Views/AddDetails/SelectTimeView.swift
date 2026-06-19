@@ -26,12 +26,8 @@ struct SelectTimeView: View {
     var body: some View {
         VStack(spacing: 12) {
             dayPicker
-                .scaleEffect(isRespondMode ? 0.95 : 1)
             Divider()
-                .padding(.horizontal, isRespondMode ? 16 : 0)
             timePicker
-                .scaleEffect(isRespondMode ? 0.95 : 1)
-                .offset(y: isRespondMode ? -10 : 0)
         }
         .modifier(SelectTimeBackground(isRespond: isRespondMode))
         .overlay(alignment: .bottomTrailing) { doneButton }
