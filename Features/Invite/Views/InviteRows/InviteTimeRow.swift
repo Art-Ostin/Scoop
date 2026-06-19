@@ -54,7 +54,7 @@ extension InviteTimeRow {
             onOpen: { ui.timePopupOpen = true },
             onClose: { ui.timePopupOpen = false }
         ) {
-            SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
+            SelectTimeView(proposedTimes: $proposedTimes)
                 .zIndex(2)
         } label: {
             selectTimeLabel
@@ -108,7 +108,7 @@ extension InviteTimeRow {
             onOpen: { ui.timePopupOpen = true },
             onClose: { ui.timePopupOpen = false }
         ) {
-            SelectTimeView(proposedTimes: $proposedTimes, type: type, showTimePopup: $showTimePopup)
+            SelectTimeView(proposedTimes: $proposedTimes)
                 .zIndex(2)
         } label: {
             DropDownButton(isOpen: ui.timePopupOpen)

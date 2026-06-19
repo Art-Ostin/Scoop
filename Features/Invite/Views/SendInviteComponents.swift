@@ -112,7 +112,7 @@ extension SendInviteContainer {
         if ui.messageLineCount == 3 {margin -= 2}
         
         //2. Decrease if times 2 or 3
-        if draft.time.dates.count >= 2 { margin -= 2 }
+//        if draft.time.dates.count >= 2 { margin -= 2 }
         if draft.time.dates.count == 3 { margin -= 2 }
         
         //3. if time is greater than 1 and place added decrease
@@ -147,9 +147,9 @@ extension SendInviteContainer {
         if count <= 1 {
             return 30
         } else if count == 2 {
-            return 24
-        } else {
             return 20
+        } else {
+            return 16
         }
     }
 
@@ -158,9 +158,9 @@ extension SendInviteContainer {
         if count <= 1 {
             return 30
         } else if count == 2 {
-            return 22
-        } else {
             return 18
+        } else {
+            return 14
         }
     }
 
