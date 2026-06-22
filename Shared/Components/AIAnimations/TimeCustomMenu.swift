@@ -23,9 +23,10 @@
 //  Inside the content closure:
 //      .timeCustomMenuItem { ... }        — row participates in drag-to-select highlight,
 //                                       runs its action and dismisses on selection.
-//      .timeCustomMenuKeepsPresented()    — opt a control (Toggle, Stepper…) out of the
-//                                       tap-anywhere auto-dismiss.
-//      @Environment(\.timeCustomMenuDismiss) — programmatic dismissal from content.
+//      @Environment(\.timeCustomMenuDismiss) — programmatic dismissal from content. A tap
+//                                       on the menu's own content never auto-dismisses;
+//                                       call this action (or use .timeCustomMenuItem) to
+//                                       close it. Tapping outside still dismisses.
 //
 //  ── iOS 26 lens-morph mechanics (replicated from device recordings) ─────────
 //  Native iOS 26 menus do a "lens morph" that passes THROUGH A CIRCLE: on open
@@ -109,7 +110,6 @@ struct TimeCustomMenuBuilder: View {
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 44)
-                .timeCustomMenuKeepsPresented()
                 Divider()
                 menuRow("Delete", icon: "trash", role: .destructive) { }
             }
@@ -245,8 +245,8 @@ enum TimeCustomMenuSpec {
     static let anchorGap: CGFloat = 6
     /// Fine-tuning nudge applied to the final placement: shifts the platter
     /// right and down from its anchor-aligned position.
-    static let placementOffsetX: CGFloat = 17
-    static let placementOffsetY: CGFloat = -56
+    static let placementOffsetX: CGFloat = 19 //Surgical so central
+    static let placementOffsetY: CGFloat = -84
     /// Minimum distance kept from safe-area edges.
     static let screenMargin: CGFloat = 9
     /// Drags shorter than this count as a tap on the label (menu stays open).
@@ -391,11 +391,6 @@ extension View {
     func timeCustomMenuItem(action: @escaping () -> Void) -> some View {
         modifier(TimeCustomMenuItemModifier(action: action))
     }
-
-    /// Taps on this view no longer auto-dismiss the menu (for toggles, steppers…).
-    func timeCustomMenuKeepsPresented() -> some View {
-        modifier(TimeCustomMenuKeepsPresentedModifier())
-    }
 }
 
 private struct TimeCustomMenuItemModifier: ViewModifier {
@@ -434,16 +429,6 @@ private struct TimeCustomMenuItemModifier: ViewModifier {
     }
 }
 
-private struct TimeCustomMenuKeepsPresentedModifier: ViewModifier {
-    @Environment(TimeCustomMenuController.self) private var controller: TimeCustomMenuController?
-
-    func body(content: Content) -> some View {
-        content.simultaneousGesture(TapGesture().onEnded {
-            controller?.suppressNextAutoDismiss()
-        })
-    }
-}
-
 // MARK: - Controller (window lifecycle + drag-select state)
 
 @MainActor @Observable
@@ -477,7 +462,6 @@ final class TimeCustomMenuController {
     @ObservationIgnored private var items: [UUID: Item] = [:]
     /// Fired once at the top of `dismiss()` (any path), cleared on teardown.
     @ObservationIgnored private var onClose: (() -> Void)?
-    @ObservationIgnored private var suppressAutoDismiss = false
     @ObservationIgnored private var generation = 0
     @ObservationIgnored private let selectionHaptic = UISelectionFeedbackGenerator()
 
@@ -587,7 +571,6 @@ final class TimeCustomMenuController {
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
-        suppressAutoDismiss = false
         hidesLabel = false
         lensDissolve = false
         phase = .measuring
@@ -636,25 +619,6 @@ final class TimeCustomMenuController {
         } else {
             highlightedItemID = nil
         }
-    }
-
-    // MARK: Tap-anywhere auto-dismiss
-
-    /// Runs as a simultaneous gesture on the whole menu. Deferred one runloop turn
-    /// so a `.timeCustomMenuKeepsPresented()` child seen in the same tap can veto it.
-    func insideTapped() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self, self.phase == .shown else { return }
-            if self.suppressAutoDismiss {
-                self.suppressAutoDismiss = false
-            } else {
-                self.dismiss()
-            }
-        }
-    }
-
-    func suppressNextAutoDismiss() {
-        suppressAutoDismiss = true
     }
 }
 
@@ -838,7 +802,16 @@ private struct TimeCustomMenuOverlayRoot: View {
             } action: { height in
                 contentIdealHeight = height
             }
-            .simultaneousGesture(TapGesture().onEnded { controller.insideTapped() })
+            // A tap on the menu's own body must NOT dismiss it — only an outside
+            // tap (the Color.clear backdrop), a .timeCustomMenuItem, or the
+            // caller's dismiss action (e.g. the Done button) should. Without a
+            // hittable shape here, taps on non-interactive areas (the title, the
+            // padding, the gaps around the day grid / wheel) fall through to the
+            // full-screen backdrop and close the menu. This empty gesture simply
+            // absorbs those taps; child buttons and the Done button still win on
+            // their own frames, and the wheel still scrolls (it's a drag).
+            .contentShape(Rectangle())
+            .onTapGesture { }
 
         Group {
             if let ideal = contentIdealHeight, ideal > metrics.maxHeight {

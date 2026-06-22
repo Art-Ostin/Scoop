@@ -127,18 +127,26 @@ extension SendInviteContainer {
         return hasMessage ? ui.messageLineCount : 0
     }
 
+    
     var typeTopPadding: CGFloat {
-        if typeMessageLines == 0 {
-            32
-        } else if typeMessageLines == 1 {
-            26
+        let placeAndTwoTimes = (draft.place != nil) && (draft.time.dates.count >= 2)        
+        if typeMessageLines == 0 && !placeAndTwoTimes {
+            return 32
+        } else if typeMessageLines == 1 || (placeAndTwoTimes && typeMessageLines == 0)   {
+            return 26
         } else {
-            22
+            return 22
         }
     }
 
     var typeBottomPadding: CGFloat {
-        typeMessageLines == 0 ? 30 : 14
+        if (draft.place != nil) && (draft.time.dates.count >= 2) && (typeMessageLines == 0) {
+            return 24
+        } else if typeMessageLines == 0 {
+            return 30
+        } else {
+            return 14
+        }
     }
 
     //3. The Vertical padding for the selectTime Row

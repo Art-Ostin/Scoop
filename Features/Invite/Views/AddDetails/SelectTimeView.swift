@@ -14,27 +14,43 @@ struct SelectTimeView: View {
     var isRespondMode = false
 
     // MARK: Internal state
-    @Environment(\.typeCustomMenuDismiss) private var dismissMenu
+    @Environment(\.timeCustomMenuDismiss) private var dismissMenu
     @State private var selectedHour = 22
     @State private var selectedMinute = 30
     @State private var warning: DayWarning?
+    @State private var showSaved = false
+    @State private var savedTask: Task<Void, Never>?
+
+    @State private var suppressSavedFlash = false
+    @State private var displayedCount = 0
 
     // MARK: Constants
-    private let columns = Array(repeating: GridItem(.flexible()), count: 7)
+    private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7)
     private let dayCount = 11
+    private let cellWidth: CGFloat = 30
+    
+    @Namespace private var countNS
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 18) {
+            titleSection
             dayPicker
-            Divider()
             timePicker
+                .padding(.top, -8)
         }
         .modifier(SelectTimeBackground(isRespond: isRespondMode))
         .overlay(alignment: .bottomTrailing) { doneButton }
-        .overlay(alignment: .top) { dayUnavailablePopup }
-        .onAppear { loadSelectedHourAndMinute() }
+        .onAppear {
+            loadSelectedHourAndMinute()
+            displayedCount = proposedTimes.dates.count
+        }
         .onChange(of: selectedHour * 60 + selectedMinute) {
             proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
+            if suppressSavedFlash { suppressSavedFlash = false }
+            else { flashSaved() }
+        }
+        .onChange(of: proposedTimes.dates.count) { _, newCount in
+            withAnimation(.snappy(duration: 0.3)) { displayedCount = newCount }
         }
         .task(id: warning) { await clickedUnavailableDay() }
         .animation(.easeInOut(duration: 0.2), value: warning)
@@ -45,19 +61,41 @@ struct SelectTimeView: View {
 
 // MARK: - Subviews
 private extension SelectTimeView {
+    
+    private var titleSection: some View {
+        
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Choose Time")
+                    .font(.body(17, .bold))
+                    .foregroundStyle(Color(white: 0.1))
+                Spacer()
+                timeCountAndWarningSign
+            }
+            
+            Text("Propose up to 3 days to Meet")
+                .font(.body(12, .regular))
+                .foregroundStyle(Color(white: 0.6))
+        }
+    }
 
     var dayPicker: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
-            dayOfWeekText
-            daysOfMonthText
+        VStack(spacing: 10) {                                          // (3) weekday header → numbers
+            LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
+            LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // (4) row → row
         }
     }
 
     var dayOfWeekText: some View {
         ForEach(0..<7) { idx in
-            Text(availableDays[idx], format: .dateTime.weekday(.abbreviated))
-                .font(.body(12, .regular))
-                .foregroundStyle(Color(white: 0.6))
+            Text(
+                availableDays[idx]
+                    .formatted(.dateTime.weekday(.abbreviated))       // 3-letter "MON"
+                    .uppercased()
+            )
+                .font(.system(size: 11, weight: .regular))          // Apple SF Pro
+                .foregroundStyle(Color(white: 0.75))
+                .fixedSize()                                         // natural width, centered on its column → overflows the 27pt track symmetrically
         }
     }
 
@@ -101,19 +139,49 @@ private extension SelectTimeView {
     }
 
     var doneButton: some View {
-        ZStack {
-            Image("TickButton") //"GreenTickMark"
+        Button {
+            dismissMenu()
+        } label: {
+            Image("TickButton")
                 .scaleEffect(0.9)
-            Circle()
-                .stroke(Color.black, lineWidth: 1)
-                .scaleEffect(0.8)
+                .frame(width: 33, height: 33)
+                .circleStroke(lineWidth: 1, color: .black)
         }
-        .padding(3)                 // hit area / breathing room
-        .background(Color.appCanvas)
-        .frame(width: 40, height: 40)
-        .contentShape(Circle())
-        .onTapGesture { dismissMenu() }
-        .padding(.bottom, isRespondMode ? 96 : 80)
+        .shrinkButton(shadow: nil, shadowColor: .clear)
+        .padding(.bottom, 120)
+        .padding(.horizontal, 24)    }
+    
+    
+    private var timeCountAndWarningSign: some View {
+        // A hidden count reserves a stable footprint; the live state (incl. the
+        // taller "Saved" tick) floats in an overlay so swapping it in never grows
+        // the title row and shoves the picker down.
+        Text("0/3")
+            .font(.body(12, .bold))
+            .hidden()
+            .overlay(alignment: .trailing) {
+                ZStack(alignment: .trailing) {
+                    if showSaved {
+                        SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
+                            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                            .transition(.opacity)
+                    } else if let warning {
+                        Text(warning.rawValue)
+                            .font(.body(12, .bold))
+                            .foregroundStyle(Color.warningYellow)
+                            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                            .transition(.opacity)
+                    } else {
+                        Text("\(displayedCount)/3")
+                            .contentTransition(.numericText(value: Double(displayedCount)))
+                            .foregroundStyle(Color(white: 0.25))
+                            .font(.body(12, .bold))
+                            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                            .transition(.opacity)
+                    }
+                }
+                .fixedSize()
+            }
     }
 }
 
@@ -121,7 +189,14 @@ private extension SelectTimeView {
 private extension SelectTimeView {
 
     func selectDay(day: Date) -> Bool {
-        let hitMax = proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
+        var t = Transaction()
+        t.disablesAnimations = true
+
+        // Only the count/day swap is animation-free; the warning is set outside the
+        // transaction so the body's .animation(value: warning) still fades it in.
+        let hitMax = withTransaction(t) {
+            proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
+        }
         if hitMax { warning = .maxReached }
         return hitMax
     }
@@ -130,6 +205,21 @@ private extension SelectTimeView {
         guard warning != nil else { return }
         try? await Task.sleep(for: .seconds(1))
         withAnimation(.easeInOut(duration: 0.2)) { warning = nil }
+    }
+
+    func flashSaved() {
+        savedTask?.cancel()
+        savedTask = Task {
+            if showSaved {
+                withAnimation(.easeInOut(duration: 0.15)) { showSaved = false }
+                try? await Task.sleep(for: .milliseconds(120))
+                if Task.isCancelled { return }
+            }
+            withAnimation(.easeInOut(duration: 0.2)) { showSaved = true }
+            try? await Task.sleep(for: .milliseconds(1000))
+            if Task.isCancelled { return }
+            withAnimation(.easeInOut(duration: 0.2)) { showSaved = false }
+        }
     }
 }
 
@@ -147,8 +237,13 @@ private extension SelectTimeView {
     func loadSelectedHourAndMinute() {
         guard let date = proposedTimes.dates.first?.date else { return }
         let cal = Calendar.current
-        selectedHour = cal.component(.hour, from: date)
-        selectedMinute = cal.component(.minute, from: date)
+        let h = cal.component(.hour, from: date)
+        let m = cal.component(.minute, from: date)
+        // If this load moves the wheel, suppress the resulting flash (it's not a
+        // user edit). If it lands on the same time, no change fires, nothing to do.
+        if h != selectedHour || m != selectedMinute { suppressSavedFlash = true }
+        selectedHour = h
+        selectedMinute = m
     }
 }
 
@@ -159,10 +254,9 @@ private struct SelectTimeBackground: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .frame(width: 265)
-            .padding(.horizontal, isRespond ? 0 : 20)
-            .padding(.top, isRespond ? 0 : 20)
-            .padding(.bottom, isRespond ? -12 : 0)
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .padding(.bottom, 0) //Low bottom as scroll view on Bottom
     }
 }
 
@@ -174,17 +268,25 @@ private struct DayCell: View {
     let isSelected: Bool
     let onTap: () -> Bool
 
+    var isToday: Bool {
+        Calendar.current.isDateInToday(day)
+    }
     var body: some View {
         Button {
             if onTap() { shake.toggle() } //Returns bool, if true, triggers shake
         } label: {
             Text(day, format: .dateTime.day())
-                .font(.body(18, isSelected ? .bold : .medium))
-                .foregroundStyle(isSelected ? .white : .black)
-                .frame(width: 30, height: 30)
-                .background(isSelected ? Color.accent : Color.clear, in: Circle())
+                .font(.system(size: 17, weight: isSelected ? .semibold : .regular))  // Apple SF Pro
+                .foregroundStyle(isSelected ? .white : isToday ? Color(red: 0.06, green: 0.47, blue: 0.94) : Color(white: 0.1))
+                .frame(width: 36, height: 36, alignment: .center)                       // bigger circle for 20pt number
+                .background {
+                    Circle()
+                        .fill(isSelected ? Color.accent : Color.clear)
+                        .padding(isSelected ? 3 : 0)        // ← inset shrinks the circle when selected
+                }
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
+        .frame(width: 27, alignment: .center)
         .showShakeAnimation(bool: shake)
     }
 }

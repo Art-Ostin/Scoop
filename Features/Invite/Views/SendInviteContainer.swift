@@ -77,7 +77,7 @@ extension SendInviteContainer {
                 .padding(.top, typeTopPadding)
                 .padding(.bottom, typeBottomPadding)
             LightDivider()
-            InviteTimeRow(ui: ui, showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time, type: draft.type)
+            InviteTimeRow(ui: ui, showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time)
                 .padding(.top, timeTopPadding)
                 .padding(.bottom, timeBottomPadding)
             LightDivider()
