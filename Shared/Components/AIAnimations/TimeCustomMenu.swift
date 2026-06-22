@@ -212,7 +212,7 @@ enum TimeCustomMenuSpec {
     /// smaller concentrates it later / quicker near the very end.
     static let closeGlassFadeProgress: CGFloat = 0.35
     /// Platter shadow at full bloom (native casts a wide soft shadow).
-    static let platterShadowOpacity: CGFloat = 0.1
+    static let platterShadowOpacity: CGFloat = 0.0 //0.1
     static let platterShadowRadius: CGFloat = 24
     static let platterShadowY: CGFloat = 10
 

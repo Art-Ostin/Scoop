@@ -89,7 +89,7 @@ extension OldRespondContainer {
     @ViewBuilder private var timeMessageOverlay: some View {
         let dayCount = vm.respondDraft.newTime.proposedTimes.dates.count
         if vm.responseType == .modified {
-            SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup)
+//            SelectTimeMessage(type: vm.respondDraft.originalInvite.event.type, dayCount: dayCount, showTimePopup: ui.showTimePopup)
         }
     }
 

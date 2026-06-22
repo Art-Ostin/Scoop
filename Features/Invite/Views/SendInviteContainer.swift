@@ -35,17 +35,17 @@ struct SendInviteContainer: View {
     var body: some View {
         VStack(spacing: 0) {
             inviteTitle
+                .opacity(ui.timePopupOpen ? 0.1 : 1)
+                .animation(.snappy(duration: 0.2), value: ui.timePopupOpen)
             timePlaceAndType
             sendInviteButton
         }
-        .frame(maxWidth: .infinity)                 //stretch the card out to its margin-inset width
+        .frame(maxWidth: .infinity)
         .overlay(alignment: .topTrailing) { clearAndInfoButtons }
-        .modifier(InviteCardBackground())            //draws the card chrome + publishes morphCardAnchor
-        .padding(.horizontal, cardMargin)            //the screen margin, owned here and adaptive to content
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center) //center in the morph's full-screen frame
-        .padding(.top, 24)                           //small downward lift, matching the morph's old verticalOffset
-        //One spring drives every adaptive change together: the card width (cardMargin) and the
-        //rows' vertical padding (messageLineCount, which can change height without changing margin).
+        .modifier(InviteCardBackground())
+        .padding(.horizontal, cardMargin)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(.top, 24)
         .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
         .task(id: ui.timePopupOpen) { await addTimePopupDelay() }
         .task(id: ui.typePopupOpen) { await addTypePopupDelay()}
@@ -89,12 +89,9 @@ extension SendInviteContainer {
     }
     
     private var addMessageView: some View {
-        AddMessageView(
-            eventType: $draft.type,
-            showMessageScreen: $ui.showMessageScreen,
-            message: $draft.message,
-            isRespondMessage: false
-        )
+        NavigationStack {
+            AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
+        }
     }
 }
 

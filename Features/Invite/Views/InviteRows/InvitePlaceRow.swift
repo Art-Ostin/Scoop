@@ -18,7 +18,6 @@ struct InvitePlaceRow: View {
     var body: some View {
         HStack {
             inviteTypeText(.where)
-            Spacer()
             chooseButton
         }
     }
@@ -26,114 +25,48 @@ struct InvitePlaceRow: View {
 
 extension InvitePlaceRow {
     
-    private var noLocationPlaceholder: some View {
-        Text("Select Place")
-            .font(.body(15, .medium))
-            .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
-    }
     
     private var chooseButton: some View {
         Button {
             withAnimation(.snappy) { showMapView.toggle() }
         } label: {
             HStack(spacing: 12) {
-                if let eventLocation {
-                    VStack(alignment: .trailing) {
-                        Text(eventLocation.name ?? "")
-                            .font(.body(17, .medium))
-                            .foregroundStyle(Color.black)
-                        Text(FormatEvent.addressWithoutCountry(eventLocation.address))
-                            .font(.footnote)
-                            .foregroundStyle(.gray)
-                            .lineLimit(1)
+                Group {
+                    if let eventLocation {
+                        VStack(alignment: .trailing) {
+                            locationName(eventLocation)
+                            locationAddress(eventLocation)
+                        }
+                    } else {
+                        noLocationPlaceholder
                     }
-                } else {
-                    Text("Choose Place")
-                        .font(.body(16, .regular))
-                        .foregroundStyle(Color(white: 0.4))
                 }
-                
-                //Don't show chevron when popup open as smoother show clear rectangle so content doesn't shift
+                .frame(maxWidth: .infinity, alignment: .trailing)
+
                 Image("InviteChevron")
             }
             .opacity(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed ? 0 : 1)
         }
+        .shrinkButton(shadow: nil, shadowColor: .clear)
     }
     
+    private var noLocationPlaceholder: some View {
+        Text("Choose Place")
+            .font(.body(16, .regular))
+            .foregroundStyle(Color(white: 0.4))
+    }
+    
+    private func locationName(_ eventLocation: EventLocation)->  some View {
+        Text(eventLocation.name ?? "")
+            .font(.body(17, .medium))
+            .foregroundStyle(Color.black)
+    }
+    
+    private func locationAddress(_ eventLocation: EventLocation) -> some View {
+        Text(FormatEvent.addressWithoutCountry(eventLocation.address))
+            .font(.footnote)
+            .foregroundStyle(.gray)
+            .lineLimit(1)
+    }
 }
 
-
-/*
- HStack(spacing: 12) {
-     Text("Choose Time")
-         .kerning(0.32)
-         .font(.body(16, .regular))
-         .foregroundStyle(Color(white: 0.4))
-     Image("InviteChevron")
- }
- 
- struct InvitePlaceRow: View {
-     
-     @Binding var eventLocation: EventLocation?
-     @Binding var showMapView: Bool
-         
-     var body: some View {
-         HStack(spacing: 16) {
-             
-             
-             Group {
-                 if let location = eventLocation {
-                     addressText(location: location)
-                 } else {
-                     noLocationPlaceholder
-                 }
-             }
-             .frame(maxWidth: .infinity, alignment: .leading)
-             openMapButton
-                 .fixedSize()
-         }
-     }
- }
-
- extension InvitePlaceRow {
-     
-     private var noLocationPlaceholder: some View {
-         Text("Select Place")
-             .font(.body(15, .medium))
-             .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
-     }
-     
-     
-     private func addressText(location: EventLocation) -> some View {
-         VStack(alignment: .leading) {
-             Text(location.name ?? "")
-                 .font(.body(16, .medium))
-             Text(FormatEvent.addressWithoutCountry(location.address))
-                 .font(.footnote)
-                 .foregroundStyle(.gray)
-                 .lineLimit(1)
-         }
-         .frame(maxWidth: .infinity, alignment: .leading)
-     }
-     
-     private var openMapButton: some View {
-         Button {
-             withAnimation(.snappy) { showMapView.toggle() }
-         } label: {
-             Image("LightBlackMapIcon")
-                 .padding(6)
-                 .background(
-                     Circle().foregroundStyle(.white).opacity(0.7)
-                 )
-                 .overlay {
-                     Circle()
-                         .strokeBorder(Color.accent.opacity(0.5), lineWidth: 0.5)
-                 }
-                 .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-                 .contentShape(Rectangle())
-                 .padding(14)
-         }
-         .buttonStyle(.plain)
-         .padding(-14)
-     }
- */

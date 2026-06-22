@@ -40,7 +40,7 @@ enum RespondPopupInfo {
     
     func message(dates: [Date] = [], placeName: String = "") -> String {
         switch self {
-        case .newInvite: return "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
+        case .newInvite: return "If they accept & you don't show, you'll be blocked from Scoop"
         case .acceptInvite: return "You are committing to meeting on x. If you don't show, you'll be blocked from Scoop"
         case .sendNewTimes: return "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
         }

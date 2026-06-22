@@ -32,7 +32,6 @@ struct InviteCard: View {
         .modifier(InviteCardStyle())
         .sheet(isPresented: $showMessageScreen) {addMessageView}
         .onTapGesture {if ui.showTimePopup {ui.showTimePopup = false}}
-        .overlay(alignment: .top) {addingTimeInfoOverlay}
         .getImageSize(imageSize: $imageSize, horizontalPadding: contentPadding)
     }
 }
@@ -46,27 +45,11 @@ extension InviteCard {
             showMessageScreen: $showMessageScreen) {onDecline($0)}
     }
         
-    @ViewBuilder private var addingTimeInfoOverlay: some View {
-        let isModifiedMode = vm.responseType == .modified
-        
-        if isModifiedMode {
-            SelectTimeMessage(
-                type: vm.respondDraft.originalInvite.event.type,
-                dayCount: dayCount,
-                showTimePopup: ui.showTimePopup,
-                isCardMessage: true
-            )
-            .padding(.horizontal, -12)
-        }
-    }
-    
     private var addMessageView: some View {
-        AddMessageView (
-            eventType: .constant(eventProfile.event.type),
-            showMessageScreen: $showMessageScreen,
+        AddMessageView(
             message: $vm.respondDraft.respondMessage,
             isRespondMessage: true,
-            name: vm.respondDraft.newTime.event.otherUserName
+            eventType: .constant(.drink)
         )
         .presentationBackgroundInteraction(.enabled)
     }    
@@ -90,3 +73,23 @@ struct InviteCardStyle: ViewModifier {
             .customShadow(.card, strength: 2)
     }
 }
+
+//Don't need message overlay anymore
+/*
+ @ViewBuilder private var addingTimeInfoOverlay: some View {
+     let isModifiedMode = vm.responseType == .modified
+     
+     if isModifiedMode {
+         SelectTimeMessage(
+             type: vm.respondDraft.originalInvite.event.type,
+             dayCount: dayCount,
+             showTimePopup: ui.showTimePopup,
+             isCardMessage: true
+         )
+         .padding(.horizontal, -12)
+     }
+ }
+ 
+ .overlay(alignment: .top) {addingTimeInfoOverlay}
+
+ */

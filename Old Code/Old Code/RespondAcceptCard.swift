@@ -76,12 +76,15 @@ extension RespondAcceptCard {
     }
     
     private var addMessageView: some View {
-        AddMessageView(
-            eventType: .constant(event.type),
-            showMessageScreen: $ui.showMessageScreen,
-            message: $vm.respondDraft.respondMessage,
-            isRespondMessage: true,
-            name: vm.respondDraft.newTime.event.otherUserName)
+        EmptyView()
+        
+//        
+//        AddMessageView(
+//            eventType: .constant(event.type),
+//            showMessageScreen: $ui.showMessageScreen,
+//            message: $vm.respondDraft.respondMessage,
+//            isRespondMessage: true,
+//            name: vm.respondDraft.newTime.event.otherUserName)
     }
     
     

@@ -20,6 +20,8 @@ extension SendInviteContainer {
         }
         .offset(y: -4)
         .padding(.horizontal, -4)
+        .opacity(ui.timePopupOpen ? 0.2 : 1)
+        .animation(.snappy(duration: 0.2), value: ui.timePopupOpen)
     }
     
     var clearButton: some View {
@@ -133,7 +135,7 @@ extension SendInviteContainer {
         if typeMessageLines == 0 && !placeAndTwoTimes {
             return 32
         } else if typeMessageLines == 1 || (placeAndTwoTimes && typeMessageLines == 0)   {
-            return 26
+            return 26 - (draft.time.dates.count == 3 ? 2 : 0)
         } else {
             return 22
         }
@@ -141,9 +143,9 @@ extension SendInviteContainer {
 
     var typeBottomPadding: CGFloat {
         if (draft.place != nil) && (draft.time.dates.count >= 2) && (typeMessageLines == 0) {
-            return 24
+            return 24 - (draft.time.dates.count == 3 ? 2 : 0)
         } else if typeMessageLines == 0 {
-            return 30
+            return 30 
         } else {
             return 14
         }

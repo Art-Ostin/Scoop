@@ -33,7 +33,7 @@ struct SelectTimeView: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            titleSection
+            titleSectionV2
             dayPicker
             timePicker
                 .padding(.top, -8)
@@ -78,6 +78,19 @@ private extension SelectTimeView {
                 .foregroundStyle(Color(white: 0.6))
         }
     }
+    
+    private var titleSectionV2: some View {
+        HStack {
+            Text("Propose up to 3 days")
+                .font(.body(17, .medium))
+                .foregroundStyle(Color(white: 0.1))
+            Spacer()
+            timeCountAndWarningSign
+        }
+    }
+    
+    
+    
 
     var dayPicker: some View {
         VStack(spacing: 10) {                                          // (3) weekday header → numbers
@@ -90,7 +103,7 @@ private extension SelectTimeView {
         ForEach(0..<7) { idx in
             Text(
                 availableDays[idx]
-                    .formatted(.dateTime.weekday(.abbreviated))       // 3-letter "MON"
+                    .formatted(.dateTime.weekday(.narrow))       // 3-letter "MON"
                     .uppercased()
             )
                 .font(.system(size: 11, weight: .regular))          // Apple SF Pro
@@ -148,14 +161,12 @@ private extension SelectTimeView {
                 .circleStroke(lineWidth: 1, color: .black)
         }
         .shrinkButton(shadow: nil, shadowColor: .clear)
-        .padding(.bottom, 120)
-        .padding(.horizontal, 24)    }
+        .padding(.bottom, 96)
+        .padding(.horizontal, 24)
+    }
     
     
     private var timeCountAndWarningSign: some View {
-        // A hidden count reserves a stable footprint; the live state (incl. the
-        // taller "Saved" tick) floats in an overlay so swapping it in never grows
-        // the title row and shoves the picker down.
         Text("0/3")
             .font(.body(12, .bold))
             .hidden()

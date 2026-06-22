@@ -737,7 +737,7 @@
 				6519758B2F1EFCE90002F6A2 /* SandyLoading.json */,
 				65E963D82F3F8DDD0022595F /* SendAnimation.json */,
 				6503D5ED2F3A963100D9290D /* ModernMiniLoader.json */,
-				65E963DA2F3F8FC30022595F /* Celebrations.json */,
+				65A273432F8EEB750079D3EF /* SelectTimeMessage.swift */,
 				6519758D2F1EFFD80002F6A2 /* ScoopLoading.json */,
 				65A904832F40C35400BBCAB6 /* SendingModern.json */,
 				651975832F1EF2CA0002F6A2 /* LoadingAnimation.json */,
@@ -1116,7 +1116,6 @@
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 				65BFE7D02E3EA9B200B31A58 /* SelectTimeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
-				65A273432F8EEB750079D3EF /* SelectTimeMessage.swift */,
 			);
 			path = AddDetails;
 			sourceTree = "<group>";
@@ -1537,6 +1536,7 @@
 				6549DA6A2F9E85D900C89DF2 /* InviteCardInfo(Dead Code) */,
 				656373B42F50152F003A922D /* MinimalistButton.swift */,
 				657486DB2FA8D5D000F38738 /* OldTimeAndPlace.swift */,
+				65E963DA2F3F8FC30022595F /* Celebrations.json */,
 			);
 			path = "Old Code";
 			sourceTree = "<group>";
