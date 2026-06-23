@@ -10,10 +10,11 @@ import SwiftUI
 
 struct InvitedTimeCell: View {
     
+    @Environment(\.timeCustomMenuDismiss) private var dismissMenu
+
     @Binding var selectedDay: Date?
-    @Binding var showTime: Bool
     @Binding var responseType: ResponseType
-        
+    
     let status: TimeStatus
     let date: Date
     let idx: Int
@@ -25,68 +26,85 @@ struct InvitedTimeCell: View {
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 4) {
-            optionType
-            eventTime
+        Button {
+            clickCell()
+        } label: {
+            timeCellLabel
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white, in: .rect(cornerRadius: 16))
-        .opacity(status != .available ? 0.4 : 1)
-        .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
-        .overlay(alignment: .topTrailing) {if (status != .available) {timeStatus}}
-        .contentShape(.rect)
-        .onTapGesture {clickCell()}
-        .showShakeAnimation(bool: shake)
+        .shrinkButton()
         .task(id: isShaking) {await resetShakeFlag()}
     }
 }
 
 extension InvitedTimeCell {
     
-    private var timeStatus: some View {
-        Text(status.rawValue)
-            .font(.body(12, .italic))
-            .foregroundStyle(isShaking ? Color.warningYellow : Color.grayText)
-            .animation(.easeInOut(duration: 0.2), value: isShaking)
-            .padding(.horizontal)
-            .padding(.top, 12)
+    private var timeCellLabel: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            optionTypeText
+            eventTimeText
+        }
+        .invitedTimeCellBackground(isSelected, isAvailable: status == .available)
+        .overlay(alignment: .topTrailing) {timeStatusText}
+        .showShakeAnimation(bool: shake)
     }
-    
-    private var optionType: some View {
+        
+    private var optionTypeText: some View {
         Text("Option \(idx + 1)")
             .font(.body(14, .medium))
             .foregroundStyle(isSelected ? Color.appGreen : Color.grayText)
     }
     
-    @ViewBuilder
-    private var eventTime: some View {
-        let weekday = date.formatted(.dateTime.weekday(.wide))
-        let month = date.formatted(.dateTime.month(.wide).day())
-        let hour =  date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        
-        Group {
-            Text("\(weekday) \(month) ·")
-                .font(.body(16, status != .available ? .regular : .medium))
+    private var eventTimeText: some View {
+        let (weekday, month, hour) = formattedDateParts
+        return Group {
+            Text("\(weekday) \(month) ·").font(.body(16, status != .available ? .regular : .medium))
             +
-            Text(" \(hour)")
-                .font(.body(14))
-                .foregroundStyle(Color.grayText)
+            Text(" \(hour)").font(.body(14)).foregroundStyle(Color.grayText)
         }
         .opacity(status != .available ? 0.6 : 1)
     }
     
+    private var formattedDateParts: (weekday: String, month: String, hour: String) {
+        let weekday = date.formatted(.dateTime.weekday(.wide))
+        let month = date.formatted(.dateTime.month(.wide).day())
+        let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+        return (weekday, month, hour)
+    }
+    
+    @ViewBuilder
+    private var timeStatusText: some View {
+        if status != .available {
+            Text(status.rawValue)
+                .font(.body(12, .italic))
+                .foregroundStyle(isShaking ? Color.warningYellow : Color.grayText)
+                .animation(.easeInOut(duration: 0.2), value: isShaking)
+                .padding(.horizontal)
+                .padding(.top, 12)
+        }
+    }
+}
+
+//Logic for clicking a time
+extension InvitedTimeCell {
+    
     private func clickCell() {
+        guard checkIfTimeIsAvailable() else { return}
+        updateTimeAndDismissPopup()
+    }
+    
+    private func checkIfTimeIsAvailable() -> Bool {
         guard status == .available else {
             shake.toggle()
             isShaking = true
-            return
+            return false
         }
+    }
+    
+    private func updateTimeAndDismissPopup() {
         withAnimation(.easeInOut(duration: 0.2)) {
             selectedDay = date
             responseType = .original
-            showTime = false
+            dismissMenu()
         }
     }
     
@@ -94,5 +112,18 @@ extension InvitedTimeCell {
         guard isShaking else { return }
         try? await Task.sleep(for: .seconds(1))
         withAnimation { isShaking = false }
+    }
+}
+
+//Background for popup
+extension View {
+    func invitedTimeCellBackground(_ isSelected: Bool, isAvailable: Bool) -> some View {
+        self
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white, in: .rect(cornerRadius: 16))
+            .opacity(isAvailable ? 0.4 : 1)
+            .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
     }
 }

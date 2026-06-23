@@ -29,38 +29,40 @@ struct InviteCard: View {
     
     var body: some View {
         profileImage
-            .overlay {
-                BackgroundBlur(image: mainImage, size: CGSize(width: imageSize, height: imageSize + 170), frames: [profileNameBounds], clipCornerRadius: 24)
-            }
-            .overlay(alignment: .bottomLeading) {
-                VStack(spacing: 0) {
-                    profileName
-                    inviteCardInfo
-                }
-            }
+            .overlay {backgroundBlur}
+            .overlay(alignment: .bottomLeading) {inviteCardOverlay}
             .coordinateSpace(name: "ProfileCard")
     }
 }
 
 extension InviteCard {
+    private var backgroundBlur: some View {
+        BackgroundBlur(image: mainImage, size: CGSize(width: imageSize, height: imageSize + 170), frames: [profileNameBounds], clipCornerRadius: 24)
+    }
     
-    private var profileName: some View {
-        HStack {
-            Text("\(eventProfile.profile.name)'s Invite")
-                .font(.body(22, .bold))
-                .foregroundStyle(Color.white)
-                .onGeometryChange(for: CGRect.self) { geo in
-                    geo.frame(in: .named("ProfileCard"))
-                } action: { nameLocation in
-                    profileNameBounds = nameLocation
-                }
-                .padding(.leading, 16)
-            Spacer()
+    private var inviteCardOverlay: some View {
+        VStack(spacing: 0) {
+            profileNameView
+            inviteCardInfo
         }
     }
     
-    
-    
+    private var profileNameView: some View {
+        profileName
+            .onGeometryChange(for: CGRect.self) {geo in
+                geo.frame(in: .named("ProfileCard"))
+            } action: { nameLocation in
+                profileNameBounds = nameLocation
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 16)
+    }
+
+    private var profileName: some View {
+        Text("\(eventProfile.profile.name)'s Invite")
+            .font(.body(22, .bold))
+            .foregroundStyle(Color.white)
+    }
 
     private var profileImage: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
@@ -73,22 +75,21 @@ extension InviteCard {
             .onTapGesture {openProfile()}
             .profileMorphSource(id: eventProfile.profile.id, radii: .init(uniform: 24))
     }
-
+    
     private func openProfile() {
         guard selectedProfile == nil else { return }
         profileMorph?.beginOpen(id: eventProfile.profile.id, image: eventProfile.image)
         selectedProfile = eventProfile.profile
     }
-    
-    
 }
 
 extension InviteCard {
+    
     private var inviteCardInfo: some View {
-        InviteCardInfo(eventProfile: eventProfile, onRespond: onRespond)
+        
+        InviteCardInfo(vm: RespondViewModel, eventProfile: eventProfile, onRespond: onRespond)
             .padding(12)
             .padding(.top, -4)
     }
-
 }
 

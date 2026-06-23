@@ -11,7 +11,11 @@ struct InviteCardInfo: View {
     
     @Environment(\.timeCustomMenuDismiss) private var timeMenuDismiss
     
-    @Bindable var vm: RespondViewModel //Needed for the time
+
+    @Binding var originalInvite: OriginalInvite
+    @Binding var newTime: NewTimeDraft
+    @Binding var responseType: ResponseType
+    
     
     let lineIconWidth: CGFloat = 20
     
@@ -44,31 +48,24 @@ extension InviteCardInfo {
         }
     }
     
-    private var eventTimeLine: some View {
-        TimeCustomMenu {
-            Text("Show Time Here")
-                .onTapGesture {timeMenuDismiss()}
-        } label: {
-            HStack(spacing: 10) {
-                clockIcon
-                HStack(spacing: 12) {
-                    Text(formattedDay)
-                    DropDownButton(isOpen: false, isAccept: true)
-                }
-            }
-        }
-    }
-    
     private var eventPlaceLine: some View {
         HStack(spacing: 10) {
-            miniMapIcon
-            Text(placeName)
+            Image("MiniMapIcon")
+                .scaleEffect(1.2, anchor: .bottom)
+                .frame(width: 20, alignment: .leading)
+                .offset(y: 5) // Fine Tuning
+
+            Text(eventProfile.event.location.name ?? "")
                 .foregroundStyle(Color.appGreen)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 19)
         }
     }
     
+    private var eventTimeLine: some View {
+        NewRespondTimeRow(originalInvite: $originalInvite, newTime: $newTime, respondType: $responseType)
+    }
+        
     private var infoButton: some View {
         SmallInfoIcon(size: 12, colour: Color(white: 0.75))
             .padding()
@@ -85,49 +82,6 @@ extension InviteCardInfo {
         }
         .padding(12)
     }
-    
-    private var selectRespondTime: some View {
-        RespondSelectTime(
-            vm: vm,
-            isRespondPopup: true
-        )
-    }
-}
-
-//Different Components
-extension InviteCardInfo {
-    
-    var clockIcon: some View {
-        Image("MiniClockIcon")
-            .scaleEffect(1.1, anchor: .bottom)
-            .frame(width: 20, alignment: .leading)
-    }
-    
-    var miniMapIcon: some View {
-        Image("MiniMapIcon")
-            .scaleEffect(1.2, anchor: .bottom)
-            .frame(width: 20, alignment: .leading)
-            .offset(y: 5) // Fine Tuning
-    }
-    
-    // MapKit names glue tokens with non-breaking spaces (U+00A0 / U+202F),
-    // which the line breaker refuses to split — swap them for normal spaces
-    // so wrapping can happen one word at a time.
-    var placeName: String {
-        (eventProfile.event.location.name ?? "")
-            .replacingOccurrences(of: "\u{00A0}", with: " ")
-            .replacingOccurrences(of: "\u{202F}", with: " ")
-    }
-
-    var formattedDay: String {
-        if let firstDay = eventProfile.event.proposedTimes.firstAvailableDate {
-            let day  = firstDay.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())  // Thursday, Sep 23
-            let time = firstDay.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))  // 22:30
-            return "\(day) · \(time)"
-        } else {
-            return "Invite Time Expired"
-        }
-    }
 }
 
 struct InviteCardInfoBackground: ViewModifier {
@@ -140,3 +94,42 @@ struct InviteCardInfoBackground: ViewModifier {
             .background(Color.appCanvas, in: .rect(cornerRadius: 18))
     }
 }
+
+/*
+ 
+ var formattedDay: String {
+     if let firstDay = eventProfile.event.proposedTimes.firstAvailableDate {
+         let day  = firstDay.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())  // Thursday, Sep 23
+         let time = firstDay.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))  // 22:30
+         return "\(day) · \(time)"
+     } else {
+         return "Invite Time Expired"
+     }
+ }
+
+ var clockIcon: some View {
+     Image("MiniClockIcon")
+         .scaleEffect(1.1, anchor: .bottom)
+         .frame(width: 20, alignment: .leading)
+ }
+
+ 
+ Old logic for popup
+ 
+ private var eventTimeLine: some View {
+     TimeCustomMenu {
+         Text("Show Time Here")
+             .onTapGesture {timeMenuDismiss()}
+     } label: {
+         HStack(spacing: 10) {
+             clockIcon
+             HStack(spacing: 12) {
+                 Text(formattedDay)
+                 DropDownButton(isOpen: false, isAccept: true)
+             }
+         }
+     }
+ }
+
+ 
+ */

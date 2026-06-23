@@ -29,10 +29,7 @@ struct InviteTimeRow: View {
         times.first?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)) ?? ""
     }
     
-    
-    
     var body: some View {
-        
         HStack {
             leadingText
             Spacer()
@@ -156,7 +153,6 @@ extension InviteTimeRow  {
             .opacity(ui.typePopupOpenDelayed ? 0 : 1)
             .frame(height: RowH.singleTime)
     }
-    
 }
 
 
