@@ -77,7 +77,7 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .profileZoomDismiss(ui: ui, enabled: !isUserProfile)
-        .quickInviteMorph(
+        .quickInvite(
             openPopupId: sendInviteMorphId,
             hideCard: pendingInvite != nil,
             // ProfileView already covers the tab bar, so present as an overlay to skip the

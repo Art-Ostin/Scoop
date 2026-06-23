@@ -359,7 +359,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
 
 }
 
-// Full-screen confirm alert for the morph send flow. Used as a `quickInviteMorph` overlay
+// Full-screen confirm alert for the morph send flow. Used as a `quickInvite` overlay
 // so its dim covers the whole screen. Pass-through while idle.
 struct MorphConfirmAlert: View {
     @Binding var pending: (() -> Void)?
@@ -458,7 +458,7 @@ extension View {
     /// mount/hide id is tracked internally (a `QuickInviteMorphState` injected into the content)
     /// and outlasts `openPopupId` through the collapse, so the matching source stays hidden
     /// until the surface lands.
-    func quickInviteMorph<Card: View, Overlay: View>(
+    func quickInvite<Card: View, Overlay: View>(
         openPopupId: Binding<String?>,
         hideCard: Bool = false,
         style: QuickInviteMorphStyle = .send,

@@ -227,7 +227,6 @@
 		65A93D4C2F393B28003F6410 /* MapOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A93D4B2F393B28003F6410 /* MapOptionsView.swift */; };
 		65AD49142F82CFDB002B91BA /* RespondPlaceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AD49132F82CFDB002B91BA /* RespondPlaceRow.swift */; };
 		65ADAE4C2FDC5CFB00095248 /* RespondCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ADAE4B2FDC5CFB00095248 /* RespondCard.swift */; };
-		65ADAE4E2FDC617300095248 /* MenuTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ADAE4D2FDC617300095248 /* MenuTester.swift */; };
 		65AE44FA2F895136003D019D /* InviteCardPlaceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */; };
 		65AE44FC2F89515C003D019D /* InviteCardTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */; };
 		65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF148E2F63A7C100031513 /* EventProfile.swift */; };
@@ -542,7 +541,6 @@
 		65A93D4B2F393B28003F6410 /* MapOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapOptionsView.swift; sourceTree = "<group>"; };
 		65AD49132F82CFDB002B91BA /* RespondPlaceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondPlaceRow.swift; sourceTree = "<group>"; };
 		65ADAE4B2FDC5CFB00095248 /* RespondCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondCard.swift; sourceTree = "<group>"; };
-		65ADAE4D2FDC617300095248 /* MenuTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuTester.swift; sourceTree = "<group>"; };
 		65AE44F92F895136003D019D /* InviteCardPlaceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardPlaceRow.swift; sourceTree = "<group>"; };
 		65AE44FB2F89515C003D019D /* InviteCardTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardTimeRow.swift; sourceTree = "<group>"; };
 		65AF148E2F63A7C100031513 /* EventProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProfile.swift; sourceTree = "<group>"; };
@@ -712,7 +710,6 @@
 				659496FE2E01DD4000880921 /* AppContainer.swift */,
 				65BF98C32FA532C600FB37A6 /* BootingScreen.swift */,
 				65B672662FC48BE100479EA7 /* AppRouter.swift */,
-				65ADAE4D2FDC617300095248 /* MenuTester.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -1911,7 +1908,6 @@
 				65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */,
 				656BA6962FE560C300475776 /* TypeCustomMenu.swift in Sources */,
 				656BA6972FE560C300475776 /* TimeCustomMenu.swift in Sources */,
-				65ADAE4E2FDC617300095248 /* MenuTester.swift in Sources */,
 				657F61AC2FDF087500B2F903 /* ScoopShadows.swift in Sources */,
 				65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */,
 				6570CADD2F28D6EE00CBEA67 /* DropDownButton.swift in Sources */,

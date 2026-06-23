@@ -32,7 +32,9 @@ struct InvitesContainer: View {
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
         
         
-        .quickInviteMorph(openPopupId: $ui.showRespondPopup, style: .respond) { eventId in
+        
+        
+        .quickInvite(openPopupId: $ui.showRespondPopup, style: .respond) { eventId in
             respondContainer(eventId)
         } overlay: {
             respondOverlay
@@ -42,7 +44,6 @@ struct InvitesContainer: View {
 
 //Different Views
 extension InvitesContainer {
-    
     //1. Constructor for opening and displaying Profile View
     @ViewBuilder
     private func profileView() -> some View {
@@ -75,14 +76,12 @@ extension InvitesContainer {
     private func respondMode(_ eventProfile: EventProfile) -> ProfileMode {
         let respondVM = vm.respondVM(for: eventProfile)
 
-        return ProfileMode.respondToInvite(respondVM: respondVM) { type in
+        return ProfileMode.respondToInvite(respondVM: vm.respondVM(for: eventProfile)) { type in
             respond(eventProfile.event.id, type)
         }
     }
 
-    
-    //2. Constructor for opening and displaying respondContainer
-    @ViewBuilder
+    @ViewBuilder //2. Constructor for opening and displaying respondContainer
     private func respondContainer(_ eventId: String) -> some View {
         if let eventProfile = vm.eventProfile(forEventId: eventId) {
             RespondContainer(
@@ -97,10 +96,10 @@ extension InvitesContainer {
 
 extension InvitesContainer {
 
-
     
     @ViewBuilder
     private var respondOverlay: some View {
+        
         Color.clear.respondConfirmAlerts(ui: respondUI) { type in
             // The pager is still open during the confirm alert, so the driver holds the id.
             if let id = ui.showRespondPopup { respond(id, type) }

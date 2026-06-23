@@ -19,7 +19,7 @@ struct RespondedToProfileView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 36) {
-            switch response {
+            switch responseType {
             case .accepted:
                 Image("DancingCats")
                 Text("Accepted")
