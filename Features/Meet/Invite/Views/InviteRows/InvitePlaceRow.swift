@@ -60,10 +60,12 @@ extension InvitePlaceRow {
         Text(eventLocation.name ?? "")
             .font(.body(17, .medium))
             .foregroundStyle(Color.black)
+            .multilineTextAlignment(.trailing)
     }
     
     private func locationAddress(_ eventLocation: EventLocation) -> some View {
-        Text(FormatEvent.addressWithoutCountry(eventLocation.address))
+        
+        Text(FormatEvent.addressBeforeFirstComma(eventLocation.address))
             .font(.footnote)
             .foregroundStyle(.gray)
             .lineLimit(1)

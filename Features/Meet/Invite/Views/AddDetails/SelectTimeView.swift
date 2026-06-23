@@ -9,11 +9,9 @@ import SwiftUI
 
 struct SelectTimeView: View {
 
-    // MARK: Inputs
     @Binding var proposedTimes: ProposedTimes
     var isRespondMode = false
 
-    // MARK: Internal state
     @Environment(\.timeCustomMenuDismiss) private var dismissMenu
     @State private var selectedHour = 22
     @State private var selectedMinute = 30
@@ -24,7 +22,6 @@ struct SelectTimeView: View {
     @State private var suppressSavedFlash = false
     @State private var displayedCount = 0
 
-    // MARK: Constants
     private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7)
     private let dayCount = 11
     private let cellWidth: CGFloat = 30

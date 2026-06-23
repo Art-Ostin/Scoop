@@ -176,11 +176,11 @@ extension SendInviteContainer {
 
     //4. The vertical padding for the selectPlace Row
     var placeTopPadding: CGFloat {
-        draft.place != nil ? 16 : 30
+        draft.place != nil ? 24 : 30
     }
 
     var placeBottomPadding: CGFloat {
-        draft.place != nil ? 24 : 32
+        draft.place != nil ? 28 : 32
     }
 }
 

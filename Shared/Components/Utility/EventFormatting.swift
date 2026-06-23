@@ -45,6 +45,12 @@ public enum FormatEvent {
         return String(address[..<i]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
+    static func addressBeforeFirstComma(_ address: String?) -> String {
+        guard let address else {return "Event Venue"}
+        guard let i = address.firstIndex(of: ",") else {return address}
+        return String(address[..<i])
+    }
+    
     
     static func messageTime(_ date: Date, withToday: Bool = true) -> String {
         let cal = Calendar.current

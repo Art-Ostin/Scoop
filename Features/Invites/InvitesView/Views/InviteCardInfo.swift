@@ -47,11 +47,10 @@ extension InviteCardInfo {
     private var eventPlaceLine: some View {
         HStack(spacing: 10) {
             Image("MiniMapIcon")
-                .scaleEffect(1.2, anchor: .bottom)
+                .scaleEffect(1.2, anchor: .center)
                 .frame(width: 20, alignment: .leading)
-                .offset(y: 5) // Fine Tuning
 
-            Text(eventProfile.event.location.name ?? "")
+            Text("Barbossa Montreal") //eventProfile.event.location.name ?? ""
                 .foregroundStyle(Color.appGreen)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 19)
@@ -59,7 +58,7 @@ extension InviteCardInfo {
     }
     
     private var eventTimeLine: some View {
-        RespondTimeRow(draft: $draft)
+        RespondTimeRow(draft: $draft, rowHasIcon: true)
     }
         
     private var infoButton: some View {

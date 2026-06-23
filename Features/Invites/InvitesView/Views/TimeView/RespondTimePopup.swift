@@ -188,7 +188,9 @@ struct RespondTimeBackground: ViewModifier {
             .padding(.top, horizontalInset)
             .compositingGroup()
             .clipShape(.rect(cornerRadius: 16, style: .continuous))
-            .background(Color.appCanvas, in: .rect(cornerRadius: 16))
             .rectangleStroke(radius: 16, lineWidth: 1, color: Color.grayBackground)
     }
 }
+
+//            .background(Color.appCanvas, in: .rect(cornerRadius: 16))
+
