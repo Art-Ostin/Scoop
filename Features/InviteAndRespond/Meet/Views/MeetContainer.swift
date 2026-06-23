@@ -18,7 +18,6 @@ struct MeetContainer: View {
     
     // Holds the pending send action while the morph's confirm alert is up. Hoisted here
     // so the alert can be presented full-screen above the (frame-clamped) morph card.
-    @State private var morphInviteId: String?
     @State private var pendingInvite: (() -> Void)?
 
     //Card image → profile pager hero morph (see ProfileMorph.swift)
@@ -31,16 +30,14 @@ struct MeetContainer: View {
     
 
     var body: some View {
-        ZStack {
-            NavigationStack {
-                meetView
-                    .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
-                    .navigationTitle("Meet")
-                    .scoopNavigationBarFonts()
-            }
-            .overlay(alignment: .topTrailing) {
-                InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
-            }
+        NavigationStack {
+            meetView
+                .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
+                .navigationTitle("Meet")
+                .scoopNavigationBarFonts()
+        }
+        .overlay(alignment: .topTrailing) {
+            InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
         }
         .profileMorphHost(profileMorph)
         .profileOverlay(id: ui.openProfile?.id) {
@@ -49,11 +46,12 @@ struct MeetContainer: View {
         .profileOverlay(.cover, id: ui.respondedToProfile.map { "\($0)" }) {
             if let response = ui.respondedToProfile { RespondedToProfileView(response: response) }
         }
-        .quickInviteMorph(iconId: $ui.quickInvite, morphInviteId: $morphInviteId, hideCard: pendingInvite != nil, showsHideButton: true, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
+        .quickInviteMorph(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)
         }
+        
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
     }
 }
@@ -82,8 +80,7 @@ extension MeetContainer {
                     onTap: { image in openProfile(profile, image: image) },
                     onQuickInvite: { ui.quickInvite = profile.profile.id },
                     profile: profile, size: imageSize,
-                    imageLoader: vm.imageLoader,
-                    isMorphing: morphInviteId == profile.profile.id)
+                    imageLoader: vm.imageLoader)
                     .task { await vm.loadProfileImages(profile: profile.profile) }
                     .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
             }
@@ -137,7 +134,7 @@ extension MeetContainer {
     }
 }
 
-//Functions
+
 extension MeetContainer {
     
     private func openProfile(_ profile: PendingProfile, image: UIImage) {
@@ -147,33 +144,38 @@ extension MeetContainer {
     }
 
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
-        let isInvite = event != nil
-        //1. Set a minimum of 0.75s timer for the response view to be showing
+        //Step 1: Min time for whole process 0.85 seconds
         async let minDelay: Void = Task.sleep(for: .milliseconds(850))
-        ui.respondedToProfile = isInvite ? .newInvite : .decline
         
-        try? await Task.sleep(for: .milliseconds(200)) //Animation is 0.18 seconds so 0.02 buffer
-        //2. After 0.25 seconds either dismiss the profile, or quickInvite in background
-        //(programmatic teardown behind the response cover — no flight, just reset)
-        ui.openProfile = nil
-        ui.quickInvite = nil
-        profileMorph.reset()
+        //Step 2: Show respond fullScreencover. Animation to open takes 0.2
+        ui.respondedToProfile = event == nil ? .decline : .newInvite
+
+        //Step 3: Step 3: After 0.2s, dismiss the profile and invite popups beneath the respond cover
+        try? await Task.sleep(for: .milliseconds(200))
+        hideProfileAndInviteInBackground()
         
-        //3. Actually send invite or decline profile
-        if let event {
-            do {
-                try await vm.sendInvite(event: event, profile: profile)
-            } catch {
-                print(error)
-            }
-        } else {
-            try? await vm.declineProfile(profile: profile)
-        }
-        
-        //4.if the minimum of 0.75s done, dismiss the screen
+        //Step 4: Actually send invite or decline profile
+        await submitResponse(event: event, profile: profile)
+
+        //Step 5: Once minimum of 0.85 seconds done, dismiss the screen
         try? await minDelay
         ui.respondedToProfile = nil
     }
+    
+    private func hideProfileAndInviteInBackground() {
+        ui.openProfile = nil
+        ui.quickInvite = nil
+        profileMorph.reset()
+    }
+    
+    private func submitResponse(event: EventFieldsDraft? = nil, profile: UserProfile) async {
+        if let event {
+            try? await vm.sendInvite(event: event, profile: profile)
+        } else {
+            try? await vm.declineProfile(profile: profile)
+        }
+    }
+    
     
     private var meetPlaceholder: some View {
         VStack {

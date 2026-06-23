@@ -78,16 +78,14 @@ struct ProfileView: View {
         .overlay(alignment: .bottomLeading) { declineButton }
         .profileZoomDismiss(ui: ui, enabled: !isUserProfile)
         .quickInviteMorph(
-            iconId: sendInviteMorphId,
-            morphInviteId: $ui.morphInviteId,
+            openPopupId: sendInviteMorphId,
             hideCard: pendingInvite != nil,
-            showsHideButton: !isRespondMode,
-            style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
-                .tinted(vm.viewProfileType == .invite ? .accent : .appGreen)
-                .sideMargin(SendInviteContainer.screenMargin),
             // ProfileView already covers the tab bar, so present as an overlay to skip the
             // cover-presentation latency that makes the morph pop in collapsed before opening.
-            presentsAsOverlay: true
+            style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
+                .presentedAsOverlay()
+                .tinted(vm.viewProfileType == .invite ? .accent : .appGreen)
+                .sideMargin(SendInviteContainer.screenMargin)
         ) { _ in
             sendInviteMorphCard
         } overlay: {

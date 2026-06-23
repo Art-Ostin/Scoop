@@ -137,8 +137,6 @@ enum ProfileViewType {
 
     //5. Logic with what screen showing
     var showPopup: Bool = false
-    //Cover-mount id for the send-invite morph; outlasts showPopup through the collapse.
-    var morphInviteId: String? = nil
 
     //6. Logic with Profile dismiss. The drag is 2D: profileOffset (y) drives the
     //native-style shrink, profileOffsetX is the damped horizontal follow. The

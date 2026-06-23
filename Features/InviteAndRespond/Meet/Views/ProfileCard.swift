@@ -15,9 +15,6 @@ struct ProfileCard : View {
     let profile: PendingProfile
     let size: CGFloat
     let imageLoader: ImageLoading
-    // While a morph is live for this profile, the morph surface *is* the button,
-    // so the real one hides to avoid a duplicate during expand/collapse.
-    var isMorphing: Bool = false
 
     private let cardCornerRadius: CGFloat = 22
 
@@ -63,7 +60,6 @@ extension ProfileCard {
 
     private var inviteButton: some View {
         InviteButton(isInviting: true, morphId: profile.profile.id, action: onQuickInvite)
-            .opacity(isMorphing ? 0 : 1)
     }
 
     private var infoSection: some View {

@@ -70,7 +70,7 @@ extension ProfileView {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
             InviteButton(isInviting: vm.viewProfileType == .invite, morphId: vm.profile.id) { ui.showPopup.toggle() }
-                .opacity(ui.showPopup || ui.morphInviteId == vm.profile.id ? 0 : 1)
+                .opacity(ui.showPopup ? 0 : 1)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 144)
                 .modifier(InviteButtonDragEffect(ui: ui))

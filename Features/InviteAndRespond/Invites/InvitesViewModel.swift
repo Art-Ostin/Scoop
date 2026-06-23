@@ -43,7 +43,7 @@ import SwiftUI
         respondVMs[invite.event.id] = new
         return new
     }
-
+    
     
     func draftBinding(for invite: EventProfile) -> Binding<RespondDraft> {
         let vm = respondVM(for: invite)
@@ -59,13 +59,22 @@ import SwiftUI
 //Functions to Respond To Invites
 extension InvitesViewModel {
 
-    func accept(eventId: String) async throws {
+    func respond(to type: ProfileResponse, eventId: String) async throws {
+        switch type {
+        case .accepted:  try await accept(eventId: eventId)
+        case .newTime:   try await sendNewTime(eventId: eventId)
+        case .newInvite: try await sendNewEvent(eventId: eventId)
+        case .decline:   try await decline(eventId: eventId)
+        }
+    }
+
+    private func accept(eventId: String) async throws {
         guard let invite = respondVMs[eventId]?.respondDraft.originalInvite, let day = invite.selectedDay else { return }
         try await eventRepo.acceptEvent(eventId: invite.event.id, senderId: invite.event.otherUserId, userId: userId, acceptedTime: day)
         updateInvitesLocally(eventId: invite.event.id, isAccepted: true)
     }
 
-    func sendNewTime(eventId: String) async throws {
+    private func sendNewTime(eventId: String) async throws {
         guard let newTime = respondVMs[eventId]?.respondDraft.newTime else { return }
         let event = newTime.event
         let rescheduleResponse = RescheduleResponse(eventId: event.id, userId: userId, recipientId: event.otherUserId, oldTimes: event.proposedTimes, newTimes: newTime.proposedTimes)
@@ -73,14 +82,14 @@ extension InvitesViewModel {
         updateInvitesLocally(eventId: rescheduleResponse.eventId)
     }
 
-    func sendNewEvent(eventId: String) async throws {
+    private func sendNewEvent(eventId: String) async throws {
         guard let draft = respondVMs[eventId]?.respondDraft else { return }
         let eventResponse = EventResponse( oldEvent: draft.originalInvite.event, newEvent: draft.newEvent, userId: userId)
         try await eventRepo.respondWithNewEvent(eventResponse: eventResponse)
         updateInvitesLocally(eventId: eventResponse.eventId)
     }
 
-    func decline(eventId: String) async throws {
+    private func decline(eventId: String) async throws {
         guard let event = respondVMs[eventId]?.respondDraft.originalInvite.event else { return }
         try await eventRepo.declineEvent(eventId: event.id, otherUserId: event.otherUserId, userId: userId)
         updateInvitesLocally(eventId: event.id)
@@ -121,14 +130,8 @@ extension InvitesViewModel {
     //1. To open the profile
     var selectedProfile: UserProfile? = nil
 
-    //2. Confirmation alerts triggered from invite cards (carry event.id)
-    var showAcceptPopup: String?
-    var showNewTimePopup: String?
-    var showQuickInvite: String?
-
-    //2b. Respond-popup morph: iconId driver + mount id (outlives iconId through the collapse)
+    //2. Respond-popup morph driver (event id; nil = closed)
     var showRespondPopup: String?
-    var respondMorphId: String?
 
     //Open/close the respond popup by intent. The id doubles as the morph origin (which
     //invite icon to fly out of); nil means closed.
@@ -137,11 +140,4 @@ extension InvitesViewModel {
 
     //3. Show the respond Popup Screen
     var respondedToProfile: ProfileResponse?
-
-    //4. Logic with inviting screen
-    var showTimePopup: Bool = false
-    var hideInviteTitle: Bool = false
-
-    //5. The details Screen for invites
-    var showDetails: Bool = false
 }

@@ -24,6 +24,6 @@ struct InviteButton: View {
                 .frame(width: 24, height: 24)
                 .frame(width: 40, height: 40)
         }
-        .inviteIconAnchor(id: morphId)//Shares location for morph
+        .morphSource(id: morphId)//Shares location for morph & hides while morphing
     }
 }

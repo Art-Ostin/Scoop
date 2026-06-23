@@ -11,8 +11,7 @@ struct InviteCard: View {
 
     //1. Open and close profile and morph
     @Environment(ProfileMorphState.self) private var profileMorph: ProfileMorphState?
-    var isMorphing: Bool = false
-    
+
     //2. Store captured ImageSize
     @Binding var selectedProfile: UserProfile?
     

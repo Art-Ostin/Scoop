@@ -34,6 +34,15 @@ struct QuickInviteMorphStyle {
     // (e.g. SendInviteContainer.cardMargin, RespondContainer.screenMargin).
     var sideMargin: CGFloat = 30
 
+    // Floats a "Hide" dismiss control below the card. Send/quick-invite flows show it; the
+    // respond pager dismisses by responding, so it leaves this off.
+    var showsHideButton: Bool = false
+
+    // Mount as a plain SwiftUI overlay instead of a fullScreenCover. Hosts that already cover
+    // the tab bar (e.g. ProfileView) opt in via `.presentedAsOverlay()` to skip the cover-
+    // presentation latency that makes the morph pop in collapsed before opening.
+    var presentsAsOverlay: Bool = false
+
     func tinted(_ color: Color) -> Self {
         var copy = self
         copy.tint = color
@@ -46,32 +55,32 @@ struct QuickInviteMorphStyle {
         return copy
     }
 
+    func presentedAsOverlay() -> Self {
+        var copy = self
+        copy.presentsAsOverlay = true
+        return copy
+    }
+
     // Send card owns its chrome (`inviteCardBackground` + `.morphCardAnchor()`); the surface
     // grows into it then hands off, so the card owns its width/margin (adaptive — see
-    // SendInviteContainer.cardMargin).
-    static let send = QuickInviteMorphStyle(contentOwnsBackground: true)
-    // Content owns its chrome and tags it with `.morphCardAnchor()`; surface hands off.
+    // SendInviteContainer.cardMargin). Shows the Hide control.
+    static let send = QuickInviteMorphStyle(contentOwnsBackground: true, showsHideButton: true)
+    // Content owns its chrome and tags it with `.morphCardAnchor()`; surface hands off. The
+    // pager dismisses by responding, so no Hide control.
     static let respond = QuickInviteMorphStyle(openDuration: 0.28, contentOwnsBackground: true)
     // Bare rounded surface from a non-icon source (no letter glyph); send card owns its
     // background, same as `.send`.
-    static let plainCard = QuickInviteMorphStyle(showsGlyph: false, contentOwnsBackground: true)
+    static let plainCard = QuickInviteMorphStyle(showsGlyph: false, contentOwnsBackground: true, showsHideButton: true)
 }
 
 // MARK: - Presenter
 
 struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
-    @Binding var iconId: String?
-    @Binding var morphInviteId: String?
+    @Binding var openPopupId: String?
     // Hides the morph card while a sibling confirm alert is up, so only the alert shows.
     let hideCard: Bool
-    // Floats a "Hide" dismiss control below the card (send flows only).
-    let showsHideButton: Bool
+    // Per-flow knobs: Hide control, overlay-vs-cover presentation, tint, margins…
     let style: QuickInviteMorphStyle
-    // When true, mount the morph as a plain SwiftUI overlay instead of a fullScreenCover.
-    // Hosts that already cover the tab bar (e.g. ProfileView) use this to skip the few
-    // frames of UIKit cover-presentation latency, so the morph expands in the same render
-    // pass as the tap instead of popping in collapsed first.
-    let presentsAsOverlay: Bool
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the card (e.g. a confirm alert) so its dim covers the screen
     // rather than being clamped to the card frame.
@@ -81,21 +90,27 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // tab bar) starts exactly on the source button.
     @State private var iconRect: CGRect = .zero
 
+    // Which source id is morphing (mount → end of collapse). Injected into `content` so a
+    // matching `.morphSource(id:)` hides itself while its copy is flying. Internal now —
+    // callers no longer thread a mount-id binding.
+    @State private var morphState = QuickInviteMorphState()
+
     @ViewBuilder
     func body(content: Content) -> some View {
         let anchored = content
+            .environment(morphState)
             .overlayPreferenceValue(InviteIconBoundsKey.self) { anchors in
                 GeometryReader { proxy in
                     Color.clear
-                        .onChange(of: iconId) { _, new in
+                        .onChange(of: openPopupId) { _, new in
                             handleChange(new, anchors: anchors, proxy: proxy)
                         }
                 }
             }
-        if presentsAsOverlay {
+        if style.presentsAsOverlay {
             // Renders in the same pass as the tap: the surface is on screen collapsed
             // immediately and the open spring fires the next frame — no cover present step.
-            anchored.overlay { if morphInviteId != nil { morphLayer } }
+            anchored.overlay { if morphState.activeId != nil { morphLayer } }
         } else {
             // Cover: needed when the host still shows the tab bar, so the morph floats above it.
             anchored.fullScreenCover(isPresented: morphPresented) {
@@ -107,16 +122,16 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     @ViewBuilder private var morphLayer: some View {
         GeometryReader { geo in
             let _ = print("[MORPH] \(morphT()) morphLayer geo.size=\(geo.size)")
-            if let id = morphInviteId {
+            if let id = morphState.activeId {
                 QuickInviteMorph(
                     iconRect: iconRect,
-                    isPresented: iconId != nil,
+                    isPresented: openPopupId != nil,
                     containerSize: geo.size,
                     hideCard: hideCard,
                     style: style,
-                    onCollapsed: { if iconId == nil { withoutCoverAnimation { morphInviteId = nil } } },
-                    showsHideButton: showsHideButton,
-                    onHide: { iconId = nil },
+                    onCollapsed: { if openPopupId == nil { withoutCoverAnimation { morphState.activeId = nil } } },
+                    showsHideButton: style.showsHideButton,
+                    onHide: { openPopupId = nil },
                     card: { card(id) },
                     overlay: overlay
                 )
@@ -126,8 +141,8 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     }
 
     private var morphPresented: Binding<Bool> {
-        Binding(get: { morphInviteId != nil },
-                set: { if !$0 { morphInviteId = nil } })
+        Binding(get: { morphState.activeId != nil },
+                set: { if !$0 { morphState.activeId = nil } })
     }
 
     // Present only: capture the icon's global frame and mount the cover WITHOUT the
@@ -139,8 +154,8 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
         let origin = proxy.frame(in: .global).origin
         iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
                           width: local.width, height: local.height)
-        print("[MORPH] \(morphT()) handleChange → set morphInviteId=\(new) iconRect=\(iconRect)")
-        withoutCoverAnimation { morphInviteId = new }
+        print("[MORPH] \(morphT()) handleChange → set activeId=\(new) iconRect=\(iconRect)")
+        withoutCoverAnimation { morphState.activeId = new }
     }
 
     private func withoutCoverAnimation(_ body: () -> Void) {
@@ -407,23 +422,49 @@ extension View {
     func morphPopupOpen(_ isOpen: Bool) -> some View {
         preference(key: MorphPopupOpenKey.self, value: isOpen)
     }
+
+    /// Marks this view as a morph source for `id`: publishes its frame as the morph's
+    /// start/end anchor, and hides it while that id is morphing so only the flying surface
+    /// shows. Reads the `QuickInviteMorphState` the presenter injects into its content.
+    func morphSource(id: String) -> some View {
+        modifier(MorphSourceModifier(id: id))
+    }
+}
+
+// MARK: - Source coordination
+
+/// Which source id is currently morphing — non-nil from the moment the morph mounts through
+/// the end of the collapse. Owned by the presenter and injected into its content; a matching
+/// `.morphSource(id:)` hides itself while it's set.
+@Observable
+final class QuickInviteMorphState {
+    var activeId: String?
+}
+
+private struct MorphSourceModifier: ViewModifier {
+    @Environment(QuickInviteMorphState.self) private var morphState: QuickInviteMorphState?
+    let id: String
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(morphState?.activeId == id ? 0 : 1)
+            .inviteIconAnchor(id: id)
+    }
 }
 
 extension View {
-    /// Morphs `card` out of the invite icon matching the driving id. Set `iconId` to the
-    /// tapped source's id to present, nil to collapse back onto the icon. `morphInviteId` is
-    /// the cover-mount state, owned by the caller so it can hide the real icon while the
-    /// morph is live — it outlasts `iconId` through the collapse.
+    /// Morphs `card` out of the `.morphSource(id:)` whose id matches `openPopupId`. Set
+    /// `openPopupId` to the tapped source's id to present, nil to collapse back onto it. The
+    /// mount/hide id is tracked internally (a `QuickInviteMorphState` injected into the content)
+    /// and outlasts `openPopupId` through the collapse, so the matching source stays hidden
+    /// until the surface lands.
     func quickInviteMorph<Card: View, Overlay: View>(
-        iconId: Binding<String?>,
-        morphInviteId: Binding<String?>,
+        openPopupId: Binding<String?>,
         hideCard: Bool = false,
-        showsHideButton: Bool = false,
         style: QuickInviteMorphStyle = .send,
-        presentsAsOverlay: Bool = false,
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(iconId: iconId, morphInviteId: morphInviteId, hideCard: hideCard, showsHideButton: showsHideButton, style: style, presentsAsOverlay: presentsAsOverlay, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(openPopupId: openPopupId, hideCard: hideCard, style: style, card: card, overlay: overlay))
     }
 }
