@@ -531,8 +531,8 @@ struct ZoomClipShape: Shape {
 //profile is open, revealed (and darkened by the surface's own dim layer) as the
 //interactive dismissal shrinks the card — no hide/show choreography anywhere.
 //Hosts keep owning their state and view construction; they mirror it into these
-//slots with .profileOverlay, attaching .environment(morph) since the content is
-//evaluated at the root, outside the host's environment.
+//slots with .profileView / .responseCover, attaching .environment(morph) since
+//the content is evaluated at the root, outside the host's environment.
 @MainActor
 @Observable
 final class ProfileOverlayPresenter {
@@ -582,35 +582,54 @@ struct ProfileOverlayLayer: View {
     }
 }
 
-//Mirrors a host's presentation state into a root slot: non-nil id shows the
-//content, nil clears it. The content closure captures the host's state objects,
-//so it stays live across root re-evaluations.
-struct ProfileOverlayModifier<Overlay: View>: ViewModifier {
+//Mirrors a host's presentation state into a root slot: a non-nil presentedID
+//shows the content, nil clears it. The content closure captures the host's state
+//objects, so it stays live across root re-evaluations. Private routing detail —
+//hosts call the .profileView / .responseCover wrappers below, never this directly.
+private struct ProfileOverlayModifier<Overlay: View>: ViewModifier {
     @Environment(ProfileOverlayPresenter.self) private var presenter: ProfileOverlayPresenter?
     let slot: ProfileOverlaySlotKind
-    let id: String?
+    let presentedID: String?
     @ViewBuilder let overlay: () -> Overlay
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: id, initial: true) { oldId, newId in
+            .onChange(of: presentedID, initial: true) { oldID, newID in
                 guard let presenter else { return }
-                if let newId {
-                    presenter.show(slot, id: newId) { AnyView(overlay()) }
-                } else if let oldId {
-                    presenter.clear(slot, id: oldId)
+                if let newID {
+                    presenter.show(slot, id: newID) { AnyView(overlay()) }
+                } else if let oldID {
+                    presenter.clear(slot, id: oldID)
                 }
             }
             .onDisappear {
-                if let id { presenter?.clear(slot, id: id) }
+                if let presentedID { presenter?.clear(slot, id: presentedID) }
             }
     }
 }
 
 extension View {
 
-    func profileOverlay(_ slot: ProfileOverlaySlotKind = .profile, id: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
-        modifier(ProfileOverlayModifier(slot: slot, id: id, overlay: content))
+    //Presents a profile surface at the app root, above the TabView. Pass the id of
+    //the profile to show; nil dismisses it. Shares the root presenter with
+    //responseCover, which layers above this slot.
+    func profileView(presentedID: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
+        modifier(ProfileOverlayModifier(slot: .profile, presentedID: presentedID, overlay: content))
+    }
+
+    //Presents a full-screen response cover above the profile slot, used while a
+    //respond flow tears the profile down behind it. Driven by the response itself:
+    //a non-nil response presents (and is handed to the content), nil dismisses —
+    //the response's case name is the slot identity.
+    func responseCover<Cover: View>(
+        presentedID response: ProfileResponse?,
+        @ViewBuilder content: @escaping (ProfileResponse) -> Cover
+    ) -> some View {
+        modifier(ProfileOverlayModifier(
+            slot: .cover,
+            presentedID: response.map { String(describing: $0) },
+            overlay: { response.map(content) }
+        ))
     }
 
     //Injects the morph for this subtree (sources, pager, ProfileView's dismiss all

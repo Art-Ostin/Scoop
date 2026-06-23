@@ -15,7 +15,7 @@ enum ProfileResponse {
 }
 
 struct RespondedToProfileView: View {
-    let response: ProfileResponse
+    let responseType: ProfileResponse
     
     var body: some View {
         VStack(alignment: .center, spacing: 36) {

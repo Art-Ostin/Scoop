@@ -30,7 +30,7 @@ struct EventsContainer: View {
                 .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
         }
         .profileMorphHost(morph)
-        .profileOverlay(id: ui.selectedProfile?.id) {
+        .profileView(presentedID: ui.selectedProfile?.id) {
             if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}

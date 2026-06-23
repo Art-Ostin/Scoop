@@ -40,11 +40,11 @@ struct MeetContainer: View {
             InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
         }
         .profileMorphHost(profileMorph)
-        .profileOverlay(id: ui.openProfile?.id) {
+        .profileView(presentedID: ui.openProfile?.id) {
             if let profile = ui.openProfile { profileView(profile: profile) }
         }
-        .profileOverlay(.cover, id: ui.respondedToProfile.map { "\($0)" }) {
-            if let response = ui.respondedToProfile { RespondedToProfileView(response: response) }
+        .responseCover(presentedID: ui.respondedToProfile) { response in
+            RespondedToProfileView(response: response)
         }
         .quickInviteMorph(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
             timeAndPlaceView(id)

@@ -13,10 +13,9 @@ import SwiftUI
 class RespondViewModel {
     
     var image: UIImage
-    
     let defaults: DefaultsManaging
     let session: Session
-    let user: UserProfile
+    let profile: UserProfile
     
     var respondDraft: RespondDraft {
         didSet {updateDefaults()}
@@ -24,13 +23,14 @@ class RespondViewModel {
     
     var responseType: ResponseType {respondDraft.respondType}
     
-    init(image: UIImage, user: UserProfile, defaults: DefaultsManaging, session: Session, event: UserEvent) {
+    init(image: UIImage, invite: EventProfile , defaults: DefaultsManaging, session: Session) {
         self.image = image
-        self.user = user
+        self.profile = invite.profile
         self.defaults = defaults
         self.session = session
-        self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: user, event: event, currentUserId: session.user.id)
+        self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: invite.profile, event: invite.event, currentUserId: session.user.id)
     }
+
         
     @MainActor func deleteEventDefault() {
         let profileId = respondDraft.originalInvite.event.otherUserId
@@ -79,10 +79,10 @@ class RespondPopupUIState {
     var confirmNewTimeInvite: Bool = false
     var confirmAcceptInvite: Bool = false
     var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite }
-    
     //Track the scroll Position
     var scrollPosition: RespondScrollType? = .acceptPage
 }
+
 
 enum RespondPopupInfo {
     case newInvite, acceptInvite, sendNewTimes

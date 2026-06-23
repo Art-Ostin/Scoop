@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+enum RespondScrollType {
+    case acceptPage, counterInvitePage
+}
+
 struct RespondContainer: View {
 
     //Gap from each screen edge to the card. The respond card owns its width (content-owns-
@@ -24,6 +28,7 @@ struct RespondContainer: View {
     
     var body: some View {
         HorizontalScrollView(peek: Self.screenMargin) {
+            
             respondCard
                 .getBottom(coordinateSpace: "RespondSpace", bottom: $cardBottomY) //Bottom of card needed for positioning the 'hide button'
                 .horizontalScrollSlot(id: RespondScrollType.acceptPage, shrinkAnchor: .trailing)
@@ -61,20 +66,21 @@ extension RespondContainer {
     }
 }
 
-struct HidePopup: View {
 
-    let onHide: () -> Void
+struct RespondConfirmAlerts: ViewModifier {
+    @Bindable var ui: RespondPopupUIState
+    let onResponse: (ProfileResponse) -> Void
 
-    var body: some View {
-        Button(action: onHide) {
-            Text("Hide")
-                .font(.title(14, .bold))
-                .kerning(1.5)
-                .foregroundStyle(Color.black)
-                .padding(36)
-                .contentShape(Rectangle())
-        }
-        .padding(-36)
+    func body(content: Content) -> some View {
+        content
+            .respondCustomAlert(isPresented: $ui.confirmNewTimeInvite, type: .sendNewTimes) { ui.dismissHidePopup = true ; onResponse(.newTime) }
+            .respondCustomAlert(isPresented: $ui.confirmAcceptInvite, type: .acceptInvite) { ui.dismissHidePopup = true ; onResponse(.accepted) }
+    }
+}
+
+extension View {
+    func respondConfirmAlerts(ui: RespondPopupUIState, onResponse: @escaping (ProfileResponse) -> Void) -> some View {
+        modifier(RespondConfirmAlerts(ui: ui, onResponse: onResponse))
     }
 }
 

@@ -68,7 +68,7 @@ struct ChatContainer: View {
             //2. The profile presents above the root TabView (behind it here, the
             //chat is what's revealed during the zoom dismissal — the bar stays
             //hidden path-based while a chat is pushed).
-            .profileOverlay(id: profileRendered ? vm.eventProfile.profile.id : nil) {
+            .profileView(presentedID: profileRendered ? vm.eventProfile.profile.id : nil) {
                 if profileRendered { profileView }
             }
         
