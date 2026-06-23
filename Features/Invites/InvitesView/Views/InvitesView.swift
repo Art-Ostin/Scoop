@@ -34,10 +34,9 @@ extension InvitesView {
             selectedProfile: $ui.selectedProfile,
             draft: vm.draftBinding(for: invite),
             eventProfile: invite,
-            imageSize: imageSize
-        ) {
-            ui.openRespond(invite.event.id)
-        }
+            imageSize: imageSize,
+            onRespond: {ui.showRespondPopup = invite.event.id}
+        )
         .customShadow(.cardBottom, strength: 2)
         .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }

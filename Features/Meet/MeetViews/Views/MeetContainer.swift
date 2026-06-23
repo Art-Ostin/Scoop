@@ -16,6 +16,10 @@ struct MeetContainer: View {
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
 
+    // Holds the pending send action while the morph's confirm alert is up. Hoisted here
+    // so the alert can be presented full-screen above the (frame-clamped) morph card.
+    @State private var pendingInvite: (() -> Void)?
+
     //Card image → profile pager hero morph (see ProfileMorph.swift)
     @State private var profileMorph = ProfileMorphState()
     
@@ -42,12 +46,10 @@ struct MeetContainer: View {
         .responseCover(presentedID: ui.respondedToProfile) { response in
             RespondedToProfileView(responseType: response)
         }
-        //The send card now owns its Hide button and fades itself behind the confirm alert,
-        //so the morph draws neither (showsHideButton defaults false) and needs no overlay.
-        .quickInvite(openPopupId: $ui.quickInvite, style: QuickInviteMorphStyle(contentOwnsBackground: true).sideMargin(SendInviteContainer.screenMargin)) { id in
+        .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
             timeAndPlaceView(id)
         } overlay: {
-            EmptyView()
+            MorphConfirmAlert(pending: $pendingInvite)
         }
         
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
@@ -126,7 +128,7 @@ extension MeetContainer {
                 sendInvite: { inviteDraft in
                     Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
                 },
-                onHide: { ui.quickInvite = nil }
+                requestConfirm: { pendingInvite = $0 }
             )
         }
     }

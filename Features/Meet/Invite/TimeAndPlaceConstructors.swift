@@ -12,7 +12,6 @@ struct InviteTimeAndPlaceView: View {
     @State var vm: TimeAndPlaceViewModel
     let sendInvite: (EventFieldsDraft) -> Void
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
-    var onHide: (() -> Void)? = nil
 
     var body: some View {
         SendInviteContainer(
@@ -23,8 +22,7 @@ struct InviteTimeAndPlaceView: View {
             onSendInvite: {sendInvite(vm.event)},
             isInviteResponse: false,
             defaults: vm.defaults,
-            requestConfirm: requestConfirm,
-            onHide: onHide
+            requestConfirm: requestConfirm
         )
     }
 }

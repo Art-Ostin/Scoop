@@ -29,49 +29,10 @@ struct SendInviteContainer: View {
     //7.defaults only to pass into the MapView beneath
     let defaults: DefaultsManaging
 
-    //8. Profile's send branch still hoists its confirm to the host (until Profile migrates).
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
-    //9. When provided, this card is the top-level morph card (standalone send): it owns its
-    //   Hide control and fades itself behind the confirm alert — the morph no longer does
-    //   either. Nil when embedded (e.g. the respond counter-invite page), where the parent
-    //   owns the chrome and visibility.
-    var onHide: (() -> Void)? = nil
-
-    //Local space + measured card bottom, so the Hide control floats just below the card
-    //(matches RespondContainer's own hide button).
-    static let coordinateSpace = "SendInviteSpace"
-    @State private var cardBottomY: CGFloat = 0
-
-    private var ownsChrome: Bool { onHide != nil }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            cardBody
-                .getBottom(coordinateSpace: Self.coordinateSpace, bottom: $cardBottomY)
-
-            if let onHide {
-                HidePopup(onHide: onHide)
-                    .offset(y: cardBottomY + 96) //Float the Hide control 96pt below the card bottom
-                    .opacity(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed ? 0 : 1) //gone while an inner picker is open
-                    .animation(.easeInOut(duration: 0.2), value: ui.timePopupOpenDelayed)
-            }
-        }
-        .coordinateSpace(.named(Self.coordinateSpace))
-        //Standalone card fades itself behind the confirm alert (same easing the morph's old
-        //hideCard used); embedded card leaves hiding to its parent.
-        .opacity(ownsChrome && ui.showConfirmPopup ? 0 : 1)
-        .animation(.easeInOut(duration: 0.2), value: ui.showConfirmPopup)
-
-        //All Logic of what screen to show and where. The confirm alert sits OUTSIDE the fade
-        //above so it stays visible while the card hides behind it.
-        .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
-        .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
-        .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
-        .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
-    }
-
-    private var cardBody: some View {
         VStack(spacing: 0) {
             inviteTitle
                 .opacity(ui.timePopupOpen ? 0.1 : 1)
@@ -88,8 +49,12 @@ struct SendInviteContainer: View {
         .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
         .task(id: ui.timePopupOpen) { await addTimePopupDelay() }
         .task(id: ui.typePopupOpen) { await addTypePopupDelay()}
-        .morphPopupOpen(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed) //legacy: gated the morph's old Hide button
+        .morphPopupOpen(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed) //hide the morph's floating Hide button while a popup is open
         .hideTabBar(hideBar: isInviteResponse)
+        .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
+        .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
+        .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
+        .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
     }
 }
 
