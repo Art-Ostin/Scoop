@@ -13,33 +13,29 @@ struct InvitesView: View {
     @Bindable var vm: InvitesViewModel
     let onDecline: (String) -> ()
     
+    @State var imageSize: CGFloat = 0
+    
     var body: some View {
         VStack(spacing: 96) {
             ForEach(vm.invites, id: \.self) { invite in
-                NewInviteCard(
-                    eventProfile: invite,
-                    isMorphing: ui.respondMorphId == invite.event.id,
-                    selectedProfile: $ui.selectedProfile,
-                    onRespond: { ui.openRespond(invite.event.id) }
-                )
-                .task { await vm.ensureImagesLoaded(for: invite.profile) }
+                inviteCard(invite)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 16)
+        .getImageSize(imageSize: $imageSize, horizontalPadding: 20)
+        .padding(.top, 12)
     }
 }
 
 extension InvitesView {
     
-    private func inviteCard(invite: EventProfile) -> some View {
-        InviteCard(
-            vm: vm.respondVM(for: invite),
-            ui: ui,
-            eventProfile: invite,
-            openProfile: { openProfile($0) }) { inviteId in
-                onDecline(inviteId)
-            }
+    private func inviteCard(_ invite: EventProfile) -> some View {
+        
+        InviteCard(selectedProfile: $ui.selectedProfile, eventProfile: invite, imageSize: imageSize) {
+            ui.openRespond(invite.event.id)
+        }
+        .customShadow(.cardBottom, strength: 2)
+        .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }
     
     private func openProfile(_ profile: UserProfile) {

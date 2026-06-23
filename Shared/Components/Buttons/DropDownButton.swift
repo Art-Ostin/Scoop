@@ -9,9 +9,10 @@ import SwiftUI
 
 struct DropDownButton: View {
     let isOpen: Bool
+    var isAccept: Bool = false
     
     var body: some View {
-        Image("InviteChevron")
+        Image(isAccept ? "DropDownIconGreen" : "InviteChevron")
             .rotationEffect(.degrees(isOpen ? 90 : 0))
             .animation(.snappy(duration: 0.2, extraBounce: 0.01), value: isOpen)
     }

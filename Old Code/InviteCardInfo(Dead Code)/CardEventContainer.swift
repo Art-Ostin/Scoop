@@ -116,17 +116,21 @@ extension CardEventContainer {
     }
     
     private var infoPage: some View {
-        InviteCardInfo(
-            event: vm.respondDraft.originalInvite.event, user: vm.user,
-            showQuickInvite: $invitesUI.showQuickInvite,
-            isNewInvite: vm.respondDraft.respondType == .modified,
-            decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3
-        )
-        .padding(.horizontal, 24)
-//        .measure(key: CardEventPageHeightKey.self) { proxy in
-//            [.details: proxy.size.height]
-//        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        EmptyView()
+        
+        /*
+         InviteCardInfo(
+             event: vm.respondDraft.originalInvite.event, user: vm.user,
+             showQuickInvite: $invitesUI.showQuickInvite,
+             isNewInvite: vm.respondDraft.respondType == .modified,
+             decreasePadding: vm.responseType == .modified && vm.respondDraft.newTime.proposedTimes.dates.count == 3
+         )
+         .padding(.horizontal, 24)
+ //        .measure(key: CardEventPageHeightKey.self) { proxy in
+ //            [.details: proxy.size.height]
+ //        }
+         .frame(maxWidth: .infinity, alignment: .leading)
+         */
     }
     
     @ViewBuilder

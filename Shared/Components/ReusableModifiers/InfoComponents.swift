@@ -25,6 +25,6 @@ struct SmallInfoIcon: View {
     var body: some View {
         Image(systemName: "info.circle")
             .foregroundStyle(colour)
-            .font(.body(12, .medium))
+            .font(.body(size, .medium))
     }
 }

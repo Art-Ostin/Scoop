@@ -11,7 +11,7 @@ import SwiftUI
 struct BackgroundBlur: View {
 
     let image: UIImage
-    let size: CGFloat
+    let size: CGSize
     let frames: [CGRect]
     var clipCornerRadius: CGFloat = 22
     var maskCornerRadius: CGFloat = 12
@@ -20,7 +20,7 @@ struct BackgroundBlur: View {
         Image(uiImage: image)
             .resizable()
             .scaledToFill()
-            .frame(width: max(size, 0), height: max(size, 0))
+            .frame(width: max(size.width, 0), height: max(size.height, 0))
             .blur(radius: 22)
             .mask(mask)
             .clipShape(.rect(cornerRadius: clipCornerRadius))
@@ -50,7 +50,7 @@ struct BackgroundBlur: View {
 #Preview {
     BackgroundBlur(
         image: UIImage(systemName: "photo.fill") ?? UIImage(),
-        size: 300,
+        size: CGSize(width: 300, height: 300),
         frames: [CGRect(x: 24, y: 230, width: 180, height: 40)]
     )
     .frame(width: 300, height: 300)

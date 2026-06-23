@@ -21,6 +21,10 @@ struct InvitesContainer: View {
     //Invite-card image → profile pager hero morph (see ProfileMorph.swift)
     @State private var profileMorph = ProfileMorphState()
 
+    
+    @State var imageSize: CGFloat = 0
+    
+    
     var body: some View {
         ZStack {
             invitesView
@@ -78,8 +82,6 @@ extension InvitesContainer {
                     imageLoader: vm.imageLoader,
                     defaults: vm.defaults
                 ),
-                //Seed with the tapped card image if the async set hasn't landed, so
-                //the morph destination exists (and is identical) on frame one.
                 profileImages: vm.profileImages[eventProfile.profile.id] ?? eventProfile.image.map { [$0] } ?? [],
                 mode: .respondToInvite(respondVM: respondVM) {responseType in
                     respond(eventProfile.event.id, responseType)
@@ -87,9 +89,7 @@ extension InvitesContainer {
                 onDismiss: { ui.selectedProfile = nil }
             )
             .id(eventProfile.profile.id)
-            //Cross-fades in the same 0.3s transaction as the invite image flight.
             .opacity(profileMorph.contentOpacity)
-            //Rendered at the app root, outside this container's environment.
             .environment(profileMorph)
         }
     }
@@ -159,7 +159,7 @@ extension InvitesContainer {
     }
 }
 
-
+    
 extension InvitesContainer {
     //Different functions used in container
     private func respond(_ eventId: String, _ type: ProfileResponse) {

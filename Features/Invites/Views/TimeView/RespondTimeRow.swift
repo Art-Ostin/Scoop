@@ -20,7 +20,7 @@ struct RespondTimeRow: View {
     var hasMessage: Bool { message.isEmpty == false }
     
     var body: some View {
-        DropDownView(verticalOffset: 48, showDropDownShadow: true, showOptions: $showTimePopup) {
+        DropDownView(verticalOffset: 48, showDropDownShadow: true) {
             timeView
         } dropDown: {
             RespondSelectTime(vm: vm, showTimePopup: $showTimePopup, showCustomTime: vm.respondDraft.respondType != .original, isRespondPopup: true)

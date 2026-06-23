@@ -30,7 +30,7 @@ struct ProfileCard : View {
         Image(uiImage: displayImage)
             .defaultImage(size, cardCornerRadius)
             .overlay {
-                BackgroundBlur(image: displayImage, size: size, frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
+                BackgroundBlur(image: displayImage, size: CGSize(width: size, height: size), frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
             }
             .background(Color.appCanvas, in: .rect(cornerRadius: cardCornerRadius))
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
@@ -41,8 +41,6 @@ struct ProfileCard : View {
             .task(id: profile.id) {
                 image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
             }
-            //The profile morph flies a copy of this card image, so the whole card
-            //hides for exactly the frames the copy is on screen.
             .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
     }
 

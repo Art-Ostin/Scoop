@@ -19,23 +19,26 @@ extension View {
 
 enum ShadowStyle {
     case card
+    case cardBottom
     case floating
     case even
 
     // (opacity, radius, yOffset)
     var contact: (opacity: Double, radius: CGFloat, y: CGFloat) {
         switch self {
-        case .card:     (0.05, 4, 0)
-        case .floating: (0.06, 10, 2)
-        case .even:     (0.05, 6, 0)
+        case .card:       (0.05, 4, 0)
+        case .cardBottom: (0.05, 4, 5)   // y ≥ radius ⇒ blur no longer reaches the top edge
+        case .floating:   (0.06, 10, 2)
+        case .even:       (0.05, 6, 0)
         }
     }
 
     var ambient: (opacity: Double, radius: CGFloat, y: CGFloat) {
         switch self {
-        case .card:     (0.07, 6, 7)
-        case .floating: (0.14, 24, 14)
-        case .even:     (0.08, 16, 0)
+        case .card:       (0.07, 6, 7)
+        case .cardBottom: (0.07, 6, 7)   // unchanged — already clears the top
+        case .floating:   (0.14, 24, 14)
+        case .even:       (0.08, 16, 0)
         }
     }
 }

@@ -13,7 +13,6 @@ enum TimeStatus: String {
 struct RespondSelectTime: View {
     //Need vm here as modifying a lot
     @Bindable var vm: RespondViewModel
-    @Binding var showTimePopup: Bool
     
     //UI State for code
     @State var showCustomTime: Bool = false
@@ -86,7 +85,7 @@ extension RespondSelectTime {
                 let status = getTimeStatus(time)
                 InvitedTimeCell(
                     selectedDay: $vm.respondDraft.originalInvite.selectedDay,
-                    showTime: $showTimePopup,
+                    showTime: .constant(false),
                     responseType: $vm.respondDraft.respondType,
                     status: status,
                     date: time.date,

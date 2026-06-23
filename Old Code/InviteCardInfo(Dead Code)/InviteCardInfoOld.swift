@@ -1,0 +1,82 @@
+//
+//  InviteCardHowItWorks.swift
+//  Scoop
+//
+//  Created by Art Ostin on 12/04/2026.
+//
+
+import SwiftUI
+
+/*
+ struct InviteCardInfo: View {
+
+     let event: UserEvent
+     let user: UserProfile
+     
+     @Binding var showQuickInvite: String?
+     let isNewInvite: Bool
+     
+     let decreasePadding: Bool
+     
+     var body: some View {
+         VStack(alignment: .leading, spacing: 16) {
+             ForEach(DetailInfo.allCases, id: \.self) {detail in
+                 CardDetailSection(event: event, type: detail)
+             }
+         }
+         .lineSpacing(4)
+         .padding(.top, 16) //  .padding(.top, decreasePadding ? 6 : 12.25)
+         .padding(.bottom, 20) //needs bit more padding than 'action' section
+         .overlay(alignment: .bottomTrailing) {
+             cantMakeItButton
+         }
+     }
+     
+     private var cantMakeItButton: some View {
+         Button {
+             showQuickInvite = event.id
+         } label: {
+             Text("Can't make it?")
+                 .font(.body(12, .bold))
+                 .foregroundStyle(isNewInvite ? .accent : .appGreen)
+                 .kerning(0.5)
+                 .offset(y: 4)
+                 .padding(8)
+                 .contentShape(.rect)
+         }
+         .inviteIconAnchor(id: event.id)
+         .padding(-8)
+         .padding(.bottom, 12)
+     }
+     
+     
+     private var timeRow: some View {
+         Text("Hello World")
+     }
+ }
+
+ private struct CardDetailSection: View {
+     let event: UserEvent
+     let type: DetailInfo
+     
+     var body: some View {
+         HStack(spacing: 16) {
+             Image(type.image)
+             (
+                 Text("\(type.title(event)): ")
+                     .font(.body(14, .bold))
+                     .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                 +
+                 Text(type.message(event))
+             )
+         }
+         .font(.footnote)
+         .foregroundStyle(.gray)
+         .lineLimit(3)
+         .fixedSize(horizontal: false, vertical: true)
+         .frame(maxWidth: .infinity, alignment: .leading)
+     }
+ }
+ 
+ */
+

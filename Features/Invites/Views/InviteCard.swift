@@ -1,95 +1,94 @@
 //
-//  InviteCard.swift
-//  Scoop
+//  NewInviteCard.swift
+//  Scoop Test
 //
-//  Created by Art Ostin on 13/03/2026.
+//  Created by Art Ostin on 06/06/2026.
 //
 
 import SwiftUI
 
 struct InviteCard: View {
+
+    //1. Open and close profile and morph
+    @Environment(ProfileMorphState.self) private var profileMorph: ProfileMorphState?
+    var isMorphing: Bool = false
     
-    @Bindable var vm: RespondViewModel
-    @Bindable var ui: InvitesUIState
+    //2. Store captured ImageSize
+    @Binding var selectedProfile: UserProfile?
     
-    @State var showMessageScreen = false
-    @State private var imageSize: CGFloat = 0
-    
+    //3. Profile to pass in and dimiss logic
     let eventProfile: EventProfile
-        
-    let openProfile: (UserProfile) -> ()
-    let onDecline: (String) -> ()
-
-    private let contentPadding: CGFloat = 6
+    let imageSize: CGFloat
+    let onRespond: () -> Void
     
-    var dayCount: Int { vm.respondDraft.newTime.proposedTimes.dates.count}
-
+    @State var profileNameBounds: CGRect = .zero
+    
+    private var mainImage: UIImage {
+        eventProfile.image ?? UIImage()
+    }
+    
     var body: some View {
-        VStack(spacing: 0) {
-            profileImage
-            inviteEventSection
-        }
-        .modifier(InviteCardStyle())
-        .sheet(isPresented: $showMessageScreen) {addMessageView}
-        .onTapGesture {if ui.showTimePopup {ui.showTimePopup = false}}
-        .getImageSize(imageSize: $imageSize, horizontalPadding: contentPadding)
+        profileImage
+            .overlay {
+                BackgroundBlur(image: mainImage, size: CGSize(width: imageSize, height: imageSize + 170), frames: [profileNameBounds], clipCornerRadius: 24)
+            }
+            .overlay(alignment: .bottomLeading) {
+                VStack(spacing: 0) {
+                    profileName
+                    inviteCardInfo
+                }
+            }
+            .coordinateSpace(name: "ProfileCard")
     }
 }
 
 extension InviteCard {
     
-    private var inviteEventSection: some View {
-        CardEventContainer(
-            vm: vm,
-            invitesUI: ui,
-            showMessageScreen: $showMessageScreen) {onDecline($0)}
+    private var profileName: some View {
+        HStack {
+            Text("\(eventProfile.profile.name)'s Invite")
+                .font(.body(22, .bold))
+                .foregroundStyle(Color.white)
+                .onGeometryChange(for: CGRect.self) { geo in
+                    geo.frame(in: .named("ProfileCard"))
+                } action: { nameLocation in
+                    profileNameBounds = nameLocation
+                }
+                .padding(.leading, 16)
+            Spacer()
+        }
     }
-        
-    private var addMessageView: some View {
-        AddMessageView(
-            message: $vm.respondDraft.respondMessage,
-            isRespondMessage: true,
-            eventType: .constant(.drink)
-        )
-        .presentationBackgroundInteraction(.enabled)
-    }    
     
+    
+    
+
     private var profileImage: some View {
         Image(uiImage: eventProfile.image ?? UIImage())
-            .defaultImage(imageSize)
-            .contentShape(Rectangle())
-            .onTapGesture {openProfile(eventProfile.profile)}
-            .padding(.horizontal, contentPadding)
-            .opacity(ui.showTimePopup ? 0.2 : 1)
+            .resizable()
+            .scaledToFill()
+            .frame(width: max(imageSize, 0), height: max(imageSize, 0) + 170) //Have slightly long Image
+            .clipShape(.rect(cornerRadius: 16))
+            .background(Color.appCanvas, in: .rect(cornerRadius: 24))
+            .customShadow(.cardBottom, strength: 2) //Bottom-biased shadow: no halo above the top edge
+            .onTapGesture {openProfile()}
+            .profileMorphSource(id: eventProfile.profile.id, radii: .init(uniform: 24))
     }
+
+    private func openProfile() {
+        guard selectedProfile == nil else { return }
+        profileMorph?.beginOpen(id: eventProfile.profile.id, image: eventProfile.image)
+        selectedProfile = eventProfile.profile
+    }
+    
+    
 }
 
-struct InviteCardStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity)
-            .background(Color.appCanvas, in: .rect(cornerRadius: 22))
-            .customShadow(.card, strength: 2)
+extension InviteCard {
+    private var inviteCardInfo: some View {
+        InviteCardInfo(eventProfile: eventProfile, onRespond: onRespond)
+            .padding(12)
+            .padding(.top, -4)
     }
+
 }
 
-//Don't need message overlay anymore
-/*
- @ViewBuilder private var addingTimeInfoOverlay: some View {
-     let isModifiedMode = vm.responseType == .modified
-     
-     if isModifiedMode {
-         SelectTimeMessage(
-             type: vm.respondDraft.originalInvite.event.type,
-             dayCount: dayCount,
-             showTimePopup: ui.showTimePopup,
-             isCardMessage: true
-         )
-         .padding(.horizontal, -12)
-     }
- }
- 
- .overlay(alignment: .top) {addingTimeInfoOverlay}
-
- */
