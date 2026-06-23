@@ -929,13 +929,13 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		6549DA662F9E854C00C89DF2 /* Meet */ = {
+		6549DA662F9E854C00C89DF2 /* MeetViews */ = {
 			isa = PBXGroup;
 			children = (
 				65E5C9252E51FBB10093410B /* InviteViewModel.swift */,
 				6549DA672F9E858400C89DF2 /* Views */,
 			);
-			path = Meet;
+			path = MeetViews;
 			sourceTree = "<group>";
 		};
 		6549DA672F9E858400C89DF2 /* Views */ = {
@@ -951,13 +951,13 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		6549DA682F9E85B300C89DF2 /* Invites */ = {
+		6549DA682F9E85B300C89DF2 /* InvitesView */ = {
 			isa = PBXGroup;
 			children = (
 				65AF14912F64456000031513 /* InvitesViewModel.swift */,
 				6549DA692F9E85C800C89DF2 /* Views */,
 			);
-			path = Invites;
+			path = InvitesView;
 			sourceTree = "<group>";
 		};
 		6549DA692F9E85C800C89DF2 /* Views */ = {
@@ -1425,15 +1425,22 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
-		6566B9682FEACB440075C3B2 /* InviteAndRespond */ = {
+		6566B9692FEACBF80075C3B2 /* Meet */ = {
 			isa = PBXGroup;
 			children = (
-				6549DA662F9E854C00C89DF2 /* Meet */,
-				6549DA682F9E85B300C89DF2 /* Invites */,
+				6549DA662F9E854C00C89DF2 /* MeetViews */,
 				6549DA742F9E87A800C89DF2 /* Invite */,
+			);
+			path = Meet;
+			sourceTree = "<group>";
+		};
+		6566B96A2FEACC330075C3B2 /* Invites */ = {
+			isa = PBXGroup;
+			children = (
+				6549DA682F9E85B300C89DF2 /* InvitesView */,
 				6549DA7A2F9E8E2100C89DF2 /* Respond */,
 			);
-			path = InviteAndRespond;
+			path = Invites;
 			sourceTree = "<group>";
 		};
 		656BD4482FD19D2000EE8FC8 /* Tests */ = {
@@ -1510,7 +1517,8 @@
 			isa = PBXGroup;
 			children = (
 				6549DA622F9E842400C89DF2 /* Onboarding */,
-				6566B9682FEACB440075C3B2 /* InviteAndRespond */,
+				6566B9692FEACBF80075C3B2 /* Meet */,
+				6566B96A2FEACC330075C3B2 /* Invites */,
 				6549DA6B2F9E862100C89DF2 /* Events */,
 				6549DA6E2F9E869E00C89DF2 /* Messages */,
 				6549DA7F2F9E8ED100C89DF2 /* Profile */,
