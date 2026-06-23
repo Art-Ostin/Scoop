@@ -28,10 +28,9 @@ struct InvitesContainer: View {
             }
         }
         .profileMorphHost(profileMorph)
+        
         .profileView(presentedID: ui.selectedProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
-        
-        
         
         
         .quickInvite(openPopupId: $ui.showRespondPopup, style: .respond) { eventId in
