@@ -27,6 +27,7 @@ import SwiftUI
     var respondVMs: [String: RespondViewModel] = [:]
     private(set) var profileImages: [String: [UIImage]] = [:]
 
+    
     func respondVM(for invite: EventProfile) -> RespondViewModel {
         if let existing = respondVMs[invite.event.id] {
             if let img = invite.image { existing.image = img }
@@ -41,6 +42,12 @@ import SwiftUI
         )
         respondVMs[invite.event.id] = new
         return new
+    }
+
+    
+    func draftBinding(for invite: EventProfile) -> Binding<RespondDraft> {
+        let vm = respondVM(for: invite)
+        return Binding(get: { vm.respondDraft }, set: { vm.respondDraft = $0 })
     }
 
     func ensureImagesLoaded(for profile: UserProfile) async {

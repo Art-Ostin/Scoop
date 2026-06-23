@@ -16,6 +16,10 @@ struct InviteCard: View {
     //2. Store captured ImageSize
     @Binding var selectedProfile: UserProfile?
     
+    //4. Logic to update in container
+    @Binding var draft: RespondDraft
+
+    
     //3. Profile to pass in and dimiss logic
     let eventProfile: EventProfile
     let imageSize: CGFloat
@@ -23,6 +27,7 @@ struct InviteCard: View {
     
     @State var profileNameBounds: CGRect = .zero
     
+
     private var mainImage: UIImage {
         eventProfile.image ?? UIImage()
     }
@@ -36,6 +41,7 @@ struct InviteCard: View {
 }
 
 extension InviteCard {
+    
     private var backgroundBlur: some View {
         BackgroundBlur(image: mainImage, size: CGSize(width: imageSize, height: imageSize + 170), frames: [profileNameBounds], clipCornerRadius: 24)
     }
@@ -86,8 +92,7 @@ extension InviteCard {
 extension InviteCard {
     
     private var inviteCardInfo: some View {
-        
-        InviteCardInfo(vm: RespondViewModel, eventProfile: eventProfile, onRespond: onRespond)
+        InviteCardInfo(draft: $draft, eventProfile: eventProfile, onRespond: onRespond)
             .padding(12)
             .padding(.top, -4)
     }

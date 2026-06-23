@@ -58,11 +58,7 @@ extension RespondAcceptCard {
     }
     
     private var respondTime: some View {
-        RespondTimeRow(
-            vm: vm,
-            showTimePopup: $ui.showTimePopup,
-            showMessageScreen: $ui.showMessageScreen
-        )
+        RespondTimeRow(draft: $vm.respondDraft)
     }
     
     private var respondPlace: some View {

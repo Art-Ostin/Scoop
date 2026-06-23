@@ -10,15 +10,13 @@ enum TimeStatus: String {
     case available, unavailable, expired
 }
 
-struct RespondSelectTime: View {
+struct ResponTimePopup: View {
     
     //1. To Dismiss the screen
     @Environment(\.timeCustomMenuDismiss) private var dismissMenu
 
-    //2. Modify the draft and draft
-    @Binding var originalInvite: OriginalInvite
-    @Binding var newTime: NewTimeDraft
-    @Binding var responseType: ResponseType
+    //2. Modify the draft
+    @Binding var draft: RespondDraft
     
     //3.Card Layout Logic
     private let contentWidth: CGFloat = 280
@@ -32,7 +30,7 @@ struct RespondSelectTime: View {
     
 
     var noAvailableDates: Bool {
-        !originalInvite.event.proposedTimes.dates.contains { getTimeStatus($0) == .available }
+        !draft.originalInvite.event.proposedTimes.dates.contains { getTimeStatus($0) == .available }
     }
     
     var body: some View {
@@ -42,12 +40,12 @@ struct RespondSelectTime: View {
             contentViewport
         }
         .modifier(RespondTimeBackground(cardWidth: cardWidth))
-        .onAppear {showCustomTime = (responseType == .modified || noAvailableDates)}//Loads it up right view on launch
+        .onAppear {showCustomTime = (draft.respondType == .modified || noAvailableDates)}//Loads it up right view on launch
     }
 }
 
 //The Popup container
-extension RespondSelectTime {
+extension ResponTimePopup {
     private var contentViewport: some View {
         ZStack(alignment: .topLeading) {
             if showCustomTime {
@@ -64,7 +62,7 @@ extension RespondSelectTime {
     
     private var customTime: some View {
         transitionScreen {
-            SelectTimeView(proposedTimes: $newTime.proposedTimes, isRespondMode: true)
+            SelectTimeView(proposedTimes: $draft.newTime.proposedTimes, isRespondMode: true)
         }
         .transition(.move(edge: .trailing))
         .zIndex(1)
@@ -78,7 +76,7 @@ extension RespondSelectTime {
 }
 
 //Title and swich Button Logic
-extension RespondSelectTime {
+extension ResponTimePopup {
     
     private var timeDropDownTitle: some View {
         HStack {
@@ -124,15 +122,15 @@ extension RespondSelectTime {
     private func switchView() {
         showCustomTime.toggle()
         if showCustomTime { //Only switch the type to modified, if I have modified selected
-            if !newTime.proposedTimes.dates.isEmpty { responseType = .modified }
+            if !draft.newTime.proposedTimes.dates.isEmpty { draft.respondType = .modified }
         } else {//Only switches if there are available dates
-            if !noAvailableDates { responseType = .original}
+            if !noAvailableDates { draft.respondType = .original}
         }
     }
 }
 
 //ProposedTimeView Logic
-extension RespondSelectTime {
+extension ResponTimePopup {
     
     private var proposedTimesContainer: some View {
         transitionScreen {
@@ -144,7 +142,7 @@ extension RespondSelectTime {
     
     @ViewBuilder
     private var proposedTimes: some View {
-        let orderedTimes = originalInvite.event.proposedTimes.dates.sorted { $0.date < $1.date }
+        let orderedTimes = draft.originalInvite.event.proposedTimes.dates.sorted { $0.date < $1.date }
         
         VStack(alignment: .leading, spacing: 10) {
             ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
@@ -158,8 +156,8 @@ extension RespondSelectTime {
     private func inviteTimeCell(_ idx: Int, _ time: ProposedTime) -> some View {
         let status = getTimeStatus(time)
         InvitedTimeCell(
-            selectedDay: $originalInvite.selectedDay,
-            responseType: $responseType,
+            selectedDay: $draft.originalInvite.selectedDay,
+            responseType: $draft.respondType,
             status: status,
             date: time.date,
             idx: idx

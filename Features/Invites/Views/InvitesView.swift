@@ -30,8 +30,12 @@ struct InvitesView: View {
 extension InvitesView {
     
     private func inviteCard(_ invite: EventProfile) -> some View {
-        
-        InviteCard(selectedProfile: $ui.selectedProfile, eventProfile: invite, imageSize: imageSize) {
+        InviteCard(
+            selectedProfile: $ui.selectedProfile,
+            draft: vm.draftBinding(for: invite),
+            eventProfile: invite,
+            imageSize: imageSize
+        ) {
             ui.openRespond(invite.event.id)
         }
         .customShadow(.cardBottom, strength: 2)

@@ -11,12 +11,8 @@ struct InviteCardInfo: View {
     
     @Environment(\.timeCustomMenuDismiss) private var timeMenuDismiss
     
+    @Binding var draft: RespondDraft
 
-    @Binding var originalInvite: OriginalInvite
-    @Binding var newTime: NewTimeDraft
-    @Binding var responseType: ResponseType
-    
-    
     let lineIconWidth: CGFloat = 20
     
     let eventProfile: EventProfile
@@ -63,7 +59,7 @@ extension InviteCardInfo {
     }
     
     private var eventTimeLine: some View {
-        NewRespondTimeRow(originalInvite: $originalInvite, newTime: $newTime, respondType: $responseType)
+        RespondTimeRow(draft: $draft)
     }
         
     private var infoButton: some View {

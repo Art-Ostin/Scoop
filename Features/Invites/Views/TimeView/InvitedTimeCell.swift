@@ -98,6 +98,7 @@ extension InvitedTimeCell {
             isShaking = true
             return false
         }
+        return true
     }
     
     private func updateTimeAndDismissPopup() {

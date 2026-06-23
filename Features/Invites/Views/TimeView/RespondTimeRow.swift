@@ -7,20 +7,18 @@
 
 import SwiftUI
 
-struct NewRespondTimeRow: View {
+struct RespondTimeRow: View {
     
     //1. What I am reading and updating
-    @Binding var originalInvite: OriginalInvite
-    @Binding var newTime: NewTimeDraft
-    @Binding var respondType: ResponseType
+    @Binding var draft: RespondDraft
 
     var rowHasIcon = false
 
     var body: some View {
         TimeCustomMenu {
-            
+            ResponTimePopup(draft: $draft)
         } label: {
-            if respondType == .original {
+            if draft.respondType == .original {
                 originalRowLabel
             } else {
                 originalRowLabel //Update later
@@ -30,7 +28,7 @@ struct NewRespondTimeRow: View {
 }
 
 //Original Invite Row
-extension NewRespondTimeRow {
+extension RespondTimeRow {
     
     private var originalRowLabel: some View {
         HStack(spacing: 10) {
@@ -52,7 +50,7 @@ extension NewRespondTimeRow {
     }
     
     private var formattedDay: String {
-        if let selectedDay = originalInvite.selectedDay {
+        if let selectedDay = draft.originalInvite.selectedDay {
             let day  = selectedDay.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())  // Thursday, Sep 23
             let time = selectedDay.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))  // 22:30
             return "\(day) · \(time)"
@@ -69,6 +67,6 @@ extension NewRespondTimeRow {
 }
 
 //Selecting New Time Row
-extension NewRespondTimeRow {
+extension RespondTimeRow {
     
 }

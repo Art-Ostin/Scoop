@@ -49,7 +49,6 @@ struct InvitesContainer: View {
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)
         }
-
         //The respond popup morphs out of the tapped invite card's invite button.
         .quickInviteMorph(
             iconId: $ui.showRespondPopup,
@@ -60,7 +59,6 @@ struct InvitesContainer: View {
         } overlay: {
             respondOverlay
         }
-
         //The popups to respond to invite, from the invite card
         .respondItemCustomAlert(item: $ui.showAcceptPopup, type: .acceptInvite) { respond($0, .accepted) }
         .respondItemCustomAlert(item: $ui.showNewTimePopup, type: .sendNewTimes) { respond($0, .newTime) }
