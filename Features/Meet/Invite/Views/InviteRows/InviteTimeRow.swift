@@ -24,20 +24,13 @@ struct InviteTimeRow: View {
 
     private var times: [Date] { proposedTimes.dates.map(\.date) }
 
-    //The visible page, clamped into range.
     private var activeIndex: Int {
         guard !times.isEmpty else { return 0 }
         return min(max(scrolledPageID ?? 0, 0), times.count - 1)
     }
 
-    //Tight frame of whatever the label shows now (a time page, or "Choose Time").
-    //Kept in separate state per case so a stale value from one never leaks into the
-    //other while switching between them.
     private var contentFrame: CGRect { times.isEmpty ? chooseTimeFrame : activeTimeFrame }
 
-    //Rect the menu's lens collapses to / blooms from: the shown content + chevron.
-    //If the content frame isn't measured yet (e.g. just switched from "Choose Time"
-    //to times) fall back to the chevron so the lens stays trailing, not centred.
     private var morphAnchor: CGRect? {
         guard chevronFrame != .zero else {
             return contentFrame == .zero ? nil : contentFrame
@@ -47,10 +40,14 @@ struct InviteTimeRow: View {
 
     var body: some View {
         HStack {
-            inviteTypeText(.when)
+            rowTitle
             Spacer()
-            timeCustomMenu.overlay(alignment: .bottom) { pageIndicator }
+            timeCustomMenu
         }
+        .overlay(alignment: .bottom) {
+            pageIndicator
+        }
+
         .transition(.opacity.animation(.smooth(duration: 0.2)))
     }
 }
@@ -78,9 +75,10 @@ private extension InviteTimeRow {
     @ViewBuilder
     var pageIndicator: some View {
         if times.count > 1 {
-            AnimatedPageIndicator(count: times.count, progress: scrollProgress)
+            AnimatedPageIndicator(count: times.count, progress: scrollProgress, inactiveDotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, 8)
+                .padding(.bottom, 6)
+                .offset(x: 6)
         }
     }
 
@@ -95,8 +93,6 @@ private extension InviteTimeRow {
         snapToActivePage()
     }
 
-    //Snap (instantly) to the page we zoomed in on, or the last one if it's gone,
-    //so the row reappears under the lens in the right place.
     func snapToActivePage() {
         let count = draft.dates.count
         guard count > 0 else { return }
@@ -105,11 +101,35 @@ private extension InviteTimeRow {
         tx.disablesAnimations = true
         withTransaction(tx) { scrolledPageID = target }
     }
+    
+    //Done this way for smooth transition
+    private var rowTitle: some View {
+        ZStack(alignment: .leading) {
+            Text(rowTitleText().capitalized)
+                .font(.body(13, .regular))
+                .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+                .contentTransition(.numericText())
+                .id(rowTitleTransitionID)
+                .transition(.blurReplace)
+        }
+        .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
+        .animation(.snappy, value: scrolledPageID)
+    }
+    
+    private var rowTitleTransitionID: String {
+        scrolledPageID == nil || scrolledPageID == 0 ? "when" : "option"
+    }
+    
+    
+    func rowTitleText() -> String {
+        if scrolledPageID == nil || scrolledPageID == 0 {
+            return "When"
+        } else {
+            return "Option \((scrolledPageID ?? 0) + 1)"
+        }
+    }
 }
 
-//The menu's trigger. In the row it's the live pager; in the menu's morph overlay
-//(`isLive == false`) it's just the active time + chevron, so the lens zooms around
-//that alone instead of the whole pager.
 private struct TimeRowMenuLabel: View {
 
     let times: [Date]
@@ -221,8 +241,6 @@ private struct TimeRowScrollLabel: View {
         .scrollDisabled(times.count <= 1)
     }
 
-    //lineLimit(1) so a momentarily-zero pageWidth (during the open re-layout) can't
-    //wrap the text and balloon the scroll height under the floating Hide button.
     private func page(_ time: Date, isActive: Bool) -> some View {
         Text(FormatEvent.dayAndTime(time, wide: true, withHour: true))
             .font(.body(17, .medium))
@@ -232,7 +250,6 @@ private struct TimeRowScrollLabel: View {
     }
 }
 
-//Publishes a view's global frame into `frame`.
 private struct GlobalFrameReader: View {
     @Binding var frame: CGRect
     var body: some View {
@@ -242,6 +259,5 @@ private struct GlobalFrameReader: View {
 }
 
 extension EnvironmentValues {
-    //True only in the row's own copy of the label, not the menu's morph overlay copy.
     @Entry var isLiveTimeRow: Bool = false
 }

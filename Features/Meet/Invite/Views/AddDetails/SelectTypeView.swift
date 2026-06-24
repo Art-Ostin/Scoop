@@ -86,7 +86,6 @@ extension SelectTypeView {
             }
         } label: {
             SmallInfoIcon(size: 10, colour: Color(red: 0.83, green: 0.83, blue: 0.83))
-                //Fine tuned padding so hit area large, but not intruding on main button
                 .padding(.trailing, 16)
                 .padding(.top, 8)
                 .padding(.leading, 10)
