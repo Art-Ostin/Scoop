@@ -17,7 +17,7 @@ struct InvitePlaceRow: View {
     
     var body: some View {
         HStack {
-            inviteTypeText(.where)
+            inviteTypeText(.where).opacity(ui.typePopupOpen ? 0.5 : 1)
             chooseButton
         }
     }

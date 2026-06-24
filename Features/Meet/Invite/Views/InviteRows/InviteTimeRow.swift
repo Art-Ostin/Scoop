@@ -40,7 +40,7 @@ struct InviteTimeRow: View {
 
     var body: some View {
         HStack {
-            rowTitle
+            rowTitle.opacity(ui.typePopupOpen ? 0.5 : 1)
             Spacer()
             timeCustomMenu
         }
@@ -183,6 +183,9 @@ private struct TimeRowMenuLabel: View {
 
     private var chevron: some View {
         DropDownButton(isOpen: false)
+            //Text's line box reserves descender space below the baseline, so the time's
+            //glyphs sit ~1pt above the HStack's geometric center; nudge the chevron up to match.
+            .offset(y: -1)
             .background { GlobalFrameReader(frame: $chevronFrame) }
     }
 
@@ -219,6 +222,12 @@ private struct TimeRowScrollLabel: View {
     @Binding var scrolledPageID: Int?
     @Binding var activeTimeFrame: CGRect
 
+    //scrollProgress is the fractional page index (0, 1, 2…); it lands on a whole
+    //number only when settled, so any offset from that means a drag is in flight.
+    private var isScrolling: Bool {
+        abs(scrollProgress - scrollProgress.rounded()) > 0.01
+    }
+
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
@@ -235,8 +244,8 @@ private struct TimeRowScrollLabel: View {
         .trackScrollProgress(scrollProgress: $scrollProgress)
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
-        //Leading fade only while scrolling, so it doesn't cover a stationary time.
-        .customHorizontalScrollFade(width: scrollProgress == 0 ? 0 : 40, showFade: true)
+        //Leading fade only mid-drag; settles to 0 on every stationary page so it never covers a time.
+        .customHorizontalScrollFade(width: isScrolling ? 40 : 0, showFade: true)
         .customHorizontalScrollFade(width: 12, showFade: true, fromLeading: false)
         .scrollDisabled(times.count <= 1)
     }

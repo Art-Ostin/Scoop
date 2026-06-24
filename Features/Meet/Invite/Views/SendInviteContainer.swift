@@ -39,6 +39,7 @@ struct SendInviteContainer: View {
                 .animation(.snappy(duration: 0.2), value: ui.timePopupOpen)
             timePlaceAndType
             sendInviteButton
+                .opacity(ui.typePopupOpenDelayed ? 0.4 : 1)
         }
         .frame(maxWidth: .infinity)
         .overlay(alignment: .topTrailing) { clearAndInfoButtons }
