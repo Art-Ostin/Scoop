@@ -15,6 +15,7 @@ struct FocusedTextView: UIViewRepresentable {
     var font: UIFont
     var lineSpacing: CGFloat
     var placeholderLineSpacing: CGFloat? = nil
+    var placeholderFont: UIFont? = nil
     var maxLength: Int? = nil
     var placeholder: String? = nil
     var placeholderColor: UIColor = .placeholderText
@@ -39,7 +40,7 @@ struct FocusedTextView: UIViewRepresentable {
         context.coordinator.configurePlaceholderLabel(
             in: tv,
             placeholder: placeholder,
-            font: font,
+            font: placeholderFont ?? font,
             color: placeholderColor,
             lineSpacing: placeholderLineSpacing ?? lineSpacing
         )
@@ -57,7 +58,7 @@ struct FocusedTextView: UIViewRepresentable {
         context.coordinator.configurePlaceholderLabel(
             in: uiView,
             placeholder: placeholder,
-            font: font,
+            font: placeholderFont ?? font,
             color: placeholderColor,
             lineSpacing: placeholderLineSpacing ?? lineSpacing
         )

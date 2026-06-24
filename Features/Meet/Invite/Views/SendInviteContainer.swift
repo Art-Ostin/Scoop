@@ -75,7 +75,7 @@ extension SendInviteContainer {
                 .padding(.top, typeTopPadding)
                 .padding(.bottom, typeBottomPadding)
             LightDivider()
-            InviteTimeRow(ui: ui, showTimePopup: ui.binding(for: .time), proposedTimes: $draft.time)
+            InviteTimeRow(ui: ui, proposedTimes: $draft.time)
             LightDivider()
             InvitePlaceRow(ui: ui, eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
                 .padding(.top, placeTopPadding)

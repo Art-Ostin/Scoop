@@ -14,6 +14,7 @@ struct SelectTypeView: View {
 
     //2. Needed to dismiss menu
     @Environment(\.typeCustomMenuDismiss) private var dismissMenu
+    @Environment(\.timeCustomMenuDismiss) private var dismissTimeMenu
     
     //3. types with info open given in a binding, as needed to pass up to
     @Binding var openTypes: Set<Event.EventType>
@@ -84,7 +85,7 @@ extension SelectTypeView {
                 toggleTypeInfo(type)
             }
         } label: {
-            SmallInfoIcon(size: 10, colour: Color(red: 0.88, green: 0.88, blue: 0.88))
+            SmallInfoIcon(size: 10, colour: Color(red: 0.83, green: 0.83, blue: 0.83))
                 //Fine tuned padding so hit area large, but not intruding on main button
                 .padding(.trailing, 16)
                 .padding(.top, 8)
@@ -137,11 +138,13 @@ extension SelectTypeView {
             Task {
                 try? await Task.sleep(for: .seconds(0.04))
                 dismissMenu(.instant)
+                dismissTimeMenu()
             }
         } else {
             selectedType = eventType
             showTypePopup = false
             dismissMenu()
+            dismissTimeMenu()
         }
     }
     

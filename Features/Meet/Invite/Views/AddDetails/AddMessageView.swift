@@ -78,7 +78,18 @@ extension AddMessageView {
     }
     
     private var textFieldSection: some View {
-        FocusedTextView(text: $message, font: .body(18), lineSpacing: 5, placeholderLineSpacing: 6, maxLength: messageLimit, placeholder: eventType.textPlaceholder)
+        
+        let textFont = UIFont.body(18)
+
+        return FocusedTextView(
+            text: $message,
+            font: textFont,
+            lineSpacing: 5,
+            placeholderLineSpacing: 6,
+            placeholderFont: .body(textFont.pointSize, .regular),
+            maxLength: messageLimit,
+            placeholder: eventType.textPlaceholder
+        )
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
@@ -108,7 +119,9 @@ extension AddMessageView {
             Text("Done")
                 .font(.body(18, .bold))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.vertical, 14)
+                .geometryGroup()
+
         }
         .padding(.top, 24)
     }
@@ -133,6 +146,11 @@ extension AddMessageView {
             message: "",
             cardCorners: RectangleCornerRadii(uniform: 20)
         )
+        // Opaque backing so the menu's translucent glass platter can't lens the
+        // red (accent) Done button sitting behind this popup's floating window.
+        // Same appCanvas fill used by inviteCardBackground / RespondTimeBackground.
+        .background(Color.appCanvas, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .compositingGroup()
     }
 }
 

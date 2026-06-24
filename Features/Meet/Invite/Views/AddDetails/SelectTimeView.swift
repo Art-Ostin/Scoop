@@ -78,15 +78,13 @@ private extension SelectTimeView {
     
     private var titleSectionV2: some View {
         HStack {
-            Text("Propose up to 3 days")
+            Text("Propose 1-3 days to meet") //"Propose up to 3 days"
                 .font(.body(17, .medium))
                 .foregroundStyle(Color(white: 0.1))
             Spacer()
             timeCountAndWarningSign
         }
     }
-    
-    
     
 
     var dayPicker: some View {
