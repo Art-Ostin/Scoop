@@ -15,6 +15,8 @@ struct AnimatedPageIndicator: View {
     var activeWidth: CGFloat = 12
     var spacing: CGFloat = 8
     
+    var isTimePage: Bool = false
+    
     var body: some View {
         HStack(spacing: spacing) {
             ForEach(0..<count, id: \.self) { i in
@@ -36,6 +38,20 @@ struct AnimatedPageIndicator: View {
     private func shrinkFactor(for distance: Double) -> CGFloat {
         let extra = max(0, distance - 2)
         return max(0.2, CGFloat(pow(0.7, extra)))
+    }
+}
+
+
+extension View {
+    
+    func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
+        self
+            .onScrollGeometryChange(for: Double.self) { geo in
+                let width = geo.containerSize.width
+                return width > 0 ? geo.contentOffset.x / width : 0
+            } action: { _, newValue in
+                scrollProgress.wrappedValue = newValue
+            }
     }
 }
 

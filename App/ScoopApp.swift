@@ -23,7 +23,7 @@ struct ScoopApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            MenuTester()
+//            InviteTimeRowTest()
             
             RootView()
                 .environment(dep)

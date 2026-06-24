@@ -275,6 +275,12 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// Corner radius of the label's own shape so the closing lens lands on it
     /// exactly (defaults to a capsule). Mismatched corners read as a snap.
     var labelCornerRadius: CGFloat?
+    /// Explicit (global) rect the morph lens collapses to / blooms from, overriding
+    /// the label's own measured frame. Use when the label is larger than what should
+    /// visually morph — e.g. a multi-item pager that should collapse onto just its
+    /// first item, pinned to that item's bounds (no surrounding padding or chevron).
+    /// Pair it with a label that renders only that item while in the morph overlay.
+    var morphAnchor: CGRect?
     /// Which label edge the menu aligns to (see `TimeCustomMenuAlignment`).
     var alignment: TimeCustomMenuAlignment
     /// Nudge applied to the final placement (positive = right / down). Defaults
@@ -294,6 +300,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     @GestureState private var isPressed = false
 
     init(labelCornerRadius: CGFloat? = nil,
+         morphAnchor: CGRect? = nil,
          alignment: TimeCustomMenuAlignment = .automatic,
          placementOffsetX: CGFloat = TimeCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = TimeCustomMenuSpec.placementOffsetY,
@@ -302,6 +309,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.labelCornerRadius = labelCornerRadius
+        self.morphAnchor = morphAnchor
         self.alignment = alignment
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
@@ -315,6 +323,9 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         // with the latest state so the dismiss morph shrinks showing the
         // post-selection value instead of the snapshot taken when it opened.
         let _ = syncPresentedLabel()
+        // Keep the morph collapse target current too (the first item can reflow
+        // after a selection), so the close morph lands on its latest bounds.
+        let _ = syncMorphAnchor()
         return label()
             .contentShape(Rectangle())
             // iOS 26: the overlay's lens swallows the label, so the real one
@@ -344,6 +355,16 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         }
     }
 
+    /// Pushes the freshest morph anchor into the controller while presented, so the
+    /// close morph collapses onto the first item's current bounds. Deferred one
+    /// runloop turn like the label sync. No-op while closed or when no override set.
+    private func syncMorphAnchor() {
+        guard controller.isPresented, let morphAnchor else { return }
+        DispatchQueue.main.async {
+            controller.updateMorphAnchor(morphAnchor)
+        }
+    }
+
     /// Native menus open on touch-down and support press-drag-release selection,
     /// so a single zero-distance drag drives the whole interaction.
     private var pressAndDrag: some Gesture {
@@ -352,6 +373,9 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
             .onChanged { value in
                 if !controller.isPresented {
                     onOpen?()
+                    // Seed the morph collapse target before the overlay renders, so
+                    // the open bloom starts from the first item (not the full label).
+                    controller.updateMorphAnchor(morphAnchor)
                     controller.present(
                         anchor: labelFrame,
                         label: { AnyView(label()) },
@@ -443,6 +467,9 @@ final class TimeCustomMenuController {
     /// selection), not the frame captured at open time. Placement keeps using the
     /// fixed `anchor` so the open menu never moves underfoot.
     private(set) var collapseAnchor: CGRect = .zero
+    /// Caller-supplied override for the morph collapse target (the first item's
+    /// bounds), preferred over `collapseAnchor` when set. See `TimeCustomMenu.morphAnchor`.
+    private(set) var morphAnchor: CGRect?
     private(set) var content: (() -> AnyView)?
     private(set) var labelView: (() -> AnyView)?
     private(set) var labelCornerRadius: CGFloat?
@@ -524,6 +551,13 @@ final class TimeCustomMenuController {
         collapseAnchor = frame
     }
 
+    /// Sets/clears the caller's explicit morph collapse target. Set just before
+    /// `present` (and kept fresh while shown) so the lens morphs around the first
+    /// item instead of the whole label.
+    func updateMorphAnchor(_ rect: CGRect?) {
+        morphAnchor = rect
+    }
+
     /// Called by the overlay the moment its lens (pixel-identical to the
     /// label at progress 0) is on screen, so there is overlap, never a gap.
     func hideSourceLabel() {
@@ -568,6 +602,7 @@ final class TimeCustomMenuController {
         alignment = .automatic
         placementOffset = .zero
         collapseAnchor = .zero
+        morphAnchor = nil
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
@@ -729,9 +764,11 @@ private struct TimeCustomMenuOverlayRoot: View {
 
         if let size = menuSize {
             let menuRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
-            // Collapse onto the label's live frame, falling back to the open-time
+            // Collapse onto the caller's explicit morph target if given (e.g. the
+            // pager's first item), else the label's live frame, else the open-time
             // anchor before the first geometry update lands.
-            let collapsedRect = controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor
+            let collapsedRect = controller.morphAnchor
+                ?? (controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor)
             // No GlassEffectContainer: with a single lens shape it isn't needed,
             // and the container both composites its glass ABOVE sibling content
             // (so the label can't sit over it) and ignores per-view .opacity (so
