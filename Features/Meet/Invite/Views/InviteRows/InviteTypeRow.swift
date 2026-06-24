@@ -51,7 +51,7 @@ extension InviteTypeRow {
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
             morphsFromTrailingPoint: message.isEmpty ? false : true, //Only morph from end if there is a message
-            placementOffsetY: -4, //12pt lower than the 24pt default
+            placementOffsetY: 28, //12pt lower than the 24pt default
             onOpen: { ui.typePopupOpen = true },
             onClose: { ui.typePopupOpen = false ; openInfoTypes.removeAll()   },
             footer: { AnyView(addMessageFooter) }

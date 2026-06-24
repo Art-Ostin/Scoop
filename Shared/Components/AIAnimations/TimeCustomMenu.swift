@@ -197,6 +197,11 @@ enum TimeCustomMenuSpec {
     static let lensTravelBias: CGFloat = 0.75
     /// Lens morph timing against the native open (~0.45s, slight settle).
     static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
+    /// Delay before the heavy menu content is mounted into the already-blooming lens.
+    /// Long enough that the bubble's opening motion plays smoothly first; short enough
+    /// that the content is built before it starts fading in (progress 0.55 of bloomOpen,
+    /// ~0.18s in). Tune on-device if an early stutter appears.
+    static let contentMountDelay: TimeInterval = 0.05
     /// Shrinking back through the circles never bounces (~0.4s on device).
     static let bloomClose = Animation.smooth(duration: 0.38)
     /// After the close morph lands on the button, the lens halo melts off the
@@ -482,6 +487,14 @@ final class TimeCustomMenuController {
     private(set) var highlightedItemID: UUID?
     /// Laid-out menu frame in screen coordinates, set by the overlay.
     var menuFrame: CGRect = .zero
+
+    /// Caller's rough platter size, used to start the open bloom before the live
+    /// measure lands (e.g. the first-ever open, when nothing is cached yet).
+    @ObservationIgnored private(set) var estimatedContentSize: CGSize?
+    /// Size measured on a previous open of this menu. Lets later opens bloom from
+    /// the exact size with no measure wait; persists across teardown (the controller
+    /// instance outlives each presentation).
+    @ObservationIgnored private(set) var cachedMenuSize: CGSize?
 
     var isPresented: Bool { window != nil }
 
