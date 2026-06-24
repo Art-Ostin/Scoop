@@ -74,7 +74,7 @@ extension CustomAlertCard {
             Text(isCancel ? cancelTitle : okTitle)
                 .font(.body(17, .bold))
                 .foregroundStyle(isCancel ? (isDanger ? Color.white : Color.black) : (isDanger ? Color.black : Color.white))
-                .padding(.vertical, 14)
+                .frame(height: 44)
                 .frame(width: isConfirmInvite ? 125 : 100)
                 .background(isCancel ? (isDanger ? Color.accent : Color.appCanvas) : (isDanger ? Color.appCanvas : Color.accent), in: .rect(cornerRadius: 20))
                 .stroke(20, lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: Color.grayText)

@@ -40,6 +40,7 @@ struct SendInviteContainer: View {
             timePlaceAndType
             sendInviteButton
                 .opacity(ui.typePopupOpenDelayed ? 0.4 : 1)
+                .padding(.top, 4) //Add tad extra padding 
         }
         .frame(maxWidth: .infinity)
         .overlay(alignment: .topTrailing) { clearAndInfoButtons }
@@ -73,14 +74,19 @@ extension SendInviteContainer {
     private var timePlaceAndType: some View {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
-                .padding(.top, typeTopPadding)
-                .padding(.bottom, typeBottomPadding)
+                .frame(height: 75, alignment: .center)
             LightDivider()
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
+                .frame(height: 75, alignment: .center)
             LightDivider()
             InvitePlaceRow(ui: ui, eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
-                .padding(.top, placeTopPadding)
-                .padding(.bottom, placeBottomPadding)
+                .frame(height: 75)//Computed height, so doesn't change when I add a place
+                .onGeometryChange(for: CGFloat.self) { geo in
+                    geo.size.height
+                } action: { newValue in
+                    print("Height of InvitePlace row is: \(newValue)")
+                }
+
         }
         .zIndex(1) //so pop ups always appear above the Action Button
     }

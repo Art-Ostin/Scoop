@@ -111,7 +111,9 @@
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"--- error count ---\"; grep -c \"error:\" /tmp/scoop_build.log; echo \"--- any errors ---\"; grep -E \"error:\" /tmp/scoop_build.log | head -30)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"error count: $\\(grep -c \"error:\" /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -20)",
       "Bash(git -C /Users/napoleon/Documents/Scoop status --short)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; grep -c \"error:\" /tmp/scoop_build.log)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; grep -c \"error:\" /tmp/scoop_build.log)",
+      "Bash(awk 'NR>=1495 && NR<=1525' Scoop.xcodeproj/project.pbxproj)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"--- error count ---\"; grep -c \"error:\" /tmp/scoop_build.log; echo \"--- errors \\(if any\\) ---\"; grep -n \"error:\" /tmp/scoop_build.log | head -40)"
     ]
   }
 }

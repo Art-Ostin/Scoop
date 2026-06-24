@@ -40,12 +40,12 @@ struct InviteTimeRow: View {
 
     var body: some View {
         HStack {
-            rowTitle.opacity(ui.typePopupOpen ? 0.5 : 1)
+            rowTitle.opacity(ui.typePopupOpen ? 0.3 : 1)
             Spacer()
-            timeCustomMenu
+            timeCustomMenu.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .overlay(alignment: .bottom) {
-            pageIndicator
+//            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
 
         .transition(.opacity.animation(.smooth(duration: 0.2)))
@@ -55,7 +55,13 @@ struct InviteTimeRow: View {
 private extension InviteTimeRow {
 
     var timeCustomMenu: some View {
-        TimeCustomMenu(morphAnchor: morphAnchor, onOpen: openMenu, onClose: closeMenu) {
+        // Approximate size of SelectTimeView's platter (day grid width + wheel
+        // pickers). Lets the lens bloom on the very first tap before the heavy
+        // content is built; the live measure corrects it (masked while the content
+        // is still invisible early in the bloom) and caches the exact size after.
+        TimeCustomMenu(morphAnchor: morphAnchor,
+                       estimatedContentSize: CGSize(width: 320, height: 270),
+                       onOpen: openMenu, onClose: closeMenu) {
             SelectTimeView(proposedTimes: $draft).zIndex(2)
         } label: {
             TimeRowMenuLabel(
@@ -185,7 +191,6 @@ private struct TimeRowMenuLabel: View {
         DropDownButton(isOpen: false)
             //Text's line box reserves descender space below the baseline, so the time's
             //glyphs sit ~1pt above the HStack's geometric center; nudge the chevron up to match.
-            .offset(y: -1)
             .background { GlobalFrameReader(frame: $chevronFrame) }
     }
 

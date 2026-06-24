@@ -110,15 +110,15 @@ extension SendInviteContainer {
         var margin = Self.screenMargin
         
         //1. Decrease if message lines is 1 and more if 3
-        if ui.messageLineCount >= 2 { margin -= 2 }
-        if ui.messageLineCount == 3 {margin -= 2}
+//        if ui.messageLineCount >= 2 { margin -= 2 }
+//        if ui.messageLineCount == 3 {margin -= 2}
         
         //2. Decrease if times 2 or 3
 //        if draft.time.dates.count >= 2 { margin -= 2 }
-        if draft.time.dates.count == 3 { margin -= 2 }
+//        if draft.time.dates.count == 3 { margin -= 2 }
         
         //3. if time is greater than 1 and place added decrease
-        if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
+//        if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
         return margin
     }
 

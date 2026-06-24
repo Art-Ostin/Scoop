@@ -121,7 +121,6 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
 
     @ViewBuilder private var morphLayer: some View {
         GeometryReader { geo in
-            let _ = print("[MORPH] \(morphT()) morphLayer geo.size=\(geo.size)")
             if let id = morphState.activeId {
                 QuickInviteMorph(
                     iconRect: iconRect,
@@ -154,7 +153,6 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
         let origin = proxy.frame(in: .global).origin
         iconRect = CGRect(x: local.minX + origin.x, y: local.minY + origin.y,
                           width: local.width, height: local.height)
-        print("[MORPH] \(morphT()) handleChange → set activeId=\(new) iconRect=\(iconRect)")
         withoutCoverAnimation { morphState.activeId = new }
     }
 
@@ -234,7 +232,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     private var contentFadeDelay: Double { style.openDuration * (0.16 / 0.35) }
 
     var body: some View {
-        let _ = print("[MORPH] \(morphT()) render expanded=\(expanded) surfaceHandedOff=\(surfaceHandedOff) windowRect=\(windowRect)")
         return ZStack {
             backdrop
             Group {
@@ -256,7 +253,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
         }
         .onPreferenceChange(MorphPopupOpenKey.self) { popupOpen = $0 }
         .onAppear {
-            print("[MORPH] \(morphT()) QuickInviteMorph.onAppear (expanded=\(expanded)) → set expanded=true")
             withAnimation(openAnimation) { expanded = true }
         }
         .onChange(of: isPresented) { _, presented in
@@ -268,7 +264,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             }
         }
         .onChange(of: expanded) { _, isExpanded in
-            print("[MORPH] \(morphT()) expanded → \(isExpanded)")
             // Reveal on the first commit of the open and stay revealed through the collapse,
             // so the surface still folds back onto the icon on the way out.
             if isExpanded { revealed = true }
