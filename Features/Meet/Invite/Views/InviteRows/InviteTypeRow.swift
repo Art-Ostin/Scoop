@@ -37,7 +37,7 @@ struct InviteTypeRow: View {
             HStack {
                 inviteTypeText(.what)
                 Spacer(minLength: 16)
-                inviteTypeButton
+                newInviteTypeButton
             }
     }
 }
@@ -57,6 +57,21 @@ extension InviteTypeRow {
             footer: { AnyView(addMessageFooter) }
         ) {
             selectTypeView //detached "Add a Message" card now lives in the footer below
+        } label: {
+            inviteTypeIcon
+        }
+    }
+    
+    private var newInviteTypeButton: some View {
+        CustomMenu(
+            version: .type,
+            message: message,                            //labels the footer: Add a Message / Edit Message
+            onAddMessage: { ui.showMessageScreen = true }, //footer action → message screen
+            cornerRadii: menuCorners,                    //platter matches the type card's split corners
+            footerCornerRadii: footerCorners,            //footer pairs with the platter's bottom
+            placementOffsetY: -12
+        ) {
+            selectTypeView
         } label: {
             inviteTypeIcon
         }

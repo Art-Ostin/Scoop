@@ -15,7 +15,7 @@ struct RespondTimeRow: View {
     var rowHasIcon = false
 
     var body: some View {
-        TimeCustomMenu {
+        CustomMenu(version: .time) {
             ResponTimePopup(draft: $draft)
         } label: {
             if draft.respondType == .original {

@@ -70,7 +70,9 @@ struct AddMessageView: View {
 extension AddMessageView {
     @ViewBuilder
     private var dropdownTitle: some View {
-        TimeCustomMenu {
+        //Type picker on the message screen: .type, but no onAddMessage ⇒ no footer
+        //(you're already editing the message here).
+        CustomMenu(version: .type) {
             selectTypeView
         } label: {
             selectTypeTitle

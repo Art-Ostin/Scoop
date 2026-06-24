@@ -97,7 +97,7 @@ struct TimeCustomMenuBuilder: View {
 
     /// Looks like a stock pull-down menu, built from arbitrary rows.
     private var classicMenu: some View {
-        TimeCustomMenu {
+        CustomMenu {
             VStack(spacing: 0) {
                 menuRow("Edit Event", icon: "pencil") { }
                 Divider()
@@ -124,7 +124,7 @@ struct TimeCustomMenuBuilder: View {
 
     /// Arbitrary layout: a reaction bar over a colour grid — impossible in a native Menu.
     private var freeformMenu: some View {
-        TimeCustomMenu {
+        CustomMenu {
             VStack(spacing: 12) {
                 HStack(spacing: 14) {
                     ForEach(["🍦", "🍨", "🍧", "🍫", "🍓"], id: \.self) { emoji in
@@ -199,6 +199,11 @@ enum TimeCustomMenuSpec {
     static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
     /// Shrinking back through the circles never bounces (~0.4s on device).
     static let bloomClose = Animation.smooth(duration: 0.38)
+    /// After the menu is open, content can reflow (e.g. a type info row expands) and
+    /// change the platter's height. Grow it (and the detached footer's anchor) on this
+    /// curve — kept identical to the content's own reflow (`.snappy(duration: 0.3)`) —
+    /// so the footer tracks the growing card instead of snapping. Post-open only.
+    static let reflowResize = Animation.snappy(duration: 0.3)
     /// After the close morph lands on the button, the lens halo melts off the
     /// restored label rather than popping out in one frame.
     static let lensFadeOut = Animation.easeOut(duration: 0.15)
@@ -243,6 +248,13 @@ enum TimeCustomMenuSpec {
     static let standardWidth: CGFloat = 250
     /// Gap between the label and the menu edge.
     static let anchorGap: CGFloat = 6
+    /// Gap between the main platter and the detached footer accessory (`.type`).
+    static let footerGap: CGFloat = 6
+    /// The footer sits `footerGap` below the platter at a LOWER z-order; the platter's
+    /// drop shadow paints over it, so the footer pre-brightens by this much to land back
+    /// on the platter's tone. Kept at 0 here because this menu's platter casts no shadow
+    /// (platterShadowOpacity = 0); bump it in step with platterShadowOpacity if that changes.
+    static let footerShadowCompensation: Double = 0.0
     /// Fine-tuning nudge applied to the final placement: shifts the platter
     /// right and down from its anchor-aligned position.
     static let placementOffsetX: CGFloat = 19 //Surgical so central
@@ -268,10 +280,36 @@ enum TimeCustomMenuAlignment {
     case leading, trailing, automatic
 }
 
-struct TimeCustomMenu<Content: View, Label: View>: View {
+/// Which flavour of menu this is.
+/// - `.time`: the plain menu (no footer) — e.g. the time picker. Default behaviour.
+/// - `.type`: the type picker. When an `onAddMessage` action is supplied, the menu
+///   builds its own detached "Add a Message" footer beneath the platter.
+enum CustomMenuVersion {
+    case type, time
+}
+
+struct CustomMenu<Content: View, Label: View>: View {
 
     @ViewBuilder var content: () -> Content
     @ViewBuilder var label: () -> Label
+    /// Which menu this is. `.type` opts the menu into the detached "Add a Message"
+    /// footer (when `onAddMessage` is supplied); `.time` is the plain menu.
+    var version: CustomMenuVersion
+    /// Current message text — only used to label the `.type` footer ("Add a Message"
+    /// vs "Edit Message"). Ignored for `.time`.
+    var message: String
+    /// `.type` footer action (e.g. open the message screen). When `version == .type`
+    /// and this is non-nil, the menu builds its own footer; nil ⇒ no footer.
+    var onAddMessage: (() -> Void)?
+    /// Uniform platter corner radius override. `nil` uses the spec default
+    /// (26pt glass / 13pt legacy). `cornerRadii` takes precedence over this.
+    var cornerRadius: CGFloat?
+    /// Per-corner platter radii, for cards whose top/bottom corners differ (e.g. the
+    /// `.type` card paired with a footer). Overrides `cornerRadius` when set.
+    var cornerRadii: RectangleCornerRadii?
+    /// Footer card corners. `nil` falls back to a uniform 16. Set this to pair the
+    /// footer's top with the platter's bottom (e.g. platter bottom 6 / footer top 6).
+    var footerCornerRadii: RectangleCornerRadii?
     /// Corner radius of the label's own shape so the closing lens lands on it
     /// exactly (defaults to a capsule). Mismatched corners read as a snap.
     var labelCornerRadius: CGFloat?
@@ -299,7 +337,13 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     @State private var labelFrame: CGRect = .zero
     @GestureState private var isPressed = false
 
-    init(labelCornerRadius: CGFloat? = nil,
+    init(version: CustomMenuVersion = .time,
+         message: String = "",
+         onAddMessage: (() -> Void)? = nil,
+         cornerRadius: CGFloat? = nil,
+         cornerRadii: RectangleCornerRadii? = nil,
+         footerCornerRadii: RectangleCornerRadii? = nil,
+         labelCornerRadius: CGFloat? = nil,
          morphAnchor: CGRect? = nil,
          alignment: TimeCustomMenuAlignment = .automatic,
          placementOffsetX: CGFloat = TimeCustomMenuSpec.placementOffsetX,
@@ -308,6 +352,12 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          onClose: (() -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
+        self.version = version
+        self.message = message
+        self.onAddMessage = onAddMessage
+        self.cornerRadius = cornerRadius
+        self.cornerRadii = cornerRadii
+        self.footerCornerRadii = footerCornerRadii
         self.labelCornerRadius = labelCornerRadius
         self.morphAnchor = morphAnchor
         self.alignment = alignment
@@ -316,6 +366,16 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.onClose = onClose
         self.content = content
         self.label = label
+    }
+
+    /// The detached footer, built by the menu itself for `.type` when an action is
+    /// supplied (the user's "CustomMenu builds it internally" choice). `nil` ⇒ no footer,
+    /// so `.time` and `.type`-without-action keep the plain single-platter behaviour.
+    private var footerBuilder: (() -> AnyView)? {
+        guard version == .type, let onAddMessage else { return nil }
+        let corners = footerCornerRadii ?? RectangleCornerRadii(uniform: 16)
+        let text = message
+        return { AnyView(CustomMenuAddMessageFooter(message: text, corners: corners, onSelect: onAddMessage)) }
     }
 
     var body: some View {
@@ -380,9 +440,13 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                         anchor: labelFrame,
                         label: { AnyView(label()) },
                         labelCornerRadius: labelCornerRadius,
+                        cornerRadius: cornerRadius,
+                        cornerRadii: cornerRadii,
+                        footerCornerRadii: footerCornerRadii,
                         alignment: alignment,
                         placementOffset: placementOffset,
                         onClose: onClose,
+                        footer: footerBuilder,
                         content: { AnyView(content()) }
                     )
                 }
@@ -414,6 +478,66 @@ extension View {
     /// fires `action` on tap or drag-release, and dismisses the menu.
     func timeCustomMenuItem(action: @escaping () -> Void) -> some View {
         modifier(TimeCustomMenuItemModifier(action: action))
+    }
+
+    /// The detached menu-footer material — glass on iOS 26, frosted material + soft shadow
+    /// on the classic platter — so a footer card matches the menu's own material. Exposed
+    /// so the footer owns its platter: a press on it scales the whole glass card, not just
+    /// its inner content.
+    func customMenuFooterPlatter(corners: RectangleCornerRadii) -> some View {
+        modifier(CustomMenuFooterPlatter(corners: corners))
+    }
+}
+
+struct CustomMenuFooterPlatter: ViewModifier {
+    let corners: RectangleCornerRadii
+    func body(content: Content) -> some View {
+        let shape = UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: shape)
+                // Cancel any platter drop shadow bleeding onto this footer (it sits a hair
+                // below the platter at a lower z). 0 here since this menu's platter casts
+                // no shadow; see TimeCustomMenuSpec.footerShadowCompensation.
+                .brightness(TimeCustomMenuSpec.footerShadowCompensation)
+        } else {
+            content
+                .background(shape.fill(.regularMaterial))
+                .clipShape(shape)
+                .shadow(color: .black.opacity(0.12), radius: 24, y: 16)
+        }
+    }
+}
+
+/// The `.type` menu's own "Add a Message" / "Edit Message" footer — built internally by
+/// `CustomMenu` (not supplied by the caller). Same card, stroke, glass platter and press
+/// effect as the standalone footer; dismisses the menu instantly (not via the morph close)
+/// because the caller is navigating to the message screen and a morph fighting the push
+/// reads as jank.
+private struct CustomMenuAddMessageFooter: View {
+
+    @Environment(TimeCustomMenuController.self) private var controller: TimeCustomMenuController?
+
+    let message: String
+    let corners: RectangleCornerRadii
+    let onSelect: () -> Void
+
+    var body: some View {
+        Text(message.isEmpty ? "Add a Message" : "Edit Message")
+            .foregroundStyle(Color.black)
+            .font(.body(16, .bold))
+            .kerning(0.5)
+            .frame(height: 40)
+            .modifier(SelectTypeCardBackground(corners: corners)) // same stroked card as the type list
+            .customMenuFooterPlatter(corners: corners)            // own the glass platter so the press scales it
+            .contentShape(.rect)
+            .shrinkPress {
+                onSelect()
+                Task {
+                    try? await Task.sleep(for: .seconds(0.04))
+                    controller?.dismiss(animated: false)
+                }
+            }
     }
 }
 
@@ -471,8 +595,16 @@ final class TimeCustomMenuController {
     /// bounds), preferred over `collapseAnchor` when set. See `TimeCustomMenu.morphAnchor`.
     private(set) var morphAnchor: CGRect?
     private(set) var content: (() -> AnyView)?
+    /// Detached accessory rendered as its own card below the platter (`.type` footer).
+    private(set) var footer: (() -> AnyView)?
     private(set) var labelView: (() -> AnyView)?
     private(set) var labelCornerRadius: CGFloat?
+    /// Caller-supplied uniform platter radius; `nil` falls back to the spec value.
+    private(set) var cornerRadius: CGFloat?
+    /// Caller-supplied per-corner platter radii; overrides `cornerRadius` when set.
+    private(set) var cornerRadii: RectangleCornerRadii?
+    /// Caller-supplied footer corners; `nil` falls back to a uniform 16.
+    private(set) var footerCornerRadii: RectangleCornerRadii?
     private(set) var alignment: TimeCustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
     /// iOS 26: the real label hides while the overlay's lens carries its copy.
@@ -502,9 +634,13 @@ final class TimeCustomMenuController {
     func present(anchor: CGRect,
                  label: @escaping () -> AnyView,
                  labelCornerRadius: CGFloat?,
+                 cornerRadius: CGFloat? = nil,
+                 cornerRadii: RectangleCornerRadii? = nil,
+                 footerCornerRadii: RectangleCornerRadii? = nil,
                  alignment: TimeCustomMenuAlignment,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
+                 footer: (() -> AnyView)? = nil,
                  content: @escaping () -> AnyView) {
         guard window == nil,
               let scene = UIApplication.shared.connectedScenes
@@ -516,9 +652,13 @@ final class TimeCustomMenuController {
         self.collapseAnchor = anchor
         self.labelView = label
         self.labelCornerRadius = labelCornerRadius
+        self.cornerRadius = cornerRadius
+        self.cornerRadii = cornerRadii
+        self.footerCornerRadii = footerCornerRadii
         self.alignment = alignment
         self.placementOffset = placementOffset
         self.onClose = onClose
+        self.footer = footer
         self.content = content
         phase = .measuring
 
@@ -597,8 +737,12 @@ final class TimeCustomMenuController {
         window = nil
         onClose = nil
         content = nil
+        footer = nil
         labelView = nil
         labelCornerRadius = nil
+        cornerRadius = nil
+        cornerRadii = nil
+        footerCornerRadii = nil
         alignment = .automatic
         placementOffset = .zero
         collapseAnchor = .zero
@@ -687,6 +831,13 @@ private struct TimeCustomMenuOverlayRoot: View {
                     .contentShape(Rectangle())
                     .onTapGesture { controller.dismiss() }
 
+                // Detached accessory (`.type` footer) rides UNDER the platter (lower z)
+                // so it emerges from the menu's bottom edge during the bloom (placed
+                // once the platter has settled its frame).
+                if let footer = controller.footer, controller.menuFrame != .zero {
+                    footerCard(footer())
+                }
+
                 if let content = controller.content {
                     if #available(iOS 26.0, *) {
                         glassPresentation(content: content(), metrics: metrics)
@@ -718,6 +869,87 @@ private struct TimeCustomMenuOverlayRoot: View {
         .ignoresSafeArea()
     }
 
+    // MARK: Detached footer accessory (`.type`)
+
+    /// A separate card sitting a gap below the platter — never part of the lens morph.
+    /// The footer draws its own material (`.customMenuFooterPlatter`); here we only size,
+    /// position and morph it. Items inside it get the same `controller` + dismiss
+    /// environment as the menu content. Positioned off the platter's settled `menuFrame`.
+    @ViewBuilder
+    private func footerCard(_ footer: AnyView) -> some View {
+        let frame = controller.menuFrame
+
+        let card = footer
+            .environment(controller)
+            .environment(\.timeCustomMenuDismiss, TimeCustomMenuDismissAction { [weak controller] in
+                controller?.dismiss()
+            })
+            .fixedSize()                                    // let the footer keep its own width
+
+        if #available(iOS 26.0, *) {
+            // Rides the platter's bloom: tracks the menu's interpolated bottom edge as it
+            // grows downward and materializes with it, then reverses on close.
+            card.modifier(FooterMorph(
+                progress: morphProgress,
+                top: frame.minY,
+                bottom: frame.maxY,
+                gap: TimeCustomMenuSpec.footerGap,
+                leftX: frame.minX,
+                width: frame.width
+            ))
+        } else {
+            // Pre-26 has no lens morph; fall back to a simple fade/scale at rest.
+            let visible = appeared && controller.phase == .shown
+            card
+                .frame(width: frame.width)
+                .opacity(visible ? 1 : 0)
+                .scaleEffect(visible ? 1 : 0.96, anchor: .top)
+                .animation(.easeOut(duration: 0.18), value: visible)
+                .offset(x: frame.minX, y: frame.maxY + TimeCustomMenuSpec.footerGap)
+        }
+    }
+
+    /// The footer's share of the lens bloom. As `progress` goes 0→1 the card tracks the
+    /// menu's interpolated bottom edge (top → bottom) and a gap below it, fading in over
+    /// the back half — the same window the menu content materializes in — so it reads as
+    /// emerging from under the platter. `Animatable`, so SwiftUI interpolates it every
+    /// spring frame in lockstep with the menu morph; the close runs it in reverse.
+    @available(iOS 26.0, *)
+    private struct FooterMorph: ViewModifier, Animatable {
+        var progress: CGFloat
+        /// Menu's top / bottom edge in screen space. Animatable alongside `progress`:
+        /// post-open the platter reflows and `bottom` grows — interpolating it here lets
+        /// the footer glide down on the reflow curve instead of snapping to the new edge.
+        var top: CGFloat
+        var bottom: CGFloat
+        let gap: CGFloat
+        /// Menu's left edge + width, so the card centres under the platter.
+        let leftX: CGFloat
+        let width: CGFloat
+
+        var animatableData: AnimatablePair<CGFloat, AnimatablePair<CGFloat, CGFloat>> {
+            get { AnimatablePair(progress, AnimatablePair(top, bottom)) }
+            set {
+                progress = newValue.first
+                top = newValue.second.first
+                bottom = newValue.second.second
+            }
+        }
+
+        func body(content: Content) -> some View {
+            let p = progress
+            // Follow the platter's interpolated bottom edge as it grows down.
+            let edge = top + (bottom - top) * p
+            // Materialize on the menu content's own ramp (0.55→1 of the bloom).
+            let appear = Double(((p - 0.55) / 0.45).clamped(to: 0...1))
+            content
+                .frame(width: width)
+                .scaleEffect(0.97 + 0.03 * appear, anchor: .top)
+                .opacity(appear)
+                .offset(x: leftX, y: edge + gap)
+        }
+    }
+
     // MARK: iOS 26 — Liquid Glass bloom
 
     /// The native iOS 26 lens morph, replicated from frame-by-frame analysis of
@@ -740,23 +972,35 @@ private struct TimeCustomMenuOverlayRoot: View {
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
-                menuSize = size
-                controller.menuFrame = CGRect(origin: metrics.placement(for: size).origin, size: size)
-                // Wait for the scroll-capped pass before blooming oversized menus.
-                if !appeared, size.height <= metrics.maxHeight + 1 {
-                    appeared = true
-                    controller.markShown()
-                    // The lens is pixel-identical to the label at progress 0, so
-                    // it takes over the button instantly (no fade-in — that adds
-                    // perceptible lag between tap and motion) and the morph
-                    // begins the same beat.
-                    lensOpacity = 1
-                    controller.hideSourceLabel()
-                    // Escape the layout transaction so the morph animates from a
-                    // committed frame instead of snapping on initial render.
-                    DispatchQueue.main.async {
-                        withAnimation(TimeCustomMenuSpec.bloomOpen) {
-                            morphProgress = 1
+                let placed = CGRect(origin: metrics.placement(for: size).origin, size: size)
+                if appeared {
+                    // Post-open reflow (e.g. a type info row expanded): animate the
+                    // platter's height (menuSize) AND the footer's anchor (menuFrame)
+                    // on the same curve, so the detached footer glides down with the
+                    // growing card instead of snapping to the new edge.
+                    withAnimation(TimeCustomMenuSpec.reflowResize) {
+                        controller.menuFrame = placed
+                        menuSize = size
+                    }
+                } else {
+                    menuSize = size
+                    controller.menuFrame = placed
+                    // Wait for the scroll-capped pass before blooming oversized menus.
+                    if size.height <= metrics.maxHeight + 1 {
+                        appeared = true
+                        controller.markShown()
+                        // The lens is pixel-identical to the label at progress 0, so
+                        // it takes over the button instantly (no fade-in — that adds
+                        // perceptible lag between tap and motion) and the morph
+                        // begins the same beat.
+                        lensOpacity = 1
+                        controller.hideSourceLabel()
+                        // Escape the layout transaction so the morph animates from a
+                        // committed frame instead of snapping on initial render.
+                        DispatchQueue.main.async {
+                            withAnimation(TimeCustomMenuSpec.bloomOpen) {
+                                morphProgress = 1
+                            }
                         }
                     }
                 }
@@ -782,6 +1026,8 @@ private struct TimeCustomMenuOverlayRoot: View {
                         collapsed: collapsedRect,
                         collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
                         expanded: menuRect,
+                        platterCorners: controller.cornerRadii
+                            ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? TimeCustomMenuSpec.platterCornerRadius),
                         label: controller.labelView?(),
                         isClosing: controller.phase == .dismissing
                     ))
@@ -797,15 +1043,20 @@ private struct TimeCustomMenuOverlayRoot: View {
     private func legacyPresentation(content: AnyView, metrics: Metrics) -> some View {
         let visible = appeared && controller.phase == .shown
         let placement = metrics.placement(for: menuSize ?? .zero)
+        let platterShape = UnevenRoundedRectangle(
+            cornerRadii: controller.cornerRadii
+                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? TimeCustomMenuSpec.legacyCornerRadius),
+            style: .continuous
+        )
 
         chromeCore(content: content, metrics: metrics)
             .background {
-                TimeCustomMenuSpec.legacyShape
+                platterShape
                     .fill(.regularMaterial)
                     .shadow(color: .black.opacity(0.12), radius: 32, y: 16)
                     .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
             }
-            .clipShape(TimeCustomMenuSpec.legacyShape)
+            .clipShape(platterShape)
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
@@ -884,6 +1135,9 @@ private struct TimeCustomMenuOverlayRoot: View {
         /// The label's own corner radius, so the lens lands exactly on its shape.
         let collapsedRadius: CGFloat
         let expanded: CGRect
+        /// The platter's resting per-corner radii (caller-supplied or spec default).
+        /// The final relax phase eases each corner from the circle toward these.
+        let platterCorners: RectangleCornerRadii
         let label: AnyView?
         /// While dismissing, the glass melts off over the final expand so the
         /// label finishes the motion alone (no glass left to pop afterwards).
@@ -898,8 +1152,17 @@ private struct TimeCustomMenuOverlayRoot: View {
             a + (b - a) * t
         }
 
-        /// Piecewise lens geometry across the keyframes above.
-        private func lensFrame(_ p: CGFloat) -> (rect: CGRect, radius: CGFloat) {
+        /// All four corners equal — the circle phases are perfectly round, so a single
+        /// radius drives every corner until the platter relax phase splits them.
+        private func uniformCorners(_ r: CGFloat) -> RectangleCornerRadii {
+            RectangleCornerRadii(topLeading: r, bottomLeading: r, bottomTrailing: r, topTrailing: r)
+        }
+
+        /// Piecewise lens geometry across the keyframes above. The circle phases keep
+        /// uniform corners; only the final relax (p ≥ 0.7) eases each corner toward the
+        /// platter's resting per-corner radii, so a `.type` card lands on its split
+        /// (e.g. top 20 / bottom 6) corners while `.time` lands on its uniform 26.
+        private func lensFrame(_ p: CGFloat) -> (rect: CGRect, corners: RectangleCornerRadii) {
             let small = collapsed.height * TimeCustomMenuSpec.dropletScale
             let big = max(small * 1.5,
                           min(min(expanded.width, expanded.height) * TimeCustomMenuSpec.lensCircleScale,
@@ -910,7 +1173,8 @@ private struct TimeCustomMenuOverlayRoot: View {
             let mid = CGPoint(x: lerp(start.x, end.x, TimeCustomMenuSpec.lensTravelBias),
                               y: lerp(start.y, end.y, TimeCustomMenuSpec.lensTravelBias))
 
-            let w: CGFloat, h: CGFloat, cx: CGFloat, cy: CGFloat, radius: CGFloat
+            let w: CGFloat, h: CGFloat, cx: CGFloat, cy: CGFloat
+            let corners: RectangleCornerRadii
             if p < 0.35 {
                 // Button → droplet circle, holding the button's centre. Radius
                 // starts at the label's own corner radius so the closing lens
@@ -920,7 +1184,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                 h = lerp(collapsed.height, small, t)
                 cx = start.x
                 cy = start.y
-                radius = min(min(w, h) / 2, lerp(collapsedRadius, small / 2, t))
+                corners = uniformCorners(min(min(w, h) / 2, lerp(collapsedRadius, small / 2, t)))
             } else if p < 0.7 {
                 // Droplet inflates and travels toward the menu.
                 let t = (p - 0.35) / 0.35
@@ -928,7 +1192,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                 h = w
                 cx = lerp(start.x, mid.x, t)
                 cy = lerp(start.y, mid.y, t)
-                radius = w / 2
+                corners = uniformCorners(w / 2)
             } else {
                 // Circle relaxes into the platter (spring overshoot extrapolates).
                 let t = (p - 0.7) / 0.3
@@ -936,10 +1200,17 @@ private struct TimeCustomMenuOverlayRoot: View {
                 h = lerp(big, expanded.height, t)
                 cx = lerp(mid.x, end.x, t)
                 cy = lerp(mid.y, end.y, t)
-                radius = min(min(w, h) / 2,
-                             lerp(big / 2, TimeCustomMenuSpec.platterCornerRadius, t))
+                // Ease each corner from the circle (big / 2) to its resting radius,
+                // capping at a half-side so the shape stays a clean rounded-rect.
+                let cap = min(w, h) / 2
+                corners = RectangleCornerRadii(
+                    topLeading: min(cap, lerp(big / 2, platterCorners.topLeading, t)),
+                    bottomLeading: min(cap, lerp(big / 2, platterCorners.bottomLeading, t)),
+                    bottomTrailing: min(cap, lerp(big / 2, platterCorners.bottomTrailing, t)),
+                    topTrailing: min(cap, lerp(big / 2, platterCorners.topTrailing, t))
+                )
             }
-            return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), radius)
+            return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), corners)
         }
 
         func body(content: Content) -> some View {
@@ -968,7 +1239,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                     .blur(radius: (1 - p).clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
                     .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
                     .frame(width: w, height: h, alignment: .topLeading)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius, style: .continuous))
+                    .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: lens.corners, style: .continuous))
                     // Native platters cast a wide soft shadow; it grows with the
                     // bloom so the resting button state casts none.
                     .shadow(color: .black.opacity(TimeCustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),

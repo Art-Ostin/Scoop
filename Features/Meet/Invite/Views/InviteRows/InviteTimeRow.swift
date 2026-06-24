@@ -55,7 +55,7 @@ struct InviteTimeRow: View {
 private extension InviteTimeRow {
 
     var timeCustomMenu: some View {
-        TimeCustomMenu(morphAnchor: morphAnchor, onOpen: openMenu, onClose: closeMenu) {
+        CustomMenu(version: .time, morphAnchor: morphAnchor, onOpen: openMenu, onClose: closeMenu) {
             SelectTimeView(proposedTimes: $draft).zIndex(2)
         } label: {
             TimeRowMenuLabel(
