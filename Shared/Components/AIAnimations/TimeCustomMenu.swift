@@ -517,6 +517,7 @@ final class TimeCustomMenuController {
                  labelCornerRadius: CGFloat?,
                  alignment: TimeCustomMenuAlignment,
                  placementOffset: CGSize,
+                 estimatedContentSize: CGSize? = nil,
                  onClose: (() -> Void)? = nil,
                  content: @escaping () -> AnyView) {
         guard window == nil,
@@ -531,6 +532,7 @@ final class TimeCustomMenuController {
         self.labelCornerRadius = labelCornerRadius
         self.alignment = alignment
         self.placementOffset = placementOffset
+        self.estimatedContentSize = estimatedContentSize
         self.onClose = onClose
         self.content = content
         phase = .measuring
@@ -570,6 +572,9 @@ final class TimeCustomMenuController {
     func updateMorphAnchor(_ rect: CGRect?) {
         morphAnchor = rect
     }
+
+    /// Remembers the live-measured size so the next open can bloom from it instantly.
+    func cacheMenuSize(_ size: CGSize) { cachedMenuSize = size }
 
     /// Called by the overlay the moment its lens (pixel-identical to the
     /// label at progress 0) is on screen, so there is overlap, never a gap.
@@ -679,6 +684,11 @@ private struct TimeCustomMenuOverlayRoot: View {
     @State private var menuSize: CGSize?
     @State private var contentIdealHeight: CGFloat?
     @State private var appeared = false
+    /// iOS 26: the open bloom has been kicked (guards against re-firing).
+    @State private var bloomStarted = false
+    /// iOS 26: the heavy menu content has been mounted into the lens (deferred one
+    /// beat past the bloom start so its build never blocks the first morph frame).
+    @State private var contentMounted = false
     /// iOS 26 lens morph: 0 = lens sits on the label, 1 = full menu platter.
     @State private var morphProgress: CGFloat = 0
     /// iOS 26: the halo materializes over the button on open and melts off
