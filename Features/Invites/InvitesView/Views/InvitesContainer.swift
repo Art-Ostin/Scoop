@@ -75,7 +75,7 @@ extension InvitesContainer {
     private func respondMode(_ eventProfile: EventProfile) -> ProfileMode {
         let respondVM = vm.respondVM(for: eventProfile)
 
-        return ProfileMode.respondToInvite(respondVM: vm.respondVM(for: eventProfile)) { type in
+        return ProfileMode.respondToInvite(respondVM: respondVM) { type in
             respond(eventProfile.event.id, type)
         }
     }

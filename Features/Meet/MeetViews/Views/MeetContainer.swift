@@ -34,30 +34,60 @@ struct MeetContainer: View {
             meetView
                 .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                 .navigationTitle("Meet")
-                .scoopNavigationBarFonts()
         }
-        .overlay(alignment: .topTrailing) {
-            InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
-        }
+        .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
-        .profileView(presentedID: ui.openProfile?.id) {
-            if let profile = ui.openProfile { profileView(profile: profile) }
-        }
-        .responseCover(presentedID: ui.respondedToProfile) { response in
-            RespondedToProfileView(responseType: response)
-        }
+        
+        .profileView(presentedID: ui.openProfile?.id) {profileView()}
+        .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
+        
         .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)
         }
-        
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
     }
 }
 
-//Views
+//1. Profile View Logic
 extension MeetContainer {
+    
+    @ViewBuilder
+    private func profileView() -> some View {
+        if let profile = ui.openProfile {
+            ProfileView(
+                vm: profileVM(profile),
+                profileImages: profileImages(profile),
+                mode: sendInvite(profile),
+                onDismiss: { ui.openProfile = nil }
+            )
+            .id(profile.id)
+            .opacity(profileMorph.contentOpacity)
+            .environment(profileMorph)
+        }
+    }
+    
+    private func profileVM(_ profile: UserProfile) -> ProfileViewModel {
+        ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults)
+    }
+    
+    private func profileImages(_ profile: UserProfile) -> [UIImage] {
+        vm.profileImages[profile.id] ?? seedImages(for: profile)
+    }
+    
+    private func sendInvite(_ profile: UserProfile) -> ProfileMode {
+        return .sendInvite { draft in
+            Task {await respondToProfile(event: draft, profile: profile)}
+        } onDecline: {
+            Task { await respondToProfile(profile: profile) }
+        }
+    }
+}
+
+//2. Profile Card Section Logic
+extension MeetContainer {
+    
     private var meetView: some View {
         ScrollView {
             if vm.profiles.isEmpty {
@@ -70,73 +100,67 @@ extension MeetContainer {
         .transition(.opacity)
         .id(vm.profiles.count)
         .scrollIndicators(.hidden)
-        .scrollIndicators(.never)
-//        .colorBackground()
     }
 
     private var profileCardsSection: some View {
         LazyVStack(spacing: 64) {
             ForEach(vm.profiles) { profile in
-                ProfileCard(
-                    onTap: { image in openProfile(profile, image: image) },
-                    onQuickInvite: { ui.quickInvite = profile.profile.id },
-                    profile: profile, size: imageSize,
-                    imageLoader: vm.imageLoader)
-                    .task { await vm.loadProfileImages(profile: profile.profile) }
-                    .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
+                profileCard(profile)
             }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 60)
         .padding(.top, 36)
     }
-            
-    private func profileView(profile: UserProfile) -> some View {
-        ProfileView(
-            vm: ProfileViewModel(
-                profile: profile,
-                imageLoader: vm.imageLoader, defaults: vm.defaults
-            ),
-            profileImages: vm.profileImages[profile.id] ?? seedImages(for: profile),
-            mode: .sendInvite(
-                onSend: { draft in
-                    Task { await respondToProfile(event: draft, profile: profile) }
-                },
-                onDecline: {
-                    Task { await respondToProfile(profile: profile) }
-                }
-            ),
-            onDismiss: { ui.openProfile = nil }
-        )
-        .id(profile.id)
-        //Cross-fades in the same 0.3s transaction as the card image flight.
-        .opacity(profileMorph.contentOpacity)
-        //Rendered at the app root, outside this container's environment.
-        .environment(profileMorph)
-    }
-
-    //If the async profile images haven't landed yet, seed the pager with the card
-    //image so the morph destination exists (and is identical) on frame one.
-    private func seedImages(for profile: UserProfile) -> [UIImage] {
-        vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
-    }
     
-    @ViewBuilder private func timeAndPlaceView(_ profileId: String) -> some View {
-        if let profileEvent = vm.profiles.first(where: {$0.id == profileId}) {
-            let inviteModel = InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
+    private func profileCard(_ profile: PendingProfile)-> some View {
+        ProfileCard(
+            onTap: { image in openProfile(profile, image: image) },
+            onQuickInvite: { ui.quickInvite = profile.profile.id },
+            profile: profile, size: imageSize,
+            imageLoader: vm.imageLoader)
+            .task { await vm.loadProfileImages(profile: profile.profile) }
+            .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
+    }
+}
+
+//3. Time And Place Popup Logic
+extension MeetContainer {
+    
+    @ViewBuilder
+    private func timeAndPlaceView(_ profileId: String) -> some View {
+        if let profileEvent = fetchPendingProfileFromId(profileId) {
             InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                sendInvite: { inviteDraft in
-                    Task {await respondToProfile(event: inviteDraft, profile: profileEvent.profile)}
-                },
+                vm: timeAndPlaceViewModel(profileEvent),
+                sendInvite: { sendInvite(profileEvent, draft: $0) },
                 requestConfirm: { pendingInvite = $0 }
             )
         }
     }
+
+    private func fetchPendingProfileFromId(_ profileId: String) -> PendingProfile? {
+        return vm.profiles.first(where: {$0.id == profileId})
+    }
+    
+    private func timeAndPlaceViewModel(_ profileEvent: PendingProfile) -> TimeAndPlaceViewModel {
+        TimeAndPlaceViewModel(inviteModel: inviteModel(profileEvent), defaults: vm.defaults)
+    }
+    
+    private func inviteModel(_ profileEvent: PendingProfile) -> InviteModel {
+        InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
+    }
+    
+    private func sendInvite(_ profileEvent: PendingProfile, draft: EventFieldsDraft) {
+        Task {await respondToProfile(event: draft, profile: profileEvent.profile)}
+    }
 }
 
-
+//Key Functions
 extension MeetContainer {
+
+    private func seedImages(for profile: UserProfile) -> [UIImage] {
+        vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
+    }
     
     private func openProfile(_ profile: PendingProfile, image: UIImage) {
         guard ui.openProfile == nil else { return }
@@ -177,10 +201,17 @@ extension MeetContainer {
         }
     }
     
-    
+}
+
+//Other Views
+extension MeetContainer {
     private var meetPlaceholder: some View {
         VStack {
             Text("Hello World")
         }
+    }
+
+    private var infoButton: some View {
+        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
     }
 }
