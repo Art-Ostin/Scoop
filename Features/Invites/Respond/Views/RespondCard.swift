@@ -150,7 +150,7 @@ struct RespondCardBackground: ViewModifier {
 extension View {
     func inviteCardBackground() -> some View {
         self
-            .background(Color.appCanvas, in: .rect(cornerRadius: 36))
+            .background(Color.appCanvas, in: .rect(cornerRadius: 36, style: .continuous))
             .rectangleStroke(radius: 36, lineWidth: 1, color: .grayBackground)
             .compositingGroup()
             .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)

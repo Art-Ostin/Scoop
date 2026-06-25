@@ -12,7 +12,7 @@ extension View {
     func rectangleStroke(radius: CGFloat, lineWidth: CGFloat, color: Color = Color.grayPlaceholder) -> some View {
         self
             .overlay {
-                RoundedRectangle(cornerRadius: radius)
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
                     .strokeBorder(color, lineWidth: lineWidth)
             }
     }

@@ -258,7 +258,12 @@ enum DropdownCustomMenuSpec {
     /// simulator: switching `.smooth`→`.linear` here cut the apex dwell from ~0.05s to ~1
     /// frame (the irreducible latency of the two-`withAnimation` handoff). The shape morph
     /// (rect→circle) masks the constant speed, so it doesn't read as mechanical.
-    static let collapseToCircle = Animation.linear(duration: 0.14) //0.24
+    /// Kept FAST (a snappy shrink) even though the expand is gentler: the launch velocity (20)
+    /// is high enough that the shape still leaves the circle faster than it arrives at this
+    /// quick collapse (out/in ~2.25 measured), so the fast-in / slower-out pairing still rolls
+    /// through the apex with no catch. Only if you drop `circleRevealLaunchVelocity` much below
+    /// ~18 does the arrival outrun the launch — then slow this too to rematch them.
+    static let collapseToCircle = Animation.linear(duration: 0.14)
     /// Phase 2 — the circle expands back into the label's rectangle and the label is
     /// revealed. Driven as an INTERPOLATING spring with a nonzero `initialVelocity` so the
     /// reveal LAUNCHES with the momentum the collapse carried in, instead of starting from
@@ -269,10 +274,16 @@ enum DropdownCustomMenuSpec {
     /// label's resting size (see `revealOvershoot`) for an organic pop.
     /// `circleRevealLaunchVelocity` is the feel knob: higher = more momentum out of the circle
     /// (less dwell, punchier), lower = gentler. In `initialVelocity` units (1 = the full
-    /// circle→label distance per second). Tuned frame-by-frame in the simulator.
-    static let circleRevealLaunchVelocity: Double = 6.9
+    /// circle→label distance per second). Tuned frame-by-frame in the simulator (slowed 4×,
+    /// measuring the morph's size-over-time): even against the fast 0.14 collapse the shape
+    /// leaves the circle ~2.25× faster than it arrived (a clear roll-through, never a stop) and
+    /// the apex dwell is one frame; `dampingRatio` 0.78 gives a clean ~5–6% landing pop that
+    /// sits just under the `revealOvershoot` cap, so it reads as an organic settle without
+    /// hard-clipping. The slower `response` (0.40) lengthens the expand/settle for a gentler
+    /// reveal, while the launch velocity keeps the apex stop-free against the quick collapse.
+    static let circleRevealLaunchVelocity: Double = 20
     static let circleReveal = Animation.interpolatingSpring(
-        Spring(response: 0.3, dampingRatio: 0.86),
+        Spring(response: 0.37, dampingRatio: 0.78),
         initialVelocity: circleRevealLaunchVelocity
     )
     /// Upper bound the reveal geometry may extrapolate the label past its resting size, so

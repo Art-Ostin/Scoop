@@ -14,6 +14,6 @@ extension Image {
             .resizable()
             .scaledToFill()
             .frame(width: max(size, 0), height: max(size, 0))
-            .clipShape(.rect(cornerRadius: radius))
+            .clipShape(.rect(cornerRadius: radius, style: .continuous))
     }
 }
