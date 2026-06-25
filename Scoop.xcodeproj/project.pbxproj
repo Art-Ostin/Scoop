@@ -94,6 +94,7 @@
 		6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */; };
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
 		65566B812FD05A6800F88933 /* HideToolbarBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65566B802FD05A6800F88933 /* HideToolbarBackground.swift */; };
+		655814BA2FED7FF200AC2336 /* ProfileButtonPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655814B92FED7FF200AC2336 /* ProfileButtonPress.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
 		655CE0EC2F8BED3A00C9ECE3 /* InviteCardInfoOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CE0EB2F8BED3A00C9ECE3 /* InviteCardInfoOld.swift */; };
 		655CE0EE2F8BF21C00C9ECE3 /* CardEventContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CE0ED2F8BF21C00C9ECE3 /* CardEventContainer.swift */; };
@@ -410,6 +411,7 @@
 		6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimeRow.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
 		65566B802FD05A6800F88933 /* HideToolbarBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideToolbarBackground.swift; sourceTree = "<group>"; };
+		655814B92FED7FF200AC2336 /* ProfileButtonPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButtonPress.swift; sourceTree = "<group>"; };
 		655CE0EB2F8BED3A00C9ECE3 /* InviteCardInfoOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfoOld.swift; sourceTree = "<group>"; };
 		655CE0ED2F8BF21C00C9ECE3 /* CardEventContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEventContainer.swift; sourceTree = "<group>"; };
 		655D92D92F6B30FD00A99685 /* DropDownRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownRow.swift; sourceTree = "<group>"; };
@@ -1578,6 +1580,7 @@
 				65D907C82FCC8B85006EC5C8 /* ButtonShadow.swift */,
 				651702DD2FCEB14500CB0D3E /* ButtonSizing.swift */,
 				65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */,
+				655814B92FED7FF200AC2336 /* ProfileButtonPress.swift */,
 				65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */,
 			);
 			path = ReusableParameters;
@@ -2054,6 +2057,7 @@
 				65E820A92E3836CA0098CC36 /* InfoView.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
 				655CE0EC2F8BED3A00C9ECE3 /* InviteCardInfoOld.swift in Sources */,
+				655814BA2FED7FF200AC2336 /* ProfileButtonPress.swift in Sources */,
 				650DA3692F6C25750013EB30 /* ProfileInviteView.swift in Sources */,
 				65AE44FC2F89515C003D019D /* InviteCardTimeRow.swift in Sources */,
 				656373B72F502457003A922D /* ChatRowView.swift in Sources */,

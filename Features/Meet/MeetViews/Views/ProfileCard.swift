@@ -22,39 +22,25 @@ struct ProfileCard : View {
     @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
-
-
-    var body: some View {
-        Image(uiImage: displayImage)
-            .resizable()
-            .scaledToFill()
-            .frame(width: max(size, 0), height: max(size, 0) * cardHeightRatio)
-            .clipShape(.rect(cornerRadius: cardCornerRadius, style: .continuous))
-
-        
-//            .defaultImage(size, cardCornerRadius)
-        
-        
-        
-        
-            .overlay {
-                BackgroundBlur(image: displayImage, size: CGSize(width: size, height: size * cardHeightRatio), frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
-            }
-            .background(Color.appCanvas, in: .rect(cornerRadius: cardCornerRadius, style: .continuous))
-            .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
-            .overlay(alignment: .bottomLeading) { cardOverlay }
-            .contentShape(Rectangle())
-            .onTapGesture { onTap(displayImage) }
-            .coordinateSpace(name: ProfileCard.cardSpace)
-            .task(id: profile.id) {
-                image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
-            }
-            .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
-    }
-
+    
     private var displayImage: UIImage {
         image ?? profile.image
     }
+
+    var body: some View {
+        Image(uiImage: displayImage)
+            .meetImageCard(size)
+        
+            .overlay { backgroundBlur }
+            .overlay(alignment: .bottomLeading) { cardOverlay }
+        
+            .profileShrinkPress {onTap(displayImage)}
+
+            .coordinateSpace(name: ProfileCard.cardSpace)
+            .task(id: profile.id) { await fetchFirstImage() }
+            .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
+    }
+
 }
 
 extension ProfileCard {
@@ -87,9 +73,35 @@ extension ProfileCard {
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
     }
+    
+    private var backgroundBlur: some  View {
+        BackgroundBlur(
+            image: displayImage,
+            size: CGSize(width: size, height: size * cardHeightRatio),
+            frames: [nameFrame, detailsFrame],
+            clipCornerRadius: cardCornerRadius
+        )
+    }
+    
+    func fetchFirstImage() async {
+        image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
+    }
 }
 
 extension ProfileCard {
-
     fileprivate static let cardSpace = "ProfileCard.card"
+}
+
+
+extension Image {
+    
+    func meetImageCard(_ size: CGFloat) -> some View {
+        self
+            .resizable()
+            .scaledToFill()
+            .frame(width: max(size, 0), height: max(size, 0) * 1.08) //How much taller than wide i.e. 8%
+            .clipShape(.rect(cornerRadius: 22, style: .continuous)) //Corner Radius 22
+            .background(Color.appCanvas, in: .rect(cornerRadius: 22, style: .continuous))
+            .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
+    }
 }
