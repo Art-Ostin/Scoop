@@ -45,11 +45,8 @@ struct InviteTimeRow: View {
             timeCustomMenu.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .overlay(alignment: .bottom) {
-//            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
+            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
-        // Warms the wheel-picker machinery off the tap path so the menu's pickers
-        // (the expensive UIKit bit) are already hot when it first opens — that's what
-        // lets SelectTimeView ride the bloom and fade in without a build hitch.
         .background { pickerWarmUp }
 
         .transition(.opacity.animation(.smooth(duration: 0.2)))
@@ -73,10 +70,6 @@ private extension InviteTimeRow {
     }
 
     var timeCustomMenu: some View {
-        // Approximate size of SelectTimeView's platter (day grid width + wheel
-        // pickers). Lets the lens bloom on the very first tap before the heavy
-        // content is built; the live measure corrects it (masked while the content
-        // is still invisible early in the bloom) and caches the exact size after.
         TimeCustomMenu(morphAnchor: morphAnchor,
                        estimatedContentSize: CGSize(width: 320, height: 270),
                        onOpen: openMenu, onClose: closeMenu) {

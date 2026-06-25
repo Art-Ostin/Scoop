@@ -11,6 +11,7 @@ struct ShrinkPressButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.smooth(duration: 0.24), value: configuration.isPressed)
     }
 }
 

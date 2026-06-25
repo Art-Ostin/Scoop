@@ -136,7 +136,8 @@
       "Bash(xcrun --sdk iphonesimulator --show-sdk-version)",
       "Bash(swift measure.swift base.mov 0.025)",
       "Bash(awk -F, 'NR==1{print;next} $2!=\"NA\"{print}')",
-      "Bash(awk -F, 'NR==1{print;next}{w=$2+0; if\\(w>5\\){print}}')"
+      "Bash(awk -F, 'NR==1{print;next}{w=$2+0; if\\(w>5\\){print}}')",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"exit: $?\"; echo \"errors: $\\(grep -c 'error:' /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -20)"
     ]
   }
 }
