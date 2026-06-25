@@ -113,7 +113,30 @@
       "Bash(git -C /Users/napoleon/Documents/Scoop status --short)",
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; grep -c \"error:\" /tmp/scoop_build.log)",
       "Bash(awk 'NR>=1495 && NR<=1525' Scoop.xcodeproj/project.pbxproj)",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"--- error count ---\"; grep -c \"error:\" /tmp/scoop_build.log; echo \"--- errors \\(if any\\) ---\"; grep -n \"error:\" /tmp/scoop_build.log | head -40)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"--- error count ---\"; grep -c \"error:\" /tmp/scoop_build.log; echo \"--- errors \\(if any\\) ---\"; grep -n \"error:\" /tmp/scoop_build.log | head -40)",
+      "Bash(xcodebuild -version)",
+      "Bash(xcodebuild -showsdks)",
+      "Bash(mkdir -p /tmp/alertmeasure)",
+      "Bash(sips -g pixelWidth -g pixelHeight /tmp/alertmeasure/probe.png)",
+      "Bash(swiftc /tmp/AlertMeasure/analyze2.swift -o /tmp/AlertMeasure/analyze2)",
+      "Bash(/tmp/AlertMeasure/analyze2)",
+      "Bash(awk 'NR<=2{print} NR>2{print}' /tmp/alertmeasure/profile.txt)",
+      "Bash(sips -c 530 950 --cropOffset 990 130 /tmp/alertmeasure/alert_full.png --out /tmp/alertmeasure/panel_crop.png)",
+      "Bash(sips -g pixelWidth -g pixelHeight /tmp/alertmeasure/panel_crop.png)",
+      "Bash(swiftc /tmp/AlertMeasure/orient.swift -o /tmp/AlertMeasure/orient)",
+      "Bash(/tmp/AlertMeasure/orient)",
+      "Bash(swiftc /tmp/AlertMeasure/max.swift -o /tmp/AlertMeasure/max)",
+      "Bash(/tmp/AlertMeasure/max)",
+      "Bash(swiftc /tmp/AlertMeasure/max2.swift -o /tmp/AlertMeasure/max2)",
+      "Bash(/tmp/AlertMeasure/max2)",
+      "Bash(xcrun swiftc *)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(echo \"xcodebuild exit=$?\")",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' build > /tmp/scoop_build2.log 2>&1; echo \"xcodebuild exit=$?\"; echo \"--- error count ---\"; grep -c \"error:\" /tmp/scoop_build2.log; grep -E \"error:\" /tmp/scoop_build2.log | head -20; tail -2 /tmp/scoop_build2.log)",
+      "Bash(xcrun --sdk iphonesimulator --show-sdk-version)",
+      "Bash(swift measure.swift base.mov 0.025)",
+      "Bash(awk -F, 'NR==1{print;next} $2!=\"NA\"{print}')",
+      "Bash(awk -F, 'NR==1{print;next}{w=$2+0; if\\(w>5\\){print}}')"
     ]
   }
 }

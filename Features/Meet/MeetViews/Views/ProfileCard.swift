@@ -17,6 +17,7 @@ struct ProfileCard : View {
     let imageLoader: ImageLoading
 
     private let cardCornerRadius: CGFloat = 22
+    private let cardHeightRatio: CGFloat = 1.08   // card height = width × this
 
     @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
@@ -25,11 +26,21 @@ struct ProfileCard : View {
 
     var body: some View {
         Image(uiImage: displayImage)
-            .defaultImage(size, cardCornerRadius)
+            .resizable()
+            .scaledToFill()
+            .frame(width: max(size, 0), height: max(size, 0) * cardHeightRatio)
+            .clipShape(.rect(cornerRadius: cardCornerRadius, style: .continuous))
+
+        
+//            .defaultImage(size, cardCornerRadius)
+        
+        
+        
+        
             .overlay {
-                BackgroundBlur(image: displayImage, size: CGSize(width: size, height: size), frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
+                BackgroundBlur(image: displayImage, size: CGSize(width: size, height: size * cardHeightRatio), frames: [nameFrame, detailsFrame], clipCornerRadius: cardCornerRadius)
             }
-            .background(Color.appCanvas, in: .rect(cornerRadius: cardCornerRadius))
+            .background(Color.appCanvas, in: .rect(cornerRadius: cardCornerRadius, style: .continuous))
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
             .overlay(alignment: .bottomLeading) { cardOverlay }
             .contentShape(Rectangle())

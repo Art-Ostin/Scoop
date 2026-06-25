@@ -197,17 +197,6 @@ enum TimeCustomMenuSpec {
     static let lensTravelBias: CGFloat = 0.75
     /// Lens morph timing against the native open (~0.45s, slight settle).
     static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
-    /// Delay before the heavy menu content is mounted into the bloomed lens. The mount
-    /// blocks the main thread while it builds (wheel pickers), which freezes the
-    /// main-thread-ticked morph — so it must land AFTER the bloom has visually settled
-    /// (the spring keeps micro-moving to ~0.5s), where a freeze on a now-static platter
-    /// is imperceptible. The content then fades in on its own (see contentFadeIn).
-    /// Tune on-device: raise it if any residual jitter shows, lower it if the platter
-    /// sits empty too long before the content appears.
-    static let contentMountDelay: TimeInterval = 0.4
-    /// Fade used to materialize the content into the settled platter (decoupled from
-    /// the morph, which is already finished by the time the content mounts).
-    static let contentFadeIn = Animation.easeOut(duration: 0.2)
     /// Shrinking back through the circles never bounces (~0.4s on device).
     static let bloomClose = Animation.smooth(duration: 0.38)
     /// After the close morph lands on the button, the lens halo melts off the
@@ -699,11 +688,6 @@ private struct TimeCustomMenuOverlayRoot: View {
     @State private var appeared = false
     /// iOS 26: the open bloom has been kicked (guards against re-firing).
     @State private var bloomStarted = false
-    /// iOS 26: the heavy menu content has been mounted into the lens, deferred until
-    /// the bloom has settled so its build can't freeze the morph.
-    @State private var contentMounted = false
-    /// iOS 26: fades the content into the settled platter once it has mounted.
-    @State private var contentOpacity: Double = 0
     /// iOS 26 lens morph: 0 = lens sits on the label, 1 = full menu platter.
     @State private var morphProgress: CGFloat = 0
     /// iOS 26: the halo materializes over the button on open and melts off
@@ -769,18 +753,18 @@ private struct TimeCustomMenuOverlayRoot: View {
     @available(iOS 26.0, *)
     @ViewBuilder
     private func glassPresentation(content: AnyView, metrics: Metrics) -> some View {
-        // Best-known platter size before the live measure lands: the size measured
-        // on a previous open (cached on the controller), else the caller's estimate.
-        // Having a size up front is what lets the glass bubble start blooming on the
-        // tap frame instead of waiting for the (heavy) content to build + measure.
+        // Bloom from a size known up front — measured on a previous open (cached on
+        // the controller) or the caller's estimate — so the morph starts on the tap
+        // frame. The content is already warm (pre-built by the caller, see the picker
+        // warm-up at the call site) so it rides the morph from frame 0 and fades in
+        // with it (MenuLensMorph ramps content opacity over progress 0.55→1) without
+        // a build hitch.
         let knownSize = menuSize ?? controller.cachedMenuSize ?? controller.estimatedContentSize
 
-        // Hidden sizing copy — drives the *real* size, scroll-cap pass, hit-test
-        // frame and markShown. Mounted one beat AFTER the bubble starts moving
-        // (contentMounted) so building its content (e.g. wheel pickers) never blocks
-        // the first morph frame. When no size is known up front there's nothing to
-        // bloom from yet, so it mounts immediately to obtain one (old behaviour).
-        if contentMounted || knownSize == nil {
+        // Hidden sizing copy — only needed until we have a real measured size to
+        // cache. Once cached, later opens skip it entirely, so the heavy content is
+        // built once per open (not twice) and the bloom stays cheap.
+        if controller.cachedMenuSize == nil {
             chromeCore(content: content, metrics: metrics)
                 .environment(\.timeCustomMenuIsMeasuring, true)
                 .opacity(0)
@@ -793,7 +777,6 @@ private struct TimeCustomMenuOverlayRoot: View {
                     menuSize = size
                     controller.cacheMenuSize(size)
                     controller.menuFrame = CGRect(origin: metrics.placement(for: size).origin, size: size)
-                    controller.markShown()
                 }
         }
 
@@ -811,39 +794,31 @@ private struct TimeCustomMenuOverlayRoot: View {
             // what lets the glass melt out under the label on close.
             // Positioned with layout padding (inside the modifier), never .offset.
             ZStack(alignment: .topLeading) {
-                // Bubble first, content second: until contentMounted the lens carries
-                // an empty platter (cheap), so the morph can start on the tap frame.
-                // The real content (heavy) mounts a beat later and fades in over the
-                // bloom's back half (it's invisible until progress 0.55 anyway), so
-                // its build cost never delays the start of the motion.
-                Group {
-                    if contentMounted {
-                        chromeCore(content: content, metrics: metrics)
-                            // Fade in on its own; the morph's progress-tied opacity is
-                            // already ~1 by the time we mount, so it would pop otherwise.
-                            .opacity(contentOpacity)
-                    } else {
-                        Color.clear
-                    }
-                }
-                .modifier(MenuLensMorph(
-                    progress: morphProgress,
-                    collapsed: collapsedRect,
-                    collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
-                    expanded: menuRect,
-                    label: controller.labelView?(),
-                    isClosing: controller.phase == .dismissing
-                ))
-                .opacity(lensOpacity)
+                chromeCore(content: content, metrics: metrics)
+                    .modifier(MenuLensMorph(
+                        progress: morphProgress,
+                        collapsed: collapsedRect,
+                        collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
+                        expanded: menuRect,
+                        label: controller.labelView?(),
+                        isClosing: controller.phase == .dismissing
+                    ))
+                    .opacity(lensOpacity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .onAppear { startBloom() }
+            .onAppear {
+                // With the size known up front the sizing copy may be skipped, so set
+                // the hit-test frame and reveal here too.
+                controller.menuFrame = CGRect(origin: metrics.placement(for: size).origin, size: size)
+                controller.markShown()
+                startBloom()
+            }
         }
     }
 
-    /// Kicks the open bloom from a known/estimated size on the tap frame, then mounts
-    /// the heavy content a beat later so its build lands under the early (invisible)
-    /// part of the morph rather than blocking the first frame. Idempotent.
+    /// Kicks the open bloom from a known/estimated size on the tap frame. The content
+    /// is already mounted (and warm), so it rides the morph and fades in with it.
+    /// Idempotent.
     private func startBloom() {
         guard !bloomStarted else { return }
         bloomStarted = true
@@ -855,14 +830,6 @@ private struct TimeCustomMenuOverlayRoot: View {
         // instead of snapping on initial render.
         DispatchQueue.main.async {
             withAnimation(TimeCustomMenuSpec.bloomOpen) { morphProgress = 1 }
-        }
-        // Mount the heavy content only after the bloom has settled, so its build
-        // freezes a static platter (invisible) rather than the moving morph, then
-        // fade it in. The build runs on this same commit (content still at opacity 0,
-        // so the freeze isn't seen); the fade plays once the build is done.
-        DispatchQueue.main.asyncAfter(deadline: .now() + TimeCustomMenuSpec.contentMountDelay) {
-            contentMounted = true
-            withAnimation(TimeCustomMenuSpec.contentFadeIn) { contentOpacity = 1 }
         }
     }
 

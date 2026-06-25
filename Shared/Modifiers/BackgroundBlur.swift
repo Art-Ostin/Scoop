@@ -23,7 +23,7 @@ struct BackgroundBlur: View {
             .frame(width: max(size.width, 0), height: max(size.height, 0))
             .blur(radius: 22)
             .mask(mask)
-            .clipShape(.rect(cornerRadius: clipCornerRadius))
+            .clipShape(.rect(cornerRadius: clipCornerRadius, style: .continuous))
             .allowsHitTesting(false)
     }
 

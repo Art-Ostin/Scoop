@@ -68,7 +68,7 @@ extension EventsContainer {
                 ForEach(vm.events) { eventProfile in
                     eventSlot(eventProfile)
                         .padding(.horizontal, 16)
-                        .padding(.top, 8)
+                        .padding(.top, 32)
                         .padding(.bottom, 84)
                         .containerRelativeFrame(.horizontal)
                         .id(eventProfile.id)

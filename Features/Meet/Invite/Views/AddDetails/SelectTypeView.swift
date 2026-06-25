@@ -13,8 +13,14 @@ struct SelectTypeView: View {
     @Environment(\.displayScale) private var displayScale
 
     //2. Needed to dismiss menu
-    @Environment(\.typeCustomMenuDismiss) private var dismissMenu
+    @Environment(\.dropdownCustomMenuDismiss) private var dismissMenu
     @Environment(\.timeCustomMenuDismiss) private var dismissTimeMenu
+
+    //2b. Snapshots the label to its CURRENT (old) value before we change the selection, so the
+    //dismiss morph shrinks the OLD type into the circle and only swaps to the new one on expand.
+    //These rows select via .shrinkPress (not .dropdownCustomMenuItem), so the menu's own freeze
+    //inside dismiss() would run after the mutation and capture the new value — we freeze first here.
+    @Environment(\.dropdownCustomMenuFreezeLabel) private var freezeMenuLabel
     
     //3. types with info open given in a binding, as needed to pass up to
     @Binding var openTypes: Set<Event.EventType>
@@ -140,9 +146,19 @@ extension SelectTypeView {
                 dismissTimeMenu()
             }
         } else {
-            selectedType = eventType
+            //Re-picking the already-selected type changes nothing, so there's nothing to morph
+            //to: flex the label instead. Only a real switch freezes the old value and morphs.
+            let changed = eventType != selectedType
+            if changed {
+                //Freeze the OLD label to a bitmap BEFORE mutating, so the morph collapse shrinks the
+                //current type (e.g. "Double Date") and only reveals the new one (e.g. "Grab a Drink")
+                //as it expands back out. Must precede the `selectedType` write — the live label reads
+                //this binding, so any freeze after it would already snapshot the new value.
+                freezeMenuLabel()
+                selectedType = eventType
+            }
             showTypePopup = false
-            dismissMenu()
+            dismissMenu(changed ? .morph : .flex)
             dismissTimeMenu()
         }
     }

@@ -40,19 +40,37 @@ struct InviteTimeRow: View {
 
     var body: some View {
         HStack {
-            rowTitle.opacity(ui.typePopupOpen ? 0.3 : 1)
+            rowTitle.opacity(ui.typePopupOpenDelayed ? 0.3 : 1)
             Spacer()
             timeCustomMenu.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .overlay(alignment: .bottom) {
 //            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
+        // Warms the wheel-picker machinery off the tap path so the menu's pickers
+        // (the expensive UIKit bit) are already hot when it first opens — that's what
+        // lets SelectTimeView ride the bloom and fade in without a build hitch.
+        .background { pickerWarmUp }
 
         .transition(.opacity.animation(.smooth(duration: 0.2)))
     }
 }
 
 private extension InviteTimeRow {
+
+    // Hidden + inert: pays UIPickerView's one-time, process-wide setup cost up front.
+    var pickerWarmUp: some View {
+        HStack(spacing: 0) {
+            Picker("", selection: .constant(0)) { Text("0").tag(0) }
+            Picker("", selection: .constant(0)) { Text("0").tag(0) }
+        }
+        .pickerStyle(.wheel)
+        .labelsHidden()
+        .frame(width: 1, height: 1)
+        .opacity(0)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
 
     var timeCustomMenu: some View {
         // Approximate size of SelectTimeView's platter (day grid width + wheel

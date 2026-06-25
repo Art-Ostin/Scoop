@@ -217,7 +217,7 @@ struct ProfileMorphLayer: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: morph.flightRect.width, height: morph.flightRect.height)
-                    .clipShape(UnevenRoundedRectangle(cornerRadii: morph.flightRadii))
+                    .clipShape(UnevenRoundedRectangle(cornerRadii: morph.flightRadii, style: .continuous))
                     .position(x: morph.flightRect.midX - origin.x, y: morph.flightRect.midY - origin.y)
             }
         }

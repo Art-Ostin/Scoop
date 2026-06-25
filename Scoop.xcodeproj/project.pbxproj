@@ -279,6 +279,7 @@
 		65ED388A2F64656600AD5600 /* OldInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED38892F64656600AD5600 /* OldInviteCard.swift */; };
 		65ED38922F68575100AD5600 /* InvitePlaceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED38912F68575100AD5600 /* InvitePlaceRow.swift */; };
 		65F115AE2FEBF5D000AC5463 /* TextPopTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F115AD2FEBF5D000AC5463 /* TextPopTransition.swift */; };
+		65F115CA2FED11D600AC5463 /* DropdownCustomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F115C92FED11D600AC5463 /* DropdownCustomMenu.swift */; };
 		65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */; };
 		65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E072F1E82CB008BF4DA /* PreferencesView.swift */; };
 		65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */; };
@@ -592,6 +593,7 @@
 		65ED38892F64656600AD5600 /* OldInviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldInviteCard.swift; sourceTree = "<group>"; };
 		65ED38912F68575100AD5600 /* InvitePlaceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitePlaceRow.swift; sourceTree = "<group>"; };
 		65F115AD2FEBF5D000AC5463 /* TextPopTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPopTransition.swift; sourceTree = "<group>"; };
+		65F115C92FED11D600AC5463 /* DropdownCustomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropdownCustomMenu.swift; sourceTree = "<group>"; };
 		65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		65F28E072F1E82CB008BF4DA /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPreferredYears.swift; sourceTree = "<group>"; };
@@ -1510,6 +1512,7 @@
 				9D4F2A7C1B8E3D5F00000001 /* ProfileMorph.swift */,
 				65BDBD6F2FCAAF0F0021FA3D /* InviteMorph.swift */,
 				656BA6922FE560C300475776 /* TimeCustomMenu.swift */,
+				65F115C92FED11D600AC5463 /* DropdownCustomMenu.swift */,
 				656BA6932FE560C300475776 /* TypeCustomMenu.swift */,
 			);
 			path = AIAnimations;
@@ -1939,6 +1942,7 @@
 				65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */,
 				65F993D52F5893B200EC810B /* UserEventChatState.swift in Sources */,
 				65BDBD702FCAAF0F0021FA3D /* InviteMorph.swift in Sources */,
+				65F115CA2FED11D600AC5463 /* DropdownCustomMenu.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,

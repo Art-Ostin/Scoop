@@ -40,6 +40,7 @@ extension EventInfo {
             }
             .scrollTargetLayout()
         }
+        .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging) // Makes scroll view snap to each place.
         .padding(.horizontal, -16) // Negates parent's 16pt inset so carousel is full-bleed
         .onScrollGeometryChange(for: Double.self) { geo in

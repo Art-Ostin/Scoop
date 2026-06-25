@@ -70,11 +70,12 @@ extension MeetContainer {
         .transition(.opacity)
         .id(vm.profiles.count)
         .scrollIndicators(.hidden)
-        .colorBackground()
+        .scrollIndicators(.never)
+//        .colorBackground()
     }
 
     private var profileCardsSection: some View {
-        LazyVStack(spacing: 72) {
+        LazyVStack(spacing: 64) {
             ForEach(vm.profiles) { profile in
                 ProfileCard(
                     onTap: { image in openProfile(profile, image: image) },

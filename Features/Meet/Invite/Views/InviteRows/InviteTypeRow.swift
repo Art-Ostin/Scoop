@@ -47,11 +47,12 @@ extension InviteTypeRow {
     
     @ViewBuilder
     private var inviteTypeButton: some View {
-        TypeCustomMenu(
+        DropdownCustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
             morphsFromTrailingPoint: message.isEmpty ? false : true, //Only morph from end if there is a message
-            placementOffsetY: -12, //12pt lower than the 24pt default
+            flexOnEmptyDismiss: true, //no type change (tap-away / re-pick same) flexes the label instead of morphing
+            placementOffsetY: 28, //12pt lower than the 24pt default
             onOpen: { ui.typePopupOpen = true },
             onClose: { ui.typePopupOpen = false ; openInfoTypes.removeAll()   },
             footer: { AnyView(addMessageFooter) }
@@ -59,7 +60,6 @@ extension InviteTypeRow {
             selectTypeView //detached "Add a Message" card now lives in the footer below
         } label: {
             inviteTypeIcon
-                .opacity(ui.typePopupOpen ? 0 : 1)
         }
     }
     
@@ -135,7 +135,7 @@ extension InviteTypeRow {
 
 private struct AddMessageFooter: View {
 
-    @Environment(\.typeCustomMenuDismiss) private var menuDismiss
+    @Environment(\.dropdownCustomMenuDismiss) private var menuDismiss
 
     let message: String
     let corners: RectangleCornerRadii
@@ -148,7 +148,7 @@ private struct AddMessageFooter: View {
             .kerning(0.5)
             .frame(height: 40)
             .modifier(SelectTypeCardBackground(corners: corners)) //same stroked card as the type list
-            .typeCustomMenuFooterPlatter(corners: corners) //own the glass platter so the press scales it, not just the inside
+            .dropdownCustomMenuFooterPlatter(corners: corners) //own the glass platter so the press scales it, not just the inside
             .contentShape(.rect)
             .shrinkPress {
                 onSelect()
