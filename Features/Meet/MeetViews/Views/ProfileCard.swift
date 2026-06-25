@@ -28,6 +28,7 @@ struct ProfileCard : View {
     }
 
     var body: some View {
+        
         Image(uiImage: displayImage)
             .meetImageCard(size)
         
@@ -40,7 +41,6 @@ struct ProfileCard : View {
             .task(id: profile.id) { await fetchFirstImage() }
             .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
     }
-
 }
 
 extension ProfileCard {
@@ -92,16 +92,13 @@ extension ProfileCard {
     fileprivate static let cardSpace = "ProfileCard.card"
 }
 
-
 extension Image {
-    
     func meetImageCard(_ size: CGFloat) -> some View {
         self
             .resizable()
             .scaledToFill()
             .frame(width: max(size, 0), height: max(size, 0) * 1.08) //How much taller than wide i.e. 8%
             .clipShape(.rect(cornerRadius: 22, style: .continuous)) //Corner Radius 22
-            .background(Color.appCanvas, in: .rect(cornerRadius: 22, style: .continuous))
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
     }
 }
