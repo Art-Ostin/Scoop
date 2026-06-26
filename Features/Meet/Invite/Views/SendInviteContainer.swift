@@ -40,7 +40,6 @@ struct SendInviteContainer: View {
             timePlaceAndType
             sendInviteButton
                 .opacity(ui.typePopupOpenDelayed ? 0.4 : 1)
-                .padding(.top, 4) //Add tad extra padding 
         }
         .frame(maxWidth: .infinity)
         .overlay(alignment: .topTrailing) { clearAndInfoButtons }
@@ -77,18 +76,14 @@ extension SendInviteContainer {
                 .frame(height: 75, alignment: .center)
             LightDivider()
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
-                .frame(height: 75, alignment: .center)
+                .frame(height: 78, alignment: .center)//Fine Tuned Height Kep
             LightDivider()
             InvitePlaceRow(ui: ui, eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
-                .frame(height: 75)//Computed height, so doesn't change when I add a place
-                .onGeometryChange(for: CGFloat.self) { geo in
-                    geo.size.height
-                } action: { newValue in
-                    print("Height of InvitePlace row is: \(newValue)")
-                }
-
+                .frame(height: 75, alignment: .center)//Computed height, so doesn't change when I add a place
         }
         .zIndex(1) //so pop ups always appear above the Action Button
+        .padding(.top, 6) //Gives illusion of being identical because of Circle Button
+        .padding(.bottom, draft.place == nil ? 9 : 14) //Fine tune so exact same
     }
     
     private var addMessageView: some View {
@@ -103,7 +98,8 @@ struct InviteCardBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 32)
-            .padding(.vertical, 28)
+            .padding(.top, 28)
+            .padding(.bottom, 22)//Slightly closer as Circle givesweird measurements
             .inviteCardBackground()
     }
 }

@@ -45,9 +45,10 @@ struct InviteTimeRow: View {
             timeCustomMenu.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .overlay(alignment: .bottom) {
-            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
+//            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .background { pickerWarmUp }
+        .offset(y: 1.5)
 
         .transition(.opacity.animation(.smooth(duration: 0.2)))
     }

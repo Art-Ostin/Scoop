@@ -10,78 +10,97 @@ import SwiftUI
 struct InviteTypeRow: View {
 
     @Bindable var ui: TimeAndPlaceUIState
-
+    
+    
     @Binding var type: Event.EventType
+    
     @Binding var unparsedMessage: String?
 
     @State private var messageHeight: CGFloat = 0
-    //Last message we counted lines from: ignores height re-measures from the margin
-    //animation re-wrapping the same text, so the line count can't oscillate.
     @State private var lastCountedMessage = ""
+    
+    
     @State private var openInfoTypes: Set<Event.EventType> = []
+    
     @State private var typePulse = false
 
-    @State private var scrollProgress: Double = 0
-    @State private var scrolledPageID: Int?
 
+
+    //3. Need Frames for DropDown Menu Tracker
     @State private var typeFrame: CGRect = .zero
     @State private var messageFrame: CGRect = .zero
     @State private var chevronFrame: CGRect = .zero
 
+    
+    
     private let menuCorners = RectangleCornerRadii(top: 20, bottom: 6)
     private let footerCorners = RectangleCornerRadii(top: 6, bottom: 18)
 
+    //2. Track Scroll View and which ScrollView Present
+    @State private var scrollProgress: Double = 0
+    @State private var scrolledPageID: Int?
+    
+    private var onMessagePage: Bool {
+        !message.isEmpty && (scrolledPageID ?? 0) >= 1
+    }
+    
+    
     var message: String {
         (unparsedMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var onMessagePage: Bool {
-        !message.isEmpty && (scrolledPageID ?? 0) >= 1
-    }
 
     var body: some View {
         HStack(spacing: 4) {
-            rowTitle.opacity(ui.typePopupOpen ? 0.3 : 1)
+            rowTitle
+            
             Spacer(minLength: 0)
-            if message.isEmpty { inviteTypeButton } else { inviteTypeScroller }
+            
+            if message.isEmpty {
+                inviteTypeButton
+            } else {
+                inviteTypeScroller
+            }
+            
+            
         }
-        .overlay(alignment: .bottom) {
-            pageIndicator.opacity(ui.typePopupOpen ? 0 : 1)
-        }
-        //Clearing the message while parked on the message page would otherwise reopen there.
-        .onChange(of: message.isEmpty) { _, isEmpty in
-            if isEmpty { scrolledPageID = 0; scrollProgress = 0 }
-        }
+        .overlay(alignment: .bottom) {pageIndicator}
+        
+        
+        
+        
         .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
-        .onChange(of: message) { _, _ in updateLineHeight() } //clearing/edits: recount (and reset) on text change
-        .onChange(of: type) { _, _ in if onMessagePage { pulseTypeTitle() } }
+        .onChange(of: message) {updateLineHeight()} //clearing/edits: recount (and reset) on text change
+        .onChange(of: type) {if onMessagePage { pulseTypeTitle() } }
     }
 }
 
 extension InviteTypeRow {
-
-    // MARK: Row title
+    
 
     private var rowTitle: some View {
-        Text(rowTitleText.capitalized)
-            .font(.body(13, .regular))
-            .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
-            .id(rowTitleTransitionID)
-            .transition(.blurReplace)
-            .multilineTextAlignment(.leading) //so "Double Date" stays on one line
-            .frame(width: 47, alignment: .leading)
-            .lineSpacing(2)
-            .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
-            .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
-            .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
-            .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
-            .animation(.snappy, value: scrolledPageID)
+        //The .id/.transition live on the inner Text; the .animation must sit on the stable ZStack
+        //*outside* the .id, or it gets rebuilt on every id change and never sees the swap. (cf. InviteTimeRow)
+        ZStack(alignment: .leading) {
+            Text(rowTitleText.capitalized)
+                .font(.body(13, .regular))
+                .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+                .multilineTextAlignment(.leading) //so "Double Date" stays on one line
+                .frame(width: 47, alignment: .leading)
+                .lineSpacing(2)
+                .id(rowTitleTransitionID)
+                .transition(.blurReplace)
+        }
+        .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
+        .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
+        .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
+        .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
+        .animation(.snappy, value: scrolledPageID)
+        .opacity(ui.typePopupOpen ? 0.3 : 1)
     }
 
     private var rowTitleText: String { onMessagePage ? type.title : "What" }
 
-    //On the message page the id carries the type, so switching it (e.g. "Drinks" → "Date")
-    //blur-replaces the title; "What" on the type page is type-independent (the menu morph shows that switch).
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
 
     @ViewBuilder
@@ -91,6 +110,7 @@ extension InviteTypeRow {
                 .scaleEffect(0.6, anchor: .bottom)
                 .padding(.bottom, 6)
                 .offset(x: 6)
+                .opacity(ui.typePopupOpen ? 0 : 1)
         }
     }
 
@@ -102,31 +122,26 @@ extension InviteTypeRow {
         }
     }
 
-    // MARK: Menu
 
-    //Shared chrome for both the compact (no-message) trigger and the swipeable pager.
-    //`morphsFromTrailingPoint` blooms from the trailing edge when the label is wide (message
-    //present); the compact label blooms from its whole frame.
-    private func typeMenu<Label: View>(
-        morphsFromTrailingPoint: Bool,
-        morphAnchor: CGRect? = nil,
-        @ViewBuilder label: @escaping () -> Label
-    ) -> some View {
-        DropdownCustomMenu(
-            cornerRadii: menuCorners,
-            footerCornerRadii: footerCorners,
-            morphsFromTrailingPoint: morphsFromTrailingPoint,
-            morphAnchor: morphAnchor,
-            flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
-            placementOffsetY: 24,
-            onOpen: { ui.typePopupOpen = true },
-            onClose: { ui.typePopupOpen = false; openInfoTypes.removeAll() },
-            onLabelTap: handleScrollerTap,
-            footer: { AnyView(addMessageFooter) },
-            content: { selectTypeView },
-            label: label
-        )
+    private func updateLineHeight() {
+        if message.isEmpty {
+            ui.messageLineCount = 0
+            scrolledPageID = 0
+            lastCountedMessage = ""
+            return
+        }
+        guard message != lastCountedMessage, messageHeight > 0 else { return }
+
+        let lineHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
+        ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
+        lastCountedMessage = message
     }
+}
+
+
+
+//Logic for Menu Dropdown
+extension InviteTypeRow {
 
     private var inviteTypeScroller: some View {
         typeMenu(morphsFromTrailingPoint: onMessagePage, morphAnchor: morphAnchor) { menuLabel }
@@ -185,21 +200,27 @@ extension InviteTypeRow {
         }
     }
 
-    private func updateLineHeight() {
-        //No message (incl. clear): reset the count and the dedupe key so the next message recounts.
-        if message.isEmpty {
-            ui.messageLineCount = 0
-            lastCountedMessage = ""
-            return
-        }
-        guard message != lastCountedMessage, messageHeight > 0 else { return }
-
-        let lineHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
-        ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
-        lastCountedMessage = message
+    private func typeMenu<Label: View>(
+        morphsFromTrailingPoint: Bool,
+        morphAnchor: CGRect? = nil,
+        @ViewBuilder label: @escaping () -> Label
+    ) -> some View {
+        DropdownCustomMenu(
+            cornerRadii: menuCorners,
+            footerCornerRadii: footerCorners,
+            morphsFromTrailingPoint: morphsFromTrailingPoint,
+            morphAnchor: morphAnchor,
+            flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
+            placementOffsetY: 24,
+            onOpen: { ui.typePopupOpen = true },
+            onClose: { ui.typePopupOpen = false; openInfoTypes.removeAll() },
+            onLabelTap: handleScrollerTap,
+            footer: { AnyView(addMessageFooter) },
+            content: { selectTypeView },
+            label: label
+        )
     }
 }
-
 
 private struct TypeRowMenuLabel: View {
 
@@ -233,9 +254,6 @@ private struct TypeRowMenuLabel: View {
                         .id(0)
                     messageView
                         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { messageFrame = $0 }
-                        //Hold the message 12pt clear of the type page's leading edge, cancelling the -12 strip
-                        //the parent offset bleeds into the next page (the "a" peeking onto the type page) so the
-                        //two pages keep a 12pt gap while the message still reaches its own viewport edge.
                         .padding(.leading, 12)
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(1)
@@ -255,7 +273,6 @@ private struct TypeRowMenuLabel: View {
         }
     }
 
-    //Static label (text + chevron) for the overlay/dismiss copies and the compact button.
     private var icon: some View {
         HStack(spacing: 12) {
             typeText

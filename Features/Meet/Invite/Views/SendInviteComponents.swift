@@ -83,106 +83,33 @@ extension SendInviteContainer {
 }
     
     private var sendInviteValidButton: some View {
-        ActionButton(text: "Send Invite", isValid: true, showShadow: false) {
+        ActionButton(text: "Send Invite", isValid: true, showShadow: false, hPadding: 44) {
             if let requestConfirm {
                 requestConfirm(onSendInvite)
             } else {
                 ui.showConfirmPopup = true
             }
         }
-    }
+    }    
     
+    @ViewBuilder
     private var sendInvitePlaceholder: some View {
         Text("Send Invite")
             .font(.body(18, .bold))
-            .padding(.horizontal, 36)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 44)
+            .frame(height: 44)
             .foregroundStyle(.white)
-            .background(Color.grayBackground, in: .rect(cornerRadius: 24))
+            .background(Color.grayBackground, in: Capsule())
+    }
+    
+    var cardMargin: CGFloat {
+        var margin = Self.screenMargin
+        return margin
     }
 }
 
 
 //Logic for increasing width and padding of elements
-extension SendInviteContainer {
-
-    var cardMargin: CGFloat {
-        var margin = Self.screenMargin
-        
-        //1. Decrease if message lines is 1 and more if 3
-//        if ui.messageLineCount >= 2 { margin -= 2 }
-//        if ui.messageLineCount == 3 {margin -= 2}
-        
-        //2. Decrease if times 2 or 3
-//        if draft.time.dates.count >= 2 { margin -= 2 }
-//        if draft.time.dates.count == 3 { margin -= 2 }
-        
-        //3. if time is greater than 1 and place added decrease
-//        if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
-        return margin
-    }
-
-    //2. The Vertical padding for the selectType Row
-    //Lines to lay out against; 0 the instant the message is empty so clearing resolves in one render.
-    private var typeMessageLines: Int {
-        let hasMessage = !(draft.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        return hasMessage ? ui.messageLineCount : 0
-    }
-
-    
-    var typeTopPadding: CGFloat {
-        let placeAndTwoTimes = (draft.place != nil) && (draft.time.dates.count >= 2)        
-        if typeMessageLines == 0 && !placeAndTwoTimes {
-            return 32
-        } else if typeMessageLines == 1 || (placeAndTwoTimes && typeMessageLines == 0)   {
-            return 26 - (draft.time.dates.count == 3 ? 2 : 0)
-        } else {
-            return 22
-        }
-    }
-
-    var typeBottomPadding: CGFloat {
-        if (draft.place != nil) && (draft.time.dates.count >= 2) && (typeMessageLines == 0) {
-            return 24 - (draft.time.dates.count == 3 ? 2 : 0)
-        } else if typeMessageLines == 0 {
-            return 30 
-        } else {
-            return 14
-        }
-    }
-
-    //3. The Vertical padding for the selectTime Row
-    var timeTopPadding: CGFloat {
-        let count = draft.time.dates.count
-        if count <= 1 {
-            return 30
-        } else if count == 2 {
-            return 20
-        } else {
-            return 16
-        }
-    }
-
-    var timeBottomPadding: CGFloat {
-        let count = draft.time.dates.count
-        if count <= 1 {
-            return 30
-        } else if count == 2 {
-            return 18
-        } else {
-            return 14
-        }
-    }
-
-    //4. The vertical padding for the selectPlace Row
-    var placeTopPadding: CGFloat {
-        draft.place != nil ? 24 : 30
-    }
-
-    var placeBottomPadding: CGFloat {
-        draft.place != nil ? 28 : 32
-    }
-}
 
 
 
@@ -200,8 +127,86 @@ enum DetailFont: String {
 }
 
 
-/*
+
  
+ /*
+  var cardMargin: CGFloat {
+      var margin = Self.screenMargin
+      
+      //1. Decrease if message lines is 1 and more if 3
+//        if ui.messageLineCount >= 2 { margin -= 2 }
+//        if ui.messageLineCount == 3 {margin -= 2}
+      
+      //2. Decrease if times 2 or 3
+//        if draft.time.dates.count >= 2 { margin -= 2 }
+//        if draft.time.dates.count == 3 { margin -= 2 }
+      
+      //3. if time is greater than 1 and place added decrease
+//        if draft.place != nil && draft.time.dates.count >= 2 { margin -= 2 }
+      return margin
+  }
+
+  //2. The Vertical padding for the selectType Row
+  //Lines to lay out against; 0 the instant the message is empty so clearing resolves in one render.
+  private var typeMessageLines: Int {
+      let hasMessage = !(draft.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      return hasMessage ? ui.messageLineCount : 0
+  }
+
+  
+  var typeTopPadding: CGFloat {
+      let placeAndTwoTimes = (draft.place != nil) && (draft.time.dates.count >= 2)
+      if typeMessageLines == 0 && !placeAndTwoTimes {
+          return 32
+      } else if typeMessageLines == 1 || (placeAndTwoTimes && typeMessageLines == 0)   {
+          return 26 - (draft.time.dates.count == 3 ? 2 : 0)
+      } else {
+          return 22
+      }
+  }
+
+  var typeBottomPadding: CGFloat {
+      if (draft.place != nil) && (draft.time.dates.count >= 2) && (typeMessageLines == 0) {
+          return 24 - (draft.time.dates.count == 3 ? 2 : 0)
+      } else if typeMessageLines == 0 {
+          return 30
+      } else {
+          return 14
+      }
+  }
+
+  //3. The Vertical padding for the selectTime Row
+  var timeTopPadding: CGFloat {
+      let count = draft.time.dates.count
+      if count <= 1 {
+          return 30
+      } else if count == 2 {
+          return 20
+      } else {
+          return 16
+      }
+  }
+
+  var timeBottomPadding: CGFloat {
+      let count = draft.time.dates.count
+      if count <= 1 {
+          return 30
+      } else if count == 2 {
+          return 18
+      } else {
+          return 14
+      }
+  }
+
+  //4. The vertical padding for the selectPlace Row
+  var placeTopPadding: CGFloat {
+      draft.place != nil ? 24 : 30
+  }
+
+  var placeBottomPadding: CGFloat {
+      draft.place != nil ? 28 : 32
+  }
+  
  
  
  
