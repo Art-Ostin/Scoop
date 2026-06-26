@@ -55,7 +55,7 @@ struct InviteTypeRow: View {
 
 
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             rowTitle.opacity(ui.typePopupOpen ? 0.3 : 1)
             Spacer(minLength: 16)
             if message.isEmpty {
@@ -135,11 +135,6 @@ extension InviteTypeRow {
         return content == .zero ? chevronFrame : content.union(chevronFrame)
     }
 
-    //Mirrors InviteTimeRow's title: "What" on the type page, the selected type's
-    //short title once you swipe to the message page. On the message page a type switch is
-    //shown HERE (the menu only zooms its platter into the chevron): the new title blur-replaces
-    //the old, with a quick lift + scale-up that settles back — the same `.flex` acknowledgement
-    //the menu gives a no-change dismiss. Driven by `typePulse`, pulsed on the type change below.
     private var rowTitle: some View {
         ZStack(alignment: .leading) {
             Text(rowTitleText.capitalized)
@@ -147,6 +142,11 @@ extension InviteTypeRow {
                 .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
                 .id(rowTitleTransitionID)
                 .transition(.blurReplace)
+            
+                //So Double Date stays on one line
+                .multilineTextAlignment(.leading)
+                .frame(width: 47, alignment: .leading)
+                .lineSpacing(2)
         }
         .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
         .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
@@ -245,12 +245,6 @@ extension InviteTypeRow {
 }
 
 
-//The menu's label. Only the on-screen copy (`isLiveTypeRow`) carries the ScrollView; the
-//menu renders its overlay + dismiss-morph copies WITHOUT that flag, so they degrade to the
-//static `icon`. That stops a second live ScrollView from re-measuring into the shared
-//pageWidth / scrollProgress / scrolledPageID bindings — which made the row jitter and dropped
-//the freshly-picked type. Must be its own struct so @Environment resolves where it renders
-//(the overlay window), not where the row sits. Mirrors InviteTimeRow's `isLiveTimeRow` split.
 private struct TypeRowMenuLabel: View {
 
     @Environment(\.isLiveTypeRow) private var isLive
@@ -263,22 +257,26 @@ private struct TypeRowMenuLabel: View {
     @Binding var scrollProgress: Double
     @Binding var scrolledPageID: Int?
     @Binding var messageHeight: CGFloat
-    //Tight global frames of each page's content + the chevron, fed back to the row so the
-    //glass lens morphs around the visible label (not the scroller's padding). Written only
-    //here, in the LIVE copy — the overlay/dismiss copies render the static `icon` without
-    //these readers, so they never clobber the bindings (mirrors InviteTimeRow's isLive split).
+
     @Binding var typeFrame: CGRect
     @Binding var messageFrame: CGRect
     @Binding var chevronFrame: CGRect
+
+    //FINE-TUNE: how far the message slides toward the "Custom Meet" title once it's the active
+    //page. 0 = leave it where the 12pt bleed-guard puts it; larger = closer to the title (and a
+    //touch further from the chevron). Gated by `messagePageProgress` below, so the type page and
+    //the inter-page gap are untouched — this only bites as you settle on the message page.
+    private let messageTitlePull: CGFloat = 16
+
+    //0 on the type page, 1 on the message page (clamped against scroll bounce). Ramps the pull in
+    //with the swipe so there's no jump, and is exactly 0 while parked on the type page — that's
+    //what keeps the pull from re-exposing the bleed.
+    private var messagePageProgress: CGFloat { min(1, max(0, CGFloat(scrollProgress))) }
 
     var body: some View {
         if isLive { liveLabel } else { icon }
     }
 
-    //Type + message as swipeable pages, à la InviteTimeRow's pager. The chevron sits OUTSIDE
-    //the ScrollView (a sibling in the HStack), so it stays put while the pages scroll —
-    //mirroring InviteTimeRow, whose chevron is beside the pager, not inside it. The -12 inner
-    //offset pulls the trailing-aligned text in, leaving the gap to the pinned chevron.
     private var liveLabel: some View {
         HStack(spacing: 0) {
             ScrollView(.horizontal) {
@@ -289,11 +287,17 @@ private struct TypeRowMenuLabel: View {
                         .id(0)
                     messageView
                         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { messageFrame = $0 }
+                        //Hold the message 12pt clear of the type page's leading edge. This cancels the
+                        //-12 strip the parent offset bleeds into the next page (the "a" peeking onto the
+                        //type page), so the two pages keep a 12pt gap while the message still reaches the
+                        //viewport edge on its own page (stays ~12pt from the title).
+                        .padding(.leading, 12)
                         .frame(width: pageWidth, alignment: .trailing)
+                        .offset(x: -messageTitlePull * messagePageProgress) //pull toward the title, only as the message page settles
                         .id(1)
                 }
                 .offset(x: -12) //Align with the rest of the content
-                .padding(.vertical, 30)
+                .frame(height: 75)
                 .scrollTargetLayout()
             }
             .modifier(PagedScrollStyle(
@@ -332,10 +336,11 @@ private struct TypeRowMenuLabel: View {
         Text(message)
             .font(.footnote)
             .foregroundStyle(.gray)
-            .lineLimit(3)
+            .lineLimit(2)
             .multilineTextAlignment(.trailing)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { messageHeight = $0 }
             .transition(.opacity.animation(.smooth(duration: 0.2)))
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
